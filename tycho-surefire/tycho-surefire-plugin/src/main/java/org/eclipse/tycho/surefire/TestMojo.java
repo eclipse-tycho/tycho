@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -316,6 +316,15 @@ public class TestMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "true")
     private boolean useUIThread;
+
+    /**
+     * By default, Tycho Surefire disables JVM assertions for the execution of your test cases. To
+     * enable the assertions, set this flag to "true".
+     * 
+     * @since 1.5.0
+     */
+    @Parameter(property = "enableAssertions", defaultValue = "false")
+    private boolean enableAssertions;
 
     @Parameter(property = "plugin.artifacts")
     private List<Artifact> pluginArtifacts;
@@ -1117,6 +1126,9 @@ public class TestMojo extends AbstractMojo {
         cli.addProgramArguments(splitArgLine(appArgLine));
         if (environmentVariables != null) {
             cli.addEnvironmentVariables(environmentVariables);
+        }
+        if (enableAssertions) {
+            cli.addVMArguments("-ea");
         }
         return cli;
     }
