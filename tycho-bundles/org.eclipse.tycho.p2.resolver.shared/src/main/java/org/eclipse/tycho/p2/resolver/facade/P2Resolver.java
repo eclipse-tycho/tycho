@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,9 +41,17 @@ public interface P2Resolver {
      *            the additional dependencies are resolved.
      * 
      * @see #addDependency(String, String, String)
-     * @TODO this should return Map<TargetEnvironment,P2ResolutionResult>
      */
-    public List<P2ResolutionResult> resolveDependencies(TargetPlatform context, ReactorProject project);
+    public Map<TargetEnvironment, P2ResolutionResult> resolveTargetDependencies(TargetPlatform context,
+            ReactorProject project);
+
+    /**
+     * @deprecated use {@link #resolveTargetDependencies(TargetPlatform, ReactorProject)} instead
+     */
+    @Deprecated
+    default List<P2ResolutionResult> resolveDependencies(TargetPlatform context, ReactorProject project) {
+        return new ArrayList<>(resolveTargetDependencies(context, project).values());
+    }
 
     /**
      * @deprecated Only needed for the deprecated eclipse-update-site (see bug 342876)
