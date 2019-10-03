@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -101,18 +102,21 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
-    public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project) {
+    public Map<TargetEnvironment, P2ResolutionResult> resolveTargetDependencies(TargetPlatform targetPlatform,
+            ReactorProject project) {
         setContext(targetPlatform, project);
 
         if (project != null && PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging())) {
             addDependenciesForTests();
         }
 
-        ArrayList<P2ResolutionResult> results = new ArrayList<>();
+        // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
+        Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         usedTargetPlatformUnits = new LinkedHashSet<>();
 
         for (TargetEnvironment environment : environments) {
-            results.add(resolveDependencies(project, new ProjectorResolutionStrategy(logger), environment));
+            results.put(environment,
+                    resolveDependencies(project, new ProjectorResolutionStrategy(logger), environment));
         }
 
         context.reportUsedLocalIUs(usedTargetPlatformUnits);

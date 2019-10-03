@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - fix Bug 551739
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -24,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.maven.MavenExecutionException;
@@ -363,16 +365,15 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         ReactorProject optionalDependencyPreparedProject = getThisReactorProject(session, project, configuration);
 
         if (!isAllowConflictingDependencies(project, configuration)) {
-            List<P2ResolutionResult> results = resolver.resolveDependencies(targetPlatform,
+            Map<TargetEnvironment, P2ResolutionResult> results = resolver.resolveTargetDependencies(targetPlatform,
                     optionalDependencyPreparedProject);
 
             MultiEnvironmentDependencyArtifacts multiPlatform = new MultiEnvironmentDependencyArtifacts(
                     DefaultReactorProject.adapt(project));
 
-            // FIXME this is just wrong
-            for (int i = 0; i < configuration.getEnvironments().size(); i++) {
-                TargetEnvironment environment = configuration.getEnvironments().get(i);
-                P2ResolutionResult result = results.get(i);
+            for (Entry<TargetEnvironment, P2ResolutionResult> entry : results.entrySet()) {
+                TargetEnvironment environment = entry.getKey();
+                P2ResolutionResult result = entry.getValue();
 
                 DefaultDependencyArtifacts platform = newDefaultTargetPlatform(DefaultReactorProject.adapt(project),
                         projects, result);
