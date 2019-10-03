@@ -12,7 +12,9 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -32,6 +35,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -113,8 +117,22 @@ public class P2ResolverImpl implements P2Resolver {
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         usedTargetPlatformUnits = new LinkedHashSet<>();
-
-        for (TargetEnvironment environment : environments) {
+        Set<?> metadata = project.getDependencyMetadata(true);
+        targetLoop: for (TargetEnvironment environment : environments) {
+            for (Object meta : metadata) {
+                if (meta instanceof IInstallableUnit) {
+                    IMatchExpression<IInstallableUnit> filter = ((IInstallableUnit) meta).getFilter();
+                    if (filter != null
+                            && !filter.isMatch(InstallableUnit.contextIU(environment.toFilterProperties()))) {
+                        logger.debug(MessageFormat.format("{0}: {1}", filter, Arrays.toString(filter.getParameters())));
+                        logger.info(MessageFormat.format(
+                                "Project {0}:{1}:{2} does not match environment {3} skipp dependecy resolution",
+                                project.getGroupId(), project.getArtifactId(), project.getVersion(),
+                                environment.toFilterExpression()));
+                        continue targetLoop;
+                    }
+                }
+            }
             results.put(environment,
                     resolveDependencies(project, new ProjectorResolutionStrategy(logger), environment));
         }
