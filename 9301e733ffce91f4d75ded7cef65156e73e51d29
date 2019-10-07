@@ -34,6 +34,24 @@
       "revId": "9301e733ffce91f4d75ded7cef65156e73e51d29",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f24f2fb2_333585c6",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-10-07T07:46:34Z",
+      "side": 1,
+      "message": "Ah OK, so the iteration order doesn\u0027t matter in Tycho itself? If so, then it\u0027s indeed fine as proposed.",
+      "parentUuid": "1ee6e246_b614332c",
+      "revId": "9301e733ffce91f4d75ded7cef65156e73e51d29",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
