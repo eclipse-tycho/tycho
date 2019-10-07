@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da5a0202_8246a0a2",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-10-07T07:37:27Z",
+      "side": 1,
+      "message": "We prefer avoiding gotos in Eclipse projects code in general.\nPlease rework this to extract a method.",
+      "revId": "e7932e1a2dfe6c0db4471a6962eb8e4f0a0bf319",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
