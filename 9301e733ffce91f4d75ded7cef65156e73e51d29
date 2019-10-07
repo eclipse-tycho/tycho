@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a2cc138_32473832",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-10-07T07:32:53Z",
+      "side": 1,
+      "message": "If the iteration order is important for clients, then either the client should take care of copying the map in a structure where iteration order is guaranteed, or we need to method to make it explicit iteration order is guaranteed by making LinkedHashMap the return type.",
+      "revId": "9301e733ffce91f4d75ded7cef65156e73e51d29",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
