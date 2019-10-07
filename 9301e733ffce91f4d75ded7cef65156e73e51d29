@@ -70,6 +70,24 @@
       "revId": "9301e733ffce91f4d75ded7cef65156e73e51d29",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83d68c45_6ed20fcf",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-10-07T08:25:49Z",
+      "side": 1,
+      "message": "They seem to use the now deprecated method, so it seems OK to modify them if you find it useful.\nBut it\u0027s fine to keep them as it and relying on the fact that the order is guaranteed at the moment. I don\u0027t think it\u0027s worth an immediate attention/effort; when they fail for some reason, we\u0027ll refactor them.",
+      "parentUuid": "34e8e300_07aeb7e4",
+      "revId": "9301e733ffce91f4d75ded7cef65156e73e51d29",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
