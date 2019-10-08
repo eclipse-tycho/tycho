@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e342cff_ad8742a0",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/JDTCompiler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-10-08T08:06:20Z",
+      "side": 1,
+      "message": "I think we should ask the compiler here to either accept or decline the request instead of trying to figure out by our self.\nSo I would propose a patch in the JDT compiler first and then account for this in tycho second.",
+      "revId": "5b854b5255005d428b98caeaa25eb957aa86ecf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
