@@ -16,7 +16,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -26,7 +28,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.util.IOUtil;
-import org.eclipse.tycho.core.shared.LRUCache;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
@@ -34,7 +35,7 @@ import org.eclipse.tycho.locking.facade.FileLocker;
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
 
     public static final String CACHE_PATH = ".cache/tycho";
-    private final LRUCache<String, OsgiManifest> manifestCache = new LRUCache<>(50);
+    private final Map<String, OsgiManifest> manifestCache = new HashMap<>();
 
     private File cacheDir;
     private Set<String> extractedFiles = new HashSet<>();
