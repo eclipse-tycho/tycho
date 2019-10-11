@@ -15,6 +15,22 @@
     name="tycho"
     label="Tycho">
   <setupTask
+      xsi:type="setup:CompoundTask"
+      name="User Preferences">
+    <annotation
+        source="http://www.eclipse.org/oomph/setup/UserPreferences"/>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.egit.ui">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.egit.ui/commit_dialog_signed_off_by"
+          value="true">
+        <description>Have egit add the signed-off-by footer to the commit message by default</description>
+      </setupTask>
+    </setupTask>
+  </setupTask>
+  <setupTask
       xsi:type="jdt:JRETask"
       version="JavaSE-1.8"
       location="${jre.location-1.8}">
@@ -75,6 +91,12 @@
         <value>remoteURI</value>
       </detail>
     </annotation>
+    <configSections
+        name="gerrit">
+      <properties
+          key="createchangeid"
+          value="true"/>
+    </configSections>
     <description>${scope.project.label}</description>
   </setupTask>
   <setupTask
@@ -97,6 +119,12 @@
         <value>remoteURI</value>
       </detail>
     </annotation>
+    <configSections
+        name="gerrit">
+      <properties
+          key="createchangeid"
+          value="true"/>
+    </configSections>
     <description>${scope.project.label}</description>
   </setupTask>
   <setupTask
