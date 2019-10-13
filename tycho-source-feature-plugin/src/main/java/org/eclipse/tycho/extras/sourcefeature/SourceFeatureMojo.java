@@ -16,7 +16,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -34,14 +36,18 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.AbstractScanner;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
+import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
@@ -158,6 +164,9 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter
     private PlexusConfiguration plugins;
 
+    @Parameter(defaultValue = "true")
+    protected boolean useDefaultExcludes;
+
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
@@ -187,6 +196,9 @@ public class SourceFeatureMojo extends AbstractMojo {
     private LicenseFeatureHelper licenseFeatureHelper;
 
     @Component
+    private BuildPropertiesParser buildPropertiesParser;
+
+    @Component
     private EquinoxServiceFactory equinox;
 
     @Component
@@ -214,6 +226,10 @@ public class SourceFeatureMojo extends AbstractMojo {
                 templateFileSet.setExcludes(new String[] { Feature.FEATURE_XML, FEATURE_PROPERTIES });
                 archiver.getArchiver().addFileSet(templateFileSet);
             }
+
+            BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+            archiver.getArchiver().addFileSet(getManuallyIncludedFiles(project.getBasedir(), buildProperties));
+
             archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);
             archiver.getArchiver().addFile(getMergedSourceFeaturePropertiesFile(), FEATURE_PROPERTIES);
             File licenseFeature = licenseFeatureHelper
@@ -555,4 +571,43 @@ public class SourceFeatureMojo extends AbstractMojo {
         return attr;
     }
 
+    /**
+     * @return A {@link FileSet} including files as configured by the <tt>src.includes</tt> and
+     *         <tt>src.excludes</tt> properties without the files that are always included
+     *         automatically.
+     */
+    private FileSet getManuallyIncludedFiles(File basedir, BuildProperties buildProperties) {
+        List<String> srcExcludes = new ArrayList<>(buildProperties.getSourceExcludes());
+        srcExcludes.add(Feature.FEATURE_XML); // we'll include updated feature.xml
+        srcExcludes.add(FEATURE_PROPERTIES); // we'll include updated feature.properties
+        return getFileSet(basedir, buildProperties.getSourceIncludes(), srcExcludes);
+    }
+
+    /**
+     * @return a {@link FileSet} with the given includes and excludes and the configured default
+     *         excludes. An empty list of includes leads to an empty file set.
+     */
+    protected FileSet getFileSet(File basedir, List<String> includes, List<String> excludes) {
+        DefaultFileSet fileSet = new DefaultFileSet();
+        fileSet.setDirectory(basedir);
+
+        if (includes.isEmpty()) {
+            // FileSet interprets empty list as "everything", so we need to express "nothing" in a different way
+            fileSet.setIncludes(new String[] { "" });
+        } else {
+            fileSet.setIncludes(includes.toArray(new String[includes.size()]));
+        }
+
+        Set<String> allExcludes = new LinkedHashSet<>();
+        if (excludes != null) {
+            allExcludes.addAll(excludes);
+        }
+        if (useDefaultExcludes) {
+            allExcludes.addAll(Arrays.asList(AbstractScanner.DEFAULTEXCLUDES));
+        }
+
+        fileSet.setExcludes(allExcludes.toArray(new String[allExcludes.size()]));
+
+        return fileSet;
+    }
 }
