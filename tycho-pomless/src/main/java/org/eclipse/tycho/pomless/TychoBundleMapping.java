@@ -149,14 +149,14 @@ public class TychoBundleMapping extends AbstractTychoMapping {
             throws IOException {
         String location = headers.getValue("Bundle-Localization");
         if (location == null || location.isEmpty()) {
-            location = "OSGI-INF/l10n/bundle.properties";
+            location = "OSGI-INF/l10n/bundle";
         }
         String rawValue = headers.getValue(attributeName);
         if (rawValue != null && !rawValue.isEmpty()) {
             if (rawValue.startsWith("%")) {
                 String key = rawValue.substring(1);
                 //we always use the default here to have consistent build regardless of locale settings
-                File l10nFile = new File(manifestFile.getParentFile().getParentFile(), location);
+                File l10nFile = new File(manifestFile.getParentFile().getParentFile(), location + ".properties");
                 if (l10nFile.exists()) {
                     Properties properties = new Properties();
                     try (InputStream stream = new FileInputStream(l10nFile)) {
@@ -169,6 +169,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
                 }
                 return key;
             }
+            return rawValue;
         }
         return null;
     }

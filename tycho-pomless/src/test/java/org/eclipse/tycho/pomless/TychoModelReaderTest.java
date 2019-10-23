@@ -39,10 +39,39 @@ public class TychoModelReaderTest extends PlexusTestCase {
                 createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
         assertEquals("pomless.bundle", model.getArtifactId());
+        assertEquals("Pomless Bundle", model.getName());
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
         assertParent(model.getParent());
         assertLocation("bundle1/META-INF/MANIFEST.MF", model.getLocation(""));
+    }
+
+    @Test
+    public void testReadBundle2() throws Exception {
+        File buildProperties = new File(getPolyglotTestDir(), "bundle2/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                createReaderOptions(buildProperties));
+        assertEquals("4.0.0", model.getModelVersion());
+        assertEquals("pomless.bundle", model.getArtifactId());
+        assertEquals("Pomless Bundle", model.getName());
+        assertEquals("0.1.0-SNAPSHOT", model.getVersion());
+        assertEquals("eclipse-plugin", model.getPackaging());
+        assertParent(model.getParent());
+        assertLocation("bundle2/META-INF/MANIFEST.MF", model.getLocation(""));
+    }
+
+    @Test
+    public void testReadBundle3() throws Exception {
+        File buildProperties = new File(getPolyglotTestDir(), "bundle3/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                createReaderOptions(buildProperties));
+        assertEquals("4.0.0", model.getModelVersion());
+        assertEquals("pomless.bundle", model.getArtifactId());
+        assertEquals("Pomless Bundle", model.getName());
+        assertEquals("0.1.0-SNAPSHOT", model.getVersion());
+        assertEquals("eclipse-plugin", model.getPackaging());
+        assertParent(model.getParent());
+        assertLocation("bundle3/META-INF/MANIFEST.MF", model.getLocation(""));
     }
 
     @Test
