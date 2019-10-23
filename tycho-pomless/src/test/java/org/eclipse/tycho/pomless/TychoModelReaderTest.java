@@ -91,10 +91,24 @@ public class TychoModelReaderTest extends PlexusTestCase {
         File feature = new File(getPolyglotTestDir(), "feature/feature.xml");
         Model model = getTychoModelReader(TychoFeatureMapping.PACKAGING).read(feature, createReaderOptions(feature));
         assertEquals("pomless.feature", model.getArtifactId());
+        assertEquals("Pomless Feature", model.getName());
         assertEquals("1.0.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-feature", model.getPackaging());
         assertParent(model.getParent());
         assertLocation("feature/feature.xml", model.getLocation(""));
+    }
+
+    @Test
+    public void testReadFeature2() throws Exception {
+        File feature = new File(getPolyglotTestDir(), "feature2/feature.xml");
+        Model model = getTychoModelReader(TychoFeatureMapping.PACKAGING).read(feature, createReaderOptions(feature));
+        assertEquals("pomless.feature", model.getArtifactId());
+        assertEquals("Pomless Feature 2", model.getName());
+        assertEquals("Eclipse.org", model.getOrganization().getName());
+        assertEquals("1.0.0-SNAPSHOT", model.getVersion());
+        assertEquals("eclipse-feature", model.getPackaging());
+        assertParent(model.getParent());
+        assertLocation("feature2/feature.xml", model.getLocation(""));
     }
 
     @Test

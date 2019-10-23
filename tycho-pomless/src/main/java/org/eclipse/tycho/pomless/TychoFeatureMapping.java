@@ -12,7 +12,10 @@
 package org.eclipse.tycho.pomless;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
@@ -32,16 +35,42 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
             throws ModelParseException, IOException {
         model.setArtifactId(getRequiredXMLAttributeValue(xml, "id"));
         model.setVersion(getPomVersion(getRequiredXMLAttributeValue(xml, "version")));
-        String label = getXMLAttributeValue(xml, "label");
+        Properties featureProperties = new Properties();
+        loadFeatureProperties(artifactFile, featureProperties);
+        String label = getExternalizedXMLAtttributeValue(xml, featureProperties, "label");
         if (label != null) {
             model.setName(label);
         }
-        String provider = getXMLAttributeValue(xml, "provider-name");
+        String provider = getExternalizedXMLAtttributeValue(xml, featureProperties, "provider-name");
         if (provider != null) {
             Organization organization = new Organization();
             organization.setName(provider);
             model.setOrganization(organization);
         }
+    }
+
+    private void loadFeatureProperties(File artifactFile, Properties externalized) {
+        File featureProperties = new File(artifactFile.getParentFile(), "feature.properties");
+        if (featureProperties.exists()) {
+            try (InputStream stream = new FileInputStream(featureProperties)) {
+                externalized.load(stream);
+            } catch (IOException e) {
+                // ignore externalzied data
+            }
+        }
+    }
+
+    private String getExternalizedXMLAtttributeValue(Element element, Properties properties, String attributeName) {
+        String attribute = getXMLAttributeValue(element, attributeName);
+        if (attribute != null && !attribute.isEmpty() && attribute.startsWith("%")) {
+            //load value from feature properties
+            String translation = properties.getProperty(attribute.substring(1));
+            if (translation != null && !translation.isEmpty()) {
+                return translation;
+            }
+        }
+        return attribute;
+
     }
 
     @Override
