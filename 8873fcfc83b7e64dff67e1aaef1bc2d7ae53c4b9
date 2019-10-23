@@ -16,6 +16,24 @@
       "revId": "8873fcfc83b7e64dff67e1aaef1bc2d7ae53c4b9",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bca68b6_5bce649f",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageTargetDefinitionMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 12380
+      },
+      "writtenOn": "2019-10-23T07:16:14Z",
+      "side": 1,
+      "message": "Right, here it can be overseen that this could run multi threaded",
+      "parentUuid": "8ef511b5_e9a219fe",
+      "revId": "8873fcfc83b7e64dff67e1aaef1bc2d7ae53c4b9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
