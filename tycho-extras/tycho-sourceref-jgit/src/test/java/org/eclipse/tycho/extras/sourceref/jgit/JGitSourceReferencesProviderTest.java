@@ -66,7 +66,7 @@ public class JGitSourceReferencesProviderTest {
         ScmUrl scmUrl = new ScmUrl(properties("scm:git:foo"));
         mockProject.setFile(new File("src/test/resources/pom.xml").getAbsoluteFile());
         String sourceRef = provider.getSourceReferencesHeader(mockProject, scmUrl);
-        assertTrue(sourceRef.startsWith("scm:git:foo;path=\"tycho-sourceref-jgit/src/test/resources\""));
+        assertTrue(sourceRef.startsWith("scm:git:foo;path=\"tycho-extras/tycho-sourceref-jgit/src/test/resources\""));
     }
 
     private Properties properties(String scmUrl) {
