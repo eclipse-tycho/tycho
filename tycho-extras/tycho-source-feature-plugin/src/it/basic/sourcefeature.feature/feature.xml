@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="sourcefeature.feature"
+      label="%label"
+      version="1.0.0.qualifier"
+      provider-name="Eclipse.org"
+      plugin="sourcefeature.bundle">
+
+   <includes
+         id="sourcefeature.feature.indirect"
+         version="0.0.0"/>
+
+   <plugin
+         id="sourcefeature.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="sourcefeature.bundle.nosource"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

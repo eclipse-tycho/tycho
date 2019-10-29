@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Missing-Bundle-SymbolicName: pomless.bundle;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-SymbolicName: simple
+

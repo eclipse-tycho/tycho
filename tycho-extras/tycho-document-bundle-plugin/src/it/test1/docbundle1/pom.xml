@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>tycho-extras-its-project.test1</groupId>
+		<artifactId>document-bundle.test1.parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+
+	<groupId>tycho-extras-its-project.test1</groupId>
+	<artifactId>docbundle1</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>tycho-extras-its-project.test1</groupId>
+			<artifactId>feature1</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<properties>
+		<doc.output.folder>${project.build.directory}/gen-doc/</doc.output.folder>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-document-bundle-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>javadoc</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>javadoc</goal>
+						</goals>
+						
+						<configuration>
+							<basedir>${doc.output.folder}</basedir>
+							<outputDirectory>${doc.output.folder}/reference/api</outputDirectory>
+							<tocFile>${doc.output.folder}/toc/javadoc.xml</tocFile>
+							<javadocOptions>
+							    <doclet>CustomDoclet</doclet>
+							    <docletArtifacts>
+							    	<docletArtifact>
+							    		<groupId>tycho-extras-its-project.test1</groupId>
+							    		<artifactId>customDoclet</artifactId>
+							    		<version>0.0.1-SNAPSHOT</version>
+							    	</docletArtifact>
+							    </docletArtifacts>
+								<additionalArguments>
+									<additionalArgument>-linkoffline
+										http://docs.oracle.com/javase/7/docs/api/
+										${basedir}/input/javase-7</additionalArgument>
+									<additionalArgument>-linkoffline
+										http://www.osgi.org/javadoc/r4v43/ ${basedir}/input/osgi-r4v43</additionalArgument>
+								</additionalArguments>
+							</javadocOptions>
+							<tocOptions>
+							  <mainLabel>The custom main label</mainLabel>
+							  <mainFilename>custom-overview.html</mainFilename>
+							</tocOptions>
+							<jvmOptions>
+									<jvmOption>
+										-Xms8m</jvmOption>
+									<jvmOption>-Xmx48m</jvmOption>
+									<jvmOption>
+										-Dfoo=bar
+										
+									</jvmOption>
+								</jvmOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<additionalFileSets>
+						<fileSet>
+							<directory>${doc.output.folder}</directory>
+							<includes>
+								<include>**/*</include>
+							</includes>
+						</fileSet>     
+					</additionalFileSets>
+				</configuration>
+				</plugin>			
+		</plugins>
+	</build>
+</project>

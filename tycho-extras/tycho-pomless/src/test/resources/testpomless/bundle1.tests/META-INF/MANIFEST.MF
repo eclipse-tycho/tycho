@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: pomless.bundle.tests
+Bundle-Version: 1.0.1
+Require-Bundle: org.junit;bundle-version="4.0.0"

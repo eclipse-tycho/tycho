@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="sourcefeature.feature"
+      label="sourcefeature.feature"
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="org.junit"
+         download-size="0"
+         install-size="0"
+         version="3.8.2.qualifier"
+         unpack="false"/>
+
+
+   <plugin
+         id="org.junit"
+         download-size="0"
+         install-size="0"
+         version="4.8.1.qualifier"
+         unpack="false"/>
+
+</feature>
