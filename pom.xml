@@ -17,8 +17,8 @@
 	<inceptionYear>2008</inceptionYear>
 	<url>http://www.eclipse.org/tycho/</url>
 	<ciManagement>
-		<system>hudson</system>
-		<url>https://hudson.eclipse.org/hudson</url>
+		<system>jenkins</system>
+		<url>https://ci.eclipse.org/tycho</url>
 	</ciManagement>
 	<licenses>
 		<license>
@@ -538,6 +538,8 @@
 		<!-- tycho-p2 -->
 		<module>tycho-p2</module>
 		<module>tycho-artifactcomparator</module>
+
+		<module>tycho-extras</module>
 	</modules>
 
 	<profiles>
