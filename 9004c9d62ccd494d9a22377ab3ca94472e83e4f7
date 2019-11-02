@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e911419e_ff0149ef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-02T09:39:56Z",
+      "side": 1,
+      "message": "missing signed-off",
+      "revId": "9004c9d62ccd494d9a22377ab3ca94472e83e4f7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cae94dd0_18f14850",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/publisher/ExpandedProduct.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-02T09:39:56Z",
+      "side": 1,
+      "message": "following",
+      "range": {
+        "startLine": 223,
+        "startChar": 34,
+        "endLine": 223,
+        "endChar": 42
+      },
+      "revId": "9004c9d62ccd494d9a22377ab3ca94472e83e4f7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f46c3006_f5925138",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/publisher/ExpandedProduct.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-02T09:39:56Z",
+      "side": 1,
+      "message": "paths",
+      "range": {
+        "startLine": 223,
+        "startChar": 48,
+        "endLine": 223,
+        "endChar": 52
+      },
+      "revId": "9004c9d62ccd494d9a22377ab3ca94472e83e4f7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4595ef8_c1420274",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/publisher/ExpandedProduct.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-02T09:39:56Z",
+      "side": 1,
+      "message": "exist",
+      "range": {
+        "startLine": 255,
+        "startChar": 37,
+        "endLine": 255,
+        "endChar": 42
+      },
+      "revId": "9004c9d62ccd494d9a22377ab3ca94472e83e4f7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c4faf52_f4402749",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/publisher/ExpandedProduct.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-02T09:39:56Z",
+      "side": 1,
+      "message": "denotes",
+      "range": {
+        "startLine": 255,
+        "startChar": 149,
+        "endLine": 255,
+        "endChar": 156
+      },
+      "revId": "9004c9d62ccd494d9a22377ab3ca94472e83e4f7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
