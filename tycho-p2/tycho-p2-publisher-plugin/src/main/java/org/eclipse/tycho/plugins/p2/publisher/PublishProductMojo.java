@@ -144,7 +144,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                     locker.release();
                 }
             } catch (ArchiverException e) {
-                throw new MojoFailureException("Unable to unzip the eqiuinox executable feature", e);
+                throw new MojoFailureException("Unable to unzip the equinox executable feature", e);
             }
         }
     }
