@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a10071dd_bbcde5fb",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageTargetDefinitionMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-02T10:55:09Z",
+      "side": 0,
+      "message": "I think you only wanted to revert the change on this file, not to delete the complete mojo.",
+      "revId": "8a0707a1205b3b8eaa4cd956394211a058298ebc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
