@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5088abb5_153a224f",
+        "filename": "tycho-extras/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-02T09:49:03Z",
+      "side": 1,
+      "message": "I\u0027m in favor of moving all properties to the root parent, even if they are only needed for sub modules of the extras module. That makes it much easier to check for dependencies updates etc. in a single place, instead of going through multiple POMs.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 14
+      },
+      "revId": "3eeecde1a25f6e5f13a099c97c8c592850622dd9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
