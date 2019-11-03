@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e3fc47a_6cc260f2",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/DuplicateFilteringLoggingProgressMonitor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-11-03T08:05:23Z",
+      "side": 1,
+      "message": "Can we return always true here when maven interactiveMode\u003dfalse ?\nThis is normal maven behavior and greatly reduces the amount of unwanted output from the log.",
+      "revId": "ad5e919442e26739c2d345fcf4594af9a3b0908c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
