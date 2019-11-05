@@ -29,6 +29,15 @@
 		<maven-dir>${project.build.directory}/apache-maven-${its-maven-version}</maven-dir>
 	</properties>
 
+	<profiles>
+		<profile>
+			<id>its</id>
+			<modules>
+				<module>tycho-extras-its</module>
+			</modules>
+		</profile>
+	</profiles>
+
 	<build>
 		<testResources>
 			<testResource>
