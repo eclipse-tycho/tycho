@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13655d98_78f7accc",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/eeProfile/Java14ResolutionTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-11-07T10:45:16Z",
+      "side": 1,
+      "message": "This is supposed to be 14 , right?",
+      "range": {
+        "startLine": 43,
+        "startChar": 60,
+        "endLine": 43,
+        "endChar": 62
+      },
+      "revId": "6b69d7d722a15a46daf779639b5c3f6d3d274c1f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0add4a9a_d6b5d229",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/eeProfile/Java14ResolutionTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-11-07T10:45:16Z",
+      "side": 1,
+      "message": "14 again?",
+      "range": {
+        "startLine": 46,
+        "startChar": 26,
+        "endLine": 46,
+        "endChar": 28
+      },
+      "revId": "6b69d7d722a15a46daf779639b5c3f6d3d274c1f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
