@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 SAP AG and others.
+ * Copyright (c) 2018, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,6 @@ public class Java11ResolutionTest extends AbstractTychoIntegrationTest {
         P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
         List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
         // we expect both java 10 and 11 (java 10 provides more system packages) 
-        assertThat(jreUnitVersions, hasItem("10.0.0"));
         assertThat(jreUnitVersions, hasItem("11.0.0"));
     }
 
