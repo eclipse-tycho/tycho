@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>javase10</groupId>
-	<artifactId>executionenvironment.javase10</artifactId>
+	<groupId>javase11</groupId>
+	<artifactId>executionenvironment.javase11</artifactId>
 	<version>1.0.0</version>
 	<packaging>eclipse-plugin</packaging>
 
