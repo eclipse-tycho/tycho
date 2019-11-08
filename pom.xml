@@ -77,7 +77,6 @@
 		<classWorldsVersion>2.2.3</classWorldsVersion>
 		<commonsCliVersion>1.2</commonsCliVersion>
 		<commonsCompressVersion>1.18</commonsCompressVersion>
-		<junitVersion>3.8.2</junitVersion>
 		<plexusVersion>1.7.1</plexusVersion>
 		<plexusInterpolationVersion>1.14</plexusInterpolationVersion>
 		<plexusUtilsVersion>3.0.24</plexusUtilsVersion>
