@@ -38,9 +38,7 @@ public class ExecutionEnvironmentUtils {
     private static Map<String, StandardExecutionEnvironment> fillEnvironmentsMap() {
         Properties listProps = readProperties(findInSystemBundle("profile.list"));
         List<String> profileFiles = new ArrayList<>(Arrays.asList(listProps.getProperty("java.profiles").split(",")));
-        profileFiles.add("JavaSE-10.profile");
         profileFiles.add("JavaSE-11.profile");
-        profileFiles.add("JavaSE-12.profile");
         profileFiles.add("JavaSE-13.profile");
         profileFiles.add("JavaSE-14.profile");
         Map<String, StandardExecutionEnvironment> envMap = new LinkedHashMap<>();
