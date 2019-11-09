@@ -19,6 +19,8 @@
   </parent>
   <artifactId>tycho-pack200-impl</artifactId>
 
+  <name>Tycho Pack200 Archive Format Plugin</name>
+
   <build>
     <plugins>
       <plugin>

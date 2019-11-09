@@ -20,6 +20,8 @@
 	</parent>
 	<artifactId>tycho-sourceref-jgit</artifactId>
 
+	<name>Tycho JGit Source Reference Provider Plugin</name>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>

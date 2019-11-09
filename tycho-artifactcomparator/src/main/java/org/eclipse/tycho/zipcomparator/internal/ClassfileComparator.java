@@ -33,7 +33,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 public class ClassfileComparator implements ContentsComparator {
     public static final String TYPE = "class";
 
-    // there are two alternative ways to compare classfiels
+    // there are two alternative ways to compare class files
     // JDT ClassFileBytesDisassembler, but it depends on workbench, so out of question
     // P2 JarComparator... which is a fork (yes, a fork) of JDT ClassFileBytesDisassembler, 
     // which is not exported, so can't use this either.

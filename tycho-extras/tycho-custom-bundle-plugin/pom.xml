@@ -23,6 +23,8 @@
   <artifactId>tycho-custom-bundle-plugin</artifactId>
   <packaging>maven-plugin</packaging>
 
+  <name>Tycho Custom Bundle Plugin</name>
+
   <dependencies>
 	<dependency>
 		<groupId>org.apache.maven.plugin-tools</groupId>

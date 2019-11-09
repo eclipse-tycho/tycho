@@ -20,7 +20,7 @@
   </parent>
 
   <artifactId>tycho-pack200a-plugin</artifactId>
-  <name>Pack200 Normalization Plugin</name>
+  <name>Tycho Pack200 Normalization Plugin</name>
   <packaging>maven-plugin</packaging>
 
   <dependencies>
