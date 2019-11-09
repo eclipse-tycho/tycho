@@ -114,20 +114,26 @@
     <workingSet
         name="Tycho">
       <predicate
-          xsi:type="predicates:RepositoryPredicate"
-          project="tycho"/>
-      <predicate
-          xsi:type="workingsets:ExclusionPredicate"
-          excludedWorkingSet="//@setupTasks.7/@workingSets.1"/>
+          xsi:type="predicates:AndPredicate">
+        <operand
+            xsi:type="predicates:RepositoryPredicate"
+            project="tycho"/>
+        <operand
+            xsi:type="workingsets:ExclusionPredicate"
+            excludedWorkingSet="//@setupTasks.7/@workingSets.1"/>
+      </predicate>
     </workingSet>
     <workingSet
         name="TychoExtras">
       <predicate
-          xsi:type="predicates:RepositoryPredicate"
-          project="tycho"/>
-      <predicate
-          xsi:type="predicates:LocationPredicate"
-          pattern=".*tycho-extras.*"/>
+          xsi:type="predicates:AndPredicate">
+        <operand
+            xsi:type="predicates:RepositoryPredicate"
+            project="tycho"/>
+        <operand
+            xsi:type="predicates:LocationPredicate"
+            pattern=".*tycho-extras.*"/>
+      </predicate>
     </workingSet>
     <description>The dynamic working sets for ${scope.project.label}</description>
   </setupTask>
