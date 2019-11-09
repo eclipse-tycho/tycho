@@ -23,6 +23,8 @@
   	<asm-version>7.1</asm-version>
   </properties>
 
+  <name>Tycho Artifactor Comparator Plugin</name>
+
   <dependencies>
     <dependency>
       <!-- XXX need to do CQ ritual -->

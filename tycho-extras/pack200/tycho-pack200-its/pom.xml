@@ -20,6 +20,7 @@
   </parent>
 
   <artifactId>tycho-pack200-its</artifactId>
+  <name>Tycho Pack200 Integration Tests</name>
 
   <dependencies>
     <dependency>

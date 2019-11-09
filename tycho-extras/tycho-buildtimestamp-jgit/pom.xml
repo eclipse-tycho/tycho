@@ -19,6 +19,8 @@
   </parent>
   <artifactId>tycho-buildtimestamp-jgit</artifactId>
 
+  <name>Tycho JGit Build Timestamp Provider Plugin</name>
+
   <dependencies>
     <dependency>
       <groupId>org.eclipse.tycho</groupId>
