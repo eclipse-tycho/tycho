@@ -37,7 +37,7 @@ org.codehaus.plexus:plexus-component-annotations:jar:1.7.1:compile https://dev.e
 org.codehaus.plexus:plexus-interpolation:jar:1.14:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.codehaus.plexus:plexus-io:jar:2.7.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15477
 org.codehaus.plexus:plexus-java:jar:0.9.8:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=17661
-org.codehaus.plexus:plexus-utils:jar:3.0.24:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13051
+org.codehaus.plexus:plexus-utils:jar:3.3.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21066
 org.iq80.snappy:snappy:jar:0.4:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13052
 org.objenesis:objenesis:jar:1.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=7359
 org.objenesis:objenesis:jar:2.6:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15478
