@@ -143,11 +143,6 @@
 				<version>3.4</version>
 			</dependency>
 			<dependency>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-utils</artifactId>
-				<version>3.0.24</version>
-			</dependency>
-			<dependency>
 				<groupId>org.eclipse.jgit</groupId>
 				<artifactId>org.eclipse.jgit</artifactId>
 				<version>${jgit-version}</version>
