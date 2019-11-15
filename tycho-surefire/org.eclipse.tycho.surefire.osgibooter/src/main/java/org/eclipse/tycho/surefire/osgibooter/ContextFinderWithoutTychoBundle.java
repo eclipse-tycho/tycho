@@ -43,12 +43,10 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
     static ClassLoader finderClassLoader;
     static ContextFinderWithoutTychoBundle.Finder contextFinder;
     static {
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                finderClassLoader = ContextFinderWithoutTychoBundle.class.getClassLoader();
-                contextFinder = new Finder();
-                return null;
-            }
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            finderClassLoader = ContextFinderWithoutTychoBundle.class.getClassLoader();
+            contextFinder = new Finder();
+            return null;
         });
     }
 
