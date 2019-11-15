@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,7 +82,7 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
         String range = iu.getRange();
         String type = iu.getQueryType();
         String expression = iu.getQueryExpression();
-        String[] params = iu.getQueryParams();
+        Object[] params = iu.getQueryParams();
         if (id != null) {
             VersionRange vRange = new VersionRange(range);
             return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, vRange, null, false, false);
