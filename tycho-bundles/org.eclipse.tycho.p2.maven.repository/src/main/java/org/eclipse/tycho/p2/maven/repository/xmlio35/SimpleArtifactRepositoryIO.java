@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2019 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -224,13 +224,13 @@ public class SimpleArtifactRepositoryIO {
             if (processingSteps.length > 0) {
                 start(PROCESSING_STEPS_ELEMENT);
                 attribute(COLLECTION_SIZE_ATTRIBUTE, processingSteps.length);
-		for (IProcessingStepDescriptor processingStep : processingSteps) {
-		    start(PROCESSING_STEP_ELEMENT);
-		    attribute(ID_ATTRIBUTE, processingStep.getProcessorId());
-		    attribute(STEP_DATA_ATTRIBUTE, processingStep.getData());
-		    attribute(STEP_REQUIRED_ATTRIBUTE, processingStep.isRequired());
-		    end(PROCESSING_STEP_ELEMENT);
-		}
+                for (IProcessingStepDescriptor processingStep : processingSteps) {
+                    start(PROCESSING_STEP_ELEMENT);
+                    attribute(ID_ATTRIBUTE, processingStep.getProcessorId());
+                    attribute(STEP_DATA_ATTRIBUTE, processingStep.getData());
+                    attribute(STEP_REQUIRED_ATTRIBUTE, processingStep.isRequired());
+                    end(PROCESSING_STEP_ELEMENT);
+                }
                 end(PROCESSING_STEPS_ELEMENT);
             }
         }
@@ -353,7 +353,7 @@ public class SimpleArtifactRepositoryIO {
 
         protected class MappingRulesHandler extends AbstractHandler {
 
-            private List mappingRules;
+            private List<String[]> mappingRules;
 
             public MappingRulesHandler(AbstractHandler parentHandler, Attributes attributes) {
                 super(parentHandler, MAPPING_RULES_ELEMENT);
@@ -364,7 +364,7 @@ public class SimpleArtifactRepositoryIO {
             public String[][] getMappingRules() {
                 String[][] rules = new String[mappingRules.size()][2];
                 for (int index = 0; index < mappingRules.size(); index++) {
-                    String[] ruleAttributes = (String[]) mappingRules.get(index);
+                    String[] ruleAttributes = mappingRules.get(index);
                     rules[index] = ruleAttributes;
                 }
                 return rules;
@@ -385,7 +385,8 @@ public class SimpleArtifactRepositoryIO {
             private final String[] required = new String[] { MAPPING_RULE_FILTER_ATTRIBUTE,
                     MAPPING_RULE_OUTPUT_ATTRIBUTE };
 
-            public MappingRuleHandler(AbstractHandler parentHandler, Attributes attributes, List mappingRules) {
+            public MappingRuleHandler(AbstractHandler parentHandler, Attributes attributes,
+                    List<String[]> mappingRules) {
                 super(parentHandler, MAPPING_RULE_ELEMENT);
                 mappingRules.add(parseRequiredAttributes(attributes, required));
             }
@@ -398,15 +399,15 @@ public class SimpleArtifactRepositoryIO {
 
         protected class ArtifactsHandler extends AbstractHandler {
 
-            private Set artifacts;
+            private Set<IArtifactDescriptor> artifacts;
 
             public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
                 super(parentHandler, ARTIFACTS_ELEMENT);
                 String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-                artifacts = (size != null ? new LinkedHashSet(Integer.parseInt(size)) : new LinkedHashSet(4));
+                artifacts = (size != null ? new LinkedHashSet<>(Integer.parseInt(size)) : new LinkedHashSet<>(4));
             }
 
-            public Set getArtifacts() {
+            public Set<IArtifactDescriptor> getArtifacts() {
                 return artifacts;
             }
 
@@ -425,14 +426,15 @@ public class SimpleArtifactRepositoryIO {
             private final String[] required = new String[] { ARTIFACT_CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE,
                     VERSION_ATTRIBUTE };
 
-            private Set artifacts;
+            private Set<IArtifactDescriptor> artifacts;
             ArtifactDescriptor currentArtifact = null;
 
             private PropertiesHandler propertiesHandler = null;
             private PropertiesHandler repositoryPropertiesHandler = null;
             private ProcessingStepsHandler processingStepsHandler = null;
 
-            public ArtifactHandler(AbstractHandler parentHandler, Attributes attributes, Set artifacts) {
+            public ArtifactHandler(AbstractHandler parentHandler, Attributes attributes,
+                    Set<IArtifactDescriptor> artifacts) {
                 super(parentHandler, ARTIFACT_ELEMENT);
                 this.artifacts = artifacts;
                 String[] values = parseRequiredAttributes(attributes, required);
@@ -469,7 +471,7 @@ public class SimpleArtifactRepositoryIO {
             @Override
             protected void finished() {
                 if (isValidXML() && currentArtifact != null) {
-                    Map properties = (propertiesHandler == null ? new OrderedProperties(0)
+                    Map<String, String> properties = (propertiesHandler == null ? new OrderedProperties(0)
                             : propertiesHandler.getProperties());
                     currentArtifact.addProperties(properties);
 
