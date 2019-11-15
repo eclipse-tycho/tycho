@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ public class Activator implements BundleActivator {
     public Activator() {
     }
 
+    @Override
     public void start(BundleContext context) throws Exception {
         ServiceReference<?> platformAdminRef = context.getServiceReference(PlatformAdmin.class.getName());
         if (platformAdminRef != null) {
@@ -41,6 +42,7 @@ public class Activator implements BundleActivator {
         }
     }
 
+    @Override
     public void stop(BundleContext context) throws Exception {
     }
 

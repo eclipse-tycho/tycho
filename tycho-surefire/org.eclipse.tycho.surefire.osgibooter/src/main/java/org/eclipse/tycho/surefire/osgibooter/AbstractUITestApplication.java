@@ -26,6 +26,7 @@ public abstract class AbstractUITestApplication implements ITestHarness {
     private String[] fArgs = new String[0];
     private TestableObject fTestableObject;
 
+    @Override
     public void runTests() {
         fTestableObject.testingStarting();
         if (useUIThread(fArgs)) {

@@ -20,6 +20,7 @@ public class UITestApplication extends AbstractUITestApplication implements IApp
 
     private IApplicationContext fContext;
 
+    @Override
     public void stop() {
     }
 
@@ -32,6 +33,7 @@ public class UITestApplication extends AbstractUITestApplication implements IApp
         }
     }
 
+    @Override
     public Object start(IApplicationContext context) throws Exception {
         this.fContext = context;
         return run(Platform.getApplicationArgs());

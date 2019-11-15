@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.Platform;
 @SuppressWarnings("deprecation")
 public class UITestApplication32 extends AbstractUITestApplication implements IPlatformRunnable {
 
+    @Override
     public Object run(Object args) throws Exception {
         return run(Platform.getApplicationArgs());
     }

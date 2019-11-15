@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.Platform;
 @SuppressWarnings("deprecation")
 public class HeadlessTestApplication implements IPlatformRunnable {
 
+    @Override
     public Object run(Object object) throws Exception {
         String[] args = Platform.getCommandLineArgs();
         return Integer.valueOf(OsgiSurefireBooter.run(args));
