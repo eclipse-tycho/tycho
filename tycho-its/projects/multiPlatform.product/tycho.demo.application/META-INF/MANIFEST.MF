@@ -9,3 +9,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  JavaSE-1.6
+Automatic-Module-Name: tycho.demo.application
