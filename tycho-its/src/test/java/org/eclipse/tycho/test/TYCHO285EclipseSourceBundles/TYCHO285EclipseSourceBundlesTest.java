@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,14 +30,16 @@ public class TYCHO285EclipseSourceBundlesTest extends AbstractTychoIntegrationTe
         File sourceJarFile = new File(verifier.getBasedir(), "target/bundle-1.2.3-SNAPSHOT-sources.jar");
         Assert.assertTrue(sourceJarFile.exists());
 
-        Manifest manifest = new JarFile(sourceJarFile).getManifest();
-        Assert.assertNotNull(manifest);
-        Attributes mainAttributes = manifest.getMainAttributes();
+        try (JarFile jar = new JarFile(sourceJarFile)) {
+            Manifest manifest = jar.getManifest();
+            Assert.assertNotNull(manifest);
+            Attributes mainAttributes = manifest.getMainAttributes();
 
-        Assert.assertEquals("bundle.source", mainAttributes.getValue("Bundle-SymbolicName"));
-        Assert.assertEquals("1.2.3.TAGNAME", mainAttributes.getValue("Bundle-Version"));
-        Assert.assertEquals("bundle;version=\"1.2.3.TAGNAME\";roots:=\".\"",
-                mainAttributes.getValue("Eclipse-SourceBundle"));
+            Assert.assertEquals("bundle.source", mainAttributes.getValue("Bundle-SymbolicName"));
+            Assert.assertEquals("1.2.3.TAGNAME", mainAttributes.getValue("Bundle-Version"));
+            Assert.assertEquals("bundle;version=\"1.2.3.TAGNAME\";roots:=\".\"",
+                    mainAttributes.getValue("Eclipse-SourceBundle"));
+        }
     }
 
 }
