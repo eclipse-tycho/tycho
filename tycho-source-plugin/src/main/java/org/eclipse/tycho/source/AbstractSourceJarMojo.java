@@ -219,7 +219,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      *            not null
      * @return the compile or test resources
      */
-    protected abstract List getResources(MavenProject p) throws MojoExecutionException;
+    protected abstract List<Resource> getResources(MavenProject p) throws MojoExecutionException;
 
     protected void packageSources(MavenProject p) throws MojoExecutionException {
         if (isRelevantProject(p)) {
@@ -309,8 +309,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         }
 
         //MAPI: this should be taken from the resources plugin
-        for (Iterator i = getResources(p).iterator(); i.hasNext();) {
-            Resource resource = (Resource) i.next();
+        for (Resource resource : getResources(p)) {
 
             File sourceDirectory = new File(resource.getDirectory());
 
@@ -318,11 +317,11 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
                 continue;
             }
 
-            List resourceIncludes = resource.getIncludes();
+            List<String> resourceIncludes = resource.getIncludes();
 
             String[] combinedIncludes = getCombinedIncludes(resourceIncludes);
 
-            List resourceExcludes = resource.getExcludes();
+            List<String> resourceExcludes = resource.getExcludes();
 
             String[] combinedExcludes = getCombinedExcludes(resourceExcludes);
 
@@ -343,11 +342,9 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         archiver.setArchiver(jarArchiver);
 
         if (project.getBuild() != null) {
-            List resources = project.getBuild().getResources();
+            List<Resource> resources = project.getBuild().getResources();
 
-            for (Iterator i = resources.iterator(); i.hasNext();) {
-                Resource r = (Resource) i.next();
-
+            for (Resource r : resources) {
                 if (r.getDirectory().endsWith("maven-shared-archive-resources")) {
                     addDirectory(archiver.getArchiver(), new File(r.getDirectory()), getCombinedIncludes(null),
                             getCombinedExcludes(null));
@@ -403,7 +400,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      *            The includes specified in the pom resources section
      * @return The combined array of includes.
      */
-    private String[] getCombinedIncludes(List additionalIncludes) {
+    private String[] getCombinedIncludes(List<String> additionalIncludes) {
         ArrayList<String> combinedIncludes = new ArrayList<>();
 
         if (includes != null && includes.length > 0) {
@@ -431,7 +428,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * @return The combined list of excludes.
      */
 
-    private String[] getCombinedExcludes(List additionalExcludes) {
+    private String[] getCombinedExcludes(List<String> additionalExcludes) {
         ArrayList<String> combinedExcludes = new ArrayList<>();
 
         if (useDefaultExcludes) {
