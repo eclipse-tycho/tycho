@@ -138,11 +138,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-archiver</artifactId>
-				<version>3.4</version>
-			</dependency>
-			<dependency>
 				<groupId>org.eclipse.jgit</groupId>
 				<artifactId>org.eclipse.jgit</artifactId>
 				<version>${jgit-version}</version>
