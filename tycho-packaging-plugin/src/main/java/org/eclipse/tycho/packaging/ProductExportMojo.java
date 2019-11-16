@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,6 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.ArchiveEntryUtils;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -118,19 +117,15 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     private BundleReader manifestReader;
 
     @Component
-    private Logger logger;
-
-    @Component
     private FileLockService fileLockService;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        getLog().warn(
-                "The packaging type 'eclipse-application' is deprecated; use 'eclipse-repository' instead. "
-                        + "See http://wiki.eclipse.org/Tycho_Messages_Explained#Eclipse_Application");
+        getLog().warn("The packaging type 'eclipse-application' is deprecated; use 'eclipse-repository' instead. "
+                + "See http://wiki.eclipse.org/Tycho_Messages_Explained#Eclipse_Application");
         if (!productConfigurationFile.exists()) {
-            throw new MojoExecutionException("Product configuration file not found "
-                    + productConfigurationFile.getAbsolutePath());
+            throw new MojoExecutionException(
+                    "Product configuration file not found " + productConfigurationFile.getAbsolutePath());
         }
 
         try {
@@ -270,7 +265,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
      * 
      * Not supported are the properties root.permissions and root.link.
      * 
-     * @see http 
+     * @see http
      *      ://help.eclipse.org/ganymede/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles
      *      .htm
      * @throws MojoExecutionException
@@ -432,8 +427,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         }
     }
 
-    private void generateConfigIni(TargetEnvironment environment, File target) throws MojoExecutionException,
-            MojoFailureException {
+    private void generateConfigIni(TargetEnvironment environment, File target)
+            throws MojoExecutionException, MojoFailureException {
         getLog().debug("Generating config.ini");
         Properties props = new Properties();
         String id = productConfiguration.getProduct();
@@ -525,8 +520,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         return bundles;
     }
 
-    private void copyExecutable(TargetEnvironment environment, File target) throws MojoExecutionException,
-            MojoFailureException {
+    private void copyExecutable(TargetEnvironment environment, File target)
+            throws MojoExecutionException, MojoFailureException {
         getLog().debug("Creating launcher");
 
         ArtifactDescriptor artifact = getDependencyArtifacts().getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
@@ -560,7 +555,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         // make launcher executable
         try {
             getLog().debug("running chmod");
-            ArchiveEntryUtils.chmod(launcher, 0755, logger);
+            ArchiveEntryUtils.chmod(launcher, 0755);
         } catch (ArchiverException e) {
             throw new MojoExecutionException("Unable to make launcher being executable", e);
         }
