@@ -42,10 +42,10 @@ org.iq80.snappy:snappy:jar:0.4:compile https://dev.eclipse.org/ipzilla/show_bug.
 org.objenesis:objenesis:jar:1.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=7359
 org.objenesis:objenesis:jar:2.6:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15478
 org.ow2.asm:asm:jar:6.1.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=17660
-org.ow2.asm:asm-analysis:jar:7.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
-org.ow2.asm:asm:jar:7.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
-org.ow2.asm:asm-tree:jar:7.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
-org.ow2.asm:asm-util:jar:7.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
+org.ow2.asm:asm-analysis:jar:7.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
+org.ow2.asm:asm:jar:7.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
+org.ow2.asm:asm-tree:jar:7.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
+org.ow2.asm:asm-util:jar:7.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
 org.sonatype.aether:aether-api:jar:1.7:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.sonatype.aether:aether-impl:jar:1.7:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.sonatype.aether:aether-spi:jar:1.7:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
