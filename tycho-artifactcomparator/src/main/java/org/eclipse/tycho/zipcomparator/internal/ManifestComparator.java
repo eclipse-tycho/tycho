@@ -41,6 +41,7 @@ public class ManifestComparator implements ContentsComparator {
         ignoredKeys.add(new Name("Created-By"));
         ignoredKeys.add(new Name("Build-Jdk"));
         ignoredKeys.add(new Name("Built-By"));
+        ignoredKeys.add(new Name("Build-Jdk-Spec"));
 
         // lets be friendly to bnd/maven-bundle-plugin
         ignoredKeys.add(new Name("Bnd-LastModified"));
