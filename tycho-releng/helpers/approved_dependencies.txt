@@ -12,7 +12,7 @@ org.apache.maven.surefire:surefire-api:jar:2.22.0:compile https://dev.eclipse.or
 org.apache.maven.surefire:surefire-booter:jar:2.22.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=17665
 org.apache.maven.surefire:surefire-logger-api:jar:2.22.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=17666
 org.apache.maven.wagon:wagon-provider-api:jar:1.0-beta-6:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
-org.apache.maven:maven-archiver:jar:2.5:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=6822
+org.apache.maven:maven-archiver:jar:3.5.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21170
 org.apache.maven:maven-artifact-manager:jar:2.2.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15586
 org.apache.maven:maven-artifact:jar:3.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.apache.maven:maven-compat:jar:3.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
