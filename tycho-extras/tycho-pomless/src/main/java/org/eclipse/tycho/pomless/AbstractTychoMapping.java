@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright (c) 2019 Lablicate GmbH and others.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
- * Christoph Läubrich - initial API and implementation, 
- *                      derived methods setLocation/findParent/getPomVersion from TychoModelReader 
+ * Christoph Läubrich - initial API and implementation,
+ *                      derived methods setLocation/findParent/getPomVersion from TychoModelReader
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -127,18 +127,27 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         String fixLocation = fixLocation(location);
         File file = new File(fixLocation);
         if (!fixLocation.equals(location)) {
+            input.close();
+
             //we must use the "fixed" location here until the issue is resolved ignoring the original input stream
-            input = new FileInputStream(file);
+            try (InputStreamReader stream = new InputStreamReader(new FileInputStream(file),
+                    getPrimaryArtifactCharset())) {
+                return read(stream, file, options);
+            }
         }
-        return read(new InputStreamReader(input, getPrimaryArtifactCharset()), file, options);
+
+        try (InputStreamReader stream = new InputStreamReader(input, getPrimaryArtifactCharset())) {
+            return read(stream, file, options);
+        }
     }
 
     @Override
     public Model read(File input, Map<String, ?> options) throws IOException, ModelParseException {
         File artifactFile = getRealArtifactFile(input);
         if (artifactFile.exists()) {
-            try (FileInputStream stream = new FileInputStream(artifactFile)) {
-                return read(new InputStreamReader(stream, getPrimaryArtifactCharset()), input, options);
+            try (InputStreamReader stream = new InputStreamReader(new FileInputStream(artifactFile),
+                    getPrimaryArtifactCharset())) {
+                return read(stream, input, options);
             }
         } else {
             //we support the case here, that actually there is no real primary artifact, instead of creating a dummy file and forcing I/O we simply simulate to read a 0-byte file
@@ -225,7 +234,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     /**
      * Locates the {@link PomReference} for the given folder and the given nameHint
-     * 
+     *
      * @param folder
      *            the folder to search
      * @param nameHint
@@ -268,7 +277,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     /**
      * returns the charset that should be used when reading artifact, default is UTF-8 might be
      * overridden by subclasses
-     * 
+     *
      * @return the charset
      */
     protected Charset getPrimaryArtifactCharset() {
