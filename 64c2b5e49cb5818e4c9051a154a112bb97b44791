@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "a59905bd_5b0f6604",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-11-25T18:12:57Z",
+      "side": 1,
+      "message": "I\u0027d better like to reasign a parameter instead of duplicating code or introducing new \"local\" variables to circumvent final modifier.\nAs this fixLocation is only used as a workaround here for xml files, the bug was not in that line but the line below it that was not changed in the first revision.",
+      "parentUuid": "3ee0c0a7_1ff8f2f7",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1265271c_d35eceed",
         "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
         "patchSetId": 2
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Nope. The reader must be closed, too. This specific implementation leaves a StreamDecoder opened otherwise, if I get it right.\n\nBut independent of the specific implementation: Anything deriving from AutoClosable should be handled by try-with-resource nowadays. One should never create an instance without that, otherwise it\u0027s a resource leak.",
       "parentUuid": "1265271c_d35eceed",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c2421f2_a5498994",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-11-25T18:12:57Z",
+      "side": 1,
+      "message": "But then it has to be split into different local variables, closing \"wrapped\" stream is only needed for writers if one wants to prevent loosing data that is only flushed on close. For reading streams, this will only call close on the delegate streams so closing those will only leads to multiple close class on the input streams.",
+      "parentUuid": "3b7b8a84_ad54b933",
       "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false

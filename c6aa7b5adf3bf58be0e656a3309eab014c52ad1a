@@ -22,6 +22,30 @@
       "revId": "c6aa7b5adf3bf58be0e656a3309eab014c52ad1a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e567ad10_6df29eb6",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-11-25T18:12:57Z",
+      "side": 0,
+      "message": "I personally don\u0027t like this \"add final to everywhere\", as \u0027final\u0027 on local variables and method parameter has only one impact that they could be used in innerclass/lamdas and java 8 even removed that restriction a while ago when there is no assignment to that variable. So the only effect of this is to bloat the code and make it hard to read.\n\nWhether reassignment is bad or not is arguable in my opinion, I don\u0027t see any reason why this should not be used, method parameters are passed for the sole use in that function, they are local to the function and the final modifier has no impact on the caller (in contrast to C++ for example where \u0027const\u0027 passes a read-only reference).",
+      "parentUuid": "345db126_f23451eb",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 131,
+        "endChar": 17
+      },
+      "revId": "c6aa7b5adf3bf58be0e656a3309eab014c52ad1a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
