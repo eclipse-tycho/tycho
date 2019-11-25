@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2342637e_589e5001",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-11-25T15:02:14Z",
+      "side": 1,
+      "message": "Thinking a bit more about it I think here we should close the original stream first.\ninput.close();\nthen create a new one with \ninput \u003d new FileInputStream(file);\nthat will then be closed by the try {\n\n} finally {\n\n}\n\nmentioned below.",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1265271c_d35eceed",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-11-25T15:02:14Z",
+      "side": 1,
+      "message": "I think this should be protecting the input stream instead of the reader as mentioned before, something like\ntry {\nreturn read(new InputStreamReader(input, getPrimaryArtifactCharset()), file, options);\n} finally {\n  input.close() should be fine\n}",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c4dcb97_9ace6203",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-11-25T15:02:14Z",
+      "side": 1,
+      "message": "I think the previous approach was fine here, closing the (File)Inputstream should be sufficent.",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
