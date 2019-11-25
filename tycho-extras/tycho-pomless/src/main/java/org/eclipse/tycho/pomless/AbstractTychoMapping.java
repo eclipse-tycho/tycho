@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright (c) 2019 Lablicate GmbH and others.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
- * Christoph Läubrich - initial API and implementation, 
- *                      derived methods setLocation/findParent/getPomVersion from TychoModelReader 
+ * Christoph Läubrich - initial API and implementation,
+ *                      derived methods setLocation/findParent/getPomVersion from TychoModelReader
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -128,7 +128,9 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         File file = new File(fixLocation);
         if (!fixLocation.equals(location)) {
             //we must use the "fixed" location here until the issue is resolved ignoring the original input stream
-            input = new FileInputStream(file);
+            try (FileInputStream stream = new FileInputStream(file)) {
+                return read(new InputStreamReader(stream, getPrimaryArtifactCharset()), file, options);
+            }
         }
         return read(new InputStreamReader(input, getPrimaryArtifactCharset()), file, options);
     }
@@ -225,7 +227,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     /**
      * Locates the {@link PomReference} for the given folder and the given nameHint
-     * 
+     *
      * @param folder
      *            the folder to search
      * @param nameHint
@@ -268,7 +270,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     /**
      * returns the charset that should be used when reading artifact, default is UTF-8 might be
      * overridden by subclasses
-     * 
+     *
      * @return the charset
      */
     protected Charset getPrimaryArtifactCharset() {
