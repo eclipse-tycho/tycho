@@ -46,6 +46,30 @@
       "revId": "c6aa7b5adf3bf58be0e656a3309eab014c52ad1a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbda2320_0c4e51d7",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-25T19:30:46Z",
+      "side": 0,
+      "message": "Is there anything like a wiki page, where the coding guidelines of Tycho are described? I\u0027m not arguing for or against different styles because of personal liking or disliking. I rather believe in distributed projects the coding style should rule out as many potential bugs as possible and remove uncertainties and disambigouties from the language as much as possible.",
+      "parentUuid": "e567ad10_6df29eb6",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 131,
+        "endChar": 17
+      },
+      "revId": "c6aa7b5adf3bf58be0e656a3309eab014c52ad1a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }

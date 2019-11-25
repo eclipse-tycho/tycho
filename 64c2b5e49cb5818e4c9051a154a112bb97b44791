@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "4287b434_79f7ff86",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-25T19:30:46Z",
+      "side": 1,
+      "message": "I don\u0027t get what you are trying to tell me.\n\nIf you argue that you know what the reader/writer does in its close() call and that you don\u0027t need to call close() for that reason, that\u0027s a really bad reasoning. The implementation details might change any time, and this code should not depend on the implementation details of other close() methods.\n\nOptimizing away some close() calls is absolutely not necessary. Easy to read code is way more important than micro-optimization.\n\nThat being said, do what you want, I don\u0027t feel like my input is welcome here.",
+      "parentUuid": "5c2421f2_a5498994",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c4dcb97_9ace6203",
         "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
         "patchSetId": 2
