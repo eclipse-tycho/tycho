@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "345db126_f23451eb",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-25T16:48:14Z",
+      "side": 0,
+      "message": "I might be late to the party, but I\u0027m wondering why the Tycho sources are not using final modifiers for method argument in this complete file. That would have prohibited such a re-assignment, which is a bad practice (independent of whether it causes an actual error like here).\n\nShould we try to have the JDT preferences for Tycho changed to * throw an error when re-assigning a method argument\n* add \"final\" to method arguments as safe action\n?",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 131,
+        "endChar": 17
+      },
+      "revId": "c6aa7b5adf3bf58be0e656a3309eab014c52ad1a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}

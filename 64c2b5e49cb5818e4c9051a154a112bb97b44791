@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3ee0c0a7_1ff8f2f7",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-25T16:48:14Z",
+      "side": 1,
+      "message": "I agree to closing the original stream. I don\u0027t agree to creating a new instance with the same name. The current code creates a new instance with a different name, and correctly closes all related resources of the new stream. It really only needs an additional \"input.close();\" before line 131.",
+      "parentUuid": "2342637e_589e5001",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1265271c_d35eceed",
         "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "3b7b8a84_ad54b933",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-25T16:48:14Z",
+      "side": 1,
+      "message": "Nope. The reader must be closed, too. This specific implementation leaves a StreamDecoder opened otherwise, if I get it right.\n\nBut independent of the specific implementation: Anything deriving from AutoClosable should be handled by try-with-resource nowadays. One should never create an instance without that, otherwise it\u0027s a resource leak.",
+      "parentUuid": "1265271c_d35eceed",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c4dcb97_9ace6203",
         "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2019-11-25T15:02:14Z",
       "side": 1,
       "message": "I think the previous approach was fine here, closing the (File)Inputstream should be sufficent.",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5bc6acd6_7f76576c",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 440
+      },
+      "writtenOn": "2019-11-25T16:48:14Z",
+      "side": 1,
+      "message": "No. See above.",
+      "parentUuid": "0c4dcb97_9ace6203",
       "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
