@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a31d3c70_3475a976",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-11-25T13:48:04Z",
+      "side": 1,
+      "message": "I think here is another location where we need to use try-with-resource",
+      "revId": "360fe89e75f13e78872a85369bfbcb52cbcbba2e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
