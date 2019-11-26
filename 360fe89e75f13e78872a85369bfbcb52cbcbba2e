@@ -16,6 +16,24 @@
       "revId": "360fe89e75f13e78872a85369bfbcb52cbcbba2e",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98174631_b104040f",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1635
+      },
+      "writtenOn": "2019-11-26T05:33:09Z",
+      "side": 1,
+      "message": "I am actually unsure about this, because it takes the provided InputStream. So if we add a try-with-resources the given input could be closed although it is still used outside. Wouldn\u0027t be a good practice, but actually the o",
+      "parentUuid": "a31d3c70_3475a976",
+      "revId": "360fe89e75f13e78872a85369bfbcb52cbcbba2e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
