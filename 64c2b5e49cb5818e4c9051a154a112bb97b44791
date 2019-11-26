@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "d2e37817_36b6cbea",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1635
+      },
+      "writtenOn": "2019-11-26T05:33:09Z",
+      "side": 1,
+      "message": "I don\u0027t get your points here. Yes of course the input needs to be closed as it is never closed otherwise. But why do you think it is not necessary to have the try-with-resources here? A new InputStreamReader on a File is created and accessed. So it needs to be closed once done, or am I missing something?",
+      "parentUuid": "a59905bd_5b0f6604",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1265271c_d35eceed",
         "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
         "patchSetId": 2
@@ -144,6 +162,24 @@
     },
     {
       "key": {
+        "uuid": "6efed4e5_92fada9e",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1635
+      },
+      "writtenOn": "2019-11-26T05:33:09Z",
+      "side": 1,
+      "message": "Like stated in the bug, the calls to this method always produce an InputStream on the fly, e.g. Class#getResourceAsStream(). The callers never care about closing it. So we need to take care here if my understanding is correct. And best practice is to close from the top-most wrapper Reader/Writer/Stream. Because like Michael said, you never know the implementation details at any time.",
+      "parentUuid": "4979084b_f19a0931",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c4dcb97_9ace6203",
         "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
         "patchSetId": 2
@@ -173,6 +209,24 @@
       "side": 1,
       "message": "No. See above.",
       "parentUuid": "0c4dcb97_9ace6203",
+      "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6055446e_e6a7d11a",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1635
+      },
+      "writtenOn": "2019-11-26T05:33:09Z",
+      "side": 1,
+      "message": "Agree with Michael, see above. And I wanted to have the same code pattern at all places.",
+      "parentUuid": "5bc6acd6_7f76576c",
       "revId": "64c2b5e49cb5818e4c9051a154a112bb97b44791",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false

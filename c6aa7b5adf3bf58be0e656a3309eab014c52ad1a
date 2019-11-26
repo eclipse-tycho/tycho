@@ -94,6 +94,30 @@
       "revId": "c6aa7b5adf3bf58be0e656a3309eab014c52ad1a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "111c1548_2062bef6",
+        "filename": "tycho-extras/tycho-pomless/src/main/java/org/eclipse/tycho/pomless/AbstractTychoMapping.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1635
+      },
+      "writtenOn": "2019-11-26T05:33:09Z",
+      "side": 0,
+      "message": "Reassigning the value of a method parameter is considered a bad practice. But that is opinionated. From my experience it is a cause for bugs and bad readable code. Even static code analysis tools are marking this. So I agree with Michael that such things should be avoided. At least my coding style has changed since I use static code analysis tools and needed to fix issues because of such bad practices. But as I said, it is not an anti-pattern but bad practice that is opinionated.",
+      "parentUuid": "8e17aa58_a0b4510b",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 131,
+        "endChar": 17
+      },
+      "revId": "c6aa7b5adf3bf58be0e656a3309eab014c52ad1a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
