@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 SAP SE and others.
+ * Copyright (c) 2014, 2019 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThat;
 import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
@@ -115,12 +114,12 @@ public class StandardEEResolutionHintsTest {
         // ... but the fake units are empty
         jreUnit = findFirst(unit("a.jre.javase", "1.6.0"), subject.getTemporaryAdditions());
         assertThat(jreUnit.getProvidedCapabilities(), not(hasItem(packageCapability("javax.xml"))));
-        assertFalse(jreUnit.getProvidedCapabilities().stream()
-                .anyMatch(cap -> PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(cap.getNamespace())));
+        assertFalse(
+                jreUnit.getProvidedCapabilities().stream().anyMatch(cap -> "java.package".equals(cap.getNamespace())));
         jreUnit = findFirst(unit("a.jre.javase", "9.0.0"), subject.getTemporaryAdditions());
         assertThat(jreUnit.getProvidedCapabilities(), not(hasItem(packageCapability("javax.xml"))));
-        assertFalse(jreUnit.getProvidedCapabilities().stream()
-                .anyMatch(cap -> PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(cap.getNamespace())));
+        assertFalse(
+                jreUnit.getProvidedCapabilities().stream().anyMatch(cap -> "java.package".equals(cap.getNamespace())));
     }
 
     @Test
