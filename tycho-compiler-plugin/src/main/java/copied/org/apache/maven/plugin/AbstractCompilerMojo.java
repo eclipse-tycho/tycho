@@ -115,6 +115,12 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     protected String target;
 
     /**
+     * The -release argument for the Java compiler
+     */
+    @Parameter(property = "maven.compiler.release")
+    protected String release;
+
+    /**
      * The -encoding argument for the Java compiler (kept for backwards compatibility)
      * 
      * @deprecated use {@link #encoding}
@@ -455,6 +461,9 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         compilerConfiguration.setSourceVersion(source != null ? source : DEFAULT_SOURCE_VERSION);
 
         compilerConfiguration.setTargetVersion(target != null ? target : DEFAULT_TARGET_VERSION);
+        if (release != null) {
+            compilerConfiguration.setReleaseVersion(release);
+        }
 
         compilerConfiguration.setSourceEncoding(getEncoding());
 

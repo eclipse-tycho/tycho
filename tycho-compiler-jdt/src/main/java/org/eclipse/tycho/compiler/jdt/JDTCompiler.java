@@ -234,6 +234,11 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(config.getSourceVersion());
         }
 
+        if (!StringUtils.isEmpty(config.getReleaseVersion())) {
+            args.add("--release");
+            args.add(config.getReleaseVersion());
+        }
+
         if (!suppressEncoding(config) && !StringUtils.isEmpty(config.getSourceEncoding())) {
             args.add("-encoding");
             args.add(config.getSourceEncoding());
