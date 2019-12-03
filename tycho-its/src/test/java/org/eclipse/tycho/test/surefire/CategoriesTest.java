@@ -23,7 +23,7 @@ public class CategoriesTest extends AbstractTychoIntegrationTest {
     public void testIncludeExcludeCategories() throws Exception {
         Verifier verifier = getVerifier("/surefire.junit47/categories", false);
         Properties props = verifier.getSystemProperties();
-        props.setProperty("kepler-repo", P2Repositories.ECLIPSE_KEPLER.toString());
+        props.setProperty("kepler-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
         props.setProperty("groups", "tycho.demo.itp01.tests.FastTests");
         props.setProperty("excludedGroups", "tycho.demo.itp01.tests.SlowTests");
         verifier.executeGoal("verify");
