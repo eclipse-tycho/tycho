@@ -1,6 +1,6 @@
 package test_b;
 
-import com.sun.jdi.event.EventSet;
+import my.sun.jdi.event.EventSet;
 
 public class TestB implements EventSet  {
 

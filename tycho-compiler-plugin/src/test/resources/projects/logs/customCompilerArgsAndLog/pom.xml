@@ -14,6 +14,7 @@
         <version>${tycho-version}</version>
         <configuration>
             <log>plain</log>
+            <useProjectSettings>false</useProjectSettings>
             <compilerArgs>
               <arg>-log</arg>
               <arg>${project.build.directory}/@dot.xml</arg>
