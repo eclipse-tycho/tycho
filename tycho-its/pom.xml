@@ -97,62 +97,6 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-p2-extras-plugin</artifactId>
-				<version>${tychoBootstrapVersion}</version>
-				<executions>
-					<execution>
-						<id>mirror-oxygen-test-repo</id>
-						<phase>process-test-classes</phase>
-						<goals>
-							<goal>mirror</goal>
-						</goals>
-						<configuration>
-							<source>
-								<repository>
-									<url>http://download.eclipse.org/releases/oxygen/</url>
-									<layout>p2</layout>
-								</repository>
-							</source>
-							<ius>
-								<iu>
-									<id>org.eclipse.osgi</id>
-									<version>3.12.100.v20180210-1608</version>
-								</iu>
-								<iu>
-									<id>org.eclipse.equinox.launcher</id>
-									<version>1.4.0.v20161219-1356</version>
-								</iu>
-								<iu>
-									<id>org.eclipse.core.runtime</id>
-									<version>3.13.0.v20170207-1030</version>
-								</iu>
-								<iu>
-									<id>org.junit</id>
-									<version>4.12.0.v201504281640</version>
-								</iu>
-								<iu>
-									<id>org.junit.jupiter.api</id>
-									<version>5.0.0.v20170910-2246</version>
-								</iu>
-								<iu>
-									<id>org.apache.xerces</id>
-									<version>2.9.0.v201101211617</version>
-								</iu>
-								<iu>
-									<id>org.eclipse.equinox.executable.feature.group</id>
-									<version>3.7.2.v20171108-1834</version>
-								</iu>
-							</ius>
-							<includePacked>false</includePacked>
-							<includeOptional>false</includeOptional>
-							<destination>${project.basedir}/repositories/oxygen</destination>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 
 		<pluginManagement>
@@ -434,26 +378,5 @@
 			</build>
 		</profile>
 
-		<profile>
-			<id>e35</id>
-			<properties>
-				<target.eclipse-version>3.5.2</target.eclipse-version>
-			</properties>
-		</profile>
-		<profile>
-		         <!-- EXPERIMENTAL: run ITs in parallel -->
-			<id>parallel</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<parallel>classes</parallel>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 	</profiles>
 </project>
