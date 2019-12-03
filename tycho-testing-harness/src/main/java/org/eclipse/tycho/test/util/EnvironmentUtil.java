@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -74,11 +73,6 @@ public class EnvironmentUtil {
 
     public static boolean isMac() {
         return OS.startsWith(MAC_OS) || OS.startsWith(MAC_OS_DARWIN);
-    }
-
-    // TODO find a more reliable way
-    public static boolean isEclipse32Platform() {
-        return new File(getTargetPlatform(), "startup.jar").exists();
     }
 
     public static String getTargetPlatform() {
