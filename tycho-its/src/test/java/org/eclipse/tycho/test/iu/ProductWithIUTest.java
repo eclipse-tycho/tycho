@@ -27,7 +27,7 @@ public class ProductWithIUTest extends AbstractTychoIntegrationTest {
     @Test
     public void testRootFilesFromIUPackagingInstalledAndInRepo() throws Exception {
         Verifier verifier = getVerifier("iu.product", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_KEPLER.toString());
+        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
 
@@ -35,8 +35,8 @@ public class ProductWithIUTest extends AbstractTychoIntegrationTest {
                 "eclipse-repository/target/products/main.product.id/linux/gtk/x86/myFile.txt");
         assertThat(rootFileInstalledByIU, isFile());
 
-        P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir(),
-                "eclipse-repository"));
+        P2RepositoryTool p2Repository = P2RepositoryTool
+                .forEclipseRepositoryModule(new File(verifier.getBasedir(), "eclipse-repository"));
         assertThat(p2Repository.findBinaryArtifact("iup.iuForRootFile"), isFile());
 
         assertThat(p2Repository.getAllUnitIds(), hasItem("iup.iuForRootFile"));
