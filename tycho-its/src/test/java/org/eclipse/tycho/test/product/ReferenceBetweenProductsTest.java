@@ -28,7 +28,7 @@ public class ReferenceBetweenProductsTest extends AbstractTychoIntegrationTest {
     @Test
     public void testProductCanReferenceProductFromDifferentModule() throws Exception {
         Verifier verifier = getVerifier("product.crossReference", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_KEPLER.toString());
+        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
 

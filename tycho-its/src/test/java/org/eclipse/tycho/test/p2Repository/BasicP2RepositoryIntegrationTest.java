@@ -37,7 +37,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
     @BeforeClass
     public static void executeBuild() throws Exception {
         verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository", false);
-        verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_KEPLER.toString());
+        verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
