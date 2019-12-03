@@ -59,10 +59,10 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 
     @Test
     public void testIncludeIUViaMatchQuery() throws Exception {
-        assertThat(p2Repo.getAllUnitIds(), hasItem("javax.xml"));
+        assertThat(p2Repo.getAllUnitIds(), hasItem("javax.annotation"));
 
         IU categoryIU = p2Repo.getUniqueIU("Test Category");
-        assertThat(categoryIU.getRequiredIds(), hasItem("javax.xml"));
+        assertThat(categoryIU.getRequiredIds(), hasItem("javax.annotation"));
     }
 
     @Test
