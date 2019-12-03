@@ -26,7 +26,6 @@ public class TychoPomlessITest extends AbstractTychoExtrasIntegrationTest {
     @Test
     public void testPomlessBuildExtension() throws Exception {
         Verifier verifier = getVerifier("testpomless", false);
-        verifier.addCliOption("-Dp2.repo=" + new File("repositories/kepler").getAbsoluteFile().toURI().toString());
         verifier.executeGoals(asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
         // sanity check pom-less if bundle, test bundle and feature have been built
@@ -47,7 +46,6 @@ public class TychoPomlessITest extends AbstractTychoExtrasIntegrationTest {
     @Test
     public void testPomlessFlatBuildExtension() throws Exception {
         Verifier verifier = getVerifier("testpomless-flat", false);
-        verifier.addCliOption("-Dp2.repo=" + new File("repositories/kepler").getAbsoluteFile().toURI().toString());
         verifier.addCliOption("-f");
         verifier.addCliOption("aggregate/pom.xml");
         verifier.executeGoals(asList("clean", "verify"));
@@ -60,7 +58,6 @@ public class TychoPomlessITest extends AbstractTychoExtrasIntegrationTest {
     @Test
     public void testPomlessStructuredBuildExtension() throws Exception {
         Verifier verifier = getVerifier("testpomless-structured", false);
-        verifier.addCliOption("-Dp2.repo=" + new File("repositories/kepler").getAbsoluteFile().toURI().toString());
         verifier.executeGoals(asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
         // sanity check pom-less if bundle, test bundle and feature have been built

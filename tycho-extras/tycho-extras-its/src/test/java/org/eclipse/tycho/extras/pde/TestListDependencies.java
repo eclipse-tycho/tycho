@@ -35,17 +35,16 @@ public class TestListDependencies extends AbstractTychoExtrasIntegrationTest {
     @Test
     public void testDependencyWithNestedJar() throws Exception {
         Verifier verifier = getVerifier("dependencyList/dependency-with-nested-jar", false);
-        verifier.addCliOption("-Dp2-repo=" + new File("repositories/kepler").getAbsoluteFile().toURI().toString());
+        verifier.addCliOption("-Dp2-repo=" + P2_REPO);
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         File file = new File(verifier.getBasedir(), "target/dependencies-list.txt");
         Assert.assertTrue(file.exists());
-        try (
-                BufferedReader reader = Files.newBufferedReader(file.toPath()) //
+        try (BufferedReader reader = Files.newBufferedReader(file.toPath()) //
         ) { //
             File dependency = new File(reader.readLine());
             Assert.assertTrue(dependency.exists());
-            Assert.assertEquals("org.junit-4.11.0.v201303080030.jar", dependency.getName());
+            Assert.assertEquals("org.junit-4.12.0.v201504281640.jar", dependency.getName());
         }
     }
 }
