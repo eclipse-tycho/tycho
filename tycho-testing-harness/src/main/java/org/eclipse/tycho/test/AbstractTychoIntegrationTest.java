@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,6 @@ import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.TestName;
-import org.osgi.framework.Version;
 
 public abstract class AbstractTychoIntegrationTest {
 
@@ -217,27 +216,6 @@ public abstract class AbstractTychoIntegrationTest {
         } finally {
             IOUtil.close(is);
         }
-    }
-
-    /**
-     * Returns approximate target platform version.
-     */
-    public static Version getEclipseVersion() {
-        String location = EnvironmentUtil.getTargetPlatform();
-
-        DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir(new File(location, "plugins"));
-        ds.setIncludes(new String[] { "org.eclipse.osgi_*.jar" });
-        ds.scan();
-
-        String[] files = ds.getIncludedFiles();
-        if (files == null || files.length < 1) {
-            throw new IllegalStateException("Unable to determine version of the test target platform " + location);
-        }
-
-        String version = files[0].substring("org.eclipse.osgi_".length(), files[0].length() - ".jar".length());
-
-        return Version.parseVersion(version);
     }
 
 }
