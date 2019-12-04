@@ -31,7 +31,7 @@ public class AllTests {
 	    IExtension[] extensions = extensionPoint.getExtensions();
 		for (IExtension extension : extensions) {
 	    	for (IConfigurationElement element : extension.getConfigurationElements()) {
-	    		suite.addTestSuite(element.createExecutableExtension("class").getClass());
+	    		suite.addTestSuite((Class<TestCase>)element.createExecutableExtension("class").getClass());
 	    	}
 	    }
 	    
