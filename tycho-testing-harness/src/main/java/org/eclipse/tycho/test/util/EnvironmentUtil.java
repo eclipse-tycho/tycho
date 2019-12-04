@@ -76,11 +76,7 @@ public class EnvironmentUtil {
     }
 
     public static String getTargetPlatform() {
-        String systemValue = System.getProperty("tychodev-testTargetPlatform");
-        if (systemValue != null) {
-            return systemValue;
-        }
-        return getProperty("its-target-platform");
+        return "http:////download.eclipse.org/releases/oxygen/";
     }
 
     public static String getTestSettings() {
