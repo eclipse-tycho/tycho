@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2019 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,12 +27,9 @@ public class ArchiveContentUtil {
     public static Set<String> getFilesInZip(File archive) throws Exception {
         final HashSet<String> result = new HashSet<>();
 
-        visitEntries(archive, new ZipEntryVisitor() {
-            @Override
-            public boolean visitEntry(ZipEntry entry, ZipInputStream stream) {
-                result.add(entry.getName());
-                return true;
-            }
+        visitEntries(archive, (ZipEntryVisitor) (entry, stream) -> {
+            result.add(entry.getName());
+            return true;
         });
 
         return result;
@@ -44,15 +41,12 @@ public class ArchiveContentUtil {
     public static String getFileContent(File archive, final String fileInArchive) throws Exception {
         final String[] result = new String[1];
 
-        visitEntries(archive, new ZipEntryVisitor() {
-            @Override
-            public boolean visitEntry(ZipEntry entry, ZipInputStream stream) throws Exception {
-                if (fileInArchive.equals(entry.getName())) {
-                    result[0] = IOUtil.toString(stream);
-                    return false;
-                }
-                return true;
+        visitEntries(archive, (ZipEntryVisitor) (entry, stream) -> {
+            if (fileInArchive.equals(entry.getName())) {
+                result[0] = IOUtil.toString(stream);
+                return false;
             }
+            return true;
         });
 
         if (result[0] == null) {
