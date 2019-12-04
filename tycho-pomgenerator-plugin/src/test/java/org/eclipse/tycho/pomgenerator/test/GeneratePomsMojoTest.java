@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Repository;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.Mojo;
 import org.codehaus.plexus.util.ReaderFactory;
@@ -54,6 +55,8 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
             setVariableValueToObject(generateMojo, "extraDirs", sb.toString());
         }
         setVariableValueToObject(generateMojo, "executionEnvironment", "J2SE-1.5"); // the default value
+        setVariableValueToObject(generateMojo, "repoURL", "https://download.eclipse.org/releases/latest/");
+        setVariableValueToObject(generateMojo, "repoName", "eclipse-latest");
         if (params != null) {
             for (Map.Entry<String, Object> param : params.entrySet()) {
                 setVariableValueToObject(generateMojo, param.getKey(), param.getValue());
@@ -167,6 +170,13 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals("simple", model.getArtifactId());
         assertEquals("1.0.0", model.getVersion());
         assertEquals("pom", model.getPackaging());
+
+        List<Repository> repositories = model.getRepositories();
+        assertEquals(1, repositories.size());
+        Repository repo = repositories.get(0);
+        assertEquals("p2", repo.getLayout());
+        assertEquals("https://download.eclipse.org/releases/latest/", repo.getUrl());
+        assertEquals("eclipse-latest", repo.getName());
 
         List<String> modules = model.getModules();
         assertEquals(6, modules.size());
