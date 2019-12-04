@@ -21,7 +21,7 @@ public class ProductP2TargetPlatformResolverTest extends AbstractTychoIntegratio
     @Test
     public void testBasic() throws Exception {
         Verifier verifier = getVerifier("/TYCHO0294ProductP2TargetPlatformResolver");
-        verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+        verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_OXYGEN.toString());
         verifier.executeGoal("install");
         verifier.verifyErrorFreeLog();
 
