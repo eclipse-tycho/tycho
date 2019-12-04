@@ -25,6 +25,8 @@ public class TYCHO45Test extends AbstractTychoIntegrationTest {
         // generate poms
         verifier.getSystemProperties().setProperty("groupId", "tycho45");
         verifier.getSystemProperties().setProperty("failIfNoTests", "false");
+        verifier.getSystemProperties().setProperty("repoURL", "http://download.eclipse.org/releases/oxygen/");
+        verifier.getSystemProperties().setProperty("repoName", "oxygen");
         verifier.setAutoclean(false);
         verifier.setLogFileName("log-init.txt");
         verifier.executeGoal("org.eclipse.tycho:tycho-pomgenerator-plugin:" + tychoVersion + ":generate-poms");

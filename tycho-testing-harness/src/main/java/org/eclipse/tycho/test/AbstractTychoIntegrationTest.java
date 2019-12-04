@@ -98,7 +98,7 @@ public abstract class AbstractTychoIntegrationTest {
         tmpDir.mkdirs();
         verifier.getCliOptions().add("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
-            verifier.getCliOptions().add("-Dtycho.targetPlatform=" + getTargetPlatform());
+            verifier.getCliOptions().add("-Dtarget-platform=" + getTargetPlatform());
         }
         if (ignoreLocalArtifacts) {
             verifier.getCliOptions().add("-Dtycho.localArtifacts=ignore");
