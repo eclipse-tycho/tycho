@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.Repository;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.plugin.AbstractMojo;
@@ -141,6 +142,18 @@ public class GeneratePomsMojo extends AbstractMojo {
      */
     @Parameter(property = "testSuite")
     private String testSuite;
+
+    /**
+     * URL to p2 repository to add in the aggregator pom.
+     */
+    @Parameter(property = "repoURL")
+    private String repoURL;
+
+    /**
+     * ID of the p2 repository to add in the aggregator pom.
+     */
+    @Parameter(property = "repoID", defaultValue = "injected-repository")
+    private String repoID;
 
     /**
      * Location of directory with template pom.xml file. pom.xml templates will be looked at this
@@ -343,6 +356,15 @@ public class GeneratePomsMojo extends AbstractMojo {
         tychoPlugin.setExtensions(true);
 
         build.addPlugin(tychoPlugin);
+        if (repoURL != null) {
+            Repository repo = new Repository();
+            repo.setLayout("p2");
+            repo.setUrl(repoURL);
+            repo.setId(repoID);
+            List<Repository> repositories = new ArrayList<>();
+            repositories.add(repo);
+            model.setRepositories(repositories);
+        }
     }
 
     private String toString(File file) {
@@ -417,10 +439,9 @@ public class GeneratePomsMojo extends AbstractMojo {
             generateEclipseRepositoryPom(parent, basedir);
         } else if (isUpdateSiteProject(basedir)) {
             getLog().debug("Found update site PDE project " + toString(basedir));
-            getLog().warn(
-                    "Old style update site found for " + toString(basedir)
-                            + ". It is recommended you rename your site.xml to category.xml "
-                            + "and use packaging type eclipse-repository instead.");
+            getLog().warn("Old style update site found for " + toString(basedir)
+                    + ". It is recommended you rename your site.xml to category.xml "
+                    + "and use packaging type eclipse-repository instead.");
             generateUpdateSitePom(parent, basedir);
         } else {
             getLog().debug("Not a PDE project " + toString(basedir));
@@ -442,10 +463,10 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private boolean isPluginProject(File dir) {
-        return new File(dir, "META-INF/MANIFEST.MF").canRead() /*
-                                                                * || new File(dir,
-                                                                * "plugin.xml").canRead()
-                                                                */;
+        return new File(dir, "META-INF/MANIFEST.MF")
+                .canRead() /*
+                            * || new File(dir, "plugin.xml").canRead()
+                            */;
     }
 
     private void generateUpdateSitePom(Model parent, File basedir) throws MojoExecutionException {
@@ -506,8 +527,8 @@ public class GeneratePomsMojo extends AbstractMojo {
         }
     }
 
-    private void addFeature(Set<File> result, String name) throws IOException, XmlPullParserException,
-            MojoExecutionException {
+    private void addFeature(Set<File> result, String name)
+            throws IOException, XmlPullParserException, MojoExecutionException {
         if (name != null) {
             File dir = getModuleDir(name);
             if (dir != null && isFeatureProject(dir)) {
@@ -597,8 +618,8 @@ public class GeneratePomsMojo extends AbstractMojo {
                 State state = resolver.newResolvedState(basedir, ee, platform);
                 BundleDescription bundle = state.getBundleByLocation(basedir.getAbsolutePath());
                 if (bundle != null) {
-                    for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(
-                            state.getStateHelper(), bundle)) {
+                    for (DependencyComputer.DependencyEntry entry : dependencyComputer
+                            .computeDependencies(state.getStateHelper(), bundle)) {
                         BundleDescription supplier = entry.desc;
                         File suppliedDir = new File(supplier.getLocation());
                         if (supplier.getHost() == null && isModuleDir(suppliedDir)) {
