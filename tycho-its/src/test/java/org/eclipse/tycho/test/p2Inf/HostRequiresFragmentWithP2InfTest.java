@@ -20,7 +20,7 @@ public class HostRequiresFragmentWithP2InfTest extends AbstractTychoIntegrationT
     @Test
     public void testBuildAndTestWithHostRequiringOwnFragment() throws Exception {
         Verifier verifier = getVerifier("/p2Inf.hostRequireFragment", false);
-        verifier.getCliOptions().add("-Dp2Repository=" + ResourceUtil.P2Repositories.ECLIPSE_352);
+        verifier.getCliOptions().add("-Dp2Repository=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN);
 
         // Test that
         // - the install-time dependency from the host to its fragment can be disabled at build 
