@@ -136,11 +136,10 @@ public class DefaultTychoResolver implements TychoResolver {
 
         dr.setDependencyArtifacts(session, project, dependencyArtifacts);
 
-        logger.info("Resolving class path of " + project);
-        dr.resolveClassPath(session, project);
-
         //reset EE to original one
         project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, oldEE);
+        logger.info("Resolving class path of " + project);
+        dr.resolveClassPath(session, project);
 
         resolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, logger);
 
