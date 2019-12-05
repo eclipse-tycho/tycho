@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.eclipse.osgi.service.resolver.State;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 
 public class Eclipse34Test
@@ -23,15 +24,22 @@ public class Eclipse34Test
     public void test()
         throws Exception
     {
-        ServiceReference sfr = Activator.context.getServiceReference( PlatformAdmin.class.getName() );
-
-        PlatformAdmin padmin = (PlatformAdmin) Activator.context.getService( sfr );
-
-        State state = padmin.getState();
-
-        BundleDescription equinox = state.getBundle( "org.eclipse.osgi", null );
+        Bundle equinox = getBundle( "org.eclipse.osgi");
 
         assertEquals( 3, equinox.getVersion().getMajor() );
-        assertEquals( 4, equinox.getVersion().getMinor() );
+        assertEquals( 12, equinox.getVersion().getMinor() );
+    }
+    
+    public Bundle getBundle( String id )
+    {
+        for ( Bundle bundle : Activator.context.getBundles() )
+        {
+            if ( id.equals( bundle.getSymbolicName() ) )
+            {
+                return bundle;
+            }
+        }
+
+        throw new IllegalStateException();
     }
 }

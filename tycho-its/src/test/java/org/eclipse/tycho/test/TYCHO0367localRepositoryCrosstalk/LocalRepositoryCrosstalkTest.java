@@ -20,13 +20,13 @@ public class LocalRepositoryCrosstalkTest extends AbstractTychoIntegrationTest {
     public void test() throws Exception {
         // run e352 test first
         Verifier v01 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle02", false);
-        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_352.toString());
+        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_2019_09.toString());
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
         // now run e342 test, it should not "see" e352 artifacts in local repo
         Verifier v02 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle01", false);
-        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_OXYGEN.toString());
         v02.executeGoal("install");
         v02.verifyErrorFreeLog();
     }

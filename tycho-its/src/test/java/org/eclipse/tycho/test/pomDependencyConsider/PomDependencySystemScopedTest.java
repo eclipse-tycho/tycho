@@ -11,7 +11,7 @@
 package org.eclipse.tycho.test.pomDependencyConsider;
 
 import static java.util.Arrays.asList;
-import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
+import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_OXYGEN;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -23,7 +23,7 @@ public class PomDependencySystemScopedTest extends AbstractTychoIntegrationTest 
     public void testSystemScopedDependenciesIgnored() throws Exception {
         // project with pomDependency=consider and checked-in nested jar
         Verifier verifier = getVerifier("pomDependencyConsider.systemScope", false);
-        verifier.getSystemProperties().setProperty("repo.url", ECLIPSE_352.toString());
+        verifier.getSystemProperties().setProperty("repo.url", ECLIPSE_OXYGEN.toString());
         // fails on second resolver invocation in TestMojo 
         // if (injected) system-scoped dependencies are not filtered out for pomDependency=consider  
         verifier.executeGoals(asList("clean", "integration-test"));
