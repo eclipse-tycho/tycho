@@ -21,11 +21,7 @@ import org.junit.Test;
 public class TwoJunitVersionsTest extends AbstractTychoIntegrationTest {
     @Test
     public void test() throws Exception {
-        String targetPlatform = new File("repositories/junit4").getCanonicalPath();
-
-        Verifier verifier = getVerifier("surefire.twoJunitVersions", false);
-        verifier.getSystemProperties()
-                .setProperty("tycho.targetPlatform", targetPlatform.replace('\\', '/').toString());
+        Verifier verifier = getVerifier("surefire.twoJunitVersions");
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
 

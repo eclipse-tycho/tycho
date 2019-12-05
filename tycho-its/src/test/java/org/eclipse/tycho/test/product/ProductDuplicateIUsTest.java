@@ -20,7 +20,7 @@ public class ProductDuplicateIUsTest extends AbstractTychoIntegrationTest {
     @Test
     public void testMultipleProductsNoDuplicateIUs() throws Exception {
         Verifier verifier = getVerifier("product.duplicateIUs", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_342.toString());
+        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
     }

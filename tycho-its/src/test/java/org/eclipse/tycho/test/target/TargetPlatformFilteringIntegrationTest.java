@@ -20,8 +20,8 @@ public class TargetPlatformFilteringIntegrationTest extends AbstractTychoIntegra
     @Test
     public void test() throws Exception {
         Verifier verifier = getVerifier("target.restriction.filter", false);
-        verifier.getSystemProperties().put("e342-repo", P2Repositories.ECLIPSE_342.toString());
-        verifier.getSystemProperties().put("e352-repo", P2Repositories.ECLIPSE_352.toString());
+        verifier.getSystemProperties().put("e342-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
+        verifier.getSystemProperties().put("e352-repo", P2Repositories.ECLIPSE_2019_09.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     }

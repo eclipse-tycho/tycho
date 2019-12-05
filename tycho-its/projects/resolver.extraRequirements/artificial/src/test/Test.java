@@ -11,6 +11,6 @@ public class Test
     {
         Version version = new Version( (String) Activator.context.getBundle( 0 ).getHeaders().get( "Bundle-Version" ) );
 
-        assertTrue( version.compareTo( new Version( "3.5" ) ) < 0 );
+        assertTrue( version.compareTo( new Version( "3.12" ) ) >= 0 );
     }
 }

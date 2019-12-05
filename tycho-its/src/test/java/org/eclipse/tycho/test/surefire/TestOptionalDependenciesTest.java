@@ -21,8 +21,7 @@ public class TestOptionalDependenciesTest extends AbstractTychoIntegrationTest {
     @Test
     public void testIgnoreMutuallyExclusiveOptionalDependenciesForTestRuntimeComputation() throws Exception {
         Verifier verifier = getVerifier("/surefire.optionalDependencies.ignore", false);
-        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
-        verifier.getCliOptions().add("-De352-repo=" + ResourceUtil.P2Repositories.ECLIPSE_352.toString());
+        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     } // see also OptionalDependenciesTest.testOptionallyRequiredBundleCanBeIgnored()
@@ -31,7 +30,7 @@ public class TestOptionalDependenciesTest extends AbstractTychoIntegrationTest {
     @Test
     public void reactorIndirectOptionalDependencies() throws Exception {
         Verifier verifier = getVerifier("/surefire.optionalDependencies.reactor", false);
-        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     }

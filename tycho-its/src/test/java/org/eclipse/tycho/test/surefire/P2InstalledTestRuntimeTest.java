@@ -26,7 +26,7 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
     public void testProvisionAppAndRunTest() throws Exception {
         Verifier verifier = getVerifier("surefire.p2InstalledRuntime", false);
         List<String> options = verifier.getCliOptions();
-        options.add("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_352.toString());
+        options.add("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
         options.add("-PprovisionProduct");
         verifier.executeGoals(asList("clean", "integration-test"));
         verifier.verifyErrorFreeLog();
@@ -36,7 +36,7 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
     public void testRunTestOnProvisionedApp() throws Exception {
         Verifier verifier = getVerifier("surefire.p2InstalledRuntime", false);
         List<String> options = verifier.getCliOptions();
-        options.add("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_352.toString());
+        options.add("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
         options.add("-PuseProvisionedProduct");
         options.add("-DproductClassifier=" + getProductClassifier());
         verifier.executeGoals(asList("clean", "integration-test"));
@@ -47,9 +47,9 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
     public void testDifferentHarnessVersions() throws Exception {
         Verifier verifier = getVerifier("surefire.p2InstalledRuntime", false);
         List<String> options = verifier.getCliOptions();
-        options.add("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_352.toString());
+        options.add("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
         // Use different TP for test bundle and product under test
-        options.add("-Dother.p2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+        options.add("-Dother.p2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_2019_09.toString());
         options.add("-PuseProvisionedProduct");
         options.add("-DproductClassifier=" + getProductClassifier());
         verifier.executeGoals(asList("clean", "integration-test"));
