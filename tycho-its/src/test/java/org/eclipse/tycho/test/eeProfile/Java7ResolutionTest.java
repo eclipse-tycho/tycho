@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.util.List;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -62,6 +63,7 @@ public class Java7ResolutionTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testProductBuildForJava7() throws Exception {
+        Assume.assumeTrue(System.getProperty("java.specification.version").compareTo("11") < 0);
         // a p2 repository that contains a product for Java 7
         P2RepositoryTool productRepo = P2RepositoryTool
                 .forEclipseRepositoryModule(new File(buildResult, "repository2"));
