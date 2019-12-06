@@ -117,10 +117,18 @@ public class DefaultTychoResolver implements TychoResolver {
         logger.info("Resolving dependencies of " + project);
         // store EE configuration in case second resolution has to be applied due to Java version removing modules
         ExecutionEnvironmentConfiguration oldEE = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
+        String oldEEVersion = oldEE.getProfileName().substring(7);
         String javaVersion = System.getProperty("java.specification.version");
         String newEEName = "JavaSE-" + javaVersion;
         DependencyArtifacts dependencyArtifacts;
-        if (javaVersion.compareTo("11") >= 0 && !oldEE.getProfileName().equals(newEEName)) {
+        // Due to Java 11 being the first Java version to remove there is the need for special resolution as 
+        // it's no longer guaranteed that a Java version contains all packages from the previous. In this case 
+        // resolve with current running Java version. if 
+        // There is the issue that it was possible to resolve newer Java versions than the running ones relying on the EE
+        // profile file. In order to keep this possibility (although it will only work if no new APIs are actually used)
+        // if the EE profile specified is newer than the running version it fallbacks to the old profile file way.
+        if (javaVersion.compareTo("11") >= 0 && oldEE.getProfileName().startsWith("JavaSE")
+                && javaVersion.compareTo(oldEEVersion) > 0 && !oldEE.getProfileName().equals(newEEName)) {
             dependencyArtifacts = resolveWithCurrentEE(session, project, newEEName);
         } else {
             dependencyArtifacts = resolver.resolveDependencies(session, project, preliminaryTargetPlatform,
