@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,7 +79,6 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static Map<String, String> getMergedEnvironment(LaunchConfiguration configuration) throws IOException {
         Map<String, String> currentEnv = EnvironmentUtils.getProcEnvironment();
         currentEnv.putAll(configuration.getEnvironment());
