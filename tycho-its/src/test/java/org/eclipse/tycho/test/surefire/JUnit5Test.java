@@ -33,8 +33,12 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
         assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
         assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
                 "myFirstJUnit5Test{TestInfo}");
+        assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+                "parameterizedJUnit5Test{String}[1]");
+        assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+                "parameterizedJUnit5Test{String}[2]");
         // make sure test tagged as 'slow' was skipped
-        assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 1);
+        assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 3);
     }
 
 }

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class JUnit5Test {
 
@@ -32,4 +34,9 @@ class JUnit5Test {
         assertEquals(2, 1+1, "1 + 1 should equal 2");
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { "one", "two" })
+    void parameterizedJUnit5Test(String input) {
+        assertEquals(3, input.length(), "input length should be 3");
+    }
 }

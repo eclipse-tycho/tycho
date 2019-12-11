@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JUnit5 @TempDir Test Plug-in
+Bundle-SymbolicName: bundle.test.junit5tempdir
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.junit;version="4.12",
+ org.junit.jupiter.api;version="5.5",
+ org.junit.jupiter.api.io;version="5.5"
