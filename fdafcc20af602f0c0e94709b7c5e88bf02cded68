@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b83ad00_53ced0a4",
+        "filename": "tycho-its/projects/surefire.junit5/bundle.test/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2019-12-11T13:48:04Z",
+      "side": 1,
+      "message": "I added these as I think it is worth testing that @ValueSource\u0027s provider is resolved, in contrast to @TempDir.",
+      "revId": "fdafcc20af602f0c0e94709b7c5e88bf02cded68",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4184616_5834bd00",
+        "filename": "tycho-its/projects/surefire.junit5/bundle.test/src/bundle/test/JUnit5Test.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2019-12-11T13:48:04Z",
+      "side": 1,
+      "message": "If I need to update the license header, please say so.",
+      "revId": "fdafcc20af602f0c0e94709b7c5e88bf02cded68",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
