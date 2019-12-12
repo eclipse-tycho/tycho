@@ -33,6 +33,23 @@
       "revId": "fdafcc20af602f0c0e94709b7c5e88bf02cded68",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3ab7032_7b6680f3",
+        "filename": "tycho-its/projects/surefire.junit5tempdir/bundle.test/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2019-12-12T09:58:54Z",
+      "side": 1,
+      "message": "FYI: Things I have tried, to ensure that an org.junit.jupiter.engine version that includes the TempDirectory implementation class is available:\n\n  \u003cconfiguration\u003e\n    \u003cdependencies\u003e\n      \u003cdependency\u003e\n        \u003cartifactId\u003eorg.junit.jupiter.engine\u003c/artifactId\u003e\n        \u003cversion\u003e5.5\u003c/version\u003e\n        \u003ctype\u003eeclipse-plugin\u003c/type\u003e\n      \u003c/dependency\u003e\n    \u003c/dependencies\u003e\n  \u003c/configuration\u003e\n\nThat doesn\u0027t make a difference, though.",
+      "revId": "fdafcc20af602f0c0e94709b7c5e88bf02cded68",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
