@@ -50,6 +50,23 @@
       "revId": "fdafcc20af602f0c0e94709b7c5e88bf02cded68",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6673ded7_d845b8f5",
+        "filename": "tycho-its/projects/surefire.junit5tempdir/bundle.test/src/bundle/test/JUnit5TempDirTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2019-12-12T10:29:09Z",
+      "side": 1,
+      "message": "Another thing I have tried, explicitly register the TempDirectory extension:\n\n  @org.junit.jupiter.api.extension.ExtendWith(org.junit.jupiter.engine.extension.TempDirectory.class)\n\nUnfortunately, this fails as\n\n  The type org.junit.jupiter.engine.extension.TempDirectory is not visible\n\n(Which is correct, as it is not public.)",
+      "revId": "fdafcc20af602f0c0e94709b7c5e88bf02cded68",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
