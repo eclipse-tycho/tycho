@@ -14,7 +14,7 @@ import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,10 +82,8 @@ public class TargetPlatformFilterConfigurationReaderTest extends PlexusTestCase 
             assertThat(filter.getAction(), is(FilterAction.REMOVE_ALL));
         }
 
-        assertThat(
-                filters.get(0).getScopePattern(),
-                is(patternWithoutVersion(CapabilityType.OSGI_BUNDLE,
-                        "org.eclipse.equinox.servletbridge.extensionbundle")));
+        assertThat(filters.get(0).getScopePattern(), is(patternWithoutVersion(CapabilityType.OSGI_BUNDLE,
+                "org.eclipse.equinox.servletbridge.extensionbundle")));
         assertThat(filters.get(1).getScopePattern(),
                 is(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "org.eclipse.equinox.app", "[3.6.0,3.6.1)")));
         assertThat(filters.get(2).getScopePattern(),

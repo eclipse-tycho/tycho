@@ -11,7 +11,7 @@
 package org.eclipse.tycho.testing;
 
 import static org.eclipse.tycho.test.util.TychoMatchers.exists;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;

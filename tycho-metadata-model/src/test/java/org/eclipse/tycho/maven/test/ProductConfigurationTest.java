@@ -11,7 +11,7 @@
 package org.eclipse.tycho.maven.test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +30,8 @@ public class ProductConfigurationTest {
 
     @Test
     public void testProductConfigurationParse() throws Exception {
-        ProductConfiguration config = ProductConfiguration.read(getClass().getResourceAsStream(
-                "/product/MyFirstRCP.product"));
+        ProductConfiguration config = ProductConfiguration
+                .read(getClass().getResourceAsStream("/product/MyFirstRCP.product"));
 
         Assert.assertEquals("My First RCP", config.getName());
         Assert.assertEquals("MyFirstRCP.product1", config.getProduct());
@@ -99,8 +99,8 @@ public class ProductConfigurationTest {
 
     @Test
     public void testProductConfigurationParseWithStartLevel() throws Exception {
-        ProductConfiguration config = ProductConfiguration.read(getClass().getResourceAsStream(
-                "/product/MyProduct.product"));
+        ProductConfiguration config = ProductConfiguration
+                .read(getClass().getResourceAsStream("/product/MyProduct.product"));
         Map<String, BundleConfiguration> bundles = config.getPluginConfiguration();
 //		<plugin id="org.eclipse.core.contenttype" autoStart="true" startLevel="1" />
         BundleConfiguration contentType = bundles.get("org.eclipse.core.contenttype");
@@ -118,8 +118,8 @@ public class ProductConfigurationTest {
 
     @Test
     public void testFeatureInstallMode() throws Exception {
-        ProductConfiguration config = ProductConfiguration.read(getClass().getResourceAsStream(
-                "/product/rootFeatures.product"));
+        ProductConfiguration config = ProductConfiguration
+                .read(getClass().getResourceAsStream("/product/rootFeatures.product"));
 
         Map<String, InstallMode> modes = getInstallModes(config);
 
@@ -132,8 +132,8 @@ public class ProductConfigurationTest {
 
     @Test
     public void testRemoveRootFeatures() throws Exception {
-        ProductConfiguration config = ProductConfiguration.read(getClass().getResourceAsStream(
-                "/product/rootFeatures.product"));
+        ProductConfiguration config = ProductConfiguration
+                .read(getClass().getResourceAsStream("/product/rootFeatures.product"));
 
         config.removeRootInstalledFeatures();
 

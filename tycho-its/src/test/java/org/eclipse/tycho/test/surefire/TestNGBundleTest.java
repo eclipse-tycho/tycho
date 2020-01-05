@@ -12,7 +12,7 @@ package org.eclipse.tycho.test.surefire;
 
 import static org.eclipse.tycho.test.util.SurefireUtil.testResultFile;
 import static org.eclipse.tycho.test.util.TychoMatchers.exists;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 

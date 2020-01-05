@@ -11,7 +11,7 @@
 package org.eclipse.sisu.equinox.launching.internal;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +56,8 @@ public class DefaultEquinoxInstallationFactoryTest {
     public void testExplicitlyConfiguredStartLevel() throws IOException {
         instDesc.addBundleStartLevel(new BundleStartLevel("org.example.bundle1", 6, false));
 
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@6"));
     }
 
@@ -64,13 +65,15 @@ public class DefaultEquinoxInstallationFactoryTest {
     public void testExplicitlyConfiguredStartLevelAndAutoStart() throws IOException {
         instDesc.addBundleStartLevel(new BundleStartLevel("org.example.bundle1", 6, true));
 
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@6:start"));
     }
 
     @Test
     public void testDefaultStartLevelIsNotSet() throws Exception {
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle2")); // don't need @n here because this would be redundant
     }
 
@@ -78,7 +81,8 @@ public class DefaultEquinoxInstallationFactoryTest {
     public void testDefaultAutoStartIsSet() throws Exception {
         defaultLevel = new BundleStartLevel(null, 7, true);
 
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle2@start"));
     }
 
@@ -86,7 +90,8 @@ public class DefaultEquinoxInstallationFactoryTest {
     public void testExplicitlyConfiguredAutoStart() throws Exception {
         instDesc.addBundleStartLevel(new BundleStartLevel("org.example.bundle1", 0, true)); // level attribute omitted
 
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@start")); // implicitly use default start level
     }
 

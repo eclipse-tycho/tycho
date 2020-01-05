@@ -13,7 +13,7 @@ package org.eclipse.tycho.extras.pomless;
 
 import static java.util.Arrays.asList;
 import static org.eclipse.tycho.extras.its.TychoMatchers.isFile;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 

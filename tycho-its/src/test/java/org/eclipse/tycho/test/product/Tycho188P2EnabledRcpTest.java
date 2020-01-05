@@ -14,8 +14,8 @@ import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -49,8 +49,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
     private static final String VERSION = "1.0.0-SNAPSHOT";
 
     private static final List<Product> TEST_PRODUCTS = Arrays.asList(new Product("main.product.id", "", false, true),
-            new Product("extra.product.id", "extra", "rootfolder", true, false), new Product("repoonly.product.id",
-                    false));
+            new Product("extra.product.id", "extra", "rootfolder", true, false),
+            new Product("repoonly.product.id", false));
 
     @DataPoints
     public static final TargetEnvironment[] TEST_ENVIRONMENTS = new TargetEnvironment[] {
@@ -77,8 +77,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testPublishedProducts() throws Exception {
-        P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir(),
-                MODULE));
+        P2RepositoryTool p2Repository = P2RepositoryTool
+                .forEclipseRepositoryModule(new File(verifier.getBasedir(), MODULE));
 
         for (Product product : TEST_PRODUCTS) {
             for (TargetEnvironment env : TEST_ENVIRONMENTS) {
@@ -103,8 +103,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testRootLevelFeaturesAreIncludedInP2Repository() throws Exception {
-        P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir(),
-                MODULE));
+        P2RepositoryTool p2Repository = P2RepositoryTool
+                .forEclipseRepositoryModule(new File(verifier.getBasedir(), MODULE));
 
         // test that root level feature is assembled into the p2 repository...
         File rootFeatureInRepo = p2Repository.findFeatureArtifact("pi.root-level-installed-feature");
@@ -125,10 +125,10 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
     public void testRootLevelFeaturesAreInstalledInRightProducts(TargetEnvironment env) {
         File basedir = new File(verifier.getBasedir(), MODULE);
 
-        EclipseInstallationTool rootFeatureProduct = EclipseInstallationTool.forInstallationInEclipseRepositoryTarget(
-                basedir, "main.product.id", env, null);
-        EclipseInstallationTool otherProduct = EclipseInstallationTool.forInstallationInEclipseRepositoryTarget(
-                basedir, "extra.product.id", env, "rootfolder");
+        EclipseInstallationTool rootFeatureProduct = EclipseInstallationTool
+                .forInstallationInEclipseRepositoryTarget(basedir, "main.product.id", env, null);
+        EclipseInstallationTool otherProduct = EclipseInstallationTool.forInstallationInEclipseRepositoryTarget(basedir,
+                "extra.product.id", env, "rootfolder");
 
         assertThat(rootFeatureProduct.getInstalledFeatureIds(), hasItem("pi.root-level-installed-feature"));
         assertThat(otherProduct.getInstalledFeatureIds(), not(hasItem("pi.root-level-installed-feature")));
@@ -158,14 +158,14 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
         if (product.isMaterialized()) {
             File artifactDirectory = new File(verifier.getArtifactPath(GROUP_ID, ARTIFACT_ID, VERSION, "zip"))
                     .getParentFile();
-            File installedProductArchive = new File(artifactDirectory, ARTIFACT_ID + '-' + VERSION
-                    + product.getAttachIdSegment() + "-" + toOsWsArch(env) + ".zip");
+            File installedProductArchive = new File(artifactDirectory,
+                    ARTIFACT_ID + '-' + VERSION + product.getAttachIdSegment() + "-" + toOsWsArch(env) + ".zip");
             assertTrue("Product archive not found at: " + installedProductArchive, installedProductArchive.exists());
 
             String rootFolder = product.getRootFolderName() != null ? product.getRootFolderName() + "/" : "";
 
-            Properties configIni = openPropertiesFromZip(installedProductArchive, rootFolder
-                    + "configuration/config.ini");
+            Properties configIni = openPropertiesFromZip(installedProductArchive,
+                    rootFolder + "configuration/config.ini");
             String bundleConfiguration = configIni.getProperty("osgi.bundles");
             assertTrue("Installation is not configured to use the simpleconfigurator",
                     bundleConfiguration.startsWith("reference:file:org.eclipse.equinox.simpleconfigurator"));
@@ -224,8 +224,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
     public static Properties openPropertiesFromZip(File zipFile, String propertyFile) throws Exception {
         Properties configIni = new Properties();
-        configIni.load(new ByteArrayInputStream(IOUtil.toByteArray(ArchiveContentUtil.getFileContent(zipFile,
-                propertyFile))));
+        configIni.load(
+                new ByteArrayInputStream(IOUtil.toByteArray(ArchiveContentUtil.getFileContent(zipFile, propertyFile))));
         return configIni;
     }
 

@@ -1,9 +1,9 @@
 package org.eclipse.tycho.core.osgitools;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.InputStream;
@@ -56,9 +56,8 @@ public class OsgiManifestTest {
             parseManifest("invalidVersion.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\""));
+            assertThat(e.getMessage(), containsString(
+                    "invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\""));
         }
     }
 
@@ -68,9 +67,8 @@ public class OsgiManifestTest {
             parseManifest("duplicateImport.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
+            assertThat(e.getMessage(), containsString(
+                    "Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
         }
     }
 
@@ -80,9 +78,8 @@ public class OsgiManifestTest {
             parseManifest("invalidVersionQualifier.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("Invalid manifest header Bundle-Version: \"invalid\" : invalid version \"invalid\": non-numeric \"invalid\""));
+            assertThat(e.getMessage(), containsString(
+                    "Invalid manifest header Bundle-Version: \"invalid\" : invalid version \"invalid\": non-numeric \"invalid\""));
         }
     }
 

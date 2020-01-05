@@ -12,7 +12,7 @@ package org.eclipse.tycho.core.test;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.Arrays;
@@ -107,12 +107,12 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         DependencyArtifacts platform = (DependencyArtifacts) project
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
 
-        CustomExecutionEnvironment customProfile = new CustomExecutionEnvironment("custom", Arrays.asList(
-                new SystemCapability(Type.JAVA_PACKAGE, "package.historically.not.in.jdk", "1.2.1"), //
-                new SystemCapability(Type.OSGI_EE, "OSGi/Minimum", "1.0.0"), //
-                new SystemCapability(Type.OSGI_EE, "JavaSE", "1.0.0"), // 
-                new SystemCapability(Type.OSGI_EE, "JavaSE", "1.1.0"), //
-                new SystemCapability(Type.OSGI_EE, "JavaSE", "1.2.0")));
+        CustomExecutionEnvironment customProfile = new CustomExecutionEnvironment("custom",
+                Arrays.asList(new SystemCapability(Type.JAVA_PACKAGE, "package.historically.not.in.jdk", "1.2.1"), //
+                        new SystemCapability(Type.OSGI_EE, "OSGi/Minimum", "1.0.0"), //
+                        new SystemCapability(Type.OSGI_EE, "JavaSE", "1.0.0"), // 
+                        new SystemCapability(Type.OSGI_EE, "JavaSE", "1.1.0"), //
+                        new SystemCapability(Type.OSGI_EE, "JavaSE", "1.2.0")));
 
         State state = resolver.newResolvedState(project, customProfile, false, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
@@ -128,8 +128,8 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testStrictBootClasspathAccessRules() throws Exception {
         File basedir = getBasedir("projects/bootclasspath");
-        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null,
-                getBasedir("p2repo")));
+        Map<File, MavenProject> basedirMap = MavenSessionUtils
+                .getBasedirMap(getSortedProjects(basedir, null, getBasedir("p2repo")));
         // 1. bundle importing a JRE package only
         MavenProject bundle1Project = basedirMap.get(new File(basedir, "bundle1"));
         List<DependencyEntry> bundle1Dependencies = computeDependencies(bundle1Project);

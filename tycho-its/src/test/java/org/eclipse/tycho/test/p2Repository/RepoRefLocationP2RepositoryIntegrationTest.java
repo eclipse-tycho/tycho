@@ -11,8 +11,8 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.File;
