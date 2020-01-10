@@ -47,16 +47,24 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
 
             @Override
             public boolean accept(File file) {
-                return file.isFile() && file.getName().endsWith(TARGET_EXTENSION);
+                return file.isFile() && file.getName().endsWith(TARGET_EXTENSION)
+                        && !file.getName().startsWith(".polyglot.");
             }
         });
         if (listFiles != null && listFiles.length > 0) {
             if (listFiles.length == 1) {
                 return listFiles[0];
             } else {
+                StringBuilder sb = new StringBuilder();
+                for (File f : listFiles) {
+                    if (sb.length() > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append(f.getName());
+                }
                 throw new IllegalArgumentException("only one " + TARGET_EXTENSION
                         + " file is allowed per target project, or target must be named like the folder (<foldername>"
-                        + TARGET_EXTENSION + ")");
+                        + TARGET_EXTENSION + "), the following targets where found: " + sb);
             }
         }
         return null;
