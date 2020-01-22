@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,17 +29,10 @@ public class EnvironmentUtil {
     static {
         props = new Properties();
         ClassLoader cl = AbstractTychoIntegrationTest.class.getClassLoader();
-        InputStream is = cl.getResourceAsStream("baseTest.properties");
-        if (is != null) {
-            try {
-                try {
-                    props.load(is);
-                } finally {
-                    is.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        try (InputStream is = cl.getResourceAsStream("baseTest.properties")) {
+            props.load(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -76,7 +69,7 @@ public class EnvironmentUtil {
     }
 
     public static String getTargetPlatform() {
-        return "http:////download.eclipse.org/releases/oxygen/";
+        return "https:////download.eclipse.org/releases/2019-12/";
     }
 
     public static String getTestSettings() {
