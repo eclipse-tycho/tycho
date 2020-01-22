@@ -17,7 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,7 +43,7 @@ import org.xml.sax.SAXException;
 public class MetadataIO {
     private static class Writer extends MetadataWriter {
 
-        public Writer(OutputStream output) throws UnsupportedEncodingException {
+        public Writer(OutputStream output) {
             super(output, null);
         }
 

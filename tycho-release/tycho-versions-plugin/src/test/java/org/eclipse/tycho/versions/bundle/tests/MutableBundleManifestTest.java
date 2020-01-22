@@ -15,7 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -184,12 +184,11 @@ public class MutableBundleManifestTest {
         assertContents(mf, path);
     }
 
-    private void assertContents(MutableBundleManifest mf, String path)
-            throws UnsupportedEncodingException, IOException {
+    private void assertContents(MutableBundleManifest mf, String path) throws IOException {
         Assert.assertEquals(toAsciiString(toByteArray(path)), toAsciiString(mf));
     }
 
-    private String toAsciiString(MutableBundleManifest mf) throws IOException, UnsupportedEncodingException {
+    private String toAsciiString(MutableBundleManifest mf) throws IOException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         MutableBundleManifest.write(mf, buf);
 
@@ -212,8 +211,8 @@ public class MutableBundleManifestTest {
         return expected;
     }
 
-    private static String toAsciiString(byte[] bytes) throws UnsupportedEncodingException {
-        return new String(bytes, "ascii");
+    private static String toAsciiString(byte[] bytes) {
+        return new String(bytes, StandardCharsets.US_ASCII);
     }
 
 }

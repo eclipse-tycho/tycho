@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.versions.pom.PomFile;
@@ -178,8 +178,8 @@ public class MutablePomFileTest {
         return expected;
     }
 
-    private static String toAsciiStringWithoutLineFeeds(byte[] bytes) throws UnsupportedEncodingException {
-        return new String(bytes, "ascii").replace("\n", "").replace("\r", "");
+    private static String toAsciiStringWithoutLineFeeds(byte[] bytes) {
+        return new String(bytes, StandardCharsets.US_ASCII).replace("\n", "").replace("\r", "");
     }
 
 }

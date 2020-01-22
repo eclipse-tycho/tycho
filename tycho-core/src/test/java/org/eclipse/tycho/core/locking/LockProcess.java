@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileLock;
 import java.util.Arrays;
 
@@ -55,8 +54,8 @@ public class LockProcess {
     public void lockFileInForkedProcess() {
         copyClassFile();
         try {
-            File javaExecutable = new File(System.getProperty("java.home"), "bin/java"
-                    + (File.separatorChar == '\\' ? ".exe" : ""));
+            File javaExecutable = new File(System.getProperty("java.home"),
+                    "bin/java" + (File.separatorChar == '\\' ? ".exe" : ""));
             String[] commandLine = new String[] { javaExecutable.getAbsolutePath(), "-cp",
                     tmpClassDir.getAbsolutePath(), LockProcess.class.getName(), lockMarkerFile.getAbsolutePath(),
                     String.valueOf(waitTime) };
@@ -67,8 +66,6 @@ public class LockProcess {
             // wait until file lock is acquired
             while (!LOCK_ACQUIRED_MSG.equals(reader.readLine())) {
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
