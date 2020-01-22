@@ -25,7 +25,7 @@
 
 	<properties>
 		<tycho-build-version>${project.version}</tycho-build-version>
-		<its-maven-version>3.3.9</its-maven-version>
+		<its-maven-version>3.6.3</its-maven-version>
 		<maven-dir>${project.build.directory}/apache-maven-${its-maven-version}</maven-dir>
 
 	</properties>
@@ -188,6 +188,16 @@
 			<artifactId>plexus-jetty-testsuite</artifactId>
 			<version>2.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-shared-utils</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<dependency>
+    <groupId>org.sonatype.sisu</groupId>
+    <artifactId>sisu-inject-plexus</artifactId>
+    <version>2.6.0</version>
+</dependency>
 
 		<!-- artifacts to be tested -->
 		<dependency>
