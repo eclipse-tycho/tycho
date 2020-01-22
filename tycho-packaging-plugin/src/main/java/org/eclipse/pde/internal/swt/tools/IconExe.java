@@ -23,7 +23,6 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Customize the icon of a Windows exe
@@ -1174,11 +1173,6 @@ static class ImageLoader {
 	 */
 	public int repeatCount;
 		
-	/*
-	 * the set of ImageLoader event listeners, created on demand
-	 */
-	Vector imageLoaderListeners;
-
 /**
  * Construct a new empty ImageLoader.
  */
