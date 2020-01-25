@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Tycho">
 	<body>
-		<!-- TODO add samples -->
 		<menu name="Tycho" inherit="top">
 			<item name="Introduction" href="index.html" />
 
@@ -11,7 +10,6 @@
 
 			<item name="Compiler Plugin" href="tycho-compiler-plugin/plugin-info.html" />
 			<item name="Packaging Plugin" href="tycho-packaging-plugin/plugin-info.html" />
-			<item name="Build Properties" href="BuildProperties.html" />
 			<item name="Surefire Plugin" href="tycho-surefire-plugin/plugin-info.html" />
 			<item name="p2 Publisher Plugin" href="tycho-p2/tycho-p2-publisher-plugin/plugin-info.html" />
 			<item name="p2 Repository Plugin" href="tycho-p2/tycho-p2-repository-plugin/plugin-info.html" />
@@ -19,8 +17,23 @@
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="Versions Plugin" href="tycho-release/tycho-versions-plugin/plugin-info.html" />
 			<item name="POM Generator Plugin" href="tycho-pomgenerator-plugin/plugin-info.html" />
-            <item name="Tycho Properties" href="TychoProperties.html" />
+			<item name="Properties">
+				<item name="Build Properties" href="BuildProperties.html" />
+            	<item name="Tycho Properties" href="TychoProperties.html" />
+			</item>
 		</menu>
+		<menu name="Tycho Extras" inherit="top">
+      		<item name="Introduction" href="tycho-extras/index.html"/>
+    		<item name="P2 Extras Plugin" href="tycho-extras/tycho-p2-extras-plugin/plugin-info.html"/>
+      		<item name="Target Platform Validation Plugin" href="tycho-extras/target-platform-validation-plugin/plugin-info.html"/>
+      		<item name="Eclipserun Plugin" href="tycho-extras/tycho-eclipserun-plugin/plugin-info.html"/>
+     		<item name="Document Bundle Plugin" href="tycho-extras/tycho-document-bundle-plugin/plugin-info.html"/>
+      		<item name="Source Feature Generation Plugin" href="tycho-extras/tycho-source-feature-plugin/plugin-info.html"/>
+      		<item name="Pack200 Plugins" href="tycho-extras/tycho-pack200/index.html">
+        		<item name="Normalization Plugin" href="tycho-extras/tycho-pack200/tycho-pack200a-plugin/plugin-info.html"/>
+        		<item name="Pack Plugin" href="tycho-extras/tycho-pack200/tycho-pack200b-plugin/plugin-info.html"/>
+      		</item>
+    	</menu>
 	</body>
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
