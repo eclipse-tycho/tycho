@@ -363,6 +363,9 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+
+        setVariableValueToObject(mojo, "showWarnings", Boolean.TRUE);
+
         final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
@@ -393,6 +396,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
+        setVariableValueToObject(mojo, "showWarnings", Boolean.TRUE);
         final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 

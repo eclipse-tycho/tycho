@@ -131,6 +131,37 @@ public class JDTCompiler extends AbstractCompiler {
     public String[] buildCompilerArguments(CompilerConfiguration config, CustomCompilerConfiguration custom,
             String[] sourceFiles) {
         List<String> args = new ArrayList<>();
+        
+        Collection<Map.Entry<String, String>> customCompilerArgumentsEntries = config
+                .getCustomCompilerArgumentsEntries();
+        for (Map.Entry<String, String> entry : customCompilerArgumentsEntries) {
+
+            String key = entry.getKey();
+
+            if (StringUtils.isEmpty(key) || key.startsWith("@")) {
+                continue;
+            }
+
+            if ("use.java.home".equals(key)) {
+                custom.javaHome = entry.getValue();
+                continue;
+            }
+
+            if ("org.osgi.framework.system.packages".equals(key)) {
+                custom.bootclasspathAccessRules = entry.getValue();
+                continue;
+            }
+
+            args.add(key);
+
+            String value = entry.getValue();
+
+            if (StringUtils.isEmpty(value)) {
+                continue;
+            }
+
+            args.add(value);
+        }
 
         // ----------------------------------------------------------------------
         // Set output
@@ -242,37 +273,6 @@ public class JDTCompiler extends AbstractCompiler {
         if (!suppressEncoding(config) && !StringUtils.isEmpty(config.getSourceEncoding())) {
             args.add("-encoding");
             args.add(config.getSourceEncoding());
-        }
-
-        Collection<Map.Entry<String, String>> customCompilerArgumentsEntries = config
-                .getCustomCompilerArgumentsEntries();
-        for (Map.Entry<String, String> entry : customCompilerArgumentsEntries) {
-
-            String key = entry.getKey();
-
-            if (StringUtils.isEmpty(key) || key.startsWith("@")) {
-                continue;
-            }
-
-            if ("use.java.home".equals(key)) {
-                custom.javaHome = entry.getValue();
-                continue;
-            }
-
-            if ("org.osgi.framework.system.packages".equals(key)) {
-                custom.bootclasspathAccessRules = entry.getValue();
-                continue;
-            }
-
-            args.add(key);
-
-            String value = entry.getValue();
-
-            if (StringUtils.isEmpty(value)) {
-                continue;
-            }
-
-            args.add(value);
         }
 
         return args.toArray(new String[args.size()]);
