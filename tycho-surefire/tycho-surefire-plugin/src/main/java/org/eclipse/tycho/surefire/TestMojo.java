@@ -254,11 +254,11 @@ public class TestMojo extends AbstractMojo {
     /**
      * Additional dependencies to be added to the test runtime. Ignored if {@link #testRuntime} is
      * <code>p2Installed</code>.
-     * 
+     *
      * Note: This parameter has only limited support for dependencies to artifacts within the
      * reactor. Therefore it is recommended to specify <tt>extraRequirements</tt> on the
      * <tt>target-platform-configuration</tt> plugin instead. Example:
-     * 
+     *
      * <pre>
      * &lt;plugin&gt;
      *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
@@ -277,7 +277,7 @@ public class TestMojo extends AbstractMojo {
      *    &lt;/configuration&gt;
      * &lt;/plugin&gt;
      * </pre>
-     * 
+     *
      * The dependencies specified as <tt>extraRequirements</tt> are &ndash; together with the
      * dependencies specified in the <tt>MANIFEST.MF</tt> of the project &ndash; transitively
      * resolved against the target platform. The resulting set of bundles is included in the test
@@ -290,7 +290,7 @@ public class TestMojo extends AbstractMojo {
      * Eclipse application to be run. If not specified, default application
      * org.eclipse.ui.ide.workbench will be used. Application runnable will be invoked from test
      * harness, not directly from Eclipse.
-     * 
+     *
      * Note that you need to ensure that the bundle which defines the configured application is
      * included in the test runtime.
      */
@@ -321,7 +321,7 @@ public class TestMojo extends AbstractMojo {
     /**
      * By default, Tycho Surefire disables JVM assertions for the execution of your test cases. To
      * enable the assertions, set this flag to "true".
-     * 
+     *
      * @since 1.5.0
      */
     @Parameter(property = "enableAssertions", defaultValue = "false")
@@ -353,7 +353,7 @@ public class TestMojo extends AbstractMojo {
      * Identifies a single test (suite) class to run. This is useful if you have a single JUnit test
      * suite class defining which tests should be executed. Will be ignored if {@link #test} is
      * specified. Example:
-     * 
+     *
      * <pre>
      * &lt;testClass&gt;foo.bar.FooTest&lt;/testClass&gt;
      * </pre>
@@ -391,7 +391,7 @@ public class TestMojo extends AbstractMojo {
     /**
      * Bundle start level and auto start configuration used by the test runtime. Ignored if
      * {@link #testRuntime} is <code>p2Installed</code>. Example:
-     * 
+     *
      * <pre>
      * &lt;bundleStartLevel&gt;
      *   &lt;bundle&gt;
@@ -409,7 +409,7 @@ public class TestMojo extends AbstractMojo {
      * The default bundle start level and auto start configuration used by the test runtime for
      * bundles where the start level/auto start is not configured in {@link #bundleStartLevel}.
      * Ignored if {@link #testRuntime} is <code>p2Installed</code>. Example:
-     * 
+     *
      * <pre>
      *   &lt;defaultStartLevel&gt;
      *     &lt;level&gt;6&lt;/level&gt;
@@ -465,10 +465,10 @@ public class TestMojo extends AbstractMojo {
      * Normally tycho will automatically determine the test framework provider based on the test
      * project's classpath. Use this to force using a test framework provider implementation with
      * the given role hint. Tycho comes with providers
-     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;. Note that when specifying a
+     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;,&quot;junit5&quot;. Note that when specifying a
      * providerHint, you have to make sure the provider is actually available in the dependencies of
      * tycho-surefire-plugin.
-     * 
+     *
      * @since 0.16.0
      */
     @Parameter
@@ -478,7 +478,7 @@ public class TestMojo extends AbstractMojo {
      * Defines the order the tests will be run in. Supported values are "alphabetical",
      * "reversealphabetical", "random", "hourly" (alphabetical on even hours, reverse alphabetical
      * on odd hours) and "filesystem".
-     * 
+     *
      * @since 0.19.0
      */
     @Parameter(defaultValue = "filesystem")
@@ -495,7 +495,7 @@ public class TestMojo extends AbstractMojo {
     /**
      * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads,
      * as controlled by threadCount.
-     * 
+     *
      * @since 0.16.0
      */
     @Parameter(property = "parallel")
@@ -503,7 +503,7 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * (JUnit 4.7 provider) Indicates that threadCount is per cpu core.
-     * 
+     *
      * @since 0.16.0
      */
     @Parameter(property = "perCoreThreadCount", defaultValue = "true")
@@ -513,7 +513,7 @@ public class TestMojo extends AbstractMojo {
      * (JUnit 4.7 provider) The attribute thread-count allows you to specify how many threads should
      * be allocated for this execution. Only makes sense to use in conjunction with the parallel
      * parameter.
-     * 
+     *
      * @since 0.16.0
      */
     @Parameter(property = "threadCount")
@@ -523,7 +523,7 @@ public class TestMojo extends AbstractMojo {
      * (JUnit 4.7 provider) Indicates that the thread pool will be unlimited. The parallel parameter
      * and the actual number of classes/methods will decide. Setting this to "true" effectively
      * disables perCoreThreadCount and threadCount.
-     * 
+     *
      * @since 0.16.0
      */
     @Parameter(property = "useUnlimitedThreads", defaultValue = "false")
@@ -531,7 +531,7 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * Use this to specify surefire provider-specific properties.
-     * 
+     *
      * @since 0.16.0
      */
     @Parameter
@@ -554,9 +554,9 @@ public class TestMojo extends AbstractMojo {
      * with a certain performance overhead for executing the provisioning operations otherwise not
      * required.</li>
      * </ul>
-     * 
+     *
      * Example configuration which will install product IU under test "example.product.id" using p2:
-     * 
+     *
      * <pre>
      * &lt;plugin&gt;
      *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
@@ -584,7 +584,7 @@ public class TestMojo extends AbstractMojo {
      *    &lt;/configuration&gt;
      * &lt;/plugin&gt;
      * </pre>
-     * 
+     *
      * @since 0.19.0
      */
     @Parameter(defaultValue = "default")
@@ -594,11 +594,11 @@ public class TestMojo extends AbstractMojo {
      * p2 <a href=
      * "http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html"
      * >profile</a> name of the installation under test.
-     * 
+     *
      * Only relevant if {@link #testRuntime} is <code>p2Installed</code>. If tests are installed on
      * top of an already existing installation in {@link #work}, this must match the name of the
      * existing profile.
-     * 
+     *
      * @since 0.19.0
      */
     // default value should be kept the same as DirectorMojo#profile default value
@@ -634,16 +634,16 @@ public class TestMojo extends AbstractMojo {
      * The value of BREE will be matched against the id of the toolchain elements in
      * toolchains.xml.</li>
      * </ul>
-     * 
+     *
      * Example for BREE: <br>
      * In <code>META-INF/MANIFEST.MF</code>:
-     * 
+     *
      * <pre>
      * Bundle-RequiredExecutionEnvironment: JavaSE-1.7
      * </pre>
-     * 
+     *
      * In toolchains.xml:
-     * 
+     *
      * <pre>
      * &lt;toolchains&gt;
      *    &lt;toolchain&gt;
@@ -666,7 +666,7 @@ public class TestMojo extends AbstractMojo {
      * suite files. The suite files will overwrite the {@link #includes} and {@link #excludes}
      * patterns. The path to the suite file(s) could be relative (test bundle classpath) or an
      * absolute path to xml files outside the test bundle.
-     * 
+     *
      * <pre>
      * &lt;configuration&gt;
      *   &lt;suiteXmlFiles&gt;
@@ -985,7 +985,7 @@ public class TestMojo extends AbstractMojo {
         } else {
             excludeList = defaultExcludes;
         }
-        // TODO bug 495353 we should we rather let TestListResolver do the work here 
+        // TODO bug 495353 we should we rather let TestListResolver do the work here
         // by passing in the unparsed String or Strings instead of already parsed include/exclude list
         // (this would add support for running single test methods, negation etc.)
         TestListResolver resolver = new TestListResolver(includeList, excludeList);
