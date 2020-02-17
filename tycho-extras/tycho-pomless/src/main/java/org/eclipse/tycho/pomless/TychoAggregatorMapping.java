@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Lablicate GmbH and others.
+ * Copyright (c) 2019, 2020 Lablicate GmbH and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -95,16 +95,17 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
     protected void initModel(Model model, Reader artifactReader, File artifactFile)
             throws ModelParseException, IOException {
         logger.debug("Generate aggregator pom for " + artifactFile);
-        BufferedReader reader = new BufferedReader(artifactReader);
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.startsWith("#") || line.isEmpty()) {
-                continue;
+        try (BufferedReader reader = new BufferedReader(artifactReader)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("#") || line.trim().isEmpty()) {
+                    continue;
+                }
+                logger.debug("Adding module " + line);
+                model.getModules().add(line);
             }
-            logger.debug("Adding module " + line);
-            model.getModules().add(line);
+            model.setArtifactId(artifactFile.getParentFile().getName());
         }
-        model.setArtifactId(artifactFile.getParentFile().getName());
     }
 
     @Override
