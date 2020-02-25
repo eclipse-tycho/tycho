@@ -20,8 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -96,8 +96,7 @@ public class LocalArtifactRepositoryP2APITest {
     private static final IArtifactKey NEW_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
     private static final IArtifactDescriptor NEW_DESCRIPTOR = localPackedDescriptorFor(NEW_KEY);
 
-    private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<>(Arrays.asList(ARTIFACT_A_KEY,
-            ARTIFACT_B_KEY));
+    private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<>(Arrays.asList(ARTIFACT_A_KEY, ARTIFACT_B_KEY));
     private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = new HashSet<>(
             Arrays.asList(ARTIFACT_A_CANONICAL, ARTIFACT_A_PACKED, ARTIFACT_B_PACKED));
 
@@ -582,8 +581,7 @@ public class LocalArtifactRepositoryP2APITest {
 
         try (OutputStream addSink = subject.getOutputStream(ARTIFACT_A_CANONICAL)) {
             addSink.write(new byte[1]);
-        }
-        catch (ProvisionException e) {
+        } catch (ProvisionException e) {
             expectedException = e;
         }
 
@@ -629,8 +627,8 @@ public class LocalArtifactRepositoryP2APITest {
      */
     private static IArtifactDescriptor localPackedDescriptorFor(IArtifactKey key) {
         GAVArtifactDescriptor result = new GAVArtifactDescriptor(key);
-        result.setProcessingSteps(new IProcessingStepDescriptor[] { new ProcessingStepDescriptor(
-                "org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) });
+        result.setProcessingSteps(new IProcessingStepDescriptor[] {
+                new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) });
         result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
         return result;
     }
@@ -665,9 +663,9 @@ public class LocalArtifactRepositoryP2APITest {
     }
 
     private File artifactLocationOf(IArtifactKey key, String classifierAndExtension) {
-        return new File(temporaryLocalMavenRepo.getLocalRepositoryRoot(), "p2/" + key.getClassifier().replace('.', '/')
-                + "/" + key.getId() + "/" + key.getVersion() + "/" + key.getId() + "-" + key.getVersion()
-                + classifierAndExtension);
+        return new File(temporaryLocalMavenRepo.getLocalRepositoryRoot(),
+                "p2/" + key.getClassifier().replace('.', '/') + "/" + key.getId() + "/" + key.getVersion() + "/"
+                        + key.getId() + "-" + key.getVersion() + classifierAndExtension);
     }
 
     private int readSizeOfArtifact(IArtifactKey key) throws ArtifactSinkException {

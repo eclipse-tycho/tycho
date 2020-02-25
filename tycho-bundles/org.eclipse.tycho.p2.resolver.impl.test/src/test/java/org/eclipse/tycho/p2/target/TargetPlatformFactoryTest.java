@@ -19,8 +19,8 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithIdAndVersion;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -145,8 +145,8 @@ public class TargetPlatformFactoryTest {
     public void testFinalTargetPlatformContainsFinalReactorIU() throws Exception {
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
 
-        Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections.singletonMap(
-                InstallableUnitUtil.createIU("bundle", "1.2.0"), DUMMY_PROJECT);
+        Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections
+                .singletonMap(InstallableUnitUtil.createIU("bundle", "1.2.0"), DUMMY_PROJECT);
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits,
                 REACTOR_ARTIFACTS);
 
@@ -157,8 +157,8 @@ public class TargetPlatformFactoryTest {
 
     @Test
     public void testConfiguredFiltersOnReactorIUsInPreliminaryTP() throws Exception {
-        TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
-                CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
+        TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(
+                CapabilityPattern.patternWithoutVersion(CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
         tpConfig.addFilters(Arrays.asList(filter));
 
         ReactorProject reactorProject = createReactorProject("artifactId", "test.feature.feature.group", "iu.p2.inf");
@@ -171,8 +171,8 @@ public class TargetPlatformFactoryTest {
 
     @Test
     public void testConfiguredFiltersOnReactorIUsInFinalTP() throws Exception {
-        TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
-                CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
+        TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(
+                CapabilityPattern.patternWithoutVersion(CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
         tpConfig.addFilters(Arrays.asList(filter));
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
 
@@ -192,8 +192,8 @@ public class TargetPlatformFactoryTest {
         pomDependencies.addArtifactWithExistingMetadata(PomDependencyCollectorTest.artifactWithClassifier(null),
                 PomDependencyCollectorTest.existingMetadata());
 
-        TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
-                CapabilityType.P2_INSTALLABLE_UNIT, "test.unit"));
+        TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(
+                CapabilityPattern.patternWithoutVersion(CapabilityType.P2_INSTALLABLE_UNIT, "test.unit"));
         tpConfig.addFilters(Arrays.asList(filter));
 
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
@@ -232,14 +232,14 @@ public class TargetPlatformFactoryTest {
         TestResolverFactory factory = new TestResolverFactory(logVerifier.getLogger());
         LocalMetadataRepository localMetadataRepo = factory.getLocalMetadataRepository();
         // add one IU to local repo
-        localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"), new GAV(
-                "test", "foo", "1.0.0"));
+        localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"),
+                new GAV("test", "foo", "1.0.0"));
         subject = factory.getTargetPlatformFactoryImpl();
-        Collection<IInstallableUnit> iusIncludingLocalRepo = subject.createTargetPlatform(tpConfig,
-                NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
+        Collection<IInstallableUnit> iusIncludingLocalRepo = subject
+                .createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
         tpConfig.setForceIgnoreLocalArtifacts(true);
-        Collection<IInstallableUnit> iusWithoutLocalRepo = subject.createTargetPlatform(tpConfig,
-                NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
+        Collection<IInstallableUnit> iusWithoutLocalRepo = subject
+                .createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
         Set<IInstallableUnit> retainedIUs = new HashSet<>(iusIncludingLocalRepo);
         retainedIUs.removeAll(iusWithoutLocalRepo);
         assertEquals(1, retainedIUs.size());
@@ -266,8 +266,8 @@ public class TargetPlatformFactoryTest {
     }
 
     private static TargetDefinition plannerTargetDefinition(TestRepositories repository, IVersionedId unit) {
-        TargetDefinition.Location location = new TargetDefinitionResolverIncludeModeTest.PlannerLocationStub(
-                repository, unit);
+        TargetDefinition.Location location = new TargetDefinitionResolverIncludeModeTest.PlannerLocationStub(repository,
+                unit);
         return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
     }
 

@@ -15,7 +15,7 @@ import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
@@ -53,8 +53,8 @@ public class MirroringArtifactProviderErrorTest {
 
         subject = MirroringArtifactProvider.createInstance(localRepository,
                 new RepositoryArtifactProvider(singletonList(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT),
-                        ArtifactTransferPolicies.forRemoteArtifacts(), p2Context.getAgent()), false, logVerifier
-                        .getLogger());
+                        ArtifactTransferPolicies.forRemoteArtifacts(), p2Context.getAgent()),
+                false, logVerifier.getLogger());
     }
 
     @Test(expected = MirroringFailedException.class)

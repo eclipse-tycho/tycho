@@ -18,7 +18,7 @@ import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.Collection;
@@ -74,8 +74,8 @@ public class TargetPlatformFilterEvaluatorTest {
     }
 
     private static Set<IInstallableUnit> loadTestUnits() throws Exception {
-        IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) p2Context.getAgent().getService(
-                IMetadataRepositoryManager.SERVICE_NAME);
+        IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) p2Context.getAgent()
+                .getService(IMetadataRepositoryManager.SERVICE_NAME);
         File testDataFile = ResourceUtil.resourceFile("targetfiltering/content.xml");
         IMetadataRepository testDataRepository = metadataManager.loadRepository(testDataFile.getParentFile().toURI(),
                 null);

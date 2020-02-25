@@ -12,7 +12,7 @@ package org.eclipse.tycho.p2.tools.publisher;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.eclipse.tycho.p2.tools.impl.Activator;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;

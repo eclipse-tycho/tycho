@@ -16,7 +16,7 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versioned
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
@@ -53,15 +53,16 @@ public class TargetDefinitionResolverIncludeSourceTest {
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testConflictingIncludeSourceLocations() throws Exception {
-        TargetDefinition definition = definitionWith(new WithSourceLocationStub(null, TestRepositories.SOURCES,
-                BUNDLE_WITH_SOURCES), new WithoutSourceLocationStub(null, TestRepositories.SOURCES));
+        TargetDefinition definition = definitionWith(
+                new WithSourceLocationStub(null, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES),
+                new WithoutSourceLocationStub(null, TestRepositories.SOURCES));
         subject.resolveContentWithExceptions(definition);
     }
 
     @Test
     public void testIncludeSourceWithSlicerMode() throws Exception {
-        TargetDefinition definition = definitionWith(new WithSourceLocationStub(IncludeMode.SLICER,
-                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
+        TargetDefinition definition = definitionWith(
+                new WithSourceLocationStub(IncludeMode.SLICER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
 
@@ -72,8 +73,8 @@ public class TargetDefinitionResolverIncludeSourceTest {
 
     @Test
     public void testIncludeSourceWithPlannerMode() throws Exception {
-        TargetDefinition definition = definitionWith(new WithSourceLocationStub(IncludeMode.PLANNER,
-                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
+        TargetDefinition definition = definitionWith(
+                new WithSourceLocationStub(IncludeMode.PLANNER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
 
@@ -84,8 +85,8 @@ public class TargetDefinitionResolverIncludeSourceTest {
 
     @Test
     public void testNoSourceIncludeWhenIncludeSourceIsFalseWithSlicerMode() throws Exception {
-        TargetDefinition definition = definitionWith(new WithoutSourceLocationStub(IncludeMode.SLICER,
-                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
+        TargetDefinition definition = definitionWith(
+                new WithoutSourceLocationStub(IncludeMode.SLICER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
 
@@ -95,8 +96,8 @@ public class TargetDefinitionResolverIncludeSourceTest {
 
     @Test
     public void testNoSourceIncludeWhenIncludeSourceIsFalseWithPlannerMode() throws Exception {
-        TargetDefinition definition = definitionWith(new WithoutSourceLocationStub(IncludeMode.PLANNER,
-                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
+        TargetDefinition definition = definitionWith(
+                new WithoutSourceLocationStub(IncludeMode.PLANNER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
 
@@ -134,7 +135,8 @@ public class TargetDefinitionResolverIncludeSourceTest {
 
         private IncludeMode includeMode;
 
-        public WithSourceLocationStub(IncludeMode includeMode, TestRepositories repositories, IVersionedId... seedUnits) {
+        public WithSourceLocationStub(IncludeMode includeMode, TestRepositories repositories,
+                IVersionedId... seedUnits) {
             super(repositories, seedUnits);
             this.includeMode = includeMode;
         }

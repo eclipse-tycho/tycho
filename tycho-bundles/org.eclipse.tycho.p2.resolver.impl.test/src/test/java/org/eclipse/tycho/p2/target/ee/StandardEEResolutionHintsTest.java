@@ -16,8 +16,8 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unit;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
 

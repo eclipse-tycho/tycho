@@ -15,7 +15,7 @@ import static org.eclipse.tycho.repository.p2base.artifact.provider.formats.Remo
 import static org.eclipse.tycho.repository.p2base.artifact.provider.formats.RemoteArtifactTransferPolicyTest.loadDescriptorsFromRepository;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 

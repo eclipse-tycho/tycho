@@ -14,7 +14,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 
@@ -77,8 +77,8 @@ public class CustomEEResolutionHandlerTest {
         ExecutionEnvironmentConfigurationCapture eeConfigurationCapture = new ExecutionEnvironmentConfigurationCapture(
                 "MissingProfile-1.2.3");
 
-        thrownException
-                .expectMessage("Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'");
+        thrownException.expectMessage(
+                "Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'");
         tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null);
     }
 

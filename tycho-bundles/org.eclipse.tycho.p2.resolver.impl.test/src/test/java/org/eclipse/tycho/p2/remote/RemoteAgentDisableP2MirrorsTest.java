@@ -12,7 +12,7 @@ package org.eclipse.tycho.p2.remote;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.net.URI;
@@ -62,7 +62,8 @@ public class RemoteAgentDisableP2MirrorsTest {
         return new RemoteAgent(new MavenContextImpl(localRepo, logVerifier.getLogger()), disableMirrors);
     }
 
-    private static IArtifactRepository loadRepository(IProvisioningAgent agent, URI location) throws ProvisionException {
+    private static IArtifactRepository loadRepository(IProvisioningAgent agent, URI location)
+            throws ProvisionException {
         IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent
                 .getService(IArtifactRepositoryManager.SERVICE_NAME);
         return repoManager.loadRepository(location, null);

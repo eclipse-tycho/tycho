@@ -16,8 +16,8 @@ import static org.eclipse.tycho.repository.testutil.ArtifactPropertiesMatchers.c
 import static org.eclipse.tycho.repository.testutil.ArtifactPropertiesMatchers.hasProperty;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryMatchers.contains;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 

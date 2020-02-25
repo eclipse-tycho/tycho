@@ -20,7 +20,7 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitio
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdList;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdsOf;
 import static org.hamcrest.CoreMatchers.any;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
@@ -53,7 +53,8 @@ public class TargetDefinitionResolverIncludeModeTest {
 
     @Test
     public void testResolveWithPlanner() throws Exception {
-        TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
+        TargetDefinition definition = definitionWith(
+                new PlannerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
         TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
@@ -64,15 +65,18 @@ public class TargetDefinitionResolverIncludeModeTest {
         // ignore logged errors
         logVerifier.expectError(any(String.class));
 
-        TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
+        TargetDefinition definition = definitionWith(
+                new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
         subject.resolveContentWithExceptions(definition);
     }
 
     @Test
     public void testResolveWithSlicer() throws Exception {
-        TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
+        TargetDefinition definition = definitionWith(
+                new SlicerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
         TargetDefinitionContent units = subject.resolveContent(definition);
-        assertThat(versionedIdsOf(units), bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1)));
+        assertThat(versionedIdsOf(units),
+                bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1)));
     }
 
     @Test
@@ -84,8 +88,8 @@ public class TargetDefinitionResolverIncludeModeTest {
 
     @Test(expected = ResolverException.class)
     public void testUnsatisfiedInclusionWithSlicerFails() throws Exception {
-        TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED,
-                TARGET_FEATURE));
+        TargetDefinition definition = definitionWith(
+                new SlicerLocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE));
         subject.resolveContentWithExceptions(definition);
     }
 

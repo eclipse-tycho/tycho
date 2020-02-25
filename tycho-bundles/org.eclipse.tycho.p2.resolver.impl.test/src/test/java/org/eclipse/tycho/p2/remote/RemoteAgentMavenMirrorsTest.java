@@ -11,8 +11,8 @@
 package org.eclipse.tycho.p2.remote;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.net.URI;

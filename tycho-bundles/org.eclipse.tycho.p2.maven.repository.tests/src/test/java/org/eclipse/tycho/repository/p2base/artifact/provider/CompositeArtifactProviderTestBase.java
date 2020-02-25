@@ -37,8 +37,8 @@ import static org.eclipse.tycho.test.util.StatusMatchers.warningStatus;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
@@ -109,8 +109,10 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
 
         String otherClassifier = "org.eclipse.update.feature";
         Version otherVersion = Version.emptyVersion;
-        assertFalse(subject.contains(new ArtifactKey(otherClassifier, BUNDLE_A_KEY.getId(), BUNDLE_A_KEY.getVersion())));
-        assertFalse(subject.contains(new ArtifactKey(BUNDLE_A_KEY.getClassifier(), BUNDLE_A_KEY.getId(), otherVersion)));
+        assertFalse(
+                subject.contains(new ArtifactKey(otherClassifier, BUNDLE_A_KEY.getId(), BUNDLE_A_KEY.getVersion())));
+        assertFalse(
+                subject.contains(new ArtifactKey(BUNDLE_A_KEY.getClassifier(), BUNDLE_A_KEY.getId(), otherVersion)));
     }
 
     @Test

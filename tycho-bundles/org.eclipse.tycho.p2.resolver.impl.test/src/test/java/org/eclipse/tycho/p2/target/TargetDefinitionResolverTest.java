@@ -11,7 +11,7 @@
 package org.eclipse.tycho.p2.target;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,16 +106,16 @@ public class TargetDefinitionResolverTest {
 
     @Test
     public void testResolveMultipleLocations() throws Exception {
-        TargetDefinition definition = definitionWith(new LocationStub(OPTIONAL_BUNDLE), new LocationStub(
-                REFERENCED_BUNDLE_V1));
+        TargetDefinition definition = definitionWith(new LocationStub(OPTIONAL_BUNDLE),
+                new LocationStub(REFERENCED_BUNDLE_V1));
         TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
     @Test
     public void testResolveMultipleRepositories() throws Exception {
-        TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, OPTIONAL_BUNDLE,
-                REFERENCED_BUNDLE_V2));
+        TargetDefinition definition = definitionWith(
+                new LocationStub(TestRepositories.V1_AND_V2, OPTIONAL_BUNDLE, REFERENCED_BUNDLE_V2));
         TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V2, OPTIONAL_BUNDLE)));
     }
@@ -159,15 +159,16 @@ public class TargetDefinitionResolverTest {
 
     @Test
     public void testUnitWithWildcardVersion() {
-        TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2,
-                REFERENCED_BUNDLE_WILDCARD_VERSION));
+        TargetDefinition definition = definitionWith(
+                new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_WILDCARD_VERSION));
         TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V2)));
     }
 
     @Test
     public void testUnitWithExactVersion() {
-        TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_V1));
+        TargetDefinition definition = definitionWith(
+                new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_V1));
         TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1)));
     }
@@ -178,8 +179,8 @@ public class TargetDefinitionResolverTest {
      */
     @Test(expected = TargetDefinitionSyntaxException.class)
     public void testUnitWithWrongVersionYieldsSyntaxException() throws Exception {
-        TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2,
-                REFERENCED_BUNDLE_INVALID_VERSION));
+        TargetDefinition definition = definitionWith(
+                new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_INVALID_VERSION));
         subject.resolveContentWithExceptions(definition);
     }
 

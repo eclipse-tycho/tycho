@@ -14,7 +14,7 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,10 +61,10 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
         ReactorProject currentProject = new ReactorProjectStub("reactor-artifact");
 
         TargetPlatformConfigurationStub tpConfig = new TargetPlatformConfigurationStub();
-        tpConfig.addP2Repository(new MavenRepositoryLocation(null, ResourceUtil.resourceFile("repositories/launchers")
-                .toURI()));
-        subject.computePreliminaryTargetPlatform(currentProject, tpConfig, new ExecutionEnvironmentConfigurationStub(
-                "JavaSE-1.7"), null, null);
+        tpConfig.addP2Repository(
+                new MavenRepositoryLocation(null, ResourceUtil.resourceFile("repositories/launchers").toURI()));
+        subject.computePreliminaryTargetPlatform(currentProject, tpConfig,
+                new ExecutionEnvironmentConfigurationStub("JavaSE-1.7"), null, null);
 
         ReactorProjectIdentities upstreamProject = new ReactorProjectIdentitiesStub(
                 ResourceUtil.resourceFile("projectresult"));
@@ -84,8 +84,8 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
     }
 
     private <T> T getService(Class<T> type) throws Exception {
-        ServiceTracker<T, T> tracker = new ServiceTracker<>(FrameworkUtil.getBundle(this.getClass())
-                .getBundleContext(), type, null);
+        ServiceTracker<T, T> tracker = new ServiceTracker<>(FrameworkUtil.getBundle(this.getClass()).getBundleContext(),
+                type, null);
         tracker.open();
         try {
             return tracker.waitForService(2000);

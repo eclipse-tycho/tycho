@@ -16,7 +16,7 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unit;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -110,8 +110,8 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
     }
 
     /**
-     * Location with a seed that requires the package org.w3c.dom. In the repository, there is both a
-     * bundle and a fake 'a.jre' IU that could match that import.
+     * Location with a seed that requires the package org.w3c.dom. In the repository, there is both
+     * a bundle and a fake 'a.jre' IU that could match that import.
      */
     static class AlternatePackageProviderLocationStub extends PlannerLocationStub {
 

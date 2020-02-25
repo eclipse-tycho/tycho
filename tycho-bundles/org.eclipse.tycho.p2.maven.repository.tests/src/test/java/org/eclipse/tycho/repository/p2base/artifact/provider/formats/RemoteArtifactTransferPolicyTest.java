@@ -12,7 +12,7 @@ package org.eclipse.tycho.repository.p2base.artifact.provider.formats;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.Arrays;
@@ -84,9 +84,10 @@ public class RemoteArtifactTransferPolicyTest {
         return new HashSet<>(Arrays.asList(values));
     }
 
-    static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context) throws Exception {
-        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) p2Context.getAgent().getService(
-                IArtifactRepositoryManager.SERVICE_NAME);
+    static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context)
+            throws Exception {
+        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) p2Context.getAgent()
+                .getService(IArtifactRepositoryManager.SERVICE_NAME);
         File repoPath = ResourceUtil.resourceFile("repositories/rawformats/" + repository);
         IArtifactRepository loadedRepo = repoManager.loadRepository(repoPath.toURI(), new NullProgressMonitor());
         return loadedRepo.getArtifactDescriptors(DEFAULT_KEY);

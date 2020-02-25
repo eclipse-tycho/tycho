@@ -24,7 +24,7 @@ import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.net.URI;
 

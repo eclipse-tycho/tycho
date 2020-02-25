@@ -14,7 +14,7 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.bagEquals
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitionWith;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdList;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdsOf;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,8 +37,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
-    private static final IVersionedId LAUNCHER_FEATURE = new VersionedId(
-            "org.eclipse.equinox.executable.feature.group", "3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu");
+    private static final IVersionedId LAUNCHER_FEATURE = new VersionedId("org.eclipse.equinox.executable.feature.group",
+            "3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu");
     private static final IVersionedId LAUNCHER_FEATURE_JAR = new VersionedId(
             "org.eclipse.equinox.executable.feature.jar", "3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu");
     private static final IVersionedId LAUNCHER_BUNDLE = new VersionedId("org.eclipse.equinox.launcher",
@@ -78,10 +78,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
         TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
-        assertThat(
-                versionedIdsOf(units),
-                bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE,
-                        LAUNCHER_BUNDLE_LINUX)));
+        assertThat(versionedIdsOf(units), bagEquals(
+                versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX)));
     }
 
     @Test
@@ -93,10 +91,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
         TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
-        assertThat(
-                versionedIdsOf(units),
-                bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE,
-                        LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
+        assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
+                LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
     }
 
     @Test
@@ -107,10 +103,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
         TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
-        assertThat(
-                versionedIdsOf(units),
-                bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE,
-                        LAUNCHER_BUNDLE_LINUX)));
+        assertThat(versionedIdsOf(units), bagEquals(
+                versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX)));
     }
 
     @Test
@@ -122,10 +116,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
         TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
-        assertThat(
-                versionedIdsOf(units),
-                bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE,
-                        LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
+        assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
+                LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
     }
 
     @Test
@@ -136,10 +128,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
         TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
-        assertThat(
-                versionedIdsOf(units),
-                bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE,
-                        LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
+        assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
+                LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)

@@ -20,8 +20,8 @@ import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
@@ -73,10 +73,10 @@ public class MirroringArtifactProviderTest {
     // bundle already in local repository
     private static final IArtifactKey BUNDLE_L_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.core.jobs",
             Version.parseVersion("3.4.1.R34x_v20081128"));
-    private static final Set<String> BUNDLE_L_CONTENT_FILES = new HashSet<>(Arrays.asList(new String[] {
-            "META-INF/", "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/",
-            "org/eclipse/core/internal/", "org/eclipse/core/internal/jobs/", "org/eclipse/core/runtime/",
-            "org/eclipse/core/runtime/jobs/", "plugin.properties" }));
+    private static final Set<String> BUNDLE_L_CONTENT_FILES = new HashSet<>(
+            Arrays.asList(new String[] { "META-INF/", "META-INF/MANIFEST.MF", "org/", "org/eclipse/",
+                    "org/eclipse/core/", "org/eclipse/core/internal/", "org/eclipse/core/internal/jobs/",
+                    "org/eclipse/core/runtime/", "org/eclipse/core/runtime/jobs/", "plugin.properties" }));
 
     // not available bundle
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
@@ -146,8 +146,8 @@ public class MirroringArtifactProviderTest {
         assertTrue(subject.contains(BUNDLE_L_KEY));
         assertFalse(subject.contains(OTHER_KEY));
 
-        assertFalse(subject.contains(new ArtifactKey(BUNDLE_A_KEY.getClassifier(), BUNDLE_A_KEY.getId(),
-                Version.emptyVersion)));
+        assertFalse(subject
+                .contains(new ArtifactKey(BUNDLE_A_KEY.getClassifier(), BUNDLE_A_KEY.getId(), Version.emptyVersion)));
 
         // no download triggered
         assertNotMirrored(BUNDLE_A_KEY);
@@ -207,14 +207,14 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetAlreadyMirroredArtifactFile() {
-        assertThat(subject.getArtifactFile(BUNDLE_L_KEY), is(new File(localRepositoryRoot,
-                localRepoPathOf(BUNDLE_L_KEY))));
+        assertThat(subject.getArtifactFile(BUNDLE_L_KEY),
+                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_L_KEY))));
     }
 
     @Test
     public void testGetArtifactFile() {
-        assertThat(subject.getArtifactFile(BUNDLE_A_KEY), is(new File(localRepositoryRoot,
-                localRepoPathOf(BUNDLE_A_KEY))));
+        assertThat(subject.getArtifactFile(BUNDLE_A_KEY),
+                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY))));
 
         assertMirrored(BUNDLE_A_KEY);
     }
@@ -277,8 +277,8 @@ public class MirroringArtifactProviderTest {
     @Test
     public void testGetRawCanonicalArtifactFile() {
         // the getArtifactFile method that takes a descriptor returns the raw file
-        assertThat(subject.getArtifactFile(canonicalDescriptorFor(BUNDLE_A_KEY)), is(new File(localRepositoryRoot,
-                localRepoPathOf(BUNDLE_A_KEY))));
+        assertThat(subject.getArtifactFile(canonicalDescriptorFor(BUNDLE_A_KEY)),
+                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY))));
 
         assertMirrored(BUNDLE_A_KEY);
     }
@@ -287,8 +287,8 @@ public class MirroringArtifactProviderTest {
     public void testGetRawPackedArtifactFile_WithPackedMirroring() {
         assumeTrue(mirrorPacked);
 
-        assertThat(subject.getArtifactFile(packedDescriptorFor(BUNDLE_A_KEY)), is(new File(localRepositoryRoot,
-                localRepoPathOf(BUNDLE_A_KEY, "-pack200.jar.pack.gz"))));
+        assertThat(subject.getArtifactFile(packedDescriptorFor(BUNDLE_A_KEY)),
+                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY, "-pack200.jar.pack.gz"))));
 
         assertMirrored(BUNDLE_A_KEY);
     }

@@ -16,8 +16,8 @@ import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -111,10 +111,10 @@ public class PublishingRepositoryTest {
     }
 
     private static void insertTestArtifact(PublishingRepository publishingRepo) throws ProvisionException, IOException {
-        IArtifactRepository writableArtifactRepo = publishingRepo.getArtifactRepositoryForWriting(AttachedTestArtifact
-                .getWriteSessionForArtifact());
-        OutputStream outputStream = writableArtifactRepo.getOutputStream(writableArtifactRepo
-                .createArtifactDescriptor(AttachedTestArtifact.key));
+        IArtifactRepository writableArtifactRepo = publishingRepo
+                .getArtifactRepositoryForWriting(AttachedTestArtifact.getWriteSessionForArtifact());
+        OutputStream outputStream = writableArtifactRepo
+                .getOutputStream(writableArtifactRepo.createArtifactDescriptor(AttachedTestArtifact.key));
         writeAndClose(outputStream, AttachedTestArtifact.size);
     }
 
