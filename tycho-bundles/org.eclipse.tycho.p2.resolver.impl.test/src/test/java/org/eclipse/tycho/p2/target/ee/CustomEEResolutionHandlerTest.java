@@ -15,6 +15,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -30,12 +32,9 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class CustomEEResolutionHandlerTest {
 
-    @Rule
-    public ExpectedException thrownException = ExpectedException.none();
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
 
@@ -77,9 +76,10 @@ public class CustomEEResolutionHandlerTest {
         ExecutionEnvironmentConfigurationCapture eeConfigurationCapture = new ExecutionEnvironmentConfigurationCapture(
                 "MissingProfile-1.2.3");
 
-        thrownException.expectMessage(
-                "Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'");
-        tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null);
+        Exception e = assertThrows(Exception.class,
+                () -> tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null));
+        assertTrue(e.getMessage().contains(
+                "Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'"));
     }
 
     static class ExecutionEnvironmentConfigurationCapture implements ExecutionEnvironmentConfiguration {

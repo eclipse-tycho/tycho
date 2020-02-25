@@ -26,6 +26,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,16 +49,11 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactPr
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTestBase<IRawArtifactProvider> {
 
     private static final ArtifactTransferPolicy TRANSFER_POLICY = ArtifactTransferPolicies.forRemoteArtifacts();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Override
     protected IRawArtifactProvider createCompositeArtifactProvider(URI... repositoryURLs) throws Exception {
@@ -66,13 +62,12 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
 
     @Test
     public void testRepositoryLoadingFails() throws Exception {
-        expectedException
-                .expectMessage(both(containsString("No repository found")).and(containsString("nonRepoLocation")));
 
         URI locationWithoutArtifactRepository = new File("nonRepoLocation").getAbsoluteFile().toURI();
         subject = createCompositeArtifactProvider(locationWithoutArtifactRepository);
 
-        subject.query(ANY_ARTIFACT_KEY_QUERY, null);
+        Exception e = assertThrows(Exception.class, () -> subject.query(ANY_ARTIFACT_KEY_QUERY, null));
+        assertThat(e.getMessage(), both(containsString("No repository found")).and(containsString("nonRepoLocation")));
     }
 
     @Test

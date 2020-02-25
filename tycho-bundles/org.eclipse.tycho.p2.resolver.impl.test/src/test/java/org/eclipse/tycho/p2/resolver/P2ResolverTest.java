@@ -29,6 +29,8 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -63,14 +65,11 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class P2ResolverTest extends P2ResolverTestBase {
 
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private ReactorProject projectToResolve;
     private P2ResolutionResult result;
@@ -401,12 +400,14 @@ public class P2ResolverTest extends P2ResolverTestBase {
                 TYPE_ECLIPSE_FEATURE, "p2Inf.conflicting-main-artifact");
 
         // bug 430728: explicit detect this conflict and throw an exception
-        expectedException.expectMessage("classifier");
-        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
+        Exception e = assertThrows(Exception.class, () -> {
+            result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
+            // ... or the p2.inf "artifact" could also just be omitted
+            assertThat(getClassifiedArtifact(result, null).getType(), is(ArtifactType.TYPE_ECLIPSE_FEATURE));
+            assertThat(result.getArtifacts().size(), is(1));
+        });
+        assertTrue(e.getMessage().contains("classifier"));
 
-        // ... or the p2.inf "artifact" could also just be omitted
-        assertThat(getClassifiedArtifact(result, null).getType(), is(ArtifactType.TYPE_ECLIPSE_FEATURE));
-        assertThat(result.getArtifacts().size(), is(1));
     }
 
     @Test
@@ -514,9 +515,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
         projectToResolve = createReactorProject(resourceFile("resolver/bundle01"), TYPE_ECLIPSE_PLUGIN,
                 "org.eclipse.tycho.p2.impl.resolver.test.bundle01");
 
-        expectedException.expectMessage("could not be downloaded");
         logVerifier.expectError(containsString("could not be downloaded"));
-        impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve);
+        Exception e = assertThrows(Exception.class,
+                () -> impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
+        assertTrue(e.getMessage().contains("could not be downloaded"));
     }
 
     private P2TargetPlatform getTargetPlatform() {

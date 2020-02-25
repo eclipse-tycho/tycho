@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -62,7 +63,6 @@ import org.eclipse.tycho.test.util.TychoMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -75,16 +75,11 @@ public class PublishProductToolTest {
             .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
 
     @Rule
-    public ExpectedException exceptions = ExpectedException.none();
-    @Rule
     public LogVerifier logVerifier = new LogVerifier();
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();
     @Rule
     public P2Context p2Context = new P2Context();
-
-    @Rule
-    public ExpectedException thrownException = ExpectedException.none();
 
     private Interpolator interpolatorMock;
 
@@ -180,10 +175,10 @@ public class PublishProductToolTest {
         File productDefinition = resourceFile("publishers/products/inclusionsWithVersionSyntaxError.product");
         subject = initPublisher();
 
-        exceptions.expect(BuildFailureException.class);
-        exceptions.expectMessage(
-                both(containsString("inclusionsWithVersionSyntaxError.product")).and(containsString("nonOSGi"))); // "nonOSGi" is the malformed version string
-        subject.publishProduct(productDefinition, null, FLAVOR);
+        BuildFailureException e = assertThrows(BuildFailureException.class,
+                () -> subject.publishProduct(productDefinition, null, FLAVOR));
+        assertThat(e.getMessage(),
+                both(containsString("inclusionsWithVersionSyntaxError.product")).and(containsString("nonOSGi")));
     }
 
     @Test
@@ -193,8 +188,8 @@ public class PublishProductToolTest {
 
         logVerifier.expectError(containsString("test.feature1"));
         logVerifier.expectError(containsString("test.feature2"));
-        thrownException.expect(DependencyResolutionException.class);
-        subject.publishProduct(productDefinition, null, FLAVOR);
+        assertThrows(DependencyResolutionException.class,
+                () -> subject.publishProduct(productDefinition, null, FLAVOR));
     }
 
     @Test
@@ -227,8 +222,8 @@ public class PublishProductToolTest {
         subject = initPublisher(); // emtpy target platform
 
         logVerifier.expectError(containsString("org.eclipse.core.filesystem.hpux.ppc"));
-        thrownException.expect(DependencyResolutionException.class);
-        subject.publishProduct(productDefinition, launcherBinaries, FLAVOR);
+        assertThrows(DependencyResolutionException.class,
+                () -> subject.publishProduct(productDefinition, launcherBinaries, FLAVOR));
     }
 
     @Test

@@ -16,6 +16,8 @@ import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -38,7 +40,6 @@ import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 @RunWith(Theories.class)
@@ -48,8 +49,6 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
 
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
-    @Rule
-    public ExpectedException exceptionVerifier = ExpectedException.none();
     @Rule
     public P2Context p2Context = new P2Context();
 
@@ -85,11 +84,11 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
         subject = MirroringArtifactProvider.createInstance(localRepository,
                 providerFor(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT), true, logVerifier.getLogger());
 
-        exceptionVerifier.expect(MirroringFailedException.class);
-        exceptionVerifier.expectMessage(BUNDLE_A_KEY.toString());
         logVerifier.expectError(containsString(BUNDLE_A_KEY.toString()));
 
-        subject.getArtifactDescriptors(BUNDLE_A_KEY);
+        MirroringFailedException e = assertThrows(MirroringFailedException.class,
+                () -> subject.getArtifactDescriptors(BUNDLE_A_KEY));
+        assertTrue(e.getMessage().contains(BUNDLE_A_KEY.toString()));
     }
 
     @Test
