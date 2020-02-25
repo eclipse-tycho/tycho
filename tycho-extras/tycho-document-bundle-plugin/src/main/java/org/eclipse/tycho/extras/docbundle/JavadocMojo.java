@@ -109,30 +109,32 @@ public class JavadocMojo extends AbstractMojo {
      * Example configuration:
      * 
      * <pre>
-     * &lt;configuration&gt;
-     *    &lt;javadocOptions&gt;
-     *       &lt;ignoreError&gt;false&lt;/ignoreError&gt;
-     *       &lt;encoding&gt;UTF-8&lt;/encoding&gt;
-     *       &lt;doclet&gt;foo.bar.MyDoclet&lt;/doclet&gt;
-     *       &lt;docletArtifacts&gt;
-     *          &lt;docletArtifact&gt;
-     *             &lt;groupId&gt;foo.bar&lt;/groupId&gt;
-     *             &lt;artifactId&gt;foo.bar.mydocletartifact&lt;/artifactId&gt;
-     *             &lt;version&gt;1.0&lt;/version&gt;
-     *          &lt;/docletArtifact&gt;
-     *       &lt;/docletArtifacts&gt;
-     *       &lt;includes&gt;
-     *          &lt;include&gt;com.example.*&lt;/include&gt;
-     *       &lt;/includes&gt;
-     *       &lt;excludes&gt;
-     *          &lt;exclude&gt;com.example.internal.*&lt;/exclude&gt;
-     *       &lt;/excludes&gt;   
-     *       &lt;additionalArguments&gt;
-     *          &lt;additionalArgument&gt;-windowtitle "The Window Title"&lt;/additionalArgument&gt;
-     *          &lt;additionalArgument&gt;-nosince&lt;/additionalArgument&gt;
-     *       &lt;/additionalArguments&gt;
-     *    &lt;/javadocOptions&gt;
-     * &lt;/configuration&gt;
+     * {@code
+     * <configuration&gt;
+     *    <javadocOptions>
+     *       <ignoreError>false</ignoreError>
+     *       <encoding>UTF-8</encoding>
+     *       <doclet>foo.bar.MyDoclet</doclet>
+     *       <docletArtifacts>
+     *          <docletArtifact>
+     *             <groupId>foo.bar</groupId>
+     *             <artifactId>foo.bar.mydocletartifact</artifactId>
+     *             <version>1.0</version>
+     *          </docletArtifact>
+     *       </docletArtifacts>
+     *       <includes>
+     *          <include>com.example.*</include>
+     *       </includes>
+     *       <excludes>
+     *          <exclude>com.example.internal.*</exclude>
+     *       </excludes>
+     *       <additionalArguments>
+     *          <additionalArgument>-windowtitle "The Window Title"</additionalArgument>
+     *          <additionalArgument>-nosince</additionalArgument>
+     *       </additionalArguments>
+     *    </javadocOptions>
+     * </configuration>
+     * }
      * </pre>
      */
     @Parameter(property = "javadocOptions")
