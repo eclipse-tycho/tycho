@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.tycho.versions.engine.PomVersionChange;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class SiteXmlManipulatorTest extends TestCase {
-
+public class SiteXmlManipulatorTest {
+    @Test
     public void testFeatureUrlRewriting() {
         assertFeatureUrlRewriting("features/id_NEW.jar", "features/id_1.2.3.jar", "1.2.3");
         assertFeatureUrlRewriting("features/id_NEW.jar", "features/id_1.2.3.qualifier.jar", "1.2.3.qualifier");

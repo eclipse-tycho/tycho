@@ -10,34 +10,36 @@
  *******************************************************************************/
 package org.eclipse.tycho.maven.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
 
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Platform;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.UpdateSite;
+import org.junit.Before;
+import org.junit.Test;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLParser;
 
-public class EclipseModelTest extends TestCase {
+public class EclipseModelTest {
 
     File target = new File("target/modelio");
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws Exception {
         target.mkdirs();
     }
 
+    @Test
     public void testUpdateSite() throws Exception {
         UpdateSite site = UpdateSite.read(new File("src/test/resources/modelio/site.xml"));
 
@@ -63,6 +65,7 @@ public class EclipseModelTest extends TestCase {
         assertTrue(updated.getArchives().isEmpty());
     }
 
+    @Test
     public void testFeature() throws Exception {
         Feature feature = Feature.read(new File("src/test/resources/modelio/feature.xml"));
 
@@ -114,6 +117,7 @@ public class EclipseModelTest extends TestCase {
         assertEquals("Test Copyright", feature.getCopyright());
     }
 
+    @Test
     public void testPlatform() throws Exception {
         Platform platform = Platform.read(new File("src/test/resources/modelio/platform.xml"));
 
@@ -164,6 +168,7 @@ public class EclipseModelTest extends TestCase {
         assertEquals(transientFeature.getVersion(), updatedFeatures.get(0).getVersion());
     }
 
+    @Test
     public void testDefaultXmlEncoding() throws Exception {
         // Run the test with -Dfile.encoding=Cp1252 to be sure
 

@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
-
-import junit.framework.TestCase;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,8 +29,10 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestMojoToolchainTests extends TestCase {
+public class TestMojoToolchainTests {
 
     private ToolchainManager toolchainManager;
     private TestMojo testMojo;
@@ -40,7 +42,7 @@ public class TestMojoToolchainTests extends TestCase {
     private Toolchain systemToolchain;
     private ToolchainProvider toolchainProvider;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         toolchainManager = mock(ToolchainManager.class);
         session = mock(MavenSession.class);
@@ -56,17 +58,20 @@ public class TestMojoToolchainTests extends TestCase {
         setParameter(testMojo, "session", session);
     }
 
+    @Test
     public void testGetToolchainWithUseJDKSetToSystemNoToolchainManager() throws Exception {
         setParameter(testMojo, "toolchainManager", null);
         Assert.assertNull(testMojo.getToolchain());
     }
 
+    @Test
     public void testGetToolchainWithUseJDKSetToSystemWithToolchainManager() throws Exception {
         when(toolchainManager.getToolchainFromBuildContext("jdk", session)).thenReturn(systemToolchain);
         Toolchain tc = testMojo.getToolchain();
         Assert.assertEquals(systemToolchain, tc);
     }
 
+    @Test
     public void testGetToolchainWithUseJDKSetToBREE() throws Exception {
         setupWithBree();
         when(toolchainProvider.findMatchingJavaToolChain(session, "myId")).thenReturn(breeToolchain);
@@ -74,6 +79,7 @@ public class TestMojoToolchainTests extends TestCase {
         Assert.assertEquals(breeToolchain, tc);
     }
 
+    @Test
     public void testGetToolchainWithUseJDKSetToBREEToolchainNotFound() throws Exception {
         setupWithBree();
         when(toolchainProvider.findMatchingJavaToolChain(session, "myId")).thenReturn(null);
@@ -81,8 +87,8 @@ public class TestMojoToolchainTests extends TestCase {
             testMojo.getToolchain();
             fail("MojoExcecutionException expected since Toolchain could not be found!");
         } catch (MojoExecutionException e) {
-            assertTrue(e.getMessage().startsWith(
-                    "useJDK = BREE configured, but no toolchain of type 'jdk' with id 'myId' found"));
+            assertTrue(e.getMessage()
+                    .startsWith("useJDK = BREE configured, but no toolchain of type 'jdk' with id 'myId' found"));
         }
     }
 
@@ -93,8 +99,8 @@ public class TestMojoToolchainTests extends TestCase {
         project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, envConf);
     }
 
-    private void setParameter(Object object, String variable, Object value) throws IllegalArgumentException,
-            IllegalAccessException {
+    private void setParameter(Object object, String variable, Object value)
+            throws IllegalArgumentException, IllegalAccessException {
         Field field = ReflectionUtils.getFieldByNameIncludingSuperclasses(variable, object.getClass());
         field.setAccessible(true);
         field.set(object, value);
