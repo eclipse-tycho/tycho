@@ -12,6 +12,7 @@ package org.eclipse.tycho.pomless;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -183,13 +184,9 @@ public class TychoModelReaderTest extends PlexusTestCase {
     public void testNoParent() throws Exception {
         File buildProperties = new File(getTestResourcesDir(),
                 "modelreader/noParent/bundle/" + TychoBundleMapping.MANIFEST_MF_MARKER);
-        try {
-            getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
-                    createReaderOptions(buildProperties));
-            fail();
-        } catch (IOException e) {
-            assertThat(e.getMessage(), containsString("No parent pom file found in"));
-        }
+        AssertionError e = assertThrows(AssertionError.class, () -> getTychoModelReader(TychoBundleMapping.PACKAGING)
+                .read(buildProperties, createReaderOptions(buildProperties)));
+        assertThat(e.getMessage(), containsString("pom file must not be null"));
     }
 
     @Test
