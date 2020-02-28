@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,10 +90,10 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         for (File productFile : eclipseRepositoryProject.getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
-                if (isEmpty(productConfiguration.getId())) {
+                if (productConfiguration.getId().isEmpty()) {
                     throw new MojoExecutionException("The product file " + productFile.getName()
                             + " does not contain the mandatory attribute 'uid'. Please ensure you entered an id in the product file.");
-                } else if (isEmpty(productConfiguration.getVersion())) {
+                } else if (productConfiguration.getVersion().isEmpty()) {
                     throw new MojoExecutionException("The product file " + productFile.getName()
                             + " does not contain the mandatory attribute 'version'. Please ensure you entered a version in the product file.");
                 }

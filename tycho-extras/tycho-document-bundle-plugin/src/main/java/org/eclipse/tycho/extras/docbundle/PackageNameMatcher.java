@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * An utility class for filtering package names.
  */
@@ -53,7 +51,7 @@ public class PackageNameMatcher {
     }
 
     private static Pattern buildPattern(final String spec) {
-        if (StringUtils.isEmpty(spec)) {
+        if (spec.isEmpty()) {
             throw new IllegalArgumentException("empty package name");
         }
 
@@ -117,7 +115,7 @@ public class PackageNameMatcher {
      *         string.
      */
     public boolean matches(String packageName) {
-        if (StringUtils.isEmpty(packageName)) {
+        if (packageName.isEmpty()) {
             return false;
         }
         for (Pattern pattern : patterns) {
