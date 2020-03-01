@@ -82,4 +82,12 @@ public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
         }
         return null;
     }
+
+    @Override
+    public float getPriority() {
+        //FIXME due to 
+        // https://github.com/takari/polyglot-maven/issues/209 
+        // we must use inverse logic and return lower values for higher priorities 
+        return -1;
+    }
 }

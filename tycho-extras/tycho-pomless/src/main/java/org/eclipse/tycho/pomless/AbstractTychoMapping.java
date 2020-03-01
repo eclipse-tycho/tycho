@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Lablicate GmbH and others.
+ * Copyright (c) 2019, 2020 Lablicate GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -53,7 +53,6 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     private static final String TYCHO_POMLESS_PARENT = "tycho.pomless.parent";
     private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT, "..");
     private static final String QUALIFIER_SUFFIX = ".qualifier";
-    private static final String ISSUE_192 = ".takari_issue_192";
     private static final String MODEL_PARENT = "TychoMapping.model.parent";
 
     @Requirement
@@ -68,39 +67,20 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     public File locatePom(File dir) {
         File file = new File(dir, "pom.xml");
         if (file.exists()) {
-            //we wan't that pom.xml takes precedence over our generated one
+            //we want that pom.xml takes precedence over our generated one
             return null;
         }
-        File artifact = getPrimaryArtifact(dir);
-        if (artifact != null && artifact.getName().endsWith(".xml")) {
-            File dummyFile = new File(dir, artifact.getName() + ISSUE_192);
-            try {
-                //due to https://github.com/takari/polyglot-maven/issues/192
-                dummyFile.createNewFile();
-                dummyFile.deleteOnExit();
-                return dummyFile;
-            } catch (IOException e) {
-                throw new RuntimeException("creation of replacement file " + dummyFile + " failed", e);
-            }
-        }
-        return artifact;
+        return getPrimaryArtifact(dir);
     }
 
     @Override
     public boolean accept(Map<String, ?> options) {
         String location = PolyglotModelUtil.getLocation(options);
         if (location == null || location.endsWith("pom.xml")) {
-            //we wan't that pom.xml takes precedence over our generated one
+            //we want that pom.xml takes precedence over our generated one
             return false;
         }
-        return isValidLocation(fixLocation(location));
-    }
-
-    private String fixLocation(String location) {
-        if (location != null && location.endsWith(ISSUE_192)) {
-            location = location.substring(0, location.length() - ISSUE_192.length());
-        }
-        return location;
+        return isValidLocation(location);
     }
 
     @Override
@@ -124,18 +104,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     @Override
     public Model read(InputStream input, Map<String, ?> options) throws IOException, ModelParseException {
         String location = PolyglotModelUtil.getLocation(options);
-        String fixLocation = fixLocation(location);
-        File file = new File(fixLocation);
-        if (!fixLocation.equals(location)) {
-            input.close();
-
-            //we must use the "fixed" location here until the issue is resolved ignoring the original input stream
-            try (InputStreamReader stream = new InputStreamReader(new FileInputStream(file),
-                    getPrimaryArtifactCharset())) {
-                return read(stream, file, options);
-            }
-        }
-
+        File file = new File(location);
         try (InputStreamReader stream = new InputStreamReader(input, getPrimaryArtifactCharset())) {
             return read(stream, file, options);
         }
@@ -157,7 +126,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     @Override
     public Model read(Reader input, Map<String, ?> options) throws IOException, ModelParseException {
-        File file = new File(fixLocation(PolyglotModelUtil.getLocation(options)));
+        File file = new File(PolyglotModelUtil.getLocation(options));
         return read(input, file, options);
     }
 
@@ -189,7 +158,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
             throws ModelParseException, IOException {
         Parent parent = (Parent) projectOptions.get(MODEL_PARENT);
         if (parent != null) {
-            //if the parent is given by the options we don't neet to search it!
+            //if the parent is given by the options we don't need to search it!
             return parent;
         }
         Properties buildProperties = getBuildProperties(projectRoot);

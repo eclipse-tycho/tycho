@@ -111,7 +111,10 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
     @Override
     public float getPriority() {
         //use a lower priority here so other modules are asked first
-        return -10f;
+        //FIXME due to 
+        // https://github.com/takari/polyglot-maven/issues/209 
+        // we must use inverse logic and return lower values for higher priorities 
+        return 10f;
     }
 
 }
