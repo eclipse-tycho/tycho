@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +31,8 @@ import org.osgi.framework.Constants;
 @SuppressWarnings("deprecation")
 public class CustomExecutionEnvironmentTest {
 
-    private static final SystemCapability PACKAGE_JAVA_LANG = new SystemCapability(Type.JAVA_PACKAGE, "java.lang", null);
+    private static final SystemCapability PACKAGE_JAVA_LANG = new SystemCapability(Type.JAVA_PACKAGE, "java.lang",
+            null);
     private static final SystemCapability PACKAGE_JAVAX_ACTIVATION_1_1 = new SystemCapability(Type.JAVA_PACKAGE,
             "javax.activation", "1.1");
     private static final SystemCapability OSGI_JAVASE_1_6 = new SystemCapability(Type.OSGI_EE, "JavaSE", "1.6.0");
@@ -118,7 +119,8 @@ public class CustomExecutionEnvironmentTest {
 
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(3));
         assertProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "JavaSE-1.6.1");
-        assertProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES, "osgi.ee; osgi.ee=\"JavaSE\"; version:Version=\"1.6.1\"");
+        assertProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES,
+                "osgi.ee; osgi.ee=\"JavaSE\"; version:Version=\"1.6.1\"");
     }
 
     @Test
@@ -147,8 +149,8 @@ public class CustomExecutionEnvironmentTest {
 
     @Test
     public void testCDCNameMapping() throws Exception {
-        createExecutionEnvironment(new SystemCapability(Type.OSGI_EE, "CDC/Foundation", "1.0"), new SystemCapability(
-                Type.OSGI_EE, "CDC/Foundation", "1.1.0"));
+        createExecutionEnvironment(new SystemCapability(Type.OSGI_EE, "CDC/Foundation", "1.0"),
+                new SystemCapability(Type.OSGI_EE, "CDC/Foundation", "1.1.0"));
 
         assertProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "CDC-1.0/Foundation-1.0,CDC-1.1/Foundation-1.1");
         assertProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES,

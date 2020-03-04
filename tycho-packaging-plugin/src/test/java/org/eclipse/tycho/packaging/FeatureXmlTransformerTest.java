@@ -12,7 +12,7 @@ package org.eclipse.tycho.packaging;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,8 +51,8 @@ public class FeatureXmlTransformerTest {
     @Test
     public void testExpandReferences() throws Exception {
         subject = new FeatureXmlTransformer(new SilentLog(), new NoopFileLockService());
-        Feature feature = Feature.read(new File(TestUtil.getBasedir("projects/featureXmlVersionExpansion/"),
-                "feature.xml"));
+        Feature feature = Feature
+                .read(new File(TestUtil.getBasedir("projects/featureXmlVersionExpansion/"), "feature.xml"));
 
         TargetPlatform tp = mock(TargetPlatform.class);
         when(tp.resolveArtifact("eclipse-feature", "org.eclipse.rcp", "4.5.0.qualifier")).thenReturn(rcpFeatureInTP);
