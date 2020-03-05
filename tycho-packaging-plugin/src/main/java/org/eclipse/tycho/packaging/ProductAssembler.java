@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@ package org.eclipse.tycho.packaging;
 
 import java.io.File;
 
-import org.apache.maven.execution.MavenSession;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
@@ -27,9 +27,9 @@ public class ProductAssembler extends UpdateSiteAssembler {
 
     private final BundleReader manifestReader;
 
-    public ProductAssembler(MavenSession session, BundleReader manifestReader, File target,
+    public ProductAssembler(PlexusContainer plexus, BundleReader manifestReader, File target,
             TargetEnvironment environment) {
-        super(session, target);
+        super(plexus, target);
         this.manifestReader = manifestReader;
         setUnpackPlugins(true);
         setUnpackFeatures(true);

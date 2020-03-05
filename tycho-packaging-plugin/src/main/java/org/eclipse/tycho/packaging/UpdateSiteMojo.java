@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,7 @@ public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
             try {
                 UpdateSite site = UpdateSite.read(new File(basedir, UpdateSite.SITE_XML));
 
-                UpdateSiteAssembler assembler = new UpdateSiteAssembler(session, target);
+                UpdateSiteAssembler assembler = new UpdateSiteAssembler(plexus, target);
                 if (inlineArchives) {
                     assembler.setArchives(site.getArchives());
                 }

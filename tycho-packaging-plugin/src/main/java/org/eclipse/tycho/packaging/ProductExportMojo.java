@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -155,7 +155,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                     generateConfigIni(environment, targetEclipse);
                     includeRootFiles(environment, targetEclipse);
 
-                    ProductAssembler assembler = new ProductAssembler(session, manifestReader, targetEclipse,
+                    ProductAssembler assembler = new ProductAssembler(plexus, manifestReader, targetEclipse,
                             environment);
                     assembler.setIncludeSources(includeSources);
                     getDependencyWalker(environment).walk(assembler);
@@ -180,7 +180,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                     includeRootFiles(environment, targetEclipse);
                 }
 
-                ProductAssembler assembler = new ProductAssembler(session, manifestReader, targetEclipse, null);
+                ProductAssembler assembler = new ProductAssembler(plexus, manifestReader, targetEclipse, null);
                 assembler.setIncludeSources(includeSources);
                 if (forcePackedDependencies) {
                     assembler.setUnpackFeatures(false);

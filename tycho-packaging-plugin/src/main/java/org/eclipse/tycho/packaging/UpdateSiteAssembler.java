@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Map;
 
-import org.apache.maven.execution.MavenSession;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
@@ -45,7 +45,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
 
     public static final String FEATURES_DIR = "features/";
 
-    private final MavenSession session;
+    private final PlexusContainer session;
 
     private final File target;
 
@@ -63,7 +63,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
      */
     private boolean unpackFeatures;
 
-    public UpdateSiteAssembler(MavenSession session, File target) {
+    public UpdateSiteAssembler(PlexusContainer session, File target) {
         this.session = session;
         this.target = target;
     }
