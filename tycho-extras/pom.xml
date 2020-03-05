@@ -28,7 +28,7 @@
 	<description>Additional tools for Tycho</description>
 
 	<properties>
-		<jgit-version>5.6.0.201912101111-r</jgit-version>
+		<jgit-version>5.6.1.202002131546-r</jgit-version>
 		<tycho-version>${project.version}</tycho-version>
 		<plexusVersion>2.0.0</plexusVersion>
 		<invoker.debug>true</invoker.debug>
