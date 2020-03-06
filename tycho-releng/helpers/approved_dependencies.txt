@@ -28,7 +28,7 @@ org.apache.maven:maven-repository-metadata:jar:3.0:compile https://dev.eclipse.o
 org.apache.maven:maven-settings-builder:jar:3.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.apache.maven:maven-settings:jar:3.0:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.apache.maven:maven-toolchain:jar:2.2.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15591
-org.codehaus.plexus:plexus-archiver:jar:4.2.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21073
+org.codehaus.plexus:plexus-archiver:jar:4.2.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21759
 org.codehaus.plexus:plexus-classworlds:jar:2.2.3:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.codehaus.plexus:plexus-classworlds:jar:2.5.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.codehaus.plexus:plexus-compiler-api:jar:2.8.5:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=20658
