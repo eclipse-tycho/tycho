@@ -20,7 +20,7 @@ public class LocalRepositoryCrosstalkTest extends AbstractTychoIntegrationTest {
     public void test() throws Exception {
         // run e352 test first
         Verifier v01 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle02", false);
-        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_2019_09.toString());
+        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 

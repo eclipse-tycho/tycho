@@ -15,7 +15,7 @@ public class JUnit5TempDirTest extends AbstractTychoIntegrationTest {
     public void testJUnit5Runner() throws Exception {
         Verifier verifier = getVerifier("/surefire.junit5tempdir/bundle.test", false);
         Properties props = verifier.getSystemProperties();
-        props.setProperty("2019-09-repo", P2Repositories.ECLIPSE_2019_09.toString());
+        props.setProperty("2019-09-repo", P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         String projectBasedir = verifier.getBasedir();
