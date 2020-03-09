@@ -75,7 +75,8 @@
 							<configuration>
 								<outputDirectory>${project.build.outputDirectory}</outputDirectory>
 								<!-- we include license info in about.html and about_files/ -->
-								<excludes>META-INF/maven/**,META-INF/DEPENDENCIES,META-INF/LICENSE*,META-INF/NOTICE*</excludes>
+								<!-- exclude versions/* because bnd-maven-plugin does not support multi-release JARs (https://github.com/bndtools/bnd/issues/2227) -->
+								<excludes>META-INF/versions/**,META-INF/maven/**,META-INF/DEPENDENCIES,META-INF/LICENSE*,META-INF/NOTICE*</excludes>
 							</configuration>
 						</execution>
 					</executions>
