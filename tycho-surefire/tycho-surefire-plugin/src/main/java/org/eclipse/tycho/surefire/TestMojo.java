@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *    SAP SE - port to surefire 2.10
  *    Mickael Istria (Red Hat Inc.) - 386988 Support for provisioned applications
  *    Bachmann electrontic GmbH - 510425 parallel mode requires threadCount>1 or useUnlimitedThreads=true
+ *    Christoph Läubrich - improve error message in case of failures
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
@@ -112,6 +113,13 @@ import org.osgi.framework.Version;
  */
 @Mojo(name = "test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class TestMojo extends AbstractMojo {
+
+    private static String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, singles start with 1
+            "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL", "SIGUSR1",
+            "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
+            "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH",
+            "SIGIO", "SIGPWR", "SIGSYS" };
+
     private static final Object LOCK = new Object();
 
     /**
@@ -465,9 +473,9 @@ public class TestMojo extends AbstractMojo {
      * Normally tycho will automatically determine the test framework provider based on the test
      * project's classpath. Use this to force using a test framework provider implementation with
      * the given role hint. Tycho comes with providers
-     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;,&quot;junit5&quot;. Note that when specifying a
-     * providerHint, you have to make sure the provider is actually available in the dependencies of
-     * tycho-surefire-plugin.
+     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;,&quot;junit5&quot;. Note that when
+     * specifying a providerHint, you have to make sure the provider is actually available in the
+     * dependencies of tycho-surefire-plugin.
      *
      * @since 0.16.0
      */
@@ -1008,13 +1016,15 @@ public class TestMojo extends AbstractMojo {
 
     private void runTest(EquinoxInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
         int result;
+        File logFile = new File(osgiDataDirectory, ".metadata/.log");
+        LaunchConfiguration cli;
         try {
             if (deleteOsgiDataDirectory) {
                 FileUtils.deleteDirectory(osgiDataDirectory);
             }
-            LaunchConfiguration cli = createCommandLine(testRuntime);
-            getLog().info(
-                    "Expected eclipse log file: " + new File(osgiDataDirectory, ".metadata/.log").getAbsolutePath());
+            cli = createCommandLine(testRuntime);
+            getLog().info("Executing Test Runtime with timeout " + forkedProcessTimeoutInSeconds
+                    + ", logs (if any) will be placed at: " + logFile.getAbsolutePath());
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);
@@ -1055,10 +1065,51 @@ public class TestMojo extends AbstractMojo {
             break;
 
         default:
-            throw new MojoFailureException("An unexpected error occurred while launching the test runtime (return code "
-                    + result + "). See log " + new File(osgiDataDirectory, ".metadata/.log").getAbsolutePath()
-                    + " for details.");
+            StringBuilder defaultMessage = new StringBuilder(
+                    "An unexpected error occurred while launching the test runtime (process returned error code ");
+            defaultMessage.append(decodeReturnCode(result));
+            defaultMessage.append(").");
+            if (logFile.exists()) {
+                defaultMessage.append(" The process logfile ");
+                defaultMessage.append(logFile.getAbsolutePath());
+                defaultMessage.append(" might contain further details.");
+            }
+            defaultMessage.append(" Command-line used to launch the sub-process was ");
+            defaultMessage.append(cli.getJvmExecutable());
+            String[] vmArguments = cli.getVMArguments();
+            if (vmArguments != null && vmArguments.length > 0) {
+                defaultMessage.append(" ");
+                defaultMessage.append(String.join(" ", vmArguments));
+            }
+            defaultMessage.append(" -jar ");
+            defaultMessage.append(cli.getLauncherJar());
+            String[] programArguments = cli.getProgramArguments();
+            if (programArguments != null && programArguments.length > 0) {
+                defaultMessage.append(" ");
+                defaultMessage.append(String.join(" ", programArguments));
+            }
+            defaultMessage.append(" in working directory ");
+            defaultMessage.append(cli.getWorkingDirectory());
+            throw new MojoFailureException(defaultMessage.toString());
         }
+    }
+
+    private String decodeReturnCode(int result) {
+        try {
+            Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+            if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(properties))) {
+                int signal = result - 128;
+                if (signal > 0 && signal < UNIX_SIGNAL_NAMES.length) {
+                    return result + "(" + UNIX_SIGNAL_NAMES[signal] + " received?)";
+                }
+            } else if (PlatformPropertiesUtils.OS_WIN32.equals(PlatformPropertiesUtils.getOS(properties))) {
+                return result + " (HRESULT Code 0x" + Integer.toHexString(result).toUpperCase()
+                        + ", check for example https://www.hresult.info/ for further details)";
+            }
+        } catch (RuntimeException e) {
+            getLog().debug("Decoding returncode failed", e);
+        }
+        return String.valueOf(result);
     }
 
     protected Toolchain getToolchain() throws MojoExecutionException {
