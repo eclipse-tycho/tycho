@@ -1008,13 +1008,14 @@ public class TestMojo extends AbstractMojo {
 
     private void runTest(EquinoxInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
         int result;
+        File logFile = new File(osgiDataDirectory, ".metadata/.log");
         try {
             if (deleteOsgiDataDirectory) {
                 FileUtils.deleteDirectory(osgiDataDirectory);
             }
             LaunchConfiguration cli = createCommandLine(testRuntime);
-            getLog().info(
-                    "Expected eclipse log file: " + new File(osgiDataDirectory, ".metadata/.log").getAbsolutePath());
+            getLog().info("Executing Test Runtime with timeout " + forkedProcessTimeoutInSeconds
+                    + ", logs (if any) will be placed at: " + logFile.getAbsolutePath());
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);
@@ -1055,10 +1056,31 @@ public class TestMojo extends AbstractMojo {
             break;
 
         default:
-            throw new MojoFailureException("An unexpected error occurred while launching the test runtime (return code "
-                    + result + "). See log " + new File(osgiDataDirectory, ".metadata/.log").getAbsolutePath()
-                    + " for details.");
+            String defaultMessage = "An unexpected error occurred while launching the test runtime (process returned error code "
+                    + decodeReturnCode(result) + ").";
+            if (logFile.exists()) {
+                defaultMessage += " The process logfile " + logFile.getAbsolutePath()
+                        + " might contain further details.";
+            }
+            throw new MojoFailureException(defaultMessage);
         }
+    }
+
+    private String decodeReturnCode(int result) {
+        try {
+            Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+            if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(properties))) {
+                if (result == 143) {
+                    return result + " (SIGTERM received?)";
+                }
+                if (result == 134) {
+                    return result + " (SIGABRT received?)";
+                }
+            }
+        } catch (RuntimeException e) {
+            getLog().debug("Decoding returncode failed", e);
+        }
+        return String.valueOf(result);
     }
 
     protected Toolchain getToolchain() throws MojoExecutionException {
