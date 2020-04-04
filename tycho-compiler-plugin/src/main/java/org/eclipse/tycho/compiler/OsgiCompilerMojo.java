@@ -23,7 +23,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 /**
  * Compiles application sources with eclipse plugin dependencies
  */
-@Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class OsgiCompilerMojo extends AbstractOsgiCompilerMojo {
 
 }
