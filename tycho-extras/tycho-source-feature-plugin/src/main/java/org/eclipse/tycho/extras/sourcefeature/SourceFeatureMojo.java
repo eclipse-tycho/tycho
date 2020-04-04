@@ -85,8 +85,13 @@ import de.pdark.decentxml.Element;
  * <code>&lt;originalFeature&gt;/feature.properties</code>.
  * 
  */
-@Mojo(name = "source-feature", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "source-feature", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class SourceFeatureMojo extends AbstractMojo {
+
+    /**
+     * Lock object to ensure thread-safety
+     */
+    private static final Object LOCK = new Object();
 
     public static final String FEATURE_TEMPLATE_DIR = "sourceTemplateFeature";
 
@@ -209,42 +214,44 @@ public class SourceFeatureMojo extends AbstractMojo {
         if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
             return;
         }
-        try {
-            Properties sourceFeatureTemplateProps = readSourceTemplateFeatureProperties();
-            Properties mergedSourceFeatureProps = mergeFeatureProperties(sourceFeatureTemplateProps);
-            File sourceFeatureXml = generateSourceFeatureXml(mergedSourceFeatureProps, sourceFeatureTemplateProps);
-            writeProperties(mergedSourceFeatureProps, getMergedSourceFeaturePropertiesFile());
-            MavenArchiver archiver = new MavenArchiver();
-            archiver.setArchiver(jarArchiver);
-            File outputJarFile = getOutputJarFile();
-            archiver.setOutputFile(outputJarFile);
-            File template = new File(project.getBasedir(), FEATURE_TEMPLATE_DIR);
-            if (template.isDirectory()) {
-                DefaultFileSet templateFileSet = new DefaultFileSet();
-                templateFileSet.setDirectory(template);
-                // make sure we use generated feature.xml and feature.properties 
-                templateFileSet.setExcludes(new String[] { Feature.FEATURE_XML, FEATURE_PROPERTIES });
-                archiver.getArchiver().addFileSet(templateFileSet);
+        synchronized (LOCK) {
+            try {
+                Properties sourceFeatureTemplateProps = readSourceTemplateFeatureProperties();
+                Properties mergedSourceFeatureProps = mergeFeatureProperties(sourceFeatureTemplateProps);
+                File sourceFeatureXml = generateSourceFeatureXml(mergedSourceFeatureProps, sourceFeatureTemplateProps);
+                writeProperties(mergedSourceFeatureProps, getMergedSourceFeaturePropertiesFile());
+                MavenArchiver archiver = new MavenArchiver();
+                archiver.setArchiver(jarArchiver);
+                File outputJarFile = getOutputJarFile();
+                archiver.setOutputFile(outputJarFile);
+                File template = new File(project.getBasedir(), FEATURE_TEMPLATE_DIR);
+                if (template.isDirectory()) {
+                    DefaultFileSet templateFileSet = new DefaultFileSet();
+                    templateFileSet.setDirectory(template);
+                    // make sure we use generated feature.xml and feature.properties
+                    templateFileSet.setExcludes(new String[]{Feature.FEATURE_XML, FEATURE_PROPERTIES});
+                    archiver.getArchiver().addFileSet(templateFileSet);
+                }
+
+                BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+                archiver.getArchiver().addFileSet(getManuallyIncludedFiles(project.getBasedir(), buildProperties));
+
+                archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);
+                archiver.getArchiver().addFile(getMergedSourceFeaturePropertiesFile(), FEATURE_PROPERTIES);
+                File licenseFeature = licenseFeatureHelper
+                        .getLicenseFeature(Feature.read(new File(project.getBasedir(), "feature.xml")), project);
+                if (licenseFeature != null) {
+                    archiver.getArchiver()
+                            .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
+                }
+                archiver.createArchive(session, project, archive);
+
+                projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
+            } catch (MojoExecutionException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new MojoExecutionException("Could not package source feature jar", e);
             }
-
-            BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
-            archiver.getArchiver().addFileSet(getManuallyIncludedFiles(project.getBasedir(), buildProperties));
-
-            archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);
-            archiver.getArchiver().addFile(getMergedSourceFeaturePropertiesFile(), FEATURE_PROPERTIES);
-            File licenseFeature = licenseFeatureHelper
-                    .getLicenseFeature(Feature.read(new File(project.getBasedir(), "feature.xml")), project);
-            if (licenseFeature != null) {
-                archiver.getArchiver()
-                        .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
-            }
-            archiver.createArchive(session, project, archive);
-
-            projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
-        } catch (MojoExecutionException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new MojoExecutionException("Could not package source feature jar", e);
         }
     }
 
