@@ -51,6 +51,12 @@ import org.codehaus.plexus.util.FileUtils;
  * @since 2.0.3
  */
 public abstract class AbstractSourceJarMojo extends AbstractMojo {
+
+    /**
+     * Lock object to ensure thread-safety
+     */
+    private static final Object LOCK = new Object();
+
     private static final String[] DEFAULT_INCLUDES = new String[] { "**/*" };
 
     private static final String[] DEFAULT_EXCLUDES = new String[] {};
@@ -195,7 +201,9 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /** {@inheritDoc} */
     @Override
     public void execute() throws MojoExecutionException {
-        packageSources(project);
+        synchronized (LOCK) {
+            packageSources(project);
+        }
     }
 
     // ----------------------------------------------------------------------

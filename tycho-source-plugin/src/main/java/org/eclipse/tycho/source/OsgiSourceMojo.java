@@ -60,7 +60,7 @@ import org.osgi.framework.Version;
 /**
  * Goal to create a JAR-package containing all the source files of a osgi project.
  */
-@Mojo(name = "plugin-source", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "plugin-source", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     private static final String GOAL = "plugin-source";
