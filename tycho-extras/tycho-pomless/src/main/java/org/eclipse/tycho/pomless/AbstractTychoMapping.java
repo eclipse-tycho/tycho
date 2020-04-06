@@ -114,6 +114,9 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     public Model read(File input, Map<String, ?> options) throws IOException, ModelParseException {
         File artifactFile = getRealArtifactFile(input);
         if (artifactFile.exists()) {
+            if (artifactFile.isDirectory()) {
+                return read(new StringReader(""), input, options);
+            }
             try (InputStreamReader stream = new InputStreamReader(new FileInputStream(artifactFile),
                     getPrimaryArtifactCharset())) {
                 return read(stream, input, options);

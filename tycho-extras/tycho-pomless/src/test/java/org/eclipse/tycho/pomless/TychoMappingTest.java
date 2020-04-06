@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 SAP SE and others.
+ * Copyright (c) 2015, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - adjust to changed API
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -27,7 +28,7 @@ public class TychoMappingTest extends PlexusTestCase {
     public void testLocateBuildProperties() throws Exception {
         File pom = polyglotModelManager.locatePom(new File(getMappingTestDir(), "simple"));
         assertNotNull(pom);
-        assertEquals(TychoBundleMapping.MANIFEST_MF_MARKER, pom.getName());
+        assertEquals(TychoBundleMapping.MANIFEST_MF, pom.getName());
     }
 
     public void testPriority() throws Exception {
