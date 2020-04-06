@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Lablicate GmbH and others.
+ * Copyright (c) 2019, 2020 Lablicate GmbH and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,33 +26,33 @@ import org.apache.maven.model.io.ModelParseException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@Component(role = Mapping.class, hint = TychoBundleMapping.PACKAGING)
+@Component(role = Mapping.class, hint = TychoBundleMapping2.PACKAGING)
 public class TychoBundleMapping extends AbstractTychoMapping {
 
-    private static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
-
+    public static final String META_INF_DIRECTORY = "META-INF";
+    public static final String MANIFEST_MF = "MANIFEST.MF";
     public static final String PACKAGING = "eclipse-plugin";
+
+    private static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
     private static final String PACKAGING_TEST = "eclipse-test-plugin";
-    private static final String MANIFEST_MF = "META-INF/MANIFEST.MF";
-    public static final String MANIFEST_MF_MARKER = ".META-INF_MANIFEST.MF";
 
     @Override
     protected boolean isValidLocation(String location) {
-        return location.endsWith(MANIFEST_MF_MARKER);
+        File polyglotArtifactFile = new File(location);
+        if (polyglotArtifactFile.isDirectory() && polyglotArtifactFile.getName().equals(META_INF_DIRECTORY)) {
+            return new File(polyglotArtifactFile, MANIFEST_MF).exists();
+        }
+        return false;
     }
 
     @Override
     protected File getPrimaryArtifact(File dir) {
-        File manifestFile = new File(dir, MANIFEST_MF);
-        if (manifestFile.isFile()) {
-            File markerFile = new File(dir, MANIFEST_MF_MARKER);
-            try {
-                markerFile.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException("can't create markerfile", e);
+        File metaInfDirectory = new File(dir, META_INF_DIRECTORY);
+        if (metaInfDirectory.isDirectory()) {
+            File manifestFile = new File(metaInfDirectory, MANIFEST_MF);
+            if (manifestFile.isFile()) {
+                return metaInfDirectory;
             }
-            markerFile.deleteOnExit();
-            return markerFile;
         }
         return null;
     }
@@ -66,7 +66,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     protected void initModel(Model model, Reader artifactReader, File artifactFile)
             throws ModelParseException, IOException {
         File bundleRoot = artifactFile.getParentFile();
-        File manifestFile = new File(bundleRoot, MANIFEST_MF);
+        File manifestFile = new File(artifactFile, MANIFEST_MF);
         Attributes manifestHeaders = readManifestHeaders(manifestFile);
         String bundleSymbolicName = getBundleSymbolicName(manifestHeaders, manifestFile);
         // groupId is inherited from parent pom
@@ -92,14 +92,6 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         if (description != null) {
             model.setDescription(description);
         }
-    }
-
-    @Override
-    protected File getRealArtifactFile(File polyglotArtifactFile) {
-        if (polyglotArtifactFile.getName().equals(MANIFEST_MF_MARKER)) {
-            return new File(polyglotArtifactFile.getParentFile(), MANIFEST_MF);
-        }
-        return super.getRealArtifactFile(polyglotArtifactFile);
     }
 
     private Attributes readManifestHeaders(File manifestFile) throws IOException {
