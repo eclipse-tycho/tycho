@@ -1,6 +1,7 @@
 package org.eclipse.tycho.plugins.p2.publisher;
+
 /*******************************************************************************
- * Copyright (c) 2018 SAP SE and others.
+ * Copyright (c) 2018, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +42,7 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
      * OSGi/Minimum-1.0.
      * </p>
      */
-    @Parameter(defaultValue = "JavaSE-10, JavaSE-11, JavaSE-12, JavaSE-13, JavaSE-14")
+    @Parameter(defaultValue = "JavaSE-11, JavaSE-14")
     private String profiles;
 
     @Parameter(defaultValue = "false")
