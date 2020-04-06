@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2019 SAP SE and others.
+ * Copyright (c) 2015, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - adjust to API
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -45,7 +46,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testReadBundle() throws Exception {
-        File buildProperties = new File(getPolyglotTestDir(), "bundle1/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        File buildProperties = new File(getPolyglotTestDir(), "bundle1/" + TychoBundleMapping.META_INF_DIRECTORY);
         Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                 createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
@@ -54,12 +55,12 @@ public class TychoModelReaderTest extends PlexusTestCase {
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
         assertParent(model.getParent());
-        assertLocation("bundle1/META-INF/MANIFEST.MF", model.getLocation(""));
+        assertLocation("bundle1/META-INF", model.getLocation(""));
     }
 
     @Test
     public void testReadBundle2() throws Exception {
-        File buildProperties = new File(getPolyglotTestDir(), "bundle2/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        File buildProperties = new File(getPolyglotTestDir(), "bundle2/" + TychoBundleMapping.META_INF_DIRECTORY);
         Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                 createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
@@ -68,12 +69,12 @@ public class TychoModelReaderTest extends PlexusTestCase {
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
         assertParent(model.getParent());
-        assertLocation("bundle2/META-INF/MANIFEST.MF", model.getLocation(""));
+        assertLocation("bundle2/META-INF", model.getLocation(""));
     }
 
     @Test
     public void testReadBundle3() throws Exception {
-        File buildProperties = new File(getPolyglotTestDir(), "bundle3/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        File buildProperties = new File(getPolyglotTestDir(), "bundle3/" + TychoBundleMapping.META_INF_DIRECTORY);
         Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                 createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
@@ -82,19 +83,19 @@ public class TychoModelReaderTest extends PlexusTestCase {
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
         assertParent(model.getParent());
-        assertLocation("bundle3/META-INF/MANIFEST.MF", model.getLocation(""));
+        assertLocation("bundle3/META-INF", model.getLocation(""));
     }
 
     @Test
     public void testReadTestBundle() throws Exception {
-        File buildProperties = new File(getPolyglotTestDir(), "bundle1.tests/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        File buildProperties = new File(getPolyglotTestDir(), "bundle1.tests/" + TychoBundleMapping.META_INF_DIRECTORY);
         Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                 createReaderOptions(buildProperties));
         assertEquals("pomless.bundle.tests", model.getArtifactId());
         assertEquals("1.0.1", model.getVersion());
         assertEquals("eclipse-test-plugin", model.getPackaging());
         assertParent(model.getParent());
-        assertLocation("bundle1.tests/META-INF/MANIFEST.MF", model.getLocation(""));
+        assertLocation("bundle1.tests/META-INF", model.getLocation(""));
     }
 
     @Test
@@ -167,7 +168,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
     @Test
     public void testBundleWithoutSymbolicName() throws Exception {
         File buildProperties = new File(getTestResourcesDir(),
-                "modelreader/plugins/missingBsn/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+                "modelreader/plugins/missingBsn/" + TychoBundleMapping.META_INF_DIRECTORY);
         try {
             getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                     createReaderOptions(buildProperties));
@@ -180,7 +181,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
     @Test
     public void testBundleWithoutVersion() throws Exception {
         File buildProperties = new File(getTestResourcesDir(),
-                "modelreader/plugins/missingVersion/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+                "modelreader/plugins/missingVersion/" + TychoBundleMapping.META_INF_DIRECTORY);
         try {
             getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                     createReaderOptions(buildProperties));
@@ -193,7 +194,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
     @Test
     public void testNoParent() throws Exception {
         File buildProperties = new File(getTestResourcesDir(),
-                "modelreader/noParent/bundle/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+                "modelreader/noParent/bundle/" + TychoBundleMapping.META_INF_DIRECTORY);
         FileNotFoundException e = assertThrows(FileNotFoundException.class,
                 () -> getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                         createReaderOptions(buildProperties)));
@@ -203,7 +204,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
     @Test
     public void testFindParent() throws Exception {
         File location = new File(getTestResourcesDir(),
-                "modelreader/grandparentInheritance/bundle/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+                "modelreader/grandparentInheritance/bundle/" + TychoBundleMapping.META_INF_DIRECTORY);
         Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(location, createReaderOptions(location));
         assertNotNull(model);
         Parent parentReference = model.getParent();
