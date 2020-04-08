@@ -49,7 +49,7 @@ import org.osgi.framework.Version;
  * project.
  * </p>
  * 
- * @see http://wiki.eclipse.org/Equinox/p2/Publisher
+ * @see https://wiki.eclipse.org/Equinox/p2/Publisher
  */
 @Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class PublishProductMojo extends AbstractPublishMojo {

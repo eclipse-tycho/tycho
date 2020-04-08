@@ -38,7 +38,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  * Publishes the category definitions from the <tt>category.xml</tt> in the root of the project.
  * </p>
  * 
- * @see http://wiki.eclipse.org/Equinox/p2/Publisher
+ * @see https://wiki.eclipse.org/Equinox/p2/Publisher
  */
 @Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class PublishCategoriesMojo extends AbstractPublishMojo {

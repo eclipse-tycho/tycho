@@ -118,7 +118,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     /**
      * Whether to generate an
-     * <a href="http://wiki.eclipse.org/PDE/UI/SourceReferences">Eclipse-SourceReferences</a>
+     * <a href="https://wiki.eclipse.org/PDE/UI/SourceReferences">Eclipse-SourceReferences</a>
      * MANIFEST header. When using this parameter, property ${tycho.scmUrl} must be set and be a
      * valid <a href="http://maven.apache.org/scm/scm-url-format.html">maven SCM URL</a>.
      * 

@@ -20,7 +20,7 @@ import java.util.zip.ZipEntry;
 import org.codehaus.plexus.util.IOUtil;
 
 /**
- * http://wiki.eclipse.org/JarProcessor_Options
+ * https://wiki.eclipse.org/JarProcessor_Options
  */
 public class EclipseInf {
 

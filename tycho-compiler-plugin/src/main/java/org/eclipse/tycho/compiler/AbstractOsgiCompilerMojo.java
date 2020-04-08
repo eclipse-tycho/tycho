@@ -180,7 +180,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     /**
      * Whether a bundle is required to explicitly import non-java.* packages from the JDK. This is
      * the design-time equivalent to the equinox runtime option <a
-     * href="http://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
+     * href="https://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
      * >osgi.compatibility.bootdelegation</a>.
      */
     @Parameter(defaultValue = "false")

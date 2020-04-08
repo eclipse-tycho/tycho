@@ -301,7 +301,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     static class LogListener implements IArtifactMirrorLog {
         private static final String MIRROR_TOOL_MESSAGE_PREFIX = "Mirror tool: ";
         private static final URI MIRROR_TOOL_MESSAGE_HELP = URI
-                .create("http://wiki.eclipse.org/Tycho_Messages_Explained#Mirror_tool");
+                .create("https://wiki.eclipse.org/Tycho_Messages_Explained#Mirror_tool");
 
         private final MavenLogger logger;
         private boolean hasLogged = false;

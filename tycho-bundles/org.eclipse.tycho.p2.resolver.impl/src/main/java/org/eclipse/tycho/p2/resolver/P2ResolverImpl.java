@@ -240,7 +240,7 @@ public class P2ResolverImpl implements P2Resolver {
             logger.error("Cannot resolve project dependencies:");
             new MultiLineLogger(logger).error(e.getDetails(), "  ");
             logger.error("");
-            logger.error("See http://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
+            logger.error("See https://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
             throw new DependencyResolutionException("Cannot resolve dependencies of " + project, e);
         }
 

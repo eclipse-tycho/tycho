@@ -130,7 +130,7 @@ public final class TargetDefinitionResolver {
 
         if (definition.hasIncludedBundles()) {
             // the bundle selection list is currently not taken into account (see bug 373776)
-            logger.warn("De-selecting bundles in a target definition file is not supported. See http://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
+            logger.warn("De-selecting bundles in a target definition file is not supported. See https://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
         }
 
         return new TargetDefinitionContent(resolverRun.resolve(), artifactRepositories);

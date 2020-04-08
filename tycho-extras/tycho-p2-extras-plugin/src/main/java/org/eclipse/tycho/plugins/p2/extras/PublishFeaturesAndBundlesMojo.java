@@ -28,7 +28,7 @@ import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 /**
  * This goal invokes the feature and bundle publisher on a folder.
  * 
- * @see http://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application
+ * @see https://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application
  */
 @Mojo(name = "publish-features-and-bundles")
 public class PublishFeaturesAndBundlesMojo extends AbstractMojo {

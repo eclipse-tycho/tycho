@@ -43,7 +43,7 @@ public class LicenseFeatureHelper {
     /**
      * Get the license feature jar for feature (or <code>null</code> if it has no license feature).
      * 
-     * See {@linkplain http://wiki.eclipse.org/Equinox/p2/License_Mechanism }.
+     * See {@linkplain https://wiki.eclipse.org/Equinox/p2/License_Mechanism }.
      * 
      * @param feature
      *            original feature
