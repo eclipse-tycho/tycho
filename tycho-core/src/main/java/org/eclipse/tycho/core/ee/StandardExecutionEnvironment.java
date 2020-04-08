@@ -78,8 +78,21 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-        this.systemPackages = new LinkedHashSet<>(
-                Arrays.asList(profileProperties.getProperty("org.osgi.framework.system.packages").split(",")));
+        int eeJavaVersion = -1;
+        if (profileName.startsWith("JavaSE")) {
+            String eeJavaVersionString = profileName.substring(7);
+            try {
+                eeJavaVersion = Integer.parseInt(eeJavaVersionString);
+            } catch (NumberFormatException e) {
+                //ignore if not able to determine Java specification version
+            }
+        }
+        // EE definitions in Tycho for JVMs 15+ will no longer contain system packages as with modular JVMs it's not sure
+        // all packages will be available at runtime
+        if (eeJavaVersion > 0 && eeJavaVersion < 14) {
+            this.systemPackages = new LinkedHashSet<>(
+                    Arrays.asList(profileProperties.getProperty("org.osgi.framework.system.packages").split(",")));
+        }
         this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
         this.profileProperties = new Properties();
         this.profileProperties.putAll(profileProperties);
