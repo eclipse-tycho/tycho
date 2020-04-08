@@ -72,8 +72,8 @@ import org.eclipse.tycho.runtime.Adaptable;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
 
-public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo implements JavaCompilerConfiguration,
-        Adaptable {
+public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
+        implements JavaCompilerConfiguration, Adaptable {
 
     public static final String RULE_SEPARATOR = File.pathSeparator;
 
@@ -115,8 +115,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     /**
      * Which JDK to use for compilation. Default value is SYSTEM which means the currently running
      * JDK. If BREE is specified, MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code>
-     * is used to define the JDK to compile against. In this case, you need to provide a <a
-     * href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>
+     * is used to define the JDK to compile against. In this case, you need to provide a
+     * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>
      * configuration file. The value of BREE will be matched against the id of the toolchain
      * elements in toolchains.xml. Example:
      * 
@@ -184,8 +184,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     /**
      * Whether a bundle is required to explicitly import non-java.* packages from the JDK. This is
-     * the design-time equivalent to the equinox runtime option <a
-     * href="https://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
+     * the design-time equivalent to the equinox runtime option
+     * <a href="https://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
      * >osgi.compatibility.bootdelegation</a>.
      */
     @Parameter(defaultValue = "false")
@@ -229,10 +229,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * <code>${project.build.outputDirectory}</code>.
      * 
      * Set this to <code>false</code> in case you want to keep resources separate from java files in
-     * <code>src/main/resources</code> and handle them using <a
-     * href="http://maven.apache.org/plugins/maven-resources-plugin/"> maven-resources-plugin</a>
-     * (e.g. for <a
-     * href="http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html">resource
+     * <code>src/main/resources</code> and handle them using
+     * <a href="http://maven.apache.org/plugins/maven-resources-plugin/"> maven-resources-plugin</a>
+     * (e.g. for <a href=
+     * "http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html">resource
      * filtering<a/>.
      * 
      */
@@ -478,9 +478,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (useProjectSettings) {
             String prefsFilePath = project.getBasedir() + File.separator + PREFS_FILE_PATH;
             if (!new File(prefsFilePath).exists()) {
-                getLog().warn(
-                        "Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
-                                + "' could not be found!");
+                getLog().warn("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
+                        + "' could not be found!");
             } else {
                 compilerConfiguration.addCompilerCustomArgument("-properties", prefsFilePath);
             }
@@ -532,15 +531,17 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             accessRules.addAll(getStrictBootClasspathAccessRules());
         } else {
             accessRules.add(new DefaultAccessRule("java/**", false));
-            for (String pkg : getTargetExecutionEnvironment().getSystemPackages()) {
-                accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
+            if (!getTargetExecutionEnvironment().getSystemPackages().isEmpty()) {
+                for (String pkg : getTargetExecutionEnvironment().getSystemPackages()) {
+                    accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
+                }
             }
             // now add packages exported by framework extension bundles
             accessRules.addAll(getBundleProject().getBootClasspathExtraAccessRules(project));
         }
         if (accessRules.size() > 0) {
-            compilerConfiguration
-                    .addCompilerCustomArgument("org.osgi.framework.system.packages", toString(accessRules));
+            compilerConfiguration.addCompilerCustomArgument("org.osgi.framework.system.packages",
+                    toString(accessRules));
         }
     }
 
@@ -564,7 +565,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         configureBootClassPath(compilerConfiguration, toolChain);
     }
 
-    private void configureBootClassPath(CompilerConfiguration compilerConfiguration, DefaultJavaToolChain javaToolChain) {
+    private void configureBootClassPath(CompilerConfiguration compilerConfiguration,
+            DefaultJavaToolChain javaToolChain) {
         Xpp3Dom config = (Xpp3Dom) javaToolChain.getModel().getConfiguration();
         if (config != null) {
             Xpp3Dom bootClassPath = config.getChild("bootClassPath");
@@ -573,10 +575,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                 if (includeParent != null) {
                     Xpp3Dom[] includes = includeParent.getChildren("include");
                     if (includes.length > 0) {
-                        compilerConfiguration.addCompilerCustomArgument(
-                                "-bootclasspath",
-                                scanBootclasspath(javaToolChain.getJavaHome(), includes,
-                                        bootClassPath.getChild("excludes")));
+                        compilerConfiguration.addCompilerCustomArgument("-bootclasspath", scanBootclasspath(
+                                javaToolChain.getJavaHome(), includes, bootClassPath.getChild("excludes")));
                     }
                 }
             }
@@ -628,8 +628,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         TychoProject projectType = getBundleProject();
-        ArrayList<ClasspathEntry> classpath = new ArrayList<>(
-                ((BundleProject) projectType).getClasspath(project));
+        ArrayList<ClasspathEntry> classpath = new ArrayList<>(((BundleProject) projectType).getClasspath(project));
 
         if (extraClasspathElements != null) {
             ArtifactRepository localRepository = session.getLocalRepository();
@@ -646,8 +645,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                 ArtifactResolutionResult result = repositorySystem.resolve(request);
 
                 if (result.hasExceptions()) {
-                    throw new MojoExecutionException("Could not resolve extra classpath entry", result.getExceptions()
-                            .get(0));
+                    throw new MojoExecutionException("Could not resolve extra classpath entry",
+                            result.getExceptions().get(0));
                 }
 
                 for (Artifact b : result.getArtifacts()) {
@@ -657,8 +656,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     }
                     ArrayList<File> bLocations = new ArrayList<>();
                     bLocations.add(b.getFile()); // TODO properly handle multiple project locations maybe
-                    classpath.add(new DefaultClasspathEntry(DefaultReactorProject.adapt(bProject), null, bLocations,
-                            null));
+                    classpath.add(
+                            new DefaultClasspathEntry(DefaultReactorProject.adapt(bProject), null, bLocations, null));
                 }
             }
         }
