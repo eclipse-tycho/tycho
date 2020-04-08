@@ -20,7 +20,7 @@
   </licenses>
 
   <scm>
-    <url>http://git.eclipse.org/c/tycho/org.eclipse.tycho.git</url>
+    <url>https://git.eclipse.org/c/tycho/org.eclipse.tycho.git</url>
   </scm>
 
   <developers>

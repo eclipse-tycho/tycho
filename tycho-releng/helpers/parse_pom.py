@@ -2,8 +2,8 @@
 
 # script to list tycho test-only dependencies
 # 1. clean local maven repo: rm -rf ~/.m2/repository
-# 2. clone http://git.eclipse.org/c/tycho/org.eclipse.tycho.git/ and run 'mvn clean install'
-# 3. clone http://git.eclipse.org/c/tycho/org.eclipse.tycho.extras.git/ and run 'mvn clean install'
+# 2. clone https://git.eclipse.org/c/tycho/org.eclipse.tycho.git/ and run 'mvn clean install'
+# 3. clone https://git.eclipse.org/c/tycho/org.eclipse.tycho.extras.git/ and run 'mvn clean install'
 # 4. cd org.eclipse.tycho/tycho-its and run 'mvn clean test'
 # find ~/.m2/repository/ -name "*.pom" | grep -v "./org/eclipse/" | grep -iv tycho | sort | xargs -L1 -I{} parse_pom.py {}
 
