@@ -54,7 +54,7 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?><site associateSitesURL=\"associate-sites.xml\"></site>");
         File associateSitesFile = new File(siteFolder, "associate-sites.xml");
         FileUtils.fileAppend(associateSitesFile.getAbsolutePath(),
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"http://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>");
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"https://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>");
         new File(siteFolder, "content.xml").createNewFile();
         new File(siteFolder, "artifacts.xml").createNewFile();
 

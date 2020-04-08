@@ -91,7 +91,7 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/releases/photon/201806271001/</url>
+							<url>https://download.eclipse.org/releases/photon/201806271001/</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
@@ -128,7 +128,7 @@
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<url>http://download.eclipse.org/eclipse/downloads/drops4/${ecjVersion}/ecj-${ecjVersion}.jar</url>
+							<url>https://download.eclipse.org/eclipse/downloads/drops4/${ecjVersion}/ecj-${ecjVersion}.jar</url>
 							<outputDirectory>${project.build.directory}</outputDirectory>
 						</configuration>
 					</execution>
@@ -139,7 +139,7 @@
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<url>http://download.eclipse.org/eclipse/downloads/drops4/${ecjVersion}/ecjsrc-${ecjVersion}.jar</url>
+							<url>https://download.eclipse.org/eclipse/downloads/drops4/${ecjVersion}/ecjsrc-${ecjVersion}.jar</url>
 							<outputDirectory>${project.build.directory}</outputDirectory>
 						</configuration>
 					</execution>

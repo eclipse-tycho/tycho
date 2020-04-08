@@ -102,7 +102,7 @@ public class EclipseRunMojo extends AbstractMojo {
      *  &lt;repository&gt;
      *   &lt;id&gt;juno&lt;/id&gt;
      *   &lt;layout&gt;p2&lt;/layout&gt;
-     *   &lt;url&gt;http://download.eclipse.org/releases/juno&lt;/url&gt;
+     *   &lt;url&gt;https://download.eclipse.org/releases/juno&lt;/url&gt;
      *  &lt;/repository&gt;
      * &lt;/repositories&gt;
      * </pre>

@@ -9,7 +9,7 @@
 
 
 	<properties>
-		<e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+		<e342-repo>https://download.eclipse.org/releases/ganymede</e342-repo>
 	</properties>
 
 	<repositories>

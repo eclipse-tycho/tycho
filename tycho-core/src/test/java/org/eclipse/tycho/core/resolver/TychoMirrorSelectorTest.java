@@ -26,7 +26,7 @@ public class TychoMirrorSelectorTest {
     @Test
     public void testWithMatchingMirrorOfIds() {
         ArtifactRepository repository = createArtifactRepository("neon-repo",
-                "http://download.eclipse.org/eclipse/update/4.6");
+                "https://download.eclipse.org/eclipse/update/4.6");
         Mirror mirrorWithMatchingMirrorOfIds = createMirror("myId", "http://foo.bar", "neon-repo");
         Mirror selectedMirror = selector.getMirror(repository, Arrays.asList(mirrorWithMatchingMirrorOfIds));
         Assert.assertEquals(mirrorWithMatchingMirrorOfIds, selectedMirror);
@@ -35,8 +35,8 @@ public class TychoMirrorSelectorTest {
     @Test
     public void testWithPrefixMirror() {
         ArtifactRepository repository = createArtifactRepository("neon-repo",
-                "http://download.eclipse.org/eclipse/update/4.6");
-        Mirror prefixMatchingMirror1 = createMirror("myId1", "http://foo.bar", "http://download.eclipse.org");
+                "https://download.eclipse.org/eclipse/update/4.6");
+        Mirror prefixMatchingMirror1 = createMirror("myId1", "http://foo.bar", "https://download.eclipse.org");
         Mirror prefixMatchingMirror2 = createMirror("myId2", "http://foo1.bar1", "http://abc.vxz");
         Mirror selectedMirror = selector.getMirror(repository,
                 Arrays.asList(prefixMatchingMirror1, prefixMatchingMirror2));

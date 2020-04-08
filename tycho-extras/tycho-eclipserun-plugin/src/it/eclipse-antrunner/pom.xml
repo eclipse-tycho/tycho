@@ -48,7 +48,7 @@
 						<repository>
 							<id>juno</id>
 							<layout>p2</layout>
-							<url>http://download.eclipse.org/releases/juno</url>
+							<url>https://download.eclipse.org/releases/juno</url>
 						</repository>
 					</repositories>
 					<appArgLine>-application org.eclipse.ant.core.antRunner</appArgLine>

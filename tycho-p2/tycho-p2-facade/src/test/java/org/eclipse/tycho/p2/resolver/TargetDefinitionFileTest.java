@@ -40,7 +40,7 @@ public class TargetDefinitionFileTest {
 
         InstallableUnitLocation location = (InstallableUnitLocation) locations.get(0);
         assertEquals(1, location.getRepositories().size());
-        assertEquals(URI.create("http://download.eclipse.org/eclipse/updates/3.5/"),
+        assertEquals(URI.create("https://download.eclipse.org/eclipse/updates/3.5/"),
                 location.getRepositories().get(0).getLocation());
         assertEquals(1, location.getUnits().size());
         assertEquals("org.eclipse.platform.sdk", location.getUnits().get(0).getId());
@@ -51,7 +51,7 @@ public class TargetDefinitionFileTest {
         assertEquals(2, l02.getRepositories().size());
         assertEquals(URI.create("http://subclipse.tigris.org/update_1.6.x/"),
                 l02.getRepositories().get(0).getLocation());
-        assertEquals(URI.create("http://download.eclipse.org/tools/mylyn/update/e3.4/"),
+        assertEquals(URI.create("https://download.eclipse.org/tools/mylyn/update/e3.4/"),
                 l02.getRepositories().get(1).getLocation());
     }
 

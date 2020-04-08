@@ -54,7 +54,7 @@ import org.osgi.framework.Version;
 @Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class PublishProductMojo extends AbstractPublishMojo {
 
-    // as per http://download.eclipse.org/releases/luna/201502271000/features/org.eclipse.equinox.executable_3.6.102.v20150204-1316.jar
+    // as per https://download.eclipse.org/releases/luna/201502271000/features/org.eclipse.equinox.executable_3.6.102.v20150204-1316.jar
     private static final Version LUNA_SR2_EXECUTABLE_FEATURE_VERSION = Version.parseVersion("3.6.102.v20150204-1316");
 
     /**
