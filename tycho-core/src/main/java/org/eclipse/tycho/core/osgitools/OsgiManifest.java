@@ -139,7 +139,7 @@ public class OsgiManifest {
     /**
      * Returns true if Eclipse-BundleShape header is set to dir.
      * 
-     * http://help.eclipse.org/galileo/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/misc/
+     * https://help.eclipse.org/galileo/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/misc/
      * bundle_manifest.html
      * 
      * http://eclipsesource.com/blogs/2009/01/20/tip-eclipse-bundleshape/

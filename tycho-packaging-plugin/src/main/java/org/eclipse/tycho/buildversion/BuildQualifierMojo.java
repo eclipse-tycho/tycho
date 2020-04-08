@@ -36,7 +36,7 @@ import org.osgi.framework.Version;
 /**
  * <p>
  * This mojo generates the build qualifier according to the <a href=
- * "http://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/tasks/pde_version_qualifiers.htm"
+ * "https://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/tasks/pde_version_qualifiers.htm"
  * >rules described in the PDE documentation</a>:
  * <ol>
  * <li>Explicit -DforceContextQualifier command line parameter</li>

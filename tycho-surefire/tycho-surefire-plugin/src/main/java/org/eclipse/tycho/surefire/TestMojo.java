@@ -124,14 +124,14 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * Root directory (<a href=
-     * "http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstallarea"
+     * "https://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstallarea"
      * >osgi.install.area</a>) of the Equinox runtime used to execute tests.
      */
     @Parameter(defaultValue = "${project.build.directory}/work")
     private File work;
     /**
      * <a href=
-     * "http://help.eclipse.org/juno/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstancearea"
+     * "https://help.eclipse.org/juno/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstancearea"
      * >OSGi data directory</a> (<code>osgi.instance.area</code>, aka the workspace) of the Equinox
      * runtime used to execute tests.
      */
@@ -600,7 +600,7 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * p2 <a href=
-     * "http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html"
+     * "https://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html"
      * >profile</a> name of the installation under test.
      *
      * Only relevant if {@link #testRuntime} is <code>p2Installed</code>. If tests are installed on

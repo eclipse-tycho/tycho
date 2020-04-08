@@ -17,7 +17,7 @@ import org.osgi.framework.Version;
 /**
  * Represent a version constraint using version and match attributes as defined
  * in feature manifest file (feature>requires>import)
- * {@link http://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Ffeature_manifest.html&cp=2_1_5_20}
+ * {@link https://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Ffeature_manifest.html&cp=2_1_5_20}
  * 
  * @author sarod
  *

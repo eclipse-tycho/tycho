@@ -22,7 +22,7 @@ import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 
 /**
  * Adds category IUs to existing metadata repository.
- * http://help.eclipse.org/galileo/index.jsp?topic
+ * https://help.eclipse.org/galileo/index.jsp?topic
  * =/org.eclipse.platform.doc.isv/guide/p2_publisher.html
  */
 @Mojo(name = "category-p2-metadata", threadSafe = true)
