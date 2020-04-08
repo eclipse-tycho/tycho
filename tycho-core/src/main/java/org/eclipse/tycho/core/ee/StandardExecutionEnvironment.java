@@ -78,8 +78,19 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-        this.systemPackages = new LinkedHashSet<>(
-                Arrays.asList(profileProperties.getProperty("org.osgi.framework.system.packages").split(",")));
+        int eeJavaVersion = -1;
+        if (profileName.startsWith("JavaSE")) {
+            String eeJavaVersionString = profileName.substring(7);
+            try {
+                eeJavaVersion = Integer.parseInt(eeJavaVersionString);
+            } catch (NumberFormatException e) {
+                //ignore if not able to determine Java specification version
+            }
+        }
+        if (eeJavaVersion > 0 && eeJavaVersion < 14) {
+            this.systemPackages = new LinkedHashSet<>(
+                    Arrays.asList(profileProperties.getProperty("org.osgi.framework.system.packages").split(",")));
+        }
         this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
         this.profileProperties = new Properties();
         this.profileProperties.putAll(profileProperties);
