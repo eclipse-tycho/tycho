@@ -25,6 +25,7 @@ import org.junit.Test;
 
 public class StandardExecutionEnvironmentTest {
 
+	private StandardExecutionEnvironment javaSE15Environment;
     private StandardExecutionEnvironment javaSE14Environment;
     private StandardExecutionEnvironment javaSE11Environment;
     private StandardExecutionEnvironment javaSE9Environment;
@@ -50,6 +51,7 @@ public class StandardExecutionEnvironmentTest {
         javaSECompact1Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact1-1.8");
         javaSECompact2Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact2-1.8");
         javaSECompact3Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact3-1.8");
+        javaSE15Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-15");
         javaSE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-14");
         javaSE11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-11");
         javaSE9Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-9");
@@ -70,7 +72,8 @@ public class StandardExecutionEnvironmentTest {
 
     @Test
     public void testNotNull() {
-        assertNotNull(javaSE14Environment);
+		assertNotNull(javaSE15Environment);
+		assertNotNull(javaSE14Environment);
         assertNotNull(javaSE11Environment);
         assertNotNull(javaSE9Environment);
         assertNotNull(javaSE8Environment);
@@ -92,7 +95,8 @@ public class StandardExecutionEnvironmentTest {
 
     @Test
     public void testGetProfileName() {
-        assertEquals("JavaSE-14", javaSE14Environment.getProfileName());
+		assertEquals("JavaSE-15", javaSE15Environment.getProfileName());
+		assertEquals("JavaSE-14", javaSE14Environment.getProfileName());
         assertEquals("JavaSE-11", javaSE11Environment.getProfileName());
         assertEquals("JavaSE-9", javaSE9Environment.getProfileName());
         assertEquals("JavaSE-1.8", javaSE8Environment.getProfileName());
@@ -131,6 +135,7 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("9", javaSE9Environment.getCompilerSourceLevelDefault());
         assertEquals("11", javaSE11Environment.getCompilerSourceLevelDefault());
         assertEquals("14", javaSE14Environment.getCompilerSourceLevelDefault());
+        assertEquals("15", javaSE15Environment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSECompact1Enviroment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSECompact2Enviroment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSECompact3Enviroment.getCompilerSourceLevelDefault());
@@ -154,6 +159,7 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("9", javaSE9Environment.getCompilerTargetLevelDefault());
         assertEquals("11", javaSE11Environment.getCompilerTargetLevelDefault());
         assertEquals("14", javaSE14Environment.getCompilerTargetLevelDefault());
+        assertEquals("15", javaSE15Environment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSECompact1Enviroment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSECompact2Enviroment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSECompact3Enviroment.getCompilerTargetLevelDefault());
@@ -178,6 +184,7 @@ public class StandardExecutionEnvironmentTest {
         assertTrue(javaSE9Environment.isCompatibleCompilerTargetLevel("9.0"));
         assertTrue(javaSE11Environment.isCompatibleCompilerTargetLevel("11.0"));
         assertTrue(javaSE14Environment.isCompatibleCompilerTargetLevel("14.0"));
+        assertTrue(javaSE15Environment.isCompatibleCompilerTargetLevel("15.0"));
     }
 
     @Test(expected = UnknownEnvironmentException.class)
@@ -191,7 +198,7 @@ public class StandardExecutionEnvironmentTest {
                 osgiMin11Environment, osgiMin12Environment, cdc10Environment, cdc11Environment, jre11Environment,
                 j2SE12Environment, j2SE13Environment, j2SE14Environment, j2SE5Enviroment, javaSE6Enviroment,
                 javaSE7Enviroment, javaSECompact1Enviroment, javaSECompact2Enviroment, javaSECompact3Enviroment,
-                javaSE8Environment, javaSE9Environment, javaSE11Environment, javaSE14Environment));
+                javaSE8Environment, javaSE9Environment, javaSE11Environment, javaSE14Environment, javaSE15Environment));
         List<StandardExecutionEnvironment> actualList = new ArrayList<>(expectedList);
         Collections.shuffle(actualList);
         Collections.sort(actualList);
