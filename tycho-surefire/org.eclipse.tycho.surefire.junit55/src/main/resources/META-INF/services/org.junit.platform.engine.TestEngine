@@ -1,0 +1,4 @@
+# Manual merge of META-INF/services/org.junit.platform.engine.TestEngine of both junit-vintage-engine and junit-jupiter-engine
+# otherwise only one of the two files would win when extracting dependencies
+org.junit.jupiter.engine.JupiterTestEngine
+org.junit.vintage.engine.VintageTestEngine
