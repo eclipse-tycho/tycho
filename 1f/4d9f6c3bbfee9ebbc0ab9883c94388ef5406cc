@@ -1,0 +1,9 @@
+Code-Review+1: Gregor Latuske <gregor@latuske.net>
+Verified+1: CI Bot
+Code-Review+1: Alexander Kurtakov <akurtako@redhat.com>
+Code-Review+2: Mickael Istria <mistria@redhat.com>
+Submitted-by: Mickael Istria <mistria@redhat.com>
+Submitted-at: Fri, 17 Apr 2020 03:53:13 -0400
+Reviewed-on: https://git.eclipse.org/r/161108
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
