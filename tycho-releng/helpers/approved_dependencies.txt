@@ -44,8 +44,8 @@ org.objenesis:objenesis:jar:2.6:compile https://dev.eclipse.org/ipzilla/show_bug
 org.ow2.asm:asm:jar:6.1.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=17660
 org.ow2.asm:asm-analysis:jar:7.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
 org.ow2.asm:asm:jar:7.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
-org.ow2.asm:asm-tree:jar:7.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
-org.ow2.asm:asm-util:jar:7.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21109
+org.ow2.asm:asm-tree:jar:8.0.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21854
+org.ow2.asm:asm-util:jar:8.0.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=21854
 org.sonatype.aether:aether-api:jar:1.7:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.sonatype.aether:aether-impl:jar:1.7:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.sonatype.aether:aether-spi:jar:1.7:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
