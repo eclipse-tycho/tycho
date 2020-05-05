@@ -4,7 +4,7 @@ Bundle-Name: Tycho Maven/p2 Repository Integration Tests
 Bundle-SymbolicName: org.eclipse.tycho.p2.maven.repository.tests;singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: %providerName
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.eclipse.tycho.p2.maven.repository
 Require-Bundle: org.junit,
  org.hamcrest.core,
