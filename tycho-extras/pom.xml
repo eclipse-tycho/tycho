@@ -30,7 +30,6 @@
 	<properties>
 		<jgit-version>5.7.0.202003110725-r</jgit-version>
 		<tycho-version>${project.version}</tycho-version>
-		<plexusVersion>2.0.0</plexusVersion>
 		<invoker.debug>true</invoker.debug>
 	</properties>
 
