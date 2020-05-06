@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,10 +16,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.codehaus.plexus.PlexusTestCase;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 
 // TODO reference helpers via static import instead of misusing inheritance for this 
-public abstract class AbstractVersionChangeTest extends PlexusTestCase {
+public abstract class AbstractVersionChangeTest extends AbstractMojoTestCase {
     protected static void assertPom(File basedir) throws IOException {
         assertFileContent(new File(basedir, "pom.xml"));
     }

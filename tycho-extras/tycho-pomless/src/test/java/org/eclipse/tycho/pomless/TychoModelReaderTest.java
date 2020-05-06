@@ -27,12 +27,12 @@ import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
-import org.codehaus.plexus.PlexusTestCase;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.junit.Test;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-public class TychoModelReaderTest extends PlexusTestCase {
+public class TychoModelReaderTest extends AbstractMojoTestCase {
 
     @Test
     public void testReadBundle() throws Exception {
