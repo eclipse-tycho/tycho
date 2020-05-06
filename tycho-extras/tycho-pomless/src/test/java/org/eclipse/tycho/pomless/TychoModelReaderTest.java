@@ -29,10 +29,16 @@ import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
 import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 public class TychoModelReaderTest extends PlexusTestCase {
+
+    @Before
+    public void setup() throws Exception {
+        super.setUp();
+    }
 
     @Test
     public void testReadBundle() throws Exception {
