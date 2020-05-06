@@ -27,12 +27,21 @@ import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
+import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.junit.Test;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 public class TychoModelReaderTest extends PlexusTestCase {
+
+    @Override
+    protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
+        super.customizeContainerConfiguration(configuration);
+        configuration.setAutoWiring(true);
+        configuration.setClassPathScanning(PlexusConstants.SCANNING_ON);
+    }
 
     @Test
     public void testReadBundle() throws Exception {
