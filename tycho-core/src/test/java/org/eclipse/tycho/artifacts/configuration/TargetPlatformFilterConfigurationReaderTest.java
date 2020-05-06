@@ -23,13 +23,14 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.model.Plugin;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
-import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.FilterAction;
@@ -37,7 +38,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.core.utils.TychoVersion;
 
-public class TargetPlatformFilterConfigurationReaderTest extends PlexusTestCase {
+public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTestCase {
 
     private TargetPlatformFilterConfigurationReader subject;
 
@@ -173,7 +174,7 @@ public class TargetPlatformFilterConfigurationReaderTest extends PlexusTestCase 
 
         // this disables the expansion of packaging types (which are undefined at this point in the build)
         projectBuildingRequest.setProcessPlugins(false);
-
+        projectBuildingRequest.setRepositorySession(new DefaultRepositorySystemSession());
         return projectBuildingRequest;
     }
 
