@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.maven.plugin.surefire.StartupReportConfiguration;
 import org.apache.maven.plugin.surefire.log.api.PrintStreamLogger;
+import org.apache.maven.plugin.surefire.report.ConsoleReporter;
 import org.apache.maven.plugin.surefire.report.DefaultReporterFactory;
 import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
@@ -104,8 +105,8 @@ public class OsgiSurefireBooter {
                 extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
                 skipAfterFailureCount, Shutdown.DEFAULT, 30);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
-                StartupReportConfiguration.PLAIN_REPORT_FORMAT, redirectTestOutputToFile, disableXmlReport, reportsDir,
-                trimStackTrace, null, new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, null);
+                ConsoleReporter.PLAIN, redirectTestOutputToFile, disableXmlReport, reportsDir, trimStackTrace, null,
+                new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, null, false);
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
                 new PrintStreamLogger(startupReportConfig.getOriginalSystemOut()));
         // API indicates we should use testClassLoader below but surefire also tries 
