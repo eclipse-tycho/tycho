@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -177,8 +177,9 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
                         } catch (IOException e) {
                             logger.warn("Failed to delete Tycho's OSGi runtime " + eclipseDir + ": " + e.getMessage());
                         }
+                        eclipseDir.mkdirs();
                         unArchiver.setSourceFile(artifact.getFile());
-                        unArchiver.setDestDirectory(eclipseDir.getParentFile());
+                        unArchiver.setDestDirectory(eclipseDir);
                         try {
                             unArchiver.extract();
                         } catch (ArchiverException e) {

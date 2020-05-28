@@ -195,7 +195,6 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         if (!(tempConfigDir.mkdirs())) {
             throw new IOException("Could not create temp config dir " + tempConfigDir);
         }
-        FileUtils.copyFileToDirectory(new File(configDir, "config.ini"), tempConfigDir);
         this.tempEquinoxDir = equinoxTmp;
         return tempConfigDir.getAbsolutePath();
     }

@@ -21,22 +21,9 @@
 	</parent>
 
 	<artifactId>tycho-bundles-external</artifactId>
-	<packaging>eclipse-application</packaging>
+	<packaging>eclipse-repository</packaging>
 
 	<name>Tycho OSGi Runtime External Bundles</name>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-packaging-plugin</artifactId>
-				<version>${tychoBootstrapVersion}</version>
-				<configuration>
-					<separateEnvironments>false</separateEnvironments>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 	<!--
 		Steps I use to update tycho-p2-runtime to use different p2 version
