@@ -58,7 +58,7 @@
 		</developer>
 	</developers>
 	<prerequisites>
-		<maven>3.1.0</maven>
+		<maven>3.6.3</maven>
 	</prerequisites>
 
 	<groupId>org.eclipse.tycho</groupId>
