@@ -21,6 +21,14 @@
       name="User Preferences">
     <setupTask
         xsi:type="setup:CompoundTask"
+        name="org.eclipse.core.resources">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.core.resources/description.autobuilding"
+          value="false"/>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
         name="org.eclipse.egit.ui">
       <setupTask
           xsi:type="setup:PreferenceTask"
@@ -31,9 +39,16 @@
     </setupTask>
   </setupTask>
   <setupTask
+      xsi:type="setup:CompoundTask"
+      name="User Preferences">
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.egit.ui"/>
+  </setupTask>
+  <setupTask
       xsi:type="jdt:JRETask"
-      version="JavaSE-1.8"
-      location="${jre.location-1.8}">
+      version="JavaSE-11"
+      location="${jre.location-11}">
     <description>Define the JRE needed to compile and run the Java projects of ${scope.project.label}</description>
   </setupTask>
   <setupTask
@@ -111,7 +126,7 @@
         name="Tycho">
       <predicate
           xsi:type="workingsets:ExclusionPredicate"
-          excludedWorkingSet="//@setupTasks.6/@workingSets[name='Tycho-Extra']"/>
+          excludedWorkingSet="//@setupTasks.7/@workingSets[name='Tycho-Extra']"/>
     </workingSet>
     <workingSet
         name="Tycho-Extra">
@@ -313,8 +328,19 @@
   </setupTask>
   <setupTask
       xsi:type="projects:ProjectsBuildTask"
-      refresh="true">
-    <description>Build Projects</description>
+      refresh="true"
+      clean="true"/>
+  <setupTask
+      xsi:type="setup:CompoundTask"
+      name="User Preferences">
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.core.resources">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.core.resources/description.autobuilding"
+          value="true"/>
+    </setupTask>
   </setupTask>
   <stream name="master"
       label="master">
