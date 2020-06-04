@@ -202,7 +202,10 @@ public class EquinoxResolver {
                 String systemPackages = envProps.getProperty("org.osgi.framework.system.packages");
                 String execEnv = envProps.getProperty("org.osgi.framework.executionenvironment");
                 Dictionary<Object, Object> prop = new Hashtable<>();
-                prop.put("org.osgi.framework.system.packages", systemPackages);
+                // system packages don't exist in EE profiles after Java 11
+                if (systemPackages != null) {
+                    prop.put("org.osgi.framework.system.packages", systemPackages);
+                }
                 prop.put("org.osgi.framework.executionenvironment", execEnv);
                 allProps.add(prop);
             }
@@ -300,7 +303,7 @@ public class EquinoxResolver {
             ResolverError[] errors = getResolverErrors(state, desc);
             for (ResolverError error : errors) {
                 msg.append("   Bundle ").append(error.getBundle().getSymbolicName()).append(" - ")
-                .append(error.toString()).append("\n");
+                        .append(error.toString()).append("\n");
             }
 
             throw new BundleException(msg.toString());
@@ -315,21 +318,21 @@ public class EquinoxResolver {
 
     private void getRelevantErrors(State state, Set<ResolverError> errors, BundleDescription bundle) {
         ResolverError[] bundleErrors = state.getResolverErrors(bundle);
-	for (ResolverError error : bundleErrors) {
-	    errors.add(error);
-	    VersionConstraint constraint = error.getUnsatisfiedConstraint();
-	    if (constraint instanceof BundleSpecification || constraint instanceof HostSpecification) {
-		BundleDescription[] requiredBundles = state.getBundles(constraint.getName());
-		for (BundleDescription requiredBundle : requiredBundles) {
-		    // if one of the constraints is the bundle itself (recursive dependency)
-		    // do not handle that bundle (again). See bug 442594.
-		    if (bundle.equals(requiredBundle)) {
-			continue;
-		    }
-		    getRelevantErrors(state, errors, requiredBundle);
-		}
-	    }
-	}
+        for (ResolverError error : bundleErrors) {
+            errors.add(error);
+            VersionConstraint constraint = error.getUnsatisfiedConstraint();
+            if (constraint instanceof BundleSpecification || constraint instanceof HostSpecification) {
+                BundleDescription[] requiredBundles = state.getBundles(constraint.getName());
+                for (BundleDescription requiredBundle : requiredBundles) {
+                    // if one of the constraints is the bundle itself (recursive dependency)
+                    // do not handle that bundle (again). See bug 442594.
+                    if (bundle.equals(requiredBundle)) {
+                        continue;
+                    }
+                    getRelevantErrors(state, errors, requiredBundle);
+                }
+            }
+        }
     }
 
 }
