@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@ package org.eclipse.tycho.extras.pack200;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,29 +42,12 @@ public class Pack200Wrapper {
 
     private void pack(File jar, File pack) throws IOException, FileNotFoundException {
         // 387541 apparently JarFile is required to preserve jar file signatures 
-        JarFile is = new JarFile(jar);
-        try {
-            OutputStream os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(pack)));
-            try {
+
+        try (JarFile is = new JarFile(jar)) {
+            try (OutputStream os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(pack)))) {
                 Packer packer = newPacker();
                 packer.pack(is, os);
-            } finally {
-                close(os);
             }
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                // ignored
-            }
-        }
-    }
-
-    private static void close(Closeable c) {
-        try {
-            c.close();
-        } catch (IOException e) {
-            // ignored
         }
     }
 
@@ -74,17 +56,11 @@ public class Pack200Wrapper {
     }
 
     protected void unpack(File packFile, File jarFile) throws IOException, FileNotFoundException {
-        InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(packFile)));
-        try {
-            JarOutputStream os = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(jarFile)));
-            try {
+        try (InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(packFile)))) {
+            try (JarOutputStream os = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(jarFile)))) {
                 Unpacker unpacker = Pack200.newUnpacker();
                 unpacker.unpack(is, os);
-            } finally {
-                close(os);
             }
-        } finally {
-            close(is);
         }
     }
 
