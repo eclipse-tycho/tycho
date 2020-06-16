@@ -43,9 +43,9 @@ public class EEVersion implements Comparable<EEVersion> {
 
     private static final Version JAVA8 = Version.parseVersion("1.8");
     @Nonnull
-    private Version version;
+    private final Version version;
     @Nonnull
-    private EEType type;
+    private final EEType type;
 
     public EEVersion(@Nonnull Version version, @Nonnull EEType type) {
         this.version = version;

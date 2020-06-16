@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
+import org.apache.maven.plugin.testing.SilentLog;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.junit.Test;
@@ -104,8 +105,9 @@ public class OsgiManifestTest {
     @Test
     public void testMultipleBREEs() throws Exception {
         OsgiManifest manifest = parseManifest("bree.mf");
-        ExecutionEnvironment[] expected = { ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5"),
-                ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7") };
+        ExecutionEnvironment[] expected = {
+                ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5", null, null, new SilentLog()),
+                ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7", null, null, new SilentLog()) };
         assertArrayEquals(expected, manifest.getExecutionEnvironments());
     }
 
