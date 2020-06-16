@@ -89,7 +89,8 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         return null;
     }
 
-    public void readExecutionEnvironmentConfiguration(MavenProject project, ExecutionEnvironmentConfiguration sink) {
+    public void readExecutionEnvironmentConfiguration(MavenProject project, MavenSession mavenSession,
+            ExecutionEnvironmentConfiguration sink) {
         TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
         String configuredForcedProfile = tpConfiguration.getExecutionEnvironment();

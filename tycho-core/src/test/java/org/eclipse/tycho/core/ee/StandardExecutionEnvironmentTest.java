@@ -20,12 +20,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.maven.plugin.testing.SilentLog;
 import org.junit.Before;
 import org.junit.Test;
 
 public class StandardExecutionEnvironmentTest {
 
-	private StandardExecutionEnvironment javaSE15Environment;
+    private StandardExecutionEnvironment javaSE15Environment;
     private StandardExecutionEnvironment javaSE14Environment;
     private StandardExecutionEnvironment javaSE11Environment;
     private StandardExecutionEnvironment javaSE9Environment;
@@ -48,32 +49,46 @@ public class StandardExecutionEnvironmentTest {
 
     @Before
     public void setUp() throws Exception {
-        javaSECompact1Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact1-1.8");
-        javaSECompact2Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact2-1.8");
-        javaSECompact3Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact3-1.8");
-        javaSE15Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-15");
-        javaSE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-14");
-        javaSE11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-11");
-        javaSE9Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-9");
-        javaSE8Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.8");
-        javaSE7Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7");
-        javaSE6Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6");
-        j2SE5Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5");
-        j2SE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4");
-        j2SE13Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.3");
-        j2SE12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.2");
-        jre11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JRE-1.1");
-        cdc11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("CDC-1.1/Foundation-1.1");
-        cdc10Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("CDC-1.0/Foundation-1.0");
-        osgiMin10Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.0");
-        osgiMin11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.1");
-        osgiMin12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.2");
+        javaSECompact1Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact1-1.8", null, null,
+                new SilentLog());
+        javaSECompact2Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact2-1.8", null, null,
+                new SilentLog());
+        javaSECompact3Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact3-1.8", null, null,
+                new SilentLog());
+        javaSE15Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-15", null, null,
+                new SilentLog());
+        javaSE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-14", null, null,
+                new SilentLog());
+        javaSE11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-11", null, null,
+                new SilentLog());
+        javaSE9Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-9", null, null, new SilentLog());
+        javaSE8Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.8", null, null,
+                new SilentLog());
+        javaSE7Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7", null, null,
+                new SilentLog());
+        javaSE6Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6", null, null,
+                new SilentLog());
+        j2SE5Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5", null, null, new SilentLog());
+        j2SE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog());
+        j2SE13Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.3", null, null, new SilentLog());
+        j2SE12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.2", null, null, new SilentLog());
+        jre11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JRE-1.1", null, null, new SilentLog());
+        cdc11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("CDC-1.1/Foundation-1.1", null, null,
+                new SilentLog());
+        cdc10Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("CDC-1.0/Foundation-1.0", null, null,
+                new SilentLog());
+        osgiMin10Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.0", null, null,
+                new SilentLog());
+        osgiMin11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.1", null, null,
+                new SilentLog());
+        osgiMin12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.2", null, null,
+                new SilentLog());
     }
 
     @Test
     public void testNotNull() {
-		assertNotNull(javaSE15Environment);
-		assertNotNull(javaSE14Environment);
+        assertNotNull(javaSE15Environment);
+        assertNotNull(javaSE14Environment);
         assertNotNull(javaSE11Environment);
         assertNotNull(javaSE9Environment);
         assertNotNull(javaSE8Environment);
@@ -95,8 +110,8 @@ public class StandardExecutionEnvironmentTest {
 
     @Test
     public void testGetProfileName() {
-		assertEquals("JavaSE-15", javaSE15Environment.getProfileName());
-		assertEquals("JavaSE-14", javaSE14Environment.getProfileName());
+        assertEquals("JavaSE-15", javaSE15Environment.getProfileName());
+        assertEquals("JavaSE-14", javaSE14Environment.getProfileName());
         assertEquals("JavaSE-11", javaSE11Environment.getProfileName());
         assertEquals("JavaSE-9", javaSE9Environment.getProfileName());
         assertEquals("JavaSE-1.8", javaSE8Environment.getProfileName());
@@ -189,7 +204,7 @@ public class StandardExecutionEnvironmentTest {
 
     @Test(expected = UnknownEnvironmentException.class)
     public void testUnknownEnv() throws Throwable {
-        ExecutionEnvironmentUtils.getExecutionEnvironment("foo");
+        ExecutionEnvironmentUtils.getExecutionEnvironment("foo", null, null, new SilentLog());
     }
 
     @Test
