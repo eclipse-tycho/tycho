@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="An Invalid Product" id="product.id" useFeatures="false" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <plugins>
+      <plugin id="org.eclipse.equinox.registry"/>
+   </plugins>
+
+
+</product>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 SAP SE and others.
+ * Copyright (c) 2010, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,10 +90,10 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         for (File productFile : eclipseRepositoryProject.getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
-                if (productConfiguration.getId().isEmpty()) {
+                if (productConfiguration.getId() == null || productConfiguration.getId().isEmpty()) {
                     throw new MojoExecutionException("The product file " + productFile.getName()
                             + " does not contain the mandatory attribute 'uid'. Please ensure you entered an id in the product file.");
-                } else if (productConfiguration.getVersion().isEmpty()) {
+                } else if (productConfiguration.getVersion() == null || productConfiguration.getVersion().isEmpty()) {
                     throw new MojoExecutionException("The product file " + productFile.getName()
                             + " does not contain the mandatory attribute 'version'. Please ensure you entered a version in the product file.");
                 }
