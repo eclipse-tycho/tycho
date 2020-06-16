@@ -17,6 +17,7 @@ import java.util.Properties;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -54,6 +55,9 @@ public class DefaultTychoResolver implements TychoResolver {
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Requirement
+    private ToolchainManager toolchainManager;
+
     public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
     public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
     public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
@@ -89,8 +93,8 @@ public class DefaultTychoResolver implements TychoResolver {
         project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, configuration);
 
         ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger,
-                !configuration.isResolveWithEEConstraints());
-        dr.readExecutionEnvironmentConfiguration(project, eeConfiguration);
+                !configuration.isResolveWithEEConstraints(), toolchainManager, session);
+        dr.readExecutionEnvironmentConfiguration(project, session, eeConfiguration);
         project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
 
         DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
@@ -197,7 +201,7 @@ public class DefaultTychoResolver implements TychoResolver {
         config.setExecutionEnvironment(newEEName);
 
         ExecutionEnvironmentConfiguration sink = new ExecutionEnvironmentConfigurationImpl(logger,
-                !config.isResolveWithEEConstraints());
+                !config.isResolveWithEEConstraints(), toolchainManager, session);
         sink.overrideProfileConfiguration(newEEName, "current execution environment");
 
         project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, sink);

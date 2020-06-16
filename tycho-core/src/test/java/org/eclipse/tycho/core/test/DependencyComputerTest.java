@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
+import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
@@ -74,7 +75,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
 
         ExecutionEnvironment executionEnvironment = TychoProjectUtils.getExecutionEnvironmentConfiguration(project)
                 .getFullSpecification();
-        State state = resolver.newResolvedState(project, executionEnvironment, false, platform);
+        State state = resolver.newResolvedState(project, null, executionEnvironment, false, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
@@ -114,7 +115,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                         new SystemCapability(Type.OSGI_EE, "JavaSE", "1.1.0"), //
                         new SystemCapability(Type.OSGI_EE, "JavaSE", "1.2.0")));
 
-        State state = resolver.newResolvedState(project, customProfile, false, platform);
+        State state = resolver.newResolvedState(project, null, customProfile, false, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
@@ -153,8 +154,9 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     private List<DependencyEntry> computeDependencies(MavenProject project) throws BundleException {
         DependencyArtifacts platform = (DependencyArtifacts) project
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
-        State state = resolver.newResolvedState(project, ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4"),
-                false, platform);
+        State state = resolver.newResolvedState(project, null,
+                ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog()), false,
+                platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
         return dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
     }
