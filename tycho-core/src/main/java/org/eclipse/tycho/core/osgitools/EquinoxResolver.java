@@ -22,7 +22,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -62,11 +64,14 @@ public class EquinoxResolver {
     @Requirement
     private Logger logger;
 
-    public State newResolvedState(MavenProject project, ExecutionEnvironment ee, boolean ignoreEE,
-            DependencyArtifacts artifacts) throws BundleException {
+    @Requirement
+    private ToolchainManager toolchainManager;
+
+    public State newResolvedState(MavenProject project, MavenSession mavenSession, ExecutionEnvironment ee,
+            boolean ignoreEE, DependencyArtifacts artifacts) throws BundleException {
         Properties properties = getPlatformProperties(project, ee);
 
-        State state = newState(artifacts, properties, ignoreEE);
+        State state = newState(artifacts, properties, ignoreEE, mavenSession);
 
         resolveState(state);
 
@@ -77,11 +82,11 @@ public class EquinoxResolver {
         return state;
     }
 
-    public State newResolvedState(File basedir, ExecutionEnvironment ee, DependencyArtifacts artifacts)
-            throws BundleException {
+    public State newResolvedState(File basedir, MavenSession mavenSession, ExecutionEnvironment ee,
+            DependencyArtifacts artifacts) throws BundleException {
         Properties properties = getPlatformProperties(new Properties(), null, ee);
 
-        State state = newState(artifacts, properties, false);
+        State state = newState(artifacts, properties, false, mavenSession);
 
         resolveState(state);
 
@@ -148,8 +153,8 @@ public class EquinoxResolver {
         return properties;
     }
 
-    protected State newState(DependencyArtifacts artifacts, Properties properties, boolean ignoreEE)
-            throws BundleException {
+    protected State newState(DependencyArtifacts artifacts, Properties properties, boolean ignoreEE,
+            MavenSession mavenSession) throws BundleException {
         State state = factory.createState(true);
 
         Map<File, Dictionary<String, String>> systemBundles = new LinkedHashMap<>();
@@ -198,7 +203,9 @@ public class EquinoxResolver {
         if (ignoreEE) {
             // ignoring EE by adding all known EEs
             for (String profile : ExecutionEnvironmentUtils.getProfileNames()) {
-                Properties envProps = ExecutionEnvironmentUtils.getExecutionEnvironment(profile).getProfileProperties();
+                Properties envProps = ExecutionEnvironmentUtils
+                        .getExecutionEnvironment(profile, toolchainManager, mavenSession, logger)
+                        .getProfileProperties();
                 String systemPackages = envProps.getProperty("org.osgi.framework.system.packages");
                 String execEnv = envProps.getProperty("org.osgi.framework.executionenvironment");
                 Dictionary<Object, Object> prop = new Hashtable<>();

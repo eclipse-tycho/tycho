@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
@@ -43,6 +44,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.toolchain.ToolchainManager;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -104,6 +107,9 @@ public class GeneratePomsMojo extends AbstractMojo {
      */
     @Parameter(property = "baseDir", defaultValue = "${basedir}", required = true)
     private File baseDir;
+
+    @Parameter(property = "session", readonly = true)
+    private MavenSession session;
 
     /**
      * Additional directories to be traversed recursively when searching for projects.
@@ -192,6 +198,12 @@ public class GeneratePomsMojo extends AbstractMojo {
     private Map<File, Model> updateSites = new LinkedHashMap<>();
 
     private DefaultDependencyArtifacts platform = new DefaultDependencyArtifacts();
+
+    @Component
+    private ToolchainManager toolchainManager;
+
+    @Component
+    private Logger logger;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -617,8 +629,8 @@ public class GeneratePomsMojo extends AbstractMojo {
         if (result.add(basedir)) {
             try {
                 StandardExecutionEnvironment ee = ExecutionEnvironmentUtils
-                        .getExecutionEnvironment(executionEnvironment);
-                State state = resolver.newResolvedState(basedir, ee, platform);
+                        .getExecutionEnvironment(executionEnvironment, toolchainManager, session, logger);
+                State state = resolver.newResolvedState(basedir, session, ee, platform);
                 BundleDescription bundle = state.getBundleByLocation(basedir.getAbsolutePath());
                 if (bundle != null) {
                     for (DependencyComputer.DependencyEntry entry : dependencyComputer
