@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - cache target definition resolution result (bug 373806)
- *    Christoph Läubrich - add implementation for different location types
+ *    Christoph Läubrich - add implementation for different location types, fix has calculation
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -375,8 +375,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
         MessageDigest digest = newMD5Digest();
 
         byte[] buffer = new byte[4 * 1024];
-        while (in.read(buffer) > 0) {
-            digest.update(buffer);
+        int read;
+        while ((read = in.read(buffer)) > -1) {
+            digest.update(buffer, 0, read);
         }
         return digest.digest();
     }
