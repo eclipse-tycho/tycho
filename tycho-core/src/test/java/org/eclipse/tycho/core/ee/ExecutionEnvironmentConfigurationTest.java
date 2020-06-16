@@ -40,14 +40,14 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Before
     public void initSubject() {
-        subject = new ExecutionEnvironmentConfigurationImpl(logger, false);
+        subject = new ExecutionEnvironmentConfigurationImpl(logger, false, null, null);
     }
 
     @Test
     public void testDefaults() {
-        assertThat(subject.getProfileName(), is("JavaSE-9"));
+        assertThat(subject.getProfileName(), is("JavaSE-11"));
         assertThat(subject.isCustomProfile(), is(false));
-        assertThat(subject.getFullSpecification().getProfileName(), is("JavaSE-9"));
+        assertThat(subject.getFullSpecification().getProfileName(), is("JavaSE-11"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Test(expected = BuildFailureException.class)
     public void testMustNotIgnoreEEWhenUsingCustomProfile() {
-        subject = new ExecutionEnvironmentConfigurationImpl(logger, true);
+        subject = new ExecutionEnvironmentConfigurationImpl(logger, true, null, null);
         subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
 
         subject.isCustomProfile();

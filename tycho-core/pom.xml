@@ -85,9 +85,42 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>compile-system-packages-companion-jar</id>
+						<phase>generate-resources</phase>
+						<goals><goal>compile</goal></goals>
+						<configuration>
+							<source>9</source>
+							<target>9</target>
+							<includes>
+								<include>org/eclipse/tycho/core/ee/ListSystemPackages.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
+					<execution>
+						<id>system-packages-companion-jar</id>
+						<phase>generate-resources</phase>
+						<goals><goal>jar</goal></goals>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>org.eclipse.tycho.core.ee.ListSystemPackages</mainClass>
+								</manifest>
+							</archive>
+							<classifier>system-packages-companion</classifier>
+							<classesDirectory>${project.build.outputDirectory}</classesDirectory>
+							<includes>
+								<include>org/eclipse/tycho/core/ee/ListSystemPackages.class</include>
+							</includes>
+						</configuration>
+					</execution>
 					<execution>
 						<id>test-jar</id>
 						<goals>
@@ -98,6 +131,23 @@
 							<excludes>
 								<exclude>org/eclipse/tycho/core/test/</exclude>
 							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-system-packages-companion-jar</id>
+						<phase>generate-resources</phase>
+						<goals><goal>run</goal></goals>
+						<configuration>
+							<tasks>
+								<copy
+									file="${project.build.directory}/${artifactId}-${version}-system-packages-companion.jar"
+									tofile="src/main/resources/system-packages-companion.jar"/>
+							</tasks>
 						</configuration>
 					</execution>
 				</executions>
