@@ -27,8 +27,10 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -48,7 +50,7 @@ import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
@@ -82,6 +84,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private DependencyComputer dependencyComputer;
+
+    @Requirement
+    private Logger logger;
+
+    @Requirement
+    private ToolchainManager toolchainManager;
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment) {
@@ -161,7 +169,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     public void resolveClassPath(MavenSession session, MavenProject project) {
         DependencyArtifacts artifacts = getDependencyArtifacts(project);
 
-        State state = getResolverState(project, artifacts);
+        State state = getResolverState(project, artifacts, session);
 
         if (getLogger().isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             getLogger().debug(resolver.toDebugString(state));
@@ -174,7 +182,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         // dependencies
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
-        for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
+        for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(),
+                bundleDescription)) {
             if (EquinoxResolver.SYSTEM_BUNDLE_ID == entry.desc.getBundleId()) {
                 if (entry.rules != null) {
                     strictBootClasspathAccessRules.addAll(entry.rules);
@@ -255,13 +264,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
     }
 
-    private State getResolverState(MavenProject project, DependencyArtifacts artifacts) {
+    private State getResolverState(MavenProject project, DependencyArtifacts artifacts, MavenSession session) {
         try {
             ExecutionEnvironmentConfiguration eeConfiguration = TychoProjectUtils
                     .getExecutionEnvironmentConfiguration(project);
             ExecutionEnvironment executionEnvironment = eeConfiguration.getFullSpecification();
-            return resolver.newResolvedState(project, executionEnvironment, eeConfiguration.isIgnoredByResolver(),
-                    artifacts);
+            return resolver.newResolvedState(project, session, executionEnvironment,
+                    eeConfiguration.isIgnoredByResolver(), artifacts);
         } catch (BundleException e) {
             throw new RuntimeException(e);
         }
@@ -330,9 +339,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     /**
-     * Returns bundle classpath entries. If <code>nestedPath</code> is not <code>null</code>, returns
-     * single class folder that corresponds specified nestedPath. If <code>nestedPath</code> is
-     * <code>null</code>, returns entries specified in Bundle-ClassPath.
+     * Returns bundle classpath entries. If <code>nestedPath</code> is not <code>null</code>,
+     * returns single class folder that corresponds specified nestedPath. If <code>nestedPath</code>
+     * is <code>null</code>, returns entries specified in Bundle-ClassPath.
      */
     private List<File> getOtherProjectClasspath(ArtifactDescriptor bundle, ReactorProject otherProject,
             String nestedPath) {
@@ -495,9 +504,10 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     @Override
-    public void readExecutionEnvironmentConfiguration(MavenProject project, ExecutionEnvironmentConfiguration sink) {
+    public void readExecutionEnvironmentConfiguration(MavenProject project, MavenSession mavenSession,
+            ExecutionEnvironmentConfiguration sink) {
         // read packaging-type independent configuration
-        super.readExecutionEnvironmentConfiguration(project, sink);
+        super.readExecutionEnvironmentConfiguration(project, mavenSession, sink);
 
         // only in plugin projects, the profile may also be ...
         // ... specified in build.properties (for PDE compatibility)
@@ -505,23 +515,25 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 .getJreCompilationProfile();
         if (pdeProfile != null) {
             sink.setProfileConfiguration(pdeProfile.trim(), "build.properties");
-
         } else {
             // ... derived from BREE in bundle manifest
-            StandardExecutionEnvironment[] manifestBREEs = getManifest(project).getExecutionEnvironments();
-            if (manifestBREEs.length > 0) {
+            String[] manifestBREEs = getManifest(project).getExecutionEnvironments();
+            if (manifestBREEs.length == 1) {
+                sink.setProfileConfiguration(manifestBREEs[0], "Bundle-RequiredExecutionEnvironment (unique entry)");
+            } else if (manifestBREEs.length > 1) {
                 TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-
                 switch (tpConfiguration.getBREEHeaderSelectionPolicy()) {
                 case first:
-                    sink.setProfileConfiguration(manifestBREEs[0].getProfileName(),
-                            "Bundle-RequiredExecutionEnvironment (first entry)");
+                    sink.setProfileConfiguration(manifestBREEs[0], "Bundle-RequiredExecutionEnvironment (first entry)");
                     break;
-
                 case minimal:
-                    ExecutionEnvironment manifestMinimalEE = Collections.min(Arrays.asList(manifestBREEs));
-                    sink.setProfileConfiguration(manifestMinimalEE.getProfileName(),
-                            "Bundle-RequiredExecutionEnvironment (minimal entry)");
+                    Arrays.stream(manifestBREEs) //
+                            .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager,
+                                    mavenSession, logger)) //
+                            .sorted() //
+                            .findFirst() //
+                            .ifPresent(ee -> sink.setProfileConfiguration(ee.getProfileName(),
+                                    "Bundle-RequiredExecutionEnvironment (minimal entry)"));
                 }
 
             }

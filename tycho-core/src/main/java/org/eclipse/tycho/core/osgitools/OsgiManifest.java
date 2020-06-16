@@ -13,7 +13,6 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
-import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -26,7 +25,7 @@ import org.osgi.framework.Version;
  */
 public class OsgiManifest {
 
-    private static final StandardExecutionEnvironment[] EMPTY_EXEC_ENV = new StandardExecutionEnvironment[0];
+    private static final String[] EMPTY_EXEC_ENV = new String[0];
 
     private String location;
     private Headers<String, String> headers;
@@ -35,7 +34,7 @@ public class OsgiManifest {
     private String bundleSymbolicName;
     private String bundleVersion;
     private String[] bundleClassPath;
-    private StandardExecutionEnvironment[] executionEnvironments;
+    private String[] executionEnvironments;
     private boolean isDirectoryShape;
 
     private OsgiManifest(InputStream stream, String location) throws OsgiManifestParserException {
@@ -55,18 +54,19 @@ public class OsgiManifest {
         this.executionEnvironments = parseExecutionEnvironments();
     }
 
-    private StandardExecutionEnvironment[] parseExecutionEnvironments() {
+    private String[] parseExecutionEnvironments() {
         ManifestElement[] brees = getManifestElements(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
         if (brees == null || brees.length == 0) {
             return EMPTY_EXEC_ENV;
         }
-        StandardExecutionEnvironment[] envs = new StandardExecutionEnvironment[brees.length];
-        try {
-            for (int i = 0; i < brees.length; i++) {
-                envs[i] = ExecutionEnvironmentUtils.getExecutionEnvironment(brees[i].getValue());
+        String[] envs = new String[brees.length];
+        for (int i = 0; i < brees.length; i++) {
+            String ee = brees[i].getValue();
+            if (ExecutionEnvironmentUtils.getProfileNames().contains(ee)) {
+                envs[i] = ee;
+            } else {
+                throw new OsgiManifestParserException(location, new UnknownEnvironmentException(ee));
             }
-        } catch (UnknownEnvironmentException e) {
-            throw new OsgiManifestParserException(location, e);
         }
         return envs;
     }
@@ -132,7 +132,7 @@ public class OsgiManifest {
         return bundleClassPath;
     }
 
-    public StandardExecutionEnvironment[] getExecutionEnvironments() {
+    public String[] getExecutionEnvironments() {
         return executionEnvironments;
     }
 
