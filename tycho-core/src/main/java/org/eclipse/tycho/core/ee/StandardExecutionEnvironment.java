@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.toolchain.Toolchain;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.core.ee.EEVersion.EEType;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -74,12 +75,14 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         TARGET_ALIASES = Collections.unmodifiableMap(targetAliases);
     }
 
-    private String profileName;
-    private String compilerSourceLevel;
-    private String compilerTargetLevel;
+    private final String profileName;
+    private final String compilerSourceLevel;
+    private final String compilerTargetLevel;
     private Set<String> systemPackages;
-    private EEVersion eeVersion;
-    private Properties profileProperties;
+    private final EEVersion eeVersion;
+    private final Properties profileProperties;
+    private final Toolchain toolchain;
+    private Logger logger;
 
     /**
      * Do no instantiate. Use factory method instead
@@ -87,32 +90,23 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
      */
     @Deprecated
     StandardExecutionEnvironment(@Nonnull Properties profileProperties) {
-        this(profileProperties, null);
+        this(profileProperties, null, null);
     }
 
-    /* package */ StandardExecutionEnvironment(@Nonnull Properties profileProperties, @Nullable Toolchain toolchain) {
+    /* package */ StandardExecutionEnvironment(@Nonnull Properties profileProperties, @Nullable Toolchain toolchain,
+            @Nullable Logger logger) {
+        this.toolchain = toolchain;
         this.profileName = profileProperties.getProperty("osgi.java.profile.name");
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-        // EE definitions in Tycho for JVMs 11+ will no longer contain system packages as with modular JVMs it's not sure
-        // all packages will be available at runtime
-        if (profileProperties.contains("org.osgi.framework.system.packages")) {
-            this.systemPackages = new LinkedHashSet<>(
-                    Arrays.asList(profileProperties.getProperty("org.osgi.framework.system.packages").split(",")));
-        } else if (toolchain != null) {
-            this.systemPackages = readFromToolchains(toolchain);
-        }
-        if (this.systemPackages == null || this.systemPackages.isEmpty()) {
-            // TODO log "No system packages found in profile nor toolchain for `profileName`, using current JRE system packages`
-            this.systemPackages = ListSystemPackages.getCurrentJREPackages();
-        }
         this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
         this.profileProperties = new Properties();
         this.profileProperties.putAll(profileProperties);
+        this.logger = logger;
     }
 
-    private static Set<String> readFromToolchains(Toolchain toolchain) {
+    private Set<String> readFromToolchains(Toolchain toolchain) {
         if (toolchain == null) {
             return Collections.emptySet();
         }
@@ -128,8 +122,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                 }
             }
         } catch (IOException e) {
-            // TODO proper log
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         return res;
     }
@@ -199,6 +192,25 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
 
     @Override
     public Set<String> getSystemPackages() {
+        if (systemPackages == null) {
+            // EE definitions in Tycho for JVMs 11+ will no longer contain system packages as with modular JVMs it's not sure
+            // all packages will be available at runtime
+            if (profileProperties.contains("org.osgi.framework.system.packages")) {
+                logger.debug("Found system.packages in profile defintion file.");
+                this.systemPackages = new LinkedHashSet<>(
+                        Arrays.asList(profileProperties.getProperty("org.osgi.framework.system.packages").split(",")));
+            } else if (toolchain != null) {
+                logger.debug("No system.packages in profile defintion file; checking toolchain.");
+                this.systemPackages = readFromToolchains(toolchain);
+            }
+            if (this.systemPackages == null || this.systemPackages.isEmpty()) {
+                logger.warn("No system packages found in profile nor toolchain for " + profileName
+                        + ", using current JRE system packages.\n"
+                        + "This can cause faulty depnedency resolution, consider adding a definition for a 'jdk' with id="
+                        + profileName + " in your toolchains.xml");
+                this.systemPackages = ListSystemPackages.getCurrentJREPackages();
+            }
+        }
         return systemPackages;
     }
 

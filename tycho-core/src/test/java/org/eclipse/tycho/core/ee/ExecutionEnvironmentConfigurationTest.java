@@ -40,7 +40,7 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Before
     public void initSubject() {
-        subject = new ExecutionEnvironmentConfigurationImpl(logger, false);
+        subject = new ExecutionEnvironmentConfigurationImpl(logger, false, null, null);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Test(expected = BuildFailureException.class)
     public void testMustNotIgnoreEEWhenUsingCustomProfile() {
-        subject = new ExecutionEnvironmentConfigurationImpl(logger, true);
+        subject = new ExecutionEnvironmentConfigurationImpl(logger, true, null, null);
         subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
 
         subject.isCustomProfile();

@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
@@ -27,7 +28,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
-    private static final ExecutionEnvironment DUMMY_EE = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5");
+    private static final ExecutionEnvironment DUMMY_EE = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5",
+            null, null, new SilentLog());
 
     private EquinoxResolver subject;
 
@@ -47,7 +49,7 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
 
     public void test_noSystemBundle() throws BundleException {
         Properties properties = subject.getPlatformProperties(new Properties(), null, DUMMY_EE);
-        State state = subject.newState(new DefaultDependencyArtifacts(), properties, false);
+        State state = subject.newState(new DefaultDependencyArtifacts(), properties, false, null);
 
         BundleDescription[] bundles = state.getBundles("system.bundle");
 
