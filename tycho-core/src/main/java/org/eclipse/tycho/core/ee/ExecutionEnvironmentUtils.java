@@ -44,7 +44,8 @@ public class ExecutionEnvironmentUtils {
         Map<String, StandardExecutionEnvironment> envMap = new LinkedHashMap<>();
         for (String profileFile : profileFiles) {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));
-            envMap.put(props.getProperty("osgi.java.profile.name").trim(), new StandardExecutionEnvironment(props));
+            envMap.put(props.getProperty("osgi.java.profile.name").trim(),
+                    new StandardExecutionEnvironment(props, null));
         }
         return envMap;
     }

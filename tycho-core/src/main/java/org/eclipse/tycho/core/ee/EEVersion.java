@@ -11,6 +11,10 @@
 
 package org.eclipse.tycho.core.ee;
 
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+
 import org.osgi.framework.Version;
 
 public class EEVersion implements Comparable<EEVersion> {
@@ -38,10 +42,12 @@ public class EEVersion implements Comparable<EEVersion> {
     }
 
     private static final Version JAVA8 = Version.parseVersion("1.8");
+    @Nonnull
     private Version version;
+    @Nonnull
     private EEType type;
 
-    public EEVersion(Version version, EEType type) {
+    public EEVersion(@Nonnull Version version, @Nonnull EEType type) {
         this.version = version;
         this.type = type;
     }
@@ -81,11 +87,7 @@ public class EEVersion implements Comparable<EEVersion> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
-        result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
-        return result;
+        return Objects.hash(type, version);
     }
 
 }
