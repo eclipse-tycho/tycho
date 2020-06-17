@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - add getName()
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -218,5 +219,10 @@ public class DefaultReactorProject implements ReactorProject {
     @Override
     public String toString() {
         return project.toString();
+    }
+
+    @Override
+    public String getName() {
+        return project.getName();
     }
 }
