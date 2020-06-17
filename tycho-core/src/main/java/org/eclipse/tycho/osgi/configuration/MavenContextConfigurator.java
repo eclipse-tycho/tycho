@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich - Bug 564363 - Make ReactorProject available in MavenContext
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
@@ -16,6 +17,7 @@ import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.component.annotations.Component;
@@ -23,6 +25,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -42,7 +45,11 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
         File localRepoRoot = new File(session.getLocalRepository().getBasedir());
         MavenLoggerAdapter mavenLogger = new MavenLoggerAdapter(logger, false);
         Properties globalProps = getGlobalProperties(session);
-        MavenContext mavenContext = new MavenContextImpl(localRepoRoot, session.isOffline(), mavenLogger, globalProps);
+        MavenContextImpl mavenContext = new MavenContextImpl(localRepoRoot, session.isOffline(), mavenLogger,
+                globalProps);
+        for (MavenProject project : session.getProjects()) {
+            mavenContext.addProject(DefaultReactorProject.adapt(project));
+        }
         framework.registerService(MavenContext.class, mavenContext);
     }
 
