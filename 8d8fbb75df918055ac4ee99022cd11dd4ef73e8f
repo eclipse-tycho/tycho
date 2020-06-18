@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "3c98a8d6_57e300d6",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "I first did it that way, but then run into trouble with the Metadata/Artifact repository steps as these do not allow any kind of error feedback beside throwing an (unchecked) runtime exception.\nAs mentioned in another comment I think ultimately this should be split into two steps (resolve/fetch)",
+      "parentUuid": "f7dc07dc_cdf17f83",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca213b5d_cdc8a585",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
         "patchSetId": 4
@@ -47,6 +65,24 @@
       "writtenOn": "2020-06-18T15:06:19Z",
       "side": 1,
       "message": "This seems redundant with `resolve()`. Better to get rid of it.",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66a5b654_203b2975",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "This return the (currently cached) state while resolve() discards the old state and read it again (e.g. to reflect file-system changes).",
+      "parentUuid": "ca213b5d_cdc8a585",
       "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "93e8f478_3aa976ed",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "I\u0027m just a bit old-scooled and often prefer explicit loops instead of putting everything into stream even though its possible :-)",
+      "parentUuid": "972d0b34_d45765a7",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb0eac02_b54de840",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
         "patchSetId": 4
@@ -81,6 +135,24 @@
       "writtenOn": "2020-06-18T15:06:19Z",
       "side": 1,
       "message": "Why does this have to be public?",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07049ba7_5ede73f7",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "It is currently not required, I just designed this function so the might be reused in other places as well, in the end it showed that this was not possible but I left them public for future use.\n\nIn fact these bundles might be used to read maven artifacts in the local mirror.",
+      "parentUuid": "cb0eac02_b54de840",
       "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "6414f502_bfc01561",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "2621e8aa_17ca35e1",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "337f1786_7eca4403",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/InstallableUnitResolver.java",
         "patchSetId": 4
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "b411f92d_de3a77ea",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/InstallableUnitResolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "We use P2 Repositories, but the Target Reference them simply as \"InstallableUnit\" Locations, where as the UI reference them \"Software Site\" and the description mentioned that it might be a p2 repository or update site so a clear naming is hard to find here so I choosed the technical term mentioned in the xml type attribute.",
+      "parentUuid": "337f1786_7eca4403",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50961290_cb49f81b",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/InstallableUnitResolver.java",
         "patchSetId": 4
@@ -132,6 +240,24 @@
       "writtenOn": "2020-06-18T15:06:19Z",
       "side": 1,
       "message": "Wouldn\u0027t it be better to have the locations set in constructor?\nAlso, why 1 resolver for multiple sources here? Why not 1 resolver per InstallableUnitLocation?",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "efb9b7ab_48568650",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/InstallableUnitResolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "This code is mainly refactored out of TargetDefinitionResolver (just some minor api adjustments) and reflects how tycho currently works: Resolve everything as one big bunch and you are right this is far from optimal. My intention was to first supply implementation for other sources and not modify old behavior, and afterwards try to improve the current implementation.\nThe hard part about this: There is (afaik) no official documentation HOW target resoloution should work, one can only read the code and try different scenarios in PDE...\n\nAnd then there is the mess with planner versus slicer mode :-\\",
+      "parentUuid": "50961290_cb49f81b",
       "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -172,6 +298,24 @@
     },
     {
       "key": {
+        "uuid": "b69d693f_1435b328",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/Resolvable.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "I thought about that, it often more convenient to have an explicit interface, I just introduced this at the very beginning of the refactoring to extract the fact that tycho has a \"ResolverRun\" class before and it seem natural to call it Resolvable then :-)\n\nAnyways I\u0027m a little bit unhappy with all the naming and structure around target and artifact resolution but didn\u0027t wanted to make things more complicated.",
+      "parentUuid": "b58f6e9a_ddaec2e4",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7307b23b_10f53504",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/Resolvable.java",
         "patchSetId": 4
@@ -189,6 +333,24 @@
     },
     {
       "key": {
+        "uuid": "7927ab19_a711bf18",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/Resolvable.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "The method currently does have two sides: Resolve and return the result, this is a bit for \"backward-compat\" with the old behavior and is more a convenient method to not use the IQueryable Interface (what is a little bit unhandy), in the long term I think this should be refactored into two steps:\n\n1) resolve step, that produces an Artifact+Metadata repository and might fail with Resolve errors\n2) query step where data is queried from the above repositories, I\u0027m just not sure if its a good idea to do this step now in this PR or to delay it to a later refactoring.",
+      "parentUuid": "7307b23b_10f53504",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a80935ff_1e52108d",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionContent.java",
         "patchSetId": 4
@@ -200,6 +362,24 @@
       "writtenOn": "2020-06-18T15:06:19Z",
       "side": 1,
       "message": "It would seem better to me to just keep the individual sources/suppliers instead of compositing them into a single one.",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "745b744f_590d6d38",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionContent.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-18T16:29:14Z",
+      "side": 1,
+      "message": "The whole target code could IMO be optimized, I just wanted to keep the changes low for now, in fact a target content, as seen in Eclipse, is divided into each location suppling a set of  bundles for each location and some (invisible to the user) features.\n\nThis is currently not reflected by Tycho and that\u0027s one of the reasons why the \"select individual bundles\" part is currently not supported.\n\nHere this is only used to gets fetched in one place and the unified into one big Repro, so we can keep it seperate here but it will be aggregated anyways by tycho.",
+      "parentUuid": "a80935ff_1e52108d",
       "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
