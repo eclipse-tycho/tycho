@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 VDS Rail and others.
+ * Copyright (c) 2015, 2020 VDS Rail and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ class AssertOnBuffer {
     public AssertOnBuffer(String buffer) {
         this.buffer = buffer;
 
-        String lineSeparator = System.getProperty("line.separator");
+        String lineSeparator = System.lineSeparator();
         this.lines = buffer.split(lineSeparator);
     }
 
