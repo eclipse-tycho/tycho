@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - [Bug 538144] Support other target locations (Directory, Features, Installations)
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -17,7 +18,6 @@ import java.util.Map;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
@@ -33,28 +33,26 @@ public class TargetDefinitionResolverService {
 
     private Map<ResolutionArguments, TargetDefinitionContent> resolutionCache = new HashMap<>();
 
-    // (static) collaborator
-    private MavenLogger logger;
+    private MavenContext mavenContext;
+
+    private IProvisioningAgent provisioningAgent;
 
     // constructor for DS
     public TargetDefinitionResolverService() {
     }
 
-    // constructor for tests
-    public TargetDefinitionResolverService(MavenContext mavenContext) {
-        this.logger = mavenContext.getLogger();
-    }
-
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
-            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
+            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs,
+            IProvisioningAgent agent) {
+        this.provisioningAgent = agent;
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
 
         TargetDefinitionContent resolution = resolutionCache.get(arguments);
 
         if (resolution == null) {
-            if (logger.isDebugEnabled()) {
+            if (mavenContext.getLogger().isDebugEnabled()) {
                 debugCacheMiss(arguments);
-                logger.debug("Resolving target definition content...");
+                mavenContext.getLogger().debug("Resolving target definition content...");
             }
 
             resolution = resolveFromArguments(arguments);
@@ -65,9 +63,8 @@ public class TargetDefinitionResolverService {
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
     private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
-
-        return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.agent, logger)
-                .resolveContent(arguments.definition);
+        return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, mavenContext)
+                .resolveContent(arguments.definition, provisioningAgent);
     }
 
     private void debugCacheMiss(ResolutionArguments arguments) {
@@ -85,17 +82,18 @@ public class TargetDefinitionResolverService {
         }
 
         if (fieldsInWhichDistanceOneEntriesDiffer.isEmpty()) {
-            logger.debug(CACHE_MISS_MESSAGE + "All entries differ in more than one parameter");
+            mavenContext.getLogger().debug(CACHE_MISS_MESSAGE + "All entries differ in more than one parameter");
         } else {
-            logger.debug(CACHE_MISS_MESSAGE
-                    + "All entries differ, but there are entries which only differ in one parameter: "
-                    + fieldsInWhichDistanceOneEntriesDiffer);
+            mavenContext.getLogger()
+                    .debug(CACHE_MISS_MESSAGE
+                            + "All entries differ, but there are entries which only differ in one parameter: "
+                            + fieldsInWhichDistanceOneEntriesDiffer);
         }
     }
 
     // setter for DS
     public void setMavenContext(MavenContext mavenContext) {
-        this.logger = mavenContext.getLogger();
+        this.mavenContext = mavenContext;
     }
 
     private static final class ResolutionArguments {
