@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 SAP SE and others.
+ * Copyright (c) 2014, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,12 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - add public constructors
  *******************************************************************************/
 package org.eclipse.tycho.p2.util.resolution;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 /**
  * Exception thrown by Tycho's p2 resolution implementations. It is a checked exception to encourage
@@ -20,10 +24,22 @@ public class ResolverException extends Exception {
     private final String details;
     private final String selectionContext;
 
+    public ResolverException(String msg, Throwable cause) {
+        super(msg, cause);
+        selectionContext = "N/A";
+        details = "N/A";
+    }
+
     ResolverException(String details, String selectionContext, Throwable cause) {
         super("See log for details", cause);
         this.details = details;
         this.selectionContext = selectionContext;
+    }
+
+    public ResolverException(IStatus status) {
+        super("See log for details", StatusTool.findException(status));
+        this.details = StatusTool.toLogMessage(status);
+        this.selectionContext = "N/A";
     }
 
     public String getDetails() {
