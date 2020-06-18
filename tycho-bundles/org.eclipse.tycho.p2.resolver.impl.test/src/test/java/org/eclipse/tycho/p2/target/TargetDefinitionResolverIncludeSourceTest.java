@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -18,8 +19,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -31,6 +35,7 @@ import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class TargetDefinitionResolverIncludeSourceTest {
 
@@ -43,12 +48,18 @@ public class TargetDefinitionResolverIncludeSourceTest {
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
 
+    @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+
     private TargetDefinitionResolver subject;
+
+    private IProvisioningAgent agent;
 
     @Before
     public void initSubject() throws Exception {
         subject = new TargetDefinitionResolver(defaultEnvironments(),
-                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, p2Context.getAgent(), logVerifier.getLogger());
+                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, p2Context.getAgent(),
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)
@@ -56,7 +67,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinition definition = definitionWith(
                 new WithSourceLocationStub(null, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES),
                 new WithoutSourceLocationStub(null, TestRepositories.SOURCES));
-        subject.resolveContentWithExceptions(definition);
+        subject.resolveContentWithExceptions(definition, agent);
     }
 
     @Test
@@ -64,11 +75,11 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinition definition = definitionWith(
                 new WithSourceLocationStub(IncludeMode.SLICER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
-        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition, agent);
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertThat(content.getUnits().size(), is(2));
+        assertThat(content.getUnits().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(2));
     }
 
     @Test
@@ -76,11 +87,11 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinition definition = definitionWith(
                 new WithSourceLocationStub(IncludeMode.PLANNER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
-        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition, agent);
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertThat(content.getUnits().size(), is(2));
+        assertThat(content.getUnits().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(2));
     }
 
     @Test
@@ -88,10 +99,10 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinition definition = definitionWith(
                 new WithoutSourceLocationStub(IncludeMode.SLICER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
-        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition, agent);
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
-        assertThat(content.getUnits().size(), is(1));
+        assertThat(content.getUnits().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(1));
     }
 
     @Test
@@ -99,10 +110,10 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinition definition = definitionWith(
                 new WithoutSourceLocationStub(IncludeMode.PLANNER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
-        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition, agent);
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
-        assertThat(content.getUnits().size(), is(1));
+        assertThat(content.getUnits().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(1));
     }
 
     @Test
@@ -110,12 +121,12 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinition definition = definitionWith(new WithSourceLocationStub(IncludeMode.SLICER,
                 TestRepositories.SOURCES, BUNDLE_WITH_SOURCES, NOSOURCE_BUNDLE));
 
-        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition, agent);
 
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertThat(content.getUnits().size(), is(3));
+        assertThat(content.getUnits().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(3));
     }
 
     @Test
@@ -123,12 +134,12 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinition definition = definitionWith(new WithSourceLocationStub(IncludeMode.PLANNER,
                 TestRepositories.SOURCES, BUNDLE_WITH_SOURCES, NOSOURCE_BUNDLE));
 
-        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition, agent);
 
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertThat(content.getUnits().size(), is(3));
+        assertThat(content.getUnits().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(3));
     }
 
     static class WithSourceLocationStub extends LocationStub implements InstallableUnitLocation {

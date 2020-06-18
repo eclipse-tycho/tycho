@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2018 SAP SE and others.
+ * Copyright (c) 2012, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -18,6 +19,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +27,8 @@ import java.util.List;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeModeTest.PlannerLocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
@@ -36,6 +40,7 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class TargetDefinitionResolverExecutionEnvironmentTest {
 
@@ -44,11 +49,16 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
 
+    @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+
     private TargetDefinitionResolver subject;
 
-    private TargetDefinitionResolver targetResolverForEE(String executionEnvironment) throws ProvisionException {
+    private TargetDefinitionResolver targetResolverForEE(String executionEnvironment)
+            throws ProvisionException, IOException {
         return new TargetDefinitionResolver(defaultEnvironments(), new StandardEEResolutionHints(executionEnvironment),
-                p2Context.getAgent(), logVerifier.getLogger());
+                p2Context.getAgent(),
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 
     @Test
@@ -56,7 +66,8 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
         subject = targetResolverForEE("CDC-1.0/Foundation-1.0");
 
         TargetDefinition definition = definitionWith(new AlternatePackageProviderLocationStub());
-        Collection<IInstallableUnit> units = subject.resolveContent(definition).getUnits();
+        Collection<IInstallableUnit> units = subject.resolveContent(definition, p2Context.getAgent()).getUnits()
+                .query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
 
         // expect that resolver included a bundle providing org.w3c.dom (here javax.xml)...
         assertThat(units, hasItem(unit("javax.xml", "0.0.1.SNAPSHOT")));
@@ -69,7 +80,8 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
         subject = targetResolverForEE("JavaSE-1.7");
 
         TargetDefinition definition = definitionWith(new AlternatePackageProviderLocationStub());
-        Collection<IInstallableUnit> units = subject.resolveContent(definition).getUnits();
+        Collection<IInstallableUnit> units = subject.resolveContent(definition, p2Context.getAgent()).getUnits()
+                .query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
 
         // expect that resolver did not included a bundle providing org.w3c.dom...
         assertThat(units, not(hasItem(unit("javax.xml", "0.0.1.SNAPSHOT"))));
@@ -85,7 +97,8 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
         subject = targetResolverForEE("J2SE-1.5");
 
         Collection<IInstallableUnit> units = subject
-                .resolveContent(definitionWith(new ProductLocationStub(IncludeMode.PLANNER))).getUnits();
+                .resolveContent(definitionWith(new ProductLocationStub(IncludeMode.PLANNER)), p2Context.getAgent())
+                .getUnits().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
 
         // expect that the resolutions succeeds (bug 370502), but that the wrong EE IUs are not in the result
         assertThat(units, hasItem(unit("sdk", "1.0.0")));
@@ -100,7 +113,8 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
         subject = targetResolverForEE("J2SE-1.5");
 
         Collection<IInstallableUnit> units = subject
-                .resolveContent(definitionWith(new ProductLocationStub(IncludeMode.SLICER))).getUnits();
+                .resolveContent(definitionWith(new ProductLocationStub(IncludeMode.SLICER)), p2Context.getAgent())
+                .getUnits().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
 
         assertThat(units, hasItem(unit("sdk", "1.0.0")));
         assertThat(units, not(hasItem(unit("a.jre.javase", "1.6.0"))));
