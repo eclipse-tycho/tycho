@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - cache target definition resolution result (bug 373806)
- *    Christoph Läubrich - add implementation for different location types, fix has calculation
+ *    Christoph Läubrich - add implementation for different location types, fix hash calculation
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -80,7 +80,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
     }
 
     public class ProfileTargetPlatformLocation extends AbstractPathLocation
-            implements TargetDefinition.ProfilePlatformLocation {
+            implements TargetDefinition.ProfileLocation {
 
         public ProfileTargetPlatformLocation(String path) {
             super(path);
@@ -94,7 +94,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
     }
 
     public class FeatureTargetPlatformLocation extends AbstractPathLocation
-            implements TargetDefinition.FeaturePlatformLocation {
+            implements TargetDefinition.FeaturesLocation {
 
         private final String feature;
         private final String version;

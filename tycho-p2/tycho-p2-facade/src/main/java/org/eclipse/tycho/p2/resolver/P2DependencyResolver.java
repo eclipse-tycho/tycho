@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - fix Bug 551739
+ *    Christoph Läubrich - fix Bug 551739, Bug 538144
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -124,9 +124,12 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     private ReactorRepositoryManagerFacade reactorRepositoryManager;
 
+    private ReactorProject reactorProject;
+
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
+        this.reactorProject = reactorProject;
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<TargetEnvironment> environments = configuration.getEnvironments();
