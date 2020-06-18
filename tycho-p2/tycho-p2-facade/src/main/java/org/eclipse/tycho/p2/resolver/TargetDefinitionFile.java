@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - cache target definition resolution result (bug 373806)
- *    Christoph Läubrich - add implementation for different location types, fix has calculation
+ *    Christoph Läubrich - add implementation for different location types, fix hash calculation
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
@@ -52,6 +53,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private final Document document;
 
     final IncludeSourceMode includeSourceMode;
+
+    private ReactorProject project;
 
     private abstract class AbstractPathLocation implements TargetDefinition.PathLocation {
         private String path;
@@ -80,7 +83,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
     }
 
     public class ProfileTargetPlatformLocation extends AbstractPathLocation
-            implements TargetDefinition.ProfilePlatformLocation {
+            implements TargetDefinition.ProfileLocation {
 
         public ProfileTargetPlatformLocation(String path) {
             super(path);
@@ -94,7 +97,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
     }
 
     public class FeatureTargetPlatformLocation extends AbstractPathLocation
-            implements TargetDefinition.FeaturePlatformLocation {
+            implements TargetDefinition.FeaturesLocation {
 
         private final String feature;
         private final String version;
@@ -263,8 +266,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    private TargetDefinitionFile(File source, IncludeSourceMode includeSourceMode)
+    private TargetDefinitionFile(File source, IncludeSourceMode includeSourceMode, ReactorProject project)
             throws TargetDefinitionSyntaxException {
+        this.project = project;
         try {
             this.origin = source;
             this.fileContentHash = computeFileContentHash(source);
@@ -317,9 +321,10 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return origin.getAbsolutePath();
     }
 
-    public static TargetDefinitionFile read(File file, IncludeSourceMode includeSourceMode) {
+    public static TargetDefinitionFile read(File file, IncludeSourceMode includeSourceMode,
+            ReactorProject reactorProject) {
         try {
-            return new TargetDefinitionFile(file, includeSourceMode);
+            return new TargetDefinitionFile(file, includeSourceMode, reactorProject);
         } catch (TargetDefinitionSyntaxException e) {
             throw new RuntimeException("Invalid syntax in target definition " + file + ": " + e.getMessage(), e);
         }
@@ -341,6 +346,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
         } finally {
             IOUtil.close(os);
         }
+    }
+
+    @Override
+    public ReactorProject getProject() {
+        return project;
     }
 
     @Override

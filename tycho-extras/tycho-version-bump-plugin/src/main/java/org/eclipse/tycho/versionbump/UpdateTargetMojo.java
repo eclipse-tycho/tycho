@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2010, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Igor Fedorenko - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
@@ -19,6 +20,8 @@ import java.util.Map;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
@@ -33,14 +36,16 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
  */
 @Mojo(name = "update-target")
 public class UpdateTargetMojo extends AbstractUpdateMojo {
-
+    @Parameter(property = "project")
+    private MavenProject project;
     @Parameter(property = "target")
     private File targetFile;
 
     @Override
     protected void doUpdate() throws IOException, URISyntaxException {
 
-        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile, IncludeSourceMode.ignore);
+        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile, IncludeSourceMode.ignore,
+                DefaultReactorProject.adapt(project));
 
         for (TargetDefinition.Location location : target.getLocations()) {
             if (location instanceof IULocation) {
