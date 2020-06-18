@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP SE and others.
+ * Copyright (c) 2011, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -22,10 +23,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -44,6 +48,7 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class TargetDefinitionResolverTest {
     /** Feature including MAIN_BUNDLE and REFERENCED_BUNDLE_V1 */
@@ -70,12 +75,18 @@ public class TargetDefinitionResolverTest {
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
 
+    @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+
     private TargetDefinitionResolver subject;
+
+    private IProvisioningAgent agent;
 
     @Before
     public void initContext() throws Exception {
         subject = new TargetDefinitionResolver(defaultEnvironments(),
-                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, p2Context.getAgent(), logVerifier.getLogger());
+                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, p2Context.getAgent(),
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 
     static List<TargetEnvironment> defaultEnvironments() {
@@ -85,22 +96,22 @@ public class TargetDefinitionResolverTest {
     @Test
     public void testResolveNoLocations() throws Exception {
         TargetDefinition definition = definitionWith();
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList()));
     }
 
     @Test
     public void testResolveOtherLocationYieldsWarning() throws Exception {
         TargetDefinition definition = definitionWith(new OtherLocationStub(), new LocationStub(TARGET_FEATURE));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
-        logVerifier.expectWarning("Target location type 'Directory' is not supported");
+        logVerifier.expectWarning("Target location type 'OtherLocation' is not supported");
     }
 
     @Test
     public void testResolveMultipleUnits() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(OPTIONAL_BUNDLE, REFERENCED_BUNDLE_V1));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
@@ -108,7 +119,7 @@ public class TargetDefinitionResolverTest {
     public void testResolveMultipleLocations() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(OPTIONAL_BUNDLE),
                 new LocationStub(REFERENCED_BUNDLE_V1));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
@@ -116,21 +127,21 @@ public class TargetDefinitionResolverTest {
     public void testResolveMultipleRepositories() throws Exception {
         TargetDefinition definition = definitionWith(
                 new LocationStub(TestRepositories.V1_AND_V2, OPTIONAL_BUNDLE, REFERENCED_BUNDLE_V2));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V2, OPTIONAL_BUNDLE)));
     }
 
     @Test
     public void testResolveNoRepositories() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.NONE));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList()));
     }
 
     @Test
     public void testResolveIncludesDependencies() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
     }
@@ -139,7 +150,7 @@ public class TargetDefinitionResolverTest {
     public void testResolveDependenciesAcrossLocations() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE),
                 new LocationStub(TestRepositories.V1_AND_V2));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
     }
@@ -147,21 +158,21 @@ public class TargetDefinitionResolverTest {
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testMissingUnit() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V2, MAIN_BUNDLE));
-        subject.resolveContentWithExceptions(definition);
+        subject.resolveContentWithExceptions(definition, agent);
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testUnitOnlyLookedUpInLocation() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V2, MAIN_BUNDLE),
                 new LocationStub(TestRepositories.V1));
-        subject.resolveContentWithExceptions(definition);
+        subject.resolveContentWithExceptions(definition, agent);
     }
 
     @Test
     public void testUnitWithWildcardVersion() {
         TargetDefinition definition = definitionWith(
                 new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_WILDCARD_VERSION));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V2)));
     }
 
@@ -169,7 +180,7 @@ public class TargetDefinitionResolverTest {
     public void testUnitWithExactVersion() {
         TargetDefinition definition = definitionWith(
                 new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_V1));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, agent);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1)));
     }
 
@@ -181,20 +192,20 @@ public class TargetDefinitionResolverTest {
     public void testUnitWithWrongVersionYieldsSyntaxException() throws Exception {
         TargetDefinition definition = definitionWith(
                 new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_INVALID_VERSION));
-        subject.resolveContentWithExceptions(definition);
+        subject.resolveContentWithExceptions(definition, agent);
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testInvalidRepository() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.INVALID, TARGET_FEATURE));
-        subject.resolveContentWithExceptions(definition);
+        subject.resolveContentWithExceptions(definition, agent);
     }
 
     @Test
     public void testResolveWithBundleInclusionListYieldsWarning() {
         List<Location> noLocations = Collections.emptyList();
         TargetDefinition definition = new TargetDefinitionStub(noLocations, true);
-        subject.resolveContent(definition);
+        subject.resolveContent(definition, agent);
 
         // this was bug 373776: the includeBundles tag (which is the selection on the Content tab) was silently ignored
         logVerifier.expectWarning("De-selecting bundles in a target definition file is not supported");
@@ -258,6 +269,11 @@ public class TargetDefinitionResolverTest {
         @Override
         public String getOrigin() {
             return "test stub";
+        }
+
+        @Override
+        public ReactorProject getProject() {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -336,8 +352,9 @@ public class TargetDefinitionResolverTest {
     private static class OtherLocationStub implements Location {
         @Override
         public String getTypeDescription() {
-            return "Directory";
+            return "OtherLocation";
         }
+
     }
 
     static class RepositoryStub implements Repository {
