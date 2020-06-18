@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - adjust test to changed exception message
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -68,7 +69,8 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         subject = createCompositeArtifactProvider(locationWithoutArtifactRepository);
 
         Exception e = assertThrows(Exception.class, () -> subject.query(ANY_ARTIFACT_KEY_QUERY, null));
-        assertThat(e.getMessage(), both(containsString("No repository found")).and(containsString("nonRepoLocation")));
+        assertThat(e.getMessage(),
+                both(containsString("Load repository from url")).and(containsString("nonRepoLocation")));
     }
 
     @Test
