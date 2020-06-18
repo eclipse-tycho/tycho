@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,10 +11,9 @@
 
 package org.eclipse.tycho.extras.sourceref.jgit;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Properties;
@@ -22,7 +21,9 @@ import java.util.Properties;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.packaging.sourceref.ScmUrl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 public class JGitSourceReferencesProviderTest {
 
@@ -43,20 +44,20 @@ public class JGitSourceReferencesProviderTest {
     }
 
     @Test
+    @EnabledOnOs(OS.WINDOWS)
     public void testGetRelativePathMixedCaseOnWindows() throws MojoExecutionException {
-        assumeThat(File.separator, is("\\"));
         JGitSourceReferencesProvider provider = new JGitSourceReferencesProvider();
         File projectBasedir = new File("C:/bar/baz/test/me");
         File repoRoot = new File("c:/bar/baz");
         assertEquals("test/me", provider.getRelativePath(projectBasedir, repoRoot));
     }
 
-    @Test(expected = MojoExecutionException.class)
+    @Test
     public void testGetRelativePathNoCommonBasedir() throws MojoExecutionException {
         JGitSourceReferencesProvider provider = new JGitSourceReferencesProvider();
         File projectBasedir = new File("/foo/test/bar");
         File repoRoot = new File("/baz");
-        provider.getRelativePath(projectBasedir, repoRoot);
+        assertThrows(MojoExecutionException.class, () -> provider.getRelativePath(projectBasedir, repoRoot));
     }
 
     @Test
