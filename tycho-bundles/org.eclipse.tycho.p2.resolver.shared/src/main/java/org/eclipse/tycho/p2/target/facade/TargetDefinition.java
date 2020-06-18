@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.tycho.p2.target.facade;
 
 import java.net.URI;
 import java.util.List;
+
+import org.eclipse.tycho.ReactorProject;
 
 // TODO javadoc
 public interface TargetDefinition {
@@ -55,6 +57,7 @@ public interface TargetDefinition {
         public boolean includeAllEnvironments();
 
         public boolean includeSource();
+
     }
 
     /**
@@ -73,7 +76,7 @@ public interface TargetDefinition {
      * @author Christoph Läubrich
      *
      */
-    public interface ProfilePlatformLocation extends PathLocation {
+    public interface ProfileLocation extends PathLocation {
     }
 
     /**
@@ -83,7 +86,7 @@ public interface TargetDefinition {
      * @author Christoph Läubrich
      *
      */
-    public interface FeaturePlatformLocation extends PathLocation {
+    public interface FeaturesLocation extends PathLocation {
 
         /**
          * 
@@ -129,4 +132,6 @@ public interface TargetDefinition {
 
         public String getVersion();
     }
+
+    public ReactorProject getProject();
 }

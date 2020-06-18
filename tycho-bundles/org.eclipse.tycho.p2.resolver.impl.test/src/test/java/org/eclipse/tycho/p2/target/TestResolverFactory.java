@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -41,13 +42,14 @@ public class TestResolverFactory implements P2ResolverFactory {
         boolean offline = false;
         mavenContext = createMavenContext(offline, logger);
 
-        targetDefinitionResolverService = new TargetDefinitionResolverService(mavenContext);
+        targetDefinitionResolverService = new TargetDefinitionResolverService();
+        targetDefinitionResolverService.setMavenContext(mavenContext);
 
         File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
         LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
         LocalRepositoryReader localRepositoryReader = new LocalRepositoryReader(localMavenRepoRoot);
-        localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
-                localRepoIndices.getMetadataIndex(), localRepositoryReader);
+        localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(), localRepoIndices.getMetadataIndex(),
+                localRepositoryReader);
         localArtifactRepo = new LocalArtifactRepository(localRepoIndices, localRepositoryReader);
     }
 
@@ -77,8 +79,8 @@ public class TestResolverFactory implements P2ResolverFactory {
     }
 
     public PomDependencyCollectorImpl newPomDependencyCollectorImpl() {
-        return new PomDependencyCollectorImpl(new MavenContextImpl(mavenContext.getLocalRepositoryRoot(),
-                mavenContext.getLogger()));
+        return new PomDependencyCollectorImpl(
+                new MavenContextImpl(mavenContext.getLocalRepositoryRoot(), mavenContext.getLogger()));
     }
 
     @Override

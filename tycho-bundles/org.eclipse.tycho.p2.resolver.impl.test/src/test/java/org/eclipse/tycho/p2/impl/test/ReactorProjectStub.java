@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and others.
+ * Copyright (c) 2010, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich - adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.test;
 
@@ -182,6 +183,12 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
 
     @Override
     public boolean sameProject(Object otherProject) {
+        // TODO implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getName() {
         // TODO implement
         throw new UnsupportedOperationException();
     }

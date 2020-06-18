@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2016 Red Hat, Inc and others.
+ * Copyright (c) 2012, 2020 Red Hat, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Mickael Istria (Red Hat). - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.extras.tpvalidator;
 
@@ -26,6 +27,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -152,7 +154,8 @@ public class TPValidationMojo extends AbstractMojo {
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
             tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 
-            TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile, IncludeSourceMode.honor);
+            TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile, IncludeSourceMode.honor,
+                    DefaultReactorProject.adapt(project));
             tpConfiguration.addTargetDefinition(targetDefinition);
 
             P2Resolver resolver = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));

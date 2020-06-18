@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP SE and others.
+ * Copyright (c) 2011, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -23,6 +24,7 @@ import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -35,6 +37,7 @@ import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class TargetDefinitionResolverIncludeModeTest {
 
@@ -44,18 +47,21 @@ public class TargetDefinitionResolverIncludeModeTest {
     public final LogVerifier logVerifier = new LogVerifier();
 
     private TargetDefinitionResolver subject;
+    @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
 
     @Before
     public void initSubject() throws Exception {
         subject = new TargetDefinitionResolver(defaultEnvironments(),
-                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, p2Context.getAgent(), logVerifier.getLogger());
+                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 
     @Test
     public void testResolveWithPlanner() throws Exception {
         TargetDefinition definition = definitionWith(
                 new PlannerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, p2Context.getAgent());
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
@@ -67,14 +73,14 @@ public class TargetDefinitionResolverIncludeModeTest {
 
         TargetDefinition definition = definitionWith(
                 new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
-        subject.resolveContentWithExceptions(definition);
+        subject.resolveContentWithExceptions(definition, p2Context.getAgent());
     }
 
     @Test
     public void testResolveWithSlicer() throws Exception {
         TargetDefinition definition = definitionWith(
                 new SlicerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, p2Context.getAgent());
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1)));
     }
@@ -82,7 +88,7 @@ public class TargetDefinitionResolverIncludeModeTest {
     @Test
     public void testUnsatisfiedDependencyWithSlicerIsOk() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
-        TargetDefinitionContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition, p2Context.getAgent());
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(MAIN_BUNDLE)));
     }
 
@@ -90,14 +96,14 @@ public class TargetDefinitionResolverIncludeModeTest {
     public void testUnsatisfiedInclusionWithSlicerFails() throws Exception {
         TargetDefinition definition = definitionWith(
                 new SlicerLocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE));
-        subject.resolveContentWithExceptions(definition);
+        subject.resolveContentWithExceptions(definition, p2Context.getAgent());
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testResolveConflictingIncludeMode() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.V1, MAIN_BUNDLE),
                 new PlannerLocationStub(TestRepositories.V2));
-        subject.resolveContentWithExceptions(definition);
+        subject.resolveContentWithExceptions(definition, p2Context.getAgent());
     }
 
     static class PlannerLocationStub extends LocationStub implements InstallableUnitLocation {
