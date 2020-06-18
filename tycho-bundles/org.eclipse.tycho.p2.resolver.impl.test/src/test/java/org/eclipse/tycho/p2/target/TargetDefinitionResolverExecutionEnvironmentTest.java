@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +26,9 @@ import java.util.List;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeModeTest.PlannerLocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
 import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
@@ -35,6 +38,7 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class TargetDefinitionResolverExecutionEnvironmentTest {
 
@@ -44,12 +48,14 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
     public final LogVerifier logVerifier = new LogVerifier();
 
     private TargetDefinitionResolver subject;
+    @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
 
     private TargetDefinitionResolver targetResolverForEE(String executionEnvironmentName, String... systemPackages)
-            throws ProvisionException {
+            throws ProvisionException, IOException {
         return new TargetDefinitionResolver(defaultEnvironments(),
                 new StandardEEResolutionHints(new ExecutionEnvironmentStub(executionEnvironmentName, systemPackages)),
-                p2Context.getAgent(), logVerifier.getLogger());
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 
     @Test
@@ -57,7 +63,8 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
         subject = targetResolverForEE("CDC-1.0/Foundation-1.0");
 
         TargetDefinition definition = definitionWith(new AlternatePackageProviderLocationStub());
-        Collection<IInstallableUnit> units = subject.resolveContent(definition).getUnits();
+        Collection<IInstallableUnit> units = subject.resolveContent(definition, p2Context.getAgent())
+                .query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
 
         // expect that resolver included a bundle providing org.w3c.dom (here javax.xml)...
         assertThat(units, hasItem(unit("javax.xml", "0.0.1.SNAPSHOT")));
@@ -70,7 +77,8 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
         subject = targetResolverForEE("JavaSE-1.7", "org.w3c.dom");
 
         TargetDefinition definition = definitionWith(new AlternatePackageProviderLocationStub());
-        Collection<IInstallableUnit> units = subject.resolveContent(definition).getUnits();
+        Collection<IInstallableUnit> units = subject.resolveContent(definition, p2Context.getAgent())
+                .query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
 
         // expect that resolver did not included a bundle providing org.w3c.dom...
         assertThat(units, not(hasItem(unit("javax.xml", "0.0.1.SNAPSHOT"))));

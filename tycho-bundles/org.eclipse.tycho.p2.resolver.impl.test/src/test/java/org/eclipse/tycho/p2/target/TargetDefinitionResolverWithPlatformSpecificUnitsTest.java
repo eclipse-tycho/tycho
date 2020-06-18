@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP SE and others.
+ * Copyright (c) 2011, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -16,6 +17,7 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versioned
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdsOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +25,7 @@ import java.util.List;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.UnitStub;
@@ -35,6 +38,7 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     private static final IVersionedId LAUNCHER_FEATURE = new VersionedId("org.eclipse.equinox.executable.feature.group",
@@ -53,6 +57,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     private static TargetDefinition targetDefinition;
 
     @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @Rule
     public final P2Context p2Context = new P2Context();
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
@@ -64,7 +70,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(Collections.singletonList(new TargetEnvironment(null, null, null)));
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, p2Context.getAgent());
 
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE)));
@@ -76,7 +82,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, p2Context.getAgent());
 
         assertThat(versionedIdsOf(units), bagEquals(
                 versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX)));
@@ -89,7 +95,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(environments);
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, p2Context.getAgent());
 
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
                 LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
@@ -101,7 +107,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, p2Context.getAgent());
 
         assertThat(versionedIdsOf(units), bagEquals(
                 versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX)));
@@ -114,7 +120,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
         subject = createResolver(environments);
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, p2Context.getAgent());
 
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
                 LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
@@ -126,7 +132,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, p2Context.getAgent());
 
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
                 LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
@@ -138,12 +144,13 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
                 new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, false));
         subject = createResolver(Collections.singletonList(new TargetEnvironment(null, null, null)));
 
-        subject.resolveContentWithExceptions(targetDefinition);
+        subject.resolveContentWithExceptions(targetDefinition, p2Context.getAgent());
     }
 
-    private TargetDefinitionResolver createResolver(List<TargetEnvironment> environments) throws ProvisionException {
+    private TargetDefinitionResolver createResolver(List<TargetEnvironment> environments)
+            throws ProvisionException, IOException {
         return new TargetDefinitionResolver(environments, ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
-                p2Context.getAgent(), logVerifier.getLogger());
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 
     private static class FilterRepoLocationStubWithLauncherUnit implements TargetDefinition.InstallableUnitLocation {

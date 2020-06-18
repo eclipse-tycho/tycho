@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,11 +9,11 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - split target platform computation and dependency resolution
  *    SAP SE - create immutable target platform instances
+ *    Christoph Läubrich - [Bug 538144] Support other target locations (Directory, Features, Installations)
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,12 +28,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -60,6 +62,7 @@ import org.eclipse.tycho.repository.local.MirroringArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
+import org.eclipse.tycho.repository.p2base.artifact.repository.LazyArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
@@ -218,8 +221,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             result.add(targetFileContent);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Added " + targetFileContent.getUnits().size()
-                        + " units, the content of the target definition file, to the target platform");
+                logger.debug("Target definition file contains " + targetFileContent
+                        .query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet().size() + " units");
             }
         }
         return result;
@@ -264,7 +267,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
 
         for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
-            result.addAll(targetDefinitionContent.getUnits());
+            IQueryResult<IInstallableUnit> queryResult = targetDefinitionContent.query(QueryUtil.ALL_UNITS, monitor);
+            result.addAll(queryResult.toUnmodifiableSet());
         }
 
         List<IMetadataRepository> metadataRepositories = new ArrayList<>();
@@ -326,21 +330,21 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     /**
      * Provider for the target platform artifacts not yet available in the local Maven repository.
      */
-    private RepositoryArtifactProvider createRemoteArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
+    private RepositoryArtifactProvider createRemoteArtifactProvider(Set<MavenRepositoryLocation> mavenRepositories,
             List<TargetDefinitionContent> targetDefinitionsContent) {
-        List<URI> allRemoteArtifactRepositories = new ArrayList<>();
+        List<IArtifactRepository> artifactRepositories = new ArrayList<>();
 
-        for (MavenRepositoryLocation location : completeRepositories) {
+        for (MavenRepositoryLocation location : mavenRepositories) {
             if (!offline || URIUtil.isFileURI(location.getURL())) {
-                allRemoteArtifactRepositories.add(location.getURL());
+                artifactRepositories.add(new LazyArtifactRepository(remoteAgent, location.getURL(),
+                        RepositoryArtifactProvider::loadRepository));
             }
         }
-        for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
-            allRemoteArtifactRepositories.addAll(targetDefinitionContent.getArtifactRepositoryLocations());
-        }
 
-        return new RepositoryArtifactProvider(allRemoteArtifactRepositories,
-                ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent);
+        for (TargetDefinitionContent content : targetDefinitionsContent) {
+            artifactRepositories.add(content.getArtifactRepository());
+        }
+        return new RepositoryArtifactProvider(artifactRepositories, ArtifactTransferPolicies.forRemoteArtifacts());
     }
 
     private Map<IInstallableUnit, ReactorProjectIdentities> getPreliminaryReactorProjectUIs(
