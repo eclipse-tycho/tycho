@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "255d5a5e_d9e69c6a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "s/Rolver/Resolver/",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7dc07dc_cdf17f83",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "If we go for `getContents()` instead, the resolved state should be cached and returned on every call.\n`resolve` would become a private method.\n\n  if (repositoryContent \u003d\u003d null) {\n    repositoryContent \u003d resolve(monitor);\n  }\n  return repositoryContent;",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca213b5d_cdc8a585",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "This seems redundant with `resolve()`. Better to get rid of it.",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "972d0b34_d45765a7",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "This might require a ProgressMonitor as well.\n\n  getContents(monitor).entrySet().stream().filter(entry -\u003e matches(key, entry.getKey()).map(Entry::getValue()).collect(Colections.toList())",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb0eac02_b54de840",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "Why does this have to be public?",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2621e8aa_17ca35e1",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/FileRepositoryRolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "Why does this have to be public?",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "337f1786_7eca4403",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/InstallableUnitResolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "Maybe call it P2RepoUnitResolver?",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50961290_cb49f81b",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/InstallableUnitResolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "Wouldn\u0027t it be better to have the locations set in constructor?\nAlso, why 1 resolver for multiple sources here? Why not 1 resolver per InstallableUnitLocation?",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5d8d860_7cb06f95",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/InstallableUnitResolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "Shouldn\u0027t it receive a progresMonitor?",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b58f6e9a_ddaec2e4",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/Resolvable.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "What about making it a Function\u003cIProgressMonitor, Collection\u003cIInstallableUnit\u003e\u003e ?\nAlso, Resolvable is a bit vague, I suggest we call it IInstallableUnitProvider or something like that as what matters is more what it gives than whether it requires resolution or not.",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7307b23b_10f53504",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/Resolvable.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "getContents() here would be more explicit.",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a80935ff_1e52108d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionContent.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-18T15:06:19Z",
+      "side": 1,
+      "message": "It would seem better to me to just keep the individual sources/suppliers instead of compositing them into a single one.",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
