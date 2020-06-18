@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,12 +26,12 @@ import org.junit.Test;
 
 public class JDTCompilerTest {
 
-    private static final String EOL = System.getProperty("line.separator");
+    private static final String EOL = System.lineSeparator();
 
     @Test
     public void testParseModernStreamErrorWithLineAndTrailingSpace() throws IOException {
-        List<CompilerMessage> messages = JDTCompiler.parseModernStream(createOutputForLines(
-                "1. ERROR in foo bar (at line 3) ", "2. ERROR in test (at line 5)"));
+        List<CompilerMessage> messages = JDTCompiler.parseModernStream(
+                createOutputForLines("1. ERROR in foo bar (at line 3) ", "2. ERROR in test (at line 5)"));
         assertEquals(2, messages.size());
         CompilerMessage message = messages.get(0);
         assertTrue(message.isError());
@@ -57,13 +57,13 @@ public class JDTCompilerTest {
     @Test
     public void testParseModernStreamIgnoreSeparatorLines() throws IOException {
         List<CompilerMessage> messages = JDTCompiler.parseModernStream(createOutputForLines(//
-                "----------",//
+                "----------", //
                 "1. ERROR in foo bar (at line 3) ", //
-                "a context line",//
-                "----------",//
-                "",//
-                "2. WARNING in test2 (at line 4)",//
-                "second context line",//
+                "a context line", //
+                "----------", //
+                "", //
+                "2. WARNING in test2 (at line 4)", //
+                "second context line", //
                 "----------"));
         assertEquals(2, messages.size());
         CompilerMessage error = messages.get(0);
