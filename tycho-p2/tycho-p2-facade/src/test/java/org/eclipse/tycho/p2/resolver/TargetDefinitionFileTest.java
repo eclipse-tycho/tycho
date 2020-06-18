@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - additional test cases
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -23,11 +24,11 @@ import java.util.List;
 
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.DirectoryLocation;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.FeaturePlatformLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.FeaturesLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.ProfilePlatformLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.ProfileLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.junit.Test;
 
@@ -63,8 +64,8 @@ public class TargetDefinitionFileTest {
         assertEquals("Feature", locations.get(2).getTypeDescription());
         assertEquals("InstallableUnit", locations.get(3).getTypeDescription());
         assertTrue(locations.get(0) instanceof DirectoryLocation);
-        assertTrue(locations.get(1) instanceof ProfilePlatformLocation);
-        assertTrue(locations.get(2) instanceof FeaturePlatformLocation);
+        assertTrue(locations.get(1) instanceof ProfileLocation);
+        assertTrue(locations.get(2) instanceof FeaturesLocation);
         assertTrue(locations.get(3) instanceof InstallableUnitLocation);
     }
 
@@ -152,7 +153,7 @@ public class TargetDefinitionFileTest {
     }
 
     private TargetDefinitionFile readTarget(String fileName, IncludeSourceMode includeSourceMode) throws IOException {
-        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName), includeSourceMode);
+        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName), includeSourceMode, null);
     }
 
 }

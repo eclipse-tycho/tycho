@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - Bug 538144 - Support other target locations (Directory, Features, Installations) 
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -14,6 +15,8 @@ import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -41,71 +44,79 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtif
 
 public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImpl implements IRawArtifactProvider {
 
-    static class RepositoryLoader {
+    private static class RepositoryLoader implements ArtifactRepositorySupplier {
 
-        private IArtifactRepositoryManager repositoryManager;
-        private List<URI> repositoryURLs;
+        private Collection<URI> repositoryURLs;
+        private IProvisioningAgent agent;
 
-        RepositoryLoader(List<URI> repositoryURLs, IArtifactRepositoryManager repositoryManager) {
+        RepositoryLoader(Collection<URI> repositoryURLs, IProvisioningAgent agent) {
             this.repositoryURLs = repositoryURLs;
-            this.repositoryManager = repositoryManager;
+            this.agent = agent;
         }
 
-        List<IArtifactRepository> loadRepositories() {
+        @Override
+        public Collection<IArtifactRepository> get() {
             List<IArtifactRepository> result = new ArrayList<>(repositoryURLs.size());
+            IArtifactRepositoryManager repositoryManager = getRepositoryManager(agent);
             for (URI repositoryURL : repositoryURLs) {
                 try {
                     result.add(repositoryManager.loadRepository(repositoryURL, null));
                 } catch (ProvisionException e) {
-                    // don't ignore if repositories can't be loaded
-                    // TODO improve message?
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("load repository from url " + repositoryURL + " failed", e);
                 }
             }
             return result;
         }
 
-        List<URI> getRepositoryURLs() {
-            return repositoryURLs;
+        @Override
+        public Collection<URI> getRepositoryURLs() {
+            return Collections.unmodifiableCollection(repositoryURLs);
         }
+
+        private static IArtifactRepositoryManager getRepositoryManager(IProvisioningAgent agent) {
+            IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent
+                    .getService(IArtifactRepositoryManager.SERVICE_NAME);
+
+            if (repositoryManager == null) {
+                throw new IllegalArgumentException("IArtifactRepositoryManager in p2 agent " + agent);
+            }
+            return repositoryManager;
+        }
+
     }
 
-    private final RepositoryLoader repositoryLoader;
-    List<? extends IArtifactRepository> repositories;
+    private final ArtifactRepositorySupplier repositoryLoader;
+    IArtifactRepository[] repositories;
 
     final ArtifactTransferPolicy transferPolicy;
 
     public RepositoryArtifactProvider(List<? extends IArtifactRepository> repositories,
             ArtifactTransferPolicy transferPolicy) {
-        this.repositories = repositories;
+        this.repositories = repositories.toArray(new IArtifactRepository[0]);
         this.repositoryLoader = null;
         this.transferPolicy = transferPolicy;
     }
 
     public RepositoryArtifactProvider(List<URI> artifactRepositories, ArtifactTransferPolicy transferPolicy,
             IProvisioningAgent agent) {
-        this(new RepositoryLoader(artifactRepositories, getRepositoryManager(agent)), transferPolicy);
+        this(createRepositoryLoader(artifactRepositories, agent), transferPolicy);
     }
 
-    RepositoryArtifactProvider(RepositoryLoader repositoryLoader, ArtifactTransferPolicy transferPolicy) {
+    public RepositoryArtifactProvider(ArtifactRepositorySupplier repositoryLoader,
+            ArtifactTransferPolicy transferPolicy) {
         this.repositories = null;
         this.repositoryLoader = repositoryLoader;
         this.transferPolicy = transferPolicy;
     }
 
-    private static IArtifactRepositoryManager getRepositoryManager(IProvisioningAgent agent) {
-        IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
-
-        if (repositoryManager == null) {
-            throw new IllegalArgumentException("IArtifactRepositoryManager in p2 agent " + agent);
-        }
-        return repositoryManager;
+    public static ArtifactRepositorySupplier createRepositoryLoader(Collection<URI> artifactRepositories,
+            IProvisioningAgent agent) {
+        return new RepositoryLoader(artifactRepositories, agent);
     }
 
     protected void init() {
         if (repositories == null) {
-            repositories = repositoryLoader.loadRepositories();
+            repositories = repositoryLoader.get().toArray(new IArtifactRepository[0]);
             repositoriesLoaded();
         }
     }
@@ -309,12 +320,10 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
     }
 
     private IQueryable<IArtifactKey> repositoriesAsQueriable() {
-        int repositoryCount = repositories.size();
-        if (repositoryCount == 1) {
-            return repositories.get(0);
+        if (repositories.length == 1) {
+            return repositories[0];
         } else {
-            IArtifactRepository[] repositoriesArray = repositories.toArray(new IArtifactRepository[repositoryCount]);
-            return new CompoundQueryable<>(repositoriesArray);
+            return new CompoundQueryable<>(repositories.clone());
         }
     }
 
