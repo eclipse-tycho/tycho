@@ -155,7 +155,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/sisu-equinox"
@@ -164,7 +163,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/target-platform-configuration"/>
@@ -172,7 +170,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-artifactcomparator"/>
@@ -180,7 +177,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-bundles"
@@ -189,7 +185,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-compiler-jdt"/>
@@ -197,7 +192,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-compiler-plugin"/>
@@ -205,7 +199,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-core"/>
@@ -213,7 +206,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-embedder-api"/>
@@ -221,7 +213,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-extras"
@@ -230,7 +221,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-lib-detector"/>
@@ -238,7 +228,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-maven-plugin"/>
@@ -246,7 +235,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-metadata-model"/>
@@ -254,7 +242,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-p2"
@@ -263,7 +250,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-packaging-plugin"/>
@@ -271,7 +257,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-pomgenerator-plugin"/>
@@ -279,7 +264,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-release"
@@ -288,7 +272,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-releng"/>
@@ -296,7 +279,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-source-plugin"/>
@@ -304,7 +286,6 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-surefire"
@@ -313,10 +294,16 @@
     </setupTask>
     <setupTask
         xsi:type="maven:MavenImportTask"
-        id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-testing-harness"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-its"/>
       <description>Import Maven Project</description>
     </setupTask>
     <description>Maven Project Import</description>
@@ -350,4 +337,6 @@
       xsi:type="setup:ProjectCatalog"
       href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']"/>
   <description>Setup for developing Tycho and Tycho Extras</description>
+  <setupTask
+      xsi:type="maven:MavenUpdateTask"/>
 </setup:Project>
