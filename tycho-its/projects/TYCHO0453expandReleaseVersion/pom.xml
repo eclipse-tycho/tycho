@@ -35,7 +35,6 @@
   <modules>
     <module>bundle</module>
     <module>feature</module>
-    <module>site</module>
   </modules>
 
 </project>

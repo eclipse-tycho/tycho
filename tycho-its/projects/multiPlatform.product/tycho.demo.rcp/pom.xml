@@ -9,5 +9,5 @@
   <groupId>tycho.demo</groupId>
   <artifactId>tycho.demo.rcp</artifactId>
   <version>1.0.0</version>
-  <packaging>eclipse-application</packaging>
+  <packaging>eclipse-repository</packaging>
 </project>

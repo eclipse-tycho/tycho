@@ -64,12 +64,6 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "feature03"));
         assertFeatureXml(new File(basedir, "feature03"));
 
-        assertPom(new File(basedir, "site"));
-        assertSiteXml(new File(basedir, "site"));
-
-        assertPom(new File(basedir, "product"));
-        assertProductFile(new File(basedir, "product"), "product.product");
-
         assertPom(new File(basedir, "repository"));
         assertCategoryXml(new File(basedir, "repository"));
         assertProductFile(new File(basedir, "repository"), "product.product");
@@ -307,7 +301,6 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
     public void testNonOsgiVersionOsgiProject() throws Exception {
         assertNonOsgiVersionOsgiProject("bundle");
         assertNonOsgiVersionOsgiProject("feature");
-        assertNonOsgiVersionOsgiProject("product");
         assertNonOsgiVersionOsgiProject("repository");
     }
 

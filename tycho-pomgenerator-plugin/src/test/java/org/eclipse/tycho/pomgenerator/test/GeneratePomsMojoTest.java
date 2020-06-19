@@ -13,7 +13,6 @@ package org.eclipse.tycho.pomgenerator.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,21 +93,6 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals("eclipse-feature", model.getPackaging());
     }
 
-    public void testUpdateSite() throws Exception {
-        File baseDir = getBasedir("projects/simple/p003");
-        Map<String, Object> params = new HashMap<>();
-        params.put("groupId", "group-p003");
-        params.put("version", "1.0.0");
-        params.put("aggregator", Boolean.FALSE);
-        generate(baseDir, params);
-        Model model = readModel(baseDir, "pom.xml");
-
-        assertEquals("group-p003", model.getGroupId());
-        assertEquals("p003", model.getArtifactId());
-        assertEquals("1.0.0", model.getVersion());
-        assertEquals("eclipse-update-site", model.getPackaging());
-    }
-
     public void testRepository() throws Exception {
         File baseDir = getBasedir("projects/simple/p006");
         Map<String, Object> params = new HashMap<>();
@@ -137,12 +121,6 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals(6, modules1.size());
 
         assertFalse(new File(baseDir, "base2/pom.xml").exists());
-
-        Model aggmodel = readModel(baseDir, "base2/p006/poma.xml");
-        List<String> aggrmodules = aggmodel.getModules();
-        assertEquals(5, aggrmodules.size());
-        assertEquals("../../base1/p002", aggrmodules.get(1));
-        assertEquals("../p005", aggrmodules.get(3));
     }
 
     public void testRecursive() throws Exception {
@@ -185,12 +163,6 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
         assertEquals("group", p002.getParent().getGroupId());
 
-        Model aggmodel = readModel(baseDir, "p003/poma.xml");
-        assertEquals("p003.aggregator", aggmodel.getArtifactId());
-        List<String> aggrmodules = aggmodel.getModules();
-        assertEquals(4, aggrmodules.size());
-        // pick up fragments only when they are explicitly referenced from a feature
-        assertFalse(aggrmodules.contains("../p004"));
     }
 
     private Model readModel(File baseDir, String name) throws IOException, XmlPullParserException {
@@ -214,12 +186,6 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         params.put("testSuite", "p004");
         generate(baseDir, params);
 
-        Model aggmodel = readModel(baseDir, "p003/poma.xml");
-        List<String> aggrmodules = aggmodel.getModules();
-        assertEquals(5, aggrmodules.size());
-        assertEquals(Arrays.asList(new String[] { "../p001", "../p001.tests", "../p002", "../p004", "." }),
-                aggrmodules);
-
         assertEquals("eclipse-test-plugin", readModel(baseDir, "p001.tests/pom.xml").getPackaging());
         assertEquals("eclipse-test-plugin", readModel(baseDir, "p004/pom.xml").getPackaging());
     }
@@ -235,9 +201,6 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
         Model parent = readModel(baseDir, "pom.xml");
         assertEquals(3, parent.getModules().size());
-
-        Model aggmodel = readModel(baseDir, "p004/poma.xml");
-        assertEquals(3, aggmodel.getModules().size()); // don't forger . module
     }
 
     public void testDeepModule() throws Exception {

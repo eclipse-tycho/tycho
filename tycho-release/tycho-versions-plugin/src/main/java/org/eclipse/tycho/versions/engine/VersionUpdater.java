@@ -81,7 +81,6 @@ public abstract class VersionUpdater {
                 return product.getVersion();
             }
         };
-        updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, productVersionAdapter);
         updaters.put(PackagingType.TYPE_ECLIPSE_REPOSITORY, productVersionAdapter);
         updaters.put(PackagingType.TYPE_P2_IU, new VersionAdaptor() {
 

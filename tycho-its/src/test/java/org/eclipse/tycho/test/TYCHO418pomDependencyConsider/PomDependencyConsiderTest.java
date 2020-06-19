@@ -31,7 +31,7 @@ public class PomDependencyConsiderTest extends AbstractTychoIntegrationTest {
         File basedir = new File(verifier.getBasedir());
 
         Assert.assertTrue(new File(basedir,
-                "site/target/site/plugins/TYCHO418pomDependencyConsider.artifact_0.0.1.SNAPSHOT.jar").canRead());
+                "site/target/repository/plugins/TYCHO418pomDependencyConsider.artifact_0.0.1.SNAPSHOT.jar").canRead());
     }
 
 }
