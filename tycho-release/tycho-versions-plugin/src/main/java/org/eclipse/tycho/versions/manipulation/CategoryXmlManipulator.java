@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import static org.eclipse.tycho.versions.manipulation.SiteXmlManipulator.rewriteFeatureUrl;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -21,11 +19,12 @@ import java.util.Collection;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.Category;
+import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
-import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
+import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
 
@@ -52,7 +51,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         if (categoryXml == null) {
             return;
         }
-        for (SiteFeatureRef feature : categoryXml.getFeatures()) {
+        for (FeatureRef feature : categoryXml.getFeatures()) {
             String featureId = featureVersionChange.getArtifactId();
             String srcFeatureId = featureId + SOURCE_FEATURE_SUFFIX;
             if ((featureId.equals(feature.getId()) || srcFeatureId.equals(feature.getId()))
@@ -60,14 +59,6 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
                 logger.info("  category.xml//site/feature[@id=" + feature.getId() + "]/@version: "
                         + featureVersionChange.getVersion() + " => " + featureVersionChange.getNewVersion());
                 feature.setVersion(featureVersionChange.getNewVersion());
-
-                String oldUrl = feature.getUrl();
-                if (oldUrl != null) {
-                    String newUrl = rewriteFeatureUrl(oldUrl, featureVersionChange);
-                    logger.info("  category.xml//site/feature[@id=" + feature.getId() + "]/@url: " + oldUrl + " => "
-                            + newUrl);
-                    feature.setUrl(newUrl);
-                }
             }
         }
     }
@@ -124,4 +115,12 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         // this manipulator does not add any restrictions on version changes allowed for eclipse-repository projects
         return null;
     }
+
+    static String rewriteFeatureUrl(String url, VersionChange change) {
+        if (url != null) {
+            return url.replaceAll("\\Q" + change.getVersion() + "\\E", change.getNewVersion());
+        }
+        return null;
+    }
+
 }

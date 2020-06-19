@@ -9,5 +9,5 @@
   <groupId>tycho136.projectC</groupId>
   <artifactId>SiteC</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>eclipse-update-site</packaging>
+  <packaging>eclipse-repository</packaging>
 </project>

@@ -7,7 +7,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>mpr.product</artifactId>
-  <packaging>eclipse-application</packaging>
+  <packaging>eclipse-repository</packaging>
 
   <build>
     <plugins>

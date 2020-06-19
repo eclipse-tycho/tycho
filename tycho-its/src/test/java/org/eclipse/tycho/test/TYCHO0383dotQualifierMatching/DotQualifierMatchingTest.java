@@ -26,7 +26,7 @@ public class DotQualifierMatchingTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
 
         assertFileExists(new File(verifier.getBasedir()),
-                "target/site/plugins/org.eclipse.osgi_3.4.3.R34x_v20081215-1030.jar");
+                "target/repository/plugins/org.eclipse.osgi_3.4.3.R34x_v20081215-1030.jar");
     }
 
     @Test

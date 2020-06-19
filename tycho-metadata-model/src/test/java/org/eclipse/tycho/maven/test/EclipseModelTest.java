@@ -11,18 +11,15 @@
 package org.eclipse.tycho.maven.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Platform;
 import org.eclipse.tycho.model.PluginRef;
-import org.eclipse.tycho.model.UpdateSite;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,32 +34,6 @@ public class EclipseModelTest {
     @Before
     public void setUp() throws Exception {
         target.mkdirs();
-    }
-
-    @Test
-    public void testUpdateSite() throws Exception {
-        UpdateSite site = UpdateSite.read(new File("src/test/resources/modelio/site.xml"));
-
-        List<UpdateSite.SiteFeatureRef> features = site.getFeatures();
-        assertEquals(2, features.size());
-        assertEquals("featureB", features.get(1).getId());
-        assertEquals("2.0.0", features.get(1).getVersion());
-
-        Map<String, String> archives = site.getArchives();
-        assertEquals(2, archives.size());
-        assertEquals("http://www.company.com/updates/plugins/pluginA_1.0.0.jar",
-                archives.get("plugins/pluginA_1.0.0.jar"));
-
-        features.get(0).setVersion("3.0.0");
-
-        site.removeArchives();
-        assertTrue(site.getArchives().isEmpty());
-
-        File updatedFile = new File(target, "site.xml");
-        UpdateSite.write(site, updatedFile);
-        UpdateSite updated = UpdateSite.read(updatedFile);
-        assertEquals("3.0.0", updated.getFeatures().get(0).getVersion());
-        assertTrue(updated.getArchives().isEmpty());
     }
 
     @Test

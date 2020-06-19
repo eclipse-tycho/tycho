@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.junit.Test;
 
-public class SiteXmlManipulatorTest {
+public class CategoryXmlManipulatorTest {
     @Test
     public void testFeatureUrlRewriting() {
         assertFeatureUrlRewriting("features/id_NEW.jar", "features/id_1.2.3.jar", "1.2.3");
@@ -30,7 +30,7 @@ public class SiteXmlManipulatorTest {
 
     private void assertFeatureUrlRewriting(String expectedUrl, String oldUrl, String oldVersion) {
         assertEquals(expectedUrl,
-                SiteXmlManipulator.rewriteFeatureUrl(oldUrl, new PomVersionChange(null, oldVersion, "NEW")));
+                CategoryXmlManipulator.rewriteFeatureUrl(oldUrl, new PomVersionChange(null, oldVersion, "NEW")));
     }
 
 }

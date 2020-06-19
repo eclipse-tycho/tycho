@@ -28,7 +28,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
- * https://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/reference/misc/
+ * http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/reference/misc/
  * update_platform_xml.html
  */
 public class Platform {

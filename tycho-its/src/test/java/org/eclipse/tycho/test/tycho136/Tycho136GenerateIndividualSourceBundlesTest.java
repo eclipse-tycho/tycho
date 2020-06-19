@@ -28,11 +28,11 @@ public class Tycho136GenerateIndividualSourceBundlesTest extends AbstractTychoIn
         verifier.verifyErrorFreeLog();
 
         File basedir = new File(verifier.getBasedir());
-        File sourceFeature = new File(basedir, "SiteC/target/site/features/FeatureC.source_1.0.0.jar");
+        File sourceFeature = new File(basedir, "SiteC/target/repository/features/FeatureC.source_1.0.0.jar");
         Assert.assertTrue("Site should generate FeatureC.source", sourceFeature.exists());
-        File sourcePluginC = new File(basedir, "SiteC/target/site/plugins/PluginC.source_1.0.0.jar");
+        File sourcePluginC = new File(basedir, "SiteC/target/repository/plugins/PluginC.source_1.0.0.jar");
         Assert.assertTrue("Site should generate PluginC.source", sourcePluginC.exists());
-        File sourcePluginCExtra = new File(basedir, "SiteC/target/site/plugins/PluginC.Extra.source_1.0.0.jar");
+        File sourcePluginCExtra = new File(basedir, "SiteC/target/repository/plugins/PluginC.Extra.source_1.0.0.jar");
         Assert.assertTrue("Site should generate PluginC.Extra.source", sourcePluginCExtra.exists());
     }
 }
