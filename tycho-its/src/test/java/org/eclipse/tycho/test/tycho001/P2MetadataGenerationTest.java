@@ -26,7 +26,7 @@ public class P2MetadataGenerationTest extends AbstractTychoIntegrationTest {
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
 
-        File site = new File(verifier.getBasedir(), "site/target/site");
+        File site = new File(verifier.getBasedir(), "site/target/repository");
         Assert.assertTrue(new File(site, "artifacts.xml").canRead());
         Assert.assertTrue(new File(site, "content.xml").canRead());
 

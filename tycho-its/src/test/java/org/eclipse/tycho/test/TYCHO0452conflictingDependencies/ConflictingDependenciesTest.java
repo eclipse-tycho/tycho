@@ -28,8 +28,8 @@ public class ConflictingDependenciesTest extends AbstractTychoIntegrationTest {
 
         File basedir = new File(verifier.getBasedir());
 
-        assertFileExists(basedir, "site/target/site/plugins/org.eclipse.osgi_3.4.3.R34x_v20081215-1030.jar");
-        assertFileExists(basedir, "site/target/site/plugins/org.eclipse.osgi_3.5.2.R35x_v20100126.jar");
+        assertFileExists(basedir, "site/target/repository/plugins/org.eclipse.osgi_3.4.3.R34x_v20081215-1030.jar");
+        assertFileExists(basedir, "site/target/repository/plugins/org.eclipse.osgi_3.5.2.R35x_v20100126.jar");
     }
 
 }

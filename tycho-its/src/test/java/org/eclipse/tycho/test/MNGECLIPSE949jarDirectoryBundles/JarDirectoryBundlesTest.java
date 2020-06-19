@@ -29,7 +29,7 @@ public class JarDirectoryBundlesTest extends AbstractTychoIntegrationTest {
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
 
-        File[] sitePlugins = new File(verifier.getBasedir(), "site/target/site/plugins").listFiles(new FileFilter() {
+        File[] sitePlugins = new File(verifier.getBasedir(), "site/target/repository/plugins").listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.isFile() && pathname.getName().startsWith("org.eclipse.platform")

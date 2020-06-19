@@ -64,10 +64,10 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
+import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
-import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
 
 /**
@@ -263,8 +263,8 @@ public class GeneratePomsMojo extends AbstractMojo {
                 }
                 for (File rootProject : rootProjects) {
                     getLog().info("Resolving root project " + toString(rootProject));
-                    if (isUpdateSiteProject(rootProject)) {
-                        projects.addAll(getSiteFeaturesAndPlugins(rootProject));
+                    if (isEclipseRepositoryProject(rootProject)) {
+                        projects.addAll(getCategoryFeaturesAndPlugins(rootProject));
                         projects.add(rootProject);
                     } else if (isFeatureProject(rootProject)) {
                         projects.addAll(getFeatureFeaturesAndPlugins(rootProject));
@@ -338,8 +338,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private boolean isProjectDir(File dir) {
-        return isPluginProject(dir) || isFeatureProject(dir) || isUpdateSiteProject(dir)
-                || isEclipseRepositoryProject(dir);
+        return isPluginProject(dir) || isFeatureProject(dir) || isEclipseRepositoryProject(dir);
     }
 
     private void reorderModules(Model parent, File basedir, File testSuiteLocation) throws MojoExecutionException {
@@ -426,7 +425,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         for (Entry<File, Model> updateSite : updateSites.entrySet()) {
             File basedir = updateSite.getKey();
             Model parent = updateSite.getValue();
-            Set<File> modules = getSiteFeaturesAndPlugins(basedir);
+            Set<File> modules = getCategoryFeaturesAndPlugins(basedir);
             if (aggregator && modules.size() > 0) {
                 Model modela = readPomTemplate("update-site-poma.xml");
                 setParentOrAddTychoExtension(basedir, modela, parent);
@@ -452,12 +451,6 @@ public class GeneratePomsMojo extends AbstractMojo {
         } else if (isEclipseRepositoryProject(basedir)) {
             getLog().debug("Found eclipse-repository PDE project " + toString(basedir));
             generateEclipseRepositoryPom(parent, basedir);
-        } else if (isUpdateSiteProject(basedir)) {
-            getLog().debug("Found update site PDE project " + toString(basedir));
-            getLog().warn("Old style update site found for " + toString(basedir)
-                    + ". It is recommended you rename your site.xml to category.xml "
-                    + "and use packaging type eclipse-repository instead.");
-            generateUpdateSitePom(parent, basedir);
         } else {
             getLog().debug("Not a PDE project " + toString(basedir));
             return false;
@@ -465,16 +458,12 @@ public class GeneratePomsMojo extends AbstractMojo {
         return true;
     }
 
-    private boolean isUpdateSiteProject(File dir) {
-        return new File(dir, "site.xml").canRead();
-    }
-
     private boolean isEclipseRepositoryProject(File dir) {
-        return new File(dir, "category.xml").canRead();
+        return new File(dir, Category.CATEGORY_XML).canRead();
     }
 
     private boolean isFeatureProject(File dir) {
-        return new File(dir, "feature.xml").canRead();
+        return new File(dir, Feature.FEATURE_XML).canRead();
     }
 
     private boolean isPluginProject(File dir) {
@@ -482,26 +471,6 @@ public class GeneratePomsMojo extends AbstractMojo {
                 .canRead() /*
                             * || new File(dir, "plugin.xml").canRead()
                             */;
-    }
-
-    private void generateUpdateSitePom(Model parent, File basedir) throws MojoExecutionException {
-        if (groupId == null) {
-            throw new MojoExecutionException(
-                    "groupId parameter is required to generate pom.xml for Update Site project " + basedir.getName());
-        }
-        if (version == null) {
-            throw new MojoExecutionException(
-                    "version parameter is required to generate pom.xml for Update Site project " + basedir.getName());
-        }
-
-        Model model = readPomTemplate("update-site-pom.xml");
-        setParentOrAddTychoExtension(basedir, model, parent);
-        model.setGroupId(groupId);
-        model.setArtifactId(basedir.getName());
-        model.setVersion(version);
-        writePom(basedir, model);
-
-        updateSites.put(basedir, parent);
     }
 
     private void generateEclipseRepositoryPom(Model parent, File basedir) throws MojoExecutionException {
@@ -524,15 +493,14 @@ public class GeneratePomsMojo extends AbstractMojo {
         writePom(basedir, model);
     }
 
-    private Set<File> getSiteFeaturesAndPlugins(File basedir) throws MojoExecutionException {
+    private Set<File> getCategoryFeaturesAndPlugins(File basedir) throws MojoExecutionException {
         try {
             Set<File> result = new LinkedHashSet<>();
 
-            UpdateSite site;
-            File siteFile = new File(basedir, "site.xml");
-            if (siteFile.exists()) {
-                site = UpdateSite.read(siteFile);
-                for (FeatureRef feature : site.getFeatures()) {
+            File categoryFile = new File(basedir, Category.CATEGORY_XML);
+            if (categoryFile.exists()) {
+                Category category = Category.read(categoryFile);
+                for (FeatureRef feature : category.getFeatures()) {
                     addFeature(result, feature.getId());
                 }
             }

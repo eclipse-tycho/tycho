@@ -16,7 +16,6 @@ import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_FEATURE;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_PLUGIN;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_REPOSITORY;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_TEST_PLUGIN;
-import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_UPDATE_SITE;
 import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.customEEResolutionHintProvider;
@@ -25,7 +24,6 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,7 +32,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -93,36 +90,6 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         assertEquals(2, result.getArtifacts().size());
         assertEquals(2, result.getNonReactorUnits().size()); // + a.jre
-    }
-
-    @SuppressWarnings({ "unchecked", "deprecation" })
-    @Test
-    public void testSiteConflictingDependenciesResolver() throws IOException {
-        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
-
-        File[] projects = new File[] { resourceFile("siteresolver/bundle342"), //
-                resourceFile("siteresolver/bundle352"), //
-                resourceFile("siteresolver/feature342"), //
-                resourceFile("siteresolver/feature352") };
-
-        addContextProject(projects[0], TYPE_ECLIPSE_PLUGIN);
-        addContextProject(projects[1], TYPE_ECLIPSE_PLUGIN);
-        addContextProject(projects[2], TYPE_ECLIPSE_FEATURE);
-        addContextProject(projects[3], TYPE_ECLIPSE_FEATURE);
-
-        projectToResolve = createReactorProject(resourceFile("siteresolver/site"), TYPE_ECLIPSE_UPDATE_SITE, "site");
-
-        result = impl.collectProjectDependencies(getTargetPlatform(), projectToResolve);
-
-        assertEquals(projects.length, result.getArtifacts().size());
-        for (File project : projects) {
-            assertContainLocation(result, project);
-        }
-        // TODO the eclipse-update-site module itself is not in the resolution result; is this needed?
-
-        // conflicting dependency mode only collects included artifacts - the referenced non-reactor unit
-        // org.eclipse.osgi is not included
-        assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), not(hasItem(unitWithId("org.eclipse.osgi"))));
     }
 
     @Test

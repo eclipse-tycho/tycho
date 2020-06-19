@@ -62,9 +62,9 @@ import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -126,7 +126,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
 
             @Override
-            public void traverseUpdateSite(UpdateSite site, ArtifactDependencyVisitor artifactDependencyVisitor) {
+            public void traverseCategory(Category site, ArtifactDependencyVisitor artifactDependencyVisitor) {
             }
 
             @Override

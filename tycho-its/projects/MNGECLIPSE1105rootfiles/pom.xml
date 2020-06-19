@@ -4,7 +4,7 @@
 	<groupId>tycho-test</groupId>
 	<artifactId>MNGECLIPSE-1105</artifactId>
 	<version>1.0.0</version>
-	<packaging>eclipse-application</packaging>
+	<packaging>eclipse-repositoryepository</packaging>
 
 	<properties>
 		<generatedBuildProperties>root.properties</generatedBuildProperties>

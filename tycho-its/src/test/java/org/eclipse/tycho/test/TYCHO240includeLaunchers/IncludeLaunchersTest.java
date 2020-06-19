@@ -28,7 +28,8 @@ public class IncludeLaunchersTest extends AbstractTychoIntegrationTest {
         File targetdir = new File(verifier.getBasedir(), "target");
 
         // assert product zip was created for each target environment
-        Assert.assertTrue(new File(targetdir, "linux.gtk.x86_64/eclipse/includedLauncher").canRead());
+        Assert.assertTrue(
+                new File(targetdir, "products/main.product.id/linux.gtk.x86_64/eclipse/includedLauncher").canRead());
 
     }
 
@@ -41,8 +42,12 @@ public class IncludeLaunchersTest extends AbstractTychoIntegrationTest {
         File targetdir = new File(verifier.getBasedir(), "target");
 
         // assert product zip was created for each target environment
-        Assert.assertFalse(new File(targetdir, "linux.gtk.x86_64/eclipse/libcairo-swt.so").canRead());
-        Assert.assertFalse(new File(targetdir, "linux.gtk.x86_64/eclipse/includedLauncher").canRead());
+        Assert.assertFalse(
+                new File(targetdir, "products/tycho.demo.application.product/linux.gtk.x86_64/eclipse/libcairo-swt.so")
+                        .canRead());
+        Assert.assertFalse(
+                new File(targetdir, "products/tycho.demo.application.product/linux.gtk.x86_64/eclipse/includedLauncher")
+                        .canRead());
     }
 
 }

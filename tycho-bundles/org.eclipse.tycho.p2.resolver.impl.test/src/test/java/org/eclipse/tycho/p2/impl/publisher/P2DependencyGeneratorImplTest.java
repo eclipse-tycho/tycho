@@ -157,62 +157,6 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("iu.p2.inf", units.get(1).getId());
     }
 
-    @Test
-    public void site() throws Exception {
-        generateDependencies("site", PackagingType.TYPE_ECLIPSE_UPDATE_SITE);
-
-        assertEquals(1, units.size());
-        IInstallableUnit unit = units.iterator().next();
-
-        assertEquals("site", unit.getId());
-        assertEquals("raw:1.0.0.'SNAPSHOT'/format(n[.n=0;[.n=0;[-S]]]):1.0.0-SNAPSHOT", unit.getVersion().toString());
-        assertEquals(1, unit.getRequirements().size());
-
-        assertEquals(0, artifacts.size());
-    }
-
-    @Test
-    public void rcpBundle() throws Exception {
-        generateDependencies("rcp-bundle", PackagingType.TYPE_ECLIPSE_APPLICATION);
-
-        assertEquals(1, units.size());
-        IInstallableUnit unit = units.iterator().next();
-
-        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-bundle", unit.getId());
-        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-
-        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
-
-        assertEquals(2, requirements.size());
-        assertNotNull(getRequiredCapability("included.bundle", requirements));
-
-        // implicit dependencies because includeLaunchers="true"
-        assertNotNull(getRequiredCapability("org.eclipse.equinox.executable.feature.group", requirements));
-
-        assertEquals(0, artifacts.size());
-    }
-
-    @Test
-    public void rcp_with_p2_inf() throws Exception {
-        generateDependencies("rcp-p2-inf", PackagingType.TYPE_ECLIPSE_APPLICATION);
-
-        assertEquals(2, units.size());
-        IInstallableUnit unit = getUnitWithId("org.eclipse.tycho.p2.impl.test.rcp-p2-inf", units);
-
-        assertNotNull(unit);
-        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-
-        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
-
-        assertEquals(1, requirements.size());
-        IRequiredCapability p2InfCapability = getRequiredCapability("required.p2.inf", requirements);
-        assertNotNull(p2InfCapability);
-
-        assertEquals(0, artifacts.size());
-
-        assertNotNull(getUnitWithId("iu.p2.inf", units));
-    }
-
     private IRequiredCapability getRequiredCapability(String name, List<IRequirement> requirements) {
         for (IRequirement req : requirements) {
             if (req instanceof IRequiredCapability) {
@@ -223,38 +167,6 @@ public class P2DependencyGeneratorImplTest {
             }
         }
         return null;
-    }
-
-    @Test
-    public void rcpFeature() throws Exception {
-        generateDependencies("rcp-feature", PackagingType.TYPE_ECLIPSE_APPLICATION);
-
-        assertEquals(1, units.size());
-        IInstallableUnit unit = units.iterator().next();
-
-        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-feature", unit.getId());
-        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-
-        assertEquals(2, unit.getRequirements().size());
-
-        assertEquals(0, artifacts.size());
-    }
-
-    @Test
-    public void rcpNoLaunchers() throws Exception {
-        generateDependencies("rcp-no-launchers", PackagingType.TYPE_ECLIPSE_APPLICATION);
-
-        assertEquals(1, units.size());
-        IInstallableUnit unit = units.iterator().next();
-
-        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-no-launchers", unit.getId());
-        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-
-        List<IRequirement> requirement = new ArrayList<>(unit.getRequirements());
-
-        assertEquals(0, requirement.size());
-
-        assertEquals(0, artifacts.size());
     }
 
     // TODO version ranges in feature, site and rcp apps
