@@ -9,5 +9,20 @@
   <groupId>tycho.demo</groupId>
   <artifactId>tycho.demo.rcp</artifactId>
   <version>1.0.0</version>
-  <packaging>eclipse-application</packaging>
+  <packaging>eclipse-repository</packaging>
+
+<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+							<goal>archive-products</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 </project>

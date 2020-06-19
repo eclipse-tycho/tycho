@@ -30,11 +30,11 @@ import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.model.UpdateSite;
 
 public abstract class AbstractArtifactDependencyWalker implements ArtifactDependencyWalker {
 
@@ -52,10 +52,10 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
     }
 
     @Override
-    public void traverseUpdateSite(UpdateSite site, ArtifactDependencyVisitor visitor) {
+    public void traverseCategory(Category category, ArtifactDependencyVisitor visitor) {
         WalkbackPath visited = new WalkbackPath();
 
-        for (FeatureRef ref : site.getFeatures()) {
+        for (FeatureRef ref : category.getFeatures()) {
             traverseFeature(ref, visitor, visited);
         }
     }
@@ -111,7 +111,8 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         traverseProduct(product, visitor, new WalkbackPath());
     }
 
-    protected void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor, WalkbackPath visited) {
+    protected void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor,
+            WalkbackPath visited) {
         if (product.useFeatures()) {
             for (FeatureRef ref : product.getFeatures()) {
                 traverseFeature(ref, visitor, visited);
@@ -141,9 +142,8 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
                 // for Mac OS X there is no org.eclipse.equinox.launcher.carbon.macosx.x86 or org.eclipse.equinox.launcher.carbon.macosx.ppc folder,
                 // only a org.eclipse.equinox.launcher.carbon.macosx folder.
                 // see http://jira.codehaus.org/browse/MNGECLIPSE-1075
-                if (PlatformPropertiesUtils.OS_MACOSX.equals(os)
-                        && (PlatformPropertiesUtils.ARCH_X86.equals(arch) || PlatformPropertiesUtils.ARCH_PPC
-                                .equals(arch))) {
+                if (PlatformPropertiesUtils.OS_MACOSX.equals(os) && (PlatformPropertiesUtils.ARCH_X86.equals(arch)
+                        || PlatformPropertiesUtils.ARCH_PPC.equals(arch))) {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os;
                 } else {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os + "." + arch;

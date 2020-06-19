@@ -28,7 +28,7 @@ public class Tycho136GeneratePluginTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
 
         File basedir = new File(verifier.getBasedir());
-        File sourcePlugin = new File(basedir, "SiteB/target/site/plugins/PluginB.source_1.0.0.jar");
+        File sourcePlugin = new File(basedir, "SiteB/target/repository/plugins/PluginB.source_1.0.0.jar");
         Assert.assertTrue("Site should generate PluginB.source", sourcePlugin.exists());
     }
 }

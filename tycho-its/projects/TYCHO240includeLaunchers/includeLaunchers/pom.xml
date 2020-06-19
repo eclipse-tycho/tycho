@@ -5,7 +5,7 @@
 	<groupId>TYCHO240includeLaunchers</groupId>
 	<artifactId>includeLaunchers</artifactId>
 	<version>1.0.0</version>
-	<packaging>eclipse-application</packaging>
+	<packaging>eclipse-repository</packaging>
 	<repositories>
 		<repository>
 			<id>platform</id>
@@ -33,6 +33,19 @@
 						</environment>
 					</environments>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

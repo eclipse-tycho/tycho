@@ -28,10 +28,10 @@ public class Tycho136GenerateFeatureTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
 
         File basedir = new File(verifier.getBasedir());
-        File featureSource = new File(basedir, "SiteA/target/site/features/FeatureA.source_1.0.0.jar");
+        File featureSource = new File(basedir, "SiteA/target/repository/features/FeatureA.source_1.0.0.jar");
         Assert.assertTrue("Site should generate FeatureA.source", featureSource.exists());
 
-        File featurePlugin = new File(basedir, "SiteA/target/site/plugins/FeatureA.source_1.0.0.jar");
+        File featurePlugin = new File(basedir, "SiteA/target/repository/plugins/FeatureA.source_1.0.0.jar");
         Assert.assertTrue("Site should generate FeatureA.source Plugin", featurePlugin.exists());
     }
 }

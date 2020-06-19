@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.util.IOUtil;
-import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -49,10 +48,10 @@ public class Category {
         this.dom = document.getRootElement();
     }
 
-    public List<SiteFeatureRef> getFeatures() {
-        ArrayList<SiteFeatureRef> features = new ArrayList<>();
+    public List<FeatureRef> getFeatures() {
+        ArrayList<FeatureRef> features = new ArrayList<>();
         for (Element featureDom : dom.getChildren("feature")) {
-            features.add(new SiteFeatureRef(featureDom));
+            features.add(new FeatureRef(featureDom));
         }
         return Collections.unmodifiableList(features);
     }

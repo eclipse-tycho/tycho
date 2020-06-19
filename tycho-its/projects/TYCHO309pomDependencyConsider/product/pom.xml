@@ -7,6 +7,6 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>product</artifactId>
-  <packaging>eclipse-application</packaging>
+  <packaging>eclipse-repository</packaging>
 
 </project>

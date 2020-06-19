@@ -28,10 +28,11 @@ public class ProductP2TargetPlatformResolverTest extends AbstractTychoIntegratio
         File target = new File(verifier.getBasedir(), "product.bundle-based/target");
 
         assertDirectoryExists(target,
-                "linux.gtk.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_*");
+                "products/product.bundle-based/linux.gtk.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_*");
         assertDirectoryExists(target,
-                "macosx.cocoa.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64_*");
-        assertDirectoryExists(target, "win32.win32.x86/eclipse/plugins/org.eclipse.equinox.launcher.win32.win32.x86_*");
+                "products/product.bundle-based/macosx.cocoa.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64_*");
+        assertDirectoryExists(target,
+                "products/product.bundle-based/win32.win32.x86/eclipse/plugins/org.eclipse.equinox.launcher.win32.win32.x86_*");
     }
 
 }
