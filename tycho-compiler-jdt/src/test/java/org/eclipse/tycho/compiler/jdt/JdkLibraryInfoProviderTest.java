@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 SAP SE and others.
+ * Copyright (c) 2018, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public class JdkLibraryInfoProviderTest {
 
     private String getExpectedBootclasspath(String javaHome) {
         String propertyKey = null;
-        Enumeration keys = System.getProperties().keys();
+        Enumeration<Object> keys = System.getProperties().keys();
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();
             if (key.endsWith(".boot.class.path")) { //$NON-NLS-1$
