@@ -132,7 +132,7 @@ public class JDTCompiler extends AbstractCompiler {
     public String[] buildCompilerArguments(CompilerConfiguration config, CustomCompilerConfiguration custom,
             String[] sourceFiles) {
         List<String> args = new ArrayList<>();
-        
+
         Collection<Map.Entry<String, String>> customCompilerArgumentsEntries = config
                 .getCustomCompilerArgumentsEntries();
         for (Map.Entry<String, String> entry : customCompilerArgumentsEntries) {
@@ -347,7 +347,8 @@ public class JDTCompiler extends AbstractCompiler {
      * @return CompilerResult with the errors and warnings encountered.
      * @throws CompilerException
      */
-    CompilerResult compileInProcess(String[] args, CompilerConfiguration config, CustomCompilerConfiguration custom) throws CompilerException {
+    CompilerResult compileInProcess(String[] args, CompilerConfiguration config, CustomCompilerConfiguration custom)
+            throws CompilerException {
 
         List<CompilerMessage> messages;
 
@@ -358,10 +359,10 @@ public class JDTCompiler extends AbstractCompiler {
         compiler.options.put(CompilerOptions.OPTION_ReportForbiddenReference, CompilerOptions.ERROR);
         List<String> jdtCompilerArgs = new ArrayList<>(Arrays.asList(args));
         if (custom.javaHome != null) {
-        	String sourceLevel = config.getSourceVersion();
-        	if (sourceLevel == null || CompilerOptions.releaseToJDKLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
-        		addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
-        	}
+            String sourceLevel = config.getSourceVersion();
+            if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
+                addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
+            }
         }
         getLogger().debug("JDT compiler args: " + jdtCompilerArgs);
         boolean success = compiler.compile(jdtCompilerArgs.toArray(new String[0]));
