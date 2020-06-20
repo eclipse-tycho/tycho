@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab0d15b6_54cd39fd",
+        "filename": "tycho-its/projects/compiler.jdt.bree.java8/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 83802
+      },
+      "writtenOn": "2020-06-20T12:19:27Z",
+      "side": 1,
+      "message": "This has just been for testing. I guess this is set by the integration test environment?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 15
+      },
+      "revId": "a3a06a6db36a225b68ce7d83dfef97935457004f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
