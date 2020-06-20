@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9f44982_2244c2f1",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/JDTCompiler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-20T12:18:16Z",
+      "side": 1,
+      "message": "Just a remark for other reviewers",
+      "revId": "4f97120bda5c32469cee61f05b55482f4285c3c6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
