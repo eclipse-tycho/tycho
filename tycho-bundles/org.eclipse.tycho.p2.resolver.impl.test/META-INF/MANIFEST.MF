@@ -8,7 +8,6 @@ Fragment-Host: org.eclipse.tycho.p2.resolver.impl
 Require-Bundle: org.junit,
  org.hamcrest.core,
  org.apache.commons.io,
- org.eclipse.equinox.ds,
  org.eclipse.equinox.p2.transport.ecf
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
