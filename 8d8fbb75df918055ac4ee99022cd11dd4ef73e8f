@@ -495,6 +495,24 @@
     },
     {
       "key": {
+        "uuid": "9151946a_67c50957",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/Resolvable.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-22T13:19:33Z",
+      "side": 1,
+      "message": "Yepp that\u0027s a problem, in fact the \"API\" is only used internally and for that readon is then resolved once and passed via TargetLocationContent object further down (that has a getunits method). \nMaybe i have to refactor this first :-\\",
+      "parentUuid": "5a06c374_c7fc4648",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a80935ff_1e52108d",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionContent.java",
         "patchSetId": 4
@@ -541,6 +559,24 @@
       "writtenOn": "2020-06-22T13:03:02Z",
       "side": 1,
       "message": "could it be private?\nAlso, if all you need here is the ReactorProject and not the definition, please just pass the project as argument.",
+      "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce5fc1ea_215377d1",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-22T13:19:33Z",
+      "side": 1,
+      "message": "At the moment only the project is needed but there are more variable we might want to support and then other target information is required but I\u0027ll check this.",
+      "parentUuid": "3156fa9b_16e6c117",
       "revId": "8d8fbb75df918055ac4ee99022cd11dd4ef73e8f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
