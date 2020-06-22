@@ -9,7 +9,6 @@ Fragment-Host: org.eclipse.tycho.p2.maven.repository
 Require-Bundle: org.junit,
  org.hamcrest.core,
  org.eclipse.equinox.p2.publisher,
- org.eclipse.equinox.ds,
  org.mockito
 Import-Package: org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.repository.local.testutil,
