@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
 import org.eclipse.tycho.test.util.P2Context;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -51,6 +52,7 @@ public class RemoteArtifactTransferPolicyTest {
 
     @Test
     public void testPreferredOrder() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         IArtifactDescriptor[] descriptors = loadDescriptorsFromRepository("packedCanonicalAndOther", p2Context);
 
         List<IArtifactDescriptor> result = subject.sortFormatsByPreference(descriptors);

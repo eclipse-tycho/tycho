@@ -54,6 +54,7 @@ import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeOutputStream;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -328,6 +329,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Test
     public void testGetArtifactOnlyAvailableInPackedFormat() throws Exception {
+        Assume.assumeTrue("pack200 not available on current Java version", Runtime.version().feature() < 14);
         testSink = newArtifactSinkFor(ARTIFACT_B_KEY);
         // this method must return the original artifact, regardless of how the artifact is stored internally
         status = subject.getArtifact(testSink, null);
@@ -412,6 +414,7 @@ public class LocalArtifactRepositoryP2APITest {
     @SuppressWarnings("deprecation")
     @Test
     public void testGetArtifactToStreamOnlyAvailableInPackedFormat() throws Exception {
+        Assume.assumeTrue("pack200 not available on current Java version", Runtime.version().feature() < 14);
         // this method must always return the original artifact, even if called with a pack200 descriptor  
         status = subject.getArtifact(ARTIFACT_B_PACKED, testOutputStream, null);
 
