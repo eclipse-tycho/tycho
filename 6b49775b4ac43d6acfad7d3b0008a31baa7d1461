@@ -16,6 +16,24 @@
       "revId": "6b49775b4ac43d6acfad7d3b0008a31baa7d1461",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09259343_ee7f2dbf",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/JDTCompiler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-22T12:16:31Z",
+      "side": 1,
+      "message": "I think it\u0027s OK to keep it as it now. Anyway, the case of bundles without source level (ie without BREE) should be rare enough to be worth worrying",
+      "parentUuid": "444fa03c_ff7bdf1a",
+      "revId": "6b49775b4ac43d6acfad7d3b0008a31baa7d1461",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
