@@ -22,6 +22,30 @@
       "revId": "a3a06a6db36a225b68ce7d83dfef97935457004f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8060a3b_c3b19372",
+        "filename": "tycho-its/projects/compiler.jdt.bree.java8/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-22T12:16:31Z",
+      "side": 1,
+      "message": "I think it\u0027s OK to keep it, and indeed, the test environment should override it anyway with the current version being tested.",
+      "parentUuid": "ab0d15b6_54cd39fd",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 15
+      },
+      "revId": "a3a06a6db36a225b68ce7d83dfef97935457004f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
