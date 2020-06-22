@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.jar.Pack200.Packer;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -28,7 +27,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.extras.pack200.Pack200Archiver;
 
 /**
- * Performs pack200 normalization, {@link Packer} for theory behind this.
+ * Performs pack200 normalization.
  */
 @Mojo(name = "normalize", defaultPhase = LifecyclePhase.PACKAGE)
 public class Pack200NormalizeMojo extends AbstractMojo {
@@ -76,6 +75,10 @@ public class Pack200NormalizeMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (this.skip || !supportedProjectTypes.contains(project.getPackaging())) {
+            return;
+        }
+        if (Runtime.version().feature() >= 14) {
+            getLog().warn("pack200 actions are skipped when running on Java 14 and higher");
             return;
         }
 

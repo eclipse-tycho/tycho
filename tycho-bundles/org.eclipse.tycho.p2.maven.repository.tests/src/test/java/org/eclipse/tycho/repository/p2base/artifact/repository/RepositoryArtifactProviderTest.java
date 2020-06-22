@@ -49,6 +49,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactPr
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTestBase<IRawArtifactProvider> {
@@ -98,6 +99,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
 
     @Test
     public void testGetArtifactWherePreferredFormatIsCorrupt() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         subject = createCompositeArtifactProvider(REPO_BUNLDE_AB_PACK_CORRUPT);
 
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);

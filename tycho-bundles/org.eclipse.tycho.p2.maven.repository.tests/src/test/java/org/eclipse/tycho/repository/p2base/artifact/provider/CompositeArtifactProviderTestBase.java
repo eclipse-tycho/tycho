@@ -62,6 +62,7 @@ import org.eclipse.tycho.repository.streaming.testutil.ProbeOutputStream;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -148,6 +149,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
 
     @Test
     public void testGetArtifactOnlyAvailableInPackedRawFormat() throws Exception {
+        Assume.assumeTrue("pack200 not available on current Java version", Runtime.version().feature() < 14);
         testSink = newArtifactSinkFor(BUNDLE_B_KEY);
         status = subject.getArtifact(testSink, null);
 

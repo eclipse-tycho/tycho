@@ -133,8 +133,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     }
 
     @Override
-    public final IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException,
-            MirroringFailedException {
+    public final IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor)
+            throws ArtifactSinkException, MirroringFailedException {
         IArtifactKey requestedKey = sink.getArtifactToBeWritten();
         if (makeLocallyAvailable(requestedKey)) {
             return localArtifactRepository.getArtifact(sink, monitor);
@@ -143,8 +143,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     }
 
     @Override
-    public final IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException,
-            MirroringFailedException {
+    public final IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor)
+            throws ArtifactSinkException, MirroringFailedException {
         IArtifactKey requestedKey = sink.getArtifactToBeWritten();
         if (makeLocallyAvailable(requestedKey)) {
             return localArtifactRepository.getRawArtifact(sink, monitor);
@@ -194,16 +194,16 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
             return isAvailable;
 
         } catch (ProvisionException e) {
-            throw new MirroringFailedException("Error while mirroring artifact " + key
-                    + " to the local Maven repository" + e.getMessage(), e);
+            throw new MirroringFailedException(
+                    "Error while mirroring artifact " + key + " to the local Maven repository" + e.getMessage(), e);
         } catch (ArtifactSinkException e) {
-            throw new MirroringFailedException("Error while mirroring artifact " + key
-                    + " to the local Maven repository" + e.getMessage(), e);
+            throw new MirroringFailedException(
+                    "Error while mirroring artifact " + key + " to the local Maven repository" + e.getMessage(), e);
         }
     }
 
-    protected boolean makeOneFormatLocallyAvailable(IArtifactKey key) throws MirroringFailedException,
-            ProvisionException, ArtifactSinkException {
+    protected boolean makeOneFormatLocallyAvailable(IArtifactKey key)
+            throws MirroringFailedException, ProvisionException, ArtifactSinkException {
 
         if (localArtifactRepository.contains(key)) {
             return true;
@@ -215,8 +215,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         }
     }
 
-    protected final void downloadArtifact(IArtifactKey key) throws MirroringFailedException, ProvisionException,
-            ArtifactSinkException {
+    protected final void downloadArtifact(IArtifactKey key)
+            throws MirroringFailedException, ProvisionException, ArtifactSinkException {
 
 //        logger.info("Downloading " + key.getId() + "_" + key.getVersion() + "..."); // p2 output is enough
         IStatus transferStatus = downloadMostSpecificNeededFormatOfArtifact(key);
@@ -231,30 +231,34 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     }
 
-    protected IStatus downloadMostSpecificNeededFormatOfArtifact(IArtifactKey key) throws ProvisionException,
-            ArtifactSinkException {
+    protected IStatus downloadMostSpecificNeededFormatOfArtifact(IArtifactKey key)
+            throws ProvisionException, ArtifactSinkException {
         // only need canonical format
         return downloadCanonicalArtifact(key);
     }
 
-    protected final IStatus downloadCanonicalArtifact(IArtifactKey key) throws ProvisionException,
-            ArtifactSinkException {
+    protected final IStatus downloadCanonicalArtifact(IArtifactKey key)
+            throws ProvisionException, ArtifactSinkException {
         // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS - artifact may have been added by other thread in the meantime
         IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(key);
         return remoteProviders.getArtifact(localSink, monitorForDownload());
     }
 
-    private void ensureArtifactIsPresentInCanonicalFormat(IArtifactKey key) throws ProvisionException,
-            ArtifactSinkException {
-
+    private void ensureArtifactIsPresentInCanonicalFormat(IArtifactKey key)
+            throws ProvisionException, ArtifactSinkException {
         if (findCanonicalDescriptor(localArtifactRepository.getArtifactDescriptors(key)) == null) {
-            // there was at least format available, but not the canonical format -> create it from the packed format 
-            createCanonicalArtifactFromLocalPackedArtifact(key);
+            boolean isPack200able = Runtime.version().feature() <= 13;
+            if (isPack200able) {
+                // there was at least format available, but not the canonical format -> create it from the packed format 
+                createCanonicalArtifactFromLocalPackedArtifact(key);
+            } else {
+                downloadCanonicalArtifact(key);
+            }
         }
     }
 
-    private void createCanonicalArtifactFromLocalPackedArtifact(IArtifactKey key) throws ProvisionException,
-            ArtifactSinkException {
+    private void createCanonicalArtifactFromLocalPackedArtifact(IArtifactKey key)
+            throws ProvisionException, ArtifactSinkException {
         logger.info("Unpacking " + key.getId() + "_" + key.getVersion() + "...");
 
         // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS
@@ -282,7 +286,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     private static IStatus artifactNotFoundStatus(IArtifactKey key) {
         return new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact " + key
-                + " is neither available in the local Maven repository nor in the configured remote repositories", null);
+                + " is neither available in the local Maven repository nor in the configured remote repositories",
+                null);
     }
 
     /**

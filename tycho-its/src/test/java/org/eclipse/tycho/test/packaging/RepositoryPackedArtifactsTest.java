@@ -22,12 +22,14 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.downloadstats.DownloadStatsTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
+import org.junit.Assume;
 import org.junit.Test;
 
 // tests the pack200 support (bug 377357)
 public class RepositoryPackedArtifactsTest extends AbstractTychoIntegrationTest {
     @Test
     public void test() throws Exception {
+        Assume.assumeTrue("Pack200 stuff ignored for Java 14+", Runtime.version().feature() < 14);
         Verifier verifier = getVerifier("/packaging.pack200", false);
         verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoals(Arrays.asList("clean", "package"));
@@ -47,6 +49,7 @@ public class RepositoryPackedArtifactsTest extends AbstractTychoIntegrationTest 
 
     @Test
     public void testDownloadStatsAlsoAttachedToPack200() throws Exception {
+        Assume.assumeTrue("Pack200 stuff ignored for Java 14+", Runtime.version().feature() < 14);
         Verifier verifier = getVerifier("/packaging.pack200", false);
         verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
         verifier.getSystemProperties().put("tycho.generateDownloadStatsProperty", "true");

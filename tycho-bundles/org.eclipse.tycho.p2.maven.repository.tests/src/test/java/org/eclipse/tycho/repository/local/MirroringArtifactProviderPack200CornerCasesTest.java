@@ -111,6 +111,11 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
 
     @Theory
     public void testCanonicalArtifactCreatedIfPackedArtifactAlreadyMirrored(Boolean mirrorPacked) throws Exception {
+        if (Runtime.version().feature() >= 14) {
+            // This test doesn't make sense in non-pack200 friendly envs
+            // we cannot easily use Assume with Theory
+            return;
+        }
         prefillLocalRepositoryWithPackedArtifact(localRepository, providerFor(TestRepositoryContent.REPO_BUNDLE_AB),
                 BUNDLE_A_KEY);
         assertThat(localRepository.getArtifactDescriptors(BUNDLE_A_KEY).length, is(1)); // self-test
