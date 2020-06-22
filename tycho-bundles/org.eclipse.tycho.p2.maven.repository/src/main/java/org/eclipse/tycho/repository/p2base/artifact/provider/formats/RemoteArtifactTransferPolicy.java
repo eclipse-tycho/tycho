@@ -19,12 +19,13 @@ final class RemoteArtifactTransferPolicy extends ArtifactTransferPolicyBase {
     @Override
     protected void insertCanonicalAndPacked(IArtifactDescriptor canonical, IArtifactDescriptor packed,
             LinkedList<IArtifactDescriptor> list) {
+        boolean isPack200able = Runtime.version().feature() < 14;
         if (canonical != null) {
             list.add(0, canonical);
         }
         if (packed != null) {
-            // packed is most preferred -> add at head of the list
-            list.add(0, packed);
+            // still consider for transtive inclusion in features on Java 14+
+            list.add(canonical == null || isPack200able ? 0 : 1, packed);
         }
     }
 

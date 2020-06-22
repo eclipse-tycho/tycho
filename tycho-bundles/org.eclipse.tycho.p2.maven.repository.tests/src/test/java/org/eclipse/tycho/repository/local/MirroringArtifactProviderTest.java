@@ -51,6 +51,7 @@ import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -175,6 +176,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetArtifact() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         testSink = newArtifactSinkFor(BUNDLE_B_KEY);
         status = subject.getArtifact(testSink, null);
 
@@ -226,6 +228,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetArtifactDescriptors_NoPackedMirroring() {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         assumeFalse(mirrorPacked);
 
         IArtifactDescriptor[] result = subject.getArtifactDescriptors(BUNDLE_B_KEY);
@@ -239,6 +242,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetArtifactDescriptors_WithPackedMirroring() {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         assumeTrue(mirrorPacked);
 
         IArtifactDescriptor[] result = subject.getArtifactDescriptors(BUNDLE_B_KEY);
@@ -300,6 +304,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetRawCanonicalArtifact() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         rawTestSink = newRawArtifactSinkFor(canonicalDescriptorFor(BUNDLE_B_KEY));
         status = subject.getRawArtifact(rawTestSink, null);
 
@@ -311,6 +316,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetRawPackedArtifact_NoPackedMirroring() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         assumeFalse(mirrorPacked);
 
         rawTestSink = newRawArtifactSinkFor(packedDescriptorFor(BUNDLE_B_KEY));
