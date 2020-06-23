@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 VDS Rail and others.
+ * Copyright (c) 2015, 2020 VDS Rail and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,14 +11,15 @@
 package org.eclipse.tycho.extras.docbundle;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PackageNameMatcherTest {
 
@@ -65,9 +66,7 @@ public class PackageNameMatcherTest {
 
     @Test
     public void testPattern05() {
-        final List<String> specs = new ArrayList<>();
-        specs.add("com.example.*");
-        specs.add("org.example.*");
+        final List<String> specs = List.of("com.example.*", "org.example.!");
         PackageNameMatcher matcher = PackageNameMatcher.compile(specs);
         assertFalse(matcher.matches("com.example"));
         assertTrue(matcher.matches("com.example.pkg"));
@@ -77,27 +76,25 @@ public class PackageNameMatcherTest {
         assertTrue(matcher.matches("org.example.pkg.sub"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testPattern06() {
-        PackageNameMatcher.compile(asList("com.example.!"));
+        assertThrows(IllegalArgumentException.class, () -> PackageNameMatcher.compile(asList("com.example.!")));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testPattern07() {
-        final List<String> specs = new ArrayList<>();
-        specs.add("com.example.*");
-        specs.add("org.example.!");
-        PackageNameMatcher.compile(specs);
+        final List<String> specs = List.of("com.example.*", "org.example.!");
+        assertThrows(IllegalArgumentException.class, () -> PackageNameMatcher.compile(specs));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSpacesPattern01() {
-        PackageNameMatcher.compile(asList("  "));
+        assertThrows(IllegalArgumentException.class, () -> PackageNameMatcher.compile(asList("  ")));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSpacesPattern02() {
-        PackageNameMatcher.compile(asList("\t\t"));
+        assertThrows(IllegalArgumentException.class, () -> PackageNameMatcher.compile(asList("\t\t")));
     }
 
 }

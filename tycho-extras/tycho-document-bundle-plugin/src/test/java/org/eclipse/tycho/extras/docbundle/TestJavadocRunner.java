@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Obeo and others.
+ * Copyright (c) 2014, 2020 Obeo and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,8 +28,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestJavadocRunner {
 
@@ -42,9 +42,9 @@ public class TestJavadocRunner {
         Commandline commandLine = javadocRunner.createCommandLine("/dev/null");
 
         String[] cliArgs = commandLine.getArguments();
-        Assert.assertEquals(2, cliArgs.length);
-        Assert.assertEquals("@/dev/null", cliArgs[0]);
-        Assert.assertEquals("-J-Xmx512m", cliArgs[1]);
+        assertEquals(2, cliArgs.length);
+        assertEquals("@/dev/null", cliArgs[0]);
+        assertEquals("-J-Xmx512m", cliArgs[1]);
     }
 
     @Test
@@ -53,8 +53,8 @@ public class TestJavadocRunner {
         JavadocOptions options = new JavadocOptions();
         List<Dependency> docletArifacts = new LinkedList<>();
         DocletArtifactsResolver docletResolver = mock(DocletArtifactsResolver.class);
-        Set<String> docletArtifactsJarList = new LinkedHashSet<>(Arrays.asList("path/to/docletArtifact.jar",
-                "path/to/otherDocletArtifact.jar"));
+        Set<String> docletArtifactsJarList = new LinkedHashSet<>(
+                Arrays.asList("path/to/docletArtifact.jar", "path/to/otherDocletArtifact.jar"));
         when(docletResolver.resolveArtifacts(docletArifacts)).thenReturn(docletArtifactsJarList);
         options.setAdditionalArguments(Arrays.asList("-docencoding \"UTF-8\""));
         options.setDoclet("foo.bar.MyDoclet");
@@ -70,8 +70,8 @@ public class TestJavadocRunner {
         AssertOnBuffer aob = new AssertOnBuffer(optionsFile);
         aob.assertNextLine("-classpath 'rt.jar'");
         aob.assertNextLine("-doclet foo.bar.MyDoclet");
-        aob.assertNextLine("-docletpath 'path/to/docletArtifact.jar" + File.pathSeparator
-                + "path/to/otherDocletArtifact.jar'");
+        aob.assertNextLine(
+                "-docletpath 'path/to/docletArtifact.jar" + File.pathSeparator + "path/to/otherDocletArtifact.jar'");
         aob.assertNextLine("-encoding ISO8859_1");
         aob.assertNextLine("-docencoding \"UTF-8\"");
         aob.assertNextLine("com.example.bundle.core");
