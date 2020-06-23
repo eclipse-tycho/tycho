@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1e82f48_e900700d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ListCompositeArtifactRepository.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-23T07:51:33Z",
+      "side": 1,
+      "message": "If you don\u0027t use any of the methods of the ICompositeRepository, you can probably just not extend ICompositeRepository and drop those methods.",
+      "revId": "450ec25ef8b3f9310829ff5ef3960078f5e85e6a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
