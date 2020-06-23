@@ -106,7 +106,7 @@ import org.osgi.framework.Version;
  * runtime" consists of the bundle built in this project and its transitive dependencies, plus some
  * Equinox and test harness bundles. The bundles are resolved from the target platform of the
  * project. Note that the test runtime does typically <em>not</em> contain the entire target
- * platform. If there are implicitly required bundles (e.g. <tt>org.eclipse.equinox.ds</tt> to make
+ * platform. If there are implicitly required bundles (e.g. <tt>org.apache.felix.scr</tt> to make
  * declarative services work), they need to be added manually through an <tt>extraRequirements</tt>
  * configuration on the <tt>target-platform-configuration</tt> plugin.
  * </p>
