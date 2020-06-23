@@ -7,7 +7,7 @@
 <unit id="org.eclipse.e4.rcp.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.ecore.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.common.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.equinox.ds" version="0.0.0"/>
+<unit id="org.apache.felix.scr" version="0.0.0"/>
 <unit id="org.eclipse.equinox.p2.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.equinox.core.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.core.feature.feature.group" version="0.0.0"/>
