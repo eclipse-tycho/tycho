@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db08be9d_258f2e06",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/compiler/JdtBreeJava8.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-23T21:22:10Z",
+      "side": 1,
+      "message": "The test doesn\u0027t seem to be executed automatically on build (I looked at CI results linked as comments and couldn\u0027t see it.\nPlease make the class/file name end with \"Test\" so the default test searcher of Maven will find and run it.",
+      "revId": "974f250ad0c7ff1c32554fe6d73ebef54ca9266a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
