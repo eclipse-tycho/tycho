@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b13ce43_4d5bf6c2",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-06-23T09:30:43Z",
+      "side": 1,
+      "message": "Should we skip such optimization at the moment and consider later once we have a 1st iteration merged?",
+      "revId": "a9da3ad94dd9d877b5cde42f228efc8df5a4e037",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
