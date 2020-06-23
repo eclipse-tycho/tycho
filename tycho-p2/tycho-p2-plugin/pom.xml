@@ -55,8 +55,8 @@
         </dependency>
 
 		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-testing-harness</artifactId>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
