@@ -51,7 +51,7 @@ public class ExecutionEnvironmentUtils {
         Map<String, Properties> envMap = new LinkedHashMap<>(profileFiles.size(), 1.f);
         for (String profileFile : profileFiles) {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));
-            envMap.put(props.getProperty("osgi.java.profile.name").trim(), props);
+            envMap.put(props.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim(), props);
         }
         return envMap;
     }
@@ -104,16 +104,17 @@ public class ExecutionEnvironmentUtils {
         return new ArrayList<>(profilesProperties.keySet());
     }
 
-    public static void applyProfileProperties(Properties properties, Properties profileProps) {
+    public static void applyProfileProperties(Properties properties, ExecutionEnvironment executionEnvironment) {
         String systemExports = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
         // set the system exports property using the vm profile; only if the property is not already set
         if (systemExports == null) {
-            systemExports = profileProps.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
-            if (systemExports != null)
+            systemExports = String.join(",", executionEnvironment.getSystemPackages());
+            if (systemExports != null && !systemExports.isEmpty())
                 properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES, systemExports);
         }
         // set the org.osgi.framework.bootdelegation property according to the java profile
         String type = properties.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_BOOTDELEGATION); // a null value means ignore
+        Properties profileProps = executionEnvironment.getProfileProperties();
         String profileBootDelegation = profileProps.getProperty(Constants.FRAMEWORK_BOOTDELEGATION);
         if (EquinoxConfiguration.PROP_OSGI_BOOTDELEGATION_OVERRIDE.equals(type)) {
             if (profileBootDelegation == null)

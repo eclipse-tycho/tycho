@@ -449,6 +449,11 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     }
 
     public void test367431_frameworkExtensionCompileAccessRules() throws Exception {
+        if (Runtime.version().feature() >= 14) {
+            // This test cannot work with Java 14+ as com.sun.net.ssl.internal.ssl is usually not part of currrnt VM nor toolchain
+            // and using assume leads to a failure in JUnit 3...
+            return;
+        }
         File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
         List<MavenProject> projects = getSortedProjects(basedir,
                 new File("src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));
