@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9a5a17f_af7a99b5",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-23T15:57:33Z",
+      "side": 1,
+      "message": "I have adjusted this test as before in slicer mode also other repository location units where resolved what (afaik) is wrong, but normally such a location should still resolve (that\u0027s the point of SLICER to resolve even if there are unmet requirements).\nWhat I suspect is that a Unis is defined in the target that references a feature/plugin that is not present?\nIt would be good to have a real target file that resembles the test-case and either shows if PDE do resolve or reject such a configuration.",
+      "revId": "18701fcb2cc49005ca36668dcd372212021e80c6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
