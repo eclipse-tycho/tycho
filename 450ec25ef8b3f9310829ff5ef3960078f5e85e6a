@@ -52,6 +52,24 @@
       "revId": "450ec25ef8b3f9310829ff5ef3960078f5e85e6a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "feb69f96_0a5dcca9",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ListCompositeArtifactRepository.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-23T08:09:18Z",
+      "side": 1,
+      "message": "If eclipse is right in finding all reference P2 uses it mainly for debugging purpose (e.g. to string method), maybe there is also code that does not rely on getRepositorType but checks for ICompositeRepository so I decided to implement it here to be as close as possible at the P2 API level.",
+      "parentUuid": "fb847760_c11f12e4",
+      "revId": "450ec25ef8b3f9310829ff5ef3960078f5e85e6a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
