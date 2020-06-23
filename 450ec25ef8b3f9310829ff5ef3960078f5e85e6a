@@ -88,6 +88,24 @@
       "revId": "450ec25ef8b3f9310829ff5ef3960078f5e85e6a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae3ad281_3cbcdb29",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ListCompositeArtifactRepository.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-06-23T09:50:06Z",
+      "side": 1,
+      "message": "Having a composite repro not implement composite is even more bad imo, I\u0027m not happy with P2 API interface as well but I think we should implement as complete as possible here to not confuse possibly other parts of P2 code.",
+      "parentUuid": "1bfcecf6_2f6c9b8e",
+      "revId": "450ec25ef8b3f9310829ff5ef3960078f5e85e6a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
