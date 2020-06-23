@@ -66,6 +66,7 @@ import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
@@ -184,11 +185,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
         for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(),
                 bundleDescription)) {
-            if (EquinoxResolver.SYSTEM_BUNDLE_ID == entry.desc.getBundleId()) {
+            if (Constants.SYSTEM_BUNDLE_ID == entry.desc.getBundleId()) {
                 if (entry.rules != null) {
                     strictBootClasspathAccessRules.addAll(entry.rules);
                 }
-                if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(entry.desc.getSymbolicName())) {
+                if (Constants.SYSTEM_BUNDLE_SYMBOLICNAME.equals(entry.desc.getSymbolicName())) {
                     // synthetic system.bundle has no filesystem location
                     continue;
                 }

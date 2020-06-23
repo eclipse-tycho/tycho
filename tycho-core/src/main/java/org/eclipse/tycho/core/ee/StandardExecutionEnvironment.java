@@ -33,10 +33,12 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.toolchain.Toolchain;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.core.ee.EEVersion.EEType;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 /**
@@ -96,11 +98,11 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     /* package */ StandardExecutionEnvironment(@Nonnull Properties profileProperties, @Nullable Toolchain toolchain,
             @Nullable Logger logger) {
         this.toolchain = toolchain;
-        this.profileName = profileProperties.getProperty("osgi.java.profile.name");
+        this.profileName = profileProperties.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME);
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-        this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
+        this.eeVersion = parseEEVersion(profileProperties.getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES));
         this.profileProperties = new Properties();
         this.profileProperties.putAll(profileProperties);
         this.logger = logger;
@@ -200,10 +202,10 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         if (systemPackages == null) {
             // EE definitions in Tycho for JVMs 11+ will no longer contain system packages as with modular JVMs it's not sure
             // all packages will be available at runtime
-            if (profileProperties.contains("org.osgi.framework.system.packages")) {
+            if (profileProperties.containsKey(Constants.FRAMEWORK_SYSTEMPACKAGES)) {
                 logger.debug("Found system.packages in profile defintion file.");
                 this.systemPackages = new LinkedHashSet<>(
-                        Arrays.asList(profileProperties.getProperty("org.osgi.framework.system.packages").split(",")));
+                        Arrays.asList(profileProperties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES).split(",")));
             } else if (toolchain != null) {
                 logger.debug(
                         "No system.packages in profile defintion file for " + profileName + "; checking toolchain.");

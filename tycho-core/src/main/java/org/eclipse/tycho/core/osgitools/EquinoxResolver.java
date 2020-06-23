@@ -43,6 +43,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -52,10 +53,6 @@ import org.osgi.framework.Constants;
 
 @Component(role = EquinoxResolver.class)
 public class EquinoxResolver {
-    // see http://wiki.osgi.org/wiki/System_Bundle
-    public static final String SYSTEM_BUNDLE_SYMBOLIC_NAME = "system.bundle";
-    public static final long SYSTEM_BUNDLE_ID = 0L;
-
     private static StateObjectFactory factory = StateObjectFactory.defaultFactory;
 
     @Requirement
@@ -106,7 +103,7 @@ public class EquinoxResolver {
             logger.warn("No system.bundle");
         } else if (bundles.length > 1) {
             logger.warn("Multiple system.bundles " + Arrays.toString(bundles));
-        } else if (bundles[0].getBundleId() != SYSTEM_BUNDLE_ID) {
+        } else if (bundles[0].getBundleId() != Constants.SYSTEM_BUNDLE_ID) {
             logger.warn("system.bundle bundleId == " + bundles[0].getBundleId());
         }
     }
@@ -145,7 +142,7 @@ public class EquinoxResolver {
             properties.put(PlatformPropertiesUtils.OSGI_ARCH, environment.getArch());
         }
 
-        ExecutionEnvironmentUtils.applyProfileProperties(properties, ee.getProfileProperties());
+        ExecutionEnvironmentUtils.applyProfileProperties(properties, ee);
 
         // Put Equinox OSGi resolver into development mode.
         // See http://www.nabble.com/Re:-resolving-partially-p18449054.html
@@ -173,7 +170,7 @@ public class EquinoxResolver {
             }
         }
 
-        long id = SYSTEM_BUNDLE_ID;
+        long id = Constants.SYSTEM_BUNDLE_ID;
         if (systemBundles.isEmpty()) {
             // there were no OSGi framework implementations among bundles being resolve
             // fabricate system.bundle to export visible JRE packages
@@ -198,22 +195,23 @@ public class EquinoxResolver {
 
         // force our system.bundle
         Hashtable<Object, Object> platformProperties = new Hashtable<>(properties);
-        platformProperties.put(StateImpl.STATE_SYSTEM_BUNDLE, state.getBundle(SYSTEM_BUNDLE_ID).getSymbolicName());
+        platformProperties.put(StateImpl.STATE_SYSTEM_BUNDLE,
+                state.getBundle(Constants.SYSTEM_BUNDLE_ID).getSymbolicName());
         allProps.add(platformProperties);
         if (ignoreEE) {
             // ignoring EE by adding all known EEs
             for (String profile : ExecutionEnvironmentUtils.getProfileNames()) {
-                Properties envProps = ExecutionEnvironmentUtils
-                        .getExecutionEnvironment(profile, toolchainManager, mavenSession, logger)
-                        .getProfileProperties();
-                String systemPackages = envProps.getProperty("org.osgi.framework.system.packages");
-                String execEnv = envProps.getProperty("org.osgi.framework.executionenvironment");
+                StandardExecutionEnvironment executionEnvironment = ExecutionEnvironmentUtils
+                        .getExecutionEnvironment(profile, toolchainManager, mavenSession, logger);
+                Properties envProps = executionEnvironment.getProfileProperties();
+                String systemPackages = String.join(",", executionEnvironment.getSystemPackages());
+                String execEnv = envProps.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT);
                 Dictionary<Object, Object> prop = new Hashtable<>();
                 // system packages don't exist in EE profiles after Java 11
                 if (systemPackages != null) {
-                    prop.put("org.osgi.framework.system.packages", systemPackages);
+                    prop.put(Constants.FRAMEWORK_SYSTEMPACKAGES, systemPackages);
                 }
-                prop.put("org.osgi.framework.executionenvironment", execEnv);
+                prop.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, execEnv);
                 allProps.add(prop);
             }
         }
@@ -283,7 +281,7 @@ public class EquinoxResolver {
         String systemPackages = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
 
         Dictionary<String, String> systemBundleManifest = new Hashtable<>();
-        systemBundleManifest.put(Constants.BUNDLE_SYMBOLICNAME, SYSTEM_BUNDLE_SYMBOLIC_NAME);
+        systemBundleManifest.put(Constants.BUNDLE_SYMBOLICNAME, Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
         systemBundleManifest.put(Constants.BUNDLE_VERSION, "0.0.0");
         systemBundleManifest.put(Constants.BUNDLE_MANIFESTVERSION, "2");
         systemBundleManifest.put(StateImpl.Eclipse_JREBUNDLE, "true");
