@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.toolchain.Toolchain;
@@ -27,6 +28,7 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment.SystemPackageEntry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Constants;
 
@@ -108,7 +110,8 @@ public class ExecutionEnvironmentUtils {
         String systemExports = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
         // set the system exports property using the vm profile; only if the property is not already set
         if (systemExports == null) {
-            systemExports = String.join(",", executionEnvironment.getSystemPackages());
+            systemExports = executionEnvironment.getSystemPackages().stream()
+                    .map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(","));
             if (systemExports != null && !systemExports.isEmpty())
                 properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES, systemExports);
         }

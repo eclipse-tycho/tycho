@@ -10,14 +10,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -30,7 +32,7 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
     private static final Pattern JAVA_SECOND_EDITION_VERSIONS_PATTERN = Pattern.compile("(1\\.[0-5])");
 
     private final String profileName;
-    private final Set<String> systemPackages = new LinkedHashSet<>();
+    private List<SystemPackageEntry> systemPackages = new LinkedList<>();
     private final Properties properties = new Properties();
 
     // BEGIN construction
@@ -46,15 +48,11 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
     }
 
     private void setSystemPackages(List<SystemCapability> systemCapabilities) {
-        StringBuilder systemPackagesProperty = new StringBuilder();
-        for (SystemCapability capability : systemCapabilities) {
-            if (capability.getType() == Type.JAVA_PACKAGE) {
-                final String packageName = capability.getName();
-                systemPackages.add(packageName);
-                append(systemPackagesProperty, toPackageSpecifier(packageName, capability.getVersion()));
-            }
-        }
-        setPropertyIfNotEmpty(Constants.FRAMEWORK_SYSTEMPACKAGES, systemPackagesProperty);
+        systemPackages = systemCapabilities.stream().filter(capability -> capability.getType() == Type.JAVA_PACKAGE)
+                .map(capability -> new SystemPackageEntry(capability.getName(), capability.getVersion()))
+                .collect(Collectors.toList());
+        setPropertyIfNotEmpty(Constants.FRAMEWORK_SYSTEMPACKAGES, new StringBuilder(
+                systemPackages.stream().map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(","))));
     }
 
     private void setExecutionEnvironmentProperties(List<SystemCapability> systemCapabilities) {
@@ -161,14 +159,6 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
         return value + "-" + version;
     }
 
-    private String toPackageSpecifier(String packageName, String packageVersion) {
-        if (packageVersion != null) {
-            return packageName + ";version=\"" + packageVersion + "\"";
-        } else {
-            return packageName;
-        }
-    }
-
     // END construction
 
     @Override
@@ -182,8 +172,8 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
     }
 
     @Override
-    public Set<String> getSystemPackages() {
-        return systemPackages;
+    public Collection<SystemPackageEntry> getSystemPackages() {
+        return Collections.unmodifiableList(systemPackages);
     }
 
     @Override
