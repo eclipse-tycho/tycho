@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.toolchain.ToolchainManager;
@@ -148,6 +150,14 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     @Override
     public boolean isIgnoredByResolver() {
         return ignoredByResolver;
+    }
+
+    @Override
+    public Collection<ExecutionEnvironment> getAllKnownEEs() {
+        return ExecutionEnvironmentUtils.getProfileNames().stream() //
+                .map(profileName -> ExecutionEnvironmentUtils.getExecutionEnvironment(profileName, toolchainManager,
+                        session, logger)) //
+                .collect(Collectors.toList());
     }
 
 }
