@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -45,6 +46,7 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment.SystemPackageEntry;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -204,12 +206,12 @@ public class EquinoxResolver {
                 StandardExecutionEnvironment executionEnvironment = ExecutionEnvironmentUtils
                         .getExecutionEnvironment(profile, toolchainManager, mavenSession, logger);
                 Properties envProps = executionEnvironment.getProfileProperties();
-                String systemPackages = String.join(",", executionEnvironment.getSystemPackages());
                 String execEnv = envProps.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT);
                 Dictionary<Object, Object> prop = new Hashtable<>();
                 // system packages don't exist in EE profiles after Java 11
-                if (systemPackages != null) {
-                    prop.put(Constants.FRAMEWORK_SYSTEMPACKAGES, systemPackages);
+                if (!executionEnvironment.getSystemPackages().isEmpty()) {
+                    prop.put(Constants.FRAMEWORK_SYSTEMPACKAGES, executionEnvironment.getSystemPackages().stream()
+                            .map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(",")));
                 }
                 prop.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, execEnv);
                 allProps.add(prop);

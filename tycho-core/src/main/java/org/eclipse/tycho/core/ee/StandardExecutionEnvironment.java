@@ -17,15 +17,16 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -80,7 +81,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     private final String profileName;
     private final String compilerSourceLevel;
     private final String compilerTargetLevel;
-    private Set<String> systemPackages;
+    private List<SystemPackageEntry> systemPackages;
     private final EEVersion eeVersion;
     private final Properties profileProperties;
     private final Toolchain toolchain;
@@ -198,25 +199,38 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     }
 
     @Override
-    public Set<String> getSystemPackages() {
+    public Collection<SystemPackageEntry> getSystemPackages() {
         if (systemPackages == null) {
             // EE definitions in Tycho for JVMs 11+ will no longer contain system packages as with modular JVMs it's not sure
             // all packages will be available at runtime
             if (profileProperties.containsKey(Constants.FRAMEWORK_SYSTEMPACKAGES)) {
-                logger.debug("Found system.packages in profile defintion file.");
-                this.systemPackages = new LinkedHashSet<>(
-                        Arrays.asList(profileProperties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES).split(",")));
+                logger.debug("Found system.packages in profile defintion file for " + profileName + ",");
+                try {
+                    this.systemPackages = Arrays
+                            .stream(ManifestElement.parseHeader(Constants.FRAMEWORK_SYSTEMPACKAGES,
+                                    profileProperties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES)))
+                            .map(jrePackage -> {
+                                String packageName = jrePackage.getValue();
+                                String version = jrePackage.getAttribute("version");
+                                return new SystemPackageEntry(packageName, version);
+                            }).collect(Collectors.toList());
+                } catch (BundleException e) {
+                    logger.error(e.getMessage(), e);
+                    this.systemPackages = Collections.emptyList();
+                }
             } else if (toolchain != null) {
                 logger.debug(
                         "No system.packages in profile defintion file for " + profileName + "; checking toolchain.");
-                this.systemPackages = readFromToolchains(toolchain);
+                this.systemPackages = readFromToolchains(toolchain).stream()
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
             }
             if (this.systemPackages == null || this.systemPackages.isEmpty()) {
                 logger.warn("No system packages found in profile nor toolchain for " + profileName
                         + ", using current JRE system packages.\n"
                         + "This can cause faulty depnedency resolution, consider adding a definition for a 'jdk' with id="
                         + profileName + " in your toolchains.xml");
-                this.systemPackages = ListSystemPackages.getCurrentJREPackages();
+                this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
             }
         }
         return systemPackages;
