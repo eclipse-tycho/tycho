@@ -16,10 +16,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
@@ -49,8 +51,7 @@ public class CustomExecutionEnvironmentTest {
         assertThat(customExecutionEnvironment.getProfileName(), is("name"));
         assertThat(customExecutionEnvironment.getCompilerSourceLevelDefault(), is(nullValue()));
         assertThat(customExecutionEnvironment.getCompilerTargetLevelDefault(), is(nullValue()));
-        assertThat(customExecutionEnvironment.getSystemPackages(),
-                not(CoreMatchers.<String> hasItem(any(String.class)))); // explicitly specify template parameter to work around bug present 1.6.0_37 
+        assertTrue(customExecutionEnvironment.getSystemPackages().isEmpty()); // explicitly specify template parameter to work around bug present 1.6.0_37 
         assertProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME, "name");
     }
 
@@ -58,7 +59,7 @@ public class CustomExecutionEnvironmentTest {
     public void testProvidedSystemPackageNoVersion() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVA_LANG);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(), hasItem("java.lang"));
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).collect(Collectors.toList()), hasItem("java.lang"));
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(2));
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "java.lang");
     }
@@ -67,7 +68,7 @@ public class CustomExecutionEnvironmentTest {
     public void testProvidedSystemPackageWithVersion() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVAX_ACTIVATION_1_1);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(), hasItem("javax.activation"));
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).collect(Collectors.toList()), hasItem("javax.activation"));
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(2));
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "javax.activation;version=\"1.1\"");
     }
@@ -76,8 +77,8 @@ public class CustomExecutionEnvironmentTest {
     public void testTwoProvidedSystemPackages() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVA_LANG, PACKAGE_JAVAX_ACTIVATION_1_1);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(), hasItem("java.lang"));
-        assertThat(customExecutionEnvironment.getSystemPackages(), hasItem("javax.activation"));
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).collect(Collectors.toList()), hasItem("java.lang"));
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).collect(Collectors.toList()), hasItem("javax.activation"));
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(2));
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "java.lang,javax.activation;version=\"1.1\"");
     }
@@ -86,7 +87,7 @@ public class CustomExecutionEnvironmentTest {
     public void testOsgiEeCapability() throws Exception {
         createExecutionEnvironment(OSGI_JAVASE_1_6);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(),
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).collect(Collectors.toList()),
                 not(CoreMatchers.<String> hasItem(any(String.class)))); // explicitly specify template parameter to work around bug present 1.6.0_37 
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(3));
         assertProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES, "osgi.ee; osgi.ee=\"JavaSE\"; version:Version=\"1.6\"");

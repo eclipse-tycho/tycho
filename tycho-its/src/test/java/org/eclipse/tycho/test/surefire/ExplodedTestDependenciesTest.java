@@ -24,7 +24,7 @@ public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
     public void testLocalMavenRepository() throws Exception {
         // project that marks org.apache.ant as "exploded" (unpacked) for the test runtime -> supported since TYCHO-340
         Verifier v01 = getVerifier("surefire.bundleUnpack", false);
-        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_OXYGEN.toString());
+        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
