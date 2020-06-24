@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.target.ee;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -88,10 +89,7 @@ public final class CustomEEResolutionHints implements ExecutionEnvironmentResolu
 
     @Override
     public int hashCode() {
-        final int prime = 37;
-        int result = 1;
-        result = prime * result + ((eeName == null) ? 0 : eeName.hashCode());
-        return result;
+        return Objects.hash(eeName);
     }
 
     @Override
@@ -102,16 +100,6 @@ public final class CustomEEResolutionHints implements ExecutionEnvironmentResolu
             return false;
 
         CustomEEResolutionHints other = (CustomEEResolutionHints) obj;
-        return eq(eeName, other.eeName);
-    }
-
-    private static <T> boolean eq(T left, T right) {
-        if (left == right) {
-            return true;
-        } else if (left == null) {
-            return false;
-        } else {
-            return left.equals(right);
-        }
+        return Objects.equals(eeName, other.eeName);
     }
 }

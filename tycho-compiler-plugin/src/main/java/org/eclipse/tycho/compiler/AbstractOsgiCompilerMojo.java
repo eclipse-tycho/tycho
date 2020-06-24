@@ -542,9 +542,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             accessRules.addAll(getStrictBootClasspathAccessRules());
         } else {
             accessRules.add(new DefaultAccessRule("java/**", false));
-            for (String pkg : getTargetExecutionEnvironment().getSystemPackages()) {
-                accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
-            }
+            getTargetExecutionEnvironment().getSystemPackages().stream() //
+                    .map(systemPackage -> systemPackage.packageName) //
+                    .distinct() //
+                    .map(packageName -> packageName.trim().replace('.', '/') + "/*") //
+                    .map(accessRule -> new DefaultAccessRule(accessRule, false)) //
+                    .forEach(accessRules::add);
             // now add packages exported by framework extension bundles
             accessRules.addAll(getBundleProject().getBootClasspathExtraAccessRules(project));
         }

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
@@ -126,12 +127,7 @@ public final class Product {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((attachId == null) ? 0 : attachId.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((archiveFileName == null) ? 0 : archiveFileName.hashCode());
-        return result;
+        return Objects.hash(attachId, id, archiveFileName);
     }
 
     @Override
@@ -140,19 +136,10 @@ public final class Product {
             return true;
         if (obj instanceof Product) {
             Product other = (Product) obj;
-            return equals(this.id, other.id) && equals(this.attachId, other.attachId)
-                    && equals(this.archiveFileName, other.archiveFileName);
+            return Objects.equals(this.id, other.id) && Objects.equals(this.attachId, other.attachId)
+                    && Objects.equals(this.archiveFileName, other.archiveFileName);
         }
         return false;
-    }
-
-    private <T> boolean equals(T left, T right) {
-        if (left == right)
-            return true;
-        else if (left == null)
-            return false;
-        else
-            return left.equals(right);
     }
 
 }
