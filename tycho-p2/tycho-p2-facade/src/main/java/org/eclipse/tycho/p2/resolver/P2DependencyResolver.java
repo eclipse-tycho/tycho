@@ -40,6 +40,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -62,6 +63,8 @@ import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.maven.utils.PluginRealmHelper;
@@ -117,6 +120,12 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Requirement
     private PluginRealmHelper pluginRealmHelper;
+
+    @Requirement
+    private Logger logger;
+
+    @Requirement
+    private ToolchainManager toolchainManager;
 
     private P2ResolverFactory resolverFactory;
 
@@ -222,7 +231,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
 
         tpConfiguration.addFilters(configuration.getFilters());
-
+        ExecutionEnvironment resolvedEnvironment = ExecutionEnvironmentUtils
+                .getExecutionEnvironment(ee.getProfileName(), toolchainManager, session, logger);
         return reactorRepositoryManager.computePreliminaryTargetPlatform(DefaultReactorProject.adapt(project),
                 tpConfiguration, ee, reactorProjects, pomDependencies);
     }
