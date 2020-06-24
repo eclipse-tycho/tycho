@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee.shared;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -82,5 +83,10 @@ public interface ExecutionEnvironmentConfiguration {
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException;
 
     public boolean isIgnoredByResolver();
+
+    /**
+     * @return all known Execution Environments accessible for the same scope
+     */
+    public Collection<ExecutionEnvironment> getAllKnownEEs();
 
 }

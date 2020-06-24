@@ -18,6 +18,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -125,6 +128,11 @@ public class CustomEEResolutionHandlerTest {
         @Override
         public boolean isIgnoredByResolver() {
             return false;
+        }
+
+        @Override
+        public Collection<ExecutionEnvironment> getAllKnownEEs() {
+            return Collections.emptyList();
         }
 
     }
