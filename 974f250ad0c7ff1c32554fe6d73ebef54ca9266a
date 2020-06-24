@@ -16,6 +16,24 @@
       "revId": "974f250ad0c7ff1c32554fe6d73ebef54ca9266a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0f57fcd_ab081593",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/compiler/JdtBreeJava8.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 83802
+      },
+      "writtenOn": "2020-06-24T17:38:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db08be9d_258f2e06",
+      "revId": "974f250ad0c7ff1c32554fe6d73ebef54ca9266a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
