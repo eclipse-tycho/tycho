@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee.shared;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -64,13 +65,17 @@ public class ExecutionEnvironmentConfigurationStub implements ExecutionEnvironme
 
     @Override
     public ExecutionEnvironment getFullSpecification() {
-        // not needed
-        throw new UnsupportedOperationException();
+        return new ExecutionEnvironmentStub(profileName);
     }
 
     @Override
     public boolean isIgnoredByResolver() {
         return false;
+    }
+
+    @Override
+    public Collection<ExecutionEnvironment> getAllKnownEEs() {
+        throw new UnsupportedOperationException();
     }
 
 }

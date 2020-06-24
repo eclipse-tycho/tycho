@@ -40,6 +40,7 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
@@ -132,8 +133,8 @@ public class TargetPlatformFactoryTest {
 
     @Test
     public void testFinalTargetPlatformContainsExecutionEnvironmentIU() throws Exception {
-        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig,
-                ExecutionEnvironmentTestUtils.standardEEResolutionHintProvider("J2SE-1.4"), null, null);
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, ExecutionEnvironmentTestUtils
+                .standardEEResolutionHintProvider(new ExecutionEnvironmentStub("J2SE-1.4")), null, null);
 
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
                 REACTOR_ARTIFACTS);
