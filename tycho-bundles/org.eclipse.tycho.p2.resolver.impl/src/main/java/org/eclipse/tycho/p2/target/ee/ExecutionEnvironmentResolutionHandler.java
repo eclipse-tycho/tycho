@@ -20,11 +20,13 @@ public abstract class ExecutionEnvironmentResolutionHandler {
 
     public static ExecutionEnvironmentResolutionHandler adapt(ExecutionEnvironmentConfiguration eeConfiguration) {
         if (eeConfiguration.isIgnoredByResolver()) {
-            return new StandardEEResolutionHandler(new AllKnownEEsResolutionHints());
+            return new StandardEEResolutionHandler(new AllKnownEEsResolutionHints(eeConfiguration.getAllKnownEEs()));
         } else if (eeConfiguration.isCustomProfile()) {
+            // TODO consider whether custom and standard EE couldn't build their "hints" the same way
             return new CustomEEResolutionHandler(eeConfiguration);
         } else {
-            return new StandardEEResolutionHandler(new StandardEEResolutionHints(eeConfiguration.getProfileName()));
+            return new StandardEEResolutionHandler(
+                    new StandardEEResolutionHints(eeConfiguration.getFullSpecification()));
         }
     }
 

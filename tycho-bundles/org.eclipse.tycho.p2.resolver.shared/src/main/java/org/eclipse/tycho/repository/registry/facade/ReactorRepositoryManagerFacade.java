@@ -31,6 +31,7 @@ public interface ReactorRepositoryManagerFacade {
      * 
      * @param project
      *            the reactor project to compute the target platform for.
+     * @param resolvedEnvironment
      */
     TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
             TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
