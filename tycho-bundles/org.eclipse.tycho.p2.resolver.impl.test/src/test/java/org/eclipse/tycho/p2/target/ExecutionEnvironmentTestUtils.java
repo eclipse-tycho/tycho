@@ -15,6 +15,7 @@ import java.util.Collections;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
@@ -34,7 +35,8 @@ public class ExecutionEnvironmentTestUtils {
      * Creates an {@link ExecutionEnvironmentResolutionHandler} providing resolution hints for a
      * standard execution environment.
      */
-    public static ExecutionEnvironmentResolutionHandler standardEEResolutionHintProvider(String standardEEName) {
+    public static ExecutionEnvironmentResolutionHandler standardEEResolutionHintProvider(
+            ExecutionEnvironment standardEEName) {
         return new NoopEEResolutionHandler(new StandardEEResolutionHints(standardEEName));
     }
 
