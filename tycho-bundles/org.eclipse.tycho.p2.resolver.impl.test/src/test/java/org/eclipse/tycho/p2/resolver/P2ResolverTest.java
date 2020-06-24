@@ -46,6 +46,7 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
@@ -335,14 +336,15 @@ public class P2ResolverTest extends P2ResolverTestBase {
         projectToResolve = createReactorProject(resourceFile("resolver/bundle.bree"), TYPE_ECLIPSE_PLUGIN, artifactId);
 
         result = singleEnv(impl.resolveTargetDependencies(
-                getTargetPlatform(standardEEResolutionHintProvider("CDC-1.0/Foundation-1.0")), projectToResolve));
+                getTargetPlatform(
+                        standardEEResolutionHintProvider(new ExecutionEnvironmentStub("CDC-1.0/Foundation-1.0"))),
+                projectToResolve));
 
         assertEquals(2, result.getArtifacts().size());
 
-        assertEquals(3, result.getNonReactorUnits().size());
+        assertEquals(2, result.getNonReactorUnits().size());
         assertContainsUnit("javax.xml", result.getNonReactorUnits());
         assertContainsUnit("a.jre.cdc", result.getNonReactorUnits());
-        assertContainsUnit("config.a.jre.cdc", result.getNonReactorUnits());
     }
 
     @Test
@@ -353,13 +355,14 @@ public class P2ResolverTest extends P2ResolverTestBase {
         projectToResolve = createReactorProject(resourceFile("resolver/bundle.bree"), TYPE_ECLIPSE_PLUGIN, artifactId);
 
         result = singleEnv(impl.resolveTargetDependencies(
-                getTargetPlatform(standardEEResolutionHintProvider("J2SE-1.5")), projectToResolve));
+                getTargetPlatform(
+                        standardEEResolutionHintProvider(new ExecutionEnvironmentStub("J2SE-1.5", "org.w3c.dom"))),
+                projectToResolve));
 
         assertEquals(1, result.getArtifacts().size());
 
-        assertEquals(2, result.getNonReactorUnits().size());
+        assertEquals(1, result.getNonReactorUnits().size());
         assertContainsUnit("a.jre.j2se", result.getNonReactorUnits());
-        assertContainsUnit("config.a.jre.j2se", result.getNonReactorUnits());
     }
 
     @Test
