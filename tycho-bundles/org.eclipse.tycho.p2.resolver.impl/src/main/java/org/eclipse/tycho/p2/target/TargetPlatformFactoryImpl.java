@@ -176,16 +176,18 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
                 targetFileContent, pomDependenciesContent, includeLocalMavenRepo);
 
-        Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(reactorProjects);
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
+                reactorProjects);
 
         List<TargetPlatformFilter> iuFilters = tpConfiguration.getFilters();
-        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters,
-                logger) : null;
+        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty()
+                ? new TargetPlatformFilterEvaluator(iuFilters, logger)
+                : null;
 
         applyConfiguredFilter(filter, reactorProjectUIs.keySet());
         applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints());
 
-        PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs,//
+        PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs, //
                 externalUIs, //
                 pomDependenciesContent.getMavenInstallableUnits(), //
                 eeResolutionHandler.getResolutionHints(), //
@@ -239,8 +241,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         } else {
             // check if disabled on command line or via Maven settings
-            boolean ignoreLocal = "ignore".equalsIgnoreCase(mavenContext.getSessionProperties().getProperty(
-                    "tycho.localArtifacts"));
+            boolean ignoreLocal = "ignore"
+                    .equalsIgnoreCase(mavenContext.getSessionProperties().getProperty("tycho.localArtifacts"));
             if (ignoreLocal) {
                 logger.debug("tycho.localArtifacts="
                         + mavenContext.getSessionProperties().getProperty("tycho.localArtifacts")
@@ -299,8 +301,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         } catch (ProvisionException e) {
             String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
-            throw new RuntimeException("Failed to load p2 repository" + idMessage + " from location "
-                    + location.getURL(), e);
+            throw new RuntimeException(
+                    "Failed to load p2 repository" + idMessage + " from location " + location.getURL(), e);
         }
     }
 
@@ -313,11 +315,11 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
                 targetDefinitionsContent);
-        MirroringArtifactProvider remoteArtifactCache = MirroringArtifactProvider.createInstance(
-                localArtifactRepository, remoteArtifactProvider, includePackedArtifacts, logger);
+        MirroringArtifactProvider remoteArtifactCache = MirroringArtifactProvider
+                .createInstance(localArtifactRepository, remoteArtifactProvider, includePackedArtifacts, logger);
 
-        IRawArtifactFileProvider jointArtifactsProvider = new CompositeArtifactProvider(
-                pomDependencyArtifactRepository, remoteArtifactCache);
+        IRawArtifactFileProvider jointArtifactsProvider = new CompositeArtifactProvider(pomDependencyArtifactRepository,
+                remoteArtifactCache);
         return jointArtifactsProvider;
     }
 
