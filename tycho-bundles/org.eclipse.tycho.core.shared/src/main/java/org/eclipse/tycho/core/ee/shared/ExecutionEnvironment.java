@@ -10,17 +10,39 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee.shared;
 
+import java.util.Collection;
 import java.util.Properties;
-import java.util.Set;
 
 public interface ExecutionEnvironment {
+
+    public static final class SystemPackageEntry {
+        public final String packageName;
+
+        /**
+         * May be null
+         */
+        public final String version;
+
+        public SystemPackageEntry(String packageName, String version) {
+            this.packageName = packageName;
+            this.version = version;
+        }
+
+        public String toPackageSpecifier() {
+            if (version != null) {
+                return packageName + ";version=\"" + version + "\"";
+            } else {
+                return packageName;
+            }
+        }
+    }
 
     String getProfileName();
 
     /**
      * Returns the list of packages (without versions) provided by the execution environment.
      */
-    Set<String> getSystemPackages();
+    Collection<SystemPackageEntry> getSystemPackages();
 
     Properties getProfileProperties();
 

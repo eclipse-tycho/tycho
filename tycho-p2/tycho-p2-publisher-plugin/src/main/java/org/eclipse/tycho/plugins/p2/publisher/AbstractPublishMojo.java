@@ -34,9 +34,16 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
-            PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
-            Collection<DependencySeed> units = publishContent(publisherServiceFactory);
-            postPublishedIUs(units);
+            try {
+                PublisherServiceFactory publisherServiceFactory = osgiServices
+                        .getService(PublisherServiceFactory.class);
+                Collection<DependencySeed> units = publishContent(publisherServiceFactory);
+                postPublishedIUs(units);
+            } catch (Exception ex) {
+                throw new MojoFailureException(
+                        "Publisher failed. Verify your target-platform-configuration and executionEnvironment are suitable for proper resolution",
+                        ex);
+            }
         }
     }
 
