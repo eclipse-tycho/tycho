@@ -159,7 +159,7 @@ public class TestMojo extends AbstractMojo {
      * List of patterns (separated by commas) used to specify the tests that should be included in
      * testing. When not specified and when the <code>test</code> parameter is not specified, the
      * default includes will be
-     * <code>**&#47;Test*.java   **&#47;*Test.java   **&#47;*TestCase.java</code>
+     * <code>**&#47;Test*.java   **&#47;*Test.java   **&#47;*Tests.java   **&#47;*TestCase.java</code>
      */
     @Parameter
     private List<String> includes;
@@ -969,7 +969,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     protected ScanResult scanForTests() {
-        List<String> defaultIncludes = Arrays.asList("**/Test*.class", "**/*Test.class", "**/*TestCase.class");
+        List<String> defaultIncludes = Arrays.asList("**/Test*.class", "**/*Test.class", "**/*Tests.class", "**/*TestCase.class");
         List<String> defaultExcludes = Arrays.asList("**/*$*");
         List<String> includeList;
         List<String> excludeList;
