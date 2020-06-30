@@ -211,6 +211,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             DestinationRepositoryDescriptor destination, IProvisioningAgent agent, boolean includePacked) {
         final MirrorApplication mirrorApp = new MirrorApplication(agent, includePacked,
                 destination.getExtraArtifactRepositoryProperties(), destination.getRepositoryReferences());
+        mirrorApp.setRaw(false);
 
         List<RepositoryDescriptor> sourceDescriptors = createSourceDescriptors(sources);
         for (RepositoryDescriptor sourceDescriptor : sourceDescriptors) {
