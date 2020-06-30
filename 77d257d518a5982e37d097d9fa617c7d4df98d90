@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9f556f8_eef18f56",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 17
+      },
+      "writtenOn": "2020-06-30T14:19:55Z",
+      "side": 1,
+      "message": "Isn\u0027t \u0027true\u0027 the wanted value or did I misunderstood the Bugzilla discussion?",
+      "revId": "77d257d518a5982e37d097d9fa617c7d4df98d90",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
