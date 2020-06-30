@@ -16,6 +16,24 @@
       "revId": "77d257d518a5982e37d097d9fa617c7d4df98d90",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0f3c748_eee9d217",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1220
+      },
+      "writtenOn": "2020-06-30T18:16:24Z",
+      "side": 1,
+      "message": "This line needs to create a new artifact descriptor:\n\nhttps://git.eclipse.org/c/equinox/rt.equinox.p2.git/tree/bundles/org.eclipse.equinox.p2.repository.tools/src/org/eclipse/equinox/p2/internal/repository/mirroring/Mirroring.java#n153\n\nI.e., it should not reuse the one from the site.xml repo, copying the respositoryProperty...\n\nSo to repeat, the default value of raw is true in the application, and the command line argument -raw sets it to true, i.e., it\u0027s useless and pointless.  It needs to be false to create a new descriptor, i.e., not to be raw.",
+      "parentUuid": "c9f556f8_eef18f56",
+      "revId": "77d257d518a5982e37d097d9fa617c7d4df98d90",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
