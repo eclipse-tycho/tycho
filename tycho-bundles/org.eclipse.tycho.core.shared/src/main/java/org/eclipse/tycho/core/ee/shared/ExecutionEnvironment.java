@@ -11,6 +11,7 @@
 package org.eclipse.tycho.core.ee.shared;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Properties;
 
 public interface ExecutionEnvironment {
@@ -34,6 +35,25 @@ public interface ExecutionEnvironment {
             } else {
                 return packageName;
             }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(packageName, version);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || !(o instanceof SystemPackageEntry)) {
+                return false;
+            }
+            SystemPackageEntry other = (SystemPackageEntry) o;
+            return Objects.equals(this.packageName, other.packageName) && Objects.equals(this.version, other.version);
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + '[' + packageName + '/' + version + ']';
         }
     }
 
