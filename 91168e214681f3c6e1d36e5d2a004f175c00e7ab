@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c95743b_cc909f63",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/TargetDefinition.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-06T18:32:06Z",
+      "side": 1,
+      "message": "I think this doesn\u0027t belong to that class.\nIe, is this the project that defines the file, or the project that the file is being \"applied on\"? Also, what about the case of the same file used on mulitple project? This would force to have 1 instance of TargetDefinition for each file while in reality, there could be only 1 TargetDefinition (the definition) and N \"resolved\" target definition.\nI liked the former TargetDefinitionContext, which I believe would be a good place where to host such module-specific logic. However, if just adding the project is enough, it could be an extra parameter to TargetDefinitionResolver.resolveContentWithExceptions() and part of the TargetDefinitionResolverService.ResolutionArguments.",
+      "revId": "91168e214681f3c6e1d36e5d2a004f175c00e7ab",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
