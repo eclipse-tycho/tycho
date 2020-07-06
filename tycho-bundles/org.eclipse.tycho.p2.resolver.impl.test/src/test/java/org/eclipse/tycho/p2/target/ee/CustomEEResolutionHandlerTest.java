@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
