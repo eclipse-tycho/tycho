@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5677675d_2f064c8a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/TargetDefinition.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-06T14:25:46Z",
+      "side": 1,
+      "message": "I\u0027m not sure those do belong here, I would rather see that being in a dedicated class.",
+      "revId": "a326e0afe859dde8c793608e7466a71227cc7b5e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbd8e029_f9cf2758",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/TargetDefinition.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-06T14:25:46Z",
+      "side": 1,
+      "message": "This somehow seems redundant with the one in TargetDefinitionContext. I think it shouldn\u0027t be added here.\nI think the TargetDefinitionResolver should actually take as input a TargetDefinitionContext, and the context would reference the TargetDefinition, wrap it in a getter with some extra contextual value (eg source file, current project it\u0027s applied to...)",
+      "revId": "a326e0afe859dde8c793608e7466a71227cc7b5e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
