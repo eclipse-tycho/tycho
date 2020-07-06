@@ -10,14 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.ee;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -62,26 +58,6 @@ public class AllKnownEEsResolutionHints implements ExecutionEnvironmentResolutio
     @Override
     public Collection<IInstallableUnit> getTemporaryAdditions() {
         return temporaryUnits.values();
-    }
-
-    private static Properties readProperties(final URL url) {
-        Properties listProps = new Properties();
-        InputStream stream = null;
-        try {
-            stream = url.openStream();
-            listProps.load(stream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (stream != null) {
-                    stream.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return listProps;
     }
 
 }
