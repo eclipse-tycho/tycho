@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,13 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 532575
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -87,6 +91,7 @@ public class DefaultTychoResolver implements TychoResolver {
         project.setContextValue(TychoConstants.CTX_MERGED_PROPERTIES, properties);
 
         setTychoEnvironmentProperties(properties, project);
+        setBuildProperties(project);
 
         TargetPlatformConfiguration configuration = configurationReader.getTargetPlatformConfiguration(session,
                 project);
@@ -193,6 +198,26 @@ public class DefaultTychoResolver implements TychoResolver {
         project.getProperties().put(TYCHO_ENV_OSGI_WS, ws);
         project.getProperties().put(TYCHO_ENV_OSGI_OS, os);
         project.getProperties().put(TYCHO_ENV_OSGI_ARCH, arch);
+    }
+
+    protected void setBuildProperties(MavenProject project) {
+        File pomfile = project.getFile();
+        if (pomfile != null) {
+            File buildPropertiesFile = new File(pomfile.getParentFile(), "build.properties");
+            if (buildPropertiesFile.isFile() && buildPropertiesFile.length() > 0) {
+                Properties buildProperties = new Properties();
+                try {
+                    try (FileInputStream stream = new FileInputStream(buildPropertiesFile)) {
+                        buildProperties.load(stream);
+                    }
+                    Properties projectProperties = project.getProperties();
+                    buildProperties.stringPropertyNames()
+                            .forEach(key -> projectProperties.setProperty(key, buildProperties.getProperty(key)));
+                } catch (IOException e) {
+                    logger.warn("reading build.properties from project " + project.getName() + " failed", e);
+                }
+            }
+        }
     }
 
     private DependencyArtifacts resolveWithCurrentEE(MavenSession session, MavenProject project, String newEEName) {
