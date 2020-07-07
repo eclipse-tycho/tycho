@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd5fa5c2_aa711256",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-07T17:18:45Z",
+      "side": 1,
+      "message": "This can then be removed from fields and constructor",
+      "revId": "ed2452b625cd7f768aa477f45a1bc356e924dea8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
