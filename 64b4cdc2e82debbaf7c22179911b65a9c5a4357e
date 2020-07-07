@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d879dee_6936bfa3",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-07T14:46:51Z",
+      "side": 1,
+      "message": "I think this would better be decided earlier, in the caller, so we can always assume executionEnvironment is the one to use.\nThe EE can come from multiple sources, and I\u0027m afraid adding logic here would scatter the places where there decision is made, while it would be easier to have the rules implemented in a single place.\nAlso keep in mind that Tycho can allow mulitple target files as the target-platfrom-configuration, and that we probably want the existing \u003cexecutionEnvironment\u003e config to always take priority over the one in the .target file.",
+      "revId": "64b4cdc2e82debbaf7c22179911b65a9c5a4357e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
