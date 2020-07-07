@@ -52,6 +52,24 @@
       "revId": "91168e214681f3c6e1d36e5d2a004f175c00e7ab",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b57fb19e_27b8734a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/TargetDefinition.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-07-07T14:53:30Z",
+      "side": 1,
+      "message": "It should be the project that contains the target-file this might not always be possible to use e.g. you can\u0027t really install this / use it when the target project is not part of the reactor build.\nAnd you are right one project could contain multiple targets but as far as I know tycho is only selectiong one per project. And I have assumed that the reactor project from the p2 resolver is that one, but maybe I\u0027m on the wrong path :-)\n\nAs this is only need for one special (non standard case) I think I can refactor this to not use the ReactorProject, I\u0027ll prepare a new patch set.",
+      "parentUuid": "94c84b3d_55dc75e9",
+      "revId": "91168e214681f3c6e1d36e5d2a004f175c00e7ab",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
