@@ -16,6 +16,24 @@
       "revId": "91168e214681f3c6e1d36e5d2a004f175c00e7ab",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4765464b_6b5f179e",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/TargetDefinition.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-07-07T12:26:38Z",
+      "side": 1,
+      "message": "There are two participants here:\n1) TargetDefinitionFile -\u003e that is a .target file parsed into a java object and this is the ReactorProject this target file resides in (the one mentioned in the target configuration).\n2) TargetDefinitionResolver -\u003e Resolves a given TargetDefinition and doesn\u0027t know about the source of it thus it needs a reference to the project.\n\nOf course it would be possible to hand this over via arguments, but as the ReactorProject has a 1:1 relation to a TargetDefinition it seems more natural to put it here instead of passing the information implicitly.\n\nThe same file can still be used for multiple projects and is (as far as I can tell) only resolved once in the lifetime of a tycho build.",
+      "parentUuid": "2c95743b_cc909f63",
+      "revId": "91168e214681f3c6e1d36e5d2a004f175c00e7ab",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
