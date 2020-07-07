@@ -34,6 +34,24 @@
       "revId": "91168e214681f3c6e1d36e5d2a004f175c00e7ab",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94c84b3d_55dc75e9",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/TargetDefinition.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-07T12:57:53Z",
+      "side": 1,
+      "message": "I don\u0027t get what \"projects\" you\u0027re talking about then, especially since I see no 1-1 relationship. Is this the project that does *contain* the .target file or the one that uses the .target in its target-platform-configuration\nAssuming a layout with 3 modules: target-definition/, bundle1/ and bundle2/; is the project target-definition, or bundle1 or bundle2?\n\nIf it\u0027s the *defining* project (target-definition), then in some/many cases, the target definition can come from a m2 repo and not be part of the reactor. And it\u0027s also possible (yet not encouraged) to have an eclipse-target-definition project to include multiple targets. So it\u0027s not 1:1 cardinality.\nSimilarly, if your mean the *consuming* project (bundles), then such eclipse-plugin can use no target files, or can use several ones; a target file isn\u0027t necessarily used by a module and a target file can be used by multiple modules.\nSo in any case, there is no 1:1 cardinality between the definition and it\u0027s resolution/context.",
+      "parentUuid": "4765464b_6b5f179e",
+      "revId": "91168e214681f3c6e1d36e5d2a004f175c00e7ab",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
