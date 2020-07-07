@@ -30,6 +30,12 @@ public interface TargetDefinition {
      */
     String getOrigin();
 
+    /**
+     * Returns the value of the targetJRE in *.target file if it's a known EE name.
+     * <code>null</code> will be returned otherwise.
+     */
+    String getTargetEE();
+
     @Override
     public boolean equals(Object obj);
 

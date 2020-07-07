@@ -11,7 +11,7 @@
  *    Christoph Läubrich    - add implementation for different location types, fix hash calculation
  *                          - [Bug 533747] - Target file is read and parsed over and over again
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.core.ee;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -36,6 +36,7 @@ import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
+import de.pdark.decentxml.Attribute;
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
@@ -380,6 +381,20 @@ public final class TargetDefinitionFile implements TargetDefinition {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String getTargetEE() {
+        Element targetJRE = dom.getChild("targetJRE");
+        if (targetJRE != null) {
+            Attribute path = targetJRE.getAttribute("path");
+            if (path != null) {
+                String pathValue = path.getValue();
+                String ee = pathValue.substring(pathValue.lastIndexOf('/') + 1);
+                return ee;
+            }
+        }
+        return null;
     }
 
     @Override
