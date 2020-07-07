@@ -272,6 +272,11 @@ public class TargetDefinitionResolverTest {
             return "test stub";
         }
 
+        @Override
+        public String getTargetEE() {
+            return "";
+        }
+
     }
 
     enum TestRepositories {
@@ -410,4 +415,5 @@ public class TargetDefinitionResolverTest {
         }
 
     }
+
 }
