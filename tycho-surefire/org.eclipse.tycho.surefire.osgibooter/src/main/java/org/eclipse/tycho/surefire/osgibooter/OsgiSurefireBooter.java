@@ -76,7 +76,7 @@ public class OsgiSurefireBooter {
         PropertiesWrapper wrapper = new PropertiesWrapper(propertiesMap);
         List<String> suiteXmlFiles = wrapper.getStringList(BooterConstants.TEST_SUITE_XML_FILES);
 
-        String timeoutParameter = testProps.getProperty("-timeout", null); //$NON-NLS-1$
+        String timeoutParameter = getArgumentValue(args, "-timeout");
         if (timeoutParameter != null) {
             DumpStackTracesTimer.startStackDumpTimeoutTimer(timeoutParameter);
         }
@@ -141,13 +141,7 @@ public class OsgiSurefireBooter {
     }
 
     private static File getTestProperties(String[] args) throws CoreException {
-        String arg = null;
-        for (int i = 0; i < args.length; i++) {
-            if ("-testproperties".equals(args[i].toLowerCase())) {
-                arg = args[i + 1];
-                break;
-            }
-        }
+        String arg = getArgumentValue(args, "-testproperties");
         if (arg != null) {
             File file = new File(arg);
             if (file.canRead()) {
@@ -157,6 +151,17 @@ public class OsgiSurefireBooter {
         throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
                 "-testproperties command line parameter is not specified or does not point to an accessible file",
                 null));
+    }
+
+    private static String getArgumentValue(String[] args, String argumentName) {
+        String arg = null;
+        for (int i = 0; i < args.length; i++) {
+            if (argumentName.equalsIgnoreCase(args[i]) && args.length >= i + 1) {
+                arg = args[i + 1];
+                break;
+            }
+        }
+        return arg;
     }
 
     private static Properties loadProperties(File file) throws IOException {
