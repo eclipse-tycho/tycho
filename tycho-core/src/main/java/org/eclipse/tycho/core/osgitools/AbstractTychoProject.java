@@ -11,6 +11,7 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -19,11 +20,13 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.TargetDefinitionFile;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
 
@@ -97,6 +100,14 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         if (configuredForcedProfile != null) {
             sink.overrideProfileConfiguration(configuredForcedProfile,
                     "target-platform-configuration <executionEnvironment>");
+        } else {
+            tpConfiguration.getTargets().stream() //
+                    .map(TargetDefinitionFile::read) //
+                    .map(TargetDefinition::getTargetEE) //
+                    .filter(Objects::nonNull) //
+                    .findFirst() //
+                    .ifPresent(profile -> sink.overrideProfileConfiguration(profile,
+                            "first targetJRE from referenced target-definition files"));
         }
 
         String configuredDefaultProfile = tpConfiguration.getExecutionEnvironmentDefault();
