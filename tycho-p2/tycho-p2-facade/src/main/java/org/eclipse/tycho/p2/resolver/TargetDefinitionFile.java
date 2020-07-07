@@ -30,10 +30,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
+import de.pdark.decentxml.Attribute;
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
@@ -388,6 +390,22 @@ public final class TargetDefinitionFile implements TargetDefinition {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String getTargetEE() {
+        Element targetJRE = dom.getChild("targetJRE");
+        if (targetJRE != null) {
+            Attribute path = targetJRE.getAttribute("path");
+            if (path != null) {
+                String pathValue = path.getValue();
+                String ee = pathValue.substring(pathValue.lastIndexOf('/') + 1);
+                if (ExecutionEnvironmentUtils.getProfileNames().contains(ee)) {
+                    return ee;
+                }
+            }
+        }
+        return "";
     }
 
 }

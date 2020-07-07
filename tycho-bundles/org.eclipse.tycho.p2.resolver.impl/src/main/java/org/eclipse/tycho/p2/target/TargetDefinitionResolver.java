@@ -37,11 +37,13 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
+import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
@@ -80,9 +82,15 @@ public final class TargetDefinitionResolver {
     private final IProgressMonitor monitor;
 
     public TargetDefinitionResolver(List<TargetEnvironment> environments,
-            ExecutionEnvironmentResolutionHints executionEnvironment, IProvisioningAgent agent, MavenLogger logger) {
+            ExecutionEnvironmentResolutionHints executionEnvironment, String targetFileEE, IProvisioningAgent agent,
+            MavenLogger logger) {
         this.environments = environments;
-        this.executionEnvironment = executionEnvironment;
+        if (targetFileEE.isEmpty()) {
+            this.executionEnvironment = executionEnvironment;
+        } else {
+            this.executionEnvironment = ExecutionEnvironmentResolutionHandler
+                    .adapt(new ExecutionEnvironmentConfigurationStub(targetFileEE)).getResolutionHints();
+        }
         this.logger = logger;
         this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
         this.metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
@@ -93,11 +101,11 @@ public final class TargetDefinitionResolver {
         try {
             return resolveContentWithExceptions(definition);
         } catch (TargetDefinitionSyntaxException e) {
-            throw new BuildFailureException("Invalid syntax in target definition " + definition.getOrigin() + ": "
-                    + e.getMessage(), e);
+            throw new BuildFailureException(
+                    "Invalid syntax in target definition " + definition.getOrigin() + ": " + e.getMessage(), e);
         } catch (TargetDefinitionResolutionException e) {
-            throw new BuildFailureException("Failed to resolve target definition " + definition.getOrigin() + ": "
-                    + e.getMessage(), e);
+            throw new BuildFailureException(
+                    "Failed to resolve target definition " + definition.getOrigin() + ": " + e.getMessage(), e);
         } catch (ResolverException e) {
             logResolverException(e);
             throw new BuildFailureException("Failed to resolve target definition " + definition.getOrigin(), e);
@@ -130,7 +138,8 @@ public final class TargetDefinitionResolver {
 
         if (definition.hasIncludedBundles()) {
             // the bundle selection list is currently not taken into account (see bug 373776)
-            logger.warn("De-selecting bundles in a target definition file is not supported. See https://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
+            logger.warn(
+                    "De-selecting bundles in a target definition file is not supported. See https://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
         }
 
         return new TargetDefinitionContent(resolverRun.resolve(), artifactRepositories);
@@ -145,8 +154,8 @@ public final class TargetDefinitionResolver {
         private Boolean includeAllEnvironments = null;
         private Boolean includeSource = null;
 
-        public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException,
-                TargetDefinitionResolutionException {
+        public void addLocation(InstallableUnitLocation iuLocationDefinition)
+                throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
             setIncludeMode(iuLocationDefinition.getIncludeMode());
             setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
             setIncludeSource(iuLocationDefinition.includeSource());
@@ -287,8 +296,8 @@ public final class TargetDefinitionResolver {
             try {
                 return metadataManager.loadRepository(repository.getLocation(), monitor);
             } catch (ProvisionException e) {
-                throw new TargetDefinitionResolutionException("Failed to load p2 metadata repository from location "
-                        + repository.getLocation(), e);
+                throw new TargetDefinitionResolutionException(
+                        "Failed to load p2 metadata repository from location " + repository.getLocation(), e);
             }
         }
 
@@ -296,8 +305,8 @@ public final class TargetDefinitionResolver {
             return loadedRepositories;
         }
 
-        public Collection<? extends IInstallableUnit> getRootIUs() throws TargetDefinitionSyntaxException,
-                TargetDefinitionResolutionException {
+        public Collection<? extends IInstallableUnit> getRootIUs()
+                throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
             List<IInstallableUnit> result = new ArrayList<>();
             for (Unit unitReference : locationDefinition.getUnits()) {
                 result.add(findUnitInThisLocation(unitReference));
@@ -305,14 +314,14 @@ public final class TargetDefinitionResolver {
             return result;
         }
 
-        private IInstallableUnit findUnitInThisLocation(Unit unitReference) throws TargetDefinitionSyntaxException,
-                TargetDefinitionResolutionException {
+        private IInstallableUnit findUnitInThisLocation(Unit unitReference)
+                throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
             IQueryResult<IInstallableUnit> queryResult = findUnit(unitReference, compoundQueriable(loadedRepositories));
 
             if (queryResult.isEmpty()) {
-                throw new TargetDefinitionResolutionException(NLS.bind(
-                        "Could not find \"{0}/{1}\" in the repositories of the current location",
-                        unitReference.getId(), unitReference.getVersion()));
+                throw new TargetDefinitionResolutionException(
+                        NLS.bind("Could not find \"{0}/{1}\" in the repositories of the current location",
+                                unitReference.getId(), unitReference.getVersion()));
             }
             // if the repository contains the same iu/version twice, both are identical and it is OK to use either
             IInstallableUnit unitInstance = queryResult.iterator().next();
@@ -342,7 +351,8 @@ public final class TargetDefinitionResolver {
     }
 
     @SuppressWarnings("unchecked")
-    static CompoundQueryable<IInstallableUnit> compoundQueriable(List<? extends IQueryable<IInstallableUnit>> queryable) {
+    static CompoundQueryable<IInstallableUnit> compoundQueriable(
+            List<? extends IQueryable<IInstallableUnit>> queryable) {
         return new CompoundQueryable<>(queryable.toArray(new IQueryable[queryable.size()]));
     }
 }
