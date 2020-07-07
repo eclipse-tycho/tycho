@@ -21,10 +21,10 @@ import java.util.Map;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.core.ee.TargetDefinitionFile;
+import org.eclipse.tycho.core.ee.TargetDefinitionFile.IULocation;
+import org.eclipse.tycho.core.ee.TargetDefinitionFile.Unit;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
-import org.eclipse.tycho.p2.resolver.TargetDefinitionFile.IULocation;
-import org.eclipse.tycho.p2.resolver.TargetDefinitionFile.Unit;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 
