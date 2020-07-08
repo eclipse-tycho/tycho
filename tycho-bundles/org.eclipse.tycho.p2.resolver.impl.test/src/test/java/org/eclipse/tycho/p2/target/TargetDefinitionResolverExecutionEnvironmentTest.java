@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2018 SAP SE and others.
+ * Copyright (c) 2012, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - adjust API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -28,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeModeTest.PlannerLocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
@@ -55,6 +57,7 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
             throws ProvisionException, IOException {
         return new TargetDefinitionResolver(defaultEnvironments(),
                 new StandardEEResolutionHints(new ExecutionEnvironmentStub(executionEnvironmentName, systemPackages)),
+                IncludeSourceMode.honor,
                 new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 

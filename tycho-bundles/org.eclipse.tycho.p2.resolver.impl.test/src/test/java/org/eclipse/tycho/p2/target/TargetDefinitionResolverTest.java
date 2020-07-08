@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -85,7 +86,7 @@ public class TargetDefinitionResolverTest {
     @Before
     public void initContext() throws Exception {
         subject = new TargetDefinitionResolver(defaultEnvironments(),
-                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
+                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
                 new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 

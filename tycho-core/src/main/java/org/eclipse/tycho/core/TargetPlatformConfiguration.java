@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - [Bug 550169] - Improve Tychos handling of includeSource="true" in target definition
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
@@ -38,7 +39,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private boolean implicitTargetEnvironment = true;
 
     private final List<File> targets = new ArrayList<>();
-    private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.ignore;
+    private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
     private String pomDependencies;
 

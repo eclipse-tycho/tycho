@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
@@ -150,6 +151,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     private TargetDefinitionResolver createResolver(List<TargetEnvironment> environments)
             throws ProvisionException, IOException {
         return new TargetDefinitionResolver(environments, ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
+                IncludeSourceMode.honor,
                 new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
     }
 

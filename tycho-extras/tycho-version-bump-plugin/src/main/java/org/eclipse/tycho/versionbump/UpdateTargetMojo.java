@@ -21,7 +21,6 @@ import java.util.Map;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile.IULocation;
@@ -43,7 +42,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Override
     protected void doUpdate() throws IOException, URISyntaxException {
 
-        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile, IncludeSourceMode.ignore);
+        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
 
         for (TargetDefinition.Location location : target.getLocations()) {
             if (location instanceof IULocation) {

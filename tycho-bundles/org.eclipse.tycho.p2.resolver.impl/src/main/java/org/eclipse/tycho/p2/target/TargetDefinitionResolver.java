@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich - [Bug 538144] Support other target locations (Directory, Features, Installations)
+ *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
+ *                          - [Bug 533747] - Target file is read and parsed over and over again
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -34,6 +35,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -77,11 +79,14 @@ public final class TargetDefinitionResolver {
     private final ExecutionEnvironmentResolutionHints executionEnvironment;
 
     private MavenContext mavenContext;
+    private IncludeSourceMode includeSourceMode;
 
     public TargetDefinitionResolver(List<TargetEnvironment> environments,
-            ExecutionEnvironmentResolutionHints executionEnvironment, MavenContext mavenContext) {
+            ExecutionEnvironmentResolutionHints executionEnvironment, IncludeSourceMode includeSourceMode,
+            MavenContext mavenContext) {
         this.environments = environments;
         this.executionEnvironment = executionEnvironment;
+        this.includeSourceMode = includeSourceMode;
         this.mavenContext = mavenContext;
         this.logger = mavenContext.getLogger();
     }
@@ -118,7 +123,8 @@ public final class TargetDefinitionResolver {
             if (locationDefinition instanceof InstallableUnitLocation) {
                 InstallableUnitLocation installableUnitLocation = (InstallableUnitLocation) locationDefinition;
                 if (installableUnitResolver == null) {
-                    installableUnitResolver = new InstallableUnitResolver(environments, executionEnvironment, logger);
+                    installableUnitResolver = new InstallableUnitResolver(environments, executionEnvironment,
+                            includeSourceMode, logger);
                 }
                 List<URITargetDefinitionContent> locations = new ArrayList<>();
                 for (Repository repository : installableUnitLocation.getRepositories()) {

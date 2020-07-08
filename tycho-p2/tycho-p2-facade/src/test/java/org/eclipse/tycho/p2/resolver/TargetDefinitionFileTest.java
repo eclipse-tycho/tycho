@@ -102,23 +102,6 @@ public class TargetDefinitionFileTest {
     }
 
     @Test
-    public void testIncludeSourceWhenIgnored() throws Exception {
-        List<? extends Location> locations = readTarget("includeSource.target", IncludeSourceMode.ignore)
-                .getLocations();
-        for (Location location : locations) {
-            assertEquals(false, ((InstallableUnitLocation) location).includeSource());
-        }
-    }
-
-    @Test
-    public void testIncludeSourceWhenForced() throws Exception {
-        List<? extends Location> locations = readTarget("includeSource.target", IncludeSourceMode.force).getLocations();
-        for (Location location : locations) {
-            assertEquals(true, ((InstallableUnitLocation) location).includeSource());
-        }
-    }
-
-    @Test
     public void testInvalidXML() throws Exception {
         try {
             readTarget("invalidXML.target").getLocations();
@@ -153,7 +136,7 @@ public class TargetDefinitionFileTest {
     }
 
     private TargetDefinitionFile readTarget(String fileName, IncludeSourceMode includeSourceMode) throws IOException {
-        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName), includeSourceMode);
+        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName));
     }
 
 }
