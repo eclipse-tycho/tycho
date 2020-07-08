@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "a6bc471b_43b4d19b",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2020-07-08T14:03:05Z",
+      "side": 1,
+      "message": "I also believe that resolving here is lost effort as it\u0027s quite possible that either the EE has been already resolved or it won\u0027t be considered at all because EE is set in pom.xml.",
+      "parentUuid": "3f15eee7_7d1b665a",
+      "revId": "d5654b8367a293babb63115c426a43c916529409",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "794c4b49_6b02b28c",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
         "patchSetId": 3
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "I agree, either returning null here, or making return type be Optional\u003cString\u003e would probably be less error-prone.",
       "parentUuid": "794c4b49_6b02b28c",
+      "revId": "d5654b8367a293babb63115c426a43c916529409",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16f77bfb_7c00bc14",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2020-07-08T14:03:05Z",
+      "side": 1,
+      "message": "Optional\u003cString\u003e sounds perfect, I\u0027m still not used to these \"new\" features.",
+      "parentUuid": "949db904_52bc9e95",
       "revId": "d5654b8367a293babb63115c426a43c916529409",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
