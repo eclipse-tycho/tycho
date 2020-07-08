@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3f15eee7_7d1b665a",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-08T12:50:05Z",
+      "side": 1,
+      "message": "Maybe as we\u0027re only digging with the model here, we should avoid resolution and checks, and just return the JRE name without further check; and let consumers deal with necessary resolution if any.",
+      "parentUuid": "1232e4ec_0d98f8a5",
+      "revId": "d5654b8367a293babb63115c426a43c916529409",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "794c4b49_6b02b28c",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2020-07-08T06:20:42Z",
       "side": 1,
       "message": "Maybe it would be better to return null to indicate the value is not present?",
+      "revId": "d5654b8367a293babb63115c426a43c916529409",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "949db904_52bc9e95",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-08T12:50:05Z",
+      "side": 1,
+      "message": "I agree, either returning null here, or making return type be Optional\u003cString\u003e would probably be less error-prone.",
+      "parentUuid": "794c4b49_6b02b28c",
       "revId": "d5654b8367a293babb63115c426a43c916529409",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
