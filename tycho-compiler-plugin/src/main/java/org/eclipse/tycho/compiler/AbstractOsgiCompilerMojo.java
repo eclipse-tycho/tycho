@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -72,6 +74,7 @@ import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
+import org.osgi.framework.Version;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
 
@@ -290,14 +293,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     @Component
     private Logger logger;
 
+    private StandardExecutionEnvironment[] manifestBREEs;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        StandardExecutionEnvironment[] manifestBREEs = Arrays
-                .stream(bundleReader.loadManifest(project.getBasedir()).getExecutionEnvironments())
+        manifestBREEs = Arrays.stream(bundleReader.loadManifest(project.getBasedir()).getExecutionEnvironments())
                 .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session, logger))
                 .toArray(StandardExecutionEnvironment[]::new);
         getLog().debug("Manifest BREEs: " + Arrays.toString(manifestBREEs));
-        getLog().debug("Effective EE: " + getTargetExecutionEnvironment());
+        getLog().debug("Target Platform EE: " + getTargetExecutionEnvironment());
         String effectiveTargetLevel = getTargetLevel();
         getLog().debug("Effective source/target: " + getSourceLevel() + "/" + effectiveTargetLevel);
 
@@ -500,7 +504,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (encoding != null) {
             compilerConfiguration.setSourceEncoding(encoding);
         }
-        configureSourceAndTargetLevel(compilerConfiguration);
+        compilerConfiguration.setTargetVersion(getTargetLevel());
+        compilerConfiguration.setSourceVersion(getSourceLevel());
         configureJavaHome(compilerConfiguration);
         configureBootclasspathAccessRules(compilerConfiguration);
         configureCompilerLog(compilerConfiguration);
@@ -625,14 +630,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         return values;
     }
 
-    private void configureSourceAndTargetLevel(CompilerConfiguration compilerConfiguration)
-            throws MojoExecutionException {
-        ExecutionEnvironment ee = getTargetExecutionEnvironment();
-        compilerConfiguration.setSourceVersion(getSourceLevel(ee));
-        compilerConfiguration.setTargetVersion(getTargetLevel(ee));
-    }
-
-    private ExecutionEnvironment getTargetExecutionEnvironment() throws MojoExecutionException {
+    private ExecutionEnvironment getTargetExecutionEnvironment() {
         // never null
         return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getFullSpecification();
     }
@@ -683,10 +681,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     @Override
     public String getSourceLevel() throws MojoExecutionException {
-        return getSourceLevel(getTargetExecutionEnvironment());
-    }
-
-    private String getSourceLevel(ExecutionEnvironment ee) throws MojoExecutionException {
         // first, explicit POM configuration
         if (source != null) {
             return source;
@@ -696,21 +690,16 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (javacSource != null) {
             return javacSource;
         }
-        // then, execution environment
-        String eeSource = ee.getCompilerSourceLevelDefault();
-        if (eeSource != null) {
-            return eeSource;
-        }
-
-        return DEFAULT_SOURCE_VERSION;
+        return Arrays.stream(manifestBREEs) //
+                .map(ExecutionEnvironment::getCompilerSourceLevelDefault) //
+                .filter(Objects::nonNull) //
+                .min((v1, v2) -> Version.parseVersion(v1).compareTo(Version.parseVersion(v2))) //
+                .or(() -> Optional.ofNullable(getTargetExecutionEnvironment().getCompilerSourceLevelDefault())) //
+                .orElse(DEFAULT_SOURCE_VERSION);
     }
 
     @Override
     public String getTargetLevel() throws MojoExecutionException {
-        return getTargetLevel(getTargetExecutionEnvironment());
-    }
-
-    public String getTargetLevel(ExecutionEnvironment ee) throws MojoExecutionException {
         // first, explicit POM configuration
         if (target != null) {
             return target;
@@ -720,13 +709,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (javacTarget != null) {
             return javacTarget;
         }
-        // then, execution environment
-        String eeTarget = ee.getCompilerTargetLevelDefault();
-        if (eeTarget != null) {
-            return eeTarget;
-        }
-
-        return DEFAULT_TARGET_VERSION;
+        return Arrays.stream(manifestBREEs) //
+                .map(ExecutionEnvironment::getCompilerTargetLevelDefault) //
+                .filter(Objects::nonNull) //
+                .min((v1, v2) -> Version.parseVersion(v1).compareTo(Version.parseVersion(v2))) //
+                .or(() -> Optional.ofNullable(getTargetExecutionEnvironment().getCompilerTargetLevelDefault())) //
+                .orElse(DEFAULT_TARGET_VERSION);
     }
 
     private void checkTargetLevelCompatibleWithManifestBREEs(String effectiveTargetLevel,
