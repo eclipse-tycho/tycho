@@ -9,7 +9,8 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - split target platform computation and dependency resolution
  *    SAP SE - create immutable target platform instances
- *    Christoph Läubrich - [Bug 538144] Support other target locations (Directory, Features, Installations)
+ *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
+ *                          - [Bug 533747] - Target file is read and parsed over and over again
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -217,7 +218,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
 
             TargetDefinitionContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
-                    definition, tpConfiguration.getEnvironments(), eeResolutionHints, remoteAgent);
+                    definition, tpConfiguration.getEnvironments(), eeResolutionHints,
+                    tpConfiguration.getIncludeSourceMode(), remoteAgent);
             result.add(targetFileContent);
 
             if (logger.isDebugEnabled()) {

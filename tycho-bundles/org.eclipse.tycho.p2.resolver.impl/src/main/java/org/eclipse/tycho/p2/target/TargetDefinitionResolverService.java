@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich - [Bug 538144] Support other target locations (Directory, Features, Installations)
+ *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
+ *                          - [Bug 533747] - Target file is read and parsed over and over again
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -43,9 +45,10 @@ public class TargetDefinitionResolverService {
 
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
             List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs,
-            IProvisioningAgent agent) {
+            IncludeSourceMode includeSourceMode, IProvisioningAgent agent) {
         this.provisioningAgent = agent;
-        ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
+        ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, includeSourceMode,
+                agent);
 
         TargetDefinitionContent resolution = resolutionCache.get(arguments);
 
@@ -63,8 +66,8 @@ public class TargetDefinitionResolverService {
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
     private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
-        return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, mavenContext)
-                .resolveContent(arguments.definition, provisioningAgent);
+        return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.includeSourceMode,
+                mavenContext).resolveContent(arguments.definition, provisioningAgent);
     }
 
     private void debugCacheMiss(ResolutionArguments arguments) {
@@ -102,12 +105,15 @@ public class TargetDefinitionResolverService {
         final List<TargetEnvironment> environments;
         final ExecutionEnvironmentResolutionHints jreIUs;
         final IProvisioningAgent agent;
+        private IncludeSourceMode includeSourceMode;
 
         public ResolutionArguments(TargetDefinition definition, List<TargetEnvironment> environments,
-                ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
+                ExecutionEnvironmentResolutionHints jreIUs, IncludeSourceMode includeSourceMode,
+                IProvisioningAgent agent) {
             this.definition = definition;
             this.environments = environments;
             this.jreIUs = jreIUs;
+            this.includeSourceMode = includeSourceMode;
             this.agent = agent;
         }
 
@@ -119,6 +125,7 @@ public class TargetDefinitionResolverService {
             result = prime * result + ((definition == null) ? 0 : definition.hashCode());
             result = prime * result + ((environments == null) ? 0 : environments.hashCode());
             result = prime * result + ((jreIUs == null) ? 0 : jreIUs.hashCode());
+            result = prime * result + ((includeSourceMode == null) ? 0 : includeSourceMode.hashCode());
             return result;
         }
 
@@ -133,7 +140,8 @@ public class TargetDefinitionResolverService {
             return eq(jreIUs, other.jreIUs) //
                     && eq(definition, other.definition) //
                     && eq(agent, other.agent) // expected to be object identity
-                    && eq(environments, other.environments);
+                    && eq(environments, other.environments) //
+                    && eq(includeSourceMode, other.includeSourceMode);
         }
 
         public List<String> getNonEqualFields(ResolutionArguments other) {
@@ -142,6 +150,7 @@ public class TargetDefinitionResolverService {
             addIfNonEqual(result, "execution environment", jreIUs, other.jreIUs);
             addIfNonEqual(result, "target environments", environments, other.environments);
             addIfNonEqual(result, "remote p2 repository options", agent, other.agent);
+            addIfNonEqual(result, "include source mode", includeSourceMode, other.includeSourceMode);
             return result;
         }
 

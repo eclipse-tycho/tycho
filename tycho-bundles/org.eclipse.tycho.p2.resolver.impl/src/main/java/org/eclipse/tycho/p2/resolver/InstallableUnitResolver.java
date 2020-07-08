@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
@@ -66,10 +67,14 @@ public class InstallableUnitResolver {
 
     private List<RootUnits> rootUnits = new ArrayList<>();
 
+    private IncludeSourceMode sourceMode;
+
     public InstallableUnitResolver(List<TargetEnvironment> environments,
-            ExecutionEnvironmentResolutionHints executionEnvironment, MavenLogger logger) {
+            ExecutionEnvironmentResolutionHints executionEnvironment, IncludeSourceMode sourceMode,
+            MavenLogger logger) {
         this.environments = environments;
         this.executionEnvironment = executionEnvironment;
+        this.sourceMode = sourceMode;
         this.logger = logger;
     }
 
@@ -77,7 +82,18 @@ public class InstallableUnitResolver {
         //update (and validate) desired global state
         setIncludeMode(iuLocationDefinition.getIncludeMode());
         setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
-        setIncludeSource(iuLocationDefinition.includeSource());
+        switch (sourceMode) {
+        case force:
+            setIncludeSource(true);
+            break;
+        case ignore:
+            setIncludeSource(false);
+            break;
+        case honor:
+        default:
+            setIncludeSource(iuLocationDefinition.includeSource());
+            break;
+        }
         //resolve root units and add them
         rootUnits.add(new RootUnits(getRootIUs(iuLocationDefinition.getUnits(), localUnits), localUnits));
     }

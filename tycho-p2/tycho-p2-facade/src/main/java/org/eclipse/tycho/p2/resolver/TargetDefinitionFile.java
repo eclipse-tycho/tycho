@@ -8,7 +8,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - cache target definition resolution result (bug 373806)
- *    Christoph Läubrich - add implementation for different location types, fix hash calculation
+ *    Christoph Läubrich    - add implementation for different location types, fix hash calculation
+ *                          - [Bug 533747] - Target file is read and parsed over and over again
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -27,10 +28,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.plexus.util.IOUtil;
-import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
@@ -43,15 +45,15 @@ import de.pdark.decentxml.XMLWriter;
 
 public final class TargetDefinitionFile implements TargetDefinition {
 
-    private static XMLParser parser = new XMLParser();
+    private static final XMLParser PARSER = new XMLParser();
+
+    private static final Map<String, TargetDefinitionFile> FILE_CACHE = new HashMap<>();
 
     private final File origin;
     private final byte[] fileContentHash;
 
     private final Element dom;
     private final Document document;
-
-    final IncludeSourceMode includeSourceMode;
 
     private abstract class AbstractPathLocation implements TargetDefinition.PathLocation {
         private String path;
@@ -177,14 +179,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public boolean includeSource() {
-            switch (includeSourceMode) {
-            case ignore:
-                return false;
-            case force:
-                return true;
-            default:
-                return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
-            }
+            return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
         }
     }
 
@@ -263,16 +258,13 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    private TargetDefinitionFile(File source, IncludeSourceMode includeSourceMode)
-            throws TargetDefinitionSyntaxException {
+    private TargetDefinitionFile(File source) throws TargetDefinitionSyntaxException {
         try {
             this.origin = source;
             this.fileContentHash = computeFileContentHash(source);
 
-            this.includeSourceMode = includeSourceMode;
-
             try (FileInputStream input = new FileInputStream(source)) {
-                this.document = parser.parse(new XMLIOSource(source));
+                this.document = PARSER.parse(new XMLIOSource(source));
                 this.dom = document.getRootElement();
             }
         } catch (XMLParseException e) {
@@ -317,9 +309,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return origin.getAbsolutePath();
     }
 
-    public static TargetDefinitionFile read(File file, IncludeSourceMode includeSourceMode) {
+    public static TargetDefinitionFile read(File file) {
         try {
-            return new TargetDefinitionFile(file, includeSourceMode);
+            return FILE_CACHE.computeIfAbsent(file.getAbsolutePath(), key -> new TargetDefinitionFile(file));
         } catch (TargetDefinitionSyntaxException e) {
             throw new RuntimeException("Invalid syntax in target definition " + file + ": " + e.getMessage(), e);
         }
@@ -388,6 +380,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "TargetDefinitionFile[" + origin + "]";
     }
 
 }
