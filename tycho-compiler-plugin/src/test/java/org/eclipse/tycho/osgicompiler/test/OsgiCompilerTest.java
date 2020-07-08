@@ -16,7 +16,9 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -273,6 +275,24 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
         mojo.execute();
         assertBytecodeMajorLevel(TARGET_1_4, new File(project.getBasedir(), "target/classes/Generic.class"));
+    }
+
+    public void testNewerEEthenBREE() throws Exception {
+        File basedir = getBasedir("projects/executionEnvironment/p006-newerEEthanBREE");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        mojo.execute();
+        assertEquals("JavaSE-11", mojo.getExecutionEnvironment());
+        assertEquals("1.8", mojo.getSourceLevel());
+        assertEquals("1.8", mojo.getTargetLevel());
+        File classFile = new File(basedir, "target/classes/Noop.class");
+        try (InputStream input = new FileInputStream(classFile)) {
+            byte[] header = new byte[8];
+            input.read(header);
+            byte majorClassVersion = header[7];
+            assertEquals(52, majorClassVersion);
+        }
     }
 
     private void assertBytecodeMajorLevel(int majorLevel, File classFile) throws ClassFormatException, IOException {
