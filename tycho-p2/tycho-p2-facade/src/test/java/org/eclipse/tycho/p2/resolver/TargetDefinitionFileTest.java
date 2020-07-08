@@ -153,7 +153,7 @@ public class TargetDefinitionFileTest {
     }
 
     private TargetDefinitionFile readTarget(String fileName, IncludeSourceMode includeSourceMode) throws IOException {
-        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName), includeSourceMode);
+        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName));
     }
 
 }

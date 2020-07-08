@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - fix Bug 551739, Bug 538144
+ *    Christoph Läubrich - fix Bug 551739, Bug 538144, Bug 533747
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -73,7 +73,6 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
-import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.BuildFailureException;
@@ -220,11 +219,11 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         tpConfiguration.setEnvironments(configuration.getEnvironments());
         for (File file : configuration.getTargets()) {
-            addTargetFileContentToTargetPlatform(file, configuration.getTargetDefinitionIncludeSourceMode(),
-                    tpConfiguration);
+            addTargetFileContentToTargetPlatform(file, tpConfiguration);
         }
 
         tpConfiguration.addFilters(configuration.getFilters());
+        tpConfiguration.setIncludeSourceMode(configuration.getTargetDefinitionIncludeSourceMode());
 
         return reactorRepositoryManager.computePreliminaryTargetPlatform(DefaultReactorProject.adapt(project),
                 tpConfiguration, ee, reactorProjects, pomDependencies);
@@ -315,9 +314,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
     }
 
-    private void addTargetFileContentToTargetPlatform(File targetFile, IncludeSourceMode includeSourcesMode,
+    private void addTargetFileContentToTargetPlatform(File targetFile,
             TargetPlatformConfigurationStub resolutionContext) {
-        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile, includeSourcesMode);
+        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
         resolutionContext.addTargetDefinition(target);
     }
 
