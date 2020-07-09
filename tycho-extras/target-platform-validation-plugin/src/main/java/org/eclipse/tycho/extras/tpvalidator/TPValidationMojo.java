@@ -7,14 +7,16 @@
  *
  * Contributors:
  *    Mickael Istria (Red Hat). - initial API and implementation
- *    Christoph Läubrich - Adjust to new API
+ *    Christoph Läubrich -  Bug 461284 - Improve discovery and attach of .target files in eclipse-target-definition
  *******************************************************************************/
 package org.eclipse.tycho.extras.tpvalidator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -27,6 +29,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -103,8 +106,21 @@ public class TPValidationMojo extends AbstractMojo {
             targetFilesToValidate = this.targetFiles;
         } else if (this.project != null
                 && PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION.equals(this.project.getPackaging())) {
-            File defaultTargetFile = new File(project.getBasedir(), project.getArtifactId() + ".target");
-            targetFilesToValidate = new File[] { defaultTargetFile };
+            File[] targetFiles = DefaultTargetPlatformConfigurationReader.listTargetFiles(project.getBasedir());
+            Optional<File> primaryTarget = Arrays.stream(targetFiles)
+                    .filter(targetFile -> DefaultTargetPlatformConfigurationReader.isPrimaryTarget(project, targetFile,
+                            targetFiles))
+                    .findFirst();
+            if (primaryTarget.isEmpty()) {
+                if (failOnError) {
+                    DefaultTargetPlatformConfigurationReader.throwNoPrimaryTargetFound(project, targetFiles);
+                } else {
+                    this.logger.error("No primary target found. Skipping execution.");
+                }
+                return;
+            } else {
+                targetFilesToValidate = new File[] { primaryTarget.get() };
+            }
         } else {
             this.logger.info("No targetFiles configured. Skipping execution.");
             return;
