@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "ed3f5306_3dc3c4e6",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-07-09T18:22:54Z",
+      "side": 1,
+      "message": "If we go for only returning a String here I think we should not do any processing/checks here and simply return the value \"as-is\" as the current implemntation simply assumes no tragetJRE is specified at all if the name is unkown what should only be decided at resoloution time then so proper errors/warnings can be emmited.",
+      "parentUuid": "2a5e612e_f5f1ee1b",
+      "revId": "d5654b8367a293babb63115c426a43c916529409",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "794c4b49_6b02b28c",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
         "patchSetId": 3
