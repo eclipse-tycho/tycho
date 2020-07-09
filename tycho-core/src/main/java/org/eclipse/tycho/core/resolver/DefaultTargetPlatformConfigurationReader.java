@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich -  Bug 461284 - Improve discovery and attach of .target files in eclipse-target-definition
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
@@ -14,11 +15,13 @@ import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
@@ -40,6 +43,7 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 public class DefaultTargetPlatformConfigurationReader {
     private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
     private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
+    private static final String FILE_EXTENSION = ".target";
 
     @Requirement
     private Logger logger;
@@ -72,7 +76,11 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 setTargetPlatformResolver(result, configuration);
 
-                setTarget(result, session, project, configuration);
+                try {
+                    setTarget(result, session, project, configuration);
+                } catch (MojoExecutionException e) {
+                    throw new BuildFailureException("Setting target failed", e);
+                }
 
                 setPomDependencies(result, configuration);
 
@@ -151,7 +159,8 @@ public class DefaultTargetPlatformConfigurationReader {
         } catch (IllegalArgumentException e) {
             throw new BuildFailureException(
                     "Illegal value of <targetDefinitionIncludeSource> target platform configuration parameter: "
-                            + value, e);
+                            + value,
+                    e);
         }
     }
 
@@ -177,8 +186,8 @@ public class DefaultTargetPlatformConfigurationReader {
         } else if (OPTIONAL_RESOLUTION_IGNORE.equals(value)) {
             result.setOptionalResolutionAction(OptionalResolutionAction.IGNORE);
         } else {
-            throw new BuildFailureException("Illegal value of <optionalDependencies> dependency resolution parameter: "
-                    + value);
+            throw new BuildFailureException(
+                    "Illegal value of <optionalDependencies> dependency resolution parameter: " + value);
         }
     }
 
@@ -248,8 +257,8 @@ public class DefaultTargetPlatformConfigurationReader {
         try {
             result.setBREEHeaderSelectionPolicy(BREEHeaderSelectionPolicy.valueOf(value));
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Illegal value of <breeHeaderSelectionPolicy> target platform parameter: "
-                    + value);
+            throw new RuntimeException(
+                    "Illegal value of <breeHeaderSelectionPolicy> target platform parameter: " + value);
         }
     }
 
@@ -271,7 +280,8 @@ public class DefaultTargetPlatformConfigurationReader {
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom disableP2mirrorsDom = configuration.getChild("disableP2Mirrors");
         if (disableP2mirrorsDom != null) {
-            logger.warn("Unsupported target-platform-configuration <disableP2Mirrors>. Use tycho.disableP2Mirrors -D command line parameter or settings.xml property.");
+            logger.warn(
+                    "Unsupported target-platform-configuration <disableP2Mirrors>. Use tycho.disableP2Mirrors -D command line parameter or settings.xml property.");
         }
     }
 
@@ -284,7 +294,8 @@ public class DefaultTargetPlatformConfigurationReader {
         result.setAllowConflictingDependencies(Boolean.parseBoolean(value));
     }
 
-    private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project, Xpp3Dom configuration) {
+    private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project,
+            Xpp3Dom configuration) {
         try {
             TargetEnvironment deprecatedTargetEnvironmentSpec = getDeprecatedTargetEnvironment(configuration);
             if (deprecatedTargetEnvironmentSpec != null) {
@@ -311,7 +322,8 @@ public class DefaultTargetPlatformConfigurationReader {
             throws TargetPlatformConfigurationException {
         Xpp3Dom environmentDom = configuration.getChild("environment");
         if (environmentDom != null) {
-            logger.warn("target-platform-configuration <environment> element is deprecated; use <environments> instead");
+            logger.warn(
+                    "target-platform-configuration <environment> element is deprecated; use <environments> instead");
             return newTargetEnvironment(environmentDom);
         }
         return null;
@@ -327,7 +339,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setTarget(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
-            Xpp3Dom configuration) {
+            Xpp3Dom configuration) throws MojoExecutionException {
         Xpp3Dom targetDom = configuration.getChild("target");
         if (targetDom == null) {
             return;
@@ -344,7 +356,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     protected void addTargetArtifact(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
-            Xpp3Dom artifactDom) {
+            Xpp3Dom artifactDom) throws MojoExecutionException {
         Xpp3Dom groupIdDom = artifactDom.getChild("groupId");
         Xpp3Dom artifactIdDom = artifactDom.getChild("artifactId");
         Xpp3Dom versionDom = artifactDom.getChild("version");
@@ -359,40 +371,47 @@ public class DefaultTargetPlatformConfigurationReader {
         String version = versionDom.getValue();
         String classifier = classifierDom != null ? classifierDom.getValue() : null;
 
-        File targetFile = null;
+        //check if target is part of reactor-build
         for (MavenProject otherProject : session.getProjects()) {
             if (groupId.equals(otherProject.getGroupId()) && artifactId.equals(otherProject.getArtifactId())
                     && version.equals(otherProject.getVersion())) {
-                String fileName;
                 if (classifier == null) {
-                    // no classifier means target is provided using packaging type eclipse-target-definition
-                    fileName = artifactId;
+                    File[] targetFiles = listTargetFiles(otherProject.getBasedir());
+                    for (File targetFile : targetFiles) {
+                        if (isPrimaryTarget(otherProject, targetFile, targetFiles)) {
+                            result.addTarget(targetFiles[0]);
+                            return;
+                        }
+                    }
+                    throwNoPrimaryTargetFound(otherProject, targetFiles);
                 } else {
-                    // backward compat for target files manually installed via build-helper-maven-plugin
-                    fileName = classifier;
+                    File target = new File(otherProject.getBasedir(), classifier + FILE_EXTENSION);
+                    if (isTargetFile(target)) {
+                        result.addTarget(target);
+                        return;
+                    } else {
+                        throw new MojoExecutionException("target definition file '" + target
+                                + "' not found in project '" + project.getName() + "'.");
+                    }
                 }
-                targetFile = new File(otherProject.getBasedir(), fileName + ".target");
-                break;
             }
         }
+        // resolve using maven
 
-        if (targetFile == null) {
-            Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, "target",
-                    classifier);
-            ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-            request.setArtifact(artifact);
-            request.setLocalRepository(session.getLocalRepository());
-            request.setRemoteRepositories(project.getRemoteArtifactRepositories());
-            repositorySystem.resolve(request);
+        Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, "target",
+                classifier);
+        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+        request.setArtifact(artifact);
+        request.setLocalRepository(session.getLocalRepository());
+        request.setRemoteRepositories(project.getRemoteArtifactRepositories());
+        repositorySystem.resolve(request);
 
-            if (!artifact.isResolved()) {
-                throw new RuntimeException("Could not resolve target platform specification artifact " + artifact);
-            }
-
-            targetFile = artifact.getFile();
+        if (artifact.isResolved()) {
+            result.addTarget(artifact.getFile());
+            return;
         }
+        throw new RuntimeException("Could not resolve target platform specification artifact " + artifact);
 
-        result.addTarget(targetFile);
     }
 
     private void setTargetPlatformResolver(TargetPlatformConfiguration result, Xpp3Dom configuration) {
@@ -449,6 +468,69 @@ public class DefaultTargetPlatformConfigurationReader {
         } else {
             return value;
         }
+    }
+
+    /**
+     * List all target files in the given folder
+     * 
+     * @param folder
+     * @return the found target files or empty array if nothing was found, folder is not a directory
+     *         or the directory could not be read
+     */
+    public static File[] listTargetFiles(File folder) {
+        if (folder.isDirectory()) {
+            File[] targetFiles = folder.listFiles(DefaultTargetPlatformConfigurationReader::isTargetFile);
+            if (targetFiles != null) {
+                return targetFiles;
+            }
+        }
+        return new File[0];
+    }
+
+    /**
+     * 
+     * @param file
+     * @return <code>true</code> if the given files likely denotes are targetfile based on file
+     *         naming, <code>false</code> otherwise
+     */
+    public static boolean isTargetFile(File file) {
+        return file != null && file.isFile() && file.getName().toLowerCase().endsWith(FILE_EXTENSION)
+                && !file.getName().startsWith(".polyglot.");
+    }
+
+    /**
+     * Checks if the given target file is the "primary" target artifact file among others
+     * 
+     * @param project
+     * @param targetFile
+     *            the target file to check
+     * @param otherTargetFiles
+     *            other target files to take into account
+     * @return <code>true</code> if the target file is the primary artifact, <code>false</code>
+     *         otherwise
+     */
+    public static boolean isPrimaryTarget(MavenProject project, File targetFile, File[] otherTargetFiles) {
+        if (otherTargetFiles != null && otherTargetFiles.length == 1) {
+            return isTargetFile(otherTargetFiles[0]);
+        }
+        String name = targetFile.getName();
+        if (name.toLowerCase().endsWith(FILE_EXTENSION)) {
+            String baseName = FilenameUtils.getBaseName(name);
+            if (baseName.equalsIgnoreCase(project.getArtifactId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void throwNoPrimaryTargetFound(MavenProject project, File[] targetFiles)
+            throws MojoExecutionException {
+        if (targetFiles == null || targetFiles.length == 0) {
+            throw new MojoExecutionException(
+                    "No target definition file(s) found in project '" + project.getName() + "'.");
+        }
+        throw new MojoExecutionException("One target file must be named  '" + project.getArtifactId() + FILE_EXTENSION
+                + "' when multiple targets are present");
     }
 
 }
