@@ -379,7 +379,7 @@ public class DefaultTargetPlatformConfigurationReader {
                     File[] targetFiles = listTargetFiles(otherProject.getBasedir());
                     for (File targetFile : targetFiles) {
                         if (isPrimaryTarget(otherProject, targetFile, targetFiles)) {
-                            result.addTarget(targetFiles[0]);
+                            result.addTarget(targetFile);
                             return;
                         }
                     }
