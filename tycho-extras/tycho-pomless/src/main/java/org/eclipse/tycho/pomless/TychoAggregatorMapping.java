@@ -15,14 +15,17 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.ModelParseException;
@@ -31,6 +34,11 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Component(role = Mapping.class, hint = "tycho-aggregator")
 public class TychoAggregatorMapping extends AbstractTychoMapping {
+
+    private static final String TYCHO_AUTOMATIC_GENERATED_FILE_HEADER_PREFIX = "## tycho automatic module detection";
+
+    private static final String TYCHO_AUTOMATIC_GENERATED_FILE_HEADER = TYCHO_AUTOMATIC_GENERATED_FILE_HEADER_PREFIX
+            + " " + UUID.randomUUID().toString();
 
     private static final String TYCHO_POM = "pom.tycho";
 
@@ -46,7 +54,7 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
     @Override
     protected File getPrimaryArtifact(File dir) {
         File file = new File(dir, TYCHO_POM);
-        if (file.exists()) {
+        if (file.exists() && isCurrent(file)) {
             return file;
         }
         if (COMMON_NAMES.contains(dir.getName().toLowerCase())) {
@@ -67,7 +75,7 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
                     try {
                         try (BufferedWriter writer = new BufferedWriter(
                                 new OutputStreamWriter(new FileOutputStream(file), getPrimaryArtifactCharset()))) {
-                            writer.write("## tycho automatic module detection");
+                            writer.write(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER);
                             writer.newLine();
                             for (String module : modules) {
                                 writer.write(module);
@@ -111,6 +119,21 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
     @Override
     public float getPriority() {
         return -10f;
+    }
+
+    private boolean isCurrent(File file) {
+        try {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file), getPrimaryArtifactCharset()),
+                    TYCHO_AUTOMATIC_GENERATED_FILE_HEADER.length() * 2)) {
+                String readLine = reader.readLine();
+                return readLine == null || !readLine.startsWith(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER_PREFIX)
+                        || readLine.equals(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER);
+            }
+        } catch (IOException e) {
+            //can't be sure, assume it is not stale then...
+        }
+        return true;
     }
 
 }
