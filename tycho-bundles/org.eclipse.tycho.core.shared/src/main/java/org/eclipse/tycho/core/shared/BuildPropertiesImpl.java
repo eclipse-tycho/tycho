@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,15 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich -     Bug 443083 - generating build.properties resource is not possible
  *******************************************************************************/
 
 package org.eclipse.tycho.core.shared;
 
+import static java.util.Collections.unmodifiableMap;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +42,14 @@ public class BuildPropertiesImpl implements BuildProperties {
     private Map<String, String> jarToOutputFolderMap;
     private Map<String, String> jarToManifestMap;
     private Map<String, String> rootEntries;
+    private long timestamp;
 
-    @SuppressWarnings("unchecked")
     public BuildPropertiesImpl(Properties properties) {
+        this(properties, System.currentTimeMillis());
+    }
+
+    public BuildPropertiesImpl(Properties properties, long timestamp) {
+        this.timestamp = timestamp;
         javacSource = safeTrimValue("javacSource", properties);
         javacTarget = safeTrimValue("javacTarget", properties);
         forceContextQualifier = safeTrimValue("forceContextQualifier", properties);
@@ -57,14 +64,14 @@ public class BuildPropertiesImpl implements BuildProperties {
         jarsExtraClasspath = splitAndTrimCommaSeparated(properties.getProperty("jars.extra.classpath"));
         jarsCompileOrder = splitAndTrimCommaSeparated(properties.getProperty("jars.compile.order"));
 
-        HashMap<String, List<String>> jarTosourceFolderTmp = new LinkedHashMap<>();
-        HashMap<String, List<String>> jarToExtraClasspathTmp = new LinkedHashMap<>();
-        HashMap<String, String> jarToJavacDefaultEncodingTmp = new LinkedHashMap<>();
-        HashMap<String, String> jarToOutputFolderMapTmp = new LinkedHashMap<>();
-        HashMap<String, String> jarToManifestMapTmp = new LinkedHashMap<>();
-        HashMap<String, String> rootEntriesTmp = new LinkedHashMap<>();
+        Map<String, List<String>> jarTosourceFolderTmp = new LinkedHashMap<>();
+        Map<String, List<String>> jarToExtraClasspathTmp = new LinkedHashMap<>();
+        Map<String, String> jarToJavacDefaultEncodingTmp = new LinkedHashMap<>();
+        Map<String, String> jarToOutputFolderMapTmp = new LinkedHashMap<>();
+        Map<String, String> jarToManifestMapTmp = new LinkedHashMap<>();
+        Map<String, String> rootEntriesTmp = new LinkedHashMap<>();
 
-        List<String> sortedKeys = new ArrayList(properties.keySet());
+        List<String> sortedKeys = new ArrayList<>(properties.stringPropertyNames());
         Collections.sort(sortedKeys);
         for (String key : sortedKeys) {
             String trimmedKey = key.trim();
@@ -96,12 +103,8 @@ public class BuildPropertiesImpl implements BuildProperties {
         rootEntries = unmodifiableMap(rootEntriesTmp);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static Map unmodifiableMap(Map map) {
-        if (map.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        return Collections.unmodifiableMap(map);
+    public long getTimestamp() {
+        return timestamp;
     }
 
     private static String safeTrimValue(String key, Properties buildProperties) {

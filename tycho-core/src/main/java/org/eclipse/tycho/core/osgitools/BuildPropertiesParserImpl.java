@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP SE and others.
+ * Copyright (c) 2011, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Christoph Läubrich -     Bug 443083 - generating build.properties resource is not possible
  *******************************************************************************/
 
 package org.eclipse.tycho.core.osgitools;
@@ -15,6 +16,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -29,7 +32,6 @@ import org.eclipse.tycho.core.maven.TychoInterpolator;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
-import org.eclipse.tycho.core.shared.LRUCache;
 import org.eclipse.tycho.core.utils.MavenSessionUtils;
 
 @Component(role = BuildPropertiesParser.class)
@@ -41,7 +43,7 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
     @Requirement
     private Logger logger;
 
-    private final LRUCache<String, BuildProperties> cache = new LRUCache<>(50);
+    private final Map<String, BuildPropertiesImpl> cache = new HashMap<>();
 
     public BuildPropertiesParserImpl() {
         // empty to let plexus create new instances
@@ -60,12 +62,13 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
     @Override
     public BuildProperties parse(File baseDir) {
         File propsFile = new File(baseDir, BUILD_PROPERTIES);
+        long lastModified = propsFile.lastModified();
         String filePath = propsFile.getAbsolutePath();
-        BuildProperties buildProperties = cache.get(filePath);
-        if (buildProperties == null) {
+        BuildPropertiesImpl buildProperties = cache.get(filePath);
+        if (buildProperties == null || lastModified > buildProperties.getTimestamp()) {
             Properties properties = readProperties(propsFile);
             interpolate(properties, baseDir);
-            buildProperties = new BuildPropertiesImpl(properties);
+            buildProperties = new BuildPropertiesImpl(properties, lastModified);
             cache.put(filePath, buildProperties);
         }
         return buildProperties;
@@ -79,7 +82,6 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
     protected static Properties readProperties(File propsFile) {
         Properties properties = new Properties();
         if (propsFile.canRead()) {
-            // TODO should we fail the build if build.properties is missing?
             InputStream is = null;
             try {
                 try {
