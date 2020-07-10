@@ -56,25 +56,6 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         assertEquals(1, bundles.length);
     }
 
-    public void test_bundleRuntimeExecutionEnvironment() throws Exception {
-        File basedir = getBasedir("projects/bree");
-
-        Properties properties = new Properties();
-        properties.put("tycho-version", TychoVersion.getTychoVersion());
-
-        List<MavenProject> projects = getSortedProjects(basedir, properties, null);
-        assertEquals(6, projects.size());
-
-        assertEquals("executionenvironment.manifest-minimal", projects.get(2).getArtifactId());
-        ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(projects.get(2))
-                .getFullSpecification();
-        assertEquals("OSGi/Minimum-1.0", ee.getProfileName());
-        Properties platformProperties = subject.getPlatformProperties(projects.get(2), ee);
-        assertEquals(
-                "java.io,java.lang,java.lang.ref,java.lang.reflect,java.math,java.net,java.security,java.security.acl,java.security.cert,java.security.interfaces,java.security.spec,java.text,java.util,java.util.jar,java.util.zip",
-                platformProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
-    }
-
     public void testBREEJavaSE11() throws Exception {
         File basedir = getBasedir("projects/javase-11");
         Properties properties = new Properties();

@@ -675,11 +675,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     }
 
     @Override
-    public String getExecutionEnvironment() throws MojoExecutionException {
-        return getTargetExecutionEnvironment().getProfileName();
-    }
-
-    @Override
     public String getSourceLevel() throws MojoExecutionException {
         // first, explicit POM configuration
         if (source != null) {
