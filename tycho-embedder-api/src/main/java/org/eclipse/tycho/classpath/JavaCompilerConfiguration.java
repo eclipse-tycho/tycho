@@ -17,9 +17,8 @@ import org.eclipse.tycho.runtime.Adaptable;
 
 /**
  * Computes and returns Tycho java compiler configuration, i.e. compile or test-compile mojos of
- * org.eclipse.tycho:tycho-compiler-plugin
- * Use {@link Adaptable#getAdapter(Class)} on compile or test-compile mojos to get instance of this
- * intergace
+ * org.eclipse.tycho:tycho-compiler-plugin Use {@link Adaptable#getAdapter(Class)} on compile or
+ * test-compile mojos to get instance of this intergace
  * 
  * @author igor
  * @noimplement This interface is not intended to be implemented by clients.
@@ -39,6 +38,4 @@ public interface JavaCompilerConfiguration {
     public String getSourceLevel() throws MojoExecutionException;
 
     public String getTargetLevel() throws MojoExecutionException;
-
-    public String getExecutionEnvironment() throws MojoExecutionException;
 }

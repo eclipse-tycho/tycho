@@ -38,7 +38,6 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
@@ -127,23 +126,8 @@ public class DefaultTychoResolver implements TychoResolver {
         logger.info("Resolving dependencies of " + project);
         // store EE configuration in case second resolution has to be applied due to Java version removing modules
         ExecutionEnvironmentConfiguration oldEE = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
-        String oldEEVersion = oldEE.getProfileName().substring(7);
-        String javaVersion = System.getProperty("java.specification.version");
-        String newEEName = "JavaSE-" + javaVersion;
-        DependencyArtifacts dependencyArtifacts;
-        // Due to Java 11 being the first Java version to remove there is the need for special resolution as 
-        // it's no longer guaranteed that a Java version contains all packages from the previous. In this case 
-        // resolve with current running Java version. if 
-        // There is the issue that it was possible to resolve newer Java versions than the running ones relying on the EE
-        // profile file. In order to keep this possibility (although it will only work if no new APIs are actually used)
-        // if the EE profile specified is newer than the running version it fallbacks to the old profile file way.
-        if (javaVersion.compareTo("11") >= 0 && oldEE.getProfileName().startsWith("JavaSE")
-                && javaVersion.compareTo(oldEEVersion) > 0 && !oldEE.getProfileName().equals(newEEName)) {
-            dependencyArtifacts = resolveWithCurrentEE(session, project, newEEName);
-        } else {
-            dependencyArtifacts = resolver.resolveDependencies(session, project, preliminaryTargetPlatform,
-                    reactorProjects, resolverConfiguration);
-        }
+        DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
+                preliminaryTargetPlatform, reactorProjects, resolverConfiguration);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder();
@@ -223,25 +207,6 @@ public class DefaultTychoResolver implements TychoResolver {
                 }
             }
         }
-    }
-
-    private DependencyArtifacts resolveWithCurrentEE(MavenSession session, MavenProject project, String newEEName) {
-        TargetPlatformConfiguration config = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-        config.setExecutionEnvironment(newEEName);
-
-        ExecutionEnvironmentConfiguration sink = new ExecutionEnvironmentConfigurationImpl(logger,
-                !config.isResolveWithEEConstraints(), toolchainManager, session);
-        sink.overrideProfileConfiguration(newEEName, "current execution environment");
-
-        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, sink);
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-        DependencyResolverConfiguration resolverConfiguration = config.getDependencyResolverConfiguration();
-        DependencyResolver depResolver = dependencyResolverLocator.lookupDependencyResolver(project);
-        TargetPlatform preliminaryTargetPlatform = depResolver.computePreliminaryTargetPlatform(session, project,
-                reactorProjects);
-        return depResolver.resolveDependencies(session, project, preliminaryTargetPlatform, reactorProjects,
-                resolverConfiguration);
     }
 
 }
