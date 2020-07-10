@@ -13,7 +13,6 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,10 +46,8 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.PluginDescription;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
@@ -502,43 +499,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             return str;
         }
         return null;
-    }
-
-    @Override
-    public void readExecutionEnvironmentConfiguration(MavenProject project, MavenSession mavenSession,
-            ExecutionEnvironmentConfiguration sink) {
-        // read packaging-type independent configuration
-        super.readExecutionEnvironmentConfiguration(project, mavenSession, sink);
-
-        // only in plugin projects, the profile may also be ...
-        // ... specified in build.properties (for PDE compatibility)
-        String pdeProfile = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
-                .getJreCompilationProfile();
-        if (pdeProfile != null) {
-            sink.setProfileConfiguration(pdeProfile.trim(), "build.properties");
-        } else {
-            // ... derived from BREE in bundle manifest
-            String[] manifestBREEs = getManifest(project).getExecutionEnvironments();
-            if (manifestBREEs.length == 1) {
-                sink.setProfileConfiguration(manifestBREEs[0], "Bundle-RequiredExecutionEnvironment (unique entry)");
-            } else if (manifestBREEs.length > 1) {
-                TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-                switch (tpConfiguration.getBREEHeaderSelectionPolicy()) {
-                case first:
-                    sink.setProfileConfiguration(manifestBREEs[0], "Bundle-RequiredExecutionEnvironment (first entry)");
-                    break;
-                case minimal:
-                    Arrays.stream(manifestBREEs) //
-                            .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager,
-                                    mavenSession, logger)) //
-                            .sorted() //
-                            .findFirst() //
-                            .ifPresent(ee -> sink.setProfileConfiguration(ee.getProfileName(),
-                                    "Bundle-RequiredExecutionEnvironment (minimal entry)"));
-                }
-
-            }
-        }
     }
 
 }
