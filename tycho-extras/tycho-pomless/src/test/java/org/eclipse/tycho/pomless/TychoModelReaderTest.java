@@ -51,7 +51,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
                 createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
         assertEquals("pomless.bundle", model.getArtifactId());
-        assertEquals("Pomless Bundle", model.getName());
+        assertEquals("[bundle] Pomless Bundle", model.getName());
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
         assertParent(model.getParent());
@@ -65,7 +65,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
                 createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
         assertEquals("pomless.bundle", model.getArtifactId());
-        assertEquals("Pomless Bundle", model.getName());
+        assertEquals("[bundle] Pomless Bundle", model.getName());
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
         assertParent(model.getParent());
@@ -79,7 +79,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
                 createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
         assertEquals("pomless.bundle", model.getArtifactId());
-        assertEquals("Pomless Bundle", model.getName());
+        assertEquals("[bundle] Pomless Bundle", model.getName());
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
         assertParent(model.getParent());
@@ -92,6 +92,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
         Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                 createReaderOptions(buildProperties));
         assertEquals("pomless.bundle.tests", model.getArtifactId());
+        assertEquals("[test-bundle] Pomless Test Bundle", model.getName());
         assertEquals("1.0.1", model.getVersion());
         assertEquals("eclipse-test-plugin", model.getPackaging());
         assertParent(model.getParent());
@@ -103,7 +104,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
         File feature = new File(getPolyglotTestDir(), "feature/feature.xml");
         Model model = getTychoModelReader(TychoFeatureMapping.PACKAGING).read(feature, createReaderOptions(feature));
         assertEquals("pomless.feature", model.getArtifactId());
-        assertEquals("Pomless Feature", model.getName());
+        assertEquals("[feature] Pomless Feature", model.getName());
         assertEquals("1.0.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-feature", model.getPackaging());
         assertParent(model.getParent());
@@ -115,7 +116,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
         File feature = new File(getPolyglotTestDir(), "feature2/feature.xml");
         Model model = getTychoModelReader(TychoFeatureMapping.PACKAGING).read(feature, createReaderOptions(feature));
         assertEquals("pomless.feature", model.getArtifactId());
-        assertEquals("Pomless Feature 2", model.getName());
+        assertEquals("[feature] Pomless Feature 2", model.getName());
         assertEquals("Eclipse.org", model.getOrganization().getName());
         assertEquals("1.0.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-feature", model.getPackaging());

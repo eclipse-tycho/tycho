@@ -7,7 +7,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- * Christoph Läubrich - initial API and implementation
+ * Christoph Läubrich (Lablicate GmbH) - initial API and implementation
+ * Christoph Läubrich - add type prefix to name
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -113,6 +114,7 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
                 model.getModules().add(line);
             }
             model.setArtifactId(artifactFile.getParentFile().getName());
+            model.setName("[aggregator] " + model.getArtifactId());
         }
     }
 

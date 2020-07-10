@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Lablicate GmbH and others.
+ * Copyright (c) 2019, 2020 Lablicate GmbH and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -7,7 +7,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- * Christoph Läubrich - initial API and implementation
+ * Christoph Läubrich (Lablicate GmbH) - initial API and implementation
+ * Christoph Läubrich -     Bug 562887 - Support multiple product files
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -39,12 +40,21 @@ public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
     @Override
     protected void initModel(Model model, Reader artifactReader, File artifactFile)
             throws ModelParseException, IOException {
+        initModelFromXML(model, parseXML(artifactReader, artifactFile.toURI().toASCIIString()), artifactFile);
+    }
+
+    protected abstract void initModelFromXML(Model model, Element xml, File artifactFile)
+            throws ModelParseException, IOException;
+
+    protected static Element parseXML(Reader artifactReader, String documentURI) throws IOException {
         try {
             DocumentBuilder parser = FACTORY.newDocumentBuilder();
             Document doc = parser.parse(new InputSource(artifactReader));
-            doc.setDocumentURI(artifactFile.toURI().toASCIIString());
-            Element element = doc.getDocumentElement();
-            initModelFromXML(model, element, artifactFile);
+            if (documentURI != null) {
+                doc.setDocumentURI(documentURI);
+            }
+            return doc.getDocumentElement();
+
         } catch (ParserConfigurationException e) {
             throw new IOException("parser failed", e);
         } catch (SAXException e) {
@@ -58,9 +68,6 @@ public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
             throw new ModelParseException(e.getMessage(), lineNumber, columnNumber, e);
         }
     }
-
-    protected abstract void initModelFromXML(Model model, Element xml, File artifactFile)
-            throws ModelParseException, IOException;
 
     protected static String getRequiredXMLAttributeValue(Element element, String attributeName)
             throws ModelParseException {

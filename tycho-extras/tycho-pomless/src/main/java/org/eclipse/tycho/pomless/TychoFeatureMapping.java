@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Lablicate GmbH and others.
+ * Copyright (c) 2019, 2020 Lablicate GmbH and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -7,7 +7,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- * Christoph Läubrich - initial API and implementation derived from TychoModelReader 
+ * Christoph Läubrich (Lablicate GmbH) - initial API and implementation derived from TychoModelReader
+ * Christoph Läubrich - add type prefix to name 
+ *  
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -27,6 +29,7 @@ import org.w3c.dom.Element;
 @Component(role = Mapping.class, hint = TychoFeatureMapping.PACKAGING)
 public class TychoFeatureMapping extends AbstractXMLTychoMapping {
 
+    private static final String NAME_PREFIX = "[feature] ";
     private static final String FEATURE_XML = "feature.xml";
     public static final String PACKAGING = "eclipse-feature";
 
@@ -39,7 +42,9 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
         loadFeatureProperties(artifactFile, featureProperties);
         String label = getExternalizedXMLAtttributeValue(xml, featureProperties, "label");
         if (label != null) {
-            model.setName(label);
+            model.setName(NAME_PREFIX + label);
+        } else {
+            model.setName(NAME_PREFIX + model.getArtifactId());
         }
         String provider = getExternalizedXMLAtttributeValue(xml, featureProperties, "provider-name");
         if (provider != null) {
