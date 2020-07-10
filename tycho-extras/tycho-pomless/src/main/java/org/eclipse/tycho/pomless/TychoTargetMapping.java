@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Lablicate GmbH and others.
+ * Copyright (c) 2019, 2020 Lablicate GmbH and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -7,7 +7,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- * Christoph Läubrich - initial API and implementation
+ * Christoph Läubrich (Lablicate GmbH) - initial API and implementation
+ * Christoph Läubrich - add type prefix to name
+ * 
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -24,6 +26,7 @@ import org.w3c.dom.Element;
 @Component(role = Mapping.class, hint = TychoTargetMapping.PACKAGING)
 public class TychoTargetMapping extends AbstractXMLTychoMapping {
 
+    private static final String NAME_PREFIX = "[target] ";
     private static final String TARGET_EXTENSION = ".target";
     public static final String PACKAGING = "eclipse-target-definition";
 
@@ -78,9 +81,9 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
         model.setArtifactId(artifactId);
         String name = getXMLAttributeValue(xml, "name");
         if (name != null) {
-            model.setName(name);
+            model.setName(NAME_PREFIX + name);
         } else {
-            model.setName(artifactId);
+            model.setName(NAME_PREFIX + artifactId);
         }
     }
 

@@ -7,7 +7,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- * Christoph Läubrich - initial API and implementation derived from TychoModelReader 
+ * Christoph Läubrich (Lablicate GmbH) - initial API and implementation derived from TychoModelReader
+ * Christoph Läubrich - add type prefix to name 
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
@@ -29,6 +30,8 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
 @Component(role = Mapping.class, hint = TychoBundleMapping.PACKAGING)
 public class TychoBundleMapping extends AbstractTychoMapping {
 
+    private static final String NAME_PREFIX = "[bundle] ";
+    private static final String NAME_PREFIX_TEST = "[test-bundle] ";
     public static final String META_INF_DIRECTORY = "META-INF";
     public static final String MANIFEST_MF = "MANIFEST.MF";
     public static final String PACKAGING = "eclipse-plugin";
@@ -73,14 +76,18 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         model.setArtifactId(bundleSymbolicName);
         String bundleVersion = getRequiredHeaderValue("Bundle-Version", manifestHeaders, manifestFile);
         model.setVersion(getPomVersion(bundleVersion));
+        String prefix;
         if (isTestBundle(bundleSymbolicName, manifestHeaders, bundleRoot)) {
             model.setPackaging(PACKAGING_TEST);
+            prefix = NAME_PREFIX_TEST;
+        } else {
+            prefix = NAME_PREFIX;
         }
         String bundleName = getManifestAttributeValue(manifestHeaders, "Bundle-Name", manifestFile);
         if (bundleName != null) {
-            model.setName(bundleName);
+            model.setName(prefix + bundleName);
         } else {
-            model.setName(bundleSymbolicName);
+            model.setName(prefix + bundleSymbolicName);
         }
         String vendorName = getManifestAttributeValue(manifestHeaders, "Bundle-Vendor", manifestFile);
         if (vendorName != null) {
