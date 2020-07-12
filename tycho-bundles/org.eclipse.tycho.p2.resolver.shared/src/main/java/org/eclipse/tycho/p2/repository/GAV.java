@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
+import java.util.Objects;
+
 public class GAV {
     private String groupId;
 
@@ -42,24 +44,13 @@ public class GAV {
         }
         GAV other = (GAV) o;
 
-        return equals(groupId, other.getGroupId()) && equals(artifactId, other.getArtifactId())
-                && equals(version, other.getVersion());
-    }
-
-    private static boolean equals(String str1, String str2) {
-        if (str1 == null) {
-            return str2 == null;
-        }
-        return str1.equals(str2);
+        return Objects.equals(groupId, other.getGroupId()) && Objects.equals(artifactId, other.getArtifactId())
+                && Objects.equals(version, other.getVersion());
     }
 
     @Override
     public int hashCode() {
-        int hash = 1;
-        hash = hash * 31 + (groupId != null ? groupId.hashCode() : 0);
-        hash = hash * 31 + (artifactId != null ? artifactId.hashCode() : 0);
-        hash = hash * 31 + (version != null ? version.hashCode() : 0);
-        return hash;
+        return Objects.hash(groupId, artifactId, version);
     }
 
     public String toExternalForm() {
