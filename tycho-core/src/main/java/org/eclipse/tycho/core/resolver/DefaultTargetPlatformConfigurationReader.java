@@ -41,6 +41,19 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {
+    public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";
+    public static final String INCLUDE_PACKED_ARTIFACTS = "includePackedArtifacts";
+    public static final String DEPENDENCY_RESOLUTION = "dependency-resolution";
+    public static final String FILTERS = "filters";
+    public static final String RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS = "resolveWithExecutionEnvironmentConstraints";
+    public static final String BREE_HEADER_SELECTION_POLICY = "breeHeaderSelectionPolicy";
+    public static final String EXECUTION_ENVIRONMENT_DEFAULT = "executionEnvironmentDefault";
+    public static final String EXECUTION_ENVIRONMENT = "executionEnvironment";
+    public static final String ALLOW_CONFLICTING_DEPENDENCIES = "allowConflictingDependencies";
+    public static final String POM_DEPENDENCIES = "pomDependencies";
+    public static final String TARGET = "target";
+    public static final String RESOLVER = "resolver";
+    public static final String ENVIRONMENTS = "environments";
     private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
     private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
     private static final String FILE_EXTENSION = ".target";
@@ -86,7 +99,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 setAllowConflictingDependencies(result, configuration);
 
-                setDisableP2Mirrors(result, configuration);
+                setDisableP2Mirrors(configuration);
 
                 setExecutionEnvironment(result, configuration);
                 setExecutionEnvironmentDefault(result, configuration);
@@ -139,7 +152,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setIncludePackedArtifacts(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild("includePackedArtifacts"));
+        String value = getStringValue(configuration.getChild(INCLUDE_PACKED_ARTIFACTS));
 
         if (value == null) {
             return;
@@ -149,7 +162,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
     private void setTargetDefinitionIncludeSources(TargetPlatformConfiguration result, Xpp3Dom configuration)
             throws BuildFailureException {
-        String value = getStringValue(configuration.getChild("targetDefinitionIncludeSource"));
+        String value = getStringValue(configuration.getChild(TARGET_DEFINITION_INCLUDE_SOURCE));
 
         if (value == null) {
             return;
@@ -165,7 +178,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom resolverDom = configuration.getChild("dependency-resolution");
+        Xpp3Dom resolverDom = configuration.getChild(DEPENDENCY_RESOLUTION);
         if (resolverDom == null) {
             return;
         }
@@ -231,7 +244,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild("executionEnvironment"));
+        String value = getStringValue(configuration.getChild(EXECUTION_ENVIRONMENT));
 
         if (value == null) {
             return;
@@ -240,7 +253,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setExecutionEnvironmentDefault(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild("executionEnvironmentDefault"));
+        String value = getStringValue(configuration.getChild(EXECUTION_ENVIRONMENT_DEFAULT));
 
         if (value == null) {
             return;
@@ -249,7 +262,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setBREEHeaderSelectionPolicy(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild("breeHeaderSelectionPolicy"));
+        String value = getStringValue(configuration.getChild(BREE_HEADER_SELECTION_POLICY));
 
         if (value == null) {
             return;
@@ -270,14 +283,14 @@ public class DefaultTargetPlatformConfigurationReader {
      * OSGi container with the configured execution environment.
      */
     private void setResolveWithEEContraints(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
-        String value = getStringValue(resolverDom.getChild("resolveWithExecutionEnvironmentConstraints"));
+        String value = getStringValue(resolverDom.getChild(RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS));
         if (value == null) {
             return;
         }
         result.setResolveWithEEContraints(Boolean.valueOf(value));
     }
 
-    private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+    private void setDisableP2Mirrors(Xpp3Dom configuration) {
         Xpp3Dom disableP2mirrorsDom = configuration.getChild("disableP2Mirrors");
         if (disableP2mirrorsDom != null) {
             logger.warn(
@@ -286,7 +299,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setAllowConflictingDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild("allowConflictingDependencies"));
+        String value = getStringValue(configuration.getChild(ALLOW_CONFLICTING_DEPENDENCIES));
 
         if (value == null) {
             return;
@@ -302,7 +315,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 result.addEnvironment(deprecatedTargetEnvironmentSpec);
             }
 
-            Xpp3Dom environmentsDom = configuration.getChild("environments");
+            Xpp3Dom environmentsDom = configuration.getChild(ENVIRONMENTS);
             if (environmentsDom != null) {
                 if (deprecatedTargetEnvironmentSpec != null) {
                     String message = "Deprecated target-platform-configuration <environment> element must not be combined with new <environments> element; check the (inherited) configuration of "
@@ -330,7 +343,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild("pomDependencies"));
+        String value = getStringValue(configuration.getChild(POM_DEPENDENCIES));
 
         if (value == null) {
             return;
@@ -340,7 +353,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
     private void setTarget(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
             Xpp3Dom configuration) throws MojoExecutionException {
-        Xpp3Dom targetDom = configuration.getChild("target");
+        Xpp3Dom targetDom = configuration.getChild(TARGET);
         if (targetDom == null) {
             return;
         }
@@ -398,7 +411,7 @@ public class DefaultTargetPlatformConfigurationReader {
         }
         // resolve using maven
 
-        Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, "target",
+        Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, TARGET,
                 classifier);
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
@@ -415,7 +428,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setTargetPlatformResolver(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild("resolver"));
+        String value = getStringValue(configuration.getChild(RESOLVER));
 
         if (value == null) {
             return;
@@ -424,7 +437,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void readFilters(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom filtersDom = configuration.getChild("filters");
+        Xpp3Dom filtersDom = configuration.getChild(FILTERS);
         if (filtersDom != null) {
             result.setFilters(filterReader.parseFilterConfiguration(filtersDom));
         }

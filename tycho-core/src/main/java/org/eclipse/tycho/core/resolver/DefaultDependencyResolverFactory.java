@@ -28,7 +28,7 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 @Component(role = DefaultDependencyResolverFactory.class)
 public class DefaultDependencyResolverFactory {
-    private static final String DEFAULT_RESOLVER_HINT = "p2";
+    public static final String DEFAULT_RESOLVER_HINT = "p2";
 
     @Requirement
     private Logger logger;
