@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -28,8 +27,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -49,11 +46,11 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.plugins.p2.extras.Repository;
+
+import com.sun.tools.classfile.Dependency;
 
 /**
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse installation is
@@ -262,10 +259,7 @@ public class EclipseRunMojo extends AbstractMojo {
 
     private void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException, MojoFailureException {
         try {
-            File workspace = new File(work, "data").getAbsoluteFile();
-            FileUtils.deleteDirectory(workspace);
             LaunchConfiguration cli = createCommandLine(runtime);
-            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
             int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
             if (returnCode != 0) {
                 throw new MojoExecutionException("Error while executing platform (return code: " + returnCode + ")");
@@ -295,6 +289,10 @@ public class EclipseRunMojo extends AbstractMojo {
 
         addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration",
                 new File(work, "configuration").getAbsolutePath());
+
+        File workspace = new File(work, "data").getAbsolutePath();
+        addProgramArgs("-data", workspace);
+        getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
 
         cli.addProgramArguments(splitArgLine(appArgLine));
         if (applicationsArgs != null) {
