@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.codehaus.plexus.util.IOUtil;
 import org.junit.Test;
 
 public class TychoVersionTest {
@@ -29,11 +28,8 @@ public class TychoVersionTest {
 
     private String readTestVersion() throws IOException {
         Properties p = new Properties();
-        InputStream stream = TychoVersionTest.class.getResourceAsStream("testversion.properties");
-        try {
+        try (InputStream stream = TychoVersionTest.class.getResourceAsStream("testversion.properties")) {
             p.load(stream);
-        } finally {
-            IOUtil.close(stream);
         }
         return p.getProperty("testversion");
     }

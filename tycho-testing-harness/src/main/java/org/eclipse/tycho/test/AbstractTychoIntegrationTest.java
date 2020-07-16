@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -197,24 +197,18 @@ public abstract class AbstractTychoIntegrationTest {
     }
 
     protected void writeStringToFile(File iniFile, String string) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile))) {
             IOUtil.copy(string, os);
-        } finally {
-            IOUtil.close(os);
         }
     }
 
     protected StringBuffer readFileToString(File iniFile) throws IOException {
-        InputStream is = new BufferedInputStream(new FileInputStream(iniFile));
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(iniFile))) {
             StringWriter buffer = new StringWriter();
 
             IOUtil.copy(is, buffer, "UTF-8");
 
             return buffer.getBuffer();
-        } finally {
-            IOUtil.close(is);
         }
     }
 

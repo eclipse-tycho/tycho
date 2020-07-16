@@ -150,11 +150,8 @@ public class MutablePomFileTest {
     }
 
     private PomFile getPom(String path) throws IOException {
-        InputStream is = getClass().getResourceAsStream(path);
-        try {
+        try (InputStream is = getClass().getResourceAsStream(path)) {
             return PomFile.read(is, true);
-        } finally {
-            IOUtil.close(is);
         }
     }
 
@@ -169,11 +166,8 @@ public class MutablePomFileTest {
 
     private static byte[] toByteArray(String path) throws IOException {
         byte expected[];
-        InputStream is = MutablePomFileTest.class.getResourceAsStream(path);
-        try {
+        try (InputStream is = MutablePomFileTest.class.getResourceAsStream(path)) {
             expected = IOUtil.toByteArray(is);
-        } finally {
-            IOUtil.close(is);
         }
         return expected;
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator.EquinoxRuntimeDescription;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
@@ -49,8 +48,8 @@ class WorkspaceTychoOsgiRuntimeLocator {
     public boolean addProduct(EquinoxRuntimeDescription result, Artifact pom) throws MavenExecutionException {
         ProductConfiguration product;
         try {
-            product = ProductConfiguration.read(new File(pom.getFile().getParentFile(), pom.getArtifactId()
-                    + ".product"));
+            product = ProductConfiguration
+                    .read(new File(pom.getFile().getParentFile(), pom.getArtifactId() + ".product"));
         } catch (IOException e) {
             return false;
         }
@@ -69,8 +68,8 @@ class WorkspaceTychoOsgiRuntimeLocator {
         }
 
         if (!missing.isEmpty()) {
-            throw new MavenExecutionException("Inconsistent m2e-tycho workspace state, missing bundles: "
-                    + missing.toString(), (Throwable) null);
+            throw new MavenExecutionException(
+                    "Inconsistent m2e-tycho workspace state, missing bundles: " + missing.toString(), (Throwable) null);
         }
 
         Map<String, BundleConfiguration> bundleConfigurations = product.getPluginConfiguration();
@@ -112,13 +111,8 @@ class WorkspaceTychoOsgiRuntimeLocator {
         result.addPlatformProperty("osgi.install.area", stateLocation.getAbsolutePath());
 
         File devproperties = new File(stateLocation, "dev.properties");
-        try {
-            OutputStream os = new BufferedOutputStream(new FileOutputStream(devproperties));
-            try {
-                deventries.store(os, null);
-            } finally {
-                IOUtil.close(os);
-            }
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(devproperties))) {
+            deventries.store(os, null);
             result.addPlatformProperty("osgi.dev", devproperties.toURI().toURL().toExternalForm());
         } catch (IOException e) {
             throw new MavenExecutionException("Could not write dev.properties", e);

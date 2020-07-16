@@ -220,13 +220,9 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
     private void copyUrl(String source, File destination) {
         try {
             URL url = new URL(source);
-            try (InputStream is = url.openStream()) {
-                OutputStream os = new BufferedOutputStream(new FileOutputStream(destination));
-                try {
-                    IOUtil.copy(is, os);
-                } finally {
-                    os.close();
-                }
+            try (InputStream is = url.openStream();
+                    OutputStream os = new BufferedOutputStream(new FileOutputStream(destination))) {
+                IOUtil.copy(is, os);
             }
         } catch (IOException e) {
             throw new RuntimeException("Could not copy URL contents", e);

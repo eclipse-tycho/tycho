@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 SAP AG and others.
+ * Copyright (c) 2010, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import java.util.jar.Manifest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.packaging.PackagePluginMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
@@ -90,11 +89,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         mojo.execute();
 
         Manifest mf;
-        InputStream is = new FileInputStream(new File(basedir, "target/MANIFEST.MF"));
-        try {
+        try (InputStream is = new FileInputStream(new File(basedir, "target/MANIFEST.MF"))) {
             mf = new Manifest(is);
-        } finally {
-            IOUtil.close(is);
         }
 
         String symbolicName = mf.getMainAttributes().getValue("Bundle-SymbolicName");
@@ -144,7 +140,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         classFile.createNewFile();
     }
 
-    private <T> T getMojo(String goal, Class<T> mojoClass, MavenProject project, MavenSession session) throws Exception {
+    private <T> T getMojo(String goal, Class<T> mojoClass, MavenProject project, MavenSession session)
+            throws Exception {
         T mojo = mojoClass.cast(lookupMojo(goal, project.getFile()));
         setVariableValueToObject(mojo, "project", project);
         setVariableValueToObject(mojo, "session", session);

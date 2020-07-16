@@ -451,14 +451,10 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         configsFolder.mkdirs();
 
         File configIni = new File(configsFolder, "config.ini");
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(configIni);
+        try (FileOutputStream fos = new FileOutputStream(configIni)) {
             props.store(fos, "Product Runtime Configuration File");
         } catch (IOException e) {
             throw new MojoExecutionException("Error creating .eclipseproduct file.", e);
-        } finally {
-            IOUtil.close(fos);
         }
     }
 
@@ -682,24 +678,18 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private void writeStringToFile(File iniFile, String string) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile))) {
             IOUtil.copy(string, os);
-        } finally {
-            IOUtil.close(os);
         }
     }
 
     private StringBuffer readFileToString(File iniFile) throws IOException {
-        InputStream is = new BufferedInputStream(new FileInputStream(iniFile));
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(iniFile))) {
             StringWriter buffer = new StringWriter();
 
             IOUtil.copy(is, buffer, "UTF-8");
 
             return buffer.getBuffer();
-        } finally {
-            IOUtil.close(is);
         }
     }
 

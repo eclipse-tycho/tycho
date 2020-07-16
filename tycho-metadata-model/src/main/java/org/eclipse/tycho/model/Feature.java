@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -221,10 +221,8 @@ public class Feature {
     }
 
     public static void write(Feature feature, File file, String indent) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-
         Document document = feature.document;
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
@@ -234,8 +232,6 @@ public class Feature {
             } finally {
                 xw.flush();
             }
-        } finally {
-            IOUtil.close(os);
         }
     }
 

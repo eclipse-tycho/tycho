@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-import org.codehaus.plexus.util.IOUtil;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -68,13 +66,10 @@ public class PomFile {
     }
 
     public static PomFile read(File file, boolean isMutable) throws IOException {
-        InputStream is = new BufferedInputStream(new FileInputStream(file));
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
             return read(is, isMutable);
         } catch (XMLParseException xpe) {
             throw new XMLParseException("This Pom " + file.getAbsolutePath() + " is in the Wrong Format", xpe);
-        } finally {
-            IOUtil.close(is);
         }
     }
 
@@ -95,11 +90,8 @@ public class PomFile {
     }
 
     public static void write(PomFile pom, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             write(pom, os);
-        } finally {
-            IOUtil.close(os);
         }
     }
 

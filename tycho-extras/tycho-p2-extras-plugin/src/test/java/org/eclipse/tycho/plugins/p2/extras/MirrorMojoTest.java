@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2019 SAP AG and others.
+ * Copyright (c) 2010, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,6 @@ import org.apache.maven.plugin.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.shared.utils.io.FileUtils;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Assert;
@@ -141,13 +140,10 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
          * repository location to a file. Here, we read this file. (Approach copied from tycho-its.)
          */
         Properties buildProperties = new Properties();
-        InputStream is = this.getClassLoader().getResourceAsStream("baseTest.properties");
-        try {
+        try (InputStream is = this.getClassLoader().getResourceAsStream("baseTest.properties")) {
             buildProperties.load(is);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            IOUtil.close(is);
         }
         return new File(buildProperties.getProperty("local-repo"));
     }

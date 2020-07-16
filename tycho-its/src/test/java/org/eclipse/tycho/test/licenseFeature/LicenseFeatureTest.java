@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
@@ -57,11 +56,9 @@ public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
             Assert.assertNotNull(zip.getEntry("file2.txt"));
 
             Properties p = new Properties();
-            InputStream is = zip.getInputStream(zip.getEntry("feature.properties"));
-            try {
+
+            try (InputStream is = zip.getInputStream(zip.getEntry("feature.properties"))) {
                 p.load(is);
-            } finally {
-                IOUtil.close(is);
             }
 
             Feature featureXML = Feature.readJar(feature);

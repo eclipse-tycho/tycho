@@ -210,23 +210,19 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     }
 
     private void appendToOrAddFeatureProperties(File targetFeatureProperties, File licenseFeature) throws IOException {
-        InputStream inputStream = null;
-        FileWriter writer = null;
         try (ZipFile zip = new ZipFile(licenseFeature)) {
             ZipEntry entry = zip.getEntry(FEATURE_PROPERTIES);
             if (entry != null) {
-                inputStream = zip.getInputStream(entry);
-                writer = new FileWriter(targetFeatureProperties.getAbsolutePath(), true);
-                // if we append, first add a new line to be sure that we start 
-                // in a new line of the existing file
-                if (targetFeatureProperties.exists()) {
-                    IOUtil.copy("\n", writer);
+                try (InputStream inputStream = zip.getInputStream(entry);
+                        FileWriter writer = new FileWriter(targetFeatureProperties.getAbsolutePath(), true)) {
+                    // if we append, first add a new line to be sure that we start 
+                    // in a new line of the existing file
+                    if (targetFeatureProperties.exists()) {
+                        IOUtil.copy("\n", writer);
+                    }
+                    IOUtil.copy(inputStream, writer);
                 }
-                IOUtil.copy(inputStream, writer);
             }
-        } finally {
-            IOUtil.close(writer);
-            IOUtil.close(inputStream);
         }
     }
 

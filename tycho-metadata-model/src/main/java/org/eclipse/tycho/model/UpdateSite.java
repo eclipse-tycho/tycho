@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,15 +47,15 @@ public class UpdateSite {
 
     private final Document document;
 
-	private String associateSitesUrl;
+    private String associateSitesUrl;
 
     public UpdateSite(Document document) {
         this.document = document;
         this.dom = document.getRootElement();
 
-		if (dom.getAttribute("associateSitesURL") != null) {
-			associateSitesUrl = dom.getAttributeValue("associateSitesURL");
-		}
+        if (dom.getAttribute("associateSitesURL") != null) {
+            associateSitesUrl = dom.getAttributeValue("associateSitesURL");
+        }
     }
 
     public List<SiteFeatureRef> getFeatures() {
@@ -111,10 +111,8 @@ public class UpdateSite {
     }
 
     public static void write(UpdateSite site, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-
         Document document = site.document;
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
@@ -123,8 +121,6 @@ public class UpdateSite {
             } finally {
                 xw.flush();
             }
-        } finally {
-            IOUtil.close(os);
         }
     }
 
@@ -133,7 +129,7 @@ public class UpdateSite {
         return "true".equals(pack200);
     }
 
-	public String getAssociateSitesUrl() {
-		return associateSitesUrl;
-	}
+    public String getAssociateSitesUrl() {
+        return associateSitesUrl;
+    }
 }

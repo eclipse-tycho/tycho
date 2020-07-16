@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,10 +57,8 @@ public class ProductConfiguration {
     }
 
     public static void write(ProductConfiguration product, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-
         Document document = product.document;
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
@@ -69,8 +67,6 @@ public class ProductConfiguration {
             } finally {
                 xw.flush();
             }
-        } finally {
-            IOUtil.close(os);
         }
     }
 
@@ -107,7 +103,8 @@ public class ProductConfiguration {
     private static FeatureRef parseFeature(Element featureDom) throws ModelFileSyntaxException {
         // knowing the name of the parent element is useful for the error message, so we check the name here
         if (!"feature".equals(featureDom.getName())) {
-            throw new ModelFileSyntaxException("Invalid child element \"" + featureDom.getName() + "\" in \"features\"");
+            throw new ModelFileSyntaxException(
+                    "Invalid child element \"" + featureDom.getName() + "\" in \"features\"");
         }
         return new FeatureRef(featureDom);
     }

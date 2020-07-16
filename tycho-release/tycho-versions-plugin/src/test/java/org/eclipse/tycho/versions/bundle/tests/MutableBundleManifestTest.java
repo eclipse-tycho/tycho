@@ -202,11 +202,8 @@ public class MutableBundleManifestTest {
 
     private static byte[] toByteArray(String path) throws IOException {
         byte expected[];
-        InputStream is = MutablePomFileTest.class.getResourceAsStream(path);
-        try {
+        try (InputStream is = MutablePomFileTest.class.getResourceAsStream(path)) {
             expected = IOUtil.toByteArray(is);
-        } finally {
-            IOUtil.close(is);
         }
         return expected;
     }

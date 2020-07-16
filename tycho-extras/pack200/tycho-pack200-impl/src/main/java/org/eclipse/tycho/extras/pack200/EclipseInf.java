@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,6 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
-import org.codehaus.plexus.util.IOUtil;
 
 /**
  * https://wiki.eclipse.org/JarProcessor_Options
@@ -59,11 +57,8 @@ public class EclipseInf {
 
         ZipEntry entry = jarFile.getEntry(PATH_ECLIPSEINF);
         if (entry != null) {
-            InputStream is = jarFile.getInputStream(entry);
-            try {
+            try (InputStream is = jarFile.getInputStream(entry)) {
                 properties.load(is);
-            } finally {
-                IOUtil.close(is);
             }
             return new EclipseInf(properties);
         }

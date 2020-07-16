@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Rapicorp, Inc. and others.
+ * Copyright (c) 2015, 2020 Rapicorp, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.codehaus.plexus.util.IOUtil;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -172,9 +170,7 @@ public class IU {
     }
 
     public static IU read(File file) throws IOException {
-        FileInputStream is = new FileInputStream(file);
-        try {
-
+        try (FileInputStream is = new FileInputStream(file)) {
             Document iuDocument = parser.parse(new XMLIOSource(is));
             Element root = iuDocument.getChild(UNIT);
             if (root == null)
@@ -188,8 +184,6 @@ public class IU {
                 throw new RuntimeException(
                         String.format("The IU defined in %s is missing a version.", file.getAbsolutePath()));
             return result;
-        } finally {
-            IOUtil.close(is);
         }
     }
 
@@ -216,10 +210,8 @@ public class IU {
     }
 
     public static void write(IU iu, File file, String indent) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-
         Document document = iu.document;
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
@@ -229,8 +221,6 @@ public class IU {
             } finally {
                 xw.flush();
             }
-        } finally {
-            IOUtil.close(os);
         }
     }
 }
