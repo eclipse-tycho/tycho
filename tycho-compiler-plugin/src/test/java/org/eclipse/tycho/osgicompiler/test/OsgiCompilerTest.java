@@ -231,7 +231,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertFalse(new File(project.getBasedir(), "target/classes/testresources/test.properties").exists());
     }
 
-    public void testExecutionEnvironment() throws Exception {
+    public void testSourceCompileLevel() throws Exception {
         File basedir = getBasedir("projects/executionEnvironment");
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project;
@@ -245,7 +245,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         // Minimum source and target level must be taken
         project = projects.get(2);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
-        assertEquals("OSGi/Minimum-1.0", mojo.getExecutionEnvironment());
+        assertEquals("1.3", mojo.getSourceLevel());
         try {
             mojo.execute();
             fail("compilation failure due to assert keyword expected");
@@ -258,32 +258,30 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         mojo = getMojo(projects, project);
         assertEquals("jsr14", mojo.getTargetLevel());
         assertEquals("1.5", mojo.getSourceLevel());
-        assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
         mojo.execute();
         assertBytecodeMajorLevel(TARGET_1_4, new File(project.getBasedir(), "target/classes/Generic.class"));
         // project with both explicit EE configuration in pom.xml and Bundle-RequiredExecutionEnvironment.
         // explicit configuration in the pom.xml win
         project = projects.get(4);
         mojo = getMojo(projects, project);
-        assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
+        assertEquals("1.5", mojo.getSourceLevel());
         // project with both explicit compiler configuration in build.properties and Bundle-RequiredExecutionEnvironment. 
         // build.properties should win. 
         project = projects.get(5);
         mojo = getMojo(projects, project);
         assertEquals("jsr14", mojo.getTargetLevel());
         assertEquals("1.5", mojo.getSourceLevel());
-        assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
         mojo.execute();
         assertBytecodeMajorLevel(TARGET_1_4, new File(project.getBasedir(), "target/classes/Generic.class"));
     }
 
-    public void testNewerEEthenBREE() throws Exception {
+    public void testNewerEEthanBREE() throws Exception {
         File basedir = getBasedir("projects/executionEnvironment/p006-newerEEthanBREE");
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         mojo.execute();
-        assertEquals("JavaSE-11", mojo.getExecutionEnvironment());
+        assertTrue(Integer.parseInt(mojo.getExecutionEnvironment().substring("JavaSE-".length())) >= 11);
         assertEquals("1.8", mojo.getSourceLevel());
         assertEquals("1.8", mojo.getTargetLevel());
         File classFile = new File(basedir, "target/classes/Noop.class");
