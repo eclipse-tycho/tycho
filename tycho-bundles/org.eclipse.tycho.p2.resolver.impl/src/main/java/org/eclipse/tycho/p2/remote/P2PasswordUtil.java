@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
@@ -43,24 +43,7 @@ class P2PasswordUtil {
                 host = location.toString();
             }
         }
-        String nodeKey;
-        try {
-            nodeKey = URLEncoder.encode(host, "UTF-8"); //$NON-NLS-1$
-        } catch (UnsupportedEncodingException e2) {
-            // fall back to default platform encoding
-            try {
-                // Uses getProperty "file.encoding" instead of using deprecated URLEncoder.encode(String location)
-                // which does the same, but throws NPE on missing property.
-                String enc = System.getProperty("file.encoding");//$NON-NLS-1$
-                if (enc == null) {
-                    throw new UnsupportedEncodingException(
-                            "No UTF-8 encoding and missing system property: file.encoding"); //$NON-NLS-1$
-                }
-                nodeKey = URLEncoder.encode(host, enc);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        String nodeKey = URLEncoder.encode(host, StandardCharsets.UTF_8);
         String nodeName = IRepository.PREFERENCE_NODE + '/' + nodeKey;
 
         ISecurePreferences prefNode = securePreferences.node(nodeName);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +61,7 @@ public class P2GeneratorImplTest {
         assertThat(sourceBundleUnit, hasGAV("org.acme", "foo", "0.0.1", "sources"));
         ITouchpointData touchPointData = sourceBundleUnit.getTouchpointData().iterator().next();
         String manifestContent = touchPointData.getInstruction("manifest").getBody();
-        Manifest manifest = new Manifest(new ByteArrayInputStream(manifestContent.getBytes("UTF-8")));
+        Manifest manifest = new Manifest(new ByteArrayInputStream(manifestContent.getBytes(StandardCharsets.UTF_8)));
         Attributes attributes = manifest.getMainAttributes();
         assertEquals("foo.source", attributes.getValue("Bundle-SymbolicName"));
         //assertEquals("foo;version=0.0.1;roots:=\".\"", attributes.getValue("Eclipse-SourceBundle"));

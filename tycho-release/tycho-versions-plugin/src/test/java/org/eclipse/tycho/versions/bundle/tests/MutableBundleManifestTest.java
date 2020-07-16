@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -121,7 +121,7 @@ public class MutableBundleManifestTest {
         String manifestStr = "Bundle-SymbolicName: name";
 
         // when
-        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes("ascii"));
+        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes(StandardCharsets.US_ASCII));
         MutableBundleManifest manifest = MutableBundleManifest.read(manifestIs);
         String written = toAsciiString(manifest);
 
@@ -136,7 +136,7 @@ public class MutableBundleManifestTest {
         String manifestStr = "Bundle-SymbolicName: name\r\nBundle-Version: version\r\n\r\nUnparsed1\r\nUnparsed2\r\n";
 
         // when
-        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes("ascii"));
+        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes(StandardCharsets.US_ASCII));
         MutableBundleManifest manifest = MutableBundleManifest.read(manifestIs);
         String written = toAsciiString(manifest);
 
@@ -152,7 +152,7 @@ public class MutableBundleManifestTest {
         String manifestStr = "Bundle-SymbolicName: name\nBundle-Version: version\n\nUnparsed1\nUnparsed2\n";
 
         // when
-        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes("ascii"));
+        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes(StandardCharsets.US_ASCII));
         MutableBundleManifest manifest = MutableBundleManifest.read(manifestIs);
         String written = toAsciiString(manifest);
 
@@ -168,7 +168,7 @@ public class MutableBundleManifestTest {
         String manifestStr = "Bundle-SymbolicName: name\rBundle-Version: version\r\rUnparsed1\rUnparsed2\r";
 
         // when
-        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes("ascii"));
+        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes(StandardCharsets.US_ASCII));
         MutableBundleManifest manifest = MutableBundleManifest.read(manifestIs);
         String written = toAsciiString(manifest);
 

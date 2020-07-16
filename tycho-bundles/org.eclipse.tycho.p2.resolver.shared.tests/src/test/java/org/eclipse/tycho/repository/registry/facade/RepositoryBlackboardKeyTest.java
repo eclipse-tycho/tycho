@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 Salesforce and others.
+ * Copyright (c) 2016, 2020 Salesforce and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ public class RepositoryBlackboardKeyTest {
 		// then
 		assertNotNull(key);
 		assertNotNull(key.toURI(), "should have a valid URI");
-		assertTrue(key.toURI().getPath().indexOf(URLEncoder.encode(pathname, "UTF-8")) > -1, "should contain encoded pathname");
+		assertTrue(key.toURI().getPath().indexOf(URLEncoder.encode(pathname, StandardCharsets.UTF_8)) > -1, "should contain encoded pathname");
 	}
 
 	@Test

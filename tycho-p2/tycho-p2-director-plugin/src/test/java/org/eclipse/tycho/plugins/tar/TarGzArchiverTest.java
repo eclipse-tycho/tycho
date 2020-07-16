@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 SAP SE and others.
+ * Copyright (c) 2014, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -91,7 +92,7 @@ public class TarGzArchiverTest {
         TarArchiveEntry textFileEntry = tarEntries.get("dir2/test.txt");
         assertTrue(textFileEntry.isFile());
         byte[] content = getTarEntry("dir2/test.txt");
-        assertEquals("hello", new String(content, "UTF-8"));
+        assertEquals("hello", new String(content, StandardCharsets.UTF_8));
     }
 
     @Test
@@ -157,7 +158,7 @@ public class TarGzArchiverTest {
         TarArchiveEntry inlinedSymLinkEntry = getTarEntries().get("testSymLink");
         assertFalse(inlinedSymLinkEntry.isSymbolicLink());
         assertTrue(inlinedSymLinkEntry.isFile());
-        String content = new String(getTarEntry("testSymLink"), "UTF-8");
+        String content = new String(getTarEntry("testSymLink"), StandardCharsets.UTF_8);
         assertEquals("testContent", content);
     }
 
@@ -170,7 +171,7 @@ public class TarGzArchiverTest {
         TarArchiveEntry inlinedSymLinkEntry = getTarEntries().get("testDirSymLink/");
         assertFalse(inlinedSymLinkEntry.isSymbolicLink());
         assertTrue(inlinedSymLinkEntry.isDirectory());
-        String content = new String(getTarEntry("testDirSymLink/test.txt"), "UTF-8");
+        String content = new String(getTarEntry("testDirSymLink/test.txt"), StandardCharsets.UTF_8);
         assertEquals("testContent", content);
     }
 

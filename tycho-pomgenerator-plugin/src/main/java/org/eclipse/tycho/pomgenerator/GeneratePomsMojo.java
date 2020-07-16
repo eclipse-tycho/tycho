@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -766,7 +767,8 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private void writePom(File dir, String filename, Model model) throws MojoExecutionException {
         try {
-            try (Writer writer = new OutputStreamWriter(new FileOutputStream(new File(dir, filename)), "UTF-8")) {
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(new File(dir, filename)),
+                    StandardCharsets.UTF_8)) {
                 modelWriter.write(writer, model);
             }
         } catch (IOException e) {
