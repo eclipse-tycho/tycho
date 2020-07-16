@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03f1d7f3_8e4740ff",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-07-16T13:20:24Z",
+      "side": 1,
+      "message": "I think \"getBREE()\" that return StandardExecutionEnvironment[] would be better",
+      "revId": "e43a5974f91caac2521e101482642a87ac52d0ea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
