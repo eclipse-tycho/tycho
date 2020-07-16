@@ -16,6 +16,24 @@
       "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "452bbf7c_4ad30b93",
+        "filename": "tycho-extras/tycho-eclipserun-plugin/src/main/java/org/eclipse/tycho/extras/eclipserun/EclipseRunMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 67832
+      },
+      "writtenOn": "2020-07-16T17:43:47Z",
+      "side": 1,
+      "message": "The File interna are mostly string based so that would not make much of a difference.\n\nThe clearing of the directory was a no-op because the directory was never used anyways. I see no reason to introduce this now.\nThe directory we are using now is inside the target dir of maven anyways. So a proper mvn clean othergoal will get rid of it now correctly already.",
+      "parentUuid": "caaed26e_d68ad76a",
+      "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
