@@ -51,6 +51,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
@@ -512,20 +513,22 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
         // only in plugin projects, the profile may also be ...
         // ... specified in build.properties (for PDE compatibility)
-        String pdeProfile = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
+        String pdeProfileName = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
                 .getJreCompilationProfile();
-        if (pdeProfile != null) {
-            sink.setProfileConfiguration(pdeProfile.trim(), "build.properties");
+        if (pdeProfileName != null) {
+            sink.setProfileConfiguration(pdeProfileName.trim(), "build.properties");
         } else {
             // ... derived from BREE in bundle manifest
             String[] manifestBREEs = getManifest(project).getExecutionEnvironments();
             if (manifestBREEs.length == 1) {
-                sink.setProfileConfiguration(manifestBREEs[0], "Bundle-RequiredExecutionEnvironment (unique entry)");
+                applyBestOfCurrentOrConfiguredProfile(manifestBREEs[0],
+                        "Bundle-RequiredExecutionEnvironment (unique entry)", mavenSession, sink);
             } else if (manifestBREEs.length > 1) {
                 TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
                 switch (tpConfiguration.getBREEHeaderSelectionPolicy()) {
                 case first:
-                    sink.setProfileConfiguration(manifestBREEs[0], "Bundle-RequiredExecutionEnvironment (first entry)");
+                    applyBestOfCurrentOrConfiguredProfile(manifestBREEs[0],
+                            "Bundle-RequiredExecutionEnvironment (first entry)", mavenSession, sink);
                     break;
                 case minimal:
                     Arrays.stream(manifestBREEs) //
@@ -533,12 +536,29 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                                     mavenSession, logger)) //
                             .sorted() //
                             .findFirst() //
-                            .ifPresent(ee -> sink.setProfileConfiguration(ee.getProfileName(),
-                                    "Bundle-RequiredExecutionEnvironment (minimal entry)"));
+                            .ifPresent(ee -> applyBestOfCurrentOrConfiguredProfile(ee.getProfileName(),
+                                    "Bundle-RequiredExecutionEnvironment (minimal entry)", mavenSession, sink));
                 }
-
             }
         }
     }
 
+    private void applyBestOfCurrentOrConfiguredProfile(String configuredProfileName, String reason,
+            MavenSession mavenSession, ExecutionEnvironmentConfiguration sink) {
+        StandardExecutionEnvironment configuredProfile = ExecutionEnvironmentUtils
+                .getExecutionEnvironment(configuredProfileName, toolchainManager, mavenSession, logger);
+        if (configuredProfile != null) {
+            // non standard profile, stick to it
+            sink.setProfileConfiguration(configuredProfileName, reason);
+        }
+        StandardExecutionEnvironment currentProfile = ExecutionEnvironmentUtils.getExecutionEnvironment(
+                "JavaSE-" + Runtime.version().feature(), toolchainManager, mavenSession, logger);
+        if (currentProfile.compareTo(configuredProfile) > 0) {
+            sink.setProfileConfiguration(currentProfile.getProfileName(),
+                    "Currently running profile, newer than configured profile (" + configuredProfileName + ") from ["
+                            + reason + "]");
+        } else {
+            sink.setProfileConfiguration(configuredProfileName, reason);
+        }
+    }
 }
