@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -32,7 +31,6 @@ import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class TychoTest extends AbstractTychoMojoTestCase {
@@ -351,32 +349,6 @@ public class TychoTest extends AbstractTychoMojoTestCase {
             assertEquals("<arch> element is missing within target-platform-configuration (element <environment>)",
                     cause.getMessage());
         }
-    }
-
-    public void testBundleRuntimeExecutionEnvironment() throws Exception {
-        File basedir = getBasedir("projects/bree");
-
-        Properties properties = new Properties();
-        properties.put("tycho-version", TychoVersion.getTychoVersion());
-
-        List<MavenProject> projects = getSortedProjects(basedir, properties, null);
-        assertEquals(6, projects.size());
-        int i = 0;
-
-        assertEquals("executionenvironment.manifest", projects.get(++i).getArtifactId());
-        assertEquals("OSGi/Minimum-1.0", getActiveEEProfile(projects.get(i)));
-
-        assertEquals("executionenvironment.manifest-minimal", projects.get(++i).getArtifactId());
-        assertEquals("OSGi/Minimum-1.0", getActiveEEProfile(projects.get(i)));
-
-        assertEquals("executionenvironment.pom-hard", projects.get(++i).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(i)));
-
-        assertEquals("executionenvironment.buildproperties", projects.get(++i).getArtifactId());
-        assertEquals("OSGi/Minimum-1.1", getActiveEEProfile(projects.get(i)));
-
-        assertEquals("executionenvironment.pom-default", projects.get(++i).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(i)));
     }
 
     public void testWithProjectReferencesItself() throws Exception {
