@@ -29,7 +29,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -262,10 +261,7 @@ public class EclipseRunMojo extends AbstractMojo {
 
     private void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException, MojoFailureException {
         try {
-            File workspace = new File(work, "data").getAbsoluteFile();
-            FileUtils.deleteDirectory(workspace);
             LaunchConfiguration cli = createCommandLine(runtime);
-            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
             int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
             if (returnCode != 0) {
                 throw new MojoExecutionException("Error while executing platform (return code: " + returnCode + ")");
@@ -295,6 +291,10 @@ public class EclipseRunMojo extends AbstractMojo {
 
         addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration",
                 new File(work, "configuration").getAbsolutePath());
+
+        String workspace = new File(work, "data").getAbsolutePath();
+        addProgramArgs(cli, "-data", workspace);
+        getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getAbsolutePath());
 
         cli.addProgramArguments(splitArgLine(appArgLine));
         if (applicationsArgs != null) {

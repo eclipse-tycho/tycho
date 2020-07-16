@@ -19,11 +19,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 
 public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 
@@ -33,12 +37,18 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        runMojo = new EclipseRunMojo();
+        runMojo = new EclipseRunMojo() {
+            @Override
+            public Log getLog() {
+                return new SilentLog();
+            }
+        };
         installation = mock(EquinoxInstallation.class);
         MavenProject project = mock(MavenProject.class);
         setVariableValueToObject(runMojo, "project", project);
         ToolchainProvider toolchainProvider = mock(ToolchainProvider.class);
         setVariableValueToObject(runMojo, "toolchainProvider", toolchainProvider);
+        setVariableValueToObject(runMojo, "work", new File("workdir"));
         when(installation.getLocation()).thenReturn(new File("installpath"));
     }
 
@@ -59,5 +69,15 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
     public void testCreateCommandLineWithNullJvmArgs() throws MalformedURLException, MojoExecutionException {
         LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
         assertTrue(commandLine.getVMArguments().length == 0);
+    }
+
+    public void testCreateCommandLineProgramArgs() throws MalformedURLException, MojoExecutionException {
+        LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
+        List<String> programArgs = Arrays.asList(commandLine.getProgramArguments());
+        MatcherAssert.assertThat(programArgs, Matchers.contains( //
+                "-install", installation.getLocation().getAbsolutePath(), //
+                "-configuration", new File("workdir/configuration").getAbsolutePath(), //
+                "-data", new File("workdir/data").getAbsolutePath() //
+        ));
     }
 }
