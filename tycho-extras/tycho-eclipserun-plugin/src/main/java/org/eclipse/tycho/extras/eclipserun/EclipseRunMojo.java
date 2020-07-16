@@ -262,10 +262,7 @@ public class EclipseRunMojo extends AbstractMojo {
 
     private void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException, MojoFailureException {
         try {
-            File workspace = new File(work, "data").getAbsoluteFile();
-            FileUtils.deleteDirectory(workspace);
             LaunchConfiguration cli = createCommandLine(runtime);
-            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
             int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
             if (returnCode != 0) {
                 throw new MojoExecutionException("Error while executing platform (return code: " + returnCode + ")");
@@ -295,6 +292,11 @@ public class EclipseRunMojo extends AbstractMojo {
 
         addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration",
                 new File(work, "configuration").getAbsolutePath());
+
+        File workspace = new File(work, "data").getAbsoluteFile();
+        getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
+        addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration",
+                workspace.getAbsolutePath());
 
         cli.addProgramArguments(splitArgLine(appArgLine));
         if (applicationsArgs != null) {
