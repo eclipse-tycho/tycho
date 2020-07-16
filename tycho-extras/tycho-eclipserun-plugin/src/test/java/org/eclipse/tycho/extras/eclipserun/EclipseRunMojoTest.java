@@ -39,6 +39,7 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
         setVariableValueToObject(runMojo, "project", project);
         ToolchainProvider toolchainProvider = mock(ToolchainProvider.class);
         setVariableValueToObject(runMojo, "toolchainProvider", toolchainProvider);
+        setVariableValueToObject(runMojo, "work", "workdir");
         when(installation.getLocation()).thenReturn(new File("installpath"));
     }
 
@@ -59,5 +60,13 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
     public void testCreateCommandLineWithNullJvmArgs() throws MalformedURLException, MojoExecutionException {
         LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
         assertTrue(commandLine.getVMArguments().length == 0);
+    }
+
+    public void testCreateCommandShouldSpecifyConfigurationAndDataLocation()
+            throws MalformedURLException, MojoExecutionException {
+        LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
+        List<String> programArgs = Arrays.asList(commandLine.getProgramArguments());
+        assertTrue(programArgs.contains("-configuration=" + new File("workdir/configuration").getAbsolutePath()));
+        assertTrue(programArgs.contains("-data=" + new File("workdir/data").getAbsolutePath()));
     }
 }
