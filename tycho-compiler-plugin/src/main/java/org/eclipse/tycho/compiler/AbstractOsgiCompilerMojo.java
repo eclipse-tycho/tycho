@@ -297,9 +297,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        manifestBREEs = Arrays.stream(bundleReader.loadManifest(project.getBasedir()).getExecutionEnvironments())
-                .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session, logger))
-                .toArray(StandardExecutionEnvironment[]::new);
+        readBREE();
         getLog().debug("Manifest BREEs: " + Arrays.toString(manifestBREEs));
         getLog().debug("Target Platform EE: " + getTargetExecutionEnvironment());
         String effectiveTargetLevel = getTargetLevel();
@@ -320,6 +318,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             if (dotOutputJar != null) {
                 project.getArtifact().setFile(dotOutputJar.getOutputDirectory());
             }
+        }
+    }
+
+    private void readBREE() {
+        if (manifestBREEs == null) {
+            manifestBREEs = Arrays.stream(bundleReader.loadManifest(project.getBasedir()).getExecutionEnvironments())
+                    .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session, logger))
+                    .toArray(StandardExecutionEnvironment[]::new);
         }
     }
 
@@ -690,6 +696,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (javacSource != null) {
             return javacSource;
         }
+        readBREE();
         return Arrays.stream(manifestBREEs) //
                 .map(ExecutionEnvironment::getCompilerSourceLevelDefault) //
                 .filter(Objects::nonNull) //
@@ -709,6 +716,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (javacTarget != null) {
             return javacTarget;
         }
+        readBREE();
         return Arrays.stream(manifestBREEs) //
                 .map(ExecutionEnvironment::getCompilerTargetLevelDefault) //
                 .filter(Objects::nonNull) //
