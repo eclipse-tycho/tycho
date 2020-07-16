@@ -62,6 +62,13 @@ import org.eclipse.tycho.plugins.p2.extras.Repository;
 @Mojo(name = "eclipse-run")
 public class EclipseRunMojo extends AbstractMojo {
 
+    /**
+     * Work area. This includes:
+     * <ul>
+     * <li><b>&lt;work&gt;/configuration</b>: The configuration area (<b>-configuration</b>)
+     * <li><b>&lt;work&gt;/data</b>: The data ('workspace') area (<b>-data</b>)
+     * </ul>
+     */
     @Parameter(defaultValue = "${project.build.directory}/eclipserun-work")
     private File work;
 
@@ -260,7 +267,7 @@ public class EclipseRunMojo extends AbstractMojo {
         return installationFactory.createInstallation(installationDesc, work);
     }
 
-    private void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException, MojoFailureException {
+    void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException, MojoFailureException {
         try {
             File workspace = new File(work, "data").getAbsoluteFile();
             FileUtils.deleteDirectory(workspace);
@@ -295,6 +302,9 @@ public class EclipseRunMojo extends AbstractMojo {
 
         addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration",
                 new File(work, "configuration").getAbsolutePath());
+
+        File workspace = new File(work, "data");
+        addProgramArgs(cli, "-data", workspace.getAbsolutePath());
 
         cli.addProgramArguments(splitArgLine(appArgLine));
         if (applicationsArgs != null) {
