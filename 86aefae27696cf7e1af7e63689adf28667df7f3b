@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "caaed26e_d68ad76a",
+        "filename": "tycho-extras/tycho-eclipserun-plugin/src/main/java/org/eclipse/tycho/extras/eclipserun/EclipseRunMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-07-16T17:06:15Z",
+      "side": 1,
+      "message": "Instead of converting file to string and later back to file I think the path should only be converted to string if required (e.g. log or arguments).\nAlso it seems previously the directory was cleared, this step is missing now!",
+      "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
