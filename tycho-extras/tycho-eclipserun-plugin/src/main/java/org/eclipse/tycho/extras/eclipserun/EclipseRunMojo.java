@@ -29,7 +29,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -62,6 +61,13 @@ import org.eclipse.tycho.plugins.p2.extras.Repository;
 @Mojo(name = "eclipse-run")
 public class EclipseRunMojo extends AbstractMojo {
 
+    /**
+     * Work area. This includes:
+     * <ul>
+     * <li><b>&lt;work&gt;/configuration</b>: The configuration area (<b>-configuration</b>)
+     * <li><b>&lt;work&gt;/data</b>: The data ('workspace') area (<b>-data</b>)
+     * </ul>
+     */
     @Parameter(defaultValue = "${project.build.directory}/eclipserun-work")
     private File work;
 
@@ -262,10 +268,7 @@ public class EclipseRunMojo extends AbstractMojo {
 
     private void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException, MojoFailureException {
         try {
-            File workspace = new File(work, "data").getAbsoluteFile();
-            FileUtils.deleteDirectory(workspace);
             LaunchConfiguration cli = createCommandLine(runtime);
-            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
             int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
             if (returnCode != 0) {
                 throw new MojoExecutionException("Error while executing platform (return code: " + returnCode + ")");
@@ -295,6 +298,10 @@ public class EclipseRunMojo extends AbstractMojo {
 
         addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration",
                 new File(work, "configuration").getAbsolutePath());
+
+        File workspace = new File(work, "data");
+        addProgramArgs(cli, "-data", workspace.getAbsolutePath());
+        getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getAbsolutePath());
 
         cli.addProgramArguments(splitArgLine(appArgLine));
         if (applicationsArgs != null) {
