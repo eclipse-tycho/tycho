@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -41,7 +42,6 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     public static final String ARTIFACTS_INDEX_RELPATH = ".meta/p2-artifacts.properties";
     public static final String METADATA_INDEX_RELPATH = ".meta/p2-local-metadata.properties";
 
-    private static final String ENCODING = "UTF8";
     private static final String EOL = "\n";
 
     private final File indexFile;
@@ -138,7 +138,7 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     }
 
     private void write(OutputStream outStream) throws IOException {
-        try (Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), ENCODING)) {
+        try (Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), StandardCharsets.UTF_8)) {
             for (GAV gav : getProjectGAVs()) {
                 out.write(gav.toExternalForm());
                 out.write(EOL);
@@ -149,7 +149,7 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
 
     private Set<GAV> read(InputStream inStream) throws IOException {
         LinkedHashSet<GAV> result = new LinkedHashSet<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, ENCODING))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.trim().length() == 0) {

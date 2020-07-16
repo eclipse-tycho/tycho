@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PushbackReader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,7 +55,8 @@ public class MutableBundleManifest {
     }
 
     public static MutableBundleManifest read(InputStream is) throws IOException {
-        PushbackReader br = new PushbackReader(new BufferedReader(new InputStreamReader(is, "UTF8")), 1);
+        PushbackReader br = new PushbackReader(new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)),
+                1);
 
         MutableBundleManifest mf = new MutableBundleManifest();
         ManifestAttribute curr = null;
@@ -135,7 +137,7 @@ public class MutableBundleManifest {
     }
 
     public static void write(MutableBundleManifest mf, OutputStream os) throws IOException {
-        Writer w = new OutputStreamWriter(os, "UTF8");
+        Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8);
 
         for (ManifestAttribute attribute : mf.attributes) {
             attribute.writeTo(w, mf.lineEnding);
