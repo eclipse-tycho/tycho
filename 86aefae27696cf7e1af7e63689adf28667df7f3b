@@ -70,6 +70,24 @@
       "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c11d746_074de864",
+        "filename": "tycho-extras/tycho-eclipserun-plugin/src/main/java/org/eclipse/tycho/extras/eclipserun/EclipseRunMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 67832
+      },
+      "writtenOn": "2020-07-17T07:25:51Z",
+      "side": 1,
+      "message": "Ok, you are right. I have changed it to work with File until we really need a String.\n\n\nAbout the clearing of the directory:\n\nBefore:\n- A directory was cleared that never existed and that was never filled -\u003e no-op.\n- During consecutive tycho-eclipse-plugin invocations, the workspace dir that was really used was *not* cleared.\n\nMy intention with this change is:\n- Only to change the *location* of the workspace directory\n- *NOT* to change any behavior\n\nWho knows - maybe the fact that the workspace survived consecutive invocations is actually a behavior that some clients relied on.\n\nAs for the mentioning of \u0027mvn clean\u0027: My point was only that by moving the location of the folder inside the /target directory it will eventually be cleaned up if someone intents to, so there is no need to take care of cleaning it up explicitly by ourselves.\n\nI am not particularly against clearing this (it looks like the initial intention of the code was to do exactly that) - so adding it in principle would be OK - however, for the argument above I see no reason to.\n\nWhat do you think?",
+      "parentUuid": "acce87b9_5b594c44",
+      "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
