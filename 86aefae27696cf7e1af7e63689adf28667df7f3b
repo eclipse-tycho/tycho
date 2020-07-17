@@ -52,6 +52,24 @@
       "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acce87b9_5b594c44",
+        "filename": "tycho-extras/tycho-eclipserun-plugin/src/main/java/org/eclipse/tycho/extras/eclipserun/EclipseRunMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-07-17T06:21:56Z",
+      "side": 1,
+      "message": "I agree with Christoph. Some recent issues in Tycho were fixed by avoiding strings and using stronger typing instead. We should try stronger typing whenever we have the opportunity and only \"weaken\" typing on dereference when necessary. That reduce maintenance cost.",
+      "parentUuid": "80037e82_a3ac941c",
+      "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
