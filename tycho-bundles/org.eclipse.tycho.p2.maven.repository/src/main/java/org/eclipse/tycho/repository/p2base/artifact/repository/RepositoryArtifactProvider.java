@@ -15,6 +15,7 @@ import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -150,11 +151,8 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
     @Override
     protected void getArtifactDescriptorsOfAllSources(IArtifactKey key, Set<IArtifactDescriptor> result) {
         init();
-
         for (IArtifactRepository repository : repositories) {
-            for (IArtifactDescriptor descriptor : repository.getArtifactDescriptors(key)) {
-                result.add(descriptor);
-            }
+            result.addAll(Arrays.asList(repository.getArtifactDescriptors(key)));
         }
     }
 
@@ -192,10 +190,9 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
          * the transfer of a broken pack200 artifact fails (cf. bug 412945).
          */
         BooleanStatusArtifactRequest request = new BooleanStatusArtifactRequest(sink.getArtifactToBeWritten()) {
-            private final RetryTracker retryTracker = new RetryTracker();
-
             @Override
             public void perform(IArtifactRepository childRepository, IProgressMonitor monitor) {
+                final RetryTracker retryTracker = new RetryTracker();
                 try {
                     boolean artifactWasRead = getArtifactFromAnyMirror(availableDescriptors, childRepository, sink,
                             statusCollector, retryTracker, monitor);
@@ -346,7 +343,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         }
     }
 
-    private static abstract class BooleanStatusArtifactRequest implements IArtifactRequest {
+    private abstract static class BooleanStatusArtifactRequest implements IArtifactRequest {
         private final IArtifactKey key;
         private boolean successful = false;
 
@@ -381,7 +378,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
 
     @SuppressWarnings("serial")
     private static class ArtifactSinkExceptionWrapper extends RuntimeException {
-        private ArtifactSinkException wrappedException;
+        private final ArtifactSinkException wrappedException;
 
         public ArtifactSinkExceptionWrapper(ArtifactSinkException wrappedException) {
             this.wrappedException = wrappedException;

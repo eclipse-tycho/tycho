@@ -213,8 +213,11 @@ public class ListCompositeArtifactRepository extends AbstractArtifactRepository
                         return multiStatus;
                     }
                     if (status.isOK()) {
-                        break;
+                        return status;
                     }
+                    // else: something is fishy (eg inconsistent artifact metadata
+                    // across multiple repo: same GAV, different hash), and a warning
+                    // should be emitted
                 }
             }
 
