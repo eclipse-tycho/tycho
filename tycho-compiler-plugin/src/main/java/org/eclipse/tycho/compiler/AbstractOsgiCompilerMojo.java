@@ -696,6 +696,11 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (javacSource != null) {
             return javacSource;
         }
+        String profileName = getEclipsePluginProject().getBuildProperties().getJreCompilationProfile();
+        if (profileName != null) {
+            ExecutionEnvironmentUtils.getExecutionEnvironment(profileName, toolchainManager, session, logger)
+                    .getCompilerSourceLevelDefault();
+        }
         return Arrays.stream(getBREE()) //
                 .map(ExecutionEnvironment::getCompilerSourceLevelDefault) //
                 .filter(Objects::nonNull) //
@@ -714,6 +719,11 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         String javacTarget = getEclipsePluginProject().getBuildProperties().getJavacTarget();
         if (javacTarget != null) {
             return javacTarget;
+        }
+        String profileName = getEclipsePluginProject().getBuildProperties().getJreCompilationProfile();
+        if (profileName != null) {
+            ExecutionEnvironmentUtils.getExecutionEnvironment(profileName, toolchainManager, session, logger)
+                    .getCompilerTargetLevelDefault();
         }
         return Arrays.stream(getBREE()) //
                 .map(ExecutionEnvironment::getCompilerTargetLevelDefault) //

@@ -16,10 +16,9 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.bcel.classfile.ClassFormatException;
@@ -39,6 +38,7 @@ import copied.org.apache.maven.plugin.CompilationFailureException;
 public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     private static final int TARGET_1_4 = 48;
+    private static final int TARGET_1_8 = 52;
 
     protected File storage;
 
@@ -285,13 +285,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertTrue(Integer.parseInt(mojo.getExecutionEnvironment().substring("JavaSE-".length())) >= 11);
         assertEquals("1.8", mojo.getSourceLevel());
         assertEquals("1.8", mojo.getTargetLevel());
-        File classFile = new File(basedir, "target/classes/Noop.class");
-        try (InputStream input = new FileInputStream(classFile)) {
-            byte[] header = new byte[8];
-            input.read(header);
-            byte majorClassVersion = header[7];
-            assertEquals(52, majorClassVersion);
-        }
+        assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Noop.class"));
     }
 
     private void assertBytecodeMajorLevel(int majorLevel, File classFile) throws ClassFormatException, IOException {
@@ -553,5 +547,16 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             assertThat(e.getMessage(), containsString("Compiler logging is configured by the 'log' compiler"
                     + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed."));
         }
+    }
+
+    public void testJreCompilationProfile() throws Exception {
+        File basedir = getBasedir("projects/jreCompilationProfile");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(Collections.singletonList(project), project);
+        mojo.execute();
+        assertEquals("1.8", mojo.getSourceLevel());
+        assertEquals("1.8", mojo.getTargetLevel());
+        assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Test.class"));
     }
 }
