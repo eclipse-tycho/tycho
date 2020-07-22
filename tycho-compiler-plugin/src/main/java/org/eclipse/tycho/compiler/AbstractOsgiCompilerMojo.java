@@ -562,7 +562,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             // now add packages exported by framework extension bundles
             accessRules.addAll(getBundleProject().getBootClasspathExtraAccessRules(project));
         }
-        if (accessRules.size() > 0) {
+        if (!accessRules.isEmpty()) {
             compilerConfiguration.addCompilerCustomArgument("org.osgi.framework.system.packages",
                     toString(accessRules));
         }
@@ -578,7 +578,16 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (useJDK != JDKUsage.BREE) {
             return;
         }
-        String toolchainId = getTargetExecutionEnvironment().getProfileName();
+        StandardExecutionEnvironment[] brees = getBREE();
+        String toolchainId = null;
+        if (brees.length > 0) {
+            toolchainId = brees[0].getProfileName();
+        } else {
+            getLog().warn(
+                    "useJDK=BREE configured, but no BREE is set in bundle. Fail back to currently running execution environment ("
+                            + getTargetExecutionEnvironment().getProfileName() + ").");
+            toolchainId = getTargetExecutionEnvironment().getProfileName();
+        }
         DefaultJavaToolChain toolChain = toolchainProvider.findMatchingJavaToolChain(session, toolchainId);
         if (toolChain == null) {
             throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
