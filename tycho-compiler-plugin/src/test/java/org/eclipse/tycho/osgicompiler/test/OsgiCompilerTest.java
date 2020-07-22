@@ -32,6 +32,8 @@ import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.StringContains;
 
 import copied.org.apache.maven.plugin.CompilationFailureException;
 
@@ -558,5 +560,19 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals("1.8", mojo.getSourceLevel());
         assertEquals("1.8", mojo.getTargetLevel());
         assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Test.class"));
+    }
+
+    public void testUseJDKBREE() throws Exception {
+        File basedir = getBasedir("projects/useJDKBREE");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(Collections.singletonList(project), project);
+        try {
+            mojo.execute();
+            fail("Mojo should fail because of missing toolchains");
+        } catch (MojoExecutionException ex) {
+            assertThat(ex.getMessage(), Matchers.allOf(StringContains.containsStringIgnoringCase("toolchain"),
+                    StringContains.containsString("JavaSE-1.8")));
+        }
     }
 }
