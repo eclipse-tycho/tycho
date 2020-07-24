@@ -19,6 +19,9 @@ import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 public abstract class ExecutionEnvironmentResolutionHandler {
 
     public static ExecutionEnvironmentResolutionHandler adapt(ExecutionEnvironmentConfiguration eeConfiguration) {
+        if (eeConfiguration.ignoreExecutionEnvironment()) {
+            return new StandardEEResolutionHandler(NoExecutionEnvironmentResolutionHints.INSTANCE);
+        }
         if (eeConfiguration.isIgnoredByResolver()) {
             return new StandardEEResolutionHandler(new AllKnownEEsResolutionHints(eeConfiguration.getAllKnownEEs()));
         } else if (eeConfiguration.isCustomProfile()) {

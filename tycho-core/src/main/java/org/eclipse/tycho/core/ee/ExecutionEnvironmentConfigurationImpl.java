@@ -132,6 +132,9 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             }
             return customExecutionEnvironment;
         }
+        if (ignoreExecutionEnvironment()) {
+            return NoExecutionEnvironment.INSTANCE;
+        }
         return ExecutionEnvironmentUtils.getExecutionEnvironment(getProfileName(), toolchainManager, session, logger);
     }
 
@@ -158,6 +161,11 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
                 .map(profileName -> ExecutionEnvironmentUtils.getExecutionEnvironment(profileName, toolchainManager,
                         session, logger)) //
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean ignoreExecutionEnvironment() {
+        return NoExecutionEnvironment.NAME.equals(getProfileName());
     }
 
 }

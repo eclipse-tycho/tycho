@@ -134,5 +134,10 @@ public class CustomEEResolutionHandlerTest {
             return Collections.emptyList();
         }
 
+        @Override
+        public boolean ignoreExecutionEnvironment() {
+            return false;
+        }
+
     }
 }
