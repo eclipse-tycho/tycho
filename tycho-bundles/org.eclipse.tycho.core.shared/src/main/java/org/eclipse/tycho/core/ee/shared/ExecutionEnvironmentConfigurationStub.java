@@ -78,4 +78,9 @@ public class ExecutionEnvironmentConfigurationStub implements ExecutionEnvironme
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public boolean ignoreExecutionEnvironment() {
+        return false;
+    }
+
 }

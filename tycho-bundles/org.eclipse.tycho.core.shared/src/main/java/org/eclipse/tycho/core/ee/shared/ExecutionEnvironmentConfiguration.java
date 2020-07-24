@@ -89,4 +89,5 @@ public interface ExecutionEnvironmentConfiguration {
      */
     public Collection<ExecutionEnvironment> getAllKnownEEs();
 
+    public boolean ignoreExecutionEnvironment();
 }
