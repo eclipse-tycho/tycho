@@ -10,6 +10,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.repository.GAV;
 
@@ -97,7 +98,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     private boolean includePackedArtifacts;
 
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET_DEFINITION_INCLUDE_SOURCE)
-    private boolean targetDefinionIncludeSource;
+    private IncludeSourceMode targetDefinionIncludeSource;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
