@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -193,8 +194,10 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
             @Override
             public void perform(IArtifactRepository childRepository, IProgressMonitor monitor) {
                 final RetryTracker retryTracker = new RetryTracker();
+                List<IArtifactDescriptor> localArtifactDescriptors = availableDescriptors.stream()
+                        .filter(desc -> desc.getRepository().equals(childRepository)).collect(Collectors.toList());
                 try {
-                    boolean artifactWasRead = getArtifactFromAnyMirror(availableDescriptors, childRepository, sink,
+                    boolean artifactWasRead = getArtifactFromAnyMirror(localArtifactDescriptors, childRepository, sink,
                             statusCollector, retryTracker, monitor);
                     if (artifactWasRead) {
                         this.markSuccessful();
@@ -232,6 +235,9 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
             RetryTracker retryTracker, IProgressMonitor monitor) throws ArtifactSinkException {
 
         for (IArtifactDescriptor descriptor : availableDescriptors) {
+            if (!descriptor.getRepository().equals(repository)) {
+                return false;
+            }
             if (!sink.canBeginWrite()) {
                 return false;
             }

@@ -203,24 +203,10 @@ public class ListCompositeArtifactRepository extends AbstractArtifactRepository
             if (subMonitor.isCanceled()) {
                 return Status.CANCEL_STATUS;
             }
-            subMonitor.setWorkRemaining((requests.length - i) * size);
             IArtifactRequest request = requests[i];
-            for (IArtifactRepository repository : artifactRepositories) {
-                if (repository.contains(request.getArtifactKey())) {
-                    IStatus status = repository.getArtifacts(new IArtifactRequest[] { request }, subMonitor.split(1));
-                    multiStatus.add(status);
-                    if (status.getSeverity() == IStatus.CANCEL) {
-                        return multiStatus;
-                    }
-                    if (status.isOK()) {
-                        return status;
-                    }
-                    // else: something is fishy (eg inconsistent artifact metadata
-                    // across multiple repo: same GAV, different hash), and a warning
-                    // should be emitted
-                }
-            }
-
+            subMonitor.setWorkRemaining((requests.length - i) * size);
+            IArtifactDescriptor[] descriptors = getArtifactDescriptors(request.getArtifactKey());
+            multiStatus.add(descriptors[0].getRepository().getArtifacts(new IArtifactRequest[] { request }, subMonitor.split(1)));
         }
         return multiStatus;
     }

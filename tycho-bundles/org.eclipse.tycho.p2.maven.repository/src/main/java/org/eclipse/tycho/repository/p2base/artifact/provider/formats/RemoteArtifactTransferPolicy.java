@@ -11,21 +11,22 @@
 package org.eclipse.tycho.repository.p2base.artifact.provider.formats;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 final class RemoteArtifactTransferPolicy extends ArtifactTransferPolicyBase {
 
     @Override
-    protected void insertCanonicalAndPacked(IArtifactDescriptor canonical, IArtifactDescriptor packed,
+    protected void insertCanonicalAndPacked(List<IArtifactDescriptor> canonical, List<IArtifactDescriptor> packed,
             LinkedList<IArtifactDescriptor> list) {
         boolean isPack200able = Runtime.version().feature() < 14;
         if (canonical != null) {
-            list.add(0, canonical);
+            list.addAll(0, canonical);
         }
         if (packed != null) {
             // still consider for transtive inclusion in features on Java 14+
-            list.add(canonical == null || isPack200able ? 0 : 1, packed);
+            list.addAll(canonical == null || isPack200able ? 0 : 1, packed);
         }
     }
 
