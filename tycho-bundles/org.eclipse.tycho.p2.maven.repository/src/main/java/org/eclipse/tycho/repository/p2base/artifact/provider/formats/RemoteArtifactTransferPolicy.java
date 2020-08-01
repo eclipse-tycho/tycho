@@ -26,7 +26,7 @@ final class RemoteArtifactTransferPolicy extends ArtifactTransferPolicyBase {
         }
         if (packed != null) {
             // still consider for transtive inclusion in features on Java 14+
-            list.addAll(canonical == null || isPack200able ? 0 : 1, packed);
+            list.addAll(canonical == null || isPack200able ? 0 : canonical.size(), packed);
         }
     }
 
