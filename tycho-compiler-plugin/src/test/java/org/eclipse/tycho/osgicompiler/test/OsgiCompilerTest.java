@@ -287,6 +287,21 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertTrue(Integer.parseInt(mojo.getExecutionEnvironment().substring("JavaSE-".length())) >= 11);
         assertEquals("1.8", mojo.getSourceLevel());
         assertEquals("1.8", mojo.getTargetLevel());
+        assertEquals("8", mojo.getReleaseLevel());
+        assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Noop.class"));
+    }
+
+    public void testAutomaticReleaseCompilerArgumentDeterminationDisabled() throws Exception {
+        File basedir = getBasedir(
+                "projects/executionEnvironment/p007-automaticReleaseCommpilerArgumentDeterminationDisabled");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        mojo.execute();
+        assertTrue(Integer.parseInt(mojo.getExecutionEnvironment().substring("JavaSE-".length())) >= 11);
+        assertEquals("1.8", mojo.getSourceLevel());
+        assertEquals("1.8", mojo.getTargetLevel());
+        assertNull(mojo.getReleaseLevel());
         assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Noop.class"));
     }
 
@@ -464,11 +479,10 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     }
 
     public void test367431_frameworkExtensionCompileAccessRules() throws Exception {
-        if (Runtime.version().feature() >= 14) {
-            // This test cannot work with Java 14+ as com.sun.net.ssl.internal.ssl is usually not part of currrnt VM nor toolchain
-            // and using assume leads to a failure in JUnit 3...
-            return;
-        }
+        // This test assumes that the internal class com.sun.crypto.provider.SunJCE exists and its package is not exported.
+        // This is the case for all supported JDKs to date (1.8, 11, 14).
+        // Note: The bundle uses BREE 1.8 here, because apparently this kind of framework-extension does not
+        // correctly work with modular API (Java9+).
         File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
         List<MavenProject> projects = getSortedProjects(basedir,
                 new File("src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));

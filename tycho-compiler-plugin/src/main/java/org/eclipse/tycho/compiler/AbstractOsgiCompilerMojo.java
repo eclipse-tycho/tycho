@@ -18,6 +18,8 @@ package org.eclipse.tycho.compiler;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +56,8 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.jdt.internal.compiler.util.CtSym;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
@@ -213,6 +217,18 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      */
     @Parameter(defaultValue = "true")
     private boolean useProjectSettings;
+
+    /**
+     * Whether the <code>-release</code> argument for the Java compiler should be derived from the
+     * target level. Enabled by default.
+     * <p>
+     * Disabling this can be useful in situations where compiling using <code>-release</code> cannot
+     * be used, e.g. when referencing internal JDK classes exported via an OSGI framework extension.
+     * In that case <code>&lt;release&gt;</code> should also be explicitly set to an empty value to
+     * prevent it from being inherited.
+     */
+    @Parameter(defaultValue = "true")
+    private boolean deriveReleaseCompilerArgumentFromTargetLevel = true;
 
     /**
      * Current build output jar
@@ -513,6 +529,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
         compilerConfiguration.setTargetVersion(getTargetLevel());
         compilerConfiguration.setSourceVersion(getSourceLevel());
+        String releaseLevel = getReleaseLevel();
+        if (releaseLevel != null) {
+            compilerConfiguration.setReleaseVersion(releaseLevel);
+        }
         configureJavaHome(compilerConfiguration);
         configureBootclasspathAccessRules(compilerConfiguration);
         configureCompilerLog(compilerConfiguration);
@@ -741,6 +761,56 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 .min(Comparator.comparing(Version::parseVersion)) //
                 .or(() -> Optional.ofNullable(getTargetExecutionEnvironment().getCompilerTargetLevelDefault())) //
                 .orElse(DEFAULT_TARGET_VERSION);
+    }
+
+    @Override
+    public String getReleaseLevel() throws MojoExecutionException {
+        // first, explicit POM configuration
+        if (release != null) {
+            return release;
+        }
+
+        // implicit determination disabled
+        if (!deriveReleaseCompilerArgumentFromTargetLevel) {
+            return null;
+        }
+
+        String targetLevel = getTargetLevel();
+        String[] targetLevelSplit = targetLevel.split("\\.");
+
+        String releaseLevel;
+        if (targetLevelSplit.length == 1 && targetLevelSplit[0].matches("\\d+")) {
+            releaseLevel = targetLevelSplit[0];
+        } else if (targetLevelSplit.length == 2 && "1".equals(targetLevelSplit[0])
+                && targetLevelSplit[1].matches("\\d+")) {
+            releaseLevel = targetLevelSplit[1];
+        } else {
+            logger.debug("Cannot determining 'maven.compiler.release' property automatically, because target level '"
+                    + targetLevel + "' has an unexpected format.");
+            return null;
+        }
+
+        CtSym ctSym;
+        try {
+            ctSym = JRTUtil.getCtSym(Paths.get(System.getProperty("java.home")));
+        } catch (IOException e) {
+            logger.warn("Unable to determine 'maven.compiler.release' property automatically", e);
+            return null;
+        }
+
+        // TODO: Replace this with CtSym#getReleaseCode(String) once eclipse.jdt.core/5ba272a2d4a7478e0eb3951208ab49b7c069f37d is available with newer ECJ release
+        int releaseLevelInt = Integer.parseInt(releaseLevel);
+        String releaseCode = releaseLevelInt < 10 ? releaseLevel
+                : String.valueOf((char) ('A' + (releaseLevelInt - 10)));
+
+        List<Path> releaseRoots = ctSym.releaseRoots(releaseCode);
+        if (!releaseRoots.isEmpty()) {
+            return releaseLevel;
+        } else {
+            logger.debug("Not determining 'maven.compiler.release' property automatically, because level '"
+                    + releaseLevel + "' is not supported by compiler.");
+            return null;
+        }
     }
 
     private void checkTargetLevelCompatibleWithManifestBREEs(String effectiveTargetLevel,
