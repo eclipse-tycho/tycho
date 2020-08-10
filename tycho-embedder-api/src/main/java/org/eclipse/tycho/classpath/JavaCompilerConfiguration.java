@@ -40,5 +40,7 @@ public interface JavaCompilerConfiguration {
 
     public String getTargetLevel() throws MojoExecutionException;
 
+    public String getReleaseLevel() throws MojoExecutionException;
+
     public String getExecutionEnvironment() throws MojoExecutionException;
 }

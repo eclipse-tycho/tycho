@@ -513,6 +513,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
         compilerConfiguration.setTargetVersion(getTargetLevel());
         compilerConfiguration.setSourceVersion(getSourceLevel());
+        compilerConfiguration.setReleaseVersion(getReleaseLevel());
         configureJavaHome(compilerConfiguration);
         configureBootclasspathAccessRules(compilerConfiguration);
         configureCompilerLog(compilerConfiguration);
@@ -741,6 +742,20 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 .min(Comparator.comparing(Version::parseVersion)) //
                 .or(() -> Optional.ofNullable(getTargetExecutionEnvironment().getCompilerTargetLevelDefault())) //
                 .orElse(DEFAULT_TARGET_VERSION);
+    }
+
+    @Override
+    public String getReleaseLevel() throws MojoExecutionException {
+        // first, explicit POM configuration
+        if (release != null) {
+            return release;
+        }
+
+        String level = getTargetLevel();
+        if (level.startsWith("1.")) {
+            return level.substring(2);
+        }
+        return level;
     }
 
     private void checkTargetLevelCompatibleWithManifestBREEs(String effectiveTargetLevel,

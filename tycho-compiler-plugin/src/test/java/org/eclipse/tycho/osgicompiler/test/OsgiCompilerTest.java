@@ -287,6 +287,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertTrue(Integer.parseInt(mojo.getExecutionEnvironment().substring("JavaSE-".length())) >= 11);
         assertEquals("1.8", mojo.getSourceLevel());
         assertEquals("1.8", mojo.getTargetLevel());
+        assertEquals("8", mojo.getReleaseLevel());
         assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Noop.class"));
     }
 
