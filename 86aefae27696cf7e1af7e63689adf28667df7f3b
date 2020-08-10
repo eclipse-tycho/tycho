@@ -106,6 +106,24 @@
       "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "157dc20d_cfc46698",
+        "filename": "tycho-extras/tycho-eclipserun-plugin/src/main/java/org/eclipse/tycho/extras/eclipserun/EclipseRunMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 67832
+      },
+      "writtenOn": "2020-08-10T16:43:28Z",
+      "side": 1,
+      "message": "Done. Also added a test-case for the clearing.",
+      "parentUuid": "cb9b1af2_316378b2",
+      "revId": "86aefae27696cf7e1af7e63689adf28667df7f3b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
