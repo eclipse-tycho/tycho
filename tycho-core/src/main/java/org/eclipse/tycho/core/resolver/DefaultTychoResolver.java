@@ -38,7 +38,6 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
@@ -125,8 +124,6 @@ public class DefaultTychoResolver implements TychoResolver {
         DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
         logger.info("Resolving dependencies of " + project);
-        // store EE configuration in case second resolution has to be applied due to Java version removing modules
-        ExecutionEnvironmentConfiguration oldEE = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
         DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
                 preliminaryTargetPlatform, reactorProjects, resolverConfiguration);
 
@@ -141,9 +138,6 @@ public class DefaultTychoResolver implements TychoResolver {
 
         logger.info("Resolving class path of " + project);
         dr.resolveClassPath(session, project);
-
-        //reset EE to original one
-        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, oldEE);
 
         resolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, logger);
 
@@ -208,25 +202,6 @@ public class DefaultTychoResolver implements TychoResolver {
                 }
             }
         }
-    }
-
-    private DependencyArtifacts resolveWithCurrentEE(MavenSession session, MavenProject project, String newEEName) {
-        TargetPlatformConfiguration config = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-        config.setExecutionEnvironment(newEEName);
-
-        ExecutionEnvironmentConfiguration sink = new ExecutionEnvironmentConfigurationImpl(logger,
-                !config.isResolveWithEEConstraints(), toolchainManager, session);
-        sink.overrideProfileConfiguration(newEEName, "current execution environment");
-
-        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, sink);
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-        DependencyResolverConfiguration resolverConfiguration = config.getDependencyResolverConfiguration();
-        DependencyResolver depResolver = dependencyResolverLocator.lookupDependencyResolver(project);
-        TargetPlatform preliminaryTargetPlatform = depResolver.computePreliminaryTargetPlatform(session, project,
-                reactorProjects);
-        return depResolver.resolveDependencies(session, project, preliminaryTargetPlatform, reactorProjects,
-                resolverConfiguration);
     }
 
 }
