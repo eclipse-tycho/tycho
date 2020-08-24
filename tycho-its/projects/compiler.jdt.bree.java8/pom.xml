@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <!-- TODO Remove -->
   <properties>
-    <tycho-version>2.0.0-SNAPSHOT</tycho-version>
+    <tycho-version>2.1.0-SNAPSHOT</tycho-version>
   </properties>
   <modules>
     <module>c.j.b.j.bundle</module>
