@@ -20,8 +20,8 @@ The Tycho.setup file is part of the Eclipse Installer Project Catalog, so the Ty
   * Run the Eclipse Installer
   * Switch to the Advanced Mode (Menu->"Advanced Mode...")
   * Select "Eclipse IDE for Eclipse Committers"
-  * Select "Latest Release (year-month)" as "Product Version" and select either 32 or 64 bit version.
-  * Choose one of the installed JREs (must be 1.8+) as "Java 1.8+ VM"
+  * Select "Latest Release (year-month)" as "Product Version".
+  * Choose one of the installed JREs (must be 11+) as "Java 11+ VM"
   * Click "Next"
   * Find and select "Tycho" under the "Eclipse Projects" catalog. Make sure that Tycho is shown in the table on the bottom.
   * Click "Next" to get the Variables page
