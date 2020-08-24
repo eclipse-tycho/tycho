@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,6 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class TychoTest extends AbstractTychoMojoTestCase {
@@ -125,7 +124,6 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals(Arrays.asList("parent", "host", "dep", "fragment", "fragment2", "client"), artifactIds);
 
         MavenProject host = projects.get(1);
-        MavenProject dep = projects.get(2);
         MavenProject fragment = projects.get(3);
         MavenProject fragment2 = projects.get(4);
         MavenProject client = projects.get(5);
@@ -200,7 +198,6 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, platformLocation);
         assertEquals(3, projects.size());
 
-        MavenProject b01 = projects.get(1);
         MavenProject b02 = projects.get(2);
 
         OsgiBundleProject projectType = (OsgiBundleProject) lookup(TychoProject.class, b02.getPackaging());
@@ -362,7 +359,4 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
     }
 
-    private static String getActiveEEProfile(MavenProject project) {
-        return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getProfileName();
-    }
 }
