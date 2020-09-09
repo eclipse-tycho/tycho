@@ -1235,13 +1235,7 @@ public class TestMojo extends AbstractMojo {
 
     private String getTestApplication(EquinoxInstallationDescription testRuntime) {
         if (useUIHarness) {
-            ArtifactDescriptor systemBundle = testRuntime.getSystemBundle();
-            Version osgiVersion = Version.parseVersion(systemBundle.getKey().getVersion());
-            if (osgiVersion.compareTo(EquinoxInstallationDescription.EQUINOX_VERSION_3_3_0) < 0) {
-                return "org.eclipse.tycho.surefire.osgibooter.uitest32";
-            } else {
-                return "org.eclipse.tycho.surefire.osgibooter.uitest";
-            }
+            return "org.eclipse.tycho.surefire.osgibooter.uitest";
         } else {
             return "org.eclipse.tycho.surefire.osgibooter.headlesstest";
         }
