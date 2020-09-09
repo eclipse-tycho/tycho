@@ -10,15 +10,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
 
-import org.eclipse.core.runtime.IPlatformRunnable;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.app.IApplicationContext;
 
-@SuppressWarnings("deprecation")
-public class HeadlessTestApplication implements IPlatformRunnable {
+public class HeadlessTestApplication implements IApplication {
 
-    public Object run(Object object) throws Exception {
+    public Object start(IApplicationContext context) throws Exception {
         String[] args = Platform.getCommandLineArgs();
         return Integer.valueOf(OsgiSurefireBooter.run(args));
+    }
+
+    public void stop() {
+        // nothing to be done here
     }
 
 }
