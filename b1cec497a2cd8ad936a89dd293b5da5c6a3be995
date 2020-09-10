@@ -16,6 +16,24 @@
       "revId": "b1cec497a2cd8ad936a89dd293b5da5c6a3be995",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e5693ca_9b6ccfc3",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/HeadlessTestApplication.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2020-09-10T10:23:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69f64dd8_3c32cf33",
+      "revId": "b1cec497a2cd8ad936a89dd293b5da5c6a3be995",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
