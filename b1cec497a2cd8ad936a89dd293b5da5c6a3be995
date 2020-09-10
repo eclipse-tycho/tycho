@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69f64dd8_3c32cf33",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/HeadlessTestApplication.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-10T06:53:56Z",
+      "side": 1,
+      "message": "Couldn\u0027t we get rid of this method?",
+      "revId": "b1cec497a2cd8ad936a89dd293b5da5c6a3be995",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
