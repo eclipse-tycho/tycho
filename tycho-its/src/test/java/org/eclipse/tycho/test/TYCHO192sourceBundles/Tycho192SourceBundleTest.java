@@ -95,13 +95,7 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
 
     private void assertUpdateSiteContainsSourceJar(Verifier verifier) throws IOException {
         File[] sourceJars = new File(verifier.getBasedir(), "helloworld.updatesite/target/site/plugins")
-                .listFiles(new FileFilter() {
-
-                    @Override
-                    public boolean accept(File pathname) {
-                        return pathname.isFile() && pathname.getName().startsWith("helloworld.source_");
-                    }
-                });
+                .listFiles((FileFilter) pathname -> pathname.isFile() && pathname.getName().startsWith("helloworld.source_"));
         assertEquals(1, sourceJars.length);
         JarFile sourceJar = new JarFile(sourceJars[0]);
         try {

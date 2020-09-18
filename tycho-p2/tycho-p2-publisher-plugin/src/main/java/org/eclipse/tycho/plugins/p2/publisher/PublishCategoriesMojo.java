@@ -86,13 +86,9 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
     }
 
     private void copySiteI18nFiles(BuildOutputDirectory buildFolder) throws IOException {
-        File[] i18nFiles = getProject().getBasedir().listFiles(new FileFilter() {
-
-            @Override
-            public boolean accept(File file) {
-                String fileName = file.getName();
-                return fileName.startsWith("site") && fileName.endsWith(".properties");
-            }
+        File[] i18nFiles = getProject().getBasedir().listFiles((FileFilter) file -> {
+            String fileName = file.getName();
+            return fileName.startsWith("site") && fileName.endsWith(".properties");
         });
         if (i18nFiles == null) {
             return;

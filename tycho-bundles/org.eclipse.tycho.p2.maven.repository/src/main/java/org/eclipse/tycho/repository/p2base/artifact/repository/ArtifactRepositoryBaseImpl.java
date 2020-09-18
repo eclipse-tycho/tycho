@@ -128,12 +128,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     @SuppressWarnings("unchecked")
     public final IQueryable<IArtifactDescriptor> descriptorQueryable() {
         // TODO 397355 copy collection for thread-safety
-        return new IQueryable<IArtifactDescriptor>() {
-            @Override
-            public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
-                return query.perform((Iterator<IArtifactDescriptor>) descriptors.iterator());
-            }
-        };
+        return (query, monitor) -> query.perform((Iterator<IArtifactDescriptor>) descriptors.iterator());
     }
 
     // index write access

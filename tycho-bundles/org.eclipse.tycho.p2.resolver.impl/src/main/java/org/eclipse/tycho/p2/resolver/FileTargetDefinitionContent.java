@@ -236,13 +236,7 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
 
         @Override
         public IQueryable<IArtifactDescriptor> descriptorQueryable() {
-            return new IQueryable<IArtifactDescriptor>() {
-                @Override
-                public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query,
-                        IProgressMonitor monitor) {
-                    return query.perform(descriptorSupplier.get());
-                }
-            };
+            return (query, monitor) -> query.perform(descriptorSupplier.get());
         }
 
         @Override

@@ -116,12 +116,7 @@ public class PublishProductToolImpl implements PublishProductTool {
         final String productId = product.getId();
 
         // add root features as special dependency seed which are marked as "add-on" for the product
-        DependencySeed.Filter filter = new DependencySeed.Filter() {
-            @Override
-            public boolean isAddOnFor(String type, String id) {
-                return ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
-            }
-        };
+        DependencySeed.Filter filter = (type, id) -> ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
         for (IInstallableUnit featureIU : product.getRootFeatures()) {
             ArtifactKey featureArtifact = ArtifactTypeHelper.toTychoArtifact(featureIU);
             seeds.add(new DependencySeed(featureArtifact.getType(), featureArtifact.getId(), featureIU, filter));

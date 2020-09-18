@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -58,13 +57,7 @@ public class BuildPropertiesImplTest {
         @Override
         public Set<Map.Entry<Object, Object>> entrySet() {
             List<Map.Entry<Object, Object>> sortedList = new ArrayList<>(super.entrySet());
-            Collections.sort(sortedList, new Comparator<Map.Entry<Object, Object>>() {
-
-                @Override
-                public int compare(java.util.Map.Entry<Object, Object> o1, java.util.Map.Entry<Object, Object> o2) {
-                    return ((String) o2.getKey()).compareTo((String) o1.getKey());
-                }
-            });
+            Collections.sort(sortedList, (o1, o2) -> ((String) o2.getKey()).compareTo((String) o1.getKey()));
             if (reverse) {
                 Collections.reverse(sortedList);
             }

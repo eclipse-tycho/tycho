@@ -29,13 +29,8 @@ public class JarDirectoryBundlesTest extends AbstractTychoIntegrationTest {
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
 
-        File[] sitePlugins = new File(verifier.getBasedir(), "site/target/site/plugins").listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isFile() && pathname.getName().startsWith("org.eclipse.platform")
-                        && pathname.getName().endsWith(".jar");
-            }
-        });
+        File[] sitePlugins = new File(verifier.getBasedir(), "site/target/site/plugins").listFiles((FileFilter) pathname -> pathname.isFile() && pathname.getName().startsWith("org.eclipse.platform")
+                && pathname.getName().endsWith(".jar"));
         Assert.assertEquals(1, sitePlugins.length);
 
         // verify the bundle actually makes sense
@@ -45,12 +40,7 @@ public class JarDirectoryBundlesTest extends AbstractTychoIntegrationTest {
         Assert.assertEquals("org.eclipse.platform", siteBundleManifest.getBundleSymbolicName());
 
         File[] productPlugins = new File(verifier.getBasedir(), "product/target/product/eclipse/plugins")
-                .listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File pathname) {
-                        return pathname.isDirectory() && pathname.getName().startsWith("org.eclipse.platform");
-                    }
-                });
+                .listFiles((FileFilter) pathname -> pathname.isDirectory() && pathname.getName().startsWith("org.eclipse.platform"));
         Assert.assertEquals(1, productPlugins.length);
 
         // verify directory actually makes sense

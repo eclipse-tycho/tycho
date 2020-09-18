@@ -105,19 +105,14 @@ public class ListCompositeArtifactRepository extends AbstractArtifactRepository
         if (artifactRepositories.size() == 1) {
             return artifactRepositories.get(0).descriptorQueryable();
         }
-        return new IQueryable<IArtifactDescriptor>() {
-
-            @Override
-            public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query,
-                    IProgressMonitor monitor) {
-                SubMonitor subMonitor = SubMonitor.convert(monitor, artifactRepositories.size());
-                Collector<IArtifactDescriptor> collector = new Collector<>();
-                for (IArtifactRepository repository : artifactRepositories) {
-                    collector.addAll(repository.descriptorQueryable().query(query, subMonitor.split(1)));
-                }
-                return collector;
+        return (query, monitor) -> {
+            SubMonitor subMonitor = SubMonitor.convert(monitor, artifactRepositories.size());
+            Collector<IArtifactDescriptor> collector = new Collector<>();
+            for (IArtifactRepository repository : artifactRepositories) {
+        collector.addAll(repository.descriptorQueryable().query(query, subMonitor.split(1)));
             }
-        };
+            return collector;
+         };
     }
 
     @Override

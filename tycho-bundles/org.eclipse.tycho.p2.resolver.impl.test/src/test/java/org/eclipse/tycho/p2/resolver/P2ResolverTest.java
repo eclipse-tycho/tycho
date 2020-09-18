@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -193,13 +192,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         assertEquals(3, result.getArtifacts().size());
         List<P2ResolutionResult.Entry> entries = new ArrayList<>(result.getArtifacts());
-        Collections.sort(entries, new Comparator<Entry>() {
-
-            @Override
-            public int compare(Entry entry1, Entry entry2) {
-                return entry1.getId().compareTo(entry2.getId());
-            }
-        });
+        Collections.sort(entries, (entry1, entry2) -> entry1.getId().compareTo(entry2.getId()));
         assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01", entries.get(0).getId());
         assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01.source", entries.get(1).getId());
         assertEquals("org.eclipse.tycho.p2.impl.resolver.test.feature01", entries.get(2).getId());

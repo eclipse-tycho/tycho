@@ -13,7 +13,6 @@ package org.eclipse.tycho.core.osgitools.targetplatform;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -187,12 +186,7 @@ public class ArtifactCollection {
 
         // features with matching id, sorted by version, highest version first
         SortedMap<Version, ArtifactDescriptor> relevantArtifacts = new TreeMap<>(
-                new Comparator<Version>() {
-                    @Override
-                    public int compare(Version o1, Version o2) {
-                        return -o1.compareTo(o2);
-                    };
-                });
+                (o1, o2) -> -o1.compareTo(o2));
 
         for (Map.Entry<ArtifactKey, ArtifactDescriptor> entry : this.artifacts.entrySet()) {
             ArtifactKey key = entry.getKey();

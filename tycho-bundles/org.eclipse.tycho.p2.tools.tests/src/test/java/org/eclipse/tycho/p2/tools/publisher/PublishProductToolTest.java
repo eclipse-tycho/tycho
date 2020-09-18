@@ -64,8 +64,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 public class PublishProductToolTest {
 
@@ -93,13 +91,7 @@ public class PublishProductToolTest {
                 new ReactorProjectIdentitiesStub(projectDirectory));
 
         interpolatorMock = mock(Interpolator.class);
-        when(interpolatorMock.interpolate(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                // by default don't expand anything
-                return (String) invocation.getArguments()[0];
-            }
-        });
+        when(interpolatorMock.interpolate(anyString())).thenAnswer(invocation -> (String) invocation.getArguments()[0]);
     }
 
     private PublishProductTool initPublisher(IInstallableUnit... tpUnits) {

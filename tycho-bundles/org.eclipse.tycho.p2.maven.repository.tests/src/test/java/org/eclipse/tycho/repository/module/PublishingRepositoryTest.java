@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
+import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAndExtension;
 import org.eclipse.tycho.test.util.P2Context;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.junit.Before;
@@ -125,13 +126,9 @@ public class PublishingRepositoryTest {
         static final int size = 6;
 
         static WriteSessionContext getWriteSessionForArtifact() {
-            return new WriteSessionContext() {
-
-                @Override
-                public ClassifierAndExtension getClassifierAndExtensionForNewKey(IArtifactKey newKey) {
-                    assertSame(key, newKey);
-                    return new ClassifierAndExtension(classifier, fileExtension);
-                }
+            return newKey -> {
+                assertSame(key, newKey);
+                return new ClassifierAndExtension(classifier, fileExtension);
             };
         }
     }
