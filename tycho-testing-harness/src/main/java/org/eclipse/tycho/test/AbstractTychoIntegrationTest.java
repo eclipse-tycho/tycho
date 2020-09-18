@@ -167,7 +167,7 @@ public abstract class AbstractTychoIntegrationTest {
     protected void assertFileExists(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
-        ds.setIncludes(new String[] { pattern });
+        ds.setIncludes(pattern);
         ds.scan();
         Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedFiles().length);
         Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
@@ -177,7 +177,7 @@ public abstract class AbstractTychoIntegrationTest {
     protected void assertDirectoryExists(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
-        ds.setIncludes(new String[] { pattern });
+        ds.setIncludes(pattern);
         ds.scan();
         Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedDirectories().length);
         Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
@@ -187,7 +187,7 @@ public abstract class AbstractTychoIntegrationTest {
     protected void assertFileDoesNotExist(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
-        ds.setIncludes(new String[] { pattern });
+        ds.setIncludes(pattern);
         ds.scan();
         Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedFiles().length);
     }

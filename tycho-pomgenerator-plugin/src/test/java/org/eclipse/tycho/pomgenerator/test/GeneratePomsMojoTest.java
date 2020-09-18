@@ -217,7 +217,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         Model aggmodel = readModel(baseDir, "p003/poma.xml");
         List<String> aggrmodules = aggmodel.getModules();
         assertEquals(5, aggrmodules.size());
-        assertEquals(Arrays.asList(new String[] { "../p001", "../p001.tests", "../p002", "../p004", "." }),
+        assertEquals(Arrays.asList("../p001", "../p001.tests", "../p002", "../p004", "."),
                 aggrmodules);
 
         assertEquals("eclipse-test-plugin", readModel(baseDir, "p001.tests/pom.xml").getPackaging());

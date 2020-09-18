@@ -117,7 +117,7 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
                 "-artifactRepositoryName", artifactRepositoryName, //
                 "-noDefaultIUs");
         if (compressRepository) {
-            launcher.addArguments(new String[] { "-compress" });
+            launcher.addArguments("-compress");
         }
     }
 
