@@ -60,7 +60,7 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
         }
         if (COMMON_NAMES.contains(dir.getName().toLowerCase())) {
             logger.debug("Scanning folder " + dir + " for modules");
-            File[] subFolders = dir.listFiles((FileFilter) pathname -> pathname.isDirectory());
+            File[] subFolders = dir.listFiles((FileFilter) File::isDirectory);
             if (subFolders != null) {
                 Set<String> modules = new TreeSet<>();
                 for (File subfolder : subFolders) {

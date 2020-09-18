@@ -166,7 +166,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 } catch (ComponentLookupException e) {
                     // have not found anything
                 }
-            }, descriptor -> isTychoP2Plugin(descriptor));
+            }, this::isTychoP2Plugin);
         } catch (MavenExecutionException e) {
             throw new RuntimeException(e);
         }
