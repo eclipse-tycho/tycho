@@ -17,11 +17,6 @@ import org.eclipse.core.runtime.IPlatformRunnable;
  */
 public class Application implements IPlatformRunnable {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.runtime.IPlatformRunnable#run(java.lang.Object)
-	 */
 	public Object run(Object args) throws Exception {
 		System.out.println("Headless application OK!");
 		return IPlatformRunnable.EXIT_OK;

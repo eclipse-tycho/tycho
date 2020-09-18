@@ -81,8 +81,8 @@ public class FileLockerImpl implements FileLocker {
                 // ignore
             }
         }
-        String message = "lock timeout: Could not acquire lock on file " + lockFileLocation.getURL() + " for "
-                + timeout + " msec";
+        String message = "lock timeout: Could not acquire lock on file " + lockFileLocation.getURL() + " for " + timeout
+                + " msec";
         if (ioException != null) {
             throw new LockTimeoutException(message, ioException);
         } else {
@@ -90,11 +90,6 @@ public class FileLockerImpl implements FileLocker {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.tycho.p2.repository.IFileLocker#release()
-     */
     @Override
     public void release() {
         lockFileLocation.release();
@@ -104,11 +99,6 @@ public class FileLockerImpl implements FileLocker {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.tycho.p2.repository.IFileLocker#isLocked()
-     */
     @Override
     public boolean isLocked() {
         try {
