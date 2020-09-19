@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SAP SE and others.
+ * Copyright (c) 2011, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -70,7 +71,7 @@ public class TargetPlatformBundlePublisherTest {
                 RepositoryLayoutHelper.getRelativePath(GROUP_ID, ARTIFACT_ID, VERSION, null, "jar"));
         IArtifactFacade bundleArtifact = new ArtifactMock(bundleFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
 
-        IInstallableUnit publishedUnit = subject.attemptToPublishBundle(bundleArtifact);
+        IInstallableUnit publishedUnit = subject.attemptToPublishBundle(bundleArtifact).getUnit();
 
         assertThat(publishedUnit, is(unit(bundleId, bundleVersion)));
         assertThat(publishedUnit.getProperties(), containsGAV(GROUP_ID, ARTIFACT_ID, VERSION));
@@ -94,20 +95,14 @@ public class TargetPlatformBundlePublisherTest {
     public void testPomDependencyOnPlainJar() throws Exception {
         File jarFile = resourceFile("platformbuilder/pom-dependencies/non-bundle.jar");
         IArtifactFacade jarArtifact = new ArtifactMock(jarFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
-
-        IInstallableUnit unit = subject.attemptToPublishBundle(jarArtifact);
-
-        assertNull(unit);
+        assertNull(subject.attemptToPublishBundle(jarArtifact));
     }
 
     @Test
     public void testPomDependencyOnOtherType() throws Exception {
         File otherFile = resourceFile("platformbuilder/pom-dependencies/other-type.xml");
         IArtifactFacade otherArtifact = new ArtifactMock(otherFile, GROUP_ID, ARTIFACT_ID, VERSION, "pom");
-
-        IInstallableUnit unit = subject.attemptToPublishBundle(otherArtifact);
-
-        assertNull(unit);
+        assertNull(subject.attemptToPublishBundle(otherArtifact));
     }
 
     private static String artifactMD5Of(IArtifactKey key, IRawArtifactProvider artifactProvider) throws Exception {

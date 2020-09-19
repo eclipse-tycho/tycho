@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - apply DRY principle
- *    Christoph Läubrich - adjust to changed Resolver API
+ *    Christoph Läubrich - adjust to changed API
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -77,7 +77,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Before
     public void initDefaultResolver() throws Exception {
 //        org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
-        pomDependencies = resolverFactory.newPomDependencyCollectorImpl();
+        pomDependencies = resolverFactory.newPomDependencyCollector();
         impl = new P2ResolverImpl(tpFactory, logVerifier.getLogger());
         impl.setEnvironments(getEnvironments());
     }

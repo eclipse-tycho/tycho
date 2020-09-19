@@ -10,7 +10,8 @@
  *    SAP SE - split target platform computation and dependency resolution
  *    SAP SE - create immutable target platform instances
  *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
- *                          - [Bug 533747] - Target file is read and parsed over and over again
+ *                          - [Bug 533747] Target file is read and parsed over and over again
+ *                          - [Bug 567098] pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -121,11 +122,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     @Override
-    public PomDependencyCollector newPomDependencyCollector() {
-        return new PomDependencyCollectorImpl(mavenContext);
-    }
-
-    @Override
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies) {
@@ -156,13 +152,13 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies) {
+        if (pomDependencies == null) {
+            throw new IllegalArgumentException("PomDependencyCollector can't be null");
+        }
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());
 
         PomDependencyCollectorImpl pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
-        // TODO 412416 remove when the RepositoryBlackboardKey registration is gone
-        if (pomDependenciesContent == null)
-            pomDependenciesContent = new PomDependencyCollectorImpl(mavenContext);
 
         // TODO 372780 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
         IRawArtifactFileProvider pomDependencyArtifactRepo = pomDependenciesContent.getArtifactRepoOfPublishedBundles();
