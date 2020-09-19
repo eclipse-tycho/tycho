@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - adjust to new API 
  *******************************************************************************/
 package org.eclipse.tycho.p2.manager;
 
@@ -24,21 +25,37 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
+import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 import org.eclipse.tycho.test.util.MavenServiceStubbingTestBase;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
 
     private ReactorRepositoryManagerFacade subject;
+    @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+
+    private PomDependencyCollector pomDependencyCollector;
+
+    @Before
+    public void setUpContext() throws Exception {
+        pomDependencyCollector = new PomDependencyCollectorImpl(
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
+    }
 
     @Test
     public void testReactorRepositoryManagerServiceAvailability() throws Exception {
@@ -64,7 +81,7 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
         tpConfig.addP2Repository(
                 new MavenRepositoryLocation(null, ResourceUtil.resourceFile("repositories/launchers").toURI()));
         subject.computePreliminaryTargetPlatform(currentProject, tpConfig,
-                new ExecutionEnvironmentConfigurationStub("JavaSE-1.7"), null, null);
+                new ExecutionEnvironmentConfigurationStub("JavaSE-1.7"), null, pomDependencyCollector);
 
         ReactorProjectIdentities upstreamProject = new ReactorProjectIdentitiesStub(
                 ResourceUtil.resourceFile("projectresult"));
