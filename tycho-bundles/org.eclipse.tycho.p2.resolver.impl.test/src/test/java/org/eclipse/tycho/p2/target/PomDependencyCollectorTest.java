@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - Moved tests to a separate class; refactorings
+ *    Christoph Läubrich - Adjust to API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -24,12 +25,14 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class PomDependencyCollectorTest {
 
@@ -40,10 +43,13 @@ public class PomDependencyCollectorTest {
 
     private ArtifactMock artifact;
 
+    @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+
     @Before
     public void setUpSubject() throws Exception {
         MavenContextImpl mavenContext = new MavenContextImpl(new File("dummy"), logVerifier.getLogger());
-        subject = new PomDependencyCollectorImpl(mavenContext);
+        subject = new PomDependencyCollectorImpl(mavenContext, new ReactorProjectStub(tempManager.newFolder(), "test"));
     }
 
     @Test

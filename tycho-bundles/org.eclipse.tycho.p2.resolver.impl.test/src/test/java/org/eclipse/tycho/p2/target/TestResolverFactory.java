@@ -15,16 +15,17 @@ import java.io.File;
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
@@ -74,13 +75,13 @@ public class TestResolverFactory implements P2ResolverFactory {
     }
 
     @Override
-    public PomDependencyCollector newPomDependencyCollector() {
-        return newPomDependencyCollectorImpl();
+    public PomDependencyCollectorImpl newPomDependencyCollector(ReactorProject project) {
+        return new PomDependencyCollectorImpl(
+                new MavenContextImpl(mavenContext.getLocalRepositoryRoot(), mavenContext.getLogger()), project);
     }
 
-    public PomDependencyCollectorImpl newPomDependencyCollectorImpl() {
-        return new PomDependencyCollectorImpl(
-                new MavenContextImpl(mavenContext.getLocalRepositoryRoot(), mavenContext.getLogger()));
+    public PomDependencyCollectorImpl newPomDependencyCollector() {
+        return newPomDependencyCollector(new ReactorProjectStub(new File("."), "test"));
     }
 
     @Override

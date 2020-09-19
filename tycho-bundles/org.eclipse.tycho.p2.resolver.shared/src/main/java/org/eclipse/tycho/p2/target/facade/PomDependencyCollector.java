@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP AG and others.
+ * Copyright (c) 2011, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,9 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
-
-import java.io.File;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
@@ -20,12 +19,6 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
  * @see org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory#newPomDependencyCollector()
  */
 public interface PomDependencyCollector {
-
-    // TODO 412416 get rid of this method
-    /**
-     * Sets the root folder of the project the target platform applies to.
-     */
-    public void setProjectLocation(File projectLocation);
 
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact);
 
