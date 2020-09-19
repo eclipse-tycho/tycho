@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich -  Bug 461284 - Improve discovery and attach of .target files in eclipse-target-definition
+ *    Christoph Läubrich -  [Bug 461284] - Improve discovery and attach of .target files in eclipse-target-definition
+ *                          [Bug 567098] - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
@@ -31,6 +32,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -348,7 +350,7 @@ public class DefaultTargetPlatformConfigurationReader {
         if (value == null) {
             return;
         }
-        result.setPomDependencies(value);
+        result.setPomDependencies(PomDependencies.valueOf(value));
     }
 
     private void setTarget(TargetPlatformConfiguration result, MavenSession session, MavenProject project,

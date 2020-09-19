@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools.targetplatform;
 
@@ -42,6 +43,7 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyCollector;
@@ -150,8 +152,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
 
         boolean considerPomDependencies = ofNullable(configuration)//
-                .map(TargetPlatformConfiguration::getPomDependencies)
-                .map(TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER::equals)//
+                .map(TargetPlatformConfiguration::getPomDependencies).map(value -> value == PomDependencies.consider)//
                 .orElse(false);
         if (!considerPomDependencies)
             return;

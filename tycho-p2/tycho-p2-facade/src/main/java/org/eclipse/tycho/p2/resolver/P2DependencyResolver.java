@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - fix Bug 551739, Bug 538144, Bug 533747
+ *    Christoph Läubrich    - Bug 551739, Bug 538144, Bug 533747
+ *                          - [Bug 567098] pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -60,6 +61,7 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.TargetDefinitionFile;
@@ -197,12 +199,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
 
         PomDependencyCollector pomDependencies = null;
-        if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
+        if (PomDependencies.consider == configuration.getPomDependencies()) {
             pomDependencies = collectPomDependencies(project, reactorProjects, session);
         } else {
-            // TODO 412416 remove this when the setProjectLocation is no longer needed
-            pomDependencies = resolverFactory.newPomDependencyCollector();
-            pomDependencies.setProjectLocation(project.getBasedir());
+            pomDependencies = resolverFactory.newPomDependencyCollector(DefaultReactorProject.adapt(project));
         }
 
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {

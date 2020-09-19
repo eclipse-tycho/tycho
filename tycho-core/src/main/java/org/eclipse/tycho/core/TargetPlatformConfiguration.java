@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - [Bug 550169] - Improve Tychos handling of includeSource="true" in target definition
+ *                         [Bug 567098] - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
@@ -30,7 +31,16 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         first, minimal
     }
 
-    public static final String POM_DEPENDENCIES_CONSIDER = "consider";
+    public enum PomDependencies {
+        /**
+         * pom dependencies are ignored
+         */
+        ignore,
+        /**
+         * pom dependecies are considered if the are already valid osgi/p2 artifacts
+         */
+        consider;
+    }
 
     private String resolver;
 
@@ -41,7 +51,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private final List<File> targets = new ArrayList<>();
     private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
-    private String pomDependencies;
+    private PomDependencies pomDependencies;
 
     private Boolean allowConflictingDependencies;
 
@@ -98,11 +108,11 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         this.targetDefinitionIncludeSourceMode = includeSourcesMode;
     }
 
-    public void setPomDependencies(String pomDependencies) {
+    public void setPomDependencies(PomDependencies pomDependencies) {
         this.pomDependencies = pomDependencies;
     }
 
-    public String getPomDependencies() {
+    public PomDependencies getPomDependencies() {
         return pomDependencies;
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,14 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
@@ -60,8 +62,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     }
 
     @Override
-    public PomDependencyCollector newPomDependencyCollector() {
-        return new PomDependencyCollectorImpl(mavenContext);
+    public PomDependencyCollector newPomDependencyCollector(ReactorProject project) {
+        return new PomDependencyCollectorImpl(mavenContext, project);
     }
 
     @Override
