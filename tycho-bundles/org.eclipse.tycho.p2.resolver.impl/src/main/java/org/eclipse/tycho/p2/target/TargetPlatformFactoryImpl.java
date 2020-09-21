@@ -49,7 +49,6 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
@@ -65,11 +64,8 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactPr
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.repository.LazyArtifactRepository;
-import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
-import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
-import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
@@ -160,13 +156,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         PomDependencyCollectorImpl pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
 
-        // TODO 372780 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
         IRawArtifactFileProvider pomDependencyArtifactRepo = pomDependenciesContent.getArtifactRepoOfPublishedBundles();
-        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey
-                .forResolutionContextArtifacts(pomDependenciesContent.getProjectLocation());
-        ArtifactRepositoryBlackboard.putRepository(blackboardKey, new ProviderOnlyArtifactRepository(
-                pomDependencyArtifactRepo, Activator.getProvisioningAgent(), blackboardKey.toURI()));
-        logger.debug("Registered artifact repository " + blackboardKey);
 
         Set<MavenRepositoryLocation> completeRepositories = tpConfiguration.getP2Repositories();
         registerRepositoryIDs(completeRepositories);

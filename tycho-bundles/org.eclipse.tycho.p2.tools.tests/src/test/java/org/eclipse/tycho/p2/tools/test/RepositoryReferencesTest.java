@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.List;
 
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,9 +26,6 @@ public class RepositoryReferencesTest {
     private static final File LOCATION_B = new File("another/location");
 
     private static final URI LOCATION_C = URI.create("http://example.org/some/remote/location");
-
-    private static final RepositoryBlackboardKey LOCATION_D = RepositoryBlackboardKey
-            .forResolutionContextArtifacts(new File("."));
 
     RepositoryReferences subject;
 
@@ -64,18 +60,16 @@ public class RepositoryReferencesTest {
 
     @Test
     public void testArtifactReposWithOrder() {
-        subject.addArtifactRepository(LOCATION_D);
         subject.addArtifactRepository(LOCATION_B);
         subject.addArtifactRepository(LOCATION_C);
         subject.addArtifactRepository(LOCATION_A);
 
         List<URI> repositories = subject.getArtifactRepositories();
 
-        assertEquals(4, repositories.size());
-        assertEquals(LOCATION_D.toURI(), repositories.get(0));
-        assertEquals(LOCATION_B.toURI(), repositories.get(1));
-        assertEquals(LOCATION_C, repositories.get(2));
-        assertEquals(LOCATION_A.toURI(), repositories.get(3));
+        assertEquals(3, repositories.size());
+        assertEquals(LOCATION_B.toURI(), repositories.get(0));
+        assertEquals(LOCATION_C, repositories.get(1));
+        assertEquals(LOCATION_A.toURI(), repositories.get(2));
     }
 
 }

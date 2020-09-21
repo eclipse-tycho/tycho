@@ -36,7 +36,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.metadata.MetadataSerializable;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
 /**
  * Tool to obtain the list of p2 repositories that contain the dependencies of a module.
@@ -90,8 +89,6 @@ public class RepositoryReferenceTool {
             repositories.addArtifactRepository(publisherResults);
         }
 
-        repositories.addArtifactRepository(RepositoryBlackboardKey.forResolutionContextArtifacts(module.getBasedir()));
-
         // metadata and artifacts of target platform
         addTargetPlatformRepository(repositories, session, module);
         repositories.addArtifactRepository(new File(session.getLocalRepository().getBasedir()));
@@ -120,12 +117,11 @@ public class RepositoryReferenceTool {
                 DependencyResolverConfiguration resolverConfiguration = configuration
                         .getDependencyResolverConfiguration();
 
-                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
-                        targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration);
+                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
+                        DefaultReactorProject.adapt(session), resolverConfiguration);
 
                 // this contains dependency-only metadata for 'this' project
-                Set<Object> targetPlatformInstallableUnits = new HashSet<>(
-                        dependencyArtifacts.getInstallableUnits());
+                Set<Object> targetPlatformInstallableUnits = new HashSet<>(dependencyArtifacts.getInstallableUnits());
 
                 for (ArtifactDescriptor artifact : dependencyArtifacts.getArtifacts()) {
                     ReactorProject otherProject = artifact.getMavenProject();
