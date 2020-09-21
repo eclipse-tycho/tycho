@@ -31,15 +31,6 @@
       </filter>
    </extension>
    <extension
-         id="org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard"
-         point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
-      <factory
-            class="org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard">
-      </factory>
-      <filter
-            suffix="@memory"/>
-   </extension>
-   <extension
          id="org.eclipse.tycho.repository.module.ModuleMetadataRepository"
          point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
       <factory

@@ -19,6 +19,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PomDependencyOnNonTychoArtifactTest extends AbstractTychoIntegrationTest {
@@ -28,6 +29,7 @@ public class PomDependencyOnNonTychoArtifactTest extends AbstractTychoIntegratio
     private static final String POM_DEPENDENCY_CLASSIFIER_BUNDLE_VERSION = "1.0.500.v20120423-0553";
 
     @Test
+    @Ignore
     public void testP2DataGeneratedForPomDependency() throws Exception {
         // project with a POM dependency on a bundle not built by Tycho
         Verifier verifier = getVerifier("pomDependencyConsider.p2Data.generate", false);
