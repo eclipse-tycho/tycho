@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e93b0bc1_11fc18d7",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-24T06:56:27Z",
+      "side": 1,
+      "message": "Please remove JavaSE-15. The rule for defaults should be minimum Platform BREE + Last Java LTS + last release. Please also add a note about it to the JavaDoc.",
+      "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
