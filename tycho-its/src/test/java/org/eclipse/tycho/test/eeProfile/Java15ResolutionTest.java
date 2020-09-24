@@ -11,7 +11,7 @@
 package org.eclipse.tycho.test.eeProfile;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.List;
@@ -28,7 +28,7 @@ public class Java15ResolutionTest extends AbstractTychoIntegrationTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        buildResult = new Java14ResolutionTest().runBuild();
+        buildResult = new Java15ResolutionTest().runBuild();
     }
 
     public File runBuild() throws Exception {
@@ -39,7 +39,7 @@ public class Java15ResolutionTest extends AbstractTychoIntegrationTest {
     }
 
     @Test
-    public void testProductBuildForJava14() throws Exception {
+    public void testProductBuildForJava15() throws Exception {
         // a p2 repository that contains a product for Java 15
         P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
         List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
