@@ -22,6 +22,8 @@ public interface PomDependencyCollector {
 
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact);
 
+    public void publishAndWrapArtifactIfNeccesary(IArtifactFacade artifact);
+
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
 
 }

@@ -46,7 +46,8 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         this.logger = mavenContext.getLogger();
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
-        this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, mavenContext.getLogger());
+        this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, project,
+                mavenContext.getLogger());
     }
 
     public File getProjectLocation() {
@@ -58,10 +59,19 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     @Override
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact) {
-        MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
+        MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact, false);
         if (bundleIU != null) {
             addMavenArtifact(bundleIU.getArtifact(), Collections.singleton(bundleIU.getUnit()));
         }
+    }
+
+    @Override
+    public void publishAndWrapArtifactIfNeccesary(IArtifactFacade artifact) {
+        MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact, true);
+        if (bundleIU != null) {
+            addMavenArtifact(bundleIU.getArtifact(), Collections.singleton(bundleIU.getUnit()));
+        }
+
     }
 
     @Override

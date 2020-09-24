@@ -14,7 +14,6 @@
    <windowImages/>
 
    <launcher>
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
@@ -24,6 +23,7 @@
    </vm>
 
    <plugins>
+      <plugin id="biz.aQute.bndlib"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.logging"/>
       <plugin id="org.apache.felix.scr"/>
@@ -75,13 +75,14 @@
       <plugin id="org.eclipse.tycho.noopsecurity"/>
       <plugin id="org.sat4j.core"/>
       <plugin id="org.sat4j.pb"/>
+      <plugin id="org.slf4j.api"/>
       <plugin id="org.tukaani.xz"/>
    </plugins>
 
    <configurations>
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
-      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
    </configurations>
 
 </product>
