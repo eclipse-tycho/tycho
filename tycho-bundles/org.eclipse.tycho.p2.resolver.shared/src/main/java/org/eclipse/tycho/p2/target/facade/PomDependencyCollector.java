@@ -20,7 +20,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
  */
 public interface PomDependencyCollector {
 
-    public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact);
+    public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle);
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
 

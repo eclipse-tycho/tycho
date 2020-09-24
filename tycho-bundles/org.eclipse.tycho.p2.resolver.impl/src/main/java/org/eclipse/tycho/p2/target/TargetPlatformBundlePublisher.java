@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP SE and others.
+ * Copyright (c) 2011, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,15 +7,21 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Set;
+import java.util.jar.Manifest;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -24,6 +30,8 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
@@ -34,14 +42,22 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFilePro
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 import org.eclipse.tycho.repository.util.StatusTool;
+import org.osgi.framework.BundleException;
+
+import aQute.bnd.osgi.Analyzer;
+import aQute.bnd.osgi.Jar;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
 
+    private static final String WRAPPED_CLASSIFIER = "wrapped";
+
     private final MavenLogger logger;
     private final PublishedBundlesArtifactRepository publishedArtifacts;
+    private ReactorProject project;
 
-    public TargetPlatformBundlePublisher(File localMavenRepositoryRoot, MavenLogger logger) {
+    public TargetPlatformBundlePublisher(File localMavenRepositoryRoot, ReactorProject project, MavenLogger logger) {
+        this.project = project;
         this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepositoryRoot);
         this.logger = logger;
     }
@@ -70,18 +86,14 @@ public class TargetPlatformBundlePublisher {
      * @return the p2 metadata of the artifact, or <code>null</code> if the artifact isn't a valid
      *         OSGi bundle.
      */
-    MavenBundleInfo attemptToPublishBundle(IArtifactFacade mavenArtifact) {
+    MavenBundleInfo attemptToPublishBundle(IArtifactFacade mavenArtifact, boolean wrapIfNessesary) {
         if (!isAvailableAsLocalFile(mavenArtifact)) {
             // this should have been ensured by the caller
             throw new IllegalArgumentException("Not an artifact file: " + mavenArtifact.getLocation());
         }
-        if (isCertainlyNoBundle(mavenArtifact)) {
-            return null;
-        }
-
-        PublisherRun publisherRun = new PublisherRun(mavenArtifact);
+        PublisherRun publisherRun = new PublisherRun(mavenArtifact, project, publishedArtifacts.getBaseDir(), logger,
+                wrapIfNessesary);
         IStatus status = publisherRun.execute();
-
         if (!status.isOK()) {
             /**
              * If publishing of a jar fails, it is simply not added to the resolution context. The
@@ -104,10 +116,6 @@ public class TargetPlatformBundlePublisher {
         return localLocation != null && localLocation.isFile();
     }
 
-    private boolean isCertainlyNoBundle(IArtifactFacade artifact) {
-        return !artifact.getLocation().getName().endsWith(".jar");
-    }
-
     IRawArtifactFileProvider getArtifactRepoOfPublishedBundles() {
         return publishedArtifacts;
     }
@@ -123,18 +131,70 @@ public class TargetPlatformBundlePublisher {
         private PublisherResult publisherResult;
         private IArtifactFacade publishedArtifact;
 
-        PublisherRun(IArtifactFacade artifact) {
+        private ReactorProject project;
+
+        private File basedir;
+
+        private MavenLogger logger;
+
+        private boolean wrapIfNessesary;
+
+        PublisherRun(IArtifactFacade artifact, ReactorProject project, File basedir, MavenLogger logger,
+                boolean wrapIfNessesary) {
             this.mavenArtifact = artifact;
+            this.project = project;
+            this.basedir = basedir;
+            this.logger = logger;
+            this.wrapIfNessesary = wrapIfNessesary;
         }
 
         IStatus execute() {
+            try {
+                BundleDescription bundleDescription = BundlesAction
+                        .createBundleDescription(mavenArtifact.getLocation());
+                if (bundleDescription == null) {
+                    return new Status(IStatus.OK, TargetPlatformBundlePublisher.class.getName(),
+                            "artifact file " + mavenArtifact.getLocation() + " is certainly not a bundle/jar file");
+                }
+                if (bundleDescription.getSymbolicName() == null) {
+                    if (wrapIfNessesary) {
+                        String generatedBsn = project.getGroupId() + "." + mavenArtifact.getGroupId() + "."
+                                + mavenArtifact.getArtifactId();
+                        logger.warn("Maven Artifact " + mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId()
+                                + ":" + mavenArtifact.getVersion()
+                                + " is not a bundle a will be automatically wrapped with bundle-symbolic name "
+                                + generatedBsn
+                                + ", ignoring such artifacts can be enabled with <pomDependencies>consider</pomDependencies> in target platform configuration.");
+                        try {
+                            publishedArtifact = createWrappedArtifact(generatedBsn);
+                        } catch (Exception e) {
+                            return new Status(IStatus.ERROR, TargetPlatformBundlePublisher.class.getName(),
+                                    "wrapping file " + mavenArtifact.getLocation() + " failed", e);
+                        }
+                    } else {
+                        logger.info("Maven Artifact " + mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId()
+                                + ":" + mavenArtifact.getVersion()
+                                + " is not a bundle and will be ignored, automatic wrapping of such artifacts can be enabled with <pomDependencies>use</pomDependencies> in target platform configuration.");
+                        return new Status(IStatus.OK, TargetPlatformBundlePublisher.class.getName(), "Nothing to do");
+                    }
+
+                } else {
+                    publishedArtifact = mavenArtifact;
+                }
+            } catch (IOException e) {
+                return new Status(IStatus.WARNING, TargetPlatformBundlePublisher.class.getName(),
+                        "reading file " + mavenArtifact.getLocation() + " failed", e);
+            } catch (BundleException e) {
+                return new Status(IStatus.WARNING, TargetPlatformBundlePublisher.class.getName(),
+                        "reading maven manifest from file: " + mavenArtifact.getLocation() + " failed", e);
+            }
+
             publisherInfo = new PublisherInfo();
             enableArtifactDescriptorCollection();
             enableUnitAnnotationWithGAV();
 
-            BundlesAction bundlesAction = new BundlesAction(new File[] { mavenArtifact.getLocation() });
+            BundlesAction bundlesAction = new BundlesAction(new File[] { publishedArtifact.getLocation() });
             IStatus status = executePublisherAction(bundlesAction);
-            publishedArtifact = mavenArtifact;
             return status;
         }
 
@@ -145,8 +205,9 @@ public class TargetPlatformBundlePublisher {
         }
 
         private void enableUnitAnnotationWithGAV() {
-            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact.getGroupId(),
-                    mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), mavenArtifact.getClassifier());
+            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(publishedArtifact.getGroupId(),
+                    publishedArtifact.getArtifactId(), publishedArtifact.getVersion(),
+                    publishedArtifact.getClassifier());
             publisherInfo.addAdvice(advice);
         }
 
@@ -157,6 +218,9 @@ public class TargetPlatformBundlePublisher {
         }
 
         MavenBundleInfo getPublishedUnitIfExists() {
+            if (publisherResult == null) {
+                return null;
+            }
             Collection<IInstallableUnit> units = publisherResult.getIUs(null, null);
             if (units.isEmpty()) {
                 // the BundlesAction simply does not create any IUs if the JAR is not a bundle
@@ -183,6 +247,78 @@ public class TargetPlatformBundlePublisher {
                         + "BundlesAction created more than one artifact entry for " + mavenArtifact.getLocation());
             }
         }
+
+        private IArtifactFacade createWrappedArtifact(String bsn) throws Exception {
+            MavenRepositoryCoordinates repositoryCoordinates = new MavenRepositoryCoordinates(
+                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
+                    WRAPPED_CLASSIFIER, null);
+            File wrappedFile = new File(basedir, repositoryCoordinates.getLocalRepositoryPath());
+            wrappedFile.getParentFile().mkdirs();
+            try (Jar jar = new Jar(mavenArtifact.getLocation())) {
+                Manifest originalManifest = jar.getManifest();
+                try (Analyzer analyzer = new Analyzer();) {
+                    analyzer.setJar(jar);
+                    if (originalManifest != null) {
+                        analyzer.mergeManifest(originalManifest);
+                    }
+                    analyzer.setProperty(Analyzer.IMPORT_PACKAGE, "*;resolution:=optional");
+                    analyzer.setProperty(Analyzer.EXPORT_PACKAGE, "*;-noimport:=true");
+                    analyzer.setProperty(Analyzer.BUNDLE_SYMBOLICNAME, bsn);
+                    analyzer.setBundleVersion(mavenArtifact.getVersion().replace('-', '.'));
+                    Manifest manifest = analyzer.calcManifest();
+                    jar.setManifest(manifest);
+                    jar.write(wrappedFile);
+                    if (logger.isDebugEnabled()) {
+                        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                        manifest.write(bout);
+                        logger.debug("Generated Manifest: \r\n" + bout.toString(StandardCharsets.UTF_8));
+                    }
+                    return new WrappedArtifact(wrappedFile, mavenArtifact);
+                }
+            }
+        }
+    }
+
+    private static class WrappedArtifact implements IArtifactFacade {
+
+        private File file;
+        private IArtifactFacade wrapped;
+
+        public WrappedArtifact(File file, IArtifactFacade wrapped) {
+            this.file = file;
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public File getLocation() {
+            return file;
+        }
+
+        @Override
+        public String getGroupId() {
+            return wrapped.getGroupId();
+        }
+
+        @Override
+        public String getArtifactId() {
+            return wrapped.getArtifactId();
+        }
+
+        @Override
+        public String getClassifier() {
+            return WRAPPED_CLASSIFIER;
+        }
+
+        @Override
+        public String getVersion() {
+            return wrapped.getVersion();
+        }
+
+        @Override
+        public String getPackagingType() {
+            return "bundle";
+        }
+
     }
 
     /**
@@ -271,4 +407,5 @@ public class TargetPlatformBundlePublisher {
         }
 
     }
+
 }
