@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -62,7 +63,7 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/binIncludesSpaces");
         File classes = new File(basedir, "target/classes");
         classes.mkdirs();
-        FileUtils.fileWrite(new File(classes, "foo.bar").getCanonicalPath(), "foobar");
+        Files.writeString(new File(classes, "foo.bar").toPath(), "foobar");
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 

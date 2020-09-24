@@ -12,11 +12,11 @@ package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
 public class CompoundArtifactDelta extends SimpleArtifactDelta {
@@ -80,7 +80,7 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
     private void writeFile(File basedir, String path, String data) throws IOException {
         File file = new File(basedir, path).getAbsoluteFile();
         file.getParentFile().mkdirs();
-        FileUtils.fileWrite(file.getAbsolutePath(), data);
+        Files.writeString(file.toPath(), data);
     }
 
 }

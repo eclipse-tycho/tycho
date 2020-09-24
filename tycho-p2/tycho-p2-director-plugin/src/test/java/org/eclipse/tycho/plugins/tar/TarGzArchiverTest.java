@@ -37,7 +37,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
-import org.codehaus.plexus.util.FileUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
@@ -67,7 +66,7 @@ public class TarGzArchiverTest {
         archiver.addDirectory(archiveRoot);
         File textFile = new File(dir2, "test.txt");
         assertTrue(textFile.createNewFile());
-        FileUtils.fileWrite(textFile, "hello");
+        Files.writeString(textFile.toPath(), "hello");
         File dir3 = new File(dir2, "dir3");
         assertTrue(dir3.mkdirs());
         assertTrue(new File(dir3, "test.sh").createNewFile());
@@ -152,7 +151,7 @@ public class TarGzArchiverTest {
     @Test
     public void testSymbolicLinkOutsideArchiveInlined() throws Exception {
         File linkTargetFile = tempFolder.newFile("linkTargetOutsideArchiveRoot");
-        FileUtils.fileWrite(linkTargetFile, "testContent");
+        Files.writeString(linkTargetFile.toPath(), "testContent");
         createSymbolicLink(new File(archiveRoot, "testSymLink"), linkTargetFile.toPath());
         archiver.createArchive();
         TarArchiveEntry inlinedSymLinkEntry = getTarEntries().get("testSymLink");
@@ -165,7 +164,7 @@ public class TarGzArchiverTest {
     @Test
     public void testSymbolicLinkToDirOutsideArchiveInlined() throws Exception {
         File linkTargetDir = tempFolder.newFolder("dirLinkTargetOutsideArchiveRoot");
-        FileUtils.fileWrite(new File(linkTargetDir, "test.txt"), "testContent");
+        Files.writeString(new File(linkTargetDir, "test.txt").toPath(), "testContent");
         createSymbolicLink(new File(archiveRoot, "testDirSymLink"), linkTargetDir.toPath());
         archiver.createArchive();
         TarArchiveEntry inlinedSymLinkEntry = getTarEntries().get("testDirSymLink/");
