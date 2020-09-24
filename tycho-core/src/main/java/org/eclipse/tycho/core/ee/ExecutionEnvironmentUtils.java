@@ -50,6 +50,7 @@ public class ExecutionEnvironmentUtils {
         profileFiles.add("JavaSE-11.profile");
         profileFiles.add("JavaSE-14.profile");
         profileFiles.add("JavaSE-15.profile");
+        profileFiles.add("JavaSE-16.profile");
         Map<String, Properties> envMap = new LinkedHashMap<>(profileFiles.size(), 1.f);
         for (String profileFile : profileFiles) {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));
