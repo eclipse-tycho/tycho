@@ -40,7 +40,7 @@ public class Java14ResolutionTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testProductBuildForJava14() throws Exception {
-        // a p2 repository that contains a product for Java 13
+        // a p2 repository that contains a product for Java 14
         P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
         List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
         // we expect java 14 (java 10 provides more system packages) 

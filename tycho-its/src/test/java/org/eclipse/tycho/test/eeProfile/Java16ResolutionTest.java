@@ -22,29 +22,29 @@ import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class Java15ResolutionTest extends AbstractTychoIntegrationTest {
+public class Java16ResolutionTest extends AbstractTychoIntegrationTest {
 
     private static File buildResult;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        buildResult = new Java15ResolutionTest().runBuild();
+        buildResult = new Java16ResolutionTest().runBuild();
     }
 
     public File runBuild() throws Exception {
-        Verifier verifier = getVerifier("eeProfile.java15", false);
+        Verifier verifier = getVerifier("eeProfile.java16", false);
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         return new File(verifier.getBasedir());
     }
 
     @Test
-    public void testProductBuildForJava15() throws Exception {
-        // a p2 repository that contains a product for Java 15
+    public void testProductBuildForJava16() throws Exception {
+        // a p2 repository that contains a product for Java 16
         P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
         List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
-        // we expect java 15
-        assertThat(jreUnitVersions, hasItem("15.0.0"));
+        // we expect java 16
+        assertThat(jreUnitVersions, hasItem("16.0.0"));
     }
 
 }
