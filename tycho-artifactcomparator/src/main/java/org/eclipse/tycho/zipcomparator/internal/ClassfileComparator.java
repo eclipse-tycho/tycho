@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,7 +62,7 @@ public class ClassfileComparator implements ContentsComparator {
     private String disassemble(byte[] bytes) {
         ClassReader reader = new ClassReader(bytes);
         ClassNode clazz = new ClassNode();
-        reader.accept(clazz, Opcodes.ASM7 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+        reader.accept(clazz, Opcodes.ASM9 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 
         // inner class list gets reordered during pack200 normalization
         if (clazz.innerClasses != null) {
