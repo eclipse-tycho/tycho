@@ -37,6 +37,47 @@
     },
     {
       "key": {
+        "uuid": "4e6ee482_33ac9957",
+        "filename": "tycho-core/src/main/resources/JavaSE-16.profile",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2020-09-24T09:00:10Z",
+      "side": 1,
+      "message": "system.packages are still here AFAICT",
+      "parentUuid": "1ba7dbee_0d3ae6c3",
+      "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d48e881_bb35f4b8",
+        "filename": "tycho-its/projects/eeProfile.java16/repository/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2020-09-24T09:00:10Z",
+      "side": 1,
+      "message": "Please fix the artifactId to be java16 as it can be misleading if at some point we look at test failures.",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e93b0bc1_11fc18d7",
         "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
         "patchSetId": 3
@@ -69,6 +110,24 @@
       "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f25e8fa_c865fbb6",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2020-09-24T09:00:10Z",
+      "side": 1,
+      "message": "Java 15 is the last release so we should not remove it. What Mickael ment is Java-14 but I would say we should give it some more time as with previous release we had a number of complains about dropped Java 13.",
+      "parentUuid": "5343ce57_e609b16a",
+      "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
