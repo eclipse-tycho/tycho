@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1ba7dbee_0d3ae6c3",
+        "filename": "tycho-core/src/main/resources/JavaSE-16.profile",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 663
+      },
+      "writtenOn": "2020-09-24T07:58:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54aacb8b_e31e17d2",
+      "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e93b0bc1_11fc18d7",
         "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2020-09-24T06:56:27Z",
       "side": 1,
       "message": "Please remove JavaSE-15. The rule for defaults should be minimum Platform BREE + Last Java LTS + last release. Please also add a note about it to the JavaDoc.",
+      "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5343ce57_e609b16a",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 663
+      },
+      "writtenOn": "2020-09-24T07:58:46Z",
+      "side": 1,
+      "message": "Hmm. Don\u0027t you think it\u0027s too early to remove 15? JDT still uses and might need it for another couple of months for any remaining Java 15 work.",
+      "parentUuid": "e93b0bc1_11fc18d7",
       "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
