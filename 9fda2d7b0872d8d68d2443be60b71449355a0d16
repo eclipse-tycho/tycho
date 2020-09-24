@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a5d2dc6_e2febf1f",
+        "filename": "tycho-core/src/main/resources/JavaSE-16.profile",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2020-09-24T10:20:41Z",
+      "side": 1,
+      "message": "This should be removed as it\u0027s no longer needed and used. See https://git.eclipse.org/c/tycho/org.eclipse.tycho.git/tree/tycho-core/src/main/resources/JavaSE-14.profile for example. Please also adjust JavaSE-15.profile too as it was forgotten to be cleaned up.",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 34
+      },
+      "revId": "9fda2d7b0872d8d68d2443be60b71449355a0d16",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
