@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "54aacb8b_e31e17d2",
+        "filename": "tycho-core/src/main/resources/JavaSE-16.profile",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-24T06:56:55Z",
+      "side": 1,
+      "message": "No, please remove them.",
+      "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e93b0bc1_11fc18d7",
         "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
         "patchSetId": 3
