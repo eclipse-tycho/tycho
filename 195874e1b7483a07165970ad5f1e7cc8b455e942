@@ -78,6 +78,30 @@
     },
     {
       "key": {
+        "uuid": "f67a4acd_04f7ed05",
+        "filename": "tycho-its/projects/eeProfile.java16/repository/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 663
+      },
+      "writtenOn": "2020-09-24T09:22:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d48e881_bb35f4b8",
+      "range": {
+        "startLine": 9,
+        "startChar": 17,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "195874e1b7483a07165970ad5f1e7cc8b455e942",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e93b0bc1_11fc18d7",
         "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
         "patchSetId": 3
