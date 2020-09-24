@@ -46,8 +46,8 @@ public class PomDependencyProcessor {
         this.localRepoIndices = localRepoIndices;
     }
 
-    PomDependencyCollector collectPomDependencies(MavenProject project,
-            Collection<Artifact> transitivePomDependencies) {
+    PomDependencyCollector collectPomDependencies(MavenProject project, Collection<Artifact> transitivePomDependencies,
+            boolean allowGenerateOSGiBundle) {
         final TychoRepositoryIndex p2ArtifactsInLocalRepo = localRepoIndices.getArtifactsIndex();
         PomDependencyCollector result = resolverFactory.newPomDependencyCollector(DefaultReactorProject.adapt(project));
 
@@ -90,9 +90,7 @@ public class PomDependencyProcessor {
                 if (logger.isDebugEnabled()) {
                     logger.debug("P2resolver.addMavenArtifact " + artifact.toString());
                 }
-
-                result.publishAndAddArtifactIfBundleArtifact(new ArtifactFacade(artifact));
-
+                result.addMavenArtifact(new ArtifactFacade(artifact), allowGenerateOSGiBundle);
             } else {
                 failDueToPartialP2Data(artifact, p2Data);
             }

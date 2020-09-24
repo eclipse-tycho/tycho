@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich - adjust to new API
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -16,11 +16,14 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unit;
 import static org.eclipse.tycho.repository.testutil.ArtifactPropertiesMatchers.containsGAV;
 import static org.eclipse.tycho.repository.testutil.ArtifactPropertiesMatchers.hasProperty;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryMatchers.contains;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -28,6 +31,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
@@ -54,15 +58,16 @@ public class TargetPlatformBundlePublisherTest {
     private TargetPlatformBundlePublisher subject;
 
     @Before
-    public void initSubject() {
-        logVerifier.expectNoWarnings();
+    public void initSubject() throws IOException {
 
         localRepositoryRoot = tempFolder.getRoot();
-        subject = new TargetPlatformBundlePublisher(localRepositoryRoot, logVerifier.getLogger());
+        subject = new TargetPlatformBundlePublisher(localRepositoryRoot,
+                new ReactorProjectStub(tempFolder.newFolder(), "test"), logVerifier.getLogger());
     }
 
     @Test
     public void testPomDependencyOnBundle() throws Exception {
+        logVerifier.expectNoWarnings();
         String bundleId = "org.eclipse.osgi";
         String bundleVersion = "3.5.2.R35x_v20100126";
 
@@ -71,7 +76,7 @@ public class TargetPlatformBundlePublisherTest {
                 RepositoryLayoutHelper.getRelativePath(GROUP_ID, ARTIFACT_ID, VERSION, null, "jar"));
         IArtifactFacade bundleArtifact = new ArtifactMock(bundleFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
 
-        IInstallableUnit publishedUnit = subject.attemptToPublishBundle(bundleArtifact).getUnit();
+        IInstallableUnit publishedUnit = subject.attemptToPublishBundle(bundleArtifact, false).getUnit();
 
         assertThat(publishedUnit, is(unit(bundleId, bundleVersion)));
         assertThat(publishedUnit.getProperties(), containsGAV(GROUP_ID, ARTIFACT_ID, VERSION));
@@ -93,16 +98,28 @@ public class TargetPlatformBundlePublisherTest {
 
     @Test
     public void testPomDependencyOnPlainJar() throws Exception {
+        logVerifier.expectNoWarnings();
+        logVerifier.expectInfo(containsString(
+                "is not a bundle and will be ignored, automatic wrapping of such artifacts can be enabled"));
         File jarFile = resourceFile("platformbuilder/pom-dependencies/non-bundle.jar");
         IArtifactFacade jarArtifact = new ArtifactMock(jarFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
-        assertNull(subject.attemptToPublishBundle(jarArtifact));
+        assertNull(subject.attemptToPublishBundle(jarArtifact, false));
+    }
+
+    @Test
+    public void testPomDependencyWrapPlainJar() throws Exception {
+        logVerifier.expectWarning(containsString("is not a bundle a will be automatically wrapped"));
+        File jarFile = resourceFile("platformbuilder/pom-dependencies/non-bundle.jar");
+        IArtifactFacade jarArtifact = new ArtifactMock(jarFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
+        assertNotNull(subject.attemptToPublishBundle(jarArtifact, true));
     }
 
     @Test
     public void testPomDependencyOnOtherType() throws Exception {
+        logVerifier.expectNoWarnings();
         File otherFile = resourceFile("platformbuilder/pom-dependencies/other-type.xml");
         IArtifactFacade otherArtifact = new ArtifactMock(otherFile, GROUP_ID, ARTIFACT_ID, VERSION, "pom");
-        assertNull(subject.attemptToPublishBundle(otherArtifact));
+        assertNull(subject.attemptToPublishBundle(otherArtifact, false));
     }
 
     private static String artifactMD5Of(IArtifactKey key, IRawArtifactProvider artifactProvider) throws Exception {

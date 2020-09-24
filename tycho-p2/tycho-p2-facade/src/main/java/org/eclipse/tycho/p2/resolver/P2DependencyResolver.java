@@ -198,13 +198,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
         tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
 
-        PomDependencyCollector pomDependencies = null;
-        if (PomDependencies.consider == configuration.getPomDependencies()) {
-            pomDependencies = collectPomDependencies(project, reactorProjects, session);
-        } else {
-            pomDependencies = resolverFactory.newPomDependencyCollector(DefaultReactorProject.adapt(project));
-        }
-
+        PomDependencyCollector pomDependencies = collectPomDependencies(project, reactorProjects, session,
+                configuration.getPomDependencies());
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
             addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration);
         }
@@ -246,7 +241,11 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     }
 
     private PomDependencyCollector collectPomDependencies(MavenProject project, List<ReactorProject> reactorProjects,
-            MavenSession session) {
+            MavenSession session, PomDependencies pomDependencies) {
+        if (pomDependencies == PomDependencies.ignore) {
+            return resolverFactory.newPomDependencyCollector(DefaultReactorProject.adapt(project));
+        }
+
         Set<String> projectIds = new HashSet<>();
         for (ReactorProject p : reactorProjects) {
             String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
@@ -289,7 +288,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
         PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
                 resolverFactory, equinox.getService(LocalRepositoryP2Indices.class), getLogger());
-        return pomDependencyProcessor.collectPomDependencies(project, externalArtifacts);
+        return pomDependencyProcessor.collectPomDependencies(project, externalArtifacts,
+                pomDependencies == PomDependencies.automated);
     }
 
     private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
