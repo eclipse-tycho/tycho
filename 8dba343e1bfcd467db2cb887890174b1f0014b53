@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "5b7beca8_d7388bab",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/PomDependencyCollector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T09:33:39Z",
+      "side": 1,
+      "message": "I agree that would be better.",
+      "parentUuid": "687c68b3_a74a4e31",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef2ddf6d_06b8f883",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
         "patchSetId": 1
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "b66dd3c9_3c80f11f",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T09:33:39Z",
+      "side": 1,
+      "message": "OK, however we could improve the TargetPlatformConfgiurationMojo and TargetPlatformConfigurationReader to better leverage this enum. But we can make it a pre-quel or a se-quel of this current patch.",
+      "parentUuid": "d9786680_8c99dfbb",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9967504b_ce32dc95",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
         "patchSetId": 1
@@ -101,6 +137,24 @@
       "side": 1,
       "message": "I just don\u0027t wanted to make a simple option more complicated and explicit, because in fact also predefined P2 meta-data is used, and maybe we later support other artifact types (what about P2 Updatesites?) and would then end up in  consider-or-generate-osgi-bundles-or-use-p2-or-...) :-)",
       "parentUuid": "9967504b_ce32dc95",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3813830a_a5a75388",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T09:33:39Z",
+      "side": 1,
+      "message": "I think we need to find a compromise here. For someone who\u0027s not involved in this code \"use\" or \"wrap\" are really to weak words to figure out what cases they fix and what trouble they may cause and how to remediate them.",
+      "parentUuid": "1035026e_14abd5de",
       "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
