@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c7bdc6b_74735f54",
+        "filename": "target-platform-configuration/src/main/java/org/eclipse/tycho/target/TargetPlatformConfigurationMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-25T09:54:05Z",
+      "side": 1,
+      "message": "Would that mean that XML names must match enum names?",
+      "revId": "22b4712fd187d8fc31d567195535639ed4379668",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
