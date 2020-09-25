@@ -269,6 +269,24 @@
     },
     {
       "key": {
+        "uuid": "d03d4118_a15d1f9f",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T14:19:33Z",
+      "side": 1,
+      "message": "The target audience are Eclipse plugin developers. Majority of them are familiar with the \"wrap\" Karaf term but are familiar with MANIFEST-first and p2; and although I am now aware of what it does, I find this term very weak, not explaining neither its goal nor what it actually does nor hints about the issues it can cause. I\u0027d like something more precise for Tycho to not surprise the audience in any way.\nThe fact that we turn a plain jar to an OSGi bundle is not so internal as it\u0027s going to leak in dependency resolution and even delivered p2 repos or RCP products. I also believe we shouldn\u0027t try to hide nor blur wat is actually done. And explaining what it does with a term like `osgify` also explains why would one want to use it.\nSo I\u0027m supporting that Tycho would better use an explicit term instead of a blurry one, even if Karaf decided the other way round.",
+      "parentUuid": "810f578d_1c51b351",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb1cf82b_dd2c9154",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
         "patchSetId": 1
