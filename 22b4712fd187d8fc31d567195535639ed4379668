@@ -16,6 +16,24 @@
       "revId": "22b4712fd187d8fc31d567195535639ed4379668",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57c7d043_771a0ad5",
+        "filename": "target-platform-configuration/src/main/java/org/eclipse/tycho/target/TargetPlatformConfigurationMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T10:02:51Z",
+      "side": 1,
+      "message": "yes, completion would suggest enum element names (or maybe their toString/valueOf variant, I\u0027m not certain how Maven reads enums).",
+      "parentUuid": "1c7bdc6b_74735f54",
+      "revId": "22b4712fd187d8fc31d567195535639ed4379668",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
