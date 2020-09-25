@@ -197,6 +197,24 @@
     },
     {
       "key": {
+        "uuid": "ac42ee10_a3d85a66",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T10:17:50Z",
+      "side": 1,
+      "message": "With other change about the TargetPlatformConfigurationMojo, those terms become more than internal technical terms for maintainers, they\u0027re becoming the user facing name. So we should tried to have them polished as early as possible.\nIf the names and docs are clear enough, then we can minimize the amount of external doc necessary as we can expect that names and contextual help based on Javadoc surfacing in the IDE would be enough for people to feel comfortable with the feature.\nAlthough I have expressed concerns about the \"safety\" of this feature and requested a lot of warning, guards and other defense mechanics; I\u0027m actually relatively certain that this will be a popular feature and that it will quickly be very used, adding some pressure on good names here.",
+      "parentUuid": "6bc92d53_58aebb3b",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb1cf82b_dd2c9154",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
         "patchSetId": 1
