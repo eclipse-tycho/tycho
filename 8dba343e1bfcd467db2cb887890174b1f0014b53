@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b87a3b5f_e8b818d0",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/PomDependencyCollector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T08:41:42Z",
+      "side": 1,
+      "message": "Can we refine in the method name what would make that \"necessary\"?",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef2ddf6d_06b8f883",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T08:41:42Z",
+      "side": 1,
+      "message": "I believe only OSGi metdata are necessary for `consider` to work. If so, please refine the description.\nWe may also change the name (ie deprecate current one and introduce a new \"synonym\") to something like `consider-osgi-bundles`.",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9967504b_ce32dc95",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T08:41:42Z",
+      "side": 1,
+      "message": "\"Wrap\" or \"use\" are IMO not explicit enough. What about `consider-generate-osgi-bundles` ?",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb1cf82b_dd2c9154",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T08:41:42Z",
+      "side": 1,
+      "message": "Join with previous line.",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f374f14_ba24ecf3",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/PomDependencyProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T08:41:42Z",
+      "side": 1,
+      "message": "It would be more explicit to call it `allowGenerateOSGiBundle` or something of that kind.",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
