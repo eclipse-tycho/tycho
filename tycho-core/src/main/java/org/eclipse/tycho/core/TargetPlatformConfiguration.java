@@ -37,13 +37,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
          */
         ignore,
         /**
-         * pom dependencies are considered if the are already valid osgi/p2 artifacts
+         * pom dependencies are considered if the are already valid osgi artifacts. p2 metadata may
+         * be generated if missing
          */
         consider,
         /**
-         * pom dependencies are used and wrapped if necessary
+         * pom dependencies are used and wrapped into OSGi bundles if necessary. p2 metadata may be generated if missing.
          */
-        automated;
+        wrapAsBundle;
     }
 
     private String resolver;
