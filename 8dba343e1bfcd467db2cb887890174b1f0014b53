@@ -287,6 +287,24 @@
     },
     {
       "key": {
+        "uuid": "e2a263d7_ca53dc43",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-25T14:37:20Z",
+      "side": 1,
+      "message": "The only PDE term I can think of (and I\u0027m not sure how many people actually are using this) would be \"automated\" then, Manifest-Editor in the \"Automated Managment of dependencies\" in the Manifest-Editor that analyze the classpath of given bundles and add appropiate imports.\n\nThe most matching feature would be \"Plug-in from Existing JAR Archive\" Wizard but that\u0027s probably way to long ;-) And as this option does not wrap ALL dependencies but only those with missing meta-data I\u0027m not sure if we should make that fact so prominent.\n\nBTW: I think the wrap protocol is inspired by BND itself that also offers this as a command-line tool: https://bnd.bndtools.org/commands/wrap.html",
+      "parentUuid": "d03d4118_a15d1f9f",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb1cf82b_dd2c9154",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
         "patchSetId": 1
