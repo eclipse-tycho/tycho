@@ -215,6 +215,24 @@
     },
     {
       "key": {
+        "uuid": "57e68d42_682e2985",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-25T10:24:07Z",
+      "side": 1,
+      "message": "Good to hear that you like it or at least consider it useful :-)\n\nI have tried to find a name that is short and remberable but open to suggestions for alternative naming, I just find consider-generate-osgi-bundles a bit to long and we have not had used uber-explicit names elsewhere like with BREEHeaderSelectionPolicy.",
+      "parentUuid": "ac42ee10_a3d85a66",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb1cf82b_dd2c9154",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
         "patchSetId": 1
