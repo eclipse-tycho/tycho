@@ -233,6 +233,24 @@
     },
     {
       "key": {
+        "uuid": "5046e37d_731e328c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-25T13:46:59Z",
+      "side": 1,
+      "message": "And what about \"osgify\"?",
+      "parentUuid": "57e68d42_682e2985",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb1cf82b_dd2c9154",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
         "patchSetId": 1
