@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "d75b9925_9be086b2",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-25T09:51:57Z",
+      "side": 1,
+      "message": "Yep I thikn it would be good to not do too much work here in this PR as it was already discussed controverly so I\u0027d like to keep it small and simple.",
+      "parentUuid": "b66dd3c9_3c80f11f",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9967504b_ce32dc95",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
         "patchSetId": 1
@@ -155,6 +173,24 @@
       "side": 1,
       "message": "I think we need to find a compromise here. For someone who\u0027s not involved in this code \"use\" or \"wrap\" are really to weak words to figure out what cases they fix and what trouble they may cause and how to remediate them.",
       "parentUuid": "1035026e_14abd5de",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bc92d53_58aebb3b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-25T09:51:57Z",
+      "side": 1,
+      "message": "At the moment, these are just technical terms for us (the maintainer of the code). if this feature becomes active we should therefore ad more detailed description to the (existing?) documentation and N\u0026N of the release... that reminds me that I probably need to edit the maven site-docs to reflect the new property, I\u0027ll try to find out where it is located and include this in this PR.",
+      "parentUuid": "3813830a_a5a75388",
       "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
