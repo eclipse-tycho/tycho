@@ -37,7 +37,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
          */
         ignore,
         /**
-         * pom dependecies are considered if the are already valid osgi/p2 artifacts
+         * pom dependecies are considered if the are already valid osgi artifacts. p2 metadata may
+         * be generated for those if missing
          */
         consider;
     }

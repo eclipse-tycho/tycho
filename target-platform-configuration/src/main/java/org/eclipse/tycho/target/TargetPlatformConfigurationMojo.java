@@ -8,6 +8,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -62,7 +63,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * </p>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES)
-    private String pomDependencies;
+    private PomDependencies pomDependencies;
 
     @Parameter(name = DefaultTargetPlatformConfigurationReader.ALLOW_CONFLICTING_DEPENDENCIES, defaultValue = "false")
     private boolean allowConflictingDependences;
