@@ -346,7 +346,6 @@ public class DefaultTargetPlatformConfigurationReader {
 
     private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         String value = getStringValue(configuration.getChild(POM_DEPENDENCIES));
-
         if (value == null) {
             return;
         }

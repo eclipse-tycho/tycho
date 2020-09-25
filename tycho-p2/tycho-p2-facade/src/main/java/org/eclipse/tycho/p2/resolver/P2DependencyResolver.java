@@ -289,7 +289,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
                 resolverFactory, equinox.getService(LocalRepositoryP2Indices.class), getLogger());
         return pomDependencyProcessor.collectPomDependencies(project, externalArtifacts,
-                pomDependencies == PomDependencies.automated);
+                pomDependencies == PomDependencies.wrapAsBundle);
     }
 
     private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,

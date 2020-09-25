@@ -8,6 +8,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -38,18 +39,17 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     private GAV[] target;
 
     /**
+     * Defines which strategy to apply to Maven dependencies.
      * <p>
-     * Set to <code>consider</code> to consider OSGi bundles added in the
-     * <code><dependencies></code> section as dependencies during dependency resolution.
-     * </p>
-     * <p>
-     * This configuration has the following effect:
+     * If <code>consider</code> or <code>wrapAsBundle</code>, the effect is:
      * <ul>
      * <li>First, Maven resolves the GAV dependencies according to the normal Maven rules. This
      * results in a list of artifacts consisting of the specified artifacts and their transitive
      * Maven dependencies.</li>
      * <li>Tycho then checks each of these artifacts, and if the artifact is an OSGi bundle, it is
-     * added to the target platform. Other artifacts are ignored. OSGi bundles which become part of
+     * added to the target platform. Other artifacts are ignored in case of <code>consider</code>,
+     * or get some OSGi metadata generated and an OSGi bundle created from them.</li>
+     * <li>OSGi bundles which become part of
      * the target platform in this way are then available to resolve the project's OSGi
      * dependencies.</li>
      * </ul>
@@ -61,8 +61,8 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * need to be added in the parent POM.
      * </p>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES)
-    private String pomDependencies;
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES, defaultValue = "ignore")
+    private PomDependencies pomDependencies;
 
     @Parameter(name = DefaultTargetPlatformConfigurationReader.ALLOW_CONFLICTING_DEPENDENCIES, defaultValue = "false")
     private boolean allowConflictingDependences;
