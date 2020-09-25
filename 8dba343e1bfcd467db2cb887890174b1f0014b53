@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "687c68b3_a74a4e31",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/PomDependencyCollector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-25T09:18:44Z",
+      "side": 1,
+      "message": "In fact I\u0027d like to refactor this part of the code as (for me) there are too much indirections.\n\nThe \u0027IfNeccesary\u0027 is just to distinguish it from the \u0027IfBundleArtifact\u0027 but on the long run I\u0027d like to merge both methods, to something like:\n\naddMavenArtifact(... , true/false)",
+      "parentUuid": "b87a3b5f_e8b818d0",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef2ddf6d_06b8f883",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "d9786680_8c99dfbb",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-25T09:18:44Z",
+      "side": 1,
+      "message": "in fact we can whatever name we want in the xml as the xml name is only mapped to the enum, so this is just for type safty.",
+      "parentUuid": "ef2ddf6d_06b8f883",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9967504b_ce32dc95",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2020-09-25T08:41:42Z",
       "side": 1,
       "message": "\"Wrap\" or \"use\" are IMO not explicit enough. What about `consider-generate-osgi-bundles` ?",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1035026e_14abd5de",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-25T09:18:44Z",
+      "side": 1,
+      "message": "I just don\u0027t wanted to make a simple option more complicated and explicit, because in fact also predefined P2 meta-data is used, and maybe we later support other artifact types (what about P2 Updatesites?) and would then end up in  consider-or-generate-osgi-bundles-or-use-p2-or-...) :-)",
+      "parentUuid": "9967504b_ce32dc95",
       "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
