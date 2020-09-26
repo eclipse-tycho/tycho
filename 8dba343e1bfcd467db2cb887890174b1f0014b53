@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "ae688bcc_5c88f9a5",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/PomDependencyCollector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-26T09:09:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b7beca8_d7388bab",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ef2ddf6d_06b8f883",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
         "patchSetId": 1
@@ -322,6 +340,24 @@
     },
     {
       "key": {
+        "uuid": "e9804569_8778b085",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-26T09:09:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb1cf82b_dd2c9154",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f374f14_ba24ecf3",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/PomDependencyProcessor.java",
         "patchSetId": 1
@@ -336,6 +372,24 @@
       "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7852d95_cdb48489",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/PomDependencyProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-09-26T09:09:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f374f14_ba24ecf3",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
