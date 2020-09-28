@@ -359,6 +359,24 @@
     },
     {
       "key": {
+        "uuid": "647adf24_5712cf22",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-28T11:06:48Z",
+      "side": 1,
+      "message": "Yes, I think it\u0027s the only thing that holds this PR from my POV ;)\nDo I get it right that artifacts that are not wrapped are only artifacts that are already OSGi or artifacts that are not jars? If so, I suggest we stick to my proposal \"wrapToOSGi\", which is IMO explicit enough about why one would want to use it in Tycho (without BND knowledge), reuse the relatively popular \"wrap\" term from BND, and makes it clear what kind of magic is happening and what kind of issues it can cause.\nOr maybe \"wrapAsOSGiBundle\" or just \"wrapAsBundle\" ?",
+      "parentUuid": "40be4b9d_14408c6c",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb1cf82b_dd2c9154",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
         "patchSetId": 1
