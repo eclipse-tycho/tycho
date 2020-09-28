@@ -323,6 +323,24 @@
     },
     {
       "key": {
+        "uuid": "64125c2a_5bf1e7f0",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-28T08:06:01Z",
+      "side": 1,
+      "message": "I\u0027m still unsure about the name, automated is still not explicit IMO. What about `wrapToOSGi` ?",
+      "parentUuid": "e2a263d7_ca53dc43",
+      "revId": "8dba343e1bfcd467db2cb887890174b1f0014b53",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eb1cf82b_dd2c9154",
         "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2DependencyResolver.java",
         "patchSetId": 1

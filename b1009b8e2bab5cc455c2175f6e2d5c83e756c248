@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9aa096f_bf37be85",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/PomDependencyCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-09-28T08:06:01Z",
+      "side": 1,
+      "message": "That\u0027s great we can stick to a signle method here!",
+      "revId": "b1009b8e2bab5cc455c2175f6e2d5c83e756c248",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
