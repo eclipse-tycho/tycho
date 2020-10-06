@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *    Christoph Läubrich -  Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *                          Bug 567639 - wrapAsBundle fails when dealing with esoteric versions
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -19,6 +20,7 @@ import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryMatchers.c
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -41,6 +43,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import aQute.bnd.version.Version;
 
 public class TargetPlatformBundlePublisherTest {
 
@@ -120,6 +124,17 @@ public class TargetPlatformBundlePublisherTest {
         File otherFile = resourceFile("platformbuilder/pom-dependencies/other-type.xml");
         IArtifactFacade otherArtifact = new ArtifactMock(otherFile, GROUP_ID, ARTIFACT_ID, VERSION, "pom");
         assertNull(subject.attemptToPublishBundle(otherArtifact, false));
+    }
+
+    @Test
+    public void testVersions() {
+        assertEquals(new Version(0, 0, 1, "RELEASE121"),
+                TargetPlatformBundlePublisher.createOSGiVersionFromArtifact(new ArtifactMock(localRepositoryRoot,
+                        "org.netbeans.api", "org-netbeans-api-annotations-common", "RELEASE121", "jar")));
+        assertEquals(new Version(1, 0, 0, "SNAPSHOT"), TargetPlatformBundlePublisher.createOSGiVersionFromArtifact(
+                new ArtifactMock(localRepositoryRoot, "test", "me", "1.0.0-SNAPSHOT", "jar")));
+        assertEquals(new Version(2, 2, 0, "Final"), TargetPlatformBundlePublisher.createOSGiVersionFromArtifact(
+                new ArtifactMock(localRepositoryRoot, "io.undertow", "undertow-core", "2.2.0.Final", "jar")));
     }
 
     private static String artifactMD5Of(IArtifactKey key, IRawArtifactProvider artifactProvider) throws Exception {

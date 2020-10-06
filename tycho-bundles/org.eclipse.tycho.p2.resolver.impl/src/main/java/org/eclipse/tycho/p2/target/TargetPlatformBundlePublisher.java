@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *                         Bug 567639 - wrapAsBundle fails when dealing with esoteric versions
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -46,6 +47,7 @@ import org.osgi.framework.BundleException;
 
 import aQute.bnd.osgi.Analyzer;
 import aQute.bnd.osgi.Jar;
+import aQute.bnd.version.Version;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
@@ -261,10 +263,11 @@ public class TargetPlatformBundlePublisher {
                     if (originalManifest != null) {
                         analyzer.mergeManifest(originalManifest);
                     }
+                    Version version = createOSGiVersionFromArtifact(mavenArtifact);
                     analyzer.setProperty(Analyzer.IMPORT_PACKAGE, "*;resolution:=optional");
-                    analyzer.setProperty(Analyzer.EXPORT_PACKAGE, "*;-noimport:=true");
+                    analyzer.setProperty(Analyzer.EXPORT_PACKAGE, "*;version=\"" + version+"\";-noimport:=true");
                     analyzer.setProperty(Analyzer.BUNDLE_SYMBOLICNAME, bsn);
-                    analyzer.setBundleVersion(mavenArtifact.getVersion().replace('-', '.'));
+                    analyzer.setBundleVersion(version);
                     Manifest manifest = analyzer.calcManifest();
                     jar.setManifest(manifest);
                     jar.write(wrappedFile);
@@ -276,6 +279,21 @@ public class TargetPlatformBundlePublisher {
                     return new WrappedArtifact(wrappedFile, mavenArtifact);
                 }
             }
+        }
+    }
+
+    public static Version createOSGiVersionFromArtifact(IArtifactFacade artifact) {
+        String version = artifact.getVersion();
+        try {
+            int index = version.indexOf('-');
+            if (index > -1) {
+                StringBuilder sb = new StringBuilder(version);
+                sb.setCharAt(index, '.');
+                return Version.parseVersion(sb.toString());
+            }
+            return Version.parseVersion(version);
+        } catch (IllegalArgumentException e) {
+            return new Version(0, 0, 1, version);
         }
     }
 
