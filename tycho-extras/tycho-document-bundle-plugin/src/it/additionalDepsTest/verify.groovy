@@ -30,11 +30,11 @@
  
  // check if the expected java doc files are generated
  checkFile ( "doc.bundle/target/tocjavadoc.xml", "Missing expected toc file" ); 
- checkFile ( "doc.bundle/target/reference/api/package-list", "Missing package list file" );
+ checkFile ( "doc.bundle/target/reference/api/element-list", "Missing element list file" );
  checkFile ( "doc.bundle/target/reference/api/my/bundle/SampleClass1.html", "Missing doc file" );
  
  // check that annotations are represented in the java doc files
- checkFileContains ( "doc.bundle/target/reference/api/my/bundle/package-summary.html", "@Version(value=\"1.0.0\")" );
+ checkFileContains ( "doc.bundle/target/reference/api/my/bundle/package-summary.html", "@Version(\"1.0.0\")" );
  checkFileContains ( "doc.bundle/target/reference/api/my/bundle/SampleClass1.html", "@ProviderType" );
  
  return true;
