@@ -153,7 +153,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies) {
         if (pomDependencies == null) {
-            throw new IllegalArgumentException("PomDependencyCollector can't be null");
+            pomDependencies = new PomDependencyCollectorImpl(mavenContext, null);
         }
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());

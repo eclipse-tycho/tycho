@@ -177,7 +177,7 @@ public class P2ResolverImpl implements P2Resolver {
 
         ResolutionDataImpl data = new ResolutionDataImpl(contextImpl.getEEResolutionHints());
         data.setAvailableIUs(contextImpl.getInstallableUnits());
-        data.setRootIUs(new HashSet<IInstallableUnit>());
+        data.setRootIUs(new HashSet<>());
         data.setAdditionalRequirements(additionalRequirements);
 
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);

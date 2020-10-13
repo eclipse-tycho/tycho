@@ -3,25 +3,40 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>tycho-extras-its-project.test1</groupId>
+	<parent>
+		<groupId>tycho-extras-its-project.test1</groupId>
+		<artifactId>document-bundle.test1.parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
 	<artifactId>customDoclet</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
+
+	<properties>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+	</properties>
 	
 	<dependencies>
-        <dependency>
-          <groupId>com.sun</groupId>
-          <artifactId>tools</artifactId>
-          <version>${java.version}</version>
-          <scope>system</scope>
-          <systemPath>${java.home}/../lib/tools.jar</systemPath>
-        </dependency>
-        <!-- Adding another dependency just to verify that also transitive dependencies 
-        get resolved and added to the javadoc execution class path  -->
-        <dependency>
-		  <groupId>org.eclipse.tycho</groupId>
-		  <artifactId>tycho-maven-plugin</artifactId>
-		  <version>${tycho-version}</version>
-	    </dependency>
+		<!-- Adding another dependency just to verify that also transitive dependencies 
+		get resolved and added to the javadoc execution class path  -->
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-maven-plugin</artifactId>
+			<version>${tycho-version}</version>
+		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>tycho-snapshots</id>
+			<url>${tycho-snapshots-url}</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 </project>
