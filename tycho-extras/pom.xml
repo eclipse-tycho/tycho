@@ -144,7 +144,7 @@
 						<postBuildHookScript>verify</postBuildHookScript>
 						<properties>
 							<tycho-version>${tycho-version}</tycho-version>
-							<tycho-snapshots-url>${tycho-snapshots-url}</tycho-snapshots-url>
+							<tycho-snapshots-url>file://${maven.repo.local}</tycho-snapshots-url>
 							<tycho-extras-version>${project.version}</tycho-extras-version>
 						</properties>
 					</configuration>

@@ -152,21 +152,20 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies) {
-        if (pomDependencies == null) {
-            throw new IllegalArgumentException("PomDependencyCollector can't be null");
-        }
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());
 
-        PomDependencyCollectorImpl pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
-
-        // TODO 372780 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
-        IRawArtifactFileProvider pomDependencyArtifactRepo = pomDependenciesContent.getArtifactRepoOfPublishedBundles();
-        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey
-                .forResolutionContextArtifacts(pomDependenciesContent.getProjectLocation());
-        ArtifactRepositoryBlackboard.putRepository(blackboardKey, new ProviderOnlyArtifactRepository(
-                pomDependencyArtifactRepo, Activator.getProvisioningAgent(), blackboardKey.toURI()));
-        logger.debug("Registered artifact repository " + blackboardKey);
+        IRawArtifactFileProvider pomDependencyArtifactRepo = new CompositeArtifactProvider();
+        if (pomDependencies instanceof PomDependencyCollectorImpl) {
+            PomDependencyCollectorImpl pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
+            // TODO 372780 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
+            pomDependencyArtifactRepo = pomDependenciesContent.getArtifactRepoOfPublishedBundles();
+            RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey
+                    .forResolutionContextArtifacts(pomDependenciesContent.getProjectLocation());
+            ArtifactRepositoryBlackboard.putRepository(blackboardKey, new ProviderOnlyArtifactRepository(
+                    pomDependencyArtifactRepo, Activator.getProvisioningAgent(), blackboardKey.toURI()));
+            logger.debug("Registered artifact repository " + blackboardKey);
+        }
 
         Set<MavenRepositoryLocation> completeRepositories = tpConfiguration.getP2Repositories();
         registerRepositoryIDs(completeRepositories);
@@ -174,7 +173,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         // collect & process metadata
         boolean includeLocalMavenRepo = shouldIncludeLocallyInstalledUnits(tpConfiguration);
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
-                targetFileContent, pomDependenciesContent, includeLocalMavenRepo);
+                targetFileContent, pomDependencies, includeLocalMavenRepo);
 
         Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
                 reactorProjects);
@@ -189,7 +188,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs, //
                 externalUIs, //
-                pomDependenciesContent.getMavenInstallableUnits(), //
+                pomDependencies instanceof PomDependencyCollectorImpl
+                        ? ((PomDependencyCollectorImpl) pomDependencies).getMavenInstallableUnits()
+                        : Collections.emptyMap(), //
                 eeResolutionHandler.getResolutionHints(), //
                 filter, //
                 localMetadataRepository, //
@@ -261,7 +262,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      */
     private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
             Set<MavenRepositoryLocation> completeRepositories, List<TargetDefinitionContent> targetDefinitionsContent,
-            PomDependencyCollectorImpl pomDependenciesContent, boolean includeLocalMavenRepo) {
+            PomDependencyCollector pomDependencies, boolean includeLocalMavenRepo) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
 
         for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
@@ -282,7 +283,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             result.addAll(matches.toUnmodifiableSet());
         }
 
-        result.addAll(pomDependenciesContent.gatherMavenInstallableUnits());
+        if (pomDependencies instanceof PomDependencyCollectorImpl) {
+            result.addAll(((PomDependencyCollectorImpl) pomDependencies).gatherMavenInstallableUnits());
+        }
 
         if (includeLocalMavenRepo && logger.isDebugEnabled()) {
             IQueryResult<IInstallableUnit> locallyInstalledIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS,
