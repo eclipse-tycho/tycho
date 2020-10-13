@@ -9,9 +9,8 @@
  *     Bachmann electronic GmbH - initial API and implementation
  *******************************************************************************/
 
-import com.sun.tools.doclets.standard.Standard;
 
 /* A Custom Doclet that does forward all stuff to the Standard doclet */
-public class CustomDoclet extends Standard {
+public class CustomDoclet extends jdk.javadoc.doclet.StandardDoclet {
 
 }

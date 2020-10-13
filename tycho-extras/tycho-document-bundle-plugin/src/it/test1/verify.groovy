@@ -39,7 +39,7 @@
  
  // check if the expected java doc files are generated 
  checkFile ( "docbundle1/target/gen-doc/toc/javadoc.xml", "Missing expected toc file" ); 
- checkFile ( "docbundle1/target/gen-doc/reference/api/package-list", "Missing package list file" );
+ checkFile ( "docbundle1/target/gen-doc/reference/api/element-list", "Missing element list file" );
  checkFile ( "docbundle1/target/gen-doc/reference/api/bundle1/SampleClass1.html", "Missing doc file" );
  
  // check if the toc file contains the custom label and custom summary file

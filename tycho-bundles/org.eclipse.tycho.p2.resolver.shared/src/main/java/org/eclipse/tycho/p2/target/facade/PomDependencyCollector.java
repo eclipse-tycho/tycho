@@ -20,6 +20,18 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
  */
 public interface PomDependencyCollector {
 
+    public static final PomDependencyCollector NOOP = new PomDependencyCollector() {
+        @Override
+        public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle) {
+            // noop
+        }
+
+        @Override
+        public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile) {
+            // noop
+        }
+    };
+
     public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle);
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
