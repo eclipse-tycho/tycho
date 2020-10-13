@@ -144,9 +144,13 @@
 						<postBuildHookScript>verify</postBuildHookScript>
 						<properties>
 							<tycho-version>${tycho-version}</tycho-version>
-							<tycho-snapshots-url>${tycho-snapshots-url}</tycho-snapshots-url>
+							<tycho-snapshots-url>file://${session.localRepository.basedir}</tycho-snapshots-url>
 							<tycho-extras-version>${project.version}</tycho-extras-version>
 						</properties>
+						<useLocalRepository>true</useLocalRepository>
+						<extraArtifacts>
+							<artifact>org.eclipse.tycho:tycho-maven-plugin:${tycho-version}:maven-plugin</artifact>
+						</extraArtifacts>
 					</configuration>
 					<executions>
 						<execution>
