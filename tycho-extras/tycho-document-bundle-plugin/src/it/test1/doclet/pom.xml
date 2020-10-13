@@ -9,13 +9,6 @@
 	<packaging>jar</packaging>
 	
 	<dependencies>
-        <dependency>
-          <groupId>com.sun</groupId>
-          <artifactId>tools</artifactId>
-          <version>${java.version}</version>
-          <scope>system</scope>
-          <systemPath>${java.home}/../lib/tools.jar</systemPath>
-        </dependency>
         <!-- Adding another dependency just to verify that also transitive dependencies 
         get resolved and added to the javadoc execution class path  -->
         <dependency>
