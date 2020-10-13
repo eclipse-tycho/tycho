@@ -46,9 +46,9 @@
 				<configuration>
 					<repositories>
 						<repository>
-							<id>juno</id>
+							<id>4.17</id>
 							<layout>p2</layout>
-							<url>https://download.eclipse.org/releases/juno</url>
+							<url>https://download.eclipse.org/eclipse/updates/4.17/</url>
 						</repository>
 					</repositories>
 					<appArgLine>-application org.eclipse.ant.core.antRunner</appArgLine>
