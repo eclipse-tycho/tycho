@@ -36,10 +36,6 @@
 											file="${basedir}/../repo/target/repository/features/${project.artifactId}_1.0.1.original.jar"
 											tofile="${project.build.directory}/${project.artifactId}-${project.version}.jar"
 											overwrite="true"/>
-                                        <copy
-                                            file="${basedir}/../repo/target/repository/features/${project.artifactId}.source_1.0.1.original.jar"
-                                            tofile="${project.build.directory}/${project.artifactId}-${project.version}-sources-feature.jar"
-                                            overwrite="true"/>
 									</tasks>
 								</configuration>
 							</execution>
