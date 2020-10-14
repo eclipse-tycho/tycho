@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 567782 - Platform specific fragment not support in Multi-Platform POMless build
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -47,6 +48,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment.SystemPackageEntry;
+import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -68,7 +70,7 @@ public class EquinoxResolver {
 
     public State newResolvedState(MavenProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             boolean ignoreEE, DependencyArtifacts artifacts) throws BundleException {
-        Properties properties = getPlatformProperties(project, ee);
+        Properties properties = getPlatformProperties(project, artifacts, ee);
 
         State state = newState(artifacts, properties, ignoreEE, mavenSession);
 
@@ -126,10 +128,16 @@ public class EquinoxResolver {
         return sb.toString();
     }
 
-    protected Properties getPlatformProperties(MavenProject project, ExecutionEnvironment ee) {
+    protected Properties getPlatformProperties(MavenProject project, DependencyArtifacts artifacts,
+            ExecutionEnvironment ee) {
+
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         TargetEnvironment environment = configuration.getEnvironments().get(0);
-
+        if (artifacts instanceof MultiEnvironmentDependencyArtifacts) {
+            environment = ((MultiEnvironmentDependencyArtifacts) artifacts).getPlatforms().stream().findFirst()
+                    .orElse(environment);
+        }
+        logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");
         Properties properties = new Properties();
         properties.putAll((Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES));
 
@@ -210,7 +218,8 @@ public class EquinoxResolver {
                 Dictionary<Object, Object> prop = new Hashtable<>();
                 // system packages don't exist in EE profiles after Java 11
                 if (!executionEnvironment.getSystemPackages().isEmpty()) {
-                    prop.put(Constants.FRAMEWORK_SYSTEMPACKAGES, executionEnvironment.getSystemPackages().stream().map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(",")));
+                    prop.put(Constants.FRAMEWORK_SYSTEMPACKAGES, executionEnvironment.getSystemPackages().stream()
+                            .map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(",")));
                 }
                 prop.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, execEnv);
                 allProps.add(prop);

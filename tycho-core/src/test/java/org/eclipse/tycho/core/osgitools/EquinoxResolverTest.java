@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2019 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -66,7 +67,8 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(javaSE10Project)
                 .getFullSpecification();
         assertEquals("JavaSE-11", ee.getProfileName());
-        Properties platformProperties = subject.getPlatformProperties(javaSE10Project, ee);
+        Properties platformProperties = subject.getPlatformProperties(javaSE10Project, new DefaultDependencyArtifacts(),
+                ee);
         String executionEnvironments = platformProperties.getProperty("org.osgi.framework.executionenvironment");
         assertTrue(executionEnvironments.contains("JavaSE-10"));
         String capabilities = platformProperties.getProperty("org.osgi.framework.system.capabilities");
