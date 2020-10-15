@@ -4,5 +4,4 @@ Bundle-Name: JUnit54 Test Plug-in
 Bundle-SymbolicName: bundle.test.junit54
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.junit;version="4.12",
- org.junit.jupiter.api;version="5.4.0"
+Import-Package: org.junit.jupiter.api;version="5.4.0"
