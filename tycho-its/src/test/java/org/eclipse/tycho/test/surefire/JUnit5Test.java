@@ -45,10 +45,10 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
     }
 
     @Test
-    public void testJUnit54Runner() throws Exception {
-        Verifier verifier = getVerifier("/surefire.junit54/bundle.test", false);
+    public void testJUnit4and54Runner() throws Exception {
+        Verifier verifier = getVerifier("/surefire.junit4and54/bundle.test", false);
         Properties props = verifier.getSystemProperties();
-        props.setProperty("repo-2019-03", P2Repositories.ECLIPSE_LATEST.toString());
+        props.setProperty("repo-2019-03", P2Repositories.ECLIPSE_201903.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         String projectBasedir = verifier.getBasedir();
@@ -57,6 +57,34 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
                 "myFirstJUnit54Test{TestInfo}");
         // make sure test tagged as 'slow' was skipped
         assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
+    }
+
+    @Test
+    public void testJUnit54Runner() throws Exception {
+        Verifier verifier = getVerifier("/surefire.junit54/bundle.test", false);
+        Properties props = verifier.getSystemProperties();
+        props.setProperty("repo-2019-03", P2Repositories.ECLIPSE_201903.toString());
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+        String projectBasedir = verifier.getBasedir();
+        assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test",
+                "myFirstJUnit54Test{TestInfo}");
+        // make sure test tagged as 'slow' was skipped
+        assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
+    }
+
+    @Test
+    public void testJUnit56Runner() throws Exception {
+        Verifier verifier = getVerifier("/surefire.junit56/bundle.test", false);
+        Properties props = verifier.getSystemProperties();
+        props.setProperty("repo-2020-03", P2Repositories.ECLIPSE_202003.toString());
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+        String projectBasedir = verifier.getBasedir();
+        assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit56Test",
+                "myFirstJUnit56Test{TestInfo}");
+        // make sure test tagged as 'slow' was skipped
+        assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit56Test", 1);
     }
 
 }

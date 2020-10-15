@@ -20,8 +20,10 @@ public class ResourceUtil {
 
     public enum P2Repositories {
         ECLIPSE_342("e342"), ECLIPSE_352("e352"), ECLIPSE_OXYGEN(
-                "https:////download.eclipse.org/releases/oxygen/"), ECLIPSE_LATEST(
-                        "https:////download.eclipse.org/releases/2020-06/");
+                "https:////download.eclipse.org/releases/oxygen/"), ECLIPSE_201903(
+                        "https:////download.eclipse.org/releases/2019-03/"), ECLIPSE_202003(
+                                "https:////download.eclipse.org/releases/2020-03/"), ECLIPSE_LATEST(
+                                        "https:////download.eclipse.org/releases/2020-06/");
 
         private final String path;
 
