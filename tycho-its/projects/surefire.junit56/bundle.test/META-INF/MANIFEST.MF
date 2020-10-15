@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JUnit56 Test Plug-in
+Bundle-SymbolicName: bundle.test.junit56
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.junit.jupiter.api;version="5.6.0"
