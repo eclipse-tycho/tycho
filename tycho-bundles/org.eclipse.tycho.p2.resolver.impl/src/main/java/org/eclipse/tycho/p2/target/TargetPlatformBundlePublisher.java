@@ -9,6 +9,7 @@
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *                         Bug 567639 - wrapAsBundle fails when dealing with esoteric versions
+ *                         Bug 567957 - wrapAsBundle must check if artifact has a classifier
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -162,13 +163,20 @@ public class TargetPlatformBundlePublisher {
                     if (wrapIfNessesary) {
                         String generatedBsn = project.getGroupId() + "." + mavenArtifact.getGroupId() + "."
                                 + mavenArtifact.getArtifactId();
+                        String classifier = mavenArtifact.getClassifier();
+                        String wrappedClassifier = WRAPPED_CLASSIFIER;
+
+                        if (classifier != null && !classifier.isEmpty()) {
+                            generatedBsn = generatedBsn + "." + classifier;
+                            wrappedClassifier = classifier + "-" + WRAPPED_CLASSIFIER;
+                        }
                         logger.warn("Maven Artifact " + mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId()
                                 + ":" + mavenArtifact.getVersion()
                                 + " is not a bundle a will be automatically wrapped with bundle-symbolic name "
                                 + generatedBsn
                                 + ", ignoring such artifacts can be enabled with <pomDependencies>consider</pomDependencies> in target platform configuration.");
                         try {
-                            publishedArtifact = createWrappedArtifact(generatedBsn);
+                            publishedArtifact = createWrappedArtifact(generatedBsn, wrappedClassifier);
                         } catch (Exception e) {
                             return new Status(IStatus.ERROR, TargetPlatformBundlePublisher.class.getName(),
                                     "wrapping file " + mavenArtifact.getLocation() + " failed", e);
@@ -250,10 +258,10 @@ public class TargetPlatformBundlePublisher {
             }
         }
 
-        private IArtifactFacade createWrappedArtifact(String bsn) throws Exception {
+        private IArtifactFacade createWrappedArtifact(String bsn, String classifier) throws Exception {
             MavenRepositoryCoordinates repositoryCoordinates = new MavenRepositoryCoordinates(
-                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
-                    WRAPPED_CLASSIFIER, null);
+                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), classifier,
+                    null);
             File wrappedFile = new File(basedir, repositoryCoordinates.getLocalRepositoryPath());
             wrappedFile.getParentFile().mkdirs();
             try (Jar jar = new Jar(mavenArtifact.getLocation())) {
@@ -265,7 +273,7 @@ public class TargetPlatformBundlePublisher {
                     }
                     Version version = createOSGiVersionFromArtifact(mavenArtifact);
                     analyzer.setProperty(Analyzer.IMPORT_PACKAGE, "*;resolution:=optional");
-                    analyzer.setProperty(Analyzer.EXPORT_PACKAGE, "*;version=\"" + version+"\";-noimport:=true");
+                    analyzer.setProperty(Analyzer.EXPORT_PACKAGE, "*;version=\"" + version + "\";-noimport:=true");
                     analyzer.setProperty(Analyzer.BUNDLE_SYMBOLICNAME, bsn);
                     analyzer.setBundleVersion(version);
                     Manifest manifest = analyzer.calcManifest();
@@ -276,7 +284,7 @@ public class TargetPlatformBundlePublisher {
                         manifest.write(bout);
                         logger.debug("Generated Manifest: \r\n" + bout.toString(StandardCharsets.UTF_8));
                     }
-                    return new WrappedArtifact(wrappedFile, mavenArtifact);
+                    return new WrappedArtifact(wrappedFile, mavenArtifact, classifier);
                 }
             }
         }
@@ -301,10 +309,12 @@ public class TargetPlatformBundlePublisher {
 
         private File file;
         private IArtifactFacade wrapped;
+        private String classifier;
 
-        public WrappedArtifact(File file, IArtifactFacade wrapped) {
+        public WrappedArtifact(File file, IArtifactFacade wrapped, String classifier) {
             this.file = file;
             this.wrapped = wrapped;
+            this.classifier = classifier;
         }
 
         @Override
@@ -324,7 +334,7 @@ public class TargetPlatformBundlePublisher {
 
         @Override
         public String getClassifier() {
-            return WRAPPED_CLASSIFIER;
+            return classifier;
         }
 
         @Override
