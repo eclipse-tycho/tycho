@@ -291,6 +291,11 @@ public class EclipseRunMojo extends AbstractMojo {
         if (tc != null) {
             getLog().info("Toolchain in tycho-eclipserun-plugin: " + tc);
             executable = tc.findTool("java");
+            if (executable == null) {
+                getLog().error("No 'java' executable was found");
+            }
+        } else {
+            getLog().error("No toolchain was found in tycho-eclipserun-plugin for: " + executionEnvironment);
         }
         cli.setJvmExecutable(executable);
         cli.setWorkingDirectory(project.getBasedir());
