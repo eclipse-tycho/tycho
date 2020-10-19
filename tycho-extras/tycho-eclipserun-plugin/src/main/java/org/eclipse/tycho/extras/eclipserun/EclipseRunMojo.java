@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -28,7 +27,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
@@ -49,11 +47,11 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.plugins.p2.extras.Repository;
+
+import com.sun.tools.classfile.Dependency;
 
 /**
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse installation is
@@ -291,6 +289,11 @@ public class EclipseRunMojo extends AbstractMojo {
         if (tc != null) {
             getLog().info("Toolchain in tycho-eclipserun-plugin: " + tc);
             executable = tc.findTool("java");
+            if (executable == null) {
+                getLog().error("No 'java' executable was found");
+            }
+        } else {
+            getLog().error("No toolchain was found in tycho-eclipserun-plugin for: " + executionEnvironment);
         }
         cli.setJvmExecutable(executable);
         cli.setWorkingDirectory(project.getBasedir());
