@@ -4,10 +4,7 @@
 		<menu name="Tycho" inherit="top">
 			<item name="Introduction" href="index.html" />
 
-			<!-- target platform config has a NOOP mojo without params which generates emtpy documentation
-				TODO add mojo parameters which are actually used to the mojo so the docs are generated? -->
-<!-- 			<item name="Platform Configuration" href="target-platform-configuration/plugin-info.html" /> -->
-
+			<item name="Target Platform Configuration" href="target-platform-configuration/plugin-info.html" />
 			<item name="Compiler Plugin" href="tycho-compiler-plugin/plugin-info.html" />
 			<item name="Packaging Plugin" href="tycho-packaging-plugin/plugin-info.html" />
 			<item name="Surefire Plugin" href="tycho-surefire-plugin/plugin-info.html" />
