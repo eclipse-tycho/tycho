@@ -409,11 +409,15 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
             ArtifactKey key = new DefaultArtifactKey(entry.getType(), entry.getId(), entry.getVersion());
-            ReactorProject otherProject = projects.get(entry.getLocation());
+            ReactorProject otherProject = null;
+            File location = entry.getLocation(false);
+            if (location != null) {
+                otherProject = projects.get(location);
+            }
             if (otherProject != null) {
                 platform.addReactorArtifact(key, otherProject, entry.getClassifier(), entry.getInstallableUnits());
             } else {
-                platform.addArtifactFile(key, entry.getLocation(), entry.getInstallableUnits());
+                platform.addArtifactFile(key, () -> entry.getLocation(true), entry.getInstallableUnits());
             }
         }
         return platform;
