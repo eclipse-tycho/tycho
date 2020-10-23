@@ -68,7 +68,8 @@ public final class MavenDependencyInjector {
         List<Dependency> dependencyList = new ArrayList<>();
         if (artifact.getMavenProject() != null) {
             dependencyList.addAll(newProjectDependencies(artifact));
-        } else {
+        } else if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
+            // no need to propgage external dependencies for modules that don't need a classpath
             dependencyList.addAll(newExternalDependencies(artifact));
         }
         Model model = project.getModel();
@@ -78,8 +79,8 @@ public final class MavenDependencyInjector {
     }
 
     private List<Dependency> newExternalDependencies(ArtifactDescriptor artifact) {
-        File location = artifact.getLocation();
-        if (!location.isFile() || !location.canRead()) {
+        File location = artifact.getLocation(true);
+        if (location == null || !location.isFile() || !location.canRead()) {
             logger.debug("Dependency at location " + location
                     + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
             return NO_DEPENDENCIES;
@@ -99,10 +100,8 @@ public final class MavenDependencyInjector {
                             result.add(nestedJarDependency);
                         } else if (nestedJarOrDir.isDirectory()) {
                             // system-scoped dependencies on directories are not supported
-                            logger.debug("Dependency from "
-                                    + project.getBasedir()
-                                    + " to nested directory classpath entry "
-                                    + nestedJarOrDir
+                            logger.debug("Dependency from " + project.getBasedir()
+                                    + " to nested directory classpath entry " + nestedJarOrDir
                                     + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
                         }
                     }
@@ -150,14 +149,12 @@ public final class MavenDependencyInjector {
                     // we can only add a system scope dependency for an existing (checked-in) jar file
                     // otherwise maven will throw a DependencyResolutionException
                     if (jar.isFile()) {
-                        Dependency systemScopeDependency = createSystemScopeDependency(artifact.getKey(), artifact
-                                .getMavenProject().getGroupId(), jar);
+                        Dependency systemScopeDependency = createSystemScopeDependency(artifact.getKey(),
+                                artifact.getMavenProject().getGroupId(), jar);
                         systemScopeDependency.setClassifier(classpathElement);
                         result.add(systemScopeDependency);
                     } else {
-                        logger.debug("Dependency from "
-                                + project.getBasedir()
-                                + " to nested classpath entry "
+                        logger.debug("Dependency from " + project.getBasedir() + " to nested classpath entry "
                                 + jar.getAbsolutePath()
                                 + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
                     }

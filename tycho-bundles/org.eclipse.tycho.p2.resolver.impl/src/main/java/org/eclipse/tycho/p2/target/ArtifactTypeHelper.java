@@ -107,11 +107,11 @@ public class ArtifactTypeHelper {
 
     public static org.eclipse.tycho.ArtifactKey toTychoArtifact(IInstallableUnit unit) {
         // TODO 428889 unit test & add more cases
-        if (Boolean.valueOf(unit.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP))) {
+        if (Boolean.parseBoolean(unit.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP))) {
             // TODO 428889 check suffix
             String id = unit.getId();
-            return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, id.substring(0, id.length()
-                    - ".feature.group".length()), unit.getVersion().toString());
+            return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE,
+                    id.substring(0, id.length() - ".feature.group".length()), unit.getVersion().toString());
         }
         throw new IllegalArgumentException(unit.toString());
     }

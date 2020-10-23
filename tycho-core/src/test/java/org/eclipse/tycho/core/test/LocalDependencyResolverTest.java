@@ -42,7 +42,7 @@ public class LocalDependencyResolverTest extends AbstractTychoMojoTestCase {
         assertEquals("bundle01", key.getId());
         assertEquals("0.0.1", key.getVersion());
 
-        File file = artifact.getLocation();
+        File file = artifact.getLocation(true);
         assertEquals("bundle01_0.0.1", file.getName());
     }
 
