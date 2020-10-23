@@ -60,8 +60,8 @@ public interface TargetPlatform {
      *             if there is no matching artifact in the target platform.
      */
     // TODO For the final TP, all versions are expanded - but ArtifactKey specifies that contains versions with non-expanded qualifiers; use a different type?
-    ArtifactKey resolveArtifact(String type, String id, String versionRef) throws IllegalArtifactReferenceException,
-            DependencyResolutionException;
+    ArtifactKey resolveArtifact(String type, String id, String versionRef)
+            throws IllegalArtifactReferenceException, DependencyResolutionException;
 
     /**
      * Returns the file system location of the given target platform artifact. Not supported by the
@@ -72,5 +72,7 @@ public interface TargetPlatform {
      *         metadata-only "artifact" e.g. a product definition.
      */
     File getArtifactLocation(ArtifactKey artifact);
+
+    boolean isFileAlreadyAvailable(ArtifactKey artifactKey);
 
 }
