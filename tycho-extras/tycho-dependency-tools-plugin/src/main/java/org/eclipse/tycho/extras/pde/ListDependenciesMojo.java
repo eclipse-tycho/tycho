@@ -56,12 +56,12 @@ public class ListDependenciesMojo extends AbstractMojo {
             throw new MojoFailureException(ex.getMessage(), ex);
         }
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
-        	List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(project).getArtifacts()
-                    .stream().filter(desc -> !desc.getLocation().equals(project.getBasedir())) // remove self
+            List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(project).getArtifacts()
+                    .stream().filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
                     .collect(Collectors.toList());
             for (ArtifactDescriptor dependnecy : dependencies) {
                 if (dependnecy.getMavenProject() == null) {
-                    writer.write(dependnecy.getLocation().getAbsolutePath());
+                    writer.write(dependnecy.getLocation(true).getAbsolutePath());
                 } else {
                     ReactorProject otherProject = dependnecy.getMavenProject();
                     writer.write(otherProject.getArtifact(dependnecy.getClassifier()).getAbsolutePath());
