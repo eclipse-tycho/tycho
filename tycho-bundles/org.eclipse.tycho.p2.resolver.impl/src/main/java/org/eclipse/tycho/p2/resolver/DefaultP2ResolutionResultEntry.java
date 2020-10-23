@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2.resolver;
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
@@ -25,17 +26,29 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     private String version;
 
-    private final File location;
-
     private Set<Object> installableUnits;
 
-    private final String classifier;
+    private String classifier;
 
-    public DefaultP2ResolutionResultEntry(String type, String id, String version, File location, String classifier) {
+    private final Supplier<File> location;
+    private File resolvedFile;
+
+    public DefaultP2ResolutionResultEntry(String type, String id, String version, String classifier,
+            Supplier<File> delayedLocation) {
         this.type = type;
         this.id = id;
         this.version = version;
-        this.location = location;
+        this.location = delayedLocation;
+        this.classifier = classifier;
+    }
+
+    public DefaultP2ResolutionResultEntry(String type, String id, String version, String classifier,
+            File resolvedLocation) {
+        this.type = type;
+        this.id = id;
+        this.version = version;
+        this.location = null;
+        this.resolvedFile = resolvedLocation;
         this.classifier = classifier;
     }
 
@@ -56,7 +69,10 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     @Override
     public File getLocation() {
-        return location;
+        if (resolvedFile == null) {
+            resolvedFile = location.get();
+        }
+        return resolvedFile;
     }
 
     @Override
@@ -86,6 +102,11 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailableLocally() {
+        return resolvedFile != null;
     }
 
 }

@@ -93,6 +93,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     @Requirement
     private ToolchainManager toolchainManager;
 
+    private MavenSession session;
+
     @Override
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment) {
         return getDependencyWalker(project);
@@ -111,13 +113,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     ArtifactDescriptor artifact = artifacts.getArtifact(entry.getArtifactKey());
 
                     ArtifactKey key = artifact.getKey();
-                    File location = artifact.getLocation();
                     ReactorProject project = artifact.getMavenProject();
                     String classifier = artifact.getClassifier();
                     Set<Object> installableUnits = artifact.getInstallableUnits();
 
-                    PluginDescription plugin = new DefaultPluginDescription(key, location, project, classifier, null,
-                            installableUnits);
+                    PluginDescription plugin = new DefaultPluginDescription(key, artifact::getLocation, project,
+                            classifier, null, installableUnits);
 
                     visitor.visitPlugin(plugin);
                 }
@@ -149,6 +150,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
+        this.session = session;
         ArtifactKey key = readArtifactKey(project.getBasedir());
         project.setContextValue(CTX_ARTIFACT_KEY, key);
     }
@@ -167,8 +169,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return bundleReader.loadManifest(project.getBasedir());
     }
 
-    @Override
-    public void resolveClassPath(MavenSession session, MavenProject project) {
+    private void resolveClassPath(MavenSession session, MavenProject project) {
         DependencyArtifacts artifacts = getDependencyArtifacts(project);
 
         State state = getResolverState(project, artifacts, session);
@@ -294,6 +295,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public List<ClasspathEntry> getClasspath(MavenProject project) {
+        if (project.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH) == null) {
+            resolveClassPath(session, project);
+        }
         @SuppressWarnings("unchecked")
         List<ClasspathEntry> classpath = (List<ClasspathEntry>) project
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH);
@@ -305,6 +309,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public List<ClasspathEntry.AccessRule> getBootClasspathExtraAccessRules(MavenProject project) {
+        if (project.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES) == null) {
+            resolveClassPath(session, project);
+        }
         @SuppressWarnings("unchecked")
         List<ClasspathEntry.AccessRule> rules = (List<AccessRule>) project
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES);

@@ -26,6 +26,7 @@ import java.util.jar.Manifest;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -436,6 +437,10 @@ public class TargetPlatformBundlePublisher {
             return new File(getLocation());
         }
 
+        @Override
+        public boolean isFileAlreadyAvailable(IArtifactKey artifact) {
+            return contains(artifact);
+        }
     }
 
 }

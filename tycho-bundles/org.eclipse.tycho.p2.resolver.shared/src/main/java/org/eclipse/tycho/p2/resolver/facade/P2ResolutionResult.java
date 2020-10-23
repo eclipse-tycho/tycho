@@ -31,6 +31,8 @@ public interface P2ResolutionResult {
         public Set<Object> getInstallableUnits();
 
         public String getClassifier();
+
+        public boolean isFileAlreadyAvailableLocally();
     }
 
     public Collection<Entry> getArtifacts();
