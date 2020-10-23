@@ -72,7 +72,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
 
     @Override
     public boolean visitFeature(FeatureDescription feature) {
-        File location = feature.getLocation();
+        File location = feature.getLocation(true);
         String artifactId = feature.getKey().getId();
         String version = feature.getKey().getVersion();
 
@@ -135,7 +135,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
             return;
         }
 
-        if (plugin.getLocation() == null) {
+        if (plugin.getLocation(true) == null) {
             throw new IllegalStateException("Unresolved bundle reference " + bundleId + "_" + version);
         }
 
@@ -153,7 +153,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
             }
             version = bundleProject.getExpandedVersion();
         } else {
-            location = plugin.getLocation();
+            location = plugin.getLocation(true);
         }
 
         if (unpackPlugins && isDirectoryShape(plugin, location)) {

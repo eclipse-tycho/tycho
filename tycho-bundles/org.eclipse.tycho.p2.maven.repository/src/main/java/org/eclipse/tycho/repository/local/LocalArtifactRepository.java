@@ -75,9 +75,9 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     index.removeGav(gav);
                 } else {
-                    try (InputStream is = new FileInputStream(contentLocator.getLocalArtifactLocation(gav,
-                            RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                            RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS))) {
+                    try (InputStream is = new FileInputStream(
+                            contentLocator.getLocalArtifactLocation(gav, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
+                                    RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS))) {
                         final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
                         for (IArtifactDescriptor descriptor : gavDescriptors) {
                             internalAddDescriptor(descriptor);
@@ -121,11 +121,9 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                 File file = new File(location, relpath);
                 file.getParentFile().mkdirs();
 
-
                 try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
                     io.writeXML(keyDescriptors, os);
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -195,6 +193,11 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     @Override
     public boolean isModifiable() {
         return true;
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return contains(artifactKey);
     }
 
 }
