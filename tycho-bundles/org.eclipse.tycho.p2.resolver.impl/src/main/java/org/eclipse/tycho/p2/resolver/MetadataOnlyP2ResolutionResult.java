@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +46,7 @@ public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
         DefaultP2ResolutionResultEntry entry = (DefaultP2ResolutionResultEntry) entries.get(key);
 
         if (entry == null) {
-            entry = new DefaultP2ResolutionResultEntry(type, id, version, null, null);
+            entry = new DefaultP2ResolutionResultEntry(type, id, version, null, (File) null);
             entries.put(key, entry);
         } else {
             throw new IllegalArgumentException("Conflicting results for artifact with (type,id,version)=" + key);

@@ -31,8 +31,7 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     public FinalTargetPlatformImpl(LinkedHashSet<IInstallableUnit> installableUnits,
             ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider jointArtifacts,
-            LocalArtifactRepository localArtifactRepository,
-            Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup,
+            LocalArtifactRepository localArtifactRepository, Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup,
             Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup) {
         super(installableUnits, executionEnvironment, jointArtifacts, localArtifactRepository, reactorProjectLookup,
                 mavenArtifactLookup);
@@ -55,6 +54,15 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
             return artifacts.getArtifactFile(p2Artifact);
         }
         return null;
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(org.eclipse.tycho.ArtifactKey artifact) {
+        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
+        if (p2Artifact != null) {
+            return artifacts.isFileAlreadyAvailable(p2Artifact);
+        }
+        return false;
     }
 
 }

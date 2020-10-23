@@ -26,8 +26,13 @@ public interface ArtifactDescriptor {
 
     /**
      * Artifact location on local filesystem
+     * 
+     * @param fetch
+     *            whether to fetch artifact if not already available locally
+     * @return the artifact location if already available or if <code>fetch=true</code> and fetching
+     *         succeds; <code>null</code> otherwise.
      */
-    public File getLocation();
+    public File getLocation(boolean fetch);
 
     /**
      * ReactorProject corresponding to the artifact or null if the artifact does not come from a
