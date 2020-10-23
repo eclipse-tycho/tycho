@@ -69,7 +69,8 @@ public final class MavenDependencyInjector {
         if (artifact.getMavenProject() != null) {
             dependencyList.addAll(newProjectDependencies(artifact));
         } else {
-            dependencyList.addAll(newExternalDependencies(artifact));
+            // ignore external deps at the moment since they don't participate to build order
+            // dependencyList.addAll(newExternalDependencies(artifact));
         }
         Model model = project.getModel();
         for (Dependency dependency : dependencyList) {
@@ -99,10 +100,8 @@ public final class MavenDependencyInjector {
                             result.add(nestedJarDependency);
                         } else if (nestedJarOrDir.isDirectory()) {
                             // system-scoped dependencies on directories are not supported
-                            logger.debug("Dependency from "
-                                    + project.getBasedir()
-                                    + " to nested directory classpath entry "
-                                    + nestedJarOrDir
+                            logger.debug("Dependency from " + project.getBasedir()
+                                    + " to nested directory classpath entry " + nestedJarOrDir
                                     + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
                         }
                     }
@@ -150,14 +149,12 @@ public final class MavenDependencyInjector {
                     // we can only add a system scope dependency for an existing (checked-in) jar file
                     // otherwise maven will throw a DependencyResolutionException
                     if (jar.isFile()) {
-                        Dependency systemScopeDependency = createSystemScopeDependency(artifact.getKey(), artifact
-                                .getMavenProject().getGroupId(), jar);
+                        Dependency systemScopeDependency = createSystemScopeDependency(artifact.getKey(),
+                                artifact.getMavenProject().getGroupId(), jar);
                         systemScopeDependency.setClassifier(classpathElement);
                         result.add(systemScopeDependency);
                     } else {
-                        logger.debug("Dependency from "
-                                + project.getBasedir()
-                                + " to nested classpath entry "
+                        logger.debug("Dependency from " + project.getBasedir() + " to nested classpath entry "
                                 + jar.getAbsolutePath()
                                 + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
                     }
