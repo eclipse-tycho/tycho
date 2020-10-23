@@ -109,9 +109,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             public void walk(ArtifactDependencyVisitor visitor) {
                 for (ClasspathEntry entry : cp) {
                     ArtifactDescriptor artifact = artifacts.getArtifact(entry.getArtifactKey());
-
                     ArtifactKey key = artifact.getKey();
-                    File location = artifact.getLocation();
+                    File location = artifact.getLocation(true);
                     ReactorProject project = artifact.getMavenProject();
                     String classifier = artifact.getClassifier();
                     Set<Object> installableUnits = artifact.getInstallableUnits();
@@ -428,7 +427,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (String cp : parseBundleClasspath(bundle)) {
             File entry;
             if (".".equals(cp)) {
-                entry = bundle.getLocation();
+                entry = bundle.getLocation(true);
             } else {
                 entry = getNestedJarOrDir(bundle, cp);
             }
@@ -446,7 +445,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
         File entry;
         if (".".equals(nestedPath)) {
-            entry = bundle.getLocation();
+            entry = bundle.getLocation(true);
         } else {
             entry = getNestedJarOrDir(bundle, nestedPath);
         }
@@ -459,12 +458,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private String[] parseBundleClasspath(ArtifactDescriptor bundle) {
-        OsgiManifest mf = bundleReader.loadManifest(bundle.getLocation());
+        OsgiManifest mf = bundleReader.loadManifest(bundle.getLocation(true));
         return mf.getBundleClasspath();
     }
 
     private File getNestedJarOrDir(ArtifactDescriptor bundle, String cp) {
-        return bundleReader.getEntry(bundle.getLocation(), cp);
+        return bundleReader.getEntry(bundle.getLocation(true), cp);
     }
 
     @Override

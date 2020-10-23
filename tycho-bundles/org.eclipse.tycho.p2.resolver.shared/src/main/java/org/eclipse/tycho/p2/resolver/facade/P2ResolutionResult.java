@@ -16,17 +16,21 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Set;
 
+import org.eclipse.tycho.ArtifactKey;
+
 public interface P2ResolutionResult {
 
-    public static interface Entry {
+    public static interface Entry extends ArtifactKey {
 
-        public String getType();
-
-        public String getId();
-
-        public String getVersion();
-
-        public File getLocation();
+        /**
+         * 
+         * @param fetch
+         *            whether to force fetching the artifact from the repository if file isn't
+         *            already available locally.
+         * @return the artifact file location on local filesystem. If file is not already available
+         *         locally and <code>fetch=false</code>, this returns <code>null</code>.
+         */
+        public File getLocation(boolean fetch);
 
         public Set<Object> getInstallableUnits();
 
