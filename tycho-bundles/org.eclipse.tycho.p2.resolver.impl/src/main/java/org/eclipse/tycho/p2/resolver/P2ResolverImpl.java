@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -42,7 +43,9 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -295,14 +298,7 @@ public class P2ResolverImpl implements P2Resolver {
         }
 
         for (IArtifactKey key : iu.getArtifacts()) {
-            // this downloads artifacts if necessary; TODO parallelize download?
-            File artifactLocation = context.getLocalArtifactFile(key);
-
-            if (artifactLocation == null) {
-                missingArtifacts.add(key.toString());
-            } else {
-                addArtifactFile(result, iu, key, artifactLocation);
-            }
+            addArtifactFile(result, iu, key, context);
         }
     }
 
@@ -327,20 +323,24 @@ public class P2ResolverImpl implements P2Resolver {
         }
     }
 
-    private void addArtifactFile(DefaultP2ResolutionResult result, IInstallableUnit iu, IArtifactKey key,
-            File artifactLocation) {
+    private void addArtifactFile(DefaultP2ResolutionResult result, IInstallableUnit iu, IArtifactKey p2ArtifactKey,
+            P2TargetPlatform context) {
         String id = iu.getId();
         String version = iu.getVersion().toString();
         String mavenClassifier = null;
 
-        if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            result.addArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version, artifactLocation, mavenClassifier, iu);
-        } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
+        if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
+            ArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version);
+            result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey, context);
+        } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                result.addArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, version, artifactLocation,
-                        mavenClassifier, iu);
+                ArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, version);
+                result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey, context);
             }
+        } else {
+            ArtifactKey key = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT, id, version);
+            result.addArtifact(key, mavenClassifier, iu, p2ArtifactKey, context);
         }
 
         // ignore other/unknown artifacts, like binary blobs for now.
@@ -395,13 +395,14 @@ public class P2ResolverImpl implements P2Resolver {
             }
         }
 
-        result.addArtifact(contributingArtifactType, contributingArtifactId, version, location, mavenClassifier, iu);
+        result.addResolvedArtifact(
+                Optional.ofNullable(contributingArtifactId)
+                        .map(artifactId -> new DefaultArtifactKey(contributingArtifactType, artifactId, version)),
+                mavenClassifier, iu, location);
     }
 
     private boolean isPureIU(IInstallableUnit iu) {
-        if ("true".equals(iu.getProperty(AuthoredIUAction.IU_TYPE)))
-            return true;
-        return false;
+        return Boolean.parseBoolean(iu.getProperty(AuthoredIUAction.IU_TYPE));
     }
 
     private String getFeatureId(IInstallableUnit iu) {
