@@ -128,6 +128,11 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     }
 
     @Override
+    public boolean isFileAlreadyAvailable(ArtifactKey artifact) {
+        return false;
+    }
+
+    @Override
     public IMetadataRepository getInstallableUnitsAsMetadataRepository() {
         // the preliminary TP shall not be used to create build results, so this method is not needed
         throw new UnsupportedOperationException();

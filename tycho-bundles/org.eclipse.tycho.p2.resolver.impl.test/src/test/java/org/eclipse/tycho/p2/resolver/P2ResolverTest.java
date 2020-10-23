@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -198,8 +199,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01", entries.get(0).getId());
         assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01.source", entries.get(1).getId());
         assertEquals("org.eclipse.tycho.p2.impl.resolver.test.feature01", entries.get(2).getId());
-        assertEquals(bundle, entries.get(0).getLocation());
-        assertEquals(bundle, entries.get(1).getLocation());
+        assertEquals(bundle, entries.get(0).getLocation(true));
+        assertEquals(bundle, entries.get(1).getLocation(true));
         assertEquals("sources", entries.get(1).getClassifier());
     }
 
@@ -538,7 +539,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         P2ResolutionResult.Entry selectedEntry = null;
         for (Entry entry : resolutionResult.getArtifacts()) {
             availableClassifiers.add(entry.getClassifier());
-            if (eq(classifier, entry.getClassifier())) {
+            if (Objects.equals(classifier, entry.getClassifier())) {
                 selectedEntry = entry;
             }
         }
@@ -578,21 +579,11 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     private static void assertContainLocation(P2ResolutionResult result, File location) {
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
-            if (entry.getLocation().equals(location)) {
+            if (entry.getLocation(true).equals(location)) {
                 return;
             }
         }
         fail();
-    }
-
-    private static boolean eq(String left, String right) {
-        if (left == right) {
-            return true;
-        } else if (left == null) {
-            return false;
-        } else {
-            return left.equals(right);
-        }
     }
 
 }
