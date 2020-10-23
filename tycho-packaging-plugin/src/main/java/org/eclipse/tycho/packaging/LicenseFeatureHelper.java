@@ -60,17 +60,17 @@ public class LicenseFeatureHelper {
             return null;
         }
 
-        ArtifactDescriptor licenseFeature = TychoProjectUtils.getDependencyArtifacts(mavenProject).getArtifact(
-                ArtifactType.TYPE_ECLIPSE_FEATURE, id, feature.getLicenseFeatureVersion());
+        ArtifactDescriptor licenseFeature = TychoProjectUtils.getDependencyArtifacts(mavenProject)
+                .getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, id, feature.getLicenseFeatureVersion());
 
         if (licenseFeature == null) {
-            throw new IllegalStateException("License feature with id " + id
-                    + " is not found among project dependencies");
+            throw new IllegalStateException(
+                    "License feature with id " + id + " is not found among project dependencies");
         }
 
         ReactorProject licenseProject = licenseFeature.getMavenProject();
         if (licenseProject == null) {
-            return licenseFeature.getLocation();
+            return licenseFeature.getLocation(true);
         }
 
         File artifact = licenseProject.getArtifact();

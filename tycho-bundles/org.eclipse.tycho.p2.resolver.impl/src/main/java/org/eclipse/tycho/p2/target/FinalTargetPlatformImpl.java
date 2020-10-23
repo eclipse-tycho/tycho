@@ -12,12 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -31,8 +29,7 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     public FinalTargetPlatformImpl(LinkedHashSet<IInstallableUnit> installableUnits,
             ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider jointArtifacts,
-            LocalArtifactRepository localArtifactRepository,
-            Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup,
+            LocalArtifactRepository localArtifactRepository, Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup,
             Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup) {
         super(installableUnits, executionEnvironment, jointArtifacts, localArtifactRepository, reactorProjectLookup,
                 mavenArtifactLookup);
@@ -46,15 +43,6 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
     @Override
     public IMetadataRepository getInstallableUnitsAsMetadataRepository() {
         return new ImmutableInMemoryMetadataRepository(installableUnits);
-    }
-
-    @Override
-    public File getArtifactLocation(org.eclipse.tycho.ArtifactKey artifact) {
-        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
-        if (p2Artifact != null) {
-            return artifacts.getArtifactFile(p2Artifact);
-        }
-        return null;
     }
 
 }

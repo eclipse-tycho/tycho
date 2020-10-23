@@ -52,7 +52,7 @@ public class ProductAssembler extends UpdateSiteAssembler {
     }
 
     private boolean isSourceBundle(PluginDescription plugin) {
-        OsgiManifest mf = manifestReader.loadManifest(plugin.getLocation());
+        OsgiManifest mf = manifestReader.loadManifest(plugin.getLocation(true));
         return mf.getValue("Eclipse-SourceBundle") != null;
     }
 

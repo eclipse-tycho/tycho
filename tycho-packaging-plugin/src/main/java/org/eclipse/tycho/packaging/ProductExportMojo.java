@@ -534,7 +534,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             throw new MojoExecutionException("Native launcher is not found for " + environment.toString());
         }
 
-        File location = artifact.getLocation();
+        File location = artifact.getLocation(true);
 
         String os = environment.getOs();
         String ws = environment.getWs();
