@@ -251,7 +251,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             if (testSuite != null) {
                 ArtifactDescriptor bundle = platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, testSuite, null);
                 if (bundle != null) {
-                    testSuiteLocation = bundle.getLocation();
+                    testSuiteLocation = bundle.getLocation(true);
                 }
             }
 
@@ -260,7 +260,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             // always add baseDir
             projects.add(baseDirs.get(0));
 
-            if (rootProjects.size() > 0) {
+            if (!rootProjects.isEmpty()) {
                 if (testSuiteLocation != null) {
                     rootProjects.add(testSuiteLocation);
                 }

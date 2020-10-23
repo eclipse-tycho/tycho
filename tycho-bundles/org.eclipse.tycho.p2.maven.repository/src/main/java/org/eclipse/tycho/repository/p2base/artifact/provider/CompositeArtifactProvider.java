@@ -147,8 +147,8 @@ public class CompositeArtifactProvider extends CompositeArtifactProviderBaseImpl
 
     @Override
     protected Status getArtifactNotFoundError(String artifact) {
-        return new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact " + artifact
-                + " is not available in the following sources: " + components, null);
+        return new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_NOT_FOUND,
+                "Artifact " + artifact + " is not available in the following sources: " + components, null);
     }
 
     @Override
@@ -164,6 +164,11 @@ public class CompositeArtifactProvider extends CompositeArtifactProviderBaseImpl
             IArtifactProvider[] repositoriesArray = components.toArray(new IArtifactProvider[repositoryCount]);
             return new CompoundQueryable<>(repositoriesArray);
         }
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return components.stream().anyMatch(component -> component.isFileAlreadyAvailable(artifactKey));
     }
 
 }

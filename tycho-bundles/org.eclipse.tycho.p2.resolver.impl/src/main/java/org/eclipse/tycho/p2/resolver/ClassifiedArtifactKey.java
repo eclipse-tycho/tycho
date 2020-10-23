@@ -12,31 +12,32 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
-import java.io.File;
 import java.util.Objects;
 
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
-public class ClassifiedLocation {
-    public final File location;
+public class ClassifiedArtifactKey {
+    public final ArtifactKey artifactKey;
     public final String classifier;
 
-    public ClassifiedLocation(File location, String classifier) {
-        if (location == null) {
+    public ClassifiedArtifactKey(ArtifactKey key, String classifier) {
+        if (key == null) {
             throw new NullPointerException();
         }
-
-        this.location = location;
+        this.artifactKey = key;
         this.classifier = classifier;
     }
 
-    public ClassifiedLocation(IArtifactFacade artifact) {
-        this(artifact.getLocation(), artifact.getClassifier());
+    public ClassifiedArtifactKey(IArtifactFacade artifact) {
+        this(new DefaultArtifactKey(artifact.getPackagingType(), artifact.getArtifactId(), artifact.getVersion()),
+                artifact.getClassifier());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(location, classifier);
+        return Objects.hash(artifactKey, classifier);
     }
 
     @Override
@@ -45,13 +46,13 @@ public class ClassifiedLocation {
             return true;
         }
 
-        if (!(obj instanceof ClassifiedLocation)) {
+        if (!(obj instanceof ClassifiedArtifactKey)) {
             return false;
         }
 
-        ClassifiedLocation other = (ClassifiedLocation) obj;
+        ClassifiedArtifactKey other = (ClassifiedArtifactKey) obj;
 
-        return Objects.equals(this.location, other.location) && Objects.equals(this.classifier, other.classifier);
+        return Objects.equals(this.artifactKey, other.artifactKey) && Objects.equals(this.classifier, other.classifier);
     }
 
 }
