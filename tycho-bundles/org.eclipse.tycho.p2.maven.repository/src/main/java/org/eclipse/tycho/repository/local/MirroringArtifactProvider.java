@@ -316,4 +316,9 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         }
 
     }
+
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return localArtifactRepository.contains(artifactKey);
+    }
 }

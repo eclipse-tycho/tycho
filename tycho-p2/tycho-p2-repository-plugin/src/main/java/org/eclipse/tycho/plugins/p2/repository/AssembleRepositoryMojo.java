@@ -29,6 +29,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
@@ -146,6 +147,10 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 File destination = getAssemblyRepositoryLocation();
                 destination.mkdirs();
                 copyResources(destination);
+
+                // ensure artifacts are available locally first or mirror app will skip them
+                DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getProject());
+                dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true));
 
                 Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
                 if (projectSeeds.isEmpty()) {

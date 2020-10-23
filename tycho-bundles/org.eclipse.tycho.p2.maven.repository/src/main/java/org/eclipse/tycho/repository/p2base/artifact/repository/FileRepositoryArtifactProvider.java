@@ -76,4 +76,9 @@ public class FileRepositoryArtifactProvider extends RepositoryArtifactProvider i
         return null;
     }
 
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return contains(artifactKey);
+    }
+
 }

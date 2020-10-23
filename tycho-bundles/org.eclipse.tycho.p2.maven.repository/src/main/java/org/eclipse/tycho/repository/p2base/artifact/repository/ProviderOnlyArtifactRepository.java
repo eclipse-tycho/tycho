@@ -34,8 +34,8 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtif
  * Read-only repository which delegates artifact read operations to a provider instance. Adapter
  * from {@link IRawArtifactFileProvider} to {@link IFileArtifactRepository}.
  */
-public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2 implements IFileArtifactRepository,
-        IRawArtifactFileProvider {
+public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2
+        implements IFileArtifactRepository, IRawArtifactFileProvider {
 
     private final IRawArtifactFileProvider delegate;
 
@@ -153,6 +153,11 @@ public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2 
     @Override
     public IRawArtifactSink newAddingRawArtifactSink(IArtifactDescriptor descriptor) throws ProvisionException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return delegate.isFileAlreadyAvailable(artifactKey);
     }
 
 }
