@@ -59,9 +59,9 @@ public class DefaultEquinoxInstallation implements EquinoxInstallation {
                         + " bundle in the test runtime.");
             }
             try {
-                return launcher.getLocation().getCanonicalFile();
+                return launcher.getLocation(true).getCanonicalFile();
             } catch (IOException e) {
-                return launcher.getLocation().getAbsoluteFile();
+                return launcher.getLocation(true).getAbsoluteFile();
             }
         }
     }

@@ -77,7 +77,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
         for (ArtifactDescriptor artifact : description.getBundles()) {
             ArtifactKey key = artifact.getKey();
-            File file = artifact.getLocation();
+            File file = artifact.getLocation(true);
             OsgiManifest mf = manifestReader.loadManifest(file);
 
             boolean directoryShape = bundlesToExplode.contains(key.getId()) || mf.isDirectoryShape();
@@ -124,7 +124,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
                 File file;
                 ArtifactDescriptor desc = description.getBundle(url, null);
                 if (desc != null) {
-                    url = "file:" + desc.getLocation().getAbsolutePath().replace('\\', '/');
+                    url = "file:" + desc.getLocation(true).getAbsolutePath().replace('\\', '/');
                 } else if (url.startsWith("file:")) {
                     String path = url.substring("file:".length());
                     file = new File(path);
@@ -218,7 +218,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
     private String copySystemBundle(EquinoxInstallationDescription description, File location) throws IOException {
         ArtifactDescriptor bundle = description.getSystemBundle();
-        File srcFile = bundle.getLocation();
+        File srcFile = bundle.getLocation(true);
         File dstFile = new File(location, "plugins/" + srcFile.getName());
         FileUtils.copyFileIfModified(srcFile, dstFile);
 

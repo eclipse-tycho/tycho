@@ -135,4 +135,22 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         localArtifactRepository.save();
     }
 
+    @Override
+    public File getArtifactLocation(org.eclipse.tycho.ArtifactKey artifact) {
+        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
+        if (p2Artifact != null) {
+            return artifacts.getArtifactFile(p2Artifact);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(org.eclipse.tycho.ArtifactKey artifact) {
+        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
+        if (p2Artifact != null) {
+            return artifacts.isFileAlreadyAvailable(p2Artifact);
+        }
+        return false;
+    }
+
 }
