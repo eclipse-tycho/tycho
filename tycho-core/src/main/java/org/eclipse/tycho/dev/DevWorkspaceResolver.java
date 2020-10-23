@@ -152,7 +152,7 @@ public class DevWorkspaceResolver implements Initializable {
         if (descriptor == null) {
             return null;
         }
-        File location = descriptor.getLocation();
+        File location = descriptor.getLocation(true);
         return new DevBundleInfo(descriptor.getKey(), location, workspaceDeventries.get(location));
     }
 

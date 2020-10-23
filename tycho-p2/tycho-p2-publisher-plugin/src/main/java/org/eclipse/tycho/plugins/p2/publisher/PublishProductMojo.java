@@ -121,7 +121,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                     "Unable to locate feature 'org.eclipse.equinox.executable'. This feature is required for native product launchers.");
         }
         checkMacOSLauncherCompatibility(artifact);
-        File equinoxExecFeature = artifact.getLocation();
+        File equinoxExecFeature = artifact.getLocation(true);
         if (equinoxExecFeature.isDirectory()) {
             return equinoxExecFeature.getAbsoluteFile();
         } else {
