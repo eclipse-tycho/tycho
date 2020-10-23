@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -109,8 +110,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         ModuleArtifactMap artifactLocationMap = ModuleArtifactMap.createInstance(repositoryDir);
 
         // add p2artifacts.xml in standard location
-        artifactLocationMap.add(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, new File(repositoryDir,
-                RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS));
+        artifactLocationMap.add(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
+                new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS));
         return artifactLocationMap;
     }
 
@@ -145,8 +146,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         } else {
             MavenRepositoryCoordinates result = GAVArtifactDescriptorBase.readMavenCoordinateProperties(descriptor);
             if (result == null) {
-                throw new IllegalArgumentException("Maven coordinate properties are missing in artifact descriptor "
-                        + descriptor);
+                throw new IllegalArgumentException(
+                        "Maven coordinate properties are missing in artifact descriptor " + descriptor);
             }
             return result;
         }
@@ -203,8 +204,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
     // TODO use this method from ModuleArtifactRepositoryDelegate?
     public IArtifactSink newAddingArtifactSink(IArtifactKey key, WriteSessionContext writeSession)
             throws ProvisionException {
-        ModuleArtifactDescriptor internalDescriptorForAdding = getInternalDescriptorForAdding(createArtifactDescriptor(
-                key, writeSession));
+        ModuleArtifactDescriptor internalDescriptorForAdding = getInternalDescriptorForAdding(
+                createArtifactDescriptor(key, writeSession));
         return internalNewAddingArtifactSink(internalDescriptorForAdding);
     }
 
@@ -244,8 +245,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
                 // TODO check that GAV properties match module GAV
                 internalAddInternalDescriptor(internalDescriptor);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw failedReadException(p2DataFile, null, e);
         }
     }
@@ -258,8 +258,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
             return new ModuleArtifactDescriptor(loadedDescriptor, mavenCoordinates);
 
         } else {
-            throw failedReadException(sourceFile, "Maven coordinate properties are missing in artifact descriptor "
-                    + loadedDescriptor, null);
+            throw failedReadException(sourceFile,
+                    "Maven coordinate properties are missing in artifact descriptor " + loadedDescriptor, null);
         }
     }
 
@@ -309,7 +309,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
             if (other instanceof ModuleArtifactDescriptor || other instanceof ModuleArtifactComparableDescriptor) {
                 // compare fields used in ArtifactDescriptor.hashCode
-                return eq(this.key, other.getArtifactKey()) && eq(this.getProperty(FORMAT), other.getProperty(FORMAT))
+                return Objects.equals(this.key, other.getArtifactKey())
+                        && Objects.equals(this.getProperty(FORMAT), other.getProperty(FORMAT))
                         && Arrays.equals(this.processingSteps, other.getProcessingSteps());
             }
             return false;
@@ -335,7 +336,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
             if (other instanceof ModuleArtifactDescriptor || other instanceof ModuleArtifactComparableDescriptor) {
                 // compare fields used in ArtifactDescriptor.hashCode
-                return eq(this.key, other.getArtifactKey()) && eq(this.getProperty(FORMAT), other.getProperty(FORMAT))
+                return Objects.equals(this.key, other.getArtifactKey())
+                        && Objects.equals(this.getProperty(FORMAT), other.getProperty(FORMAT))
                         && Arrays.equals(this.processingSteps, other.getProcessingSteps());
             }
             return false;
@@ -343,11 +345,9 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
     }
 
-    static <T> boolean eq(T left, T right) {
-        if (left == right)
-            return true;
-        if (left == null)
-            return false;
-        return left.equals(right);
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return contains(artifactKey);
     }
+
 }

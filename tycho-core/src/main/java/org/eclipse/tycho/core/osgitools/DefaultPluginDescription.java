@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -23,6 +24,12 @@ public class DefaultPluginDescription extends DefaultArtifactDescriptor implemen
     private PluginRef pluginRef;
 
     public DefaultPluginDescription(ArtifactKey key, File location, ReactorProject project, String classifier,
+            PluginRef pluginRef, Set<Object> installableUnits) {
+        super(key, location, project, classifier, installableUnits);
+        this.pluginRef = pluginRef;
+    }
+
+    public DefaultPluginDescription(ArtifactKey key, Supplier<File> location, ReactorProject project, String classifier,
             PluginRef pluginRef, Set<Object> installableUnits) {
         super(key, location, project, classifier, installableUnits);
         this.pluginRef = pluginRef;
