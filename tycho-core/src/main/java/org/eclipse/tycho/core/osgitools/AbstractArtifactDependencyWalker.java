@@ -111,7 +111,8 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         traverseProduct(product, visitor, new WalkbackPath());
     }
 
-    protected void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor, WalkbackPath visited) {
+    protected void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor,
+            WalkbackPath visited) {
         if (product.useFeatures()) {
             for (FeatureRef ref : product.getFeatures()) {
                 traverseFeature(ref, visitor, visited);
@@ -141,9 +142,8 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
                 // for Mac OS X there is no org.eclipse.equinox.launcher.carbon.macosx.x86 or org.eclipse.equinox.launcher.carbon.macosx.ppc folder,
                 // only a org.eclipse.equinox.launcher.carbon.macosx folder.
                 // see http://jira.codehaus.org/browse/MNGECLIPSE-1075
-                if (PlatformPropertiesUtils.OS_MACOSX.equals(os)
-                        && (PlatformPropertiesUtils.ARCH_X86.equals(arch) || PlatformPropertiesUtils.ARCH_PPC
-                                .equals(arch))) {
+                if (PlatformPropertiesUtils.OS_MACOSX.equals(os) && (PlatformPropertiesUtils.ARCH_X86.equals(arch)
+                        || PlatformPropertiesUtils.ARCH_PPC.equals(arch))) {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os;
                 } else {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os + "." + arch;
@@ -173,7 +173,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
             visited.enter(artifact);
             try {
-                File location = artifact.getLocation();
+                File location = artifact.getLocation(true);
 
                 Feature feature = Feature.loadFeature(location);
                 traverseFeature(location, feature, ref, visitor, visited);
@@ -199,7 +199,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
                 return;
             }
 
-            File location = artifact.getLocation();
+            File location = artifact.getLocation(true);
             ReactorProject project = artifact.getMavenProject();
             String classifier = artifact.getClassifier();
             Set<Object> installableUnits = artifact.getInstallableUnits();

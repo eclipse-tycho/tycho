@@ -77,8 +77,8 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     protected MojoExecution execution;
 
     /**
-     * A list of p2 repositories to be used as baseline. Those are typically the most recent released
-     * versions of your project.
+     * A list of p2 repositories to be used as baseline. Those are typically the most recent
+     * released versions of your project.
      */
     @Parameter(property = "baselines", name = "baselines")
     private List<String> baselines;
@@ -97,8 +97,8 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     private Logger plexusLogger;
 
     /**
-     * The hint of an available {@link ArtifactComparator} component to use for comparison of artifacts
-     * with same version.
+     * The hint of an available {@link ArtifactComparator} component to use for comparison of
+     * artifacts with same version.
      */
     @Parameter(defaultValue = BytesArtifactComparator.HINT, readonly = true)
     private String comparator;
@@ -160,7 +160,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                             throw new MojoFailureException(message);
                         }
                     } else if (version.equals(baselineVersion)) {
-                        File baselineFile = foundInBaseline.getLocation();
+                        File baselineFile = foundInBaseline.getLocation(true);
                         File reactorFile = null;
                         // TODO: currently, there are only 2 kinds of (known) artifacts, but we could have more
                         // and unknown ones. Need to find something smarter to map artifact with actual file.

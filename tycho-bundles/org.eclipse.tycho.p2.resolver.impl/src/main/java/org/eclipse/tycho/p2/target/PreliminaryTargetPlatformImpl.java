@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -24,7 +23,6 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -69,8 +67,8 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     }
 
     public static LinkedHashSet<IInstallableUnit> collectAllInstallableUnits(
-            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
-            Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment) {
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs, Collection<IInstallableUnit> externalIUs,
+            ExecutionEnvironmentResolutionHints executionEnvironment) {
         LinkedHashSet<IInstallableUnit> allius = new LinkedHashSet<>();
 
         allius.addAll(reactorProjectIUs.keySet());
@@ -119,12 +117,6 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     public IRawArtifactFileProvider getExternalArtifacts() {
         return artifacts;
-    }
-
-    @Override
-    public File getArtifactLocation(ArtifactKey artifact) {
-        // the preliminary TP lacks the reactor artifacts so this method doesn't make sense
-        throw new UnsupportedOperationException();
     }
 
     @Override

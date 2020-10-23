@@ -169,7 +169,7 @@ public class EquinoxResolver {
         Map<File, Dictionary<String, String>> projects = new LinkedHashMap<>();
 
         for (ArtifactDescriptor artifact : artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
-            File location = artifact.getLocation();
+            File location = artifact.getLocation(true);
             Dictionary<String, String> mf = loadManifest(location);
             if (isFrameworkImplementation(location, mf)) {
                 systemBundles.put(location, mf);

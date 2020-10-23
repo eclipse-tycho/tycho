@@ -122,12 +122,12 @@ public class RepositoryReferenceTool {
                 DependencyResolverConfiguration resolverConfiguration = configuration
                         .getDependencyResolverConfiguration();
 
-                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
-                        targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration);
+                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
+                        DefaultReactorProject.adapt(session), resolverConfiguration);
+                dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
 
                 // this contains dependency-only metadata for 'this' project
-                Set<Object> targetPlatformInstallableUnits = new HashSet<>(
-                        dependencyArtifacts.getInstallableUnits());
+                Set<Object> targetPlatformInstallableUnits = new HashSet<>(dependencyArtifacts.getInstallableUnits());
 
                 for (ArtifactDescriptor artifact : dependencyArtifacts.getArtifacts()) {
                     ReactorProject otherProject = artifact.getMavenProject();

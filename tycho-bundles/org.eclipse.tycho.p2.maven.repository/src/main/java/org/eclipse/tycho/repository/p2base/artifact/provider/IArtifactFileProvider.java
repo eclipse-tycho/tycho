@@ -37,4 +37,6 @@ public interface IArtifactFileProvider extends IArtifactProvider {
      */
     public File getArtifactFile(IArtifactKey key);
 
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey);
+
 }

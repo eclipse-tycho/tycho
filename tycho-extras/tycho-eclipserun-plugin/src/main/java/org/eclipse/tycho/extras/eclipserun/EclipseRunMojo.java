@@ -262,7 +262,7 @@ public class EclipseRunMojo extends AbstractMojo {
                 if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
                     installationDesc.addBundle(
                             new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getId(), entry.getVersion()),
-                            entry.getLocation());
+                            entry.getLocation(true));
                 }
             }
         }
