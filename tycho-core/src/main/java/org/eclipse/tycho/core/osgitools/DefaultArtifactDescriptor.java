@@ -11,17 +11,21 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection;
 
 public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     private final ArtifactKey key;
 
-    private final File location;
+    private Supplier<File> locationSupplier;
+    private File location;
 
     private final ReactorProject project;
 
@@ -32,7 +36,16 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     public DefaultArtifactDescriptor(ArtifactKey key, File location, ReactorProject project, String classifier,
             Set<Object> installableUnits) {
         this.key = key;
-        this.location = location;
+        this.location = ArtifactCollection.normalizeLocation(location);
+        this.project = project;
+        this.classifier = classifier;
+        this.installableUnits = installableUnits;
+    }
+
+    public DefaultArtifactDescriptor(ArtifactKey key, Supplier<File> location, ReactorProject project,
+            String classifier, Set<Object> installableUnits) {
+        this.key = key;
+        this.locationSupplier = location;
         this.project = project;
         this.classifier = classifier;
         this.installableUnits = installableUnits;
@@ -44,7 +57,10 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     }
 
     @Override
-    public File getLocation() {
+    public File getLocation(boolean fetch) {
+        if (location == null && locationSupplier != null && fetch) {
+            location = ArtifactCollection.normalizeLocation(locationSupplier.get());
+        }
         return location;
     }
 
@@ -77,12 +93,8 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     @Override
     public int hashCode() {
-        int hash = key.hashCode();
-        hash = 17 * hash + location.hashCode();
-        hash = 17 * hash + (classifier != null ? classifier.hashCode() : 0);
-        hash = 17 * hash + (project != null ? project.hashCode() : 0);
-        hash = 17 * hash + (installableUnits != null ? installableUnits.hashCode() : 0);
-        return hash;
+        return Objects.hash(key, locationSupplier, locationSupplier == null ? location : null, classifier, project,
+                installableUnits);
     }
 
     @Override
@@ -94,11 +106,11 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
         DefaultArtifactDescriptor other = (DefaultArtifactDescriptor) obj;
 
-        return eq(key, other.key) && eq(location, other.location) && eq(project, other.project)
-                && eq(classifier, other.classifier) && eq(installableUnits, other.installableUnits);
+        return Objects.equals(key, other.key)
+                && (Objects.equals(location, other.location)
+                        || Objects.equals(locationSupplier, other.locationSupplier))
+                && Objects.equals(project, other.project) && Objects.equals(classifier, other.classifier)
+                && Objects.equals(installableUnits, other.installableUnits);
     }
 
-    private static <T> boolean eq(T a, T b) {
-        return a != null ? a.equals(b) : b == null;
-    }
 }
