@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "646f9a70_084458f2",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/artifacts/TargetPlatform.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-10-24T08:34:12Z",
+      "side": 1,
+      "message": "maybe getArtifactLocation() can be enhanced to have a boolean parameter \"fetch\", that when is false and the artifact is not (yet) downloaded simply return null",
+      "revId": "e9a64eb21a77c40b96464d85ae0effaf50ac094d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bcff34a_c56acbfc",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/provider/IArtifactFileProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-10-24T08:34:12Z",
+      "side": 1,
+      "message": "same here, caller should simply express its intend to download the artifact or not if not currently available.",
+      "revId": "e9a64eb21a77c40b96464d85ae0effaf50ac094d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
