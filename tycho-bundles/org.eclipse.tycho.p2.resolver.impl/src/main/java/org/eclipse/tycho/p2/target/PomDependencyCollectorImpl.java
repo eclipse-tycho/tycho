@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *    Christoph Läubrich -  Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *                          Bug 568057 - Including sources for Maven Depedencies does not work
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -59,10 +60,8 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     @Override
     public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle) {
-        MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact, allowGenerateOSGiBundle);
-        if (bundleIU != null) {
-            addMavenArtifact(bundleIU.getArtifact(), Collections.singleton(bundleIU.getUnit()));
-        }
+        bundlesPublisher.publishBundle(artifact, allowGenerateOSGiBundle,
+                info -> addMavenArtifact(info.getArtifact(), Collections.singleton(info.getUnit())));
     }
 
     @Override

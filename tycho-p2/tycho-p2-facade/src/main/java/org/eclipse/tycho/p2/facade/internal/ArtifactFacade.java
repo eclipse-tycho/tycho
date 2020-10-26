@@ -54,4 +54,9 @@ public class ArtifactFacade implements IArtifactFacade {
         return wrappedArtifact.getClassifier();
     }
 
+    @Override
+    public String toString() {
+        return "ArtifactFacade for: " + wrappedArtifact.toString();
+    }
+
 }
