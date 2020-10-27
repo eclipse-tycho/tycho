@@ -9,7 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - add getName()
+ *    Christoph Läubrich - add getName() / combine directories
  *******************************************************************************/
 package org.eclipse.tycho;
 
@@ -56,11 +56,7 @@ public interface ReactorProject {
 
     // build configuration
 
-    public File getOutputDirectory();
-
-    public BuildOutputDirectory getBuildDirectory();
-
-    public File getTestOutputDirectory();
+    public BuildDirectory getBuildDirectory();
 
     // attached artifacts
 

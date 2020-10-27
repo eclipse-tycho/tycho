@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP SE and others.
+ * Copyright (c) 2010, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ package org.eclipse.tycho.p2.tools;
 
 import java.util.List;
 
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
@@ -76,7 +76,7 @@ public class BuildContext {
     /**
      * @return the build output directory of the current project
      */
-    public BuildOutputDirectory getTargetDirectory() {
+    public BuildDirectory getTargetDirectory() {
         return project.getBuildDirectory();
     }
 }
