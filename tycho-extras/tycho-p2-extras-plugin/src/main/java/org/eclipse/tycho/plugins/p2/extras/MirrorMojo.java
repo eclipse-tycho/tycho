@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2019 SAP AG and others.
+ * Copyright (c) 2011, 2020 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -30,8 +30,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -288,7 +289,7 @@ public class MirrorMojo extends AbstractMojo {
         return result;
     }
 
-    private BuildOutputDirectory getBuildOutputDirectory() {
-        return new BuildOutputDirectory(project.getBuild().getDirectory());
+    private BuildDirectory getBuildOutputDirectory() {
+        return DefaultReactorProject.adapt(project).getBuildDirectory();
     }
 }

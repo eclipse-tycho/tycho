@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - add getName()
+ *    Christoph Läubrich - add getName() / combine directories
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -94,18 +94,10 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     @Override
-    public File getOutputDirectory() {
-        return new File(project.getBuild().getOutputDirectory());
-    }
-
-    @Override
     public BuildOutputDirectory getBuildDirectory() {
-        return new BuildOutputDirectory(project.getBuild().getDirectory());
-    }
-
-    @Override
-    public File getTestOutputDirectory() {
-        return new File(project.getBuild().getTestOutputDirectory());
+        return new BuildOutputDirectory(new File(project.getBuild().getDirectory()),
+                new File(project.getBuild().getOutputDirectory()),
+                new File(project.getBuild().getTestOutputDirectory()));
     }
 
     @Override

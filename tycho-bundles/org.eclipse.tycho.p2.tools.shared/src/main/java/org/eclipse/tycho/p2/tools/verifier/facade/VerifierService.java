@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP SE and others.
+ * Copyright (c) 2011, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,12 +14,12 @@ package org.eclipse.tycho.p2.tools.verifier.facade;
 
 import java.net.URI;
 
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 
 public interface VerifierService {
 
-    public abstract boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri,
-            BuildOutputDirectory tempDirectory) throws FacadeException;
+    public abstract boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildDirectory tempDirectory)
+            throws FacadeException;
 
 }

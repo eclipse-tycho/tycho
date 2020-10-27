@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
@@ -74,8 +74,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
      * @param category
      *            a category, with "qualifier" literals already replaced by the build qualifier.
      */
-    private File prepareBuildCategory(Category category, BuildOutputDirectory buildFolder)
-            throws MojoExecutionException {
+    private File prepareBuildCategory(Category category, BuildDirectory buildFolder) throws MojoExecutionException {
         try {
             File ret = buildFolder.getChild("category.xml");
             buildFolder.getLocation().mkdirs();
@@ -87,7 +86,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
         }
     }
 
-    private void copySiteI18nFiles(BuildOutputDirectory buildFolder) throws IOException {
+    private void copySiteI18nFiles(BuildDirectory buildFolder) throws IOException {
         File[] i18nFiles = getProject().getBasedir().listFiles((FileFilter) file -> {
             String fileName = file.getName();
             return fileName.startsWith("site") && fileName.endsWith(".properties");

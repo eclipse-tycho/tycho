@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 SAP SE and others.
+ * Copyright (c) 2010, 2020 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -60,7 +60,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
         return TychoProjectUtils.getTargetPlatformConfiguration(project).getEnvironments();
     }
 
-    protected BuildOutputDirectory getBuildDirectory() {
+    protected BuildDirectory getBuildDirectory() {
         return getProjectIdentities().getBuildDirectory();
     }
 

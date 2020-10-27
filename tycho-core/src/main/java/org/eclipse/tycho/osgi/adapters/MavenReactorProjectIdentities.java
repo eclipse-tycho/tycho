@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP AG and others.
+ * Copyright (c) 2012, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,19 +13,16 @@ package org.eclipse.tycho.osgi.adapters;
 import java.io.File;
 
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 public class MavenReactorProjectIdentities extends ReactorProjectIdentities {
 
     private final MavenProject project;
 
-    // derived members
-    private final BuildOutputDirectory targetFolder;
-
     public MavenReactorProjectIdentities(MavenProject project) {
         this.project = project;
-        this.targetFolder = new BuildOutputDirectory(project.getBuild().getDirectory());
     }
 
     @Override
@@ -49,8 +46,8 @@ public class MavenReactorProjectIdentities extends ReactorProjectIdentities {
     }
 
     @Override
-    public BuildOutputDirectory getBuildDirectory() {
-        return targetFolder;
+    public BuildDirectory getBuildDirectory() {
+        return DefaultReactorProject.adapt(project).getBuildDirectory();
     }
 
 }

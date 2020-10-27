@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,9 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
@@ -98,10 +99,10 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * <ul>
      * <li><tt>rootFolder</tt> - The path where the installed product shall be stored in the
      * archive, e.g. "eclipse". By default, the product is stored in the archive root.</li>
-     * <li>
-     * <tt>rootFolders</tt> - OS-specific installation root folders, overriding <tt>rootFolder</tt>.
-     * Allowed children are <tt>&lt;macosx&gt;</tt>, <tt>&lt;win32&gt;</tt>, <tt>&lt;linux&gt;</tt> and 
-     * <tt>&lt;freebsd&gt;</tt> or any other OS supported by p2. Since 0.18.0</li>
+     * <li><tt>rootFolders</tt> - OS-specific installation root folders, overriding
+     * <tt>rootFolder</tt>. Allowed children are <tt>&lt;macosx&gt;</tt>, <tt>&lt;win32&gt;</tt>,
+     * <tt>&lt;linux&gt;</tt> and <tt>&lt;freebsd&gt;</tt> or any other OS supported by p2. Since
+     * 0.18.0</li>
      * </ul>
      * 
      */
@@ -127,8 +128,8 @@ abstract class AbstractProductMojo extends AbstractMojo {
         return session;
     }
 
-    BuildOutputDirectory getBuildDirectory() {
-        return new BuildOutputDirectory(getProject().getBuild().getDirectory());
+    BuildDirectory getBuildDirectory() {
+        return DefaultReactorProject.adapt(project).getBuildDirectory();
     }
 
     File getProductsBuildDirectory() {
