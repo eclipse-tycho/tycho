@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
 
@@ -39,6 +40,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
+import org.eclipse.tycho.p2.metadata.ArtifactFacadeProxy;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.repository.local.GAVArtifactDescriptor;
@@ -307,15 +309,14 @@ public class TargetPlatformBundlePublisher {
         }
     }
 
-    private static class WrappedArtifact implements IArtifactFacade {
+    private static final class WrappedArtifact extends ArtifactFacadeProxy {
 
-        private File file;
-        private IArtifactFacade wrapped;
-        private String classifier;
+        private final File file;
+        private final String classifier;
 
         public WrappedArtifact(File file, IArtifactFacade wrapped, String classifier) {
+            super(wrapped);
             this.file = file;
-            this.wrapped = wrapped;
             this.classifier = classifier;
         }
 
@@ -325,28 +326,39 @@ public class TargetPlatformBundlePublisher {
         }
 
         @Override
-        public String getGroupId() {
-            return wrapped.getGroupId();
-        }
-
-        @Override
-        public String getArtifactId() {
-            return wrapped.getArtifactId();
-        }
-
-        @Override
         public String getClassifier() {
             return classifier;
         }
 
         @Override
-        public String getVersion() {
-            return wrapped.getVersion();
+        public String getPackagingType() {
+            return "bundle";
         }
 
         @Override
-        public String getPackagingType() {
-            return "bundle";
+        public String toString() {
+            return "WrappedArtifact [file=" + file + ", wrapped=" + super.toString() + ", classifier=" + classifier
+                    + "]";
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(classifier, file);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            WrappedArtifact other = (WrappedArtifact) obj;
+            return Objects.equals(classifier, other.classifier) && Objects.equals(file, other.file);
         }
 
     }
