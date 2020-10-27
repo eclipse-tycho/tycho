@@ -70,6 +70,7 @@ import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.BundleProject;
@@ -1246,8 +1247,9 @@ public class TestMojo extends AbstractMojo {
     private String getBuildOutputDirectories() {
         StringBuilder sb = new StringBuilder();
         ReactorProject reactorProject = getReactorProject();
-        sb.append(reactorProject.getOutputDirectory());
-        sb.append(',').append(reactorProject.getTestOutputDirectory());
+        BuildDirectory buildDirectory = reactorProject.getBuildDirectory();
+        sb.append(buildDirectory.getOutputDirectory());
+        sb.append(',').append(buildDirectory.getTestOutputDirectory());
         for (BuildOutputJar outputJar : osgiBundle.getEclipsePluginProject(reactorProject).getOutputJars()) {
             if (".".equals(outputJar.getName())) {
                 // handled above

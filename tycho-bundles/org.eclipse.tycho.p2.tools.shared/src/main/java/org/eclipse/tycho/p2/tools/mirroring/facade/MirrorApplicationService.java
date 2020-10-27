@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ package org.eclipse.tycho.p2.tools.mirroring.facade;
 import java.util.Collection;
 import java.util.Map;
 
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -80,6 +80,6 @@ public interface MirrorApplicationService {
      *             if a checked exception occurs while mirroring
      */
     void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
+            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException;
 }

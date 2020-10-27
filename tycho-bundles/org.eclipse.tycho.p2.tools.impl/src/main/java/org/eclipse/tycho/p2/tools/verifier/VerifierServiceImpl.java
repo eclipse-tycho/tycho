@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP SE and others.
+ * Copyright (c) 2011, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -45,7 +45,7 @@ public class VerifierServiceImpl implements VerifierService {
     private MavenContext mavenContext;
 
     @Override
-    public boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildOutputDirectory tempDirectory)
+    public boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildDirectory tempDirectory)
             throws FacadeException {
         MavenLogger logger = mavenContext.getLogger();
         logger.debug("Checking metadata from '" + metadataRepositoryUri + "' and artifacts from '"
@@ -99,8 +99,8 @@ public class VerifierServiceImpl implements VerifierService {
     private boolean verifyAllArtifactContent(IArtifactRepository repository, MavenLogger logger) {
         boolean valid = true;
 
-        IQueryResult<IArtifactKey> allKeys = repository.query(new ExpressionMatchQuery<>(
-                IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION), null);
+        IQueryResult<IArtifactKey> allKeys = repository
+                .query(new ExpressionMatchQuery<>(IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION), null);
         for (Iterator<IArtifactKey> keyIt = allKeys.iterator(); keyIt.hasNext();) {
             IArtifactKey key = keyIt.next();
 

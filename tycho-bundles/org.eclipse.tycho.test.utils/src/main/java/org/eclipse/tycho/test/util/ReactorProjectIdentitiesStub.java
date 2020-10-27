@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.tycho.test.util;
 
 import java.io.File;
 
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProjectIdentities;
 
@@ -23,7 +24,7 @@ public class ReactorProjectIdentitiesStub extends ReactorProjectIdentities {
     private static final String DUMMY_VERSION = "0.1.2-SNAPSHOT";
 
     private final File projectRoot;
-    private final BuildOutputDirectory targetFolder;
+    private final BuildDirectory targetFolder;
     private final String artifactId;
 
     /**
@@ -82,7 +83,7 @@ public class ReactorProjectIdentitiesStub extends ReactorProjectIdentities {
     }
 
     @Override
-    public BuildOutputDirectory getBuildDirectory() {
+    public BuildDirectory getBuildDirectory() {
         return unlessNull(targetFolder);
     }
 

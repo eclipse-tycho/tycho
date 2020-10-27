@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -133,18 +134,8 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     @Override
-    public File getOutputDirectory() {
-        return new File(getBasedir(), "target");
-    }
-
-    @Override
-    public BuildOutputDirectory getBuildDirectory() {
-        return new BuildOutputDirectory(getOutputDirectory());
-    }
-
-    @Override
-    public File getTestOutputDirectory() {
-        throw new UnsupportedOperationException();
+    public BuildDirectory getBuildDirectory() {
+        return new BuildOutputDirectory(new File(getBasedir(), "target"));
     }
 
     @Override

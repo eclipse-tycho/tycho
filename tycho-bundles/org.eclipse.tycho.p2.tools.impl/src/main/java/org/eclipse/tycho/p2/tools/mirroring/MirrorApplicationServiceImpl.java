@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 SAP SE and others.
+ * Copyright (c) 2010, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -62,7 +62,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     @Override
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
+            Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
