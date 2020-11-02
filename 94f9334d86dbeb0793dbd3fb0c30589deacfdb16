@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2b2f60cc_ae40f1d4",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-02T16:14:06Z",
+      "side": 1,
+      "message": "Seemed like the simplest option to also support synchronous execution in the same thread.\nIs it ok to always spawn at least one new thread? Then we can do a parallelStream in a new ForkJoinPool(degreeOfConcurrency). That would simplify the code and also avoid the guava dependency.",
+      "parentUuid": "68b46f56_c74ed38c",
+      "revId": "94f9334d86dbeb0793dbd3fb0c30589deacfdb16",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c25e3bea_3e11ddf5",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 1
