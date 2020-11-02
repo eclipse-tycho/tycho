@@ -28,9 +28,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
@@ -47,7 +47,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     private static final XMLParser PARSER = new XMLParser();
 
-    private static final Map<String, TargetDefinitionFile> FILE_CACHE = new HashMap<>();
+    private static final Map<String, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
 
     private final File origin;
     private final byte[] fileContentHash;

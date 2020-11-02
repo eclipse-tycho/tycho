@@ -21,6 +21,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.function.Consumer;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
@@ -32,6 +37,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -90,10 +96,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 resolver.setupProject(session, project, DefaultReactorProject.adapt(project));
             }
 
-            List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-            for (MavenProject project : projects) {
-                resolver.resolveProject(session, project, reactorProjects);
-            }
+            resolveProjects(session, projects);
         } catch (BuildFailureException e) {
             // build failure is not an internal (unexpected) error, so avoid printing a stack
             // trace by wrapping it in MavenExecutionException   
@@ -106,6 +109,58 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         validateUniqueBaseDirs(projects);
     }
 
+    private void resolveProjects(MavenSession session, List<MavenProject> projects) {
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+
+        Map<MavenProject, BuildFailureException> resolutionErrors = new ConcurrentHashMap<>();
+        Consumer<MavenProject> resolveProject = project -> {
+            try {
+                resolver.resolveProject(session, project, reactorProjects);
+            } catch (BuildFailureException e) {
+                resolutionErrors.put(project, e);
+            }
+        };
+
+        int degreeOfConcurrency = session.getRequest().getDegreeOfConcurrency();
+        if (degreeOfConcurrency > 1) {
+            ForkJoinPool executor = new ForkJoinPool(degreeOfConcurrency);
+            ForkJoinTask<?> future = executor.submit(() -> projects.parallelStream().forEach(resolveProject));
+
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            } finally {
+                executor.shutdown();
+            }
+
+        } else {
+            projects.forEach(resolveProject);
+        }
+
+        reportResolutionErrors(resolutionErrors, projects);
+    }
+
+    private void reportResolutionErrors(Map<MavenProject, BuildFailureException> resolutionErrors,
+            List<MavenProject> projects) {
+        if (resolutionErrors.isEmpty()) {
+            return;
+        }
+
+        if (resolutionErrors.size() == 1) {
+            throw resolutionErrors.values().iterator().next();
+        }
+
+        DependencyResolutionException exception = new DependencyResolutionException(
+                String.format("Cannot resolve dependencies of %d/%d projects, see log for details",
+                        resolutionErrors.size(), projects.size()));
+        resolutionErrors.values().forEach(exception::addSuppressed);
+
+        throw exception;
+    }
+
     protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
         Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<>();
         for (MavenProject project : projects) {
@@ -116,8 +171,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                     if (version == null) {
                         continue;
                     }
-                    log.debug(TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in "
-                            + project);
+                    log.debug(
+                            TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in " + project);
                     Set<MavenProject> projectSet = versionToProjectsMap.get(version);
                     if (projectSet == null) {
                         projectSet = new LinkedHashSet<>();
@@ -150,8 +205,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         for (MavenProject project : projects) {
             File basedir = project.getBasedir();
             if (baseDirs.contains(basedir)) {
-                throw new MavenExecutionException("Multiple modules within the same basedir are not supported: "
-                        + basedir, project.getFile());
+                throw new MavenExecutionException(
+                        "Multiple modules within the same basedir are not supported: " + basedir, project.getFile());
             } else {
                 baseDirs.add(basedir);
             }

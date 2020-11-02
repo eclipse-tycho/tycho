@@ -12,8 +12,9 @@ package org.eclipse.tycho.core.osgitools.targetplatform;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -25,12 +26,12 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
     /**
      * ArtifactKey cache used to correlate equal instances to reduce memory usage
      */
-    private static final WeakHashMap<ArtifactKey, ArtifactKey> KEY_CACHE = new WeakHashMap<>();
+    private static final Map<ArtifactKey, ArtifactKey> KEY_CACHE = new ConcurrentHashMap<>();
 
     /**
      * ArtifactDescriptor cache used to correlate equal instances to reduce memory usage
      */
-    private static final WeakHashMap<ArtifactDescriptor, ArtifactDescriptor> ARTIFACT_CACHE = new WeakHashMap<>();
+    private static final Map<ArtifactDescriptor, ArtifactDescriptor> ARTIFACT_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 'this' project, i.e. the project the dependencies were resolved for. can be null.
@@ -53,24 +54,14 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
 
     @Override
     protected ArtifactDescriptor normalize(ArtifactDescriptor artifact) {
-        ArtifactDescriptor cachedArtifact = ARTIFACT_CACHE.get(artifact);
-        if (cachedArtifact != null) {
-            artifact = cachedArtifact;
-        } else {
-            ARTIFACT_CACHE.put(artifact, artifact);
-        }
-        return artifact;
+        ArtifactDescriptor cachedArtifact = ARTIFACT_CACHE.putIfAbsent(artifact, artifact);
+        return (cachedArtifact != null) ? cachedArtifact : artifact;
     }
 
     @Override
     protected ArtifactKey normalize(ArtifactKey key) {
-        ArtifactKey cachedKey = KEY_CACHE.get(key);
-        if (cachedKey != null) {
-            key = cachedKey;
-        } else {
-            KEY_CACHE.put(key, key);
-        }
-        return key;
+        ArtifactKey cachedKey = KEY_CACHE.putIfAbsent(key, key);
+        return (cachedKey != null) ? cachedKey : key;
     }
 
     @Override
