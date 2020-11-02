@@ -21,6 +21,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
@@ -38,6 +42,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.resolver.TychoResolver;
+
+import com.google.common.util.concurrent.MoreExecutors;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
@@ -90,10 +96,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 resolver.setupProject(session, project, DefaultReactorProject.adapt(project));
             }
 
-            List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-            for (MavenProject project : projects) {
-                resolver.resolveProject(session, project, reactorProjects);
-            }
+            resolveProjects(session, projects);
         } catch (BuildFailureException e) {
             // build failure is not an internal (unexpected) error, so avoid printing a stack
             // trace by wrapping it in MavenExecutionException   
@@ -106,6 +109,29 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         validateUniqueBaseDirs(projects);
     }
 
+    private void resolveProjects(MavenSession session, List<MavenProject> projects) {
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+        ExecutorService executor = createExecutor(session);
+
+        CompletableFuture<?>[] futures = projects.stream()
+                .map(project -> CompletableFuture
+                        .runAsync(() -> resolver.resolveProject(session, project, reactorProjects), executor))
+                .toArray(CompletableFuture[]::new);
+
+        try {
+            CompletableFuture.allOf(futures).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof BuildFailureException) {
+                throw (BuildFailureException) e.getCause();
+            }
+            throw new RuntimeException(e);
+        } finally {
+            executor.shutdown();
+        }
+    }
+
     protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
         Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<>();
         for (MavenProject project : projects) {
@@ -116,8 +142,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                     if (version == null) {
                         continue;
                     }
-                    log.debug(TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in "
-                            + project);
+                    log.debug(
+                            TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in " + project);
                     Set<MavenProject> projectSet = versionToProjectsMap.get(version);
                     if (projectSet == null) {
                         projectSet = new LinkedHashSet<>();
@@ -150,8 +176,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         for (MavenProject project : projects) {
             File basedir = project.getBasedir();
             if (baseDirs.contains(basedir)) {
-                throw new MavenExecutionException("Multiple modules within the same basedir are not supported: "
-                        + basedir, project.getFile());
+                throw new MavenExecutionException(
+                        "Multiple modules within the same basedir are not supported: " + basedir, project.getFile());
             } else {
                 baseDirs.add(basedir);
             }
@@ -173,6 +199,12 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         // TODO why does the bundle reader need to cache stuff in the local maven repository?
         File localRepository = new File(session.getLocalRepository().getBasedir());
         ((DefaultBundleReader) bundleReader).setLocationRepository(localRepository);
+    }
+
+    private ExecutorService createExecutor(MavenSession session) {
+        int degreeOfConcurrency = session.getRequest().getDegreeOfConcurrency();
+        return (degreeOfConcurrency > 1) ? Executors.newFixedThreadPool(degreeOfConcurrency)
+                : MoreExecutors.newDirectExecutorService();
     }
 
 }
