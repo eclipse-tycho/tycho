@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1070eb82_01657d16",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-02T16:23:58Z",
+      "side": 1,
+      "message": "I won\u0027t mind another Thread as we are not doing massive-speed-prallel processing here.\nJust one thing that came into my mind:\nIf we have lets say 100 projects and one fails, currently the resolving breaks. Now if I understand right, all projects would be tried to resolve (what is at least not so bad), maybe it would be good to have one (concurrent) Map where Project-\u003eException is stored, so we can fail at the end with a more useful message than today, something like:\n\n3 / 100 projects failed to resolve, see log for details.\n\nThen in the Log list for each project the reason why it failed to resolve, this would prevent repetitive runs ins case of multiple resolution errors.",
+      "parentUuid": "2b2f60cc_ae40f1d4",
+      "revId": "94f9334d86dbeb0793dbd3fb0c30589deacfdb16",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c25e3bea_3e11ddf5",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 1
