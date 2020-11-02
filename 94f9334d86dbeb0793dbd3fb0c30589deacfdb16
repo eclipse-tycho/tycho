@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68b46f56_c74ed38c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-02T15:54:25Z",
+      "side": 1,
+      "message": "Why not using a parallel stream here?",
+      "revId": "94f9334d86dbeb0793dbd3fb0c30589deacfdb16",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c25e3bea_3e11ddf5",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-02T15:54:25Z",
+      "side": 1,
+      "message": "Do we really need an external dependency to create an Executor that simply runs all runnables? We could simply return an Executor (instead of a Service) here for simplicity and simply check if it is a service for shutdown.",
+      "revId": "94f9334d86dbeb0793dbd3fb0c30589deacfdb16",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
