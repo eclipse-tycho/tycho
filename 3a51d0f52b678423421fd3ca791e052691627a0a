@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c148456_05fd7ead",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-03T08:03:04Z",
+      "side": 1,
+      "message": "should setup projects not be parallelized too?\n\n\nWhile taking a look at the code itself that us used here I stumbled over the following\n\n // TODO project and reactorProject represent the same thing!? -\u003e should be one paramenter\n\nobviously the same applies to resolver.resolveProject and I think this should be refactored first. I even wonder why these two are split, but that\u0027s another story. If you think you want to remove/replace the useless last parameter, simply include it in this Gerrit, otherwise I\u0027ll refactor this later.",
+      "revId": "3a51d0f52b678423421fd3ca791e052691627a0a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "530104cc_87969345",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-03T08:03:04Z",
+      "side": 1,
+      "message": "Just an idea:\n- Extract the foreach consumer into a local variable\n- if getDegreeOfConcurrency \u003e 1 do the fork/join part\n- else simply do \u0027projects.stream().forEach\u0027",
+      "revId": "3a51d0f52b678423421fd3ca791e052691627a0a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
