@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "4250f4fe_a83723c0",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-03T06:56:51Z",
+      "side": 1,
+      "message": "great idea! I\u0027ll try that in a separate change.",
+      "parentUuid": "1070eb82_01657d16",
+      "revId": "94f9334d86dbeb0793dbd3fb0c30589deacfdb16",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c25e3bea_3e11ddf5",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 1
@@ -69,6 +87,24 @@
       "revId": "94f9334d86dbeb0793dbd3fb0c30589deacfdb16",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ee0edd5_ac60a643",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-03T06:56:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c25e3bea_3e11ddf5",
+      "revId": "94f9334d86dbeb0793dbd3fb0c30589deacfdb16",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
