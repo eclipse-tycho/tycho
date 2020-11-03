@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
@@ -35,6 +36,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -110,8 +112,15 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
         ForkJoinPool executor = new ForkJoinPool(session.getRequest().getDegreeOfConcurrency());
 
+        Map<MavenProject, BuildFailureException> resolutionErrors = new ConcurrentHashMap<>();
         ForkJoinTask<?> future = executor.submit(() -> {
-            projects.parallelStream().forEach(project -> resolver.resolveProject(session, project, reactorProjects));
+            projects.parallelStream().forEach(project -> {
+                try {
+                    resolver.resolveProject(session, project, reactorProjects);
+                } catch (BuildFailureException e) {
+                    resolutionErrors.put(project, e);
+                }
+            });
         });
 
         try {
@@ -119,13 +128,30 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-            if (e.getCause() instanceof BuildFailureException) {
-                throw (BuildFailureException) e.getCause();
-            }
             throw new RuntimeException(e);
         } finally {
             executor.shutdown();
         }
+
+        reportResolutionErrors(resolutionErrors, projects);
+    }
+
+    private void reportResolutionErrors(Map<MavenProject, BuildFailureException> resolutionErrors,
+            List<MavenProject> projects) {
+        if (resolutionErrors.isEmpty()) {
+            return;
+        }
+
+        if (resolutionErrors.size() == 1) {
+            throw resolutionErrors.values().iterator().next();
+        }
+
+        DependencyResolutionException exception = new DependencyResolutionException(
+                String.format("Cannot resolve dependencies of %d/%d projects, see log for details",
+                        resolutionErrors.size(), projects.size()));
+        resolutionErrors.values().forEach(exception::addSuppressed);
+
+        throw exception;
     }
 
     protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
