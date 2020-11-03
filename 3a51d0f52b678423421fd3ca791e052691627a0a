@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fcc5a6e3_d65d1ad2",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-03T09:45:48Z",
+      "side": 1,
+      "message": "setupProjects was fast enough that it didn\u0027t seem worth the effort (13s vs 360s for resolving).\n\nNote that resolveProjects has a *List*\u003cReactorProject\u003e parameter.",
+      "parentUuid": "7c148456_05fd7ead",
+      "revId": "3a51d0f52b678423421fd3ca791e052691627a0a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "530104cc_87969345",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2020-11-03T08:03:04Z",
       "side": 1,
       "message": "Just an idea:\n- Extract the foreach consumer into a local variable\n- if getDegreeOfConcurrency \u003e 1 do the fork/join part\n- else simply do \u0027projects.stream().forEach\u0027",
+      "revId": "3a51d0f52b678423421fd3ca791e052691627a0a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "802573d5_f6683192",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-03T09:45:48Z",
+      "side": 1,
+      "message": "Is avoiding the thread creating worth the extra complexity? Your decision.",
+      "parentUuid": "530104cc_87969345",
       "revId": "3a51d0f52b678423421fd3ca791e052691627a0a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
