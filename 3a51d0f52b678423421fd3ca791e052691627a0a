@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9fddf871_1189cd4a",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-04T04:18:31Z",
+      "side": 1,
+      "message": "It was just an idea, but we can optimize that later.",
+      "parentUuid": "fcc5a6e3_d65d1ad2",
+      "revId": "3a51d0f52b678423421fd3ca791e052691627a0a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "530104cc_87969345",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 2
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Is avoiding the thread creating worth the extra complexity? Your decision.",
       "parentUuid": "530104cc_87969345",
+      "revId": "3a51d0f52b678423421fd3ca791e052691627a0a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d883bcb4_f1db7441",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-04T04:18:31Z",
+      "side": 1,
+      "message": "I think its not that complex, lets try it, could you also merge with you other change?",
+      "parentUuid": "802573d5_f6683192",
       "revId": "3a51d0f52b678423421fd3ca791e052691627a0a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
