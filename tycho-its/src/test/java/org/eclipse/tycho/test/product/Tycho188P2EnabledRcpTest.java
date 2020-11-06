@@ -56,7 +56,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
     @DataPoints
     public static final TargetEnvironment[] TEST_ENVIRONMENTS = new TargetEnvironment[] {
-            new TargetEnvironment("win32", "win32", "x86"), new TargetEnvironment("linux", "gtk", "x86") };
+            new TargetEnvironment("win32", "win32", "x86_64"), new TargetEnvironment("linux", "gtk", "x86_64") };
 
     private static Verifier verifier;
 
