@@ -366,15 +366,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
             Set<String> excludes = new HashSet<>();
             excludes.addAll(excludeResources);
+            excludes.addAll(getCompileSourceExcludePaths());
             excludes.addAll(getEclipsePluginProject().getBuildProperties().getBinExcludes());
             excludes.add("**/*.java");
             StaleSourceScanner scanner = new StaleSourceScanner(0L, MATCH_ALL, excludes);
             CopyMapping copyMapping = new CopyMapping();
             scanner.addSourceMapping(copyMapping);
             try {
-                scanner.getIncludedSources(sourceRootFile, this.outputJar.getOutputDirectory());
-                for (CopyMapping.SourceTargetPair sourceTargetPair : copyMapping.getSourceTargetPairs()) {
-                    FileUtils.copyFile(new File(sourceRoot, sourceTargetPair.source), sourceTargetPair.target);
+                Set<File> includeSources = scanner.getIncludedSources(sourceRootFile,
+                        this.outputJar.getOutputDirectory());
+                for (File includeSource : includeSources) {
+                    File target = copyMapping.getSourceTargetPair(includeSource);
+                    //File sourceFile = new File(sourceRoot, sourceTargetPair.source);
+                    FileUtils.copyFile(includeSource, target);
                 }
             } catch (InclusionScanException e) {
                 throw new MojoExecutionException("Exception while scanning for resource files in " + sourceRoot, e);
@@ -445,6 +449,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     }
 
     @Override
+    protected final List<String> getCompileSourceExcludePaths() throws MojoExecutionException {
+        ArrayList<String> excludes = new ArrayList<>();
+        excludes.addAll(outputJar.getFilesToExclude());
+        return excludes;
+    }
+
+    @Override
     public List<SourcepathEntry> getSourcepath() throws MojoExecutionException {
         ArrayList<SourcepathEntry> entries = new ArrayList<>();
         for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
@@ -510,9 +521,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     }
 
     @Override
-    protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots)
-            throws MojoExecutionException, MojoFailureException {
-        CompilerConfiguration compilerConfiguration = super.getCompilerConfiguration(compileSourceRoots);
+    protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots,
+            List<String> compileSourceExcludes) throws MojoExecutionException, MojoFailureException {
+        CompilerConfiguration compilerConfiguration = super.getCompilerConfiguration(compileSourceRoots,
+                compileSourceExcludes);
         if (useProjectSettings) {
             String prefsFilePath = project.getBasedir() + File.separator + PREFS_FILE_PATH;
             if (!new File(prefsFilePath).exists()) {
