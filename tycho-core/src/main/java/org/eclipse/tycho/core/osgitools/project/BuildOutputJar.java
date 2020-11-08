@@ -18,14 +18,16 @@ public class BuildOutputJar {
     private final String name;
     private final List<File> sourceFolders;
     private final File outputDirectory;
-    private List<String> extraClasspathEntries;
+    private final List<String> extraClasspathEntries;
+    private final List<String> filesToExclude;
 
     public BuildOutputJar(String name, File outputDirectory, List<File> sourceFolders,
-            List<String> extraClasspathEntries) {
+            List<String> extraClasspathEntries, List<String> filesToExclude) {
         this.name = name;
         this.outputDirectory = outputDirectory;
         this.sourceFolders = sourceFolders;
         this.extraClasspathEntries = extraClasspathEntries;
+        this.filesToExclude = filesToExclude;
     }
 
     public String getName() {
@@ -46,5 +48,9 @@ public class BuildOutputJar {
 
     public List<String> getExtraClasspathEntries() {
         return extraClasspathEntries;
+    }
+
+    public List<String> getFilesToExclude() {
+        return filesToExclude;
     }
 }
