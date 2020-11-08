@@ -42,6 +42,7 @@ public class BuildPropertiesImpl implements BuildProperties {
     private Map<String, List<String>> jarToExtraClasspathMap;
     private Map<String, String> jarToJavacDefaultEncodingMap;
     private Map<String, String> jarToOutputFolderMap;
+    private Map<String, List<String>> jarToExcludeFileMap;
     private Map<String, String> jarToManifestMap;
     private Map<String, String> rootEntries;
     private long timestamp;
@@ -70,6 +71,7 @@ public class BuildPropertiesImpl implements BuildProperties {
         Map<String, List<String>> jarToExtraClasspathTmp = new LinkedHashMap<>();
         Map<String, String> jarToJavacDefaultEncodingTmp = new LinkedHashMap<>();
         Map<String, String> jarToOutputFolderMapTmp = new LinkedHashMap<>();
+        Map<String, List<String>> jarToExcludeFileMapTmp = new LinkedHashMap<>();
         Map<String, String> jarToManifestMapTmp = new LinkedHashMap<>();
         Map<String, String> rootEntriesTmp = new LinkedHashMap<>();
 
@@ -90,6 +92,9 @@ public class BuildPropertiesImpl implements BuildProperties {
             } else if (trimmedKey.startsWith("output.")) {
                 String jarName = trimmedKey.substring("output.".length());
                 jarToOutputFolderMapTmp.put(jarName, value);
+            } else if (trimmedKey.startsWith("exclude.")) {
+                String jarName = trimmedKey.substring("exclude.".length());
+                jarToExcludeFileMapTmp.put(jarName, splitAndTrimCommaSeparated(value));
             } else if (trimmedKey.startsWith("manifest.")) {
                 String jarName = trimmedKey.substring("manifest.".length());
                 jarToManifestMapTmp.put(jarName, value);
@@ -101,6 +106,7 @@ public class BuildPropertiesImpl implements BuildProperties {
         jarToExtraClasspathMap = unmodifiableMap(jarToExtraClasspathTmp);
         jarToJavacDefaultEncodingMap = unmodifiableMap(jarToJavacDefaultEncodingTmp);
         jarToOutputFolderMap = unmodifiableMap(jarToOutputFolderMapTmp);
+        jarToExcludeFileMap = unmodifiableMap(jarToExcludeFileMapTmp);
         jarToManifestMap = unmodifiableMap(jarToManifestMapTmp);
         rootEntries = unmodifiableMap(rootEntriesTmp);
     }
@@ -188,6 +194,11 @@ public class BuildPropertiesImpl implements BuildProperties {
     @Override
     public Map<String, String> getJarToOutputFolderMap() {
         return jarToOutputFolderMap;
+    }
+
+    @Override
+    public Map<String, List<String>> getJarToExcludeFileMap() {
+        return jarToExcludeFileMap;
     }
 
     @Override
