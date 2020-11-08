@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.osgitools.project;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,11 +66,15 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
             }
             List<File> sourceFolders = toFileList(project.getBasedir(), entry.getValue());
 
+            List<String> excludeFiles = buildProperties.getJarToExcludeFileMap().getOrDefault(jarName,
+                    Collections.emptyList());
+
             List<String> jarExtraEntries = buildProperties.getJarToExtraClasspathMap().get(jarName);
             if (jarExtraEntries != null) {
                 extraClasspath.addAll(jarExtraEntries);
             }
-            jars.put(jarName, new BuildOutputJar(jarName, outputDirectory, sourceFolders, extraClasspath));
+            jars.put(jarName,
+                    new BuildOutputJar(jarName, outputDirectory, sourceFolders, extraClasspath, excludeFiles));
         }
 
         this.dotOutputJar = dotJarName != null ? jars.get(dotJarName) : null;
