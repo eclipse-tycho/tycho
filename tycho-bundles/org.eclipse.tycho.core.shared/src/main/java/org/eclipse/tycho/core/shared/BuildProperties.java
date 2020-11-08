@@ -53,6 +53,8 @@ public interface BuildProperties {
 
     public Map<String, String> getJarToOutputFolderMap();
 
+    public Map<String, List<String>> getJarToExcludeFileMap();
+
     /**
      * Custom manifests for nested jars
      */
