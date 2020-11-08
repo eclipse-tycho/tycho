@@ -283,6 +283,10 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
     protected abstract List<String> getCompileSourceRoots() throws MojoExecutionException;
 
+    protected abstract List<String> getCompileSourceExcludePaths() throws MojoExecutionException;
+
+    protected abstract List<File> getCompileSourceExcludeFiles() throws MojoExecutionException;
+
     protected abstract File getOutputDirectory();
 
     @Override
@@ -325,7 +329,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         // Create the compiler configuration
         // ----------------------------------------------------------------------
 
-        CompilerConfiguration compilerConfiguration = getCompilerConfiguration(compileSourceRoots);
+        CompilerConfiguration compilerConfiguration = getCompilerConfiguration(compileSourceRoots,
+                getCompileSourceExcludePaths());
 
         // TODO: have an option to always compile (without need to clean)
         Set<File> staleSources;
@@ -429,8 +434,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         }
     }
 
-    protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots)
-            throws MojoExecutionException, MojoFailureException {
+    protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots,
+            List<String> compileSourceExcludes) throws MojoExecutionException, MojoFailureException {
 
         CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
 
@@ -525,6 +530,10 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         compilerConfiguration.setBuildDirectory(buildDirectory);
 
         compilerConfiguration.setOutputFileName(outputFileName);
+
+        for (String exclude : compileSourceExcludes) {
+            compilerConfiguration.addExclude(exclude);
+        }
         return compilerConfiguration;
     }
 
@@ -597,7 +606,9 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
                 throw new MojoExecutionException(
                         "Error scanning source root: \'" + sourceRoot + "\' " + "for stale files to recompile.", e);
             }
+
         }
+        staleSources.removeAll(getCompileSourceExcludeFiles());
 
         return staleSources;
     }
