@@ -93,7 +93,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         descriptorsOnLastSave = new HashSet<IArtifactDescriptor>(descriptors);
     }
 
-    private void saveMaven() {
+    private synchronized void saveMaven() {
         File location = getBasedir();
 
         TychoRepositoryIndex index = localRepoIndices.getArtifactsIndex();

@@ -24,12 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -68,8 +69,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     private static final IArtifactDescriptor[] EMPTY_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
 
-    protected Set<ArtifactDescriptorT> descriptors = new HashSet<>();
-    protected Map<IArtifactKey, Set<ArtifactDescriptorT>> descriptorsMap = new HashMap<>();
+    protected Set<ArtifactDescriptorT> descriptors = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    protected Map<IArtifactKey, Set<ArtifactDescriptorT>> descriptorsMap = new ConcurrentHashMap<>();
 
     private ArtifactTransferPolicy transferPolicy;
 
@@ -112,7 +113,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     @Override
-    public final IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
+    public final synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
         Set<ArtifactDescriptorT> descriptors = descriptorsMap.get(key);
         if (descriptors == null) {
             return EMPTY_DESCRIPTOR_ARRAY;
@@ -122,14 +123,12 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     public final IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
-        // TODO 397355 copy collection for thread-safety
         return query.perform(descriptorsMap.keySet().iterator());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public final IQueryable<IArtifactDescriptor> descriptorQueryable() {
-        // TODO 397355 copy collection for thread-safety
         return (query, monitor) -> query.perform((Iterator<IArtifactDescriptor>) descriptors.iterator());
     }
 
@@ -159,7 +158,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         internalAddInternalDescriptor(getInternalDescriptorForAdding(descriptor));
     }
 
-    protected final void internalAddInternalDescriptor(ArtifactDescriptorT internalDescriptor) {
+    protected final synchronized void internalAddInternalDescriptor(ArtifactDescriptorT internalDescriptor) {
         descriptors.add(internalDescriptor);
 
         Set<ArtifactDescriptorT> descriptorsForKey = initDescriptorsMapEntry(internalDescriptor.getArtifactKey());
@@ -177,7 +176,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     @Override
-    protected final void internalRemoveDescriptor(IArtifactDescriptor descriptor) {
+    protected final synchronized void internalRemoveDescriptor(IArtifactDescriptor descriptor) {
         IArtifactDescriptor comparableDescriptor = getComparableDescriptor(descriptor);
         descriptors.remove(comparableDescriptor);
 
@@ -200,7 +199,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     @Override
-    protected final void internalRemoveDescriptors(IArtifactKey key) {
+    protected final synchronized void internalRemoveDescriptors(IArtifactKey key) {
         Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.remove(key);
         if (descriptorsForKey != null) {
             for (ArtifactDescriptorT descriptor : descriptorsForKey) {
@@ -217,7 +216,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     @Override
-    protected final void internalRemoveAllDescriptors() {
+    protected final synchronized void internalRemoveAllDescriptors() {
         descriptors.clear();
         descriptorsMap.clear();
     }
@@ -256,7 +255,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     @Override
-    public final File getArtifactFile(IArtifactKey key) {
+    public final synchronized File getArtifactFile(IArtifactKey key) {
         Set<ArtifactDescriptorT> descriptors = descriptorsMap.get(key);
 
         // if available, return location of canonical format of the artifact
