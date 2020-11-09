@@ -19,9 +19,14 @@ import java.util.Collections;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.toolchain.ToolchainManager;
+import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -40,7 +45,8 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
 
     /**
      * <p>
-     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-14, JavaSE-16.
+     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-14,
+     * JavaSE-16.
      * 
      * It is advised to keep this list as small as possible and the list must include the BREE used
      * by the platform, last Java LTS and the latest Java release.
@@ -51,6 +57,12 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
 
     @Parameter(defaultValue = "false")
     private boolean skip;
+
+    @Component
+    private ToolchainManager toolchainManager;
+
+    @Component
+    private Logger logger;
 
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
@@ -64,10 +76,12 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
         for (String profile : profiles.split(",")) {
             try {
                 profile = profile.trim();
-                if ("".equals(profile)) {
+                if (profile.isEmpty()) {
                     continue;
                 }
-                Collection<DependencySeed> ius = publisherService.publishEEProfile(profile);
+                ExecutionEnvironment ee = ExecutionEnvironmentUtils.getExecutionEnvironment(profile, toolchainManager,
+                        getSession(), logger);
+                Collection<DependencySeed> ius = publisherService.publishEEProfile(ee);
                 getLog().info("Published profile IUs: " + ius);
                 result.addAll(ius);
             } catch (FacadeException e) {

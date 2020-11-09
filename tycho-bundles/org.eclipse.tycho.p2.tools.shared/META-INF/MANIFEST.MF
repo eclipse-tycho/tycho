@@ -13,6 +13,7 @@ Export-Package: org.eclipse.tycho.p2.tools,
  org.eclipse.tycho.p2.tools.verifier.facade
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
+ org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.core.shared,
  org.eclipse.tycho.p2.metadata,
