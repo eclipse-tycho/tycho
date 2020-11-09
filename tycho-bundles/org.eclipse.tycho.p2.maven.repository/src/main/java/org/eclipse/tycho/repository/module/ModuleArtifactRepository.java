@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.module;
 
+import static java.util.stream.Collectors.toSet;
 import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
@@ -232,6 +233,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
     }
 
     private void internalStoreWithException() throws IOException {
+        Set<ModuleArtifactDescriptor> descriptors = flattenedValues().collect(toSet());
         ArtifactsIO io = new ArtifactsIO();
         io.writeXML(descriptors, p2DataFile);
     }
