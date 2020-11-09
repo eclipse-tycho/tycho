@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,16 +92,17 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
             }
         }
 
-        descriptorsOnLastSave = new HashSet<IArtifactDescriptor>(descriptors);
+        descriptorsOnLastSave = flattenedValues().collect(toSet());
     }
 
-    private void saveMaven() {
+    private synchronized void saveMaven() {
         File location = getBasedir();
 
         TychoRepositoryIndex index = localRepoIndices.getArtifactsIndex();
 
         ArtifactsIO io = new ArtifactsIO();
 
+        Set<GAVArtifactDescriptor> descriptors = flattenedValues().collect(toSet());
         Set<IArtifactDescriptor> changedDescriptors = new HashSet<IArtifactDescriptor>(descriptors);
         changedDescriptors.removeAll(descriptorsOnLastSave);
 
