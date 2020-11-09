@@ -21,6 +21,7 @@ Require-Bundle: org.eclipse.equinox.p2.director.app,
  org.eclipse.equinox.frameworkadmin
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
+ org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.core.shared,
  org.eclipse.tycho.p2.impl.publisher,

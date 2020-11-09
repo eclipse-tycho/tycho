@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2.tools.publisher.facade;
 import java.io.File;
 import java.util.Collection;
 
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.FacadeException;
 
@@ -38,7 +39,10 @@ public interface PublisherService {
      * @throws FacadeException
      *             if a checked exception occurs during publishing
      * @return handles to the root IUs in the publisher result
+     * @deprecated use {@link #publishEEProfile(ExecutionEnvironment)} instead because profile files
+     *             are not reliable with modular Java
      */
+    @Deprecated(since = "2.2.0", forRemoval = true)
     Collection<DependencySeed> publishEEProfile(File profileFile) throws FacadeException;
 
     /**
@@ -49,6 +53,20 @@ public interface PublisherService {
      * @throws FacadeException
      *             if a checked exception occurs during publishing
      * @return handles to the root IUs in the publisher result
+     * @deprecated use {@link #publishEEProfile(ExecutionEnvironment)} instead because profile files
+     *             are not reliable with modular Java
      */
+    @Deprecated(since = "2.2.0", forRemoval = true)
     Collection<DependencySeed> publishEEProfile(String profileName) throws FacadeException;
+
+    /**
+     * Publishes the given OSGi execution environment profile.
+     * 
+     * @param profilename
+     *            the profile name
+     * @throws FacadeException
+     *             if a checked exception occurs during publishing
+     * @return handles to the root IUs in the publisher result
+     */
+    Collection<DependencySeed> publishEEProfile(ExecutionEnvironment ee) throws FacadeException;
 }

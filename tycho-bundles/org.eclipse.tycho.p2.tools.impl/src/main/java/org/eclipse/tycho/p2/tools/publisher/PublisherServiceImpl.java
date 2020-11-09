@@ -19,16 +19,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
+import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
 
 @SuppressWarnings("restriction")
 class PublisherServiceImpl implements PublisherService {
@@ -45,8 +56,8 @@ class PublisherServiceImpl implements PublisherService {
     }
 
     @Override
-    public Collection<DependencySeed> publishCategories(File categoryDefinition) throws FacadeException,
-            IllegalStateException {
+    public Collection<DependencySeed> publishCategories(File categoryDefinition)
+            throws FacadeException, IllegalStateException {
 
         /*
          * At this point, we expect that the category.xml file does no longer contain any
@@ -84,6 +95,46 @@ class PublisherServiceImpl implements PublisherService {
         return toSeeds(null, allIUs);
     }
 
+    @Override
+    public Collection<DependencySeed> publishEEProfile(ExecutionEnvironment ee) throws FacadeException {
+        IPublisherAction jreAction = new JREAction(ee.getProfileName());
+        Collection<IInstallableUnit> allIUs = publisherRunner.executeAction(jreAction,
+                publishingRepository.getMetadataRepository(), publishingRepository.getArtifactRepository());
+        Collection<IInstallableUnit> jreIUsMissingPackages = allIUs.stream()
+                .filter(iu -> iu.getProvidedCapabilities().stream()
+                        .anyMatch(capability -> ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE
+                                .equals(capability.getNamespace())))
+                .filter(iu -> iu.getProvidedCapabilities().stream().noneMatch(
+                        capability -> PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(capability.getNamespace())))
+                .collect(Collectors.toList());
+        allIUs.removeAll(jreIUsMissingPackages);
+        jreIUsMissingPackages.stream().map(iu -> {
+            // TODO: move code to generate InstallableUnitDescriptor from IU into p2
+            InstallableUnitDescription desc = new InstallableUnitDescription();
+            desc.setId(iu.getId());
+            desc.setVersion(iu.getVersion());
+            desc.setCopyright(iu.getCopyright());
+            desc.setLicenses(iu.getLicenses().toArray(ILicense[]::new));
+            desc.setRequirements(iu.getRequirements().toArray(IRequirement[]::new));
+            desc.setMetaRequirements(iu.getMetaRequirements().toArray(IRequirement[]::new));
+            desc.setCapabilities(iu.getProvidedCapabilities().toArray(IProvidedCapability[]::new));
+            desc.setArtifacts(iu.getArtifacts().toArray(IArtifactKey[]::new));
+            desc.setFilter(iu.getFilter());
+            desc.setSingleton(iu.isSingleton());
+            iu.getProperties().entrySet().forEach(prop -> desc.setProperty(prop.getKey(), prop.getValue()));
+            desc.setTouchpointType(iu.getTouchpointType());
+            desc.setUpdateDescriptor(iu.getUpdateDescriptor());
+            // add known packages
+            desc.addProvidedCapabilities(ee.getSystemPackages().stream()
+                    .map(systemPackage -> MetadataFactory.createProvidedCapability(
+                            PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, systemPackage.packageName,
+                            Version.create(systemPackage.version)))
+                    .collect(Collectors.toList()));
+            return desc;
+        }).map(MetadataFactory::createInstallableUnit).forEach(allIUs::add);
+        return toSeeds(null, allIUs);
+    }
+
     void validateProfile(File profileFile) throws FacadeException {
         Properties profileProperties = new Properties();
         try {
@@ -106,8 +157,8 @@ class PublisherServiceImpl implements PublisherService {
         String profileNameKey = "osgi.java.profile.name";
         String profileName = props.getProperty(profileNameKey);
         if (profileName == null) {
-            throw new FacadeException("Mandatory property '" + profileNameKey + "' is missing in profile file "
-                    + profileFile);
+            throw new FacadeException(
+                    "Mandatory property '" + profileNameKey + "' is missing in profile file " + profileFile);
         }
 
         // make sure the profile name ends in a version
@@ -118,8 +169,8 @@ class PublisherServiceImpl implements PublisherService {
          * file name instead of the value specified as osgi.java.profile.name in the profile file),
          * require that these are the same.
          */
-        String fileNamePrefix = simpleFileName.substring(0, simpleFileName.length() - ".profile".length()).toLowerCase(
-                Locale.ENGLISH);
+        String fileNamePrefix = simpleFileName.substring(0, simpleFileName.length() - ".profile".length())
+                .toLowerCase(Locale.ENGLISH);
         if (!fileNamePrefix.equals(profileName.toLowerCase(Locale.ENGLISH))) {
             throw new FacadeException("Profile file with 'osgi.java.profile.name=" + profileName + "' must be named '"
                     + profileName + ".profile', but found file name: '" + simpleFileName + "'");
