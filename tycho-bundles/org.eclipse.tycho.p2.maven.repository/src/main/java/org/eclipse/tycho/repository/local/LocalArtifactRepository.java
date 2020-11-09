@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -38,9 +40,9 @@ import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositor
 
 public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtifactDescriptor> {
 
-    private Set<IArtifactDescriptor> descriptorsOnLastSave;
     private final LocalRepositoryP2Indices localRepoIndices;
     private final RepositoryReader contentLocator;
+    private final BlockingQueue<GAVArtifactDescriptor> descriptorsToSave = new LinkedBlockingQueue<>();
 
     // TODO what is the agent needed for? does using the default agent harm?
     public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices) {
@@ -89,8 +91,11 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                 e.printStackTrace();
             }
         }
+    }
 
-        descriptorsOnLastSave = new HashSet<IArtifactDescriptor>(descriptors);
+    @Override
+    protected void onDescriptorAdded(GAVArtifactDescriptor internalDescriptor) {
+        descriptorsToSave.add(internalDescriptor);
     }
 
     private void saveMaven() {
@@ -100,8 +105,8 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
 
         ArtifactsIO io = new ArtifactsIO();
 
-        Set<IArtifactDescriptor> changedDescriptors = new HashSet<IArtifactDescriptor>(descriptors);
-        changedDescriptors.removeAll(descriptorsOnLastSave);
+        Set<IArtifactDescriptor> changedDescriptors = new HashSet<>();
+        descriptorsToSave.drainTo(changedDescriptors);
 
         Set<IArtifactKey> changedKeys = new HashSet<>();
         for (IArtifactDescriptor changedDescriptor : changedDescriptors) {
@@ -136,8 +141,6 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        descriptorsOnLastSave = new HashSet<IArtifactDescriptor>(descriptors);
     }
 
     private String getMetadataRelpath(GAV gav) {

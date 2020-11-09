@@ -24,12 +24,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -68,8 +70,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     private static final IArtifactDescriptor[] EMPTY_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
 
-    protected Set<ArtifactDescriptorT> descriptors = new HashSet<>();
-    protected Map<IArtifactKey, Set<ArtifactDescriptorT>> descriptorsMap = new HashMap<>();
+    protected Map<IArtifactKey, Set<ArtifactDescriptorT>> descriptorsMap = new ConcurrentHashMap<>();
 
     private ArtifactTransferPolicy transferPolicy;
 
@@ -108,7 +109,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     public final boolean contains(IArtifactDescriptor descriptor) {
-        return descriptors.contains(getComparableDescriptor(descriptor));
+        IArtifactDescriptor comparableDescriptor = getComparableDescriptor(descriptor);
+        return descriptorsMap.values().stream().anyMatch(set -> set.contains(comparableDescriptor));
     }
 
     @Override
@@ -122,15 +124,17 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     public final IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
-        // TODO 397355 copy collection for thread-safety
         return query.perform(descriptorsMap.keySet().iterator());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public final IQueryable<IArtifactDescriptor> descriptorQueryable() {
-        // TODO 397355 copy collection for thread-safety
-        return (query, monitor) -> query.perform((Iterator<IArtifactDescriptor>) descriptors.iterator());
+        return (query, monitor) -> query.perform((Iterator<IArtifactDescriptor>) flattenedValues().iterator());
+    }
+
+    protected final Stream<ArtifactDescriptorT> flattenedValues() {
+        return descriptorsMap.values().stream().flatMap(Collection::stream);
     }
 
     // index write access
@@ -160,36 +164,26 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     protected final void internalAddInternalDescriptor(ArtifactDescriptorT internalDescriptor) {
-        descriptors.add(internalDescriptor);
-
-        Set<ArtifactDescriptorT> descriptorsForKey = initDescriptorsMapEntry(internalDescriptor.getArtifactKey());
-        descriptorsForKey.add(internalDescriptor);
+        Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.computeIfAbsent(internalDescriptor.getArtifactKey(),
+                k -> Collections.newSetFromMap(new ConcurrentHashMap<>()));
+        boolean added = descriptorsForKey.add(internalDescriptor);
+        if (added) {
+            onDescriptorAdded(internalDescriptor);
+        }
     }
 
-    private Set<ArtifactDescriptorT> initDescriptorsMapEntry(IArtifactKey key) {
-        Set<ArtifactDescriptorT> mapEntry = descriptorsMap.get(key);
-
-        if (mapEntry == null) {
-            mapEntry = new HashSet<>();
-            descriptorsMap.put(key, mapEntry);
-        }
-        return mapEntry;
+    protected void onDescriptorAdded(ArtifactDescriptorT internalDescriptor) {
     }
 
     @Override
     protected final void internalRemoveDescriptor(IArtifactDescriptor descriptor) {
         IArtifactDescriptor comparableDescriptor = getComparableDescriptor(descriptor);
-        descriptors.remove(comparableDescriptor);
 
         IArtifactKey artifactKey = comparableDescriptor.getArtifactKey();
-        Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.get(artifactKey);
-        if (descriptorsForKey != null) {
-            descriptorsForKey.remove(comparableDescriptor);
-
-            if (descriptorsForKey.isEmpty()) {
-                descriptorsMap.remove(artifactKey);
-            }
-        }
+        descriptorsMap.computeIfPresent(artifactKey, (k, descriptors) -> {
+            descriptors.remove(comparableDescriptor);
+            return descriptors.isEmpty() ? null : descriptors;
+        });
     }
 
     @Override
@@ -201,12 +195,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     protected final void internalRemoveDescriptors(IArtifactKey key) {
-        Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.remove(key);
-        if (descriptorsForKey != null) {
-            for (ArtifactDescriptorT descriptor : descriptorsForKey) {
-                descriptors.remove(descriptor);
-            }
-        }
+        descriptorsMap.remove(key);
     }
 
     @Override
@@ -218,7 +207,6 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     protected final void internalRemoveAllDescriptors() {
-        descriptors.clear();
         descriptorsMap.clear();
     }
 
