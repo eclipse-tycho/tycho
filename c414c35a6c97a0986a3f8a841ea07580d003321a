@@ -16,6 +16,24 @@
       "revId": "c414c35a6c97a0986a3f8a841ea07580d003321a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f73a59ec_276b032a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-09T13:32:48Z",
+      "side": 1,
+      "message": "How? You have \n1) regular map access - can be made atomic\n2) write access to the map\u0027s values - maybe with a CopyOnWrite set instead of the hashset, would lose performance though\n3) values().contains(descriptor) - would no longer be O(1)",
+      "parentUuid": "51eae69d_7d856560",
+      "revId": "c414c35a6c97a0986a3f8a841ea07580d003321a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
