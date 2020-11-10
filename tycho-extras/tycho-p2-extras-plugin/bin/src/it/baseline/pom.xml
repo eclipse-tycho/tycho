@@ -34,18 +34,10 @@
                             <goal>plugin-source</goal>
                         </goals>
                     </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.eclipse.tycho.extras</groupId>
-                <artifactId>tycho-source-feature-plugin</artifactId>
-                <version>${tycho-version}</version>
-                <executions>
-                    <execution>
-                        <id>source-feature</id>
-                        <phase>package</phase>
+                     <execution>
+                        <id>feature-source</id>
                         <goals>
-                            <goal>source-feature</goal>
+                            <goal>feature-source</goal>
                         </goals>
                     </execution>
                 </executions>

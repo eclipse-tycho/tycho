@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2020 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,9 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann GmbH. - Bug 538395 Generate valid feature xml 
+ *    Christoph Läubrich - Bug 568359 - move tycho-extras SourceFeatureMojo to tycho-source-feature
  *******************************************************************************/
-package org.eclipse.tycho.extras.sourcefeature;
+package org.eclipse.tycho.source;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,12 +87,13 @@ import de.pdark.decentxml.Element;
  * values in this file override values of respective keys in
  * <code>&lt;originalFeature&gt;/feature.properties</code>.
  * 
- * @deprecated this mojo is replaced by the tycho-source-plugin with execution feature-source which
- *             offers equivalent and even enhanced functionality
  */
-@Mojo(name = "source-feature", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
-@Deprecated(since = "2.2", forRemoval = true)
+@Mojo(name = "feature-source", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class SourceFeatureMojo extends AbstractMojo {
+
+    public enum MissingSourcesAction {
+        FAIL, WARN;
+    }
 
     /**
      * Lock object to ensure thread-safety
@@ -114,6 +116,9 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "false")
     private boolean skip;
+
+    @Parameter(defaultValue = "WARN")
+    private MissingSourcesAction missingSourcesAction = MissingSourcesAction.WARN;
 
     /**
      * Whether to add an include dependency from the source feature to the corresponding binary
@@ -482,25 +487,44 @@ public class SourceFeatureMojo extends AbstractMojo {
         }
 
         if (!missingSourceFeatures.isEmpty() || !missingSourcePlugins.isEmpty() || !missingExtraPlugins.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
+            if (missingSourcesAction == MissingSourcesAction.FAIL) {
+                StringBuilder sb = new StringBuilder();
 
-            sb.append("Could not generate source feature for project " + project.toString()).append("\n");
+                sb.append("Could not generate source feature for project " + project.toString()).append("\n");
 
-            if (!missingSourcePlugins.isEmpty()) {
-                sb.append("    Missing sources for plugins " + missingSourcePlugins.toString()).append("\n");
+                if (!missingSourcePlugins.isEmpty()) {
+                    sb.append("    Missing sources for plugins " + missingSourcePlugins.toString()).append("\n");
+                }
+
+                if (!missingSourceFeatures.isEmpty()) {
+                    sb.append("    Missing sources for features " + missingSourceFeatures.toString()).append("\n");
+                }
+
+                if (!missingExtraPlugins.isEmpty()) {
+                    sb.append("    Missing extra plugins " + missingExtraPlugins.toString()).append("\n");
+                }
+
+                throw new MojoExecutionException(sb.toString());
+            } else {
+                reportMissing("The following referenced plugins has missing sources", missingSourcePlugins);
+                reportMissing("The following referenced features has missing sources", missingSourceFeatures);
+                reportMissing("The following referenced extra plugins has missing sources", missingExtraPlugins);
             }
-
-            if (!missingSourceFeatures.isEmpty()) {
-                sb.append("    Missing sources for features " + missingSourceFeatures.toString()).append("\n");
-            }
-
-            if (!missingExtraPlugins.isEmpty()) {
-                sb.append("    Missing extra plugins " + missingExtraPlugins.toString()).append("\n");
-            }
-
-            throw new MojoExecutionException(sb.toString());
         }
 
+    }
+
+    private void reportMissing(String msg, List<?> missing) {
+        if (missing.isEmpty()) {
+            return;
+        }
+        StringBuilder sb = new StringBuilder(msg);
+        for (Object m : missing) {
+            sb.append("\r\n\t");
+            sb.append(m);
+        }
+        sb.append("\r\n");
+        logger.warn(sb.toString());
     }
 
     protected String toStrictVersionRange(String version) {

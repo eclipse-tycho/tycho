@@ -13,25 +13,27 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho.extras</groupId>
-        <artifactId>tycho-source-feature-plugin</artifactId>
-        <version>${tycho-extras-version}</version>
-        <executions>
-          <execution>
-            <id>source-feature</id>
-            <goals>
-              <goal>source-feature</goal>
-            </goals>
-            <configuration>
-              <reuseBrandingPlugin>false</reuseBrandingPlugin>
-              <excludes>
-                <plugin id="sourcefeature.bundle.nosource"/>
-              </excludes>
-            </configuration>
-          </execution>
-        </executions>
+    
+    <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-source-plugin</artifactId>
+          <version>${tycho-version}</version>
+          <executions>
+               <execution>
+                  <id>feature-source</id>
+                  <goals>
+                      <goal>feature-source</goal>
+                  </goals>
+                  <configuration>
+		              <reuseBrandingPlugin>false</reuseBrandingPlugin>
+		              <excludes>
+		                <plugin id="sourcefeature.bundle.nosource"/>
+		              </excludes>
+		            </configuration>
+              </execution>
+          </executions>
       </plugin>
+    
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-p2-plugin</artifactId>
