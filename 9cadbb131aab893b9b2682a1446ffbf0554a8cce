@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f5a224b_546c77ae",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/LocalArtifactRepository.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T14:01:36Z",
+      "side": 1,
+      "message": "Can you explain the idea behind using a Blocking Queue here?",
+      "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "304248f0_d5c55ca3",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T14:01:36Z",
+      "side": 1,
+      "message": "ConcurrentHashMap.newKeySet() would be an better idiom here.",
+      "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06dbf302_64ff8625",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T14:01:36Z",
+      "side": 1,
+      "message": "computeIf (...) should be side effect free I think the same code as when adding could be used here.\n\n        Set\u003cArtifactDescriptorT\u003e descriptorsForKey \u003d descriptorsMap.computeIfAbsent(...);\n        descriptorsForKey.remove(comparableDescriptor);\n\nthe worst thing that can be happen is creating an empty collection for nothing. We should not optimize for the rare cases where one wants to remove never added descriptors and/or all descriptors.",
+      "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
