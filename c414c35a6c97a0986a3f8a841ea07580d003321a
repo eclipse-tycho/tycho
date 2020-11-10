@@ -70,6 +70,24 @@
       "revId": "c414c35a6c97a0986a3f8a841ea07580d003321a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e94d554a_52c71e51",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-10T13:11:56Z",
+      "side": 1,
+      "message": "Done. I concede that this didn\u0027t make the code terribly complicated ;)\n\nI didn\u0027t get the ConcurrentSkipListSet part though. The getComparableDescriptor doesn\u0027t relate to j.l.Comparable.",
+      "parentUuid": "1bad7640_2e57d290",
+      "revId": "c414c35a6c97a0986a3f8a841ea07580d003321a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
