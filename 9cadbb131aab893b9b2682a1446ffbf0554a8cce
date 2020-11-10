@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f27cc896_3c83c088",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/LocalArtifactRepository.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-10T15:05:36Z",
+      "side": 1,
+      "message": "I don\u0027t actually use any blocking methods, but drainTo is declared on BlockingQueue.",
+      "parentUuid": "1f5a224b_546c77ae",
+      "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "304248f0_d5c55ca3",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9020e976_2f3d2283",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-10T15:05:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "304248f0_d5c55ca3",
+      "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06dbf302_64ff8625",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2020-11-10T14:01:36Z",
       "side": 1,
       "message": "computeIf (...) should be side effect free I think the same code as when adding could be used here.\n\n        Set\u003cArtifactDescriptorT\u003e descriptorsForKey \u003d descriptorsMap.computeIfAbsent(...);\n        descriptorsForKey.remove(comparableDescriptor);\n\nthe worst thing that can be happen is creating an empty collection for nothing. We should not optimize for the rare cases where one wants to remove never added descriptors and/or all descriptors.",
+      "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d02206a_fa0c41ff",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-10T15:05:36Z",
+      "side": 1,
+      "message": "computeIf may not modify the map itself, but modifying the value should be fine. See the docs on ConcurrentHashMap:\n\n\u003e The entire method invocation is performed atomically.\n\u003e The supplied function is invoked exactly once per invocation ofthis method if the key is present, else not at all.\n\nCleaning up empty values is not just an optimization, but is (currently) required for all key-based accesses (contains/query) which assume a key has mapped values.",
+      "parentUuid": "06dbf302_64ff8625",
       "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
