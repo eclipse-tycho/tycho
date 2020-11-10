@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "71317e4a_45f1a2c8",
+        "filename": "tycho-bundles/org.eclipse.tycho.embedder.shared/src/main/java/org/eclipse/tycho/ArtifactDescriptor.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-10T08:55:45Z",
+      "side": 1,
+      "message": "I don\u0027t think it would help, since ArtifactKey is \"just\" the key used for requests and it\u0027s most often used decorrelated from the underlying artifact or repository. I think bringing the fetch responsibility there would be confusing design.\n\nThat said, I imagine we could try to make P2ResolutionResult somehow implement ArtifactDescription; but there are some risk of confusion (eg p2 classifier vs Maven classifer, missing reactor projects...).\nI don\u0027t feel comfortable trying to change it as part of this patch.",
+      "parentUuid": "92654fc4_6bfb30a3",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "596bc422_5e2b72d8",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/provider/IArtifactFileProvider.java",
         "patchSetId": 22
@@ -30,6 +48,24 @@
       "writtenOn": "2020-11-10T07:50:16Z",
       "side": 1,
       "message": "Maybe here a boolean for fetch would better like in ArtifactDescriptor to replace the need for isFileAlreadyAvailable?\n\nIf we really wan\u0027t to distinguish between existing/not existing artifacts I think it would be much better to throw FileNotFoundException, but that might be not desirable, but it seems code actually expect the file to be available and having returned null indicating an error condition anyways.\n\nThat way it would also be possible to propagate errors in case of failing downloads.",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcb58697_8d9b07af",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/provider/IArtifactFileProvider.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-10T08:55:45Z",
+      "side": 1,
+      "message": "I agree; I\u0027ll change that to add a `fetch` parameter.",
+      "parentUuid": "596bc422_5e2b72d8",
       "revId": "7a5388f319edb960c7f066b015467205844c1e94",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "35d0327b_44e6321a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/resolver/facade/P2ResolutionResult.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-10T08:55:45Z",
+      "side": 1,
+      "message": "It\u0027s IMO better to consider this refactoring in a separate patch.",
+      "parentUuid": "c039dd22_43212c0e",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d636bf04_0be10ba5",
         "filename": "tycho-extras/tycho-dependency-tools-plugin/src/main/java/org/eclipse/tycho/extras/pde/ListDependenciesMojo.java",
         "patchSetId": 22
@@ -64,6 +118,24 @@
       "writtenOn": "2020-11-10T07:50:16Z",
       "side": 1,
       "message": "is desc.getLocation(true) required to return nun-null values?",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73e6284a_7658439d",
+        "filename": "tycho-extras/tycho-dependency-tools-plugin/src/main/java/org/eclipse/tycho/extras/pde/ListDependenciesMojo.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-10T08:55:45Z",
+      "side": 1,
+      "message": "just as much as `desc.getLocation()`. I think it\u0027s better to consider changing the condition in a separate patch.",
+      "parentUuid": "d636bf04_0be10ba5",
       "revId": "7a5388f319edb960c7f066b015467205844c1e94",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
