@@ -104,6 +104,24 @@
       "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41d4b9e9_d93a48eb",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T15:21:26Z",
+      "side": 1,
+      "message": "I\u0027m just a bit concerned as it says \"update the mapping\" and here it actually modifies the mapped value itself.\n\nI think we can replace these contains parts with get(key) and simply check for !\u003dnull \u0026\u0026 !isEmpty. All kind of if(contains()) { do something } are suspect to race conditions anyways and it might be a good idea to review them carefully in the context of this change.\n\nFor example\n\n    public final boolean contains(IArtifactKey key) {\n        return descriptorsMap.containsKey(key);\n    }\n\nwill become\n\n    public final boolean contains(IArtifactKey key) {\n        Set\u003c?\u003e set \u003d descriptorsMap.get(key)\n        return set !\u003d null \u0026\u0026 !set.isEmpty();\n    }",
+      "parentUuid": "9d02206a_fa0c41ff",
+      "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
