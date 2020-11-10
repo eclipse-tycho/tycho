@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92654fc4_6bfb30a3",
+        "filename": "tycho-bundles/org.eclipse.tycho.embedder.shared/src/main/java/org/eclipse/tycho/ArtifactDescriptor.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T07:50:16Z",
+      "side": 1,
+      "message": "Not sure if it makes sense, but in P2ResolutionResult#Entry is a similar method, maybe the ArtifactKey itself should contain the method to fetch the file location instead?\n\nDon\u0027t know if this is possible from a code structure point of view.",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "596bc422_5e2b72d8",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/provider/IArtifactFileProvider.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T07:50:16Z",
+      "side": 1,
+      "message": "Maybe here a boolean for fetch would better like in ArtifactDescriptor to replace the need for isFileAlreadyAvailable?\n\nIf we really wan\u0027t to distinguish between existing/not existing artifacts I think it would be much better to throw FileNotFoundException, but that might be not desirable, but it seems code actually expect the file to be available and having returned null indicating an error condition anyways.\n\nThat way it would also be possible to propagate errors in case of failing downloads.",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c039dd22_43212c0e",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/resolver/facade/P2ResolutionResult.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T07:50:16Z",
+      "side": 1,
+      "message": "Maybe it makes sense to extract this to an own class with a more proper name like \"P2ArtifactKey\" or something?",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d636bf04_0be10ba5",
+        "filename": "tycho-extras/tycho-dependency-tools-plugin/src/main/java/org/eclipse/tycho/extras/pde/ListDependenciesMojo.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T07:50:16Z",
+      "side": 1,
+      "message": "is desc.getLocation(true) required to return nun-null values?",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
