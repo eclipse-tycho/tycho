@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "00103415_49b069eb",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/provider/IArtifactFileProvider.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-10T09:18:12Z",
+      "side": 1,
+      "message": "It\u0027s actually not so simple as expected because getArtifactFile delegates to internalGetArtifactStorageLocation and this one is specialized and is what makes whether a file is available locally or not.\nSo if we remove the isFileAlreadyAvailable, then it means we have to introduce some other method that repos need to implement so it can be consumed in the generic getArtifactFile(...) method. So if we want all providers to implement it, it means we somehow have to put it as an API in the interface as well. Overall I don\u0027t think we save much.",
+      "parentUuid": "fcb58697_8d9b07af",
+      "revId": "7a5388f319edb960c7f066b015467205844c1e94",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c039dd22_43212c0e",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/resolver/facade/P2ResolutionResult.java",
         "patchSetId": 22
