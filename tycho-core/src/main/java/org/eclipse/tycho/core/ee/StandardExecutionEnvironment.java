@@ -231,7 +231,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
             if (this.systemPackages == null || this.systemPackages.isEmpty()) {
                 logger.warn("No system packages found in profile nor toolchain for " + profileName
                         + ", using current JRE system packages.\n"
-                        + "This can cause faulty depnedency resolution, consider adding a definition for a 'jdk' with id="
+                        + "This can cause faulty dependency resolution, consider adding a definition for a 'jdk' with id="
                         + profileName + " in your toolchains.xml");
                 this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
                         .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
