@@ -52,6 +52,24 @@
       "revId": "c414c35a6c97a0986a3f8a841ea07580d003321a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bad7640_2e57d290",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T08:18:31Z",
+      "side": 1,
+      "message": "Maybe ConcurrentSkipListSet would even be better suited here as it seems the code is creating \"compareable\" versions anyways?\n\nThis would require to change the generic parameter in the following way:\nArtifactRepositoryBaseImpl\u003cArtifactDescriptorT extends IArtifactDescriptor \u0026 Comparable\u003cArtifactDescriptorT\u003e\u003e",
+      "parentUuid": "3133ba3c_3677ce73",
+      "revId": "c414c35a6c97a0986a3f8a841ea07580d003321a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
