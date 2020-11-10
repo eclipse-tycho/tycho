@@ -34,6 +34,24 @@
       "revId": "c414c35a6c97a0986a3f8a841ea07580d003321a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3133ba3c_3677ce73",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-10T08:09:45Z",
+      "side": 1,
+      "message": "First about the easy part: \"contains no longer be O(1)\", I think that is not a problem unless we can prove that this method is actually called very often, and if we are concerned about parallelism I think this can be replaced by:\n\ndescriptorsMap.entrySet().parallelStream().unordered().anyMatch(e-\u003ee.getValue().contains(descriptor));\n\neven though I generally try to avoid to use parallel streams in trivial operations.\n-----------\ndescriptorQueryable can be replaced by \n(query, monitor) -\u003e query.perform((Iterator\u003cIArtifactDescriptor\u003e) descriptorsMap.entrySet().stream().unordered().flatMap(e-\u003ee.getValue().stream()).iterator());\n\nthen all other access to descriptors can be omited.\n------------\n\ninitDescriptorsMapEntry can essentially be replaced by computeIfAbsent using ConcurrentHashMap.newKeySet() for a concurrent aware set, we can throw away the\n\nif (descriptorsForKey.isEmpty()) {\n   descriptorsMap.remove(artifactKey);\n}",
+      "parentUuid": "f73a59ec_276b032a",
+      "revId": "c414c35a6c97a0986a3f8a841ea07580d003321a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
