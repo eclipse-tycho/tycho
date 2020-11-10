@@ -65,6 +65,10 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>de.pdark</groupId>
+			<artifactId>decentxml</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-packaging-plugin</artifactId>
 			<version>${project.version}</version>
