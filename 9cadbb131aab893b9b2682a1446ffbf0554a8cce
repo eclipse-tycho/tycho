@@ -122,6 +122,24 @@
       "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61635a85_d2c5ba03",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/p2base/artifact/repository/ArtifactRepositoryBaseImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-11-10T15:41:06Z",
+      "side": 1,
+      "message": "Just try it ;) Also that pattern does have some additional thread-safety benefits (https://stackoverflow.com/q/52577524/415304), it might even make sense to apply it to internalAdd.\n\n\u003e if(contains()) { do something }\nthose race conditions are unlikely in the resolving scenario, because there items are only added to the repository, not removed.",
+      "parentUuid": "41d4b9e9_d93a48eb",
+      "revId": "9cadbb131aab893b9b2682a1446ffbf0554a8cce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
