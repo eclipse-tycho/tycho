@@ -8,8 +8,9 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - cache target definition resolution result (bug 373806)
- *    Christoph Läubrich    - add implementation for different location types, fix hash calculation
+ *    Christoph Läubrich    - [Bug 538144] - support other target locations (Directory, Feature, Installations)
  *                          - [Bug 533747] - Target file is read and parsed over and over again
+ *                          - [Bug 568729] - Support new "Maven" Target location
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
@@ -120,6 +121,82 @@ public final class TargetDefinitionFile implements TargetDefinition {
         @Override
         public String getVersion() {
             return version;
+        }
+
+    }
+
+    public class MavenLocation implements TargetDefinition.MavenGAVLocation {
+
+        private Element dom;
+
+        public MavenLocation(Element dom) {
+            this.dom = dom;
+        }
+
+        @Override
+        public String getTypeDescription() {
+            return "Maven";
+        }
+
+        @Override
+        public String getIncludeDependencyScope() {
+            return dom.getAttributeValue("includeDependencyScope");
+        }
+
+        @Override
+        public MissingManfiestStrategy getMissingManfiestStrategy() {
+            String attributeValue = dom.getAttributeValue("missingManifest");
+            if ("generate".equalsIgnoreCase(attributeValue)) {
+                return MissingManfiestStrategy.GENERATE;
+            } else if ("ignore".equals(attributeValue)) {
+                return MissingManfiestStrategy.IGNORE;
+            }
+            return MissingManfiestStrategy.ERROR;
+        }
+
+        @Override
+        public String getGroupId() {
+            return getTextFromChild("groupId");
+        }
+
+        @Override
+        public String getArtifactId() {
+            return getTextFromChild("artifactId");
+        }
+
+        @Override
+        public String getVersion() {
+            return getTextFromChild("version");
+        }
+
+        @Override
+        public String getArtifactType() {
+            return getTextFromChild("type");
+        }
+
+        private String getTextFromChild(String childName) {
+            for (Element element : dom.getChildren(childName)) {
+                return element.getNormalizedText();
+            }
+            throw new TargetDefinitionSyntaxException("Missing child element '" + childName + "'");
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("GroupId = ");
+            builder.append(getGroupId());
+            builder.append(", ArtifactId = ");
+            builder.append(getArtifactId());
+            builder.append(", Version = ");
+            builder.append(getVersion());
+            builder.append(", ArtifactType = ");
+            builder.append(getArtifactType());
+            builder.append(", IncludeDependencyScope = ");
+            builder.append(getIncludeDependencyScope());
+            builder.append(", MissingManfiestStrategy = ");
+            builder.append(getMissingManfiestStrategy());
+            return builder.toString();
         }
 
     }
@@ -291,6 +368,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
                 } else if ("Feature".equals(type)) {
                     locations.add(new FeatureTargetPlatformLocation(locationDom.getAttributeValue("path"),
                             locationDom.getAttributeValue("id"), locationDom.getAttributeValue("version")));
+                } else if ("Maven".equals(type)) {
+                    locations.add(new MavenLocation(locationDom));
                 } else {
                     locations.add(new OtherLocation(type));
                 }

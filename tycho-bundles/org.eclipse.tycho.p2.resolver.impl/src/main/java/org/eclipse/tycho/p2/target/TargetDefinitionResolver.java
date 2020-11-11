@@ -11,6 +11,7 @@
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
  *                          - [Bug 533747] - Target file is read and parsed over and over again
+ *                          - [Bug 568729] - Support new "Maven" Target location
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -51,6 +52,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.DirectoryLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.FeaturesLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.PathLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.ProfileLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
@@ -165,6 +167,9 @@ public final class TargetDefinitionResolver {
                     logger.warn("Target location path '" + path.getAbsolutePath()
                             + "' does not exits, target resoloution might be incomplete.");
                 }
+            } else if (locationDefinition instanceof MavenGAVLocation) {
+                MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
+                logger.warn("MavenGAVLocation location type is not yet supported, ignoring location " + location);
             } else {
                 logger.warn("Target location type '" + locationDefinition.getTypeDescription() + "' is not supported");
             }

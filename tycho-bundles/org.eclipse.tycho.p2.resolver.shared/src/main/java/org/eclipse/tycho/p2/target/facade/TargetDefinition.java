@@ -9,7 +9,8 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    Christoph Läubrich - extend API for different location types
+ *    Christoph Läubrich -  [Bug 538144] - support other target locations (Directory, Feature, Installations)
+ *                          [Bug 568729] - Support new "Maven" Target location
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -64,6 +65,25 @@ public interface TargetDefinition {
 
         public boolean includeSource();
 
+    }
+
+    public interface MavenGAVLocation extends Location {
+
+        enum MissingManfiestStrategy {
+            IGNORE, ERROR, GENERATE;
+        }
+
+        String getIncludeDependencyScope();
+
+        MissingManfiestStrategy getMissingManfiestStrategy();
+
+        String getGroupId();
+
+        String getArtifactId();
+
+        String getVersion();
+
+        String getArtifactType();
     }
 
     /**
