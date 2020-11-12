@@ -32,6 +32,7 @@ import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-update-site")
+@Deprecated
 public class SiteXmlManipulator extends AbstractMetadataManipulator {
 
     @Override
