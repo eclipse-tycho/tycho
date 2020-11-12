@@ -26,12 +26,13 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.model.ProductConfiguration;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_APPLICATION)
+@Deprecated
 public class EclipseApplicationProject extends AbstractArtifactBasedProject {
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final ProductConfiguration product = loadProduct(DefaultReactorProject.adapt(project));
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
-                project, environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
+                getEnvironments(project, environment)) {
             @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseProduct(product, visitor);
