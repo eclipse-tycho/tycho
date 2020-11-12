@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -294,10 +295,13 @@ public class EclipseRunMojo extends AbstractMojo {
             getLog().info("Toolchain in tycho-eclipserun-plugin: " + tc);
             executable = tc.findTool("java");
             if (executable == null) {
-                getLog().error("No 'java' executable was found");
+                getLog().error("No 'java' executable was found in toolchain. Current java runtime will be used.");
             }
+        } else if (Objects.equals(executionEnvironment, "JavaSE-" + Runtime.version().feature())) {
+            getLog().debug("Using current java runtime as it matches configured executionEnvironment.");
         } else {
-            getLog().error("No toolchain was found in tycho-eclipserun-plugin for: " + executionEnvironment);
+            getLog().warn("No toolchain was found in tycho-eclipserun-plugin for: " + executionEnvironment
+                    + " .Current java runtime will be used.");
         }
         cli.setJvmExecutable(executable);
         cli.setWorkingDirectory(project.getBasedir());
