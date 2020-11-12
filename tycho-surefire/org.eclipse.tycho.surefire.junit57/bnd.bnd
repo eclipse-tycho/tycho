@@ -1,0 +1,13 @@
+Import-Package: \
+	org.junit.jupiter.api.*;version='[5.7,6)',\
+	org.junit.runner.*;resolution:=optional;version='[4.12,5)',\
+	org.junit.runners.*;resolution:=optional;version='[4.12,5)',\
+	org.junit.experimental.categories;resolution:=optional;version='[4.12,5)',\
+	org.junit.internal.*;version='[4.12,5)';resolution:=optional,\
+	org.junit;resolution:=optional;version='[4.12,5)',\
+	!org.apache.maven.surefire.*,\
+	*
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=11))"
+-removeheaders: Tool, Bnd-*, Created-By, Private-Package
+-fixupmessages "Classes found in the wrong directory"; is:=warning
