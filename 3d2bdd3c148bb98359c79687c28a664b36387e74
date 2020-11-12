@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a52805c4_9fa9e653",
+        "filename": "REMOVAL.MD",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2020-11-12T14:55:52Z",
+      "side": 1,
+      "message": "unfortunately we still use these to deliver parts of tycho. I\u0027m all for this to land in but only when it can really be executed aka at least tycho itself doesn\u0027t use it internally.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 161
+      },
+      "revId": "3d2bdd3c148bb98359c79687c28a664b36387e74",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
