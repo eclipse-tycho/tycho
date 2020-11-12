@@ -26,13 +26,14 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.model.UpdateSite;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_UPDATE_SITE)
+@Deprecated
 public class UpdateSiteProject extends AbstractArtifactBasedProject {
 
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final UpdateSite site = loadSite(project);
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
-                project, environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
+                getEnvironments(project, environment)) {
             @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseUpdateSite(site, visitor);

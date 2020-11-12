@@ -20,8 +20,10 @@ public final class PackagingType {
     public static final String TYPE_ECLIPSE_PLUGIN = ArtifactType.TYPE_ECLIPSE_PLUGIN;
     public static final String TYPE_ECLIPSE_TEST_PLUGIN = "eclipse-test-plugin";
     public static final String TYPE_ECLIPSE_FEATURE = ArtifactType.TYPE_ECLIPSE_FEATURE;
+    @Deprecated
     public static final String TYPE_ECLIPSE_UPDATE_SITE = "eclipse-update-site";
     public static final String TYPE_ECLIPSE_APPLICATION = "eclipse-application";
+    @Deprecated
     public static final String TYPE_ECLIPSE_REPOSITORY = "eclipse-repository";
     public static final String TYPE_ECLIPSE_TARGET_DEFINITION = "eclipse-target-definition";
     public static final String TYPE_P2_IU = ArtifactType.TYPE_INSTALLABLE_UNIT;
