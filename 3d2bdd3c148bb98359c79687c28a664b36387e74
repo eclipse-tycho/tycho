@@ -22,6 +22,30 @@
       "revId": "3d2bdd3c148bb98359c79687c28a664b36387e74",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffee2dbd_a1e10aa0",
+        "filename": "REMOVAL.MD",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-12T15:05:58Z",
+      "side": 1,
+      "message": "ECLIPSE_REPOSITORY is still recommended. You probably were thinking about ECLIPSE_APPLICATION?",
+      "parentUuid": "a52805c4_9fa9e653",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 161
+      },
+      "revId": "3d2bdd3c148bb98359c79687c28a664b36387e74",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
