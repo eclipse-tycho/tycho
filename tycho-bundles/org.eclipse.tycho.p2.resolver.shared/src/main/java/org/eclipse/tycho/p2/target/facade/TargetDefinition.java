@@ -69,13 +69,13 @@ public interface TargetDefinition {
 
     public interface MavenGAVLocation extends Location {
 
-        enum MissingManfiestStrategy {
+        enum MissingManifestStrategy {
             IGNORE, ERROR, GENERATE;
         }
 
         String getIncludeDependencyScope();
 
-        MissingManfiestStrategy getMissingManfiestStrategy();
+        MissingManifestStrategy getMissingManifestStrategy();
 
         String getGroupId();
 
