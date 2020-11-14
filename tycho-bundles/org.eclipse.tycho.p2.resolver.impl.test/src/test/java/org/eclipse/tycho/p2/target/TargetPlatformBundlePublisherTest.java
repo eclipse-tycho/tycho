@@ -38,6 +38,7 @@ import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.p2.resolver.WrappedArtifact;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.LogVerifier;
@@ -114,7 +115,8 @@ public class TargetPlatformBundlePublisherTest {
 
     @Test
     public void testPomDependencyWrapPlainJar() throws Exception {
-        logVerifier.expectWarning(containsString("is not a bundle a will be automatically wrapped"));
+        logVerifier.expectWarning(
+                containsString("is not a bundle and was automatically wrapped with bundle-symbolic name"));
         File jarFile = resourceFile("platformbuilder/pom-dependencies/non-bundle.jar");
         IArtifactFacade jarArtifact = new ArtifactMock(jarFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
         assertNotNull(subject.attemptToPublishBundle(jarArtifact, true));
@@ -131,11 +133,11 @@ public class TargetPlatformBundlePublisherTest {
     @Test
     public void testVersions() {
         assertEquals(new Version(0, 0, 1, "RELEASE121"),
-                TargetPlatformBundlePublisher.createOSGiVersionFromArtifact(new ArtifactMock(localRepositoryRoot,
-                        "org.netbeans.api", "org-netbeans-api-annotations-common", "RELEASE121", "jar")));
-        assertEquals(new Version(1, 0, 0, "SNAPSHOT"), TargetPlatformBundlePublisher.createOSGiVersionFromArtifact(
+                WrappedArtifact.createOSGiVersionFromArtifact(new ArtifactMock(localRepositoryRoot, "org.netbeans.api",
+                        "org-netbeans-api-annotations-common", "RELEASE121", "jar")));
+        assertEquals(new Version(1, 0, 0, "SNAPSHOT"), WrappedArtifact.createOSGiVersionFromArtifact(
                 new ArtifactMock(localRepositoryRoot, "test", "me", "1.0.0-SNAPSHOT", "jar")));
-        assertEquals(new Version(2, 2, 0, "Final"), TargetPlatformBundlePublisher.createOSGiVersionFromArtifact(
+        assertEquals(new Version(2, 2, 0, "Final"), WrappedArtifact.createOSGiVersionFromArtifact(
                 new ArtifactMock(localRepositoryRoot, "io.undertow", "undertow-core", "2.2.0.Final", "jar")));
     }
 

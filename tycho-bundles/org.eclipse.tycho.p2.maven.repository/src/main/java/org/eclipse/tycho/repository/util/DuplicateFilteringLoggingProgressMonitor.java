@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - filter additional string
  *******************************************************************************/
 package org.eclipse.tycho.repository.util;
 
@@ -38,6 +39,9 @@ public final class DuplicateFilteringLoggingProgressMonitor extends LoggingProgr
     protected boolean suppressOutputOf(String text) {
         if (text.equals("1 operation remaining.")) {
             // filter out
+            return true;
+        }
+        if (text.equals("Performing subquery")) {
             return true;
         }
         boolean isUnneededLine = checkIfDuplicateOfLastOutput(text);

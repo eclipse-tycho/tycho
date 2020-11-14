@@ -154,7 +154,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
             throws ProvisionException, IOException {
         return new TargetDefinitionResolver(environments, ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
                 IncludeSourceMode.honor,
-                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()), null);
     }
 
     private static class FilterRepoLocationStubWithLauncherUnit implements TargetDefinition.InstallableUnitLocation {
