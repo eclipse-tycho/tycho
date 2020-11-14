@@ -12,22 +12,18 @@
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *                         Bug 567639 - wrapAsBundle fails when dealing with esoteric versions
  *                         Bug 567957 - wrapAsBundle must check if artifact has a classifier
+ *                         Bug 568729 - Support new "Maven" Target location
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
-import java.util.jar.Manifest;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -41,24 +37,16 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
-import org.eclipse.tycho.p2.metadata.ArtifactFacadeProxy;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
-import org.eclipse.tycho.repository.local.GAVArtifactDescriptor;
+import org.eclipse.tycho.p2.resolver.WrappedArtifact;
+import org.eclipse.tycho.p2.target.repository.PublishedBundlesArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
-import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 import org.eclipse.tycho.repository.util.StatusTool;
 import org.osgi.framework.BundleException;
 
-import aQute.bnd.osgi.Analyzer;
-import aQute.bnd.osgi.Jar;
-import aQute.bnd.version.Version;
-
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
-
-    private static final String WRAPPED_CLASSIFIER = "wrapped";
 
     private final MavenLogger logger;
     private final PublishedBundlesArtifactRepository publishedArtifacts;
@@ -166,22 +154,25 @@ public class TargetPlatformBundlePublisher {
                 }
                 if (bundleDescription.getSymbolicName() == null) {
                     if (wrapIfNessesary) {
-                        String generatedBsn = project.getGroupId() + "." + mavenArtifact.getGroupId() + "."
-                                + mavenArtifact.getArtifactId();
-                        String classifier = mavenArtifact.getClassifier();
-                        String wrappedClassifier = WRAPPED_CLASSIFIER;
-
-                        if (classifier != null && !classifier.isEmpty()) {
-                            generatedBsn = generatedBsn + "." + classifier;
-                            wrappedClassifier = classifier + "-" + WRAPPED_CLASSIFIER;
-                        }
-                        logger.warn("Maven Artifact " + mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId()
-                                + ":" + mavenArtifact.getVersion()
-                                + " is not a bundle a will be automatically wrapped with bundle-symbolic name "
-                                + generatedBsn
-                                + ", ignoring such artifacts can be enabled with <pomDependencies>consider</pomDependencies> in target platform configuration.");
                         try {
-                            publishedArtifact = createWrappedArtifact(generatedBsn, wrappedClassifier);
+                            MavenRepositoryCoordinates repositoryCoordinates = new MavenRepositoryCoordinates(
+                                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
+                                    mavenArtifact.getVersion(),
+                                    WrappedArtifact.createClassifierFromArtifact(mavenArtifact), null);
+                            File wrappedFile = new File(basedir, repositoryCoordinates.getLocalRepositoryPath());
+                            WrappedArtifact wrappedArtifact = WrappedArtifact.createWrappedArtifact(mavenArtifact,
+                                    project.getGroupId(), wrappedFile);
+                            publishedArtifact = wrappedArtifact;
+                            logger.warn("Maven Artifact " + mavenArtifact.getGroupId() + ":"
+                                    + mavenArtifact.getArtifactId() + ":" + mavenArtifact.getVersion()
+                                    + " is not a bundle a was automatically wrapped with bundle-symbolic name "
+                                    + wrappedArtifact.getWrappedBsn()
+                                    + ", ignoring such artifacts can be enabled with <pomDependencies>consider</pomDependencies> in target platform configuration.");
+                            logger.info(wrappedArtifact.getReferenceHint());
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("The follwoing manifest was generated for this artifact:\r\n"
+                                        + wrappedArtifact.getGeneratedManifest());
+                            }
                         } catch (Exception e) {
                             return new Status(IStatus.ERROR, TargetPlatformBundlePublisher.class.getName(),
                                     "wrapping file " + mavenArtifact.getLocation() + " failed", e);
@@ -263,196 +254,6 @@ public class TargetPlatformBundlePublisher {
             }
         }
 
-        private IArtifactFacade createWrappedArtifact(String bsn, String classifier) throws Exception {
-            MavenRepositoryCoordinates repositoryCoordinates = new MavenRepositoryCoordinates(
-                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), classifier,
-                    null);
-            File wrappedFile = new File(basedir, repositoryCoordinates.getLocalRepositoryPath());
-            wrappedFile.getParentFile().mkdirs();
-            try (Jar jar = new Jar(mavenArtifact.getLocation())) {
-                Manifest originalManifest = jar.getManifest();
-                try (Analyzer analyzer = new Analyzer();) {
-                    analyzer.setJar(jar);
-                    if (originalManifest != null) {
-                        analyzer.mergeManifest(originalManifest);
-                    }
-                    Version version = createOSGiVersionFromArtifact(mavenArtifact);
-                    analyzer.setProperty(Analyzer.IMPORT_PACKAGE, "*;resolution:=optional");
-                    analyzer.setProperty(Analyzer.EXPORT_PACKAGE, "*;version=\"" + version + "\";-noimport:=true");
-                    analyzer.setProperty(Analyzer.BUNDLE_SYMBOLICNAME, bsn);
-                    analyzer.setBundleVersion(version);
-                    Manifest manifest = analyzer.calcManifest();
-                    jar.setManifest(manifest);
-                    jar.write(wrappedFile);
-                    if (logger.isDebugEnabled()) {
-                        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                        manifest.write(bout);
-                        logger.debug("Generated Manifest: \r\n" + bout.toString(StandardCharsets.UTF_8));
-                    }
-                    return new WrappedArtifact(wrappedFile, mavenArtifact, classifier);
-                }
-            }
-        }
-    }
-
-    public static Version createOSGiVersionFromArtifact(IArtifactFacade artifact) {
-        String version = artifact.getVersion();
-        try {
-            int index = version.indexOf('-');
-            if (index > -1) {
-                StringBuilder sb = new StringBuilder(version);
-                sb.setCharAt(index, '.');
-                return Version.parseVersion(sb.toString());
-            }
-            return Version.parseVersion(version);
-        } catch (IllegalArgumentException e) {
-            return new Version(0, 0, 1, version);
-        }
-    }
-
-    private static final class WrappedArtifact extends ArtifactFacadeProxy {
-
-        private final File file;
-        private final String classifier;
-
-        public WrappedArtifact(File file, IArtifactFacade wrapped, String classifier) {
-            super(wrapped);
-            this.file = file;
-            this.classifier = classifier;
-        }
-
-        @Override
-        public File getLocation() {
-            return file;
-        }
-
-        @Override
-        public String getClassifier() {
-            return classifier;
-        }
-
-        @Override
-        public String getPackagingType() {
-            return "bundle";
-        }
-
-        @Override
-        public String toString() {
-            return "WrappedArtifact [file=" + file + ", wrapped=" + super.toString() + ", classifier=" + classifier
-                    + "]";
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(classifier, file);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            WrappedArtifact other = (WrappedArtifact) obj;
-            return Objects.equals(classifier, other.classifier) && Objects.equals(file, other.file);
-        }
-
-    }
-
-    /**
-     * p2 artifact repository providing the POM dependency Maven artifacts.
-     * 
-     * <p>
-     * Although the provided artifacts are also stored in the local Maven repository, they cannot be
-     * made available via the <tt>LocalArtifactRepository</tt> artifact repository implementation.
-     * The reason is that there are differences is how the artifacts provided by the respective
-     * implementations may be updated:
-     * <ul>
-     * <li>For the <tt>LocalArtifactRepository</tt> artifacts, it can be assumed that all updates
-     * (e.g. as a result of a <tt>mvn install</tt>) are done by Tycho. Therefore it is safe to write
-     * the p2 artifact index data to disk together with the artifacts.</li>
-     * <li>For the POM dependency artifacts, this assumption does not hold true: e.g. a
-     * maven-bundle-plugin build may update an artifact in the local Maven repository without
-     * notifying Tycho. So if we had written p2 artifact index data to disk, that data might then be
-     * stale.</li>
-     * </ul>
-     * To avoid the need to implement and index invalidation logic, we use this separate artifact
-     * repository implementation with an in-memory index.
-     * </p>
-     */
-    private static class PublishedBundlesArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtifactDescriptor> {
-
-        PublishedBundlesArtifactRepository(File localMavenRepositoryRoot) {
-            super(null, localMavenRepositoryRoot.toURI(), ArtifactTransferPolicies.forLocalArtifacts());
-        }
-
-        void addPublishedArtifact(IArtifactDescriptor baseDescriptor, IArtifactFacade mavenArtifact) {
-            // TODO allow other extensions than the default ("jar")?
-            MavenRepositoryCoordinates repositoryCoordinates = new MavenRepositoryCoordinates(
-                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
-                    mavenArtifact.getClassifier(), null);
-
-            GAVArtifactDescriptor descriptorForRepository = new GAVArtifactDescriptor(baseDescriptor,
-                    repositoryCoordinates);
-
-            File requiredArtifactLocation = new File(getBaseDir(),
-                    descriptorForRepository.getMavenCoordinates().getLocalRepositoryPath());
-            File actualArtifactLocation = mavenArtifact.getLocation();
-            if (!equivalentPaths(requiredArtifactLocation, actualArtifactLocation)) {
-                throw new AssertionFailedException(
-                        "The Maven artifact to be added to the target platform is not stored at the required location on disk: required \""
-                                + requiredArtifactLocation + "\" but was \"" + actualArtifactLocation + "\"");
-            }
-
-            internalAddInternalDescriptor(descriptorForRepository);
-        }
-
-        private boolean equivalentPaths(File path, File otherPath) {
-            return path.equals(otherPath);
-        }
-
-        @Override
-        protected GAVArtifactDescriptor getInternalDescriptorForAdding(IArtifactDescriptor descriptor) {
-            // artifacts are only added via the dedicated method
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected IArtifactDescriptor getComparableDescriptor(IArtifactDescriptor descriptor) {
-            // any descriptor can be converted to our internal type GAVArtifactDescriptor
-            return toInternalDescriptor(descriptor);
-        }
-
-        private GAVArtifactDescriptor toInternalDescriptor(IArtifactDescriptor descriptor) {
-            // TODO share with LocalArtifactRepository?
-            if (descriptor instanceof GAVArtifactDescriptor && descriptor.getRepository() == this) {
-                return (GAVArtifactDescriptor) descriptor;
-            } else {
-                GAVArtifactDescriptor internalDescriptor = new GAVArtifactDescriptor(descriptor);
-                internalDescriptor.setRepository(this);
-                return internalDescriptor;
-            }
-        }
-
-        @Override
-        protected File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor) {
-            String relativePath = toInternalDescriptor(descriptor).getMavenCoordinates().getLocalRepositoryPath();
-            return new File(getBaseDir(), relativePath);
-        }
-
-        private File getBaseDir() {
-            return new File(getLocation());
-        }
-
-        @Override
-        public boolean isFileAlreadyAvailable(IArtifactKey artifact) {
-            return contains(artifact);
-        }
     }
 
 }
