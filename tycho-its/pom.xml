@@ -39,6 +39,13 @@
 					<exclude>**/*.properties</exclude>
 				</excludes>
 			</testResource>
+			<testResource>
+				<directory>projects</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/.mvn/extensions.xml</include>
+				</includes>
+			</testResource>
 		</testResources>
 
 		<plugins>

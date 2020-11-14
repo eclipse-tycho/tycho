@@ -89,7 +89,7 @@ public class TargetDefinitionResolverTest {
     public void initContext() throws Exception {
         subject = new TargetDefinitionResolver(defaultEnvironments(),
                 ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
-                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()), null);
     }
 
     static List<TargetEnvironment> defaultEnvironments() {
