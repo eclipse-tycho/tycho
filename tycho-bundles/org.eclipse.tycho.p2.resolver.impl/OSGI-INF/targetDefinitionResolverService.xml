@@ -5,4 +5,5 @@
    <service>
       <provide interface="org.eclipse.tycho.p2.target.TargetDefinitionResolverService"/>
    </service>
+   <reference bind="setMavenDependenciesResolver" cardinality="0..1" interface="org.eclipse.tycho.core.shared.MavenDependenciesResolver" name="MavenDependenciesResolver" policy="dynamic"/>
 </scr:component>

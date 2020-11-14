@@ -144,14 +144,14 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
 
         @Override
-        public MissingManfiestStrategy getMissingManfiestStrategy() {
+        public MissingManifestStrategy getMissingManifestStrategy() {
             String attributeValue = dom.getAttributeValue("missingManifest");
             if ("generate".equalsIgnoreCase(attributeValue)) {
-                return MissingManfiestStrategy.GENERATE;
+                return MissingManifestStrategy.GENERATE;
             } else if ("ignore".equals(attributeValue)) {
-                return MissingManfiestStrategy.IGNORE;
+                return MissingManifestStrategy.IGNORE;
             }
-            return MissingManfiestStrategy.ERROR;
+            return MissingManifestStrategy.ERROR;
         }
 
         @Override
@@ -194,8 +194,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
             builder.append(getArtifactType());
             builder.append(", IncludeDependencyScope = ");
             builder.append(getIncludeDependencyScope());
-            builder.append(", MissingManfiestStrategy = ");
-            builder.append(getMissingManfiestStrategy());
+            builder.append(", MissingManifestStrategy = ");
+            builder.append(getMissingManifestStrategy());
             return builder.toString();
         }
 

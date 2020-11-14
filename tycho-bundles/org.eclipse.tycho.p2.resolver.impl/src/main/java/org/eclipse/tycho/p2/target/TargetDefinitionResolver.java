@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +42,13 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.resolver.FileTargetDefinitionContent;
 import org.eclipse.tycho.p2.resolver.InstallableUnitResolver;
+import org.eclipse.tycho.p2.resolver.MavenTargetDefinitionContent;
 import org.eclipse.tycho.p2.resolver.URITargetDefinitionContent;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.DirectoryLocation;
@@ -84,14 +87,16 @@ public final class TargetDefinitionResolver {
 
     private MavenContext mavenContext;
     private IncludeSourceMode includeSourceMode;
+    private MavenDependenciesResolver mavenDependenciesResolver;
 
     public TargetDefinitionResolver(List<TargetEnvironment> environments,
             ExecutionEnvironmentResolutionHints executionEnvironment, IncludeSourceMode includeSourceMode,
-            MavenContext mavenContext) {
+            MavenContext mavenContext, MavenDependenciesResolver mavenDependenciesResolver) {
         this.environments = environments;
         this.executionEnvironment = executionEnvironment;
         this.includeSourceMode = includeSourceMode;
         this.mavenContext = mavenContext;
+        this.mavenDependenciesResolver = mavenDependenciesResolver;
         this.logger = mavenContext.getLogger();
     }
 
@@ -123,6 +128,8 @@ public final class TargetDefinitionResolver {
         InstallableUnitResolver installableUnitResolver = null;
         Map<String, FileTargetDefinitionContent> fileRepositories = new LinkedHashMap<>();
         Map<String, URITargetDefinitionContent> uriRepositories = new LinkedHashMap<>();
+        HashSet<String> mavenWrappedFiles = new HashSet<>();
+        List<MavenTargetDefinitionContent> mavenLocations = new ArrayList<>();
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation) {
                 InstallableUnitLocation installableUnitLocation = (InstallableUnitLocation) locationDefinition;
@@ -169,7 +176,8 @@ public final class TargetDefinitionResolver {
                 }
             } else if (locationDefinition instanceof MavenGAVLocation) {
                 MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
-                logger.warn("MavenGAVLocation location type is not yet supported, ignoring location " + location);
+                mavenLocations.add(new MavenTargetDefinitionContent(location, mavenDependenciesResolver,
+                        provisioningAgent, logger, mavenWrappedFiles));
             } else {
                 logger.warn("Target location type '" + locationDefinition.getTypeDescription() + "' is not supported");
             }
@@ -192,6 +200,11 @@ public final class TargetDefinitionResolver {
         for (URITargetDefinitionContent uriDefinitionContent : uriRepositories.values()) {
             metadataRepositories.add(uriDefinitionContent.getMetadataRepository());
             artifactRepositories.add(uriDefinitionContent.getArtifactRepository());
+        }
+        //preliminary step : add all maven locations and make the installable unit resolver aware of it
+        for (MavenTargetDefinitionContent mavenContent : mavenLocations) {
+            metadataRepositories.add(mavenContent.getMetadataRepository());
+            artifactRepositories.add(mavenContent.getArtifactRepository());
         }
         //now we can resolve the p2 sources
         IMetadataRepository metadataRepository = new ListCompositeMetadataRepository(metadataRepositories,
