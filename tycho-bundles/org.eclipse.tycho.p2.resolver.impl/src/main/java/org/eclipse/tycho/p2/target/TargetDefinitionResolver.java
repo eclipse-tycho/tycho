@@ -268,7 +268,8 @@ public final class TargetDefinitionResolver {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String group = matcher.group(1);
-            matcher.appendReplacement(sb, parameterResolver.apply(group));
+            String resolved = parameterResolver.apply(group);
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(resolved));
         }
         matcher.appendTail(sb);
         return sb.toString();
