@@ -1,0 +1,7 @@
+Code-Review+2: Mickael Istria <mistria@redhat.com>
+Verified+1: Tycho Bot <tycho-bot@eclipse.org>
+Submitted-by: Christoph Laeubrich <laeubi@laeubi-soft.de>
+Submitted-at: Mon, 16 Nov 2020 09:03:09 -0500
+Reviewed-on: https://git.eclipse.org/r/c/tycho/org.eclipse.tycho/+/172295
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
