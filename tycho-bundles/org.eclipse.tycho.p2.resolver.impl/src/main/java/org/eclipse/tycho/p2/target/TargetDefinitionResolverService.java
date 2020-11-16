@@ -9,8 +9,9 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
+ *    Christoph Läubrich    - [Bug 538144] - Support other target locations (Directory, Features, Installations)
  *                          - [Bug 533747] - Target file is read and parsed over and over again
+ *                          - [Bug 568729] - Support new "Maven" Target location
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -18,10 +19,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
@@ -40,6 +43,8 @@ public class TargetDefinitionResolverService {
     private MavenContext mavenContext;
 
     private IProvisioningAgent provisioningAgent;
+
+    private final AtomicReference<MavenDependenciesResolver> dependenciesResolver = new AtomicReference<>();
 
     // constructor for DS
     public TargetDefinitionResolverService() {
@@ -69,7 +74,7 @@ public class TargetDefinitionResolverService {
     // this method must only have the cache key as parameter (to make sure that the key is complete)
     private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
         return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.includeSourceMode,
-                mavenContext).resolveContent(arguments.definition, provisioningAgent);
+                mavenContext, dependenciesResolver.get()).resolveContent(arguments.definition, provisioningAgent);
     }
 
     private void debugCacheMiss(ResolutionArguments arguments) {
@@ -99,6 +104,15 @@ public class TargetDefinitionResolverService {
     // setter for DS
     public void setMavenContext(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
+    }
+
+    // setter for DS
+    public void setMavenDependenciesResolver(MavenDependenciesResolver mavenDependenciesResolver) {
+        this.dependenciesResolver.set(mavenDependenciesResolver);
+    }
+
+    public void unsetMavenDependenciesResolver(MavenDependenciesResolver mavenDependenciesResolver) {
+        this.dependenciesResolver.compareAndSet(mavenDependenciesResolver, null);
     }
 
     private static final class ResolutionArguments {
