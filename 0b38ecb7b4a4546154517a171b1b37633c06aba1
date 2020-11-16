@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f4c50c54_2ea6b51b",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/MavenTargetDefinitionContent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-16T15:54:05Z",
+      "side": 1,
+      "message": "sad enough there is no such \"MetadataRepository\" implementation I\u0027m aware of and I want to avoid to add another special implementation.\nThe supplier approach is very flexible, generic and the whether the iterator is created internal or through a supplier does not change much.",
+      "parentUuid": "377cdece_49c0f844",
+      "revId": "0b38ecb7b4a4546154517a171b1b37633c06aba1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81b0db98_36962b35",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/MavenTargetDefinitionContent.java",
         "patchSetId": 1
@@ -47,6 +65,24 @@
       "writtenOn": "2020-11-16T14:26:28Z",
       "side": 1,
       "message": "Can you please add a comment to highlight this is called by DS? I\u0027m afraid that without a dissuasive comment, since no Java reference is found, we may just erroneously remove it at some point.",
+      "revId": "0b38ecb7b4a4546154517a171b1b37633c06aba1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a080129f_be203740",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-16T15:54:05Z",
+      "side": 1,
+      "message": "I\u0027ll add a comment like for the method before, but if we really need to make this explicit we should decide to move to DS Annotations for tycho.",
+      "parentUuid": "ed4f3133_fd74ed46",
       "revId": "0b38ecb7b4a4546154517a171b1b37633c06aba1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
