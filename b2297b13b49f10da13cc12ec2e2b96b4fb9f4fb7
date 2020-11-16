@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e152db78_16e63af8",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-16T08:43:51Z",
+      "side": 1,
+      "message": "couldn\u0027t it be a private final field receiving value in the constructor?",
+      "revId": "b2297b13b49f10da13cc12ec2e2b96b4fb9f4fb7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a5551f2_75d39895",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/repository/FileArtifactRepository.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-16T08:43:51Z",
+      "side": 1,
+      "message": "I fail at understanding the goal of this class, especially since the parent hierarchy is already relatively complex. Can you please add some documentation and maybe find an another more explicit name?",
+      "revId": "b2297b13b49f10da13cc12ec2e2b96b4fb9f4fb7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f1147b2_fd74f0c7",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/repository/PublishedBundlesArtifactRepository.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-16T08:43:51Z",
+      "side": 1,
+      "message": "Could we name it MavenBundlesArtifactRepository instead?",
+      "revId": "b2297b13b49f10da13cc12ec2e2b96b4fb9f4fb7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
