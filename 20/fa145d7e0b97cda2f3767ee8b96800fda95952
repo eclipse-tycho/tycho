@@ -1,0 +1,7 @@
+Code-Review+2: Mickael Istria <mistria@redhat.com>
+Verified+1: Christoph Laeubrich <laeubi@laeubi-soft.de>
+Submitted-by: Christoph Laeubrich <laeubi@laeubi-soft.de>
+Submitted-at: Mon, 16 Nov 2020 12:02:41 -0500
+Reviewed-on: https://git.eclipse.org/r/c/tycho/org.eclipse.tycho/+/172304
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
