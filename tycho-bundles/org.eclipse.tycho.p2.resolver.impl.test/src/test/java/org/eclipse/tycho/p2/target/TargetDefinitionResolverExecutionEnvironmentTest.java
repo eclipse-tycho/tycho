@@ -60,7 +60,7 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
         return new TargetDefinitionResolver(defaultEnvironments(),
                 new StandardEEResolutionHints(new ExecutionEnvironmentStub(executionEnvironmentName, systemPackages)),
                 IncludeSourceMode.honor,
-                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()));
+                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()), null);
     }
 
     @Test
