@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "13d93f24_8ceb84a5",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-16T10:51:22Z",
+      "side": 1,
+      "message": "could be final yes, this is set via DS and is a dynamic dependency so it can\u0027t be used in constructor injection.",
+      "parentUuid": "e152db78_16e63af8",
+      "revId": "b2297b13b49f10da13cc12ec2e2b96b4fb9f4fb7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8a5551f2_75d39895",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/repository/FileArtifactRepository.java",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1d7ddef9_e6a6e639",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/repository/FileArtifactRepository.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-16T10:51:22Z",
+      "side": 1,
+      "message": "The class was extracted from an internal class, the IFileArtifactRepository is used inside tycho to access directly the underlying files (the default repositories only allow access via output streams).\n\nAnd yes, the P2 API is a bit wrecked and bloated in my opinion here but nothing tycho can change :-\\",
+      "parentUuid": "8a5551f2_75d39895",
+      "revId": "b2297b13b49f10da13cc12ec2e2b96b4fb9f4fb7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f1147b2_fd74f0c7",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/repository/PublishedBundlesArtifactRepository.java",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2020-11-16T08:43:51Z",
       "side": 1,
       "message": "Could we name it MavenBundlesArtifactRepository instead?",
+      "revId": "b2297b13b49f10da13cc12ec2e2b96b4fb9f4fb7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b00b501_75d8801f",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/repository/PublishedBundlesArtifactRepository.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-11-16T10:51:22Z",
+      "side": 1,
+      "message": "I just used the name from the class where I extracted this, but we can rename it for sure. In fact I hope we can once get rid of this class completely :-)",
+      "parentUuid": "9f1147b2_fd74f0c7",
       "revId": "b2297b13b49f10da13cc12ec2e2b96b4fb9f4fb7",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
