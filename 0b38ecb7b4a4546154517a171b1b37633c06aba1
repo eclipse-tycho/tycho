@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "377cdece_49c0f844",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/MavenTargetDefinitionContent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-16T14:26:28Z",
+      "side": 1,
+      "message": "Note that since repositoryContent is final and values dymanically maps the content, this could directly use a MetadataRepository receiving repositoryContent.values() as input instead of a supplier.",
+      "revId": "0b38ecb7b4a4546154517a171b1b37633c06aba1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81b0db98_36962b35",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/MavenTargetDefinitionContent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-16T14:26:28Z",
+      "side": 1,
+      "message": "Same thing, the supplier could be avoided here",
+      "revId": "0b38ecb7b4a4546154517a171b1b37633c06aba1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed4f3133_fd74ed46",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-16T14:26:28Z",
+      "side": 1,
+      "message": "Can you please add a comment to highlight this is called by DS? I\u0027m afraid that without a dissuasive comment, since no Java reference is found, we may just erroneously remove it at some point.",
+      "revId": "0b38ecb7b4a4546154517a171b1b37633c06aba1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
