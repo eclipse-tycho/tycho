@@ -144,9 +144,12 @@
               </validate>
               <generate-resources>
               </generate-resources>
-              <package>
+              <prepare-package>
                 org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
+              </prepare-package>
+              <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-feature,
+                org.eclipse.tycho:tycho-source-plugin:${project.version}:feature-source,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:feature-p2-metadata
               </package>
