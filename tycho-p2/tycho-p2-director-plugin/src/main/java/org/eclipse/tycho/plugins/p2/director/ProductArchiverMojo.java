@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 SAP SE and others.
+ * Copyright (c) 2010, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  * Contributors:
  *     SAP SE - initial API and implementation
  *     Sonatype Inc. - ongoing development
+ *     Christoph Läubrich - Bug 568788 - Support new format .tgz in tycho-p2-director:archive-products
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
@@ -45,6 +46,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
     private static final String DEFAULT_ARCHIVE_FORMAT = "zip";
     private static final String TAR_GZ_ARCHIVE_FORMAT = "tar.gz";
+    private static final String TGZ_ARCHIVE_FORMAT = "tgz";
 
     private abstract class ProductArchiver {
         abstract Archiver getArchiver() throws ArchiverException;
@@ -97,7 +99,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
             }
         });
 
-        productArchivers.put(TAR_GZ_ARCHIVE_FORMAT, new ProductArchiver() {
+        ProductArchiver tarGzArchiver = new ProductArchiver() {
             @Override
             Archiver getArchiver() throws ArchiverException {
                 tarArchiver.setCompression(TarCompressionMethod.gzip);
@@ -105,7 +107,9 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 tarArchiver.setLongfile(TarLongFileMode.gnu);
                 return tarArchiver;
             }
-        });
+        };
+        productArchivers.put(TAR_GZ_ARCHIVE_FORMAT, tarGzArchiver);
+        productArchivers.put(TGZ_ARCHIVE_FORMAT, tarGzArchiver);
 
     }
 
@@ -133,7 +137,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
                     try {
                         final File sourceDir = getProductMaterializeDirectory(product, env);
-                        if (TAR_GZ_ARCHIVE_FORMAT.equals(format)
+                        if ((TGZ_ARCHIVE_FORMAT.equals(format) || TAR_GZ_ARCHIVE_FORMAT.equals(format))
                                 && !"plexus".equals(getSession().getUserProperties().getProperty("tycho.tar"))) {
                             getLog().debug("Using commons-compress tar");
                             createCommonsCompressTarGz(productArchive, sourceDir);
