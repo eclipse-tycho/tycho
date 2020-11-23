@@ -32,7 +32,9 @@ public class EnvironmentUtil {
         props = new Properties();
         ClassLoader cl = AbstractTychoIntegrationTest.class.getClassLoader();
         try (InputStream is = cl.getResourceAsStream("baseTest.properties")) {
-            props.load(is);
+            if (is != null) {
+                props.load(is);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
