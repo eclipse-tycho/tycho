@@ -29,6 +29,8 @@ import java.util.Set;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -255,14 +257,41 @@ public class SourceFeatureMojo extends AbstractMojo {
                             .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
                 }
                 archiver.createArchive(session, project, archive);
-
                 projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
+                if (!isP2GenerationEnabled()) {
+                    logger.warn(
+                            "org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated feature is used in an update-site. You cann add the follwoing snippet to your pom: \n" //
+                                    + "            <plugin>\n"
+                                    + "                <groupId>org.eclipse.tycho</groupId>\n" //
+                                    + "                <artifactId>tycho-p2-plugin</artifactId>\n" //
+                                    + "                <executions>\n" //
+                                    + "                    <execution>\n" //
+                                    + "                        <id>attach-p2-metadata</id>\n" //
+                                    + "                        <phase>package</phase>\n" //
+                                    + "                        <goals>\n" //
+                                    + "                            <goal>p2-metadata</goal>\n" //
+                                    + "                        </goals>\n" //
+                                    + "                    </execution>\n" //
+                                    + "                </executions>\n"//
+                                    + "            </plugin>");
+                }
             } catch (MojoExecutionException e) {
                 throw e;
             } catch (Exception e) {
                 throw new MojoExecutionException("Could not package source feature jar", e);
             }
         }
+    }
+
+    protected boolean isP2GenerationEnabled() {
+        Plugin plugin = project.getPlugin("org.eclipse.tycho:tycho-p2-plugin");
+        if (plugin != null) {
+            PluginExecution execution = plugin.getExecutionsAsMap().get("attach-p2-metadata");
+            if (execution != null) {
+                return execution.getGoals().contains("p2-metadata");
+            }
+        }
+        return false;
     }
 
     static File getSourcesFeatureOutputDir(MavenProject project) {
