@@ -10,8 +10,9 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
- *                          - [Bug 533747] - Target file is read and parsed over and over again
- *                          - [Bug 568729] - Support new "Maven" Target location
+ *                          - [Bug 533747] Target file is read and parsed over and over again
+ *                          - [Bug 568729] Support new "Maven" Target location
+ *                          - [Bug 569060] All ids of target file must be different 
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -140,15 +141,9 @@ public final class TargetDefinitionResolver {
                 List<URITargetDefinitionContent> locations = new ArrayList<>();
                 for (Repository repository : installableUnitLocation.getRepositories()) {
                     URI location = repository.getLocation();
-                    String key;
-                    String id = repository.getId();
-                    if (id != null && !id.isBlank()) {
-                        key = id;
-                    } else {
-                        key = location.normalize().toASCIIString();
-                    }
+                    String key = location.normalize().toASCIIString();
                     locations.add(uriRepositories.computeIfAbsent(key,
-                            s -> new URITargetDefinitionContent(provisioningAgent, location, id)));
+                            s -> new URITargetDefinitionContent(provisioningAgent, location, repository.getId())));
                 }
                 IQueryable<IInstallableUnit> locationUnits = QueryUtil.compoundQueryable(locations);
                 installableUnitResolver.addLocation((InstallableUnitLocation) locationDefinition, locationUnits);
