@@ -156,27 +156,35 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public String getGroupId() {
-            return getTextFromChild("groupId");
+            return getTextFromChild("groupId", null);
         }
 
         @Override
         public String getArtifactId() {
-            return getTextFromChild("artifactId");
+            return getTextFromChild("artifactId", null);
         }
 
         @Override
         public String getVersion() {
-            return getTextFromChild("version");
+            return getTextFromChild("version", null);
         }
 
         @Override
         public String getArtifactType() {
-            return getTextFromChild("type");
+            return getTextFromChild("type", "jar");
         }
 
-        private String getTextFromChild(String childName) {
+        @Override
+        public String getClassifier() {
+            return getTextFromChild("classifier", "");
+        }
+
+        private String getTextFromChild(String childName, String defaultValue) {
             for (Element element : dom.getChildren(childName)) {
                 return element.getNormalizedText();
+            }
+            if (defaultValue != null) {
+                return defaultValue;
             }
             throw new TargetDefinitionSyntaxException("Missing child element '" + childName + "'");
         }

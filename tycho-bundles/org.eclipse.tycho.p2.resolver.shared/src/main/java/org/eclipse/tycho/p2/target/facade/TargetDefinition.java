@@ -84,6 +84,8 @@ public interface TargetDefinition {
         String getVersion();
 
         String getArtifactType();
+
+        String getClassifier();
     }
 
     /**
