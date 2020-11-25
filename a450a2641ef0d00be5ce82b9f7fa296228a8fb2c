@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81c4b166_7f530bf5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-25T17:17:45Z",
+      "side": 1,
+      "message": "Can you please retitle the commit message so it describes what this change is actually about?",
+      "revId": "a450a2641ef0d00be5ce82b9f7fa296228a8fb2c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04f88bdb_81ef24fd",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2020-11-25T17:17:45Z",
+      "side": 1,
+      "message": "That\u0027s a good change, probably more correct than having it part of the package phase.",
+      "revId": "a450a2641ef0d00be5ce82b9f7fa296228a8fb2c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
