@@ -223,6 +223,12 @@
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.annotation</artifactId>
+			<version>7.0.0</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 </project>
