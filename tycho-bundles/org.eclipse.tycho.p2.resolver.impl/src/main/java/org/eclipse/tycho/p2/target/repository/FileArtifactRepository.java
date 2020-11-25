@@ -13,12 +13,19 @@
 package org.eclipse.tycho.p2.target.repository;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.attribute.FileTime;
 import java.util.Iterator;
 import java.util.function.Supplier;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -60,13 +67,50 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
             return new Status(IStatus.ERROR, FileTargetDefinitionContent.class.getName(), "Artifact not found");
         }
         try {
-            try (FileInputStream inputStream = new FileInputStream(artifactFile)) {
-                inputStream.transferTo(destination);
+            if (artifactFile.isDirectory()) {
+                File manifestFile = new File(artifactFile, JarFile.MANIFEST_NAME);
+                try (JarOutputStream jarOutputStream = new JarOutputStream(destination)) {
+                    if (manifestFile.exists()) {
+                        Manifest manifest = new Manifest(new FileInputStream(manifestFile));
+                        manifest.getMainAttributes().putValue("Eclipse-BundleShape", "dir");
+                        jarOutputStream.putNextEntry(new ZipEntry(JarFile.MANIFEST_NAME));
+                        manifest.write(jarOutputStream);
+                        jarOutputStream.closeEntry();
+                    }
+                    copyToStream(artifactFile, jarOutputStream, null, f -> !f.equals(manifestFile));
+                }
+            } else {
+                try (FileInputStream inputStream = new FileInputStream(artifactFile)) {
+                    inputStream.transferTo(destination);
+                }
             }
         } catch (IOException e) {
             return new Status(IStatus.ERROR, FileTargetDefinitionContent.class.getName(), "transfer failed", e);
         }
         return Status.OK_STATUS;
+    }
+
+    private void copyToStream(File file, ZipOutputStream os, String path, FileFilter fileFilter) throws IOException {
+        String pathName = path == null ? "" : path + file.getName();
+        if (file.isFile()) {
+            try (FileInputStream is = new FileInputStream(file)) {
+                ZipEntry entry = new ZipEntry(pathName);
+                entry.setLastModifiedTime(FileTime.fromMillis(file.lastModified()));
+                os.putNextEntry(entry);
+                is.transferTo(os);
+                os.closeEntry();
+            }
+        } else if (file.isDirectory()) {
+            File[] files = file.listFiles(fileFilter);
+            if (files != null && files.length > 0) {
+                for (File file2 : files) {
+                    copyToStream(file2, os, pathName + "/", fileFilter);
+                }
+            }
+        } else {
+            throw new IOException(
+                    "file " + file.getAbsolutePath() + " is neither a readable file nor a readable directory");
+        }
     }
 
     @Override
