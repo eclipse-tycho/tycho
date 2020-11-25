@@ -45,15 +45,21 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
     private RepositorySystem repositorySystem;
 
     @Override
-    public Collection<IArtifactFacade> resolve(String groupId, String artifactId, String version, String scope,
-            String type) {
-        Artifact artifact = repositorySystem.createArtifact(groupId, artifactId, version, scope, type);
+    public Collection<?> resolve(String groupId, String artifactId, String version, String packaging, String classifier,
+            String dependencyScope) {
+        Artifact artifact;
+        if (classifier != null && !classifier.isEmpty()) {
+            artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, version, classifier);
+            artifact.setScope(dependencyScope);
+        } else {
+            artifact = repositorySystem.createArtifact(groupId, artifactId, version, dependencyScope, packaging);
+        }
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
         MavenSession session = context.getSession();
         request.setOffline(session.isOffline());
         request.setLocalRepository(session.getLocalRepository());
-        request.setResolveTransitively(scope != null && !scope.isEmpty());
+        request.setResolveTransitively(dependencyScope != null && !dependencyScope.isEmpty());
         request.setRemoteRepositories(session.getCurrentProject().getRemoteArtifactRepositories());
         ArtifactResolutionResult result = repositorySystem.resolve(request);
         Set<Artifact> artifacts = result.getArtifacts();

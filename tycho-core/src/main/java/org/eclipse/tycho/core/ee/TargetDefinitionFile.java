@@ -174,6 +174,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return getTextFromChild("type");
         }
 
+        @Override
+        public String getClassifier() {
+            return getTextFromChild("classifier");
+        }
+
         private String getTextFromChild(String childName) {
             for (Element element : dom.getChildren(childName)) {
                 return element.getNormalizedText();
