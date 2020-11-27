@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -36,6 +36,7 @@ import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionContent;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.BNDInstructions;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation.MissingManifestStrategy;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
@@ -51,7 +52,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private FileArtifactRepository artifactRepository;
 
     public MavenTargetDefinitionContent(MavenGAVLocation location, MavenDependenciesResolver mavenDependenciesResolver,
-            IProvisioningAgent agent, MavenLogger logger, Set<String> wrappedFiles) {
+            IProvisioningAgent agent, MavenLogger logger) {
         File repositoryRoot = mavenDependenciesResolver.getRepositoryRoot();
         metadataRepository = new SupplierMetadataRepository(agent, () -> repositoryContent.values().iterator());
         metadataRepository.setLocation(repositoryRoot.toURI());
@@ -59,15 +60,24 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         artifactRepository = new FileArtifactRepository(agent, () -> repositoryContent.keySet().iterator());
         artifactRepository.setName(repositoryRoot.getName());
         artifactRepository.setLocation(repositoryRoot.toURI());
+        Collection<BNDInstructions> instructions = location.getInstructions();
 
         if (mavenDependenciesResolver != null) {
             logger.info("Resolving " + location + "...");
+            Map<String, Properties> instructionsMap = new HashMap<>();
+            for (BNDInstructions instruction : instructions) {
+                String reference = instruction.getReference();
+                Properties properties = instruction.getInstructions();
+                instructionsMap.put(reference, properties);
+                logger.info((reference.isEmpty() ? "default instructions" : reference) + " = " + properties);
+            }
             Collection<?> resolve = mavenDependenciesResolver.resolve(location.getGroupId(), location.getArtifactId(),
                     location.getVersion(), location.getArtifactType(), location.getClassifier(),
                     location.getIncludeDependencyScope());
 
             Iterator<IArtifactFacade> resolvedArtifacts = resolve.stream().filter(IArtifactFacade.class::isInstance)
                     .map(IArtifactFacade.class::cast).iterator();
+            Properties defaultProperties = WrappedArtifact.createPropertiesForPrefix("wrapped");
             while (resolvedArtifacts.hasNext()) {
                 IArtifactFacade mavenArtifact = (IArtifactFacade) resolvedArtifacts.next();
                 logger.debug("Resolved " + mavenArtifact + "...");
@@ -81,10 +91,6 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         String symbolicName = bundleDescription.getSymbolicName();
                         IInstallableUnit unit;
                         if (symbolicName == null) {
-                            if (wrappedFiles.contains(bundleLocation.getAbsolutePath())) {
-                                //already provided by another location
-                                continue;
-                            }
                             if (location.getMissingManifestStrategy() == MissingManifestStrategy.IGNORE) {
                                 logger.info("Ignoring " + asDebugString(mavenArtifact)
                                         + " as it is not a bundle and MissingManifestStrategy is set to ignore for this location");
@@ -98,7 +104,9 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                             tempFile.deleteOnExit();
                             WrappedArtifact wrappedArtifact;
                             try {
-                                wrappedArtifact = WrappedArtifact.createWrappedArtifact(mavenArtifact, "wrapped",
+                                Properties properties = instructionsMap.getOrDefault(getKey(mavenArtifact),
+                                        instructionsMap.getOrDefault("", defaultProperties));
+                                wrappedArtifact = WrappedArtifact.createWrappedArtifact(mavenArtifact, properties,
                                         tempFile);
                             } catch (Exception e) {
                                 throw new TargetDefinitionResolutionException(
@@ -153,6 +161,19 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     @Override
     public IMetadataRepository getMetadataRepository() {
         return metadataRepository;
+    }
+
+    private static String getKey(IArtifactFacade artifact) {
+        if (artifact == null) {
+            return "";
+        }
+        String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
+        String classifier = artifact.getClassifier();
+        if (classifier != null) {
+            key += ":" + classifier;
+        }
+        key += ":" + artifact.getVersion();
+        return key;
     }
 
 }

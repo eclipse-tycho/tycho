@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +128,6 @@ public final class TargetDefinitionResolver {
         InstallableUnitResolver installableUnitResolver = null;
         Map<String, FileTargetDefinitionContent> fileRepositories = new LinkedHashMap<>();
         Map<String, URITargetDefinitionContent> uriRepositories = new LinkedHashMap<>();
-        HashSet<String> mavenWrappedFiles = new HashSet<>();
         List<MavenTargetDefinitionContent> mavenLocations = new ArrayList<>();
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation) {
@@ -172,7 +170,7 @@ public final class TargetDefinitionResolver {
             } else if (locationDefinition instanceof MavenGAVLocation) {
                 MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
                 MavenTargetDefinitionContent targetDefinitionContent = new MavenTargetDefinitionContent(location,
-                        mavenDependenciesResolver, provisioningAgent, logger, mavenWrappedFiles);
+                        mavenDependenciesResolver, provisioningAgent, logger);
                 mavenLocations.add(targetDefinitionContent);
                 IQueryResult<IInstallableUnit> result = targetDefinitionContent.query(QueryUtil.ALL_UNITS,
                         new LoggingProgressMonitor(logger));

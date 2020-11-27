@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,9 +29,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -205,6 +208,37 @@ public final class TargetDefinitionFile implements TargetDefinition {
             builder.append(", MissingManifestStrategy = ");
             builder.append(getMissingManifestStrategy());
             return builder.toString();
+        }
+
+        @Override
+        public Collection<BNDInstructions> getInstructions() {
+            List<BNDInstructions> list = new ArrayList<>();
+            for (Element element : dom.getChildren("instructions")) {
+                String reference = element.getAttributeValue("reference");
+                String text = element.getText();
+                Properties properties = new Properties();
+                try {
+                    properties.load(new StringReader(text));
+                } catch (IOException e) {
+                    throw new TargetDefinitionSyntaxException("parsing instructions into properties failed", e);
+                }
+                list.add(new BNDInstructions() {
+
+                    @Override
+                    public String getReference() {
+                        if (reference == null) {
+                            return "";
+                        }
+                        return reference;
+                    }
+
+                    @Override
+                    public Properties getInstructions() {
+                        return properties;
+                    }
+                });
+            }
+            return list;
         }
 
     }

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.jar.Manifest;
 
 import org.eclipse.tycho.p2.metadata.ArtifactFacadeProxy;
@@ -35,12 +36,12 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
 
     private String wrappedBsn;
 
-    private Version wrappedVersion;
+    private String wrappedVersion;
 
     private Manifest manifest;
 
     private WrappedArtifact(File file, IArtifactFacade wrapped, String classifier, String wrappedBsn,
-            Version wrappedVersion, Manifest manifest) {
+            String wrappedVersion, Manifest manifest) {
         super(wrapped);
         this.file = file;
         this.classifier = classifier;
@@ -68,7 +69,7 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
         return wrappedBsn;
     }
 
-    public Version getWrappedVersion() {
+    public String getWrappedVersion() {
         return wrappedVersion;
     }
 
@@ -114,8 +115,11 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
 
     public static WrappedArtifact createWrappedArtifact(IArtifactFacade mavenArtifact, String prefix, File wrappedFile)
             throws Exception {
-        Version version = createOSGiVersionFromArtifact(mavenArtifact);
-        String bsn = createBundleSymbolicNameFromArtifact(prefix, mavenArtifact);
+        return createWrappedArtifact(mavenArtifact, createPropertiesForPrefix(prefix), wrappedFile);
+    }
+
+    public static WrappedArtifact createWrappedArtifact(IArtifactFacade mavenArtifact, Properties bndInstructions,
+            File wrappedFile) throws Exception {
         String wrappedClassifier = WRAPPED_CLASSIFIER;
         String classifier = mavenArtifact.getClassifier();
         if (classifier != null && !classifier.isEmpty()) {
@@ -129,16 +133,34 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
                 if (originalManifest != null) {
                     analyzer.mergeManifest(originalManifest);
                 }
-                analyzer.setProperty(Analyzer.IMPORT_PACKAGE, "*;resolution:=optional");
-                analyzer.setProperty(Analyzer.EXPORT_PACKAGE, "*;version=\"" + version + "\";-noimport:=true");
-                analyzer.setProperty(Analyzer.BUNDLE_SYMBOLICNAME, bsn);
-                analyzer.setBundleVersion(version);
+
+                analyzer.setProperty("mvnGroupId", mavenArtifact.getGroupId());
+                analyzer.setProperty("mvnArtifactId", mavenArtifact.getArtifactId());
+                analyzer.setProperty("mvnVersion", mavenArtifact.getVersion());
+                analyzer.setProperty("mvnClassifier", Objects.requireNonNullElse(mavenArtifact.getClassifier(), ""));
+                analyzer.setProperty("generatedOSGiVersion", createOSGiVersionFromArtifact(mavenArtifact).toString());
+                analyzer.setProperties(bndInstructions);
                 Manifest manifest = analyzer.calcManifest();
                 jar.setManifest(manifest);
                 jar.write(wrappedFile);
-                return new WrappedArtifact(wrappedFile, mavenArtifact, wrappedClassifier, bsn, version, manifest);
+                return new WrappedArtifact(wrappedFile, mavenArtifact, wrappedClassifier,
+                        manifest.getMainAttributes().getValue(Analyzer.BUNDLE_SYMBOLICNAME),
+                        manifest.getMainAttributes().getValue(Analyzer.BUNDLE_VERSION), manifest);
             }
         }
+    }
+
+    public static Properties createPropertiesForPrefix(String prefix) {
+        Properties properties = new Properties();
+        properties.setProperty("Bundle-Name",
+                "Bundle derived from maven artifact ${mvnGroupId}:${mvnArtifactId}:${mvnVersion}");
+        properties.setProperty("Bundle-SymbolicName", prefix + ".${mvnGroupId}.${mvnArtifactId}");
+        properties.setProperty("version", " ${version_cleanup;${mvnVersion}}");
+        properties.setProperty("Bundle-Version", "${version}");
+        properties.setProperty("Import-Package", "*;resolution:=optional");
+        properties.setProperty("Export-Package", "*;version=\"${version}\";-noimport:=true");
+        properties.setProperty("DynamicImport-Package", "*");
+        return properties;
     }
 
     public static String createClassifierFromArtifact(IArtifactFacade mavenArtifact) {

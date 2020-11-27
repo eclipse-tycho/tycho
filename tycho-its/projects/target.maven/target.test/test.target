@@ -20,5 +20,18 @@
 			<version>2.0</version>
 			<type>jar</type>
 		</location>
+		<location includeDependencyScope="" missingManifest="generate" type="Maven">
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>3.141.59</version>
+			<type>jar</type>
+			<instructions><![CDATA[Bundle-Name:           Bundle derived from maven artifact ${mvnGroupId}:${mvnArtifactId}:${mvnVersion}
+version:               ${version_cleanup;${mvnVersion}}
+Bundle-SymbolicName:   custom.name.test
+Bundle-Version:        ${version}
+Import-Package:        *;resolution:=optional
+Export-Package:        *;version="${version}";-noimport:=true
+DynamicImport-Package: *]]></instructions>
+		</location>
 	</locations>
 </target>
