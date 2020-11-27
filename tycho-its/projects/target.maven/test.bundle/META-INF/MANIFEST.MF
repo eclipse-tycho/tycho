@@ -5,4 +5,5 @@ Bundle-SymbolicName: test.bundle
 Bundle-Version: 0.0.1.qualifier
 Automatic-Module-Name: test.bundle
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: wrapped.oro.oro;bundle-version="2.0.8"
+Require-Bundle: wrapped.oro.oro;bundle-version="2.0.8",
+ custom.name.test;bundle-version="3.141.59"

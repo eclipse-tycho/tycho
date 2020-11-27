@@ -15,7 +15,9 @@
 package org.eclipse.tycho.p2.target.facade;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 // TODO javadoc
 public interface TargetDefinition {
@@ -86,6 +88,8 @@ public interface TargetDefinition {
         String getArtifactType();
 
         String getClassifier();
+
+        Collection<BNDInstructions> getInstructions();
     }
 
     /**
@@ -159,6 +163,13 @@ public interface TargetDefinition {
         public String getId();
 
         public String getVersion();
+    }
+
+    public interface BNDInstructions {
+
+        public String getReference();
+
+        public Properties getInstructions();
     }
 
 }
