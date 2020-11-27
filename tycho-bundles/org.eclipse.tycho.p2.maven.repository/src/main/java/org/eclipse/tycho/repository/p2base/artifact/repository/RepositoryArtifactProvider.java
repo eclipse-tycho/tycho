@@ -9,12 +9,14 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
- *    Christoph Läubrich - Bug 538144 - Support other target locations (Directory, Features, Installations) 
+ *    Christoph Läubrich -  [Bug 538144] Support other target locations (Directory, Features, Installations) 
+ *                          [Bug 569146] Add support for exploded bundles in file-based target platform
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
 import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,14 +41,17 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProviderBaseImpl;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
 
-public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImpl implements IRawArtifactProvider {
+public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImpl
+        implements IRawArtifactProvider, IArtifactFileProvider {
 
     private static class RepositoryLoader implements ArtifactRepositorySupplier {
 
@@ -245,6 +250,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
                 return false;
             }
             // there is no way to explicitly select a mirror - the repository magically picks one
+            System.out.println("getArtifactFromOneMirror = " + repository + " sink = " + sink);
             IStatus status = repository.getArtifact(descriptor, sink.beginWrite(), monitor);
 
             statusCollector.add(improveMessageIfError(status, repository, descriptor));
@@ -396,6 +402,34 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         public ArtifactSinkException getWrappedException() {
             return wrappedException;
         }
+    }
+
+    @Override
+    public File getArtifactFile(IArtifactKey key) {
+        init();
+        for (IArtifactRepository repository : repositories) {
+            if (repository instanceof IFileArtifactRepository) {
+                IFileArtifactRepository fileArtifactRepository = (IFileArtifactRepository) repository;
+                if (fileArtifactRepository.contains(key)) {
+                    return fileArtifactRepository.getArtifactFile(key);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey key) {
+        init();
+        for (IArtifactRepository repository : repositories) {
+            if (repository instanceof IFileArtifactRepository) {
+                IFileArtifactRepository fileArtifactRepository = (IFileArtifactRepository) repository;
+                if (fileArtifactRepository.contains(key)) {
+                    return fileArtifactRepository.getArtifactFile(key) != null;
+                }
+            }
+        }
+        return false;
     }
 
 }

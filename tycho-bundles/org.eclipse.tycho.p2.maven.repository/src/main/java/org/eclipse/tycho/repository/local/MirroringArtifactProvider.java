@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2020 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - [Bug 569146} Add support for exploded bundles in file-based target platform
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
@@ -29,6 +30,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
@@ -120,6 +122,12 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     @Override
     public final File getArtifactFile(IArtifactKey key) throws MirroringFailedException {
+        if (remoteProviders instanceof IArtifactFileProvider) {
+            IArtifactFileProvider fileProvider = (IArtifactFileProvider) remoteProviders;
+            if (fileProvider.isFileAlreadyAvailable(key)) {
+                return fileProvider.getArtifactFile(key);
+            }
+        }
         if (makeLocallyAvailable(key)) {
             return localArtifactRepository.getArtifactFile(key);
         }
