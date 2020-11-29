@@ -91,10 +91,9 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
     }
 
     private void copyToStream(File file, ZipOutputStream os, String path, FileFilter fileFilter) throws IOException {
-        String pathName = path == null ? "" : path + file.getName();
         if (file.isFile()) {
             try (FileInputStream is = new FileInputStream(file)) {
-                ZipEntry entry = new ZipEntry(pathName);
+                ZipEntry entry = new ZipEntry(path == null ? file.getName() : path + file.getName());
                 entry.setLastModifiedTime(FileTime.fromMillis(file.lastModified()));
                 os.putNextEntry(entry);
                 is.transferTo(os);
@@ -104,7 +103,7 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
             File[] files = file.listFiles(fileFilter);
             if (files != null && files.length > 0) {
                 for (File file2 : files) {
-                    copyToStream(file2, os, pathName + "/", fileFilter);
+                    copyToStream(file2, os, path == null ? "" : path + file.getName() + "/", fileFilter);
                 }
             }
         } else {

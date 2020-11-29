@@ -62,8 +62,8 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                 return loadManifestFromFile(bundleLocation);
             } else {
                 // file does not exist
-                throw new OsgiManifestParserException(
-                        new File(bundleLocation, JarFile.MANIFEST_NAME).getAbsolutePath(), "Manifest file not found");
+                throw new OsgiManifestParserException(new File(bundleLocation, JarFile.MANIFEST_NAME).getAbsolutePath(),
+                        "Manifest file not found");
             }
         } catch (IOException e) {
             throw new OsgiManifestParserException(bundleLocation.getAbsolutePath(), e);
@@ -136,7 +136,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         if (result.exists()) {
             return result;
         } else {
-            getLogger().debug("Bundle-ClassPath entry " + path + " does not exist in " + bundleLocation);
+            getLogger().warn("Bundle-ClassPath entry " + path + " does not exist in " + bundleLocation);
             return null;
         }
     }
