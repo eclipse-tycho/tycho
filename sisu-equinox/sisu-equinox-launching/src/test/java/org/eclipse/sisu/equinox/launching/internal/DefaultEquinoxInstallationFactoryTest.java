@@ -29,8 +29,8 @@ import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DefaultEquinoxInstallationFactoryTest {
 
@@ -40,7 +40,7 @@ public class DefaultEquinoxInstallationFactoryTest {
 
     private DefaultEquinoxInstallationFactory subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         bundles = new HashMap<>();
         bundles.put(new DefaultArtifactKey("eclipse-plugin", "org.example.bundle1", "1.0"),
