@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2019 SAP AG and others.
+ * Copyright (c) 2011, 2020 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ public class ResourceUtil {
     public enum P2Repositories {
         ECLIPSE_342("e342"), ECLIPSE_352("e352"), ECLIPSE_OXYGEN(
                 "https:////download.eclipse.org/releases/oxygen/"), ECLIPSE_LATEST(
-                        "https:////download.eclipse.org/releases/2020-06/");
+                        "https:////download.eclipse.org/releases/2020-09/");
 
         private final String path;
 

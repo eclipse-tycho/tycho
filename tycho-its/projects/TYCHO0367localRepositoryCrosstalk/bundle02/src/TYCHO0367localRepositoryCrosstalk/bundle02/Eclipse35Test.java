@@ -20,24 +20,17 @@ import org.eclipse.osgi.service.resolver.State;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 
-public class Eclipse35Test
-    extends TestCase
-{
-    public void test()
-        throws Exception
-    {
-        Bundle equinox = getBundle( "org.eclipse.osgi");
+public class Eclipse35Test extends TestCase {
+    public void test() throws Exception {
+        Bundle equinox = getBundle("org.eclipse.osgi");
 
-        assertEquals( 3, equinox.getVersion().getMajor() );
-        assertEquals( 15, equinox.getVersion().getMinor() );
+        assertEquals(3, equinox.getVersion().getMajor());
+        assertEquals(16, equinox.getVersion().getMinor());
     }
-    
-    public Bundle getBundle( String id )
-    {
-        for ( Bundle bundle : Activator.context.getBundles() )
-        {
-            if ( id.equals( bundle.getSymbolicName() ) )
-            {
+
+    public Bundle getBundle(String id) {
+        for (Bundle bundle : Activator.context.getBundles()) {
+            if (id.equals(bundle.getSymbolicName())) {
                 return bundle;
             }
         }
