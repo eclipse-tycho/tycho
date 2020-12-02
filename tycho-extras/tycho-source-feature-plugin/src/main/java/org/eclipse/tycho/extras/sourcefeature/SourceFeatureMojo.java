@@ -216,6 +216,8 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        logger.warn(
+                "Mojo tycho-source-feature-plugin:source-feature is replaced by the tycho-source-plugin:feature-source which offers equivalent and even enhanced functionality");
         if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
             return;
         }
