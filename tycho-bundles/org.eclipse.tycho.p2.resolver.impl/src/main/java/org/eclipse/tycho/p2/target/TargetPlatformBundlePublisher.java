@@ -180,7 +180,8 @@ public class TargetPlatformBundlePublisher {
                     } else {
                         logger.info("Maven Artifact " + mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId()
                                 + ":" + mavenArtifact.getVersion()
-                                + " is not a bundle and will be ignored, automatic wrapping of such artifacts can be enabled with <pomDependencies>use</pomDependencies> in target platform configuration.");
+                                + " is not a bundle and will be ignored, automatic wrapping of such artifacts can be enabled with "
+                                + "<pomDependencies>wrapAsBundle</pomDependencies> in target platform configuration.");
                         return new Status(IStatus.OK, TargetPlatformBundlePublisher.class.getName(), "Nothing to do");
                     }
 

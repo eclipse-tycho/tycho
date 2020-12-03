@@ -107,7 +107,7 @@ public class TargetPlatformBundlePublisherTest {
     public void testPomDependencyOnPlainJar() throws Exception {
         logVerifier.expectNoWarnings();
         logVerifier.expectInfo(containsString(
-                "is not a bundle and will be ignored, automatic wrapping of such artifacts can be enabled"));
+                "is not a bundle and will be ignored, automatic wrapping of such artifacts can be enabled with <pomDependencies>wrapAsBundle</pomDependencies>"));
         File jarFile = resourceFile("platformbuilder/pom-dependencies/non-bundle.jar");
         IArtifactFacade jarArtifact = new ArtifactMock(jarFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
         assertNull(subject.attemptToPublishBundle(jarArtifact, false));
