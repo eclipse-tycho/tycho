@@ -42,7 +42,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
          */
         consider,
         /**
-         * pom dependencies are used and wrapped into OSGi bundles if necessary. p2 metadata may be generated if missing.
+         * pom dependencies are used and wrapped into OSGi bundles if necessary. p2 metadata may be
+         * generated if missing.
          */
         wrapAsBundle;
     }
@@ -56,7 +57,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private final List<File> targets = new ArrayList<>();
     private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
-    private PomDependencies pomDependencies;
+    private PomDependencies pomDependencies = PomDependencies.ignore;
 
     private Boolean allowConflictingDependencies;
 
