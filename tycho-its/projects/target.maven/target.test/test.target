@@ -2,13 +2,13 @@
 <?pde version="3.8"?>
 <target name="test">
 	<locations>
-		<location includeDependencyScope="" missingManifest="error" type="Maven">
+		<location missingManifest="error" type="Maven">
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 			<version>3.6.1</version>
 			<type>jar</type>
 		</location>
-		<location includeDependencyScope="compile" missingManifest="ignore" type="Maven">
+		<location includeDependencyScope="compile" includeSource="true" missingManifest="ignore" type="Maven">
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
 			<version>1.7</version>
