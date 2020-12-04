@@ -49,7 +49,8 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
             String dependencyScope) {
         Artifact artifact;
         if (classifier != null && !classifier.isEmpty()) {
-            artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, version, classifier);
+            artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, packaging,
+                    classifier);
             artifact.setScope(dependencyScope);
         } else {
             artifact = repositorySystem.createArtifact(groupId, artifactId, version, dependencyScope, packaging);

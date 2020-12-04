@@ -13,6 +13,7 @@
  *                          - [Bug 533747] Target file is read and parsed over and over again
  *                          - [Bug 568729] Support new "Maven" Target location
  *                          - [Bug 569060] All ids of target file must be different 
+ *                          - [Bug 569481] Support for maven target location includeSource="true" attribute
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -170,7 +171,7 @@ public final class TargetDefinitionResolver {
             } else if (locationDefinition instanceof MavenGAVLocation) {
                 MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
                 MavenTargetDefinitionContent targetDefinitionContent = new MavenTargetDefinitionContent(location,
-                        mavenDependenciesResolver, provisioningAgent, logger);
+                        mavenDependenciesResolver, includeSourceMode, provisioningAgent, logger);
                 mavenLocations.add(targetDefinitionContent);
                 IQueryResult<IInstallableUnit> result = targetDefinitionContent.query(QueryUtil.ALL_UNITS,
                         new LoggingProgressMonitor(logger));

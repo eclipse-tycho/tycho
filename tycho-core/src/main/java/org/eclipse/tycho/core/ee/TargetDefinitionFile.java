@@ -11,6 +11,7 @@
  *    Christoph Läubrich    - [Bug 538144] - support other target locations (Directory, Feature, Installations)
  *                          - [Bug 533747] - Target file is read and parsed over and over again
  *                          - [Bug 568729] - Support new "Maven" Target location
+ *                          - [Bug 569481] - Support for maven target location includeSource="true" attribute
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
@@ -158,6 +159,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
 
         @Override
+        public boolean includeSource() {
+            return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
+        }
+
+        @Override
         public String getGroupId() {
             return getTextFromChild("groupId", null);
         }
@@ -207,6 +213,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
             builder.append(getIncludeDependencyScope());
             builder.append(", MissingManifestStrategy = ");
             builder.append(getMissingManifestStrategy());
+            builder.append(", IncludeSource = ");
+            builder.append(includeSource());
             return builder.toString();
         }
 

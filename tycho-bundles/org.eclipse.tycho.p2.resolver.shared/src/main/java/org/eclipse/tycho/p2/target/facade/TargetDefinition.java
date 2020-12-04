@@ -11,6 +11,7 @@
  *    SAP AG - initial API and implementation
  *    Christoph Läubrich -  [Bug 538144] - support other target locations (Directory, Feature, Installations)
  *                          [Bug 568729] - Support new "Maven" Target location
+ *                          [Bug 569481] - Support for maven target location includeSource="true" attribute
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -90,6 +91,8 @@ public interface TargetDefinition {
         String getClassifier();
 
         Collection<BNDInstructions> getInstructions();
+
+        boolean includeSource();
     }
 
     /**
