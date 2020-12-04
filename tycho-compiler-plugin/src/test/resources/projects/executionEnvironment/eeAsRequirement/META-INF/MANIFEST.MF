@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: eeAsRequirement
+Bundle-SymbolicName: eeAsRequirement
+Bundle-Version: 1.0.0
+Require-Capability: osgi.ee; filter:="(| (&(osgi.ee=JavaSE)(version=1.8)) (&(osgi.ee=JavaSE/compact1)(version=1.8)))" 

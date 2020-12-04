@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -58,6 +59,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
@@ -75,11 +77,18 @@ import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
+import org.osgi.resource.Namespace;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
 
@@ -337,11 +346,42 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
     }
 
-    private StandardExecutionEnvironment[] getBREE() {
+    /**
+     * Only public for tests purpose!
+     */
+    public StandardExecutionEnvironment[] getBREE() {
         if (manifestBREEs == null) {
-            manifestBREEs = Arrays.stream(bundleReader.loadManifest(project.getBasedir()).getExecutionEnvironments())
+            OsgiManifest manifest = bundleReader.loadManifest(project.getBasedir());
+            manifestBREEs = Arrays.stream(manifest.getExecutionEnvironments())
                     .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session, logger))
                     .toArray(StandardExecutionEnvironment[]::new);
+            if (manifestBREEs.length == 0) {
+                ManifestElement[] requireCapability = manifest.getManifestElements(Constants.REQUIRE_CAPABILITY);
+                if (requireCapability != null) {
+                    List<Filter> eeFilters = Arrays.stream(requireCapability)
+                            .filter(element -> ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE
+                                    .equals(element.getValue())) //
+                            .map(element -> element.getDirective(Namespace.REQUIREMENT_FILTER_DIRECTIVE)) //
+                            .map(filterDirective -> {
+                                try {
+                                    return FrameworkUtil.createFilter(filterDirective);
+                                } catch (InvalidSyntaxException e) {
+                                    e.printStackTrace();
+                                    return null;
+                                }
+                            }).filter(Objects::nonNull).collect(Collectors.toList());
+                    manifestBREEs = ExecutionEnvironmentUtils.getProfileNames().stream() //
+                            .map(name -> name.split("-")) //
+                            .map(segments -> Map.of(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE,
+                                    segments[0], "version", segments[1]))
+                            .filter(eeCapability -> eeFilters.stream().anyMatch(filter -> filter.matches(eeCapability)))
+                            .map(ee -> ee.get(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE) + '-'
+                                    + ee.get("version"))
+                            .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session,
+                                    logger))
+                            .toArray(StandardExecutionEnvironment[]::new);
+                }
+            }
         }
         return manifestBREEs;
     }

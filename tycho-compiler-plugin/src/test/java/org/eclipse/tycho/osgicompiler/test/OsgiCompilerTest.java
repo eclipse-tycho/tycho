@@ -18,8 +18,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
@@ -31,6 +34,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
+import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
@@ -289,6 +293,16 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals("1.8", mojo.getTargetLevel());
         assertEquals("8", mojo.getReleaseLevel());
         assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Noop.class"));
+    }
+
+    public void testNoBREEButEERequirement() throws Exception {
+        File basedir = getBasedir("projects/executionEnvironment/eeAsRequirement");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        StandardExecutionEnvironment[] ees = mojo.getBREE();
+        assertEquals(Set.of("JavaSE-1.8", "JavaSE/compact1-1.8"),
+                Arrays.stream(ees).map(StandardExecutionEnvironment::getProfileName).collect(Collectors.toSet()));
     }
 
     public void testAutomaticReleaseCompilerArgumentDeterminationDisabled() throws Exception {
