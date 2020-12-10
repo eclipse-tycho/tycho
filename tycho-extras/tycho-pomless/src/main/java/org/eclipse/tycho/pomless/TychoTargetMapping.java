@@ -48,8 +48,8 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
         if (file.exists()) {
             return file;
         }
-        File[] listFiles = dir.listFiles((FileFilter) file1 -> file1.isFile() && file1.getName().endsWith(TARGET_EXTENSION)
-                && !file1.getName().startsWith(".polyglot."));
+        File[] listFiles = dir.listFiles((FileFilter) file1 -> file1.getName().endsWith(TARGET_EXTENSION)
+                && !file1.getName().startsWith(".polyglot.") && file1.isFile());
         if (listFiles != null && listFiles.length > 0) {
             if (listFiles.length == 1) {
                 return listFiles[0];
