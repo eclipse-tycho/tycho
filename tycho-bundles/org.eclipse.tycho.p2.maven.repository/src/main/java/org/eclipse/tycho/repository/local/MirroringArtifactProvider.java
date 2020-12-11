@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
+import org.eclipse.tycho.repository.local.LocalArtifactRepository.IDownloadLock;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
@@ -210,7 +211,11 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         if (localArtifactRepository.contains(key)) {
             return true;
         } else if (remoteProviders.contains(key)) {
-            downloadArtifact(key);
+            try (IDownloadLock lock = localArtifactRepository.acquireDownloadLock(key)) {
+                if (!localArtifactRepository.contains(key)) { // check again within lock
+                    downloadArtifact(key);
+                }
+            }
             return true;
         } else {
             return false;
