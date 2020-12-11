@@ -22,7 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -43,6 +47,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     private Set<IArtifactDescriptor> descriptorsOnLastSave;
     private final LocalRepositoryP2Indices localRepoIndices;
     private final RepositoryReader contentLocator;
+    private final Map<IArtifactKey, Lock> downloadLocks = new ConcurrentHashMap<>();
 
     // TODO what is the agent needed for? does using the default agent harm?
     public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices) {
@@ -203,4 +208,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         return contains(artifactKey);
     }
 
+    Lock getLockForDownload(IArtifactKey key) {
+        return downloadLocks.computeIfAbsent(key, k -> new ReentrantLock());
+    }
 }
