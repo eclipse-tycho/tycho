@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a499d541_1234d334",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/PackedFormatMirroringArtifactProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-11T10:07:07Z",
+      "side": 1,
+      "message": "We could avoid this code duplication if local and remote repository would inherit from the same interface. Then makeOneFormatLocallyAvailable could be final with an additional \n\n  boolean isAvailableInRepository(ICommonInterface repo, IArtifactKey key);",
+      "revId": "d5af36a4a13167b55885b1884bec4bbe2e18c89c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
