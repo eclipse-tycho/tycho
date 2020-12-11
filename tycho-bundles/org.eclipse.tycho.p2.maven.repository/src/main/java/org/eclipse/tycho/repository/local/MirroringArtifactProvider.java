@@ -15,6 +15,7 @@ package org.eclipse.tycho.repository.local;
 import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
+import java.util.concurrent.locks.Lock;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -210,7 +211,15 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         if (localArtifactRepository.contains(key)) {
             return true;
         } else if (remoteProviders.contains(key)) {
-            downloadArtifact(key);
+            Lock downloadLock = localArtifactRepository.getLockForDownload(key);
+            downloadLock.lock();
+            try {
+                if (!localArtifactRepository.contains(key)) { // check again within lock
+                    downloadArtifact(key);
+                }
+            } finally {
+                downloadLock.unlock();
+            }
             return true;
         } else {
             return false;
