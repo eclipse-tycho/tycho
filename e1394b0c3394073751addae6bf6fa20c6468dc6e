@@ -50,6 +50,24 @@
       "revId": "e1394b0c3394073751addae6bf6fa20c6468dc6e",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3131642_ed02a0f8",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/MirroringArtifactProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-11T09:40:08Z",
+      "side": 1,
+      "message": "Here\u0027s the relevant stack. The collection of artifacts is only available in EquinoxResolver::newState, so that would be quite the refactoring.\n\n        at org.eclipse.tycho.repository.local.MirroringArtifactProvider.makeOneFormatLocallyAvailable(MirroringArtifactProvider.java:214)\n        at org.eclipse.tycho.repository.local.MirroringArtifactProvider.makeLocallyAvailable(MirroringArtifactProvider.java:185)\n        at org.eclipse.tycho.repository.local.MirroringArtifactProvider.getArtifactFile(MirroringArtifactProvider.java:124)\n        at org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProvider.getArtifactFile(CompositeArtifactProvider.java:87)\n        at org.eclipse.tycho.p2.target.TargetPlatformBaseImpl.getLocalArtifactFile(TargetPlatformBaseImpl.java:130)\n        at org.eclipse.tycho.p2.resolver.DefaultP2ResolutionResult.lambda$0(DefaultP2ResolutionResult.java:58)\n        at org.eclipse.tycho.p2.resolver.DefaultP2ResolutionResultEntry.getLocation(DefaultP2ResolutionResultEntry.java:73)\n        at org.eclipse.tycho.p2.resolver.P2DependencyResolver.lambda$newDefaultTargetPlatform$1(P2DependencyResolver.java:420)\n        at org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection.lambda$addArtifactFile$0(ArtifactCollection.java:65)\n        at org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor.getLocation(DefaultArtifactDescriptor.java:62)\n        at org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection.lambda$addArtifact$1(ArtifactCollection.java:120)\n        at org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor.getLocation(DefaultArtifactDescriptor.java:62)\n        at org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection.lambda$addArtifact$1(ArtifactCollection.java:120)\n        at org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor.getLocation(DefaultArtifactDescriptor.java:62)\n        at org.eclipse.tycho.core.osgitools.EquinoxResolver.newState(EquinoxResolver.java:172)",
+      "parentUuid": "53b0951f_a1cd68c8",
+      "revId": "e1394b0c3394073751addae6bf6fa20c6468dc6e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
