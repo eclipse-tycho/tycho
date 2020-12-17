@@ -36,6 +36,7 @@ import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 /**
  * Create the javadoc based API reference for this bundle <br/>
@@ -354,7 +355,7 @@ public class JavadocMojo extends AbstractMojo {
         public void visit(final MavenProject project) throws MojoExecutionException {
             final BundleProject bp = getBundleProject(project);
             if (bp != null) {
-                for (final ClasspathEntry cpe : bp.getClasspath(project)) {
+                for (final ClasspathEntry cpe : bp.getClasspath(DefaultReactorProject.adapt(project))) {
                     cpe.getLocations().forEach(location -> this.classPath.add(location.getAbsolutePath()));
                 }
             }

@@ -58,6 +58,7 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -140,8 +141,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             }
 
             // build results will vary from system to system without explicit target environment configuration
-            boolean implicitTargetEnvironment = TychoProjectUtils.getTargetPlatformConfiguration(project)
-                    .isImplicitTargetEnvironment();
+            boolean implicitTargetEnvironment = TychoProjectUtils
+                    .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).isImplicitTargetEnvironment();
             if (productConfiguration.includeLaunchers() && implicitTargetEnvironment && environments == null) {
                 throw new MojoFailureException(
                         "Product includes native launcher but no target environment was specified");
@@ -222,7 +223,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private ArtifactDependencyWalker getDependencyWalker(TargetEnvironment environment) {
-        return getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_APPLICATION).getDependencyWalker(project, environment);
+        return getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_APPLICATION)
+                .getDependencyWalker(DefaultReactorProject.adapt(project), environment);
     }
 
     private List<TargetEnvironment> getEnvironments() {
@@ -232,7 +234,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             return Arrays.asList(environments);
         }
 
-        return TychoProjectUtils.getTargetPlatformConfiguration(project).getEnvironments();
+        return TychoProjectUtils.getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).getEnvironments();
     }
 
     private File getTarget(TargetEnvironment environment) {

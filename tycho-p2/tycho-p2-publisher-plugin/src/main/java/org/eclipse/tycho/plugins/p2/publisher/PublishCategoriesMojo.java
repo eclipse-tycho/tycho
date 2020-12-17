@@ -100,6 +100,6 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
     }
 
     private List<Category> getCategories() {
-        return eclipseRepositoryProject.loadCategories(getProject());
+        return eclipseRepositoryProject.loadCategories(getReactorProject());
     }
 }

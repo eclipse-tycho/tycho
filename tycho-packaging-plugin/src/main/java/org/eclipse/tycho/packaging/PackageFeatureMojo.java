@@ -37,6 +37,7 @@ import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
@@ -246,9 +247,10 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     }
 
     private void expandVersionQualifiers(Feature feature) throws MojoFailureException {
-        feature.setVersion(DefaultReactorProject.adapt(project).getExpandedVersion());
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        feature.setVersion(reactorProject.getExpandedVersion());
 
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(project);
+        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(reactorProject);
         if (targetPlatform == null) {
             getLog().warn(
                     "Skipping version reference expansion in eclipse-feature project using the deprecated -Dtycho.targetPlatform configuration");

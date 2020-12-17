@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -41,6 +40,7 @@ import org.eclipse.osgi.service.resolver.VersionConstraint;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
@@ -68,7 +68,7 @@ public class EquinoxResolver {
     @Requirement
     private ToolchainManager toolchainManager;
 
-    public State newResolvedState(MavenProject project, MavenSession mavenSession, ExecutionEnvironment ee,
+    public State newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             boolean ignoreEE, DependencyArtifacts artifacts) throws BundleException {
         Properties properties = getPlatformProperties(project, artifacts, ee);
 
@@ -128,7 +128,7 @@ public class EquinoxResolver {
         return sb.toString();
     }
 
-    protected Properties getPlatformProperties(MavenProject project, DependencyArtifacts artifacts,
+    protected Properties getPlatformProperties(ReactorProject project, DependencyArtifacts artifacts,
             ExecutionEnvironment ee) {
 
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);

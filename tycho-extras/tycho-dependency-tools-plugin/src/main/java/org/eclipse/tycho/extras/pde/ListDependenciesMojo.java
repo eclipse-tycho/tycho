@@ -26,6 +26,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 /**
@@ -56,8 +57,9 @@ public class ListDependenciesMojo extends AbstractMojo {
             throw new MojoFailureException(ex.getMessage(), ex);
         }
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
-            List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(project).getArtifacts()
-                    .stream().filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
+            List<ArtifactDescriptor> dependencies = TychoProjectUtils
+                    .getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts().stream()
+                    .filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
                     .collect(Collectors.toList());
             for (ArtifactDescriptor dependnecy : dependencies) {
                 if (dependnecy.getMavenProject() == null) {

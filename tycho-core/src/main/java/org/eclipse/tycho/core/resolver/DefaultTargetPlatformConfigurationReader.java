@@ -35,6 +35,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPol
 import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
@@ -136,7 +137,8 @@ public class DefaultTargetPlatformConfigurationReader {
             logger.warn("No explicit target runtime environment configuration. Build is platform dependent.");
 
             // Otherwise, use project or execution properties, if provided
-            Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+            Properties properties = (Properties) DefaultReactorProject.adapt(project)
+                    .getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
 
             // Otherwise, use current system os/ws/nl/arch
             String os = PlatformPropertiesUtils.getOS(properties);

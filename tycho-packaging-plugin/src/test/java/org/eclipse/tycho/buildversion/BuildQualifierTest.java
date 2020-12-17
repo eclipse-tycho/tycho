@@ -191,7 +191,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
         DefaultDependencyArtifacts dependencyArtifacts = (DefaultDependencyArtifacts) TychoProjectUtils
-                .getDependencyArtifacts(project);
+                .getDependencyArtifacts(reactorProject);
 
         // replace target platform dependencies with fake attached feature and bundle atrifacts
         ArtifactDescriptor attachedFeature = dependencyArtifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,

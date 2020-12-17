@@ -19,6 +19,7 @@ import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
@@ -64,10 +65,11 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         assertEquals(1, projects.size());
         MavenProject javaSE10Project = projects.get(0);
         assertEquals("executionenvironment.javase11", javaSE10Project.getArtifactId());
-        ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(javaSE10Project)
+        ReactorProject reactorProject = DefaultReactorProject.adapt(javaSE10Project);
+        ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject)
                 .getFullSpecification();
         assertEquals("JavaSE-11", ee.getProfileName());
-        Properties platformProperties = subject.getPlatformProperties(javaSE10Project, new DefaultDependencyArtifacts(),
+        Properties platformProperties = subject.getPlatformProperties(reactorProject, new DefaultDependencyArtifacts(),
                 ee);
         String executionEnvironments = platformProperties.getProperty("org.osgi.framework.executionenvironment");
         assertTrue(executionEnvironments.contains("JavaSE-10"));
