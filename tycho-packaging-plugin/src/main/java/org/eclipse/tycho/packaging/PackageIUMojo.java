@@ -101,7 +101,8 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
         iuTransformer.replaceQualifierInCapabilities(iu.getProvidedCapabilites(),
                 DefaultReactorProject.adapt(project).getBuildQualifier());
 
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(project);
+        TargetPlatform targetPlatform = TychoProjectUtils
+                .getTargetPlatformIfAvailable(DefaultReactorProject.adapt(project));
         if (targetPlatform == null) {
             getLog().warn(
                     "Skipping version reference expansion in p2iu project using the deprecated -Dtycho.targetPlatform configuration");

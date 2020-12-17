@@ -57,7 +57,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     }
 
     protected List<TargetEnvironment> getEnvironments() {
-        return TychoProjectUtils.getTargetPlatformConfiguration(project).getEnvironments();
+        return TychoProjectUtils.getTargetPlatformConfiguration(getReactorProject()).getEnvironments();
     }
 
     protected BuildDirectory getBuildDirectory() {

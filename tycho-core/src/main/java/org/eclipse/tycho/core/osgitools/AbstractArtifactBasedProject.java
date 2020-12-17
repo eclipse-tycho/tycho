@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
@@ -24,19 +23,19 @@ public abstract class AbstractArtifactBasedProject extends AbstractTychoProject 
 
     // requires resolved target platform
     @Override
-    public ArtifactDependencyWalker getDependencyWalker(MavenProject project) {
+    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {
         return getDependencyWalker(project, null);
     }
 
     @Override
-    public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment) {
+    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         return newDependencyWalker(project, environment);
     }
 
-    protected abstract ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment);
+    protected abstract ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment);
 
     @Override
-    public void checkForMissingDependencies(MavenProject project) {
+    public void checkForMissingDependencies(ReactorProject project) {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
         // this throws exceptions when dependencies are missing

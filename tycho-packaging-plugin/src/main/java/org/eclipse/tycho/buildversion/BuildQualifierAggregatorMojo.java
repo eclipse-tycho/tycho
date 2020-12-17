@@ -74,7 +74,7 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
         final ReactorProject thisProject = DefaultReactorProject.adapt(project);
 
-        projectType.getDependencyWalker(project).walk(new ArtifactDependencyVisitor() {
+        projectType.getDependencyWalker(thisProject).walk(new ArtifactDependencyVisitor() {
             @Override
             public boolean visitFeature(FeatureDescription feature) {
                 if (feature.getFeatureRef() == null || thisProject.equals(feature.getMavenProject())) {

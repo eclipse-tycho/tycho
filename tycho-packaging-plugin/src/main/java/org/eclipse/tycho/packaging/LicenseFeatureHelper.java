@@ -30,6 +30,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
@@ -60,7 +61,8 @@ public class LicenseFeatureHelper {
             return null;
         }
 
-        ArtifactDescriptor licenseFeature = TychoProjectUtils.getDependencyArtifacts(mavenProject)
+        ArtifactDescriptor licenseFeature = TychoProjectUtils
+                .getDependencyArtifacts(DefaultReactorProject.adapt(mavenProject))
                 .getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, id, feature.getLicenseFeatureVersion());
 
         if (licenseFeature == null) {
