@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.Optional;
 
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
@@ -20,7 +21,7 @@ public class ExecutionEnvironmentTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/targetJRE");
         Optional<MavenProject> project = getSortedProjects(basedir).stream().filter(p -> p.getName().equals("bundle"))
                 .findAny();
-        assertEquals("JavaSE-1.7",
-                TychoProjectUtils.getExecutionEnvironmentConfiguration(project.get()).getProfileName());
+        assertEquals("JavaSE-1.7", TychoProjectUtils
+                .getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project.get())).getProfileName());
     }
 }

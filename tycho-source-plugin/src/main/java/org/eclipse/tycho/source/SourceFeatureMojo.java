@@ -51,6 +51,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -322,7 +323,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
         final Feature sourceFeature = createSourceFeatureSkeleton(feature, mergedSourceFeatureProps,
                 sourceTemplateProps);
-        fillReferences(sourceFeature, feature, TychoProjectUtils.getTargetPlatform(project));
+        fillReferences(sourceFeature, feature, TychoProjectUtils.getTargetPlatform(DefaultReactorProject.adapt(project)));
 
         Feature.write(sourceFeature, sourceFeatureXml, "  ");
         return sourceFeatureXml;

@@ -89,7 +89,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 getEnvironments(), getQualifier(), interpolator);
 
         List<DependencySeed> seeds = new ArrayList<>();
-        for (File productFile : eclipseRepositoryProject.getProductFiles(getProject())) {
+        for (File productFile : eclipseRepositoryProject.getProductFiles(getReactorProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
                 if (productConfiguration.getId() == null || productConfiguration.getId().isEmpty()) {
@@ -112,7 +112,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
     private File getExpandedLauncherBinaries() throws MojoExecutionException, MojoFailureException {
         // TODO 364134 take the executable feature from the target platform instead
-        DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getProject());
+        DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getReactorProject());
         ArtifactDescriptor artifact = dependencyArtifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
                 "org.eclipse.equinox.executable", null);
 

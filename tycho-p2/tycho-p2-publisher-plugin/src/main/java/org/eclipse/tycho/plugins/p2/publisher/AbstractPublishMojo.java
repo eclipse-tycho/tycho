@@ -63,6 +63,6 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
      * assembly p2 repository.
      */
     private void postPublishedIUs(Collection<DependencySeed> units) {
-        TychoProjectUtils.getDependencySeeds(getProject()).addAll(units);
+        TychoProjectUtils.getDependencySeeds(getReactorProject()).addAll(units);
     }
 }

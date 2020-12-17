@@ -15,7 +15,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -28,6 +30,8 @@ import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 
 public class DefaultReactorProject implements ReactorProject {
     private final MavenProject project;
+
+    private final Map<String, Object> context = new ConcurrentHashMap<>();
 
     public DefaultReactorProject(MavenProject project) {
         if (project == null) {
@@ -124,17 +128,18 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public Object getContextValue(String key) {
-        return project.getContextValue(key);
+        Object value = context.get(key);
+        return (value != null) ? value : project.getContextValue(key);
     }
 
     @Override
     public void setContextValue(String key, Object value) {
-        project.setContextValue(key, value);
+        context.put(key, value);
     }
 
     @Override
     public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
-        project.setContextValue(getDependencyMetadataKey(primary), installableUnits);
+        setContextValue(getDependencyMetadataKey(primary), installableUnits);
     }
 
     @Override
@@ -155,7 +160,7 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public Set<?> getDependencyMetadata(boolean primary) {
-        Set<?> metadata = (Set<?>) project.getContextValue(getDependencyMetadataKey(primary));
+        Set<?> metadata = (Set<?>) getContextValue(getDependencyMetadataKey(primary));
         return metadata;
     }
 

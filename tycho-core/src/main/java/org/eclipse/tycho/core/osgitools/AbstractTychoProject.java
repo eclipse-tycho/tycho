@@ -16,6 +16,7 @@ import java.util.Objects;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
@@ -31,12 +32,12 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
 
     @Override
-    public DependencyArtifacts getDependencyArtifacts(MavenProject project) {
+    public DependencyArtifacts getDependencyArtifacts(ReactorProject project) {
         return TychoProjectUtils.getDependencyArtifacts(project);
     }
 
     @Override
-    public DependencyArtifacts getDependencyArtifacts(MavenProject project, TargetEnvironment environment) {
+    public DependencyArtifacts getDependencyArtifacts(ReactorProject project, TargetEnvironment environment) {
         DependencyArtifacts platform = getDependencyArtifacts(project);
 
         if (environment != null && platform instanceof MultiEnvironmentDependencyArtifacts) {
@@ -51,7 +52,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         return platform;
     }
 
-    public void setDependencyArtifacts(MavenSession session, MavenProject project,
+    public void setDependencyArtifacts(MavenSession session, ReactorProject project,
             DependencyArtifacts dependencyArtifacts) {
         project.setContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS, dependencyArtifacts);
     }
@@ -65,14 +66,14 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
      *             itself
      */
     @Deprecated
-    public void checkForMissingDependencies(MavenProject project) {
+    public void checkForMissingDependencies(ReactorProject project) {
     }
 
     public void resolveClassPath(MavenSession session, MavenProject project) {
         // do nothing by default
     }
 
-    protected TargetEnvironment[] getEnvironments(MavenProject project, TargetEnvironment environment) {
+    protected TargetEnvironment[] getEnvironments(ReactorProject project, TargetEnvironment environment) {
         if (environment != null) {
             return new TargetEnvironment[] { environment };
         }
@@ -92,7 +93,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         return null;
     }
 
-    public void readExecutionEnvironmentConfiguration(MavenProject project, MavenSession mavenSession,
+    public void readExecutionEnvironmentConfiguration(ReactorProject project, MavenSession mavenSession,
             ExecutionEnvironmentConfiguration sink) {
         TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 

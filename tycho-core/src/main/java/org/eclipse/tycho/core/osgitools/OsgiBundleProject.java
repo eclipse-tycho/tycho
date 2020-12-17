@@ -94,12 +94,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private ToolchainManager toolchainManager;
 
     @Override
-    public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment) {
+    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         return getDependencyWalker(project);
     }
 
     @Override
-    public ArtifactDependencyWalker getDependencyWalker(MavenProject project) {
+    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {
         final DependencyArtifacts artifacts = getDependencyArtifacts(project);
 
         final List<ClasspathEntry> cp = getClasspath(project);
@@ -149,7 +149,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
         ArtifactKey key = readArtifactKey(project.getBasedir());
-        project.setContextValue(CTX_ARTIFACT_KEY, key);
+        DefaultReactorProject.adapt(project).setContextValue(CTX_ARTIFACT_KEY, key);
     }
 
     public ArtifactKey readArtifactKey(File location) {
@@ -159,18 +159,19 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public String getManifestValue(String key, MavenProject project) {
-        return getManifest(project).getValue(key);
+        return getManifest(DefaultReactorProject.adapt(project)).getValue(key);
     }
 
-    private OsgiManifest getManifest(MavenProject project) {
+    private OsgiManifest getManifest(ReactorProject project) {
         return bundleReader.loadManifest(project.getBasedir());
     }
 
     @Override
     public void resolveClassPath(MavenSession session, MavenProject project) {
-        DependencyArtifacts artifacts = getDependencyArtifacts(project);
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        DependencyArtifacts artifacts = getDependencyArtifacts(reactorProject);
 
-        State state = getResolverState(project, artifacts, session);
+        State state = getResolverState(reactorProject, artifacts, session);
 
         if (getLogger().isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             getLogger().debug(resolver.toDebugString(state));
@@ -212,19 +213,18 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
 
         // build.properties/jars.extra.classpath
-        ReactorProject projectProxy = DefaultReactorProject.adapt(project);
-        addExtraClasspathEntries(classpath, projectProxy, artifacts);
+        addExtraClasspathEntries(classpath, reactorProject, artifacts);
 
         // project itself
         ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(), bundleDescription.getSymbolicName());
-        List<File> projectClasspath = getThisProjectClasspath(artifact, projectProxy);
-        classpath.add(new DefaultClasspathEntry(projectProxy, artifact.getKey(), projectClasspath, null));
+        List<File> projectClasspath = getThisProjectClasspath(artifact, reactorProject);
+        classpath.add(new DefaultClasspathEntry(reactorProject, artifact.getKey(), projectClasspath, null));
 
-        project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
+        reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
 
-        project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES,
+        reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES,
                 strictBootClasspathAccessRules);
-        project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES,
+        reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES,
                 dependencyComputer.computeBootClasspathExtraAccessRules(state.getStateHelper(), bundleDescription));
 
         addPDESourceRoots(project);
@@ -265,7 +265,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
     }
 
-    private State getResolverState(MavenProject project, DependencyArtifacts artifacts, MavenSession session) {
+    private State getResolverState(ReactorProject project, DependencyArtifacts artifacts, MavenSession session) {
         try {
             ExecutionEnvironmentConfiguration eeConfiguration = TychoProjectUtils
                     .getExecutionEnvironmentConfiguration(project);
@@ -292,7 +292,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     @Override
-    public List<ClasspathEntry> getClasspath(MavenProject project) {
+    public List<ClasspathEntry> getClasspath(ReactorProject project) {
         @SuppressWarnings("unchecked")
         List<ClasspathEntry> classpath = (List<ClasspathEntry>) project
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH);
@@ -303,7 +303,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     @Override
-    public List<ClasspathEntry.AccessRule> getBootClasspathExtraAccessRules(MavenProject project) {
+    public List<ClasspathEntry.AccessRule> getBootClasspathExtraAccessRules(ReactorProject project) {
         @SuppressWarnings("unchecked")
         List<ClasspathEntry.AccessRule> rules = (List<AccessRule>) project
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES);
@@ -505,15 +505,14 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     @Override
-    public void readExecutionEnvironmentConfiguration(MavenProject project, MavenSession mavenSession,
+    public void readExecutionEnvironmentConfiguration(ReactorProject project, MavenSession mavenSession,
             ExecutionEnvironmentConfiguration sink) {
         // read packaging-type independent configuration
         super.readExecutionEnvironmentConfiguration(project, mavenSession, sink);
 
         // only in plugin projects, the profile may also be ...
         // ... specified in build.properties (for PDE compatibility)
-        String pdeProfileName = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
-                .getJreCompilationProfile();
+        String pdeProfileName = getEclipsePluginProject(project).getBuildProperties().getJreCompilationProfile();
         if (pdeProfileName != null) {
             sink.setProfileConfiguration(pdeProfileName.trim(), "build.properties");
         } else {

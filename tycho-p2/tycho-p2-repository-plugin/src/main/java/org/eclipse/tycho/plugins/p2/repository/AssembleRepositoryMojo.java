@@ -147,7 +147,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 destination.mkdirs();
                 copyResources(destination);
 
-                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
+                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getReactorProject());
                 if (projectSeeds.isEmpty()) {
                     throw new MojoFailureException("No content specified for p2 repository");
                 }
@@ -155,7 +155,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 RepositoryReferences sources = getVisibleRepositories();
 
                 TargetPlatformConfiguration configuration = TychoProjectUtils
-                        .getTargetPlatformConfiguration(getProject());
+                        .getTargetPlatformConfiguration(getReactorProject());
 
                 MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
 
@@ -194,7 +194,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     }
 
     private List<Category> getCategories() {
-        return eclipseRepositoryProject.loadCategories(getProject());
+        return eclipseRepositoryProject.loadCategories(getReactorProject());
     }
 
 }

@@ -621,7 +621,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                     .map(accessRule -> new DefaultAccessRule(accessRule, false)) //
                     .forEach(accessRules::add);
             // now add packages exported by framework extension bundles
-            accessRules.addAll(getBundleProject().getBootClasspathExtraAccessRules(project));
+            accessRules.addAll(getBundleProject().getBootClasspathExtraAccessRules(DefaultReactorProject.adapt(project)));
         }
         if (!accessRules.isEmpty()) {
             compilerConfiguration.addCompilerCustomArgument("org.osgi.framework.system.packages",
@@ -631,7 +631,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     @SuppressWarnings("unchecked")
     private List<AccessRule> getStrictBootClasspathAccessRules() throws MojoExecutionException {
-        return (List<AccessRule>) project
+        return (List<AccessRule>) DefaultReactorProject.adapt(project)
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES);
     }
 
@@ -708,13 +708,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     private ExecutionEnvironment getTargetExecutionEnvironment() {
         // never null
-        return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getFullSpecification();
+        return TychoProjectUtils.getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project))
+                .getFullSpecification();
     }
 
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         TychoProject projectType = getBundleProject();
-        ArrayList<ClasspathEntry> classpath = new ArrayList<>(((BundleProject) projectType).getClasspath(project));
+        ArrayList<ClasspathEntry> classpath = new ArrayList<>(
+                ((BundleProject) projectType).getClasspath(DefaultReactorProject.adapt(project)));
 
         if (extraClasspathElements != null) {
             ArtifactRepository localRepository = session.getLocalRepository();
