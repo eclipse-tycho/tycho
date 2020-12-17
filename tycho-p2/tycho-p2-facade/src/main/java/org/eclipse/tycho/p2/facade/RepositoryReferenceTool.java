@@ -113,11 +113,14 @@ public class RepositoryReferenceTool {
             try (FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"))) {
                 MetadataSerializable serializer = osgiServices.getService(MetadataSerializable.class);
 
-                TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(project);
+                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+                TargetPlatform targetPlatform = TychoProjectUtils
+                        .getTargetPlatform(reactorProject);
 
                 DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
 
-                TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+                TargetPlatformConfiguration configuration = TychoProjectUtils
+                        .getTargetPlatformConfiguration(reactorProject);
 
                 DependencyResolverConfiguration resolverConfiguration = configuration
                         .getDependencyResolverConfiguration();

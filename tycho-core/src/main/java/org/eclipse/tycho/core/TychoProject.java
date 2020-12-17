@@ -25,23 +25,23 @@ public interface TychoProject {
     /**
      * Walks all project dependencies, regardless of runtime environment filters.
      */
-    public ArtifactDependencyWalker getDependencyWalker(MavenProject project);
+    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project);
 
     /**
      * Walks project dependencies resolved for the specified runtime environment.
      */
-    public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment);
+    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment);
 
     /**
      * Returns resolved project dependencies. For projects targeting multiple runtime environments,
      * returned collection includes artifacts for all supported runtime environments.
      */
-    public DependencyArtifacts getDependencyArtifacts(MavenProject project);
+    public DependencyArtifacts getDependencyArtifacts(ReactorProject project);
 
     /**
      * Returns resolved project dependencies resolved for specified runtime environment.
      */
-    public DependencyArtifacts getDependencyArtifacts(MavenProject project, TargetEnvironment environment);
+    public DependencyArtifacts getDependencyArtifacts(ReactorProject project, TargetEnvironment environment);
 
     // implementation must not depend on target platform
     // TODO this method is not well-defined for some packaging types; some of them don't produce artifacts addressable via Eclipse coordinates

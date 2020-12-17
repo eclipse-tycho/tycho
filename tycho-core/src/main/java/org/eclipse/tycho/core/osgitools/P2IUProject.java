@@ -25,7 +25,7 @@ import org.eclipse.tycho.model.IU;
 @Component(role = TychoProject.class, hint = org.eclipse.tycho.ArtifactType.TYPE_INSTALLABLE_UNIT)
 public class P2IUProject extends AbstractArtifactBasedProject {
     @Override
-    protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
+    protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
                 project, environment)) {
             @Override

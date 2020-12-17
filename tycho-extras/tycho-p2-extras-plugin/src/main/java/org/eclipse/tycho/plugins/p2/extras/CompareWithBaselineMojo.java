@@ -132,7 +132,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
             baselineTPStub.addP2Repository(toRepoURI(baselineRepo));
         }
         TargetPlatform baselineTP = resolverFactory.getTargetPlatformFactory().createTargetPlatform(baselineTPStub,
-                TychoProjectUtils.getExecutionEnvironmentConfiguration(this.project), null, null);
+                TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject), null, null);
 
         for (Object item : dependencyMetadata) {
             try {

@@ -739,8 +739,9 @@ public class TestMojo extends AbstractMojo {
 
     private EquinoxInstallation createProvisionedInstallation() throws MojoExecutionException {
         try {
-            TestFrameworkProvider provider = providerHelper.selectProvider(getProjectType().getClasspath(project),
-                    getMergedProviderProperties(), providerHint);
+            TestFrameworkProvider provider = providerHelper.selectProvider(
+                    getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
+                    providerHint);
             createSurefireProperties(provider);
 
             ProvisionedInstallationBuilder installationBuilder = provisionedInstallationBuilderFactory
@@ -772,7 +773,8 @@ public class TestMojo extends AbstractMojo {
         // 2. test harness bundles
         iusToInstall.addAll(providerHelper.getSymbolicNames(testHarnessArtifacts));
         // 3. extra dependencies
-        for (Dependency extraDependency : TychoProjectUtils.getTargetPlatformConfiguration(project)
+        for (Dependency extraDependency : TychoProjectUtils
+                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project))
                 .getDependencyResolverConfiguration().getExtraRequirements()) {
             String type = extraDependency.getType();
             if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(type) || ArtifactType.TYPE_INSTALLABLE_UNIT.equals(type)) {
@@ -825,8 +827,9 @@ public class TestMojo extends AbstractMojo {
             }
         }
 
-        TestFrameworkProvider provider = providerHelper.selectProvider(getProjectType().getClasspath(project),
-                getMergedProviderProperties(), providerHint);
+        TestFrameworkProvider provider = providerHelper.selectProvider(
+                getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
+                providerHint);
         createSurefireProperties(provider);
         for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
             // note that this project is added as directory structure rooted at project basedir.
@@ -872,7 +875,8 @@ public class TestMojo extends AbstractMojo {
         if (this.dependencies != null) {
             dependencies.addAll(Arrays.asList(this.dependencies));
         }
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = TychoProjectUtils
+                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
         dependencies.addAll(configuration.getDependencyResolverConfiguration().getExtraRequirements());
         dependencies.addAll(getTestDependencies());
         return dependencies;
@@ -1099,7 +1103,8 @@ public class TestMojo extends AbstractMojo {
 
     private String decodeReturnCode(int result) {
         try {
-            Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+            Properties properties = (Properties) DefaultReactorProject.adapt(project)
+                    .getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
             if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(properties))) {
                 int signal = result - 128;
                 if (signal > 0 && signal < UNIX_SIGNAL_NAMES.length) {
@@ -1122,7 +1127,8 @@ public class TestMojo extends AbstractMojo {
             }
             return null;
         }
-        String profileName = TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getProfileName();
+        String profileName = TychoProjectUtils
+                .getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project)).getProfileName();
         Toolchain toolChain = toolchainProvider.findMatchingJavaToolChain(session, profileName);
         if (toolChain == null) {
             throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
@@ -1151,7 +1157,8 @@ public class TestMojo extends AbstractMojo {
 
         cli.addVMArguments("-Dosgi.noShutdown=false");
 
-        Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        Properties properties = (Properties) DefaultReactorProject.adapt(project)
+                .getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
         cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
@@ -1201,7 +1208,8 @@ public class TestMojo extends AbstractMojo {
     }
 
     private void addCustomProfileArg(EquinoxLaunchConfiguration cli) throws MojoExecutionException {
-        ExecutionEnvironmentConfiguration eeConfig = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
+        ExecutionEnvironmentConfiguration eeConfig = TychoProjectUtils
+                .getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project));
         if (eeConfig.isCustomProfile()) {
             Properties customProfileProps = eeConfig.getFullSpecification().getProfileProperties();
             File profileFile = new File(new File(project.getBuild().getDirectory()), "custom.profile");

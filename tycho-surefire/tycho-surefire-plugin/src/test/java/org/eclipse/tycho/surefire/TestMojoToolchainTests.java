@@ -30,6 +30,7 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,7 +99,7 @@ public class TestMojoToolchainTests {
         setParameter(testMojo, "useJDK", JDKUsage.BREE);
         ExecutionEnvironmentConfiguration envConf = mock(ExecutionEnvironmentConfiguration.class);
         when(envConf.getProfileName()).thenReturn("myId");
-        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, envConf);
+        DefaultReactorProject.adapt(project).setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, envConf);
     }
 
     private void setParameter(Object object, String variable, Object value)
