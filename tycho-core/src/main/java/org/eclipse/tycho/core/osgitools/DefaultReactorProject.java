@@ -132,9 +132,15 @@ public class DefaultReactorProject implements ReactorProject {
         project.setContextValue(key, value);
     }
 
+    private Set<?> primaryMetadata;
+    private Set<?> secondaryMetadata;
+
     @Override
     public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
-        project.setContextValue(getDependencyMetadataKey(primary), installableUnits);
+        if (primary)
+            primaryMetadata = installableUnits;
+        else
+            secondaryMetadata = installableUnits;
     }
 
     @Override
@@ -155,12 +161,7 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public Set<?> getDependencyMetadata(boolean primary) {
-        Set<?> metadata = (Set<?>) project.getContextValue(getDependencyMetadataKey(primary));
-        return metadata;
-    }
-
-    private static String getDependencyMetadataKey(boolean primary) {
-        return primary ? CTX_DEPENDENCY_METADATA : CTX_SECONDARY_DEPENDENCY_METADATA;
+        return (primary) ? primaryMetadata : secondaryMetadata;
     }
 
     @Override
