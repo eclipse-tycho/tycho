@@ -127,13 +127,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     private ReactorRepositoryManagerFacade reactorRepositoryManager;
 
-    private ReactorProject reactorProject;
-
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
-        this.reactorProject = reactorProject;
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
+        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) reactorProject
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<TargetEnvironment> environments = configuration.getEnvironments();
         Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, environments,
@@ -194,8 +191,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     @Override
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects) {
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-        ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
+        ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject);
 
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
         tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
@@ -214,8 +212,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         tpConfiguration.addFilters(configuration.getFilters());
         tpConfiguration.setIncludeSourceMode(configuration.getTargetDefinitionIncludeSourceMode());
 
-        return reactorRepositoryManager.computePreliminaryTargetPlatform(DefaultReactorProject.adapt(project),
-                tpConfiguration, ee, reactorProjects, pomDependencies);
+        return reactorRepositoryManager.computePreliminaryTargetPlatform(reactorProject, tpConfiguration, ee,
+                reactorProjects, pomDependencies);
     }
 
     private ReactorProject getThisReactorProject(MavenSession session, MavenProject project,
@@ -318,13 +316,14 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
             TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         if (targetPlatform == null) {
-            targetPlatform = TychoProjectUtils.getTargetPlatform(project);
+            targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
         }
 
         // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
         // --> split this information logically, e.g. through two distinct interfaces
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
 
         P2Resolver osgiResolverImpl = resolverFactory
                 .createResolver(new MavenLoggerAdapter(getLogger(), DebugUtils.isDebugEnabled(session, project)));

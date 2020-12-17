@@ -38,6 +38,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
@@ -74,7 +75,7 @@ public class DefaultTychoResolver implements TychoResolver {
         }
 
         // skip if setup was already done
-        if (project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES) != null) {
+        if (reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES) != null) {
             return;
         }
 
@@ -88,19 +89,19 @@ public class DefaultTychoResolver implements TychoResolver {
         properties.putAll(project.getProperties());
         properties.putAll(session.getSystemProperties()); // session wins
         properties.putAll(session.getUserProperties());
-        project.setContextValue(TychoConstants.CTX_MERGED_PROPERTIES, properties);
+        reactorProject.setContextValue(TychoConstants.CTX_MERGED_PROPERTIES, properties);
 
         setTychoEnvironmentProperties(properties, project);
         setBuildProperties(project);
 
         TargetPlatformConfiguration configuration = configurationReader.getTargetPlatformConfiguration(session,
                 project);
-        project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, configuration);
+        reactorProject.setContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, configuration);
 
         ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger,
                 !configuration.isResolveWithEEConstraints(), toolchainManager, session);
-        dr.readExecutionEnvironmentConfiguration(project, session, eeConfiguration);
-        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
+        dr.readExecutionEnvironmentConfiguration(reactorProject, session, eeConfiguration);
+        reactorProject.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
 
         DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
         resolver.setupProjects(session, project, reactorProject);
@@ -119,7 +120,8 @@ public class DefaultTychoResolver implements TychoResolver {
         TargetPlatform preliminaryTargetPlatform = resolver.computePreliminaryTargetPlatform(session, project,
                 reactorProjects);
 
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
 
         DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
@@ -134,7 +136,7 @@ public class DefaultTychoResolver implements TychoResolver {
             logger.debug(sb.toString());
         }
 
-        dr.setDependencyArtifacts(session, project, dependencyArtifacts);
+        dr.setDependencyArtifacts(session, reactorProject, dependencyArtifacts);
 
         logger.info("Resolving class path of " + project);
         dr.resolveClassPath(session, project);
@@ -155,17 +157,18 @@ public class DefaultTychoResolver implements TychoResolver {
     public void traverse(MavenProject project, final DependencyVisitor visitor) {
         TychoProject tychoProject = projectTypes.get(project.getPackaging());
         if (tychoProject != null) {
-            tychoProject.getDependencyWalker(project).walk(new ArtifactDependencyVisitor() {
-                @Override
-                public void visitPlugin(org.eclipse.tycho.core.PluginDescription plugin) {
-                    visitor.visit(plugin);
-                }
+            tychoProject.getDependencyWalker(DefaultReactorProject.adapt(project))
+                    .walk(new ArtifactDependencyVisitor() {
+                        @Override
+                        public void visitPlugin(org.eclipse.tycho.core.PluginDescription plugin) {
+                            visitor.visit(plugin);
+                        }
 
-                @Override
-                public boolean visitFeature(org.eclipse.tycho.core.FeatureDescription feature) {
-                    return visitor.visit(feature);
-                }
-            });
+                        @Override
+                        public boolean visitFeature(org.eclipse.tycho.core.FeatureDescription feature) {
+                            return visitor.visit(feature);
+                        }
+                    });
         } else {
             // TODO do something!
         }

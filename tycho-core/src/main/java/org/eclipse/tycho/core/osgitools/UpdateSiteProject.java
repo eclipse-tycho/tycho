@@ -13,7 +13,6 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -30,7 +29,7 @@ import org.eclipse.tycho.model.UpdateSite;
 public class UpdateSiteProject extends AbstractArtifactBasedProject {
 
     @Override
-    protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
+    protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         final UpdateSite site = loadSite(project);
         return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
                 getEnvironments(project, environment)) {
@@ -41,7 +40,7 @@ public class UpdateSiteProject extends AbstractArtifactBasedProject {
         };
     }
 
-    private UpdateSite loadSite(MavenProject project) {
+    private UpdateSite loadSite(ReactorProject project) {
         File file = new File(project.getBasedir(), UpdateSite.SITE_XML);
         try {
             return UpdateSite.read(file);

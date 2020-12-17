@@ -29,7 +29,7 @@ import org.eclipse.tycho.model.Feature;
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_FEATURE)
 public class EclipseFeatureProject extends AbstractArtifactBasedProject {
     @Override
-    protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
+    protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         final File location = project.getBasedir();
         final Feature feature = Feature.loadFeature(location);
         return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(

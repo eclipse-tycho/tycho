@@ -148,7 +148,8 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
     }
 
     private void addDependencies(MavenSession session, MavenProject project, DefaultDependencyArtifacts platform) {
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) reactorProject
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
 
         boolean considerPomDependencies = ofNullable(configuration)//
@@ -245,10 +246,11 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
     @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts targetPlatform, Logger logger) {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         // walk depencencies for consistency
-        projectType.checkForMissingDependencies(project);
+        projectType.checkForMissingDependencies(reactorProject);
 
         MavenDependencyCollector dependencyCollector = new MavenDependencyCollector(project, bundleReader, logger);
-        projectType.getDependencyWalker(project).walk(dependencyCollector);
+        projectType.getDependencyWalker(reactorProject).walk(dependencyCollector);
     }
 }

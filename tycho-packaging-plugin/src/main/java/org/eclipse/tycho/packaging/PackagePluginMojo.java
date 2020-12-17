@@ -151,7 +151,8 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
     @Override
     public void execute() throws MojoExecutionException {
         synchronized (LOCK) {
-            pdeProject = (EclipsePluginProject) project.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
+            pdeProject = (EclipsePluginProject) DefaultReactorProject.adapt(project)
+                    .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
 
             createSubJars();
 

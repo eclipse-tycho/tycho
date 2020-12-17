@@ -27,6 +27,7 @@ import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.TychoConstants;
@@ -35,6 +36,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
@@ -70,12 +72,13 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
 
         MavenProject project = basedirMap.get(new File(basedir, "bundle"));
-        DependencyArtifacts platform = (DependencyArtifacts) project
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        DependencyArtifacts platform = (DependencyArtifacts) reactorProject
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
 
-        ExecutionEnvironment executionEnvironment = TychoProjectUtils.getExecutionEnvironmentConfiguration(project)
-                .getFullSpecification();
-        State state = resolver.newResolvedState(project, null, executionEnvironment, false, platform);
+        ExecutionEnvironment executionEnvironment = TychoProjectUtils
+                .getExecutionEnvironmentConfiguration(reactorProject).getFullSpecification();
+        State state = resolver.newResolvedState(reactorProject, null, executionEnvironment, false, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
@@ -105,7 +108,8 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
 
         MavenProject project = basedirMap.get(new File(basedir, "bundle"));
-        DependencyArtifacts platform = (DependencyArtifacts) project
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        DependencyArtifacts platform = (DependencyArtifacts) reactorProject
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
 
         CustomExecutionEnvironment customProfile = new CustomExecutionEnvironment("custom",
@@ -115,7 +119,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                         new SystemCapability(Type.OSGI_EE, "JavaSE", "1.1.0"), //
                         new SystemCapability(Type.OSGI_EE, "JavaSE", "1.2.0")));
 
-        State state = resolver.newResolvedState(project, null, customProfile, false, platform);
+        State state = resolver.newResolvedState(reactorProject, null, customProfile, false, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
@@ -152,9 +156,9 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     }
 
     private List<DependencyEntry> computeDependencies(MavenProject project) throws BundleException {
-        DependencyArtifacts platform = (DependencyArtifacts) project
+        DependencyArtifacts platform = (DependencyArtifacts) DefaultReactorProject.adapt(project)
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
-        State state = resolver.newResolvedState(project, null,
+        State state = resolver.newResolvedState(DefaultReactorProject.adapt(project), null,
                 ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog()), false,
                 platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());

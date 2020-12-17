@@ -141,12 +141,13 @@ abstract class AbstractProductMojo extends AbstractMojo {
     }
 
     List<TargetEnvironment> getEnvironments() {
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = TychoProjectUtils
+                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
         return configuration.getEnvironments();
     }
 
     ProductConfig getProductConfig() throws MojoFailureException {
-        return new ProductConfig(products, TychoProjectUtils.getDependencySeeds(project));
+        return new ProductConfig(products, TychoProjectUtils.getDependencySeeds(DefaultReactorProject.adapt(project)));
     }
 
     static String getOsWsArch(TargetEnvironment env, char separator) {

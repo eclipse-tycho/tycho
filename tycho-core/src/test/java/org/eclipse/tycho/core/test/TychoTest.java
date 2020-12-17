@@ -26,6 +26,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
@@ -162,7 +163,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         File platformLocation = new File("src/test/resources/targetplatforms/MNGECLIPSE-942");
         MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
         TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
-        DependencyArtifacts platform = projectType.getDependencyArtifacts(project);
+        DependencyArtifacts platform = projectType.getDependencyArtifacts(DefaultReactorProject.adapt(project));
 
         assertEquals(2, platform.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN).size());
         assertNotNull(platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, "org.junit4.nl_ru", null));
@@ -176,7 +177,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
         OsgiBundleProject projectType = (OsgiBundleProject) lookup(TychoProject.class, project.getPackaging());
 
-        List<ClasspathEntry> classpath = projectType.getClasspath(project);
+        List<ClasspathEntry> classpath = projectType.getClasspath(DefaultReactorProject.adapt(project));
 
         assertEquals(3, classpath.size());
         assertEquals(1, classpath.get(0).getLocations().size());
@@ -202,7 +203,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
         OsgiBundleProject projectType = (OsgiBundleProject) lookup(TychoProject.class, b02.getPackaging());
 
-        List<ClasspathEntry> classpath = projectType.getClasspath(b02);
+        List<ClasspathEntry> classpath = projectType.getClasspath(DefaultReactorProject.adapt(b02));
 
         assertEquals(5, classpath.size());
 
