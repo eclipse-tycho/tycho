@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9efb5654_6741ef76",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultReactorProject.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-12-17T14:04:50Z",
+      "side": 1,
+      "message": "maybe we should use fallback to the project in case it is not found in the context map?",
+      "revId": "6670feed3922c11317ee7409189d41923b0a3885",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
