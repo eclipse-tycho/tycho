@@ -226,7 +226,7 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>osgi.annotation</artifactId>
-			<version>7.0.0</version>
+			<version>8.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
