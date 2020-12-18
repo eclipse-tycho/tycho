@@ -88,6 +88,24 @@
       "revId": "6670feed3922c11317ee7409189d41923b0a3885",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae127ce2_e850ac04",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultReactorProject.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-18T12:27:36Z",
+      "side": 1,
+      "message": "Correct, in this issue the resolver thread writes multiple keys on its project while multiple other threads read from one (stable) key.\nCertainly with this change parallel writes to the same key won\u0027t work (or even one writer with parallel readers). But that would be design flaw at a much higher level (and doesn\u0027t appear to be the case).",
+      "parentUuid": "5dded950_c2475344",
+      "revId": "6670feed3922c11317ee7409189d41923b0a3885",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
