@@ -89,7 +89,7 @@
 
 		<equinoxVersion>3.16.0</equinoxVersion>
 		<equinoxCompatVersion>1.2.100</equinoxCompatVersion>
-		<ecjVersion>3.23.0</ecjVersion>
+		<ecjVersion>3.24.0</ecjVersion>
 
 		<!-- version of Tycho used by this build -->
 		<tychoBootstrapVersion>2.1.0</tychoBootstrapVersion>
