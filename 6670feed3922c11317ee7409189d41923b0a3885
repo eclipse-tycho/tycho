@@ -34,6 +34,24 @@
       "revId": "6670feed3922c11317ee7409189d41923b0a3885",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c845e79_fb0d5336",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultReactorProject.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-12-18T11:43:12Z",
+      "side": 1,
+      "message": "The direction should always be MavenProject \u003e ReactorProject so it would be okay. I\u0027m more concerned if that really solves the issue here as this allows to get/set thing into concurrently but how it is prevented that two threads try to publish data in parallel?",
+      "parentUuid": "c840198e_db6472c6",
+      "revId": "6670feed3922c11317ee7409189d41923b0a3885",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
