@@ -28,7 +28,7 @@
 	<description>Additional tools for Tycho</description>
 
 	<properties>
-		<jgit-version>5.9.0.202009080501-r</jgit-version>
+		<jgit-version>5.10.0.202012080955-r</jgit-version>
 		<tycho-version>${project.version}</tycho-version>
 		<invoker.debug>true</invoker.debug>
 	</properties>
