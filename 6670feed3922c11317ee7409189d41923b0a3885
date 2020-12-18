@@ -52,6 +52,24 @@
       "revId": "6670feed3922c11317ee7409189d41923b0a3885",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de8ad268_ad13a95c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultReactorProject.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-18T12:05:15Z",
+      "side": 1,
+      "message": "You mean two threads writing to the same key?",
+      "parentUuid": "9c845e79_fb0d5336",
+      "revId": "6670feed3922c11317ee7409189d41923b0a3885",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
