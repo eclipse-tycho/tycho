@@ -94,11 +94,11 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             while (resolvedArtifacts.hasNext()) {
                 IArtifactFacade mavenArtifact = (IArtifactFacade) resolvedArtifacts.next();
                 logger.debug("Resolved " + mavenArtifact + "...");
+                String symbolicName;
+                String bundleVersion;
                 try {
                     File bundleLocation = mavenArtifact.getLocation();
                     BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleLocation);
-                    String symbolicName;
-                    String bundleVersion;
                     if (bundleDescription == null) {
                         throw new TargetDefinitionResolutionException(
                                 "Artifact " + mavenArtifact + " of location " + location + " is not a valid jar file");
@@ -148,17 +148,22 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     + new VersionedId(unit.getId(), unit.getVersion()));
                         }
                     }
-                    if (sourceMode == IncludeSourceMode.force
-                            || (sourceMode == IncludeSourceMode.honor && location.includeSource())) {
-                        Collection<?> sourceArtifacts = mavenDependenciesResolver.resolve(mavenArtifact.getGroupId(),
-                                mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
-                                mavenArtifact.getPackagingType(), "sources", null);
-                        Iterator<IArtifactFacade> sources = sourceArtifacts.stream()
-                                .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast).iterator();
-                        while (sources.hasNext()) {
-                            IArtifactFacade sourceArtifact = (IArtifactFacade) sources.next();
+                } catch (BundleException | IOException e) {
+                    throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
+                            + " of location " + location + " could not be read", e);
+                }
+                if (sourceMode == IncludeSourceMode.force
+                        || (sourceMode == IncludeSourceMode.honor && location.includeSource())) {
+                    Collection<?> sourceArtifacts = mavenDependenciesResolver.resolve(mavenArtifact.getGroupId(),
+                            mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), mavenArtifact.getPackagingType(),
+                            "sources", null);
+                    Iterator<IArtifactFacade> sources = sourceArtifacts.stream()
+                            .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast).iterator();
+                    while (sources.hasNext()) {
+                        IArtifactFacade sourceArtifact = (IArtifactFacade) sources.next();
+                        File sourceFile = sourceArtifact.getLocation();
+                        try {
                             Manifest manifest;
-                            File sourceFile = sourceArtifact.getLocation();
                             try (JarFile jar = new JarFile(sourceFile)) {
                                 manifest = Objects.requireNonNullElseGet(jar.getManifest(), Manifest::new);
                             }
@@ -166,51 +171,57 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                             if (isValidSourceManifest(manifest)) {
                                 unit = publish(BundlesAction.createBundleDescription(sourceFile), sourceFile);
                             } else {
-                                File tempFile = File.createTempFile("tycho_wrapped_source", ".jar");
-                                tempFile.deleteOnExit();
-                                Attributes attr = manifest.getMainAttributes();
-                                if (attr.isEmpty()) {
-                                    attr.put(Name.MANIFEST_VERSION, "1.0");
-                                }
-                                attr.putValue(ECLIPSE_SOURCE_BUNDLE_HEADER,
-                                        symbolicName + ";version=\"" + bundleVersion + "\";roots:=\".\"");
-                                attr.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
-                                attr.putValue(Constants.BUNDLE_NAME,
-                                        "Source Bundle for " + symbolicName + ":" + bundleVersion);
-                                attr.putValue(Constants.BUNDLE_SYMBOLICNAME, symbolicName + ".source");
-                                attr.putValue(Constants.BUNDLE_VERSION, bundleVersion);
-                                try (JarOutputStream stream = new JarOutputStream(new FileOutputStream(tempFile),
-                                        manifest)) {
-                                    try (JarFile jar = new JarFile(sourceFile)) {
-                                        Enumeration<JarEntry> entries = jar.entries();
-                                        while (entries.hasMoreElements()) {
-                                            JarEntry jarEntry = entries.nextElement();
-                                            if (jarEntry.getName().equals(JarFile.MANIFEST_NAME)) {
-                                                continue;
-                                            }
-                                            try (InputStream is = jar.getInputStream(jarEntry)) {
-                                                stream.putNextEntry(new ZipEntry(jarEntry.getName()));
-                                                is.transferTo(stream);
-                                                stream.closeEntry();
-                                            }
-                                        }
-                                    }
-                                }
-                                unit = publish(BundlesAction.createBundleDescription(tempFile), tempFile);
+                                unit = generateSourceBundle(symbolicName, bundleVersion, manifest, sourceFile);
                             }
-                            if (logger.isDebugEnabled()) {
+                            if (unit != null && logger.isDebugEnabled()) {
                                 logger.debug("MavenResolver: source-artifact " + asDebugString(sourceArtifact)
                                         + ":sources at location " + sourceFile + " resolves installable unit "
                                         + new VersionedId(unit.getId(), unit.getVersion()));
                             }
+                        } catch (IOException | BundleException e) {
+                            logger.warn("MavenResolver: source-artifact " + asDebugString(sourceArtifact)
+                                    + ":sources at location " + sourceFile + " can't be converted to a source bundle: "
+                                    + e);
+                            continue;
                         }
                     }
-                } catch (BundleException | IOException e) {
-                    throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
-                            + " of location " + location + " could not be read", e);
                 }
             }
         }
+    }
+
+    private IInstallableUnit generateSourceBundle(String symbolicName, String bundleVersion, Manifest manifest,
+            File sourceFile) throws IOException, BundleException {
+
+        File tempFile = File.createTempFile("tycho_wrapped_source", ".jar");
+        tempFile.deleteOnExit();
+        Attributes attr = manifest.getMainAttributes();
+        if (attr.isEmpty()) {
+            attr.put(Name.MANIFEST_VERSION, "1.0");
+        }
+        attr.putValue(ECLIPSE_SOURCE_BUNDLE_HEADER, symbolicName + ";version=\"" + bundleVersion + "\";roots:=\".\"");
+        attr.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
+        attr.putValue(Constants.BUNDLE_NAME, "Source Bundle for " + symbolicName + ":" + bundleVersion);
+        attr.putValue(Constants.BUNDLE_SYMBOLICNAME, symbolicName + ".source");
+        attr.putValue(Constants.BUNDLE_VERSION, bundleVersion);
+        try (JarOutputStream stream = new JarOutputStream(new FileOutputStream(tempFile), manifest)) {
+            try (JarFile jar = new JarFile(sourceFile)) {
+                Enumeration<JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry jarEntry = entries.nextElement();
+                    if (jarEntry.getName().equals(JarFile.MANIFEST_NAME)) {
+                        continue;
+                    }
+                    try (InputStream is = jar.getInputStream(jarEntry)) {
+                        stream.putNextEntry(new ZipEntry(jarEntry.getName()));
+                        is.transferTo(stream);
+                        stream.closeEntry();
+                    }
+                }
+            }
+        }
+        return publish(BundlesAction.createBundleDescription(tempFile), tempFile);
+
     }
 
     private IInstallableUnit publish(BundleDescription bundleDescription, File bundleLocation) {
