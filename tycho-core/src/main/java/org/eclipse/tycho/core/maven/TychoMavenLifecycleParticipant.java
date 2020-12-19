@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann electronic GmbH - Bug 457314 - handle null as tycho version
+ *    Christoph Läubrich - Bug 569829 - TychoMavenLifecycleParticipant should respect fail-at-end flag / error output is missing
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
@@ -20,15 +21,19 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
@@ -112,32 +117,48 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private void resolveProjects(MavenSession session, List<MavenProject> projects) {
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
 
+        MavenExecutionRequest request = session.getRequest();
+        boolean failFast = "FAIL_FAST".equals(request.getReactorFailureBehavior());
         Map<MavenProject, BuildFailureException> resolutionErrors = new ConcurrentHashMap<>();
+        AtomicBoolean failed = new AtomicBoolean();
         Consumer<MavenProject> resolveProject = project -> {
+            if (failed.get()) {
+                //short circuit
+                throw new BuildFailureException("resolve was canceled due to previous error");
+            }
             try {
                 resolver.resolveProject(session, project, reactorProjects);
             } catch (BuildFailureException e) {
+                if (failFast && failed.compareAndSet(false, true)) {
+                    throw e;
+                }
                 resolutionErrors.put(project, e);
             }
         };
 
-        int degreeOfConcurrency = session.getRequest().getDegreeOfConcurrency();
+        int degreeOfConcurrency = request.getDegreeOfConcurrency();
+        Predicate<? super MavenProject> acceptor = p -> !failFast || !failed.get();
         if (degreeOfConcurrency > 1) {
             ForkJoinPool executor = new ForkJoinPool(degreeOfConcurrency);
-            ForkJoinTask<?> future = executor.submit(() -> projects.parallelStream().forEach(resolveProject));
-
+            ForkJoinTask<?> future = executor.submit(() -> {
+                projects.parallelStream().takeWhile(acceptor).forEach(resolveProject);
+            });
             try {
                 future.get();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                }
+                throw new RuntimeException(cause);
             } finally {
                 executor.shutdown();
             }
 
         } else {
-            projects.forEach(resolveProject);
+            projects.stream().takeWhile(acceptor).forEach(resolveProject);
         }
 
         reportResolutionErrors(resolutionErrors, projects);
@@ -157,6 +178,9 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 String.format("Cannot resolve dependencies of %d/%d projects, see log for details",
                         resolutionErrors.size(), projects.size()));
         resolutionErrors.values().forEach(exception::addSuppressed);
+        for (Entry<MavenProject, BuildFailureException> entry : resolutionErrors.entrySet()) {
+            log.error(entry.getKey().getName() + ": " + entry.getValue().getMessage());
+        }
 
         throw exception;
     }
