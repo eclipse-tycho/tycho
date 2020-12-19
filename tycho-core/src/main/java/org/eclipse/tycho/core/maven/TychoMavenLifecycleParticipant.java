@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann electronic GmbH - Bug 457314 - handle null as tycho version
+ *    Christoph Läubrich - Bug 569829 - TychoMavenLifecycleParticipant should respect fail-at-end flag / error output is missing
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
@@ -26,9 +27,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
@@ -112,44 +115,61 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private void resolveProjects(MavenSession session, List<MavenProject> projects) {
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
 
+        MavenExecutionRequest request = session.getRequest();
+        boolean failFast = MavenExecutionRequest.REACTOR_FAIL_FAST.equals(request.getReactorFailureBehavior());
         Map<MavenProject, BuildFailureException> resolutionErrors = new ConcurrentHashMap<>();
         Consumer<MavenProject> resolveProject = project -> {
+            if (failFast && !resolutionErrors.isEmpty()) {
+                //short circuit
+                return;
+            }
             try {
                 resolver.resolveProject(session, project, reactorProjects);
             } catch (BuildFailureException e) {
                 resolutionErrors.put(project, e);
+                if (failFast) {
+                    throw e;
+                }
             }
         };
 
-        int degreeOfConcurrency = session.getRequest().getDegreeOfConcurrency();
+        int degreeOfConcurrency = request.getDegreeOfConcurrency();
+        Predicate<MavenProject> takeWhile = Predicate.not(p -> failFast && !resolutionErrors.isEmpty());
         if (degreeOfConcurrency > 1) {
             ForkJoinPool executor = new ForkJoinPool(degreeOfConcurrency);
-            ForkJoinTask<?> future = executor.submit(() -> projects.parallelStream().forEach(resolveProject));
-
+            ForkJoinTask<?> future = executor.submit(() -> {
+                projects.parallelStream().takeWhile(takeWhile).forEach(resolveProject);
+            });
             try {
                 future.get();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                }
+                throw new RuntimeException("resolve dependencies failed", cause);
             } finally {
                 executor.shutdown();
             }
 
         } else {
-            projects.forEach(resolveProject);
+            projects.stream().takeWhile(takeWhile).forEach(resolveProject);
         }
 
-        reportResolutionErrors(resolutionErrors, projects);
+        reportResolutionErrors(resolutionErrors, projects, failFast);
     }
 
     private void reportResolutionErrors(Map<MavenProject, BuildFailureException> resolutionErrors,
-            List<MavenProject> projects) {
+            List<MavenProject> projects, boolean failFast) {
         if (resolutionErrors.isEmpty()) {
             return;
         }
 
-        if (resolutionErrors.size() == 1) {
+        if (resolutionErrors.size() == 1 || failFast) {
+            //The idea is if user want to fail-fast he would expect to get exactly one error (the first one),
+            //while if parallel execution is enabled it might report an (incomplete) list of other failures that happened due to the parallel processing.
             throw resolutionErrors.values().iterator().next();
         }
 
