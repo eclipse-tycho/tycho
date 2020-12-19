@@ -220,15 +220,11 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         try {
             List<ModelProcessor> lookupList = container.lookupList(ModelProcessor.class);
             for (ModelProcessor processor : lookupList) {
-                try {
-                    File pom = processor.locatePom(folder);
-                    if (pom != null && pom.exists()) {
-                        if (reference == null || pom.getName().equals(nameHint)) {
-                            reference = new PomReference(pom, processor);
-                        }
+                File pom = processor.locatePom(folder);
+                if (pom != null && pom.exists()) {
+                    if (reference == null || pom.getName().equals(nameHint)) {
+                        reference = new PomReference(pom, processor);
                     }
-                } catch (AssertionError e) {
-                    //polyglot common 0.4.4 throws AssertionError instead of returning null pom
                 }
             }
         } catch (ComponentLookupException e) {
