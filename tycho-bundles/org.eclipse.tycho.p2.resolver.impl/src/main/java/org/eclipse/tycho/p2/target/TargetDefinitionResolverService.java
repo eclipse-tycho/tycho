@@ -16,9 +16,11 @@
 package org.eclipse.tycho.p2.target;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -38,7 +40,7 @@ public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
 
-    private Map<ResolutionArguments, TargetDefinitionContent> resolutionCache = new HashMap<>();
+    private Map<ResolutionArguments, CompletableFuture<TargetDefinitionContent>> resolutionCache = new ConcurrentHashMap<>();
 
     private MavenContext mavenContext;
 
@@ -57,24 +59,37 @@ public class TargetDefinitionResolverService {
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, includeSourceMode,
                 agent);
 
-        TargetDefinitionContent resolution = resolutionCache.get(arguments);
+        CompletableFuture<TargetDefinitionContent> future = resolutionCache.computeIfAbsent(arguments,
+                this::resolveFromArguments);
 
-        if (resolution == null) {
-            if (mavenContext.getLogger().isDebugEnabled()) {
-                debugCacheMiss(arguments);
-                mavenContext.getLogger().debug("Resolving target definition content...");
-            }
-
-            resolution = resolveFromArguments(arguments);
-            resolutionCache.put(arguments, resolution);
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException();
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException)
+                throw (RuntimeException) cause;
+            throw new RuntimeException(cause);
         }
-        return resolution;
+
     }
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
-    private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
-        return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.includeSourceMode,
-                mavenContext, dependenciesResolver.get()).resolveContent(arguments.definition, provisioningAgent);
+    private CompletableFuture<TargetDefinitionContent> resolveFromArguments(ResolutionArguments arguments) {
+        if (mavenContext.getLogger().isDebugEnabled()) {
+            debugCacheMiss(arguments);
+            mavenContext.getLogger().debug("Resolving target definition content...");
+        }
+
+        TargetDefinitionResolver resolver = new TargetDefinitionResolver(arguments.environments, arguments.jreIUs,
+                arguments.includeSourceMode, mavenContext, dependenciesResolver.get());
+        try {
+            return CompletableFuture.completedFuture(resolver.resolveContent(arguments.definition, provisioningAgent));
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
     }
 
     private void debugCacheMiss(ResolutionArguments arguments) {
