@@ -16,6 +16,24 @@
       "revId": "a749eca264e33195a17db3d9a9d395c7afc9fb6b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11cdb20d_25a606f5",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-21T14:22:36Z",
+      "side": 1,
+      "message": "The future is only used to wrap result|exception, not for blocking.",
+      "parentUuid": "feee42ec_398253b8",
+      "revId": "a749eca264e33195a17db3d9a9d395c7afc9fb6b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
