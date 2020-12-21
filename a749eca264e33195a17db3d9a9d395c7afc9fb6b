@@ -70,6 +70,24 @@
       "revId": "a749eca264e33195a17db3d9a9d395c7afc9fb6b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5c9ffd1_cac9d084",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2020-12-21T14:43:15Z",
+      "side": 1,
+      "message": "Good point. I wonder if we should only cache TargetDefinitionResolver instances, pass the ResolutionArguments (what then better is called ResoloutionContext) in the constructor and change \n\n\u003e resolveContent()\n\nto a synchronized\n\n\u003e getContent()\n\ngetContent can the work the following way:\n\n- if not resolved, star the resolve process\n- if resolved but failed throw exception\n- if resolved and succeeds return value\n\nWDT?",
+      "parentUuid": "5396ceb7_33763988",
+      "revId": "a749eca264e33195a17db3d9a9d395c7afc9fb6b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
