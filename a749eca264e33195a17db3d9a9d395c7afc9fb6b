@@ -52,6 +52,24 @@
       "revId": "a749eca264e33195a17db3d9a9d395c7afc9fb6b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5396ceb7_33763988",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-21T14:32:54Z",
+      "side": 1,
+      "message": "Correct, but if computeIfAbsent throws, nothing is cached (which works for the calling thread). But then the next worker will try to resolve it again and again.",
+      "parentUuid": "c481b2c3_da58e2e1",
+      "revId": "a749eca264e33195a17db3d9a9d395c7afc9fb6b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
