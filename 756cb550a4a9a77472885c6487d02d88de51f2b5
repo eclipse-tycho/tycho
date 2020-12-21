@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "047e44ef_20748c67",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-21T07:24:42Z",
+      "side": 1,
+      "message": "as this exception is not supposed to be visible anywhere, I would replace it with a return;",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44b19ee0_4c77e083",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-21T07:24:42Z",
+      "side": 1,
+      "message": "acceptor is a bit vague. Maybe something like takeWhile(noFatalException) ?",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddb08806_7a256466",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2020-12-21T07:24:42Z",
+      "side": 1,
+      "message": "I\u0027ve thought about putting the full details from ResolverException into DependencyResolutionException and re-printing them here. That way you wouldn\u0027t have to scroll/search through 1000s of log entries to find the issue.",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
