@@ -16,6 +16,24 @@
       "revId": "43211e7e8fdd51d3d0d10450b452f417b559a19a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9c48ca8_d7a8ae39",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2021-01-04T11:21:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "096eca07_cbfd5376",
+      "revId": "43211e7e8fdd51d3d0d10450b452f417b559a19a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
