@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "479dfb6e_93502edd",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2021-01-04T13:11:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "479dfb6e_cba7693e",
+      "range": {
+        "startLine": 54,
+        "startChar": 13,
+        "endLine": 54,
+        "endChar": 23
+      },
+      "revId": "bf754510ffbb0e649e4df2f9b634785c83214dbd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "479dfb6e_4bbc5956",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
         "patchSetId": 10
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "479dfb6e_b35532cd",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2021-01-04T13:11:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "479dfb6e_4bbc5956",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 93
+      },
+      "revId": "bf754510ffbb0e649e4df2f9b634785c83214dbd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "479dfb6e_ebb42d6a",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
         "patchSetId": 10
@@ -82,6 +130,30 @@
       "writtenOn": "2017-05-10T14:12:29Z",
       "side": 1,
       "message": "this is an incompatibe change in the metadata XML format.\nIs it now closer/same as the XML format p2 uses?\n\nIf so, that\u0027s fine, *but* beware that the p2content.xml is also stored and read from artifacts installed into the local maven repo. Unless I got it wrong this means people will have to delete their local maven repo to adapt to the new Tycho version.\nAlso, this means you cannot use both older and newer Tycho versions for the same local maven repo, which could be a problem for people building several external Tycho projects (using different Tycho versions) on their machine. Need to think about the impact or whether we can do it in a backwards-compatible way.\n\nIf it\u0027s incompatible, it should at least not crash but rather ignore the old format (maybe with a warning?).\n\nIncompatible changes should  be announced in the release notes.",
+      "range": {
+        "startLine": 95,
+        "startChar": 17,
+        "endLine": 95,
+        "endChar": 47
+      },
+      "revId": "bf754510ffbb0e649e4df2f9b634785c83214dbd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "479dfb6e_dad1f4c5",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2021-01-04T13:11:46Z",
+      "side": 1,
+      "message": "I see it from MetadataRepositoryIO. But I don\u0027t know if this class is used for all parsing/writing from p2. Is there any reference doc for this? Because it seems to always be this format since 10 years...https://github.com/eclipse/rt.equinox.p2/blob/master/bundles/org.eclipse.equinox.p2.metadata.repository/src/org/eclipse/equinox/internal/p2/metadata/repository/MetadataRepositoryIO.java\n\nSo I think i am in the wrong way...\nI can do a compatible parser to all format, but is it enought ? Is that what we want...",
+      "parentUuid": "479dfb6e_ebb42d6a",
       "range": {
         "startLine": 95,
         "startChar": 17,
