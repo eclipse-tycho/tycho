@@ -88,6 +88,24 @@
       "revId": "a749eca264e33195a17db3d9a9d395c7afc9fb6b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e977918_ef01f1fe",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2021-01-04T07:25:00Z",
+      "side": 1,
+      "message": "Hmm, I don\u0027t see an immediate benefit from that. That would split the cache implementation. Currently the only responsibility of TargetDefinitionResolverService is the caching, so it stay there IMHO - while keeping TargetDefinitionResolver stateless.",
+      "parentUuid": "c5c9ffd1_cac9d084",
+      "revId": "a749eca264e33195a17db3d9a9d395c7afc9fb6b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
