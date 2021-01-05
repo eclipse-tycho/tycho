@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "29504995_35ab2220",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-05T11:30:37Z",
+      "side": 1,
+      "message": "Well, it was the 1st thing that came to my mind when I did read that line. This line is prone to wrong understanding because it uses the wrong type (Predicate instead of BooleanSupplier). If a BooleanSupplier were used, such misunderstanding would be way less probable.\n\nIf you don\u0027t want to change it, please merge it and I\u0027ll make the change in the following commit.",
+      "parentUuid": "13357cfd_a13e98ef",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "01579365_11f9501b",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 2
