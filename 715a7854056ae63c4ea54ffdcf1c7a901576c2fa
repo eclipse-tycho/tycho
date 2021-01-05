@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "4e647c8d_eb85fc70",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-05T11:17:48Z",
+      "side": 1,
+      "message": "but neither isEmpty() nor size() make any claims about implementation or performance, so I don\u0027t think it\u0027s really an issue. If performance is an issue one has to select a proper collection and i find it really unlikely here.",
+      "parentUuid": "153b5f56_ca4708a7",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "01fc4f1e_be10caf4",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 2
@@ -101,6 +119,24 @@
       "writtenOn": "2021-01-05T09:34:27Z",
       "side": 1,
       "message": "The issue with using a Predicate over a BooleanSupplier is that this piece of code is misleading and gives the impression we test the current project for failures. IMO, it\u0027s better to have clearer code here with 2 instances of Predicate later than to have such possible confusion in code.",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13357cfd_a13e98ef",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-05T11:17:48Z",
+      "side": 1,
+      "message": "As both would contain the same line of code I\u0027m not really convinced that this adds to the clarity.",
+      "parentUuid": "01fc4f1e_be10caf4",
       "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
