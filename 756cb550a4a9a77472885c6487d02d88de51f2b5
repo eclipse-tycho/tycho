@@ -68,6 +68,24 @@
       "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee54bb6c_9e332c70",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2021-01-05T09:24:53Z",
+      "side": 1,
+      "message": "your build probably doesn\u0027t have 1800 modules ;)\n\nIMHO it\u0027s a similar scenario as regular compile errors; they are printed en block after BUILD FAILURE, not immediately by each compile mojo. I can push a gerrit if you\u0027re interested.",
+      "parentUuid": "fd1e88fd_e452a2ef",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
