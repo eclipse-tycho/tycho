@@ -72,6 +72,41 @@
     },
     {
       "key": {
+        "uuid": "153b5f56_ca4708a7",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-05T09:34:27Z",
+      "side": 1,
+      "message": "\u003e Are you aware of any implementation that has O(n) complexity in case of size() but not for isEmpty? \n\nNo, but as collection is an interface, it\u0027s not impossible that someone implement things differently from standards. For example, I can imagine some cases of pre-stream collections where people did author some dynamic collections where the objects were queried on demand and size isn\u0027t available before asked or even computed. `isEmpty()` is semantically stronger and safer to use to allow better perfs in general, although it doesn\u0027t seem to be an issue for standard collections.",
+      "parentUuid": "60836953_0f762e20",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01fc4f1e_be10caf4",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-05T09:34:27Z",
+      "side": 1,
+      "message": "The issue with using a Predicate over a BooleanSupplier is that this piece of code is misleading and gives the impression we test the current project for failures. IMO, it\u0027s better to have clearer code here with 2 instances of Predicate later than to have such possible confusion in code.",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "01579365_11f9501b",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 2
@@ -101,6 +136,24 @@
       "side": 1,
       "message": "The idea is if I want to fail-fast I would expect to get exactly one error (the first one), while if parallel execution is enabled it might report an (incomplete) list of other failures that happened due to the parallel processing.\n\nOne example would be 10 projects (and all are failing) and T\u003d2 I will get a report of two failing projects, after fixing those I will get the next two and so on.",
       "parentUuid": "01579365_11f9501b",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ef808bf_5017cc97",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-05T09:34:27Z",
+      "side": 1,
+      "message": "OK, makes sense. Please add this explanation in the code as well.",
+      "parentUuid": "8b2fcecb_b79fca79",
       "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
