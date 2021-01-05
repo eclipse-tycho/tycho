@@ -194,6 +194,24 @@
       "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eab217f7_a5b17485",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-05T12:48:15Z",
+      "side": 1,
+      "message": "Have you tried out the patch with your build? I think that the missing requirement is already included in the message, but that might vary depending on the kind of error so it would be good to see here it is missing (maybe its hidden inside a wrapped exception and we should try to unwrap it?) or add better messages there...",
+      "parentUuid": "ec083dc6_1aba544a",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
