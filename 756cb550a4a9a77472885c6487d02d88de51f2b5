@@ -140,6 +140,24 @@
       "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05be05cc_bd9b9bf5",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2021-01-05T12:11:17Z",
+      "side": 1,
+      "message": "I would log the details here in this loop instead of in P2ResolverImpl (and in the single error case as well) - or maybe in the catch of afterProjectsRead.",
+      "parentUuid": "e3c67dfb_eec158ee",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
