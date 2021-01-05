@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e1ad1135_37c940b3",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-05T09:12:23Z",
+      "side": 1,
+      "message": "Thanks for the hint, sadly the getReactorFailureBehavior() do not mentioned where the values reside or even what are valid values :-\\",
+      "parentUuid": "ad8158ed_03c92e96",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9cec031c_24cbbcb9",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "60836953_0f762e20",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-05T09:12:23Z",
+      "side": 1,
+      "message": "\u003e As project is not used, this would better be a BooleanSupplier.\ntakeWhile requires a predicate and I just want to avoid having two instances for the check in resolve and the filtering.\n\nAre you aware of any implementation that has O(n) complexity in case of size() but not for isEmpty? Just for curiosity I have checked ArrayList, HashMap and ConcurrentHashMap, they all rely on there size() method to determine if the collection is empty.\n\nIn general I use #isEmpty when I want to check for emptiness and size() \u003e 0 for notEmpty, to avoid the negation but will change this if you think its easier to understand.",
+      "parentUuid": "9cec031c_24cbbcb9",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "01579365_11f9501b",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2021-01-05T08:48:20Z",
       "side": 1,
       "message": "I don\u0027t get why this extra condition is added here. It basically reduce the error reporting. If we know there are multiple errors, we should log them all (eg continue execution).",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b2fcecb_b79fca79",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-05T09:12:23Z",
+      "side": 1,
+      "message": "The idea is if I want to fail-fast I would expect to get exactly one error (the first one), while if parallel execution is enabled it might report an (incomplete) list of other failures that happened due to the parallel processing.\n\nOne example would be 10 projects (and all are failing) and T\u003d2 I will get a report of two failing projects, after fixing those I will get the next two and so on.",
+      "parentUuid": "01579365_11f9501b",
       "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
