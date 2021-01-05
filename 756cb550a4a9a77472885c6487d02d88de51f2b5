@@ -86,6 +86,24 @@
       "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf5636a2_1cf9cfc4",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-05T09:30:10Z",
+      "side": 1,
+      "message": "if we can adopt to common maven behavior that\u0027s good I think. I just don\u0027t think its a good idea to put everything in the exception message but maybe I\u0027m getting it wrong here?\nSO your suggestion would be to extend DependencyResolutionException with something like getResloutionErrors()?",
+      "parentUuid": "ee54bb6c_9e332c70",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
