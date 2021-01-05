@@ -104,6 +104,24 @@
       "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a75fdd1_969f5811",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2021-01-05T09:42:15Z",
+      "side": 1,
+      "message": "Exactly",
+      "parentUuid": "bf5636a2_1cf9cfc4",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
