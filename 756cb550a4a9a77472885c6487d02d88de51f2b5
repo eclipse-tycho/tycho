@@ -158,6 +158,24 @@
       "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdf961c8_b0886393",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-05T12:20:46Z",
+      "side": 1,
+      "message": "Okay, so you like to see the details/exception of the failure here? Because the message is already logged here.",
+      "parentUuid": "05be05cc_bd9b9bf5",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
