@@ -176,6 +176,24 @@
       "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec083dc6_1aba544a",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 101744
+      },
+      "writtenOn": "2021-01-05T12:43:54Z",
+      "side": 1,
+      "message": "Yes, the details are what matters to me. The message alone (\"bundle a failed to resolve\") is not helpful without the details (\"missing requirement: bundle b\")",
+      "parentUuid": "cdf961c8_b0886393",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
