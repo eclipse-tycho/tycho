@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad8158ed_03c92e96",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-05T08:48:20Z",
+      "side": 1,
+      "message": "Use MavenExecutionRequest.REACTOR_FAIL_FAST symbol instead of literal",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cec031c_24cbbcb9",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-05T08:48:20Z",
+      "side": 1,
+      "message": "As project is not used, this would better be a BooleanSupplier.\nReplace resolutionError.size() \u003e 0 by !resolutionErrors.isEmpty(); theorical complexity for a generic collection then becomes O(1) instead of O(n).",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01579365_11f9501b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-05T08:48:20Z",
+      "side": 1,
+      "message": "I don\u0027t get why this extra condition is added here. It basically reduce the error reporting. If we know there are multiple errors, we should log them all (eg continue execution).",
+      "revId": "715a7854056ae63c4ea54ffdcf1c7a901576c2fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
