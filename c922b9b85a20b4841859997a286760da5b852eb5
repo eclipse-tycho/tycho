@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea74aa14_dc4036f2",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-06T14:11:30Z",
+      "side": 1,
+      "message": "@Mickael this is the crucial part for Bug 570131 where errors are not showing up in the log",
+      "revId": "c922b9b85a20b4841859997a286760da5b852eb5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
