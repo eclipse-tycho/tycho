@@ -157,6 +157,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 String.format("Cannot resolve dependencies of %d/%d projects, see log for details",
                         resolutionErrors.size(), projects.size()));
         resolutionErrors.values().forEach(exception::addSuppressed);
+        resolutionErrors.forEach((project, error) -> log.error(project.getName() + ": " + error.getMessage()));
 
         throw exception;
     }
