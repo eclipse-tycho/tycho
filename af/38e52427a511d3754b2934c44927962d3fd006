@@ -1,0 +1,8 @@
+Code-Review+2: Christoph Laeubrich <laeubi@laeubi-soft.de>
+Code-Review+1: Mickael Istria <mistria@redhat.com>
+Verified+1: Tycho Bot <tycho-bot@eclipse.org>
+Submitted-by: Christoph Laeubrich <laeubi@laeubi-soft.de>
+Submitted-at: Wed, 06 Jan 2021 13:04:12 -0500
+Reviewed-on: https://git.eclipse.org/r/c/tycho/org.eclipse.tycho/+/173990
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
