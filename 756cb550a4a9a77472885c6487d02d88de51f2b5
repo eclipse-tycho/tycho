@@ -230,6 +230,24 @@
       "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed1813df_42191dd2",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-06T15:02:49Z",
+      "side": 1,
+      "message": "With current master, most resolution message are already shown before in the log. Only a certain class of errors (eg .target file containing invalid entries) were silent, but I just changed that urgently with http://git.eclipse.org/c/tycho/org.eclipse.tycho.git/commit/?id\u003da38e911b1e8159618f38e95a02d9d42c0d678d1e so all the failing modules are listed with the message (but no details).\nOne usually has to scroll up to see the details though, but it\u0027s somehow acceptable as it if we cannot improve it right now.\n\n\u003e your build probably doesn\u0027t have 1800 modules ;)\n\nThe size of some project is IMO not something we should take into account here.",
+      "parentUuid": "814519bd_5c52c183",
+      "revId": "756cb550a4a9a77472885c6487d02d88de51f2b5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
