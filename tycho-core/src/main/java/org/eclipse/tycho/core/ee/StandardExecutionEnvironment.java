@@ -227,6 +227,11 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                         "No system.packages in profile defintion file for " + profileName + "; checking toolchain.");
                 this.systemPackages = readFromToolchains(toolchain).stream()
                         .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+            } else if (Integer.parseInt(compilerSourceLevel) == Runtime.version().feature()) {
+                logger.debug("Currently running JRE matches source level for " + getProfileName()
+                        + "; current JRE system packages are used.");
+                this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
             }
             if (this.systemPackages == null || this.systemPackages.isEmpty()) {
                 logger.warn("No system packages found in profile nor toolchain for " + profileName
