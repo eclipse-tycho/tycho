@@ -52,6 +52,24 @@
       "revId": "d022d6ff978d4fd853524db44bc76020d89f4e55",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38ef828a_6da79ab9",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/StandardExecutionEnvironment.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-12T14:16:34Z",
+      "side": 1,
+      "message": "\u003e I actually have never seen people defining different source+target\n\nI\u0027ve seen that a long time ago. Some people were using an older compiler target but latest source target so they could use some syntax sugar of newer versions to run against older ones, as long as the compiler knows how to turn newer syntax into older bytecode. JDT actually used to be excellent with this kind of settings, not sure how it would behave nowadays.\n\n\u003e Maybe we can just start with it and see how it behaves. or using if either source or target level matches?\n\nStarting with it in 1 less edit and push cycle, so if it doesn\u0027t seem bad, let\u0027s stick with the current and wait for issues to happen (if ever) before spending more time on it.",
+      "parentUuid": "927b9573_7e757fb4",
+      "revId": "d022d6ff978d4fd853524db44bc76020d89f4e55",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
