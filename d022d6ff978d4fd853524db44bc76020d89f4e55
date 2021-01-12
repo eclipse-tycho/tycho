@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "603541a8_101aa2f2",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/StandardExecutionEnvironment.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-12T14:01:51Z",
+      "side": 1,
+      "message": "Should it really be the source level (in contrast to the target level)?",
+      "revId": "d022d6ff978d4fd853524db44bc76020d89f4e55",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
