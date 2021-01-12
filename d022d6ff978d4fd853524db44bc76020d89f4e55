@@ -16,6 +16,24 @@
       "revId": "d022d6ff978d4fd853524db44bc76020d89f4e55",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d65a803b_8bdb081a",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/StandardExecutionEnvironment.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-12T14:05:49Z",
+      "side": 1,
+      "message": "I\u0027m not sure and don\u0027t have a solid opinion about it. If you have reason to think target is more likely to change than source level, why not. My initial reasoning is that it\u0027s still possible for a bytecode/compile target version to remain the same between 2 releases while the source version is more likely to always change.",
+      "parentUuid": "603541a8_101aa2f2",
+      "revId": "d022d6ff978d4fd853524db44bc76020d89f4e55",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
