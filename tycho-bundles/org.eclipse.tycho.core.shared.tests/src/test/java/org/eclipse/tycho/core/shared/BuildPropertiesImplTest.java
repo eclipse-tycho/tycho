@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -47,13 +47,13 @@ public class BuildPropertiesImplTest {
         }
 
         @Override
-        public Set keySet() {
-            List sortedList = new ArrayList(super.keySet());
-            Collections.sort(sortedList);
+        public Set<Object> keySet() {
+            List<Object> sortedList = new ArrayList<>(super.keySet());
+            sortedList.sort(null);
             if (reverse) {
                 Collections.reverse(sortedList);
             }
-            return new LinkedHashSet(sortedList);
+            return new LinkedHashSet<>(sortedList);
         }
 
         @Override
