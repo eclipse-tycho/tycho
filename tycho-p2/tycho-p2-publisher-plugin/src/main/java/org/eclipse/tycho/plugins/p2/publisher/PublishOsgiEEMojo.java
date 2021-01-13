@@ -1,7 +1,5 @@
-package org.eclipse.tycho.plugins.p2.publisher;
-
 /*******************************************************************************
- * Copyright (c) 2018, 2020 SAP SE and others.
+ * Copyright (c) 2018, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,6 +10,7 @@ package org.eclipse.tycho.plugins.p2.publisher;
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
+package org.eclipse.tycho.plugins.p2.publisher;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,14 +44,14 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
 
     /**
      * <p>
-     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-14,
+     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-15,
      * JavaSE-16.
      * 
      * It is advised to keep this list as small as possible and the list must include the BREE used
      * by the platform, last Java LTS and the latest Java release.
      * </p>
      */
-    @Parameter(defaultValue = "JavaSE-11, JavaSE-14, JavaSE-15, JavaSE-16")
+    @Parameter(defaultValue = "JavaSE-11, JavaSE-15, JavaSE-16")
     private String profiles;
 
     @Parameter(defaultValue = "false")
