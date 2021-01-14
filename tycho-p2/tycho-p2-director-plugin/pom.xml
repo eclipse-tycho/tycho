@@ -56,7 +56,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-standalone-p2-director</artifactId>
+			<artifactId>tycho-bundles-external</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
 		</dependency>
