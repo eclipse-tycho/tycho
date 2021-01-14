@@ -54,9 +54,9 @@ import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.osgi.container.ModuleContainer;
+import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.framework.util.FilePath;
-import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -72,6 +72,7 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.wiring.BundleRevision;
 
 /**
  * Traverse the current directory to find eclipse-plugin/bundle, feature, update site (site.xml) or
@@ -430,7 +431,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             File basedir = updateSite.getKey();
             Model parent = updateSite.getValue();
             Set<File> modules = getSiteFeaturesAndPlugins(basedir);
-            if (aggregator && modules.size() > 0) {
+            if (aggregator && !modules.isEmpty()) {
                 Model modela = readPomTemplate("update-site-poma.xml");
                 setParentOrAddTychoExtension(basedir, modela, parent);
                 modela.setGroupId(groupId);
@@ -633,13 +634,13 @@ public class GeneratePomsMojo extends AbstractMojo {
             try {
                 StandardExecutionEnvironment ee = ExecutionEnvironmentUtils
                         .getExecutionEnvironment(executionEnvironment, toolchainManager, session, logger);
-                State state = resolver.newResolvedState(basedir, session, ee, platform);
-                BundleDescription bundle = state.getBundleByLocation(basedir.getAbsolutePath());
+                ModuleContainer state = resolver.newResolvedState(basedir, session, ee, platform);
+                ModuleRevision bundle = state.getModule(basedir.getAbsolutePath()).getCurrentRevision();
                 if (bundle != null) {
                     for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(bundle)) {
-                        BundleDescription supplier = entry.desc;
-                        File suppliedDir = new File(supplier.getLocation());
-                        if (supplier.getHost() == null && isModuleDir(suppliedDir)) {
+                        ModuleRevision supplier = entry.module;
+                        File suppliedDir = (File) supplier.getRevisionInfo();
+                        if (((supplier.getTypes() & BundleRevision.TYPE_FRAGMENT) == 0) && isModuleDir(suppliedDir)) {
                             addPlugin(result, suppliedDir.getName());
                         }
                     }
