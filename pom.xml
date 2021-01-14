@@ -88,7 +88,6 @@
 		<surefire-version>2.22.2</surefire-version>
 
 		<equinoxVersion>3.16.100</equinoxVersion>
-		<equinoxCompatVersion>1.2.200</equinoxCompatVersion>
 		<ecjVersion>3.24.0</ecjVersion>
 
 		<!-- version of Tycho used by this build -->
@@ -195,11 +194,6 @@
 				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.osgi</artifactId>
 				<version>${equinoxVersion}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.platform</groupId>
-				<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-				<version>${equinoxCompatVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jdt</groupId>
