@@ -26,8 +26,8 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.State;
+import org.eclipse.osgi.container.ModuleContainer;
+import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
@@ -79,14 +79,14 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
 
         ExecutionEnvironment executionEnvironment = TychoProjectUtils
                 .getExecutionEnvironmentConfiguration(reactorProject).getFullSpecification();
-        State state = resolver.newResolvedState(reactorProject, null, executionEnvironment, false, platform);
-        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
+        ModuleContainer state = resolver.newResolvedState(reactorProject, null, executionEnvironment, false, platform);
+        ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
         Assert.assertEquals(3, dependencies.size());
-        Assert.assertEquals("dep", dependencies.get(0).desc.getSymbolicName());
-        Assert.assertEquals("dep2", dependencies.get(1).desc.getSymbolicName());
-        Assert.assertEquals("dep3", dependencies.get(2).desc.getSymbolicName());
+        Assert.assertEquals("dep", dependencies.get(0).module.getSymbolicName());
+        Assert.assertEquals("dep2", dependencies.get(1).module.getSymbolicName());
+        Assert.assertEquals("dep3", dependencies.get(2).module.getSymbolicName());
         Assert.assertTrue(dependencies.get(2).rules.isEmpty());
     }
 
@@ -120,14 +120,14 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                         new SystemCapability(Type.OSGI_EE, "JavaSE", "1.1.0"), //
                         new SystemCapability(Type.OSGI_EE, "JavaSE", "1.2.0")));
 
-        State state = resolver.newResolvedState(reactorProject, null, customProfile, false, platform);
-        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
+        ModuleContainer state = resolver.newResolvedState(reactorProject, null, customProfile, false, platform);
+        ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
 
         if (dependencies.size() > 0) {
             assertThat(dependencies.size(), is(1));
-            assertThat(dependencies.get(0).desc.getSymbolicName(), is(Constants.SYSTEM_BUNDLE_SYMBOLICNAME));
+            assertThat(dependencies.get(0).module.getSymbolicName(), is(Constants.SYSTEM_BUNDLE_SYMBOLICNAME));
         }
     }
 
@@ -159,10 +159,10 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     private List<DependencyEntry> computeDependencies(MavenProject project) throws BundleException {
         DependencyArtifacts platform = (DependencyArtifacts) DefaultReactorProject.adapt(project)
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
-        State state = resolver.newResolvedState(DefaultReactorProject.adapt(project), null,
+        ModuleContainer state = resolver.newResolvedState(DefaultReactorProject.adapt(project), null,
                 ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog()), false,
                 platform);
-        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
+        ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
         return dependencyComputer.computeDependencies(bundle);
     }
 
@@ -195,8 +195,10 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
 
     private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
         String[] p001accessRulesPatterns = dependencies.stream()
-                .filter(dep -> dep.desc.getSymbolicName().equals(moduleName)).flatMap(dep -> dep.rules.stream())
-                .map(AccessRule::getPattern).toArray(String[]::new);
+                .filter(dep -> dep.module.getSymbolicName().equals(moduleName)) //
+                .flatMap(dep -> dep.rules.stream()) //
+                .map(AccessRule::getPattern) //
+                .toArray(String[]::new);
         return p001accessRulesPatterns;
     }
 
