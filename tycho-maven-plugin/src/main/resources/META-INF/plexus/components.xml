@@ -295,13 +295,15 @@
               <process-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
               </process-resources>
-              <package>
+              <prepare-package>
                 org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-osgi-ee,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-products,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-categories,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:attach-artifacts,
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:assemble-repository,
+              </prepare-package>
+              <package>
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:archive-repository
               </package>
               <install>
