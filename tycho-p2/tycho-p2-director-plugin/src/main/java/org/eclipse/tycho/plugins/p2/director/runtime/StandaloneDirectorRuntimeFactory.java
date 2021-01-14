@@ -66,7 +66,7 @@ public class StandaloneDirectorRuntimeFactory {
             command.addArtifactSources(Arrays.asList(directorRuntimeRepo));
 
             // ... a product that includes the p2 director application ...
-            command.addUnitToInstall("tycho-standalone-p2-director");
+            command.addUnitToInstall("tycho-bundles-external");
             command.setProfileName("director");
 
             // ... to a location in the target folder
@@ -85,7 +85,7 @@ public class StandaloneDirectorRuntimeFactory {
 
     private File getDirectorRepositoryZip(ArtifactRepository localMavenRepository) {
         // this artifact is a dependency of the Mojo, so we expect it in the local Maven repo
-        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-standalone-p2-director",
+        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-bundles-external",
                 TychoVersion.getTychoVersion(), "eclipse-repository");
         return new File(localMavenRepository.getBasedir(), localMavenRepository.pathOf(artifact));
     }

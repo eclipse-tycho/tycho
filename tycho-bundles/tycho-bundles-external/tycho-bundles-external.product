@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="org.eclipse.tycho.p2" uid="tycho-bundles-external" id="org.eclipse.equinox.p2.director.app.product" application="org.eclipse.equinox.p2.director.app.application" version="2.0.0.qualifier" useFeatures="false" includeLaunchers="false">
+<product name="org.eclipse.tycho.p2" uid="tycho-bundles-external" id="org.eclipse.equinox.p2.director.app.product" application="org.eclipse.equinox.p2.director" version="2.3.0.qualifier" useFeatures="false" includeLaunchers="false">
 
    <configIni use="default">
    </configIni>
@@ -83,6 +83,7 @@
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
    </configurations>
 
 </product>

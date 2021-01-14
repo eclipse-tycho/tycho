@@ -27,7 +27,8 @@
 
 	<modules>
 		<module>tycho-bundles-target</module>
-		<module>tycho-standalone-p2-director</module>
+		<!-- non-Tycho bundles in the Tycho's OSGi runtime -->
+		<module>tycho-bundles-external</module>
 
 		<!-- classes shared between Maven and OSGi class loaders -->
 		<module>org.eclipse.tycho.embedder.shared</module>
@@ -48,9 +49,6 @@
 		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
 		<module>org.eclipse.tycho.p2.tools.tests</module>
 		<module>org.eclipse.tycho.test.utils</module>
-
-		<!-- non-Tycho bundles in the Tycho's OSGi runtime -->
-		<module>tycho-bundles-external</module>
 	</modules>
 
 	<build>
