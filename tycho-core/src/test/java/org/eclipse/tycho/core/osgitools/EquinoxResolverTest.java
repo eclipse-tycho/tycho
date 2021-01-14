@@ -17,8 +17,8 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.State;
+import org.eclipse.osgi.container.Module;
+import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -27,6 +27,8 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.wiring.BundleRevision;
 
 public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
     private static final ExecutionEnvironment DUMMY_EE = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5",
@@ -50,11 +52,9 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
 
     public void test_noSystemBundle() throws BundleException {
         Properties properties = subject.getPlatformProperties(new Properties(), null, DUMMY_EE);
-        State state = subject.newState(new DefaultDependencyArtifacts(), properties, false, null);
-
-        BundleDescription[] bundles = state.getBundles("system.bundle");
-
-        assertEquals(1, bundles.length);
+        ModuleContainer container = subject.newState(new DefaultDependencyArtifacts(), properties, false, null);
+        assertEquals(1, container.getModules().stream().map(Module::getCurrentRevision)
+                .map(BundleRevision::getSymbolicName).filter(Constants.SYSTEM_BUNDLE_SYMBOLICNAME::equals).count());
     }
 
     public void testBREEJavaSE11() throws Exception {
