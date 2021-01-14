@@ -185,10 +185,6 @@
 			<artifactId>plexus-archiver</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-equinox-embedder</artifactId>
 			<version>${project.version}</version>

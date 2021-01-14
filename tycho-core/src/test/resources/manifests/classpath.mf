@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: test
 Bundle-SymbolicName: org.eclipse.tycho.test;singleton:=true
 Bundle-Version: 0.1.0.qualifier
-Bundle-Classpath: lib/foo.jar,  dir/, 
+Bundle-ClassPath: lib/foo.jar,  dir/, 
   baz.jar

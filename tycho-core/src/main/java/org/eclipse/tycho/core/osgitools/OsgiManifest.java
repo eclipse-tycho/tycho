@@ -3,11 +3,11 @@ package org.eclipse.tycho.core.osgitools;
 import static org.osgi.framework.Constants.BUNDLE_CLASSPATH;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
-import org.eclipse.osgi.framework.util.Headers;
-import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl;
-import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -27,25 +27,23 @@ public class OsgiManifest {
 
     private static final String[] EMPTY_EXEC_ENV = new String[0];
 
-    private String location;
-    private Headers<String, String> headers;
+    private final String location;
+    private final Map<String, String> headers;
 
     // cache for parsed values of commonly used headers
-    private String bundleSymbolicName;
-    private String bundleVersion;
-    private String[] bundleClassPath;
-    private String[] executionEnvironments;
-    private boolean isDirectoryShape;
+    private final String bundleSymbolicName;
+    private final String bundleVersion;
+    private final String[] bundleClassPath;
+    private final String[] executionEnvironments;
+    private final boolean isDirectoryShape;
 
     private OsgiManifest(InputStream stream, String location) throws OsgiManifestParserException {
         this.location = location;
         try {
-            this.headers = Headers.parseManifest(stream);
+            this.headers = ManifestElement.parseBundleManifest(stream, null);
             // this will do more strict validation of headers on OSGi semantical level
-            BundleDescription bundleDescription = StateObjectFactoryImpl.defaultFactory.createBundleDescription(null,
-                    headers, location, 0L);
-            this.bundleSymbolicName = bundleDescription.getSymbolicName();
-        } catch (BundleException e) {
+            this.bundleSymbolicName = OSGiManifestBuilderFactory.createBuilder(headers).getSymbolicName();
+        } catch (IOException | BundleException e) {
             throw new OsgiManifestParserException(location, e);
         }
         this.bundleVersion = parseBundleVersion();
@@ -105,7 +103,7 @@ public class OsgiManifest {
                 && "dir".equals(bundleShapeElements[0].getValue());
     }
 
-    public Headers<String, String> getHeaders() {
+    public Map<String, String> getHeaders() {
         return headers;
     }
 

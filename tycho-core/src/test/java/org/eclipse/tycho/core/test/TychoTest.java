@@ -13,8 +13,9 @@ package org.eclipse.tycho.core.test;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -75,7 +76,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         } catch (Exception e) {
 //	        List<Exception> exceptions = result.getExceptions();
 //	        assertEquals(1, exceptions.size());
-            assertTrue(e.getMessage().contains("Missing Constraint: Import-Package: moduleorder.p002"));
+            assertTrue(e.getMessage().contains("Unresolved requirement: Import-Package: moduleorder.p002"));
         }
     }
 
@@ -122,39 +123,36 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         for (MavenProject project : projects) {
             artifactIds.add(project.getArtifactId());
         }
-        assertEquals(Arrays.asList("parent", "host", "dep", "fragment", "fragment2", "client"), artifactIds);
+        assertEquals(0, artifactIds.indexOf("parent"));
+        assertEquals(artifactIds.size() - 1, artifactIds.indexOf("client"));
+        assertTrue(artifactIds.indexOf("host") < artifactIds.indexOf("fragment2"));
+        assertTrue(artifactIds.indexOf("host") < artifactIds.indexOf("fragment")
+                && artifactIds.indexOf("dep") < artifactIds.indexOf("fragment"));
 
-        MavenProject host = projects.get(1);
-        MavenProject fragment = projects.get(3);
-        MavenProject fragment2 = projects.get(4);
-        MavenProject client = projects.get(5);
-
-        assertEquals("host", host.getArtifactId());
         // host does not know anything about fragments
+        MavenProject host = projects.stream().filter(p -> p.getArtifactId().equals("host")).findAny().get();
         List<Dependency> hostDependencies = host.getModel().getDependencies();
         assertEquals(0, hostDependencies.size());
 
-        assertEquals("fragment", fragment.getArtifactId());
+        MavenProject fragment = projects.stream().filter(p -> p.getArtifactId().equals("fragment")).findAny().get();
         List<Dependency> fragmentDependencies = fragment.getModel().getDependencies();
         // host first, then fragment dependency
         assertEquals(2, fragmentDependencies.size());
         assertEquals("host", fragmentDependencies.get(0).getArtifactId());
         assertEquals("dep", fragmentDependencies.get(1).getArtifactId());
 
-        assertEquals("fragment2", fragment2.getArtifactId());
         // host only
+        MavenProject fragment2 = projects.stream().filter(p -> p.getArtifactId().equals("fragment2")).findAny().get();
         List<Dependency> fragment2Dependencies = fragment2.getModel().getDependencies();
         assertEquals(1, fragment2Dependencies.size());
         assertEquals("host", fragment2Dependencies.get(0).getArtifactId());
 
-        assertEquals("client", client.getArtifactId());
         // depends on host and because host has ExtensibleAPI also depends fragment and fragent2
+        MavenProject client = projects.stream().filter(p -> p.getArtifactId().equals("client")).findAny().get();
         List<Dependency> clientDependencies = client.getModel().getDependencies();
         assertEquals(4, clientDependencies.size());
-        assertEquals("host", clientDependencies.get(0).getArtifactId());
-        assertEquals("fragment", clientDependencies.get(1).getArtifactId());
-        assertEquals("dep", clientDependencies.get(2).getArtifactId());
-        assertEquals("fragment2", clientDependencies.get(3).getArtifactId());
+        assertEquals(Set.of("host", "fragment", "dep", "fragment2"),
+                clientDependencies.stream().map(Dependency::getArtifactId).collect(Collectors.toSet()));
     }
 
     public void testMNGECLIPSE942() throws Exception {

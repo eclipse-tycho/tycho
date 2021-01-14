@@ -33,7 +33,7 @@ public class OsgiManifestTest {
             parseManifest("noBsn.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(e.getMessage(), containsString("The \"Bundle-SymbolicName\" header must be specified"));
+            assertThat(e.getMessage(), containsString("Bundle-SymbolicName header is required"));
         }
     }
 
@@ -54,8 +54,8 @@ public class OsgiManifestTest {
             parseManifest("invalidVersion.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(e.getMessage(), containsString(
-                    "invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\""));
+            assertThat(e.getMessage(),
+                    containsString("Invalid Manifest header \"Bundle-Version\": 1.0.0.%invalidQualifier"));
         }
     }
 
@@ -76,8 +76,7 @@ public class OsgiManifestTest {
             parseManifest("invalidVersionQualifier.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(e.getMessage(), containsString(
-                    "Invalid manifest header Bundle-Version: \"invalid\" : invalid version \"invalid\": non-numeric \"invalid\""));
+            assertThat(e.getMessage(), containsString("Invalid Manifest header \"Bundle-Version\""));
         }
     }
 
@@ -91,12 +90,6 @@ public class OsgiManifestTest {
     public void testDirectoryShape() throws OsgiManifestParserException, URISyntaxException {
         OsgiManifest manifest = parseManifest("dirShape.mf");
         assertEquals(true, manifest.isDirectoryShape());
-    }
-
-    @Test
-    public void testManifestAttributesAreNonCaseSensitive() throws OsgiManifestParserException, URISyntaxException {
-        OsgiManifest manifest = parseManifest("valid.mf");
-        assertEquals("0.1.0.qualifier", manifest.getHeaders().get("bUNDLE-vERSION"));
     }
 
     @Test
