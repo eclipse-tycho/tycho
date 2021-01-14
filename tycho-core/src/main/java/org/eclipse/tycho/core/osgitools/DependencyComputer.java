@@ -11,30 +11,35 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.osgi.internal.resolver.ExportPackageDescriptionImpl;
-import org.eclipse.osgi.internal.resolver.StateHelperImpl;
-import org.eclipse.osgi.service.resolver.BaseDescription;
-import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.BundleSpecification;
-import org.eclipse.osgi.service.resolver.ExportPackageDescription;
-import org.eclipse.osgi.service.resolver.HostSpecification;
-import org.eclipse.osgi.service.resolver.ImportPackageSpecification;
-import org.eclipse.osgi.service.resolver.StateHelper;
-import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.osgi.container.ModuleCapability;
+import org.eclipse.osgi.container.ModuleContainer;
+import org.eclipse.osgi.container.ModuleRevision;
+import org.eclipse.osgi.container.ModuleWire;
+import org.eclipse.osgi.internal.resolver.StateImpl;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.osgi.framework.Constants;
+import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.resource.Capability;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
@@ -54,20 +59,18 @@ public class DependencyComputer {
     @Requirement
     private BundleReader manifestReader;
 
-    final StateHelper helper = StateHelperImpl.getInstance();
-
     public static class DependencyEntry {
-        public final BundleDescription desc;
+        public final ModuleRevision module;
         public final Collection<AccessRule> rules;
 
-        public DependencyEntry(BundleDescription desc, Collection<AccessRule> rules) {
-            this.desc = desc;
+        public DependencyEntry(ModuleRevision module, Collection<AccessRule> rules) {
+            this.module = module;
             this.rules = rules;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(desc, rules);
+            return Objects.hash(module, rules);
         }
 
         @Override
@@ -79,169 +82,174 @@ public class DependencyComputer {
             if (getClass() != obj.getClass())
                 return false;
             DependencyEntry other = (DependencyEntry) obj;
-            return Objects.equals(this.desc, other.desc) && Objects.equals(this.rules, other.rules);
+            return Objects.equals(this.module, other.module) && Objects.equals(this.rules, other.rules);
         }
 
     }
 
-    public List<DependencyEntry> computeDependencies(BundleDescription desc) {
+    public List<DependencyEntry> computeDependencies(ModuleRevision module) {
+        if (module == null) {
+            return Collections.emptyList();
+        }
+
         ArrayList<DependencyEntry> entries = new ArrayList<>();
-
-        if (desc == null)
-            return entries;
-        Multimap<BundleDescription, AccessRule> map = retrieveVisiblePackagesFromState(desc);
-
-        HashSet<BundleDescription> added = new HashSet<>();
+        Multimap<ModuleRevision, AccessRule> visiblePackages = retrieveVisiblePackagesFromState(module);
+        Set<ModuleRevision> added = new HashSet<>();
 
         // to avoid cycles, e.g. when a bundle imports a package it exports
-        added.add(desc);
+        added.add(module);
 
-        HostSpecification host = desc.getHost();
-        if (host != null) {
-            addHostPlugin(host, added, map, entries);
-        }
-
-        // add dependencies
-        BundleSpecification[] required = desc.getRequiredBundles();
-        for (BundleSpecification required1 : required) {
-            addDependency((BundleDescription) required1.getSupplier(), added, map, entries);
-        }
+        getFragmentHost(module).ifPresent(host -> addHostPlugin(host, added, visiblePackages, entries));
+        getRequiredBundles(module).forEach(required -> addDependency(required, added, visiblePackages, entries));
 
         // add Import-Package
         // sort by symbolicName_version to get a consistent order
-        Map<String, BundleDescription> sortedMap = new TreeMap<>();
-        for (BundleDescription bundle : map.keySet()) {
-            sortedMap.put(bundle.toString(), bundle);
+        Map<String, ModuleRevision> resolvedImportPackages = new TreeMap<>();
+        for (ModuleRevision bundle : visiblePackages.keySet()) {
+            resolvedImportPackages.put(bundle.getSymbolicName(), bundle);
         }
-        for (BundleDescription bundle : sortedMap.values()) {
-            addDependencyViaImportPackage(bundle, added, map, entries);
+        for (ModuleRevision bundle : resolvedImportPackages.values()) {
+            addDependencyViaImportPackage(bundle, added, visiblePackages, entries);
         }
 
         return entries;
     }
 
-    private Multimap<BundleDescription, AccessRule> retrieveVisiblePackagesFromState(BundleDescription desc) {
-        Multimap<BundleDescription, AccessRule> visiblePackages = LinkedHashMultimap.create();
-        if (desc != null) {
-            addVisiblePackagesFromState(desc, visiblePackages);
-            if (desc.getHost() != null) {
-                addVisiblePackagesFromState((BundleDescription) desc.getHost().getSupplier(), visiblePackages);
-            }
+    private Collection<ModuleRevision> getRequiredBundles(ModuleRevision module) {
+        if (module == null) {
+            return Collections.emptyList();
+        }
+        return module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
+                .map(ModuleWire::getProvider).collect(Collectors.toList());
+    }
+
+    private Optional<ModuleRevision> getFragmentHost(ModuleRevision bundleRevision) {
+        return bundleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                .map(ModuleWire::getProvider).findAny();
+    }
+
+    private Multimap<ModuleRevision, AccessRule> retrieveVisiblePackagesFromState(ModuleRevision module) {
+        Multimap<ModuleRevision, AccessRule> visiblePackages = LinkedHashMultimap.create();
+        Set<ModuleRevision> processed = new HashSet<>();
+        if (module != null) {
+            addVisiblePackagesFromState(module, visiblePackages, processed);
+            getFragmentHost(module)
+                    .ifPresent(fragmentHost -> addVisiblePackagesFromState(fragmentHost, visiblePackages, processed));
         }
         return visiblePackages;
     }
 
-    private void addVisiblePackagesFromState(BundleDescription desc,
-            Multimap<BundleDescription, AccessRule> visiblePackages) {
-        if (desc == null)
+    private void addVisiblePackagesFromState(ModuleRevision module,
+            Multimap<ModuleRevision, AccessRule> visiblePackages, Set<ModuleRevision> processed) {
+        if (module == null) {
             return;
-        ExportPackageDescription[] exports = helper.getVisiblePackages(desc, StateHelper.VISIBLE_INCLUDE_EE_PACKAGES);
-        for (ExportPackageDescription export : exports) {
-            BundleDescription exporter = export.getExporter();
-            if (exporter == null)
-                continue;
-            visiblePackages.put(exporter, getRule(desc, export));
         }
+        Stream<ModuleCapability> exportCapabilities = Stream.concat(Stream.concat(
+                // Import-Package
+                module.getWiring().getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE).stream()
+                        .map(ModuleWire::getCapability), //
+                // Require-Bundle
+                module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
+                        .map(ModuleWire::getProvider) //
+                        .flatMap(requiredBundle -> requiredBundle
+                                .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE).stream())), //
+                // reexported required-bundles on required-bundle
+                module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream() //
+                        .map(ModuleWire::getProvider) //
+                        .flatMap(requiredBundle -> requiredBundle.getWiring()
+                                .getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()) //
+                        .filter(requiredBundleWire -> BundleNamespace.VISIBILITY_REEXPORT
+                                .equals(requiredBundleWire.getRequirement().getDirectives()
+                                        .get(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE))) //
+                        .map(ModuleWire::getProvider) //
+                        .flatMap(reexportedRequiredBundle -> reexportedRequiredBundle
+                                .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE).stream()))
+                .distinct();
+        exportCapabilities.forEach(exportCapability -> visiblePackages.put(exportCapability.getResource(),
+                getRule(module, exportCapability)));
+
     }
 
-    private AccessRule getRule(BundleDescription desc, ExportPackageDescription export) {
-        boolean discouraged = helper.getAccessCode(desc, export) == StateHelper.ACCESS_DISCOURAGED;
-        String name = export.getName();
+    private AccessRule getRule(ModuleRevision consumer, Capability export) {
+        String name = (String) export.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
         String path = (name.equals(".")) ? "*" : name.replace('.', '/') + "/*";
-        return new DefaultAccessRule(path, discouraged);
+        return new DefaultAccessRule(path, isDiscouragedAccess(consumer, export));
     }
 
-    protected void addDependencyViaImportPackage(BundleDescription desc, Collection<BundleDescription> added,
-            Multimap<BundleDescription, AccessRule> map, Collection<DependencyEntry> entries) {
-        if (desc == null || !added.add(desc)) {
+    protected void addDependencyViaImportPackage(ModuleRevision module, Collection<ModuleRevision> added,
+            Multimap<ModuleRevision, AccessRule> map, Collection<DependencyEntry> entries) {
+        if (module == null || !added.add(module)) {
             return;
         }
 
-        addPlugin(desc, true, map, entries);
+        addPlugin(module, true, map, entries);
 
-        if (desc.getContainingState() != null) {
-            BundleDescription[] fragments = desc.getFragments();
-            for (BundleDescription fragment : fragments) {
-                if (fragment.isResolved()) {
-                    addDependencyViaImportPackage(fragment, added, map, entries);
-                }
-            }
+        for (ModuleRevision fragment : getFragments(module)) {
+            addDependencyViaImportPackage(fragment, added, map, entries);
         }
     }
 
-    private void addDependency(BundleDescription desc, Collection<BundleDescription> added,
-            Multimap<BundleDescription, AccessRule> map, Collection<DependencyEntry> entries) {
+    private Collection<ModuleRevision> getFragments(ModuleRevision host) {
+        if (host == null /* || !isExtensibleAPI(host) */) {
+            return Collections.emptyList();
+        }
+
+        return host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                .map(ModuleWire::getRequirer).collect(Collectors.toList());
+    }
+
+    private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added,
+            Multimap<ModuleRevision, AccessRule> map, Collection<DependencyEntry> entries) {
         addDependency(desc, added, map, entries, true);
     }
 
-    private void addDependency(BundleDescription desc, Collection<BundleDescription> added,
-            Multimap<BundleDescription, AccessRule> map, Collection<DependencyEntry> entries, boolean useInclusion) {
+    private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added,
+            Multimap<ModuleRevision, AccessRule> map, Collection<DependencyEntry> entries, boolean useInclusion) {
         if (desc == null || !added.add(desc))
             return;
-
-        BundleDescription[] fragments = desc.getFragments();
 
         addPlugin(desc, useInclusion, map, entries);
 
         // add fragments that are not patches after the host
-        for (BundleDescription fragment : fragments) {
-            if (fragment.isResolved()) {
-                addDependency(fragment, added, map, entries, useInclusion);
-            }
+        for (ModuleRevision fragment : getFragments(desc)) {
+            addDependency(fragment, added, map, entries, useInclusion);
         }
 
-        BundleSpecification[] required = desc.getRequiredBundles();
-        for (BundleSpecification required1 : required) {
-            addDependency((BundleDescription) required1.getSupplier(), added, map, entries, useInclusion);
+        for (ModuleRevision required : getRequiredBundles(desc)) {
+            addDependency(required, added, map, entries, useInclusion);
         }
     }
 
-    private void addPlugin(BundleDescription desc, boolean useInclusions, Multimap<BundleDescription, AccessRule> map,
+    private void addPlugin(ModuleRevision module, boolean useInclusions, Multimap<ModuleRevision, AccessRule> map,
             Collection<DependencyEntry> entries) {
-        Collection<AccessRule> rules = useInclusions ? getInclusions(map, desc) : null;
-        DependencyEntry entry = new DependencyEntry(desc, rules);
+        Collection<AccessRule> rules = useInclusions ? getInclusions(map, module) : null;
+        DependencyEntry entry = new DependencyEntry(module, rules);
         if (!entries.contains(entry)) {
             entries.add(entry);
         }
     }
 
-    private Collection<AccessRule> getInclusions(Multimap<BundleDescription, AccessRule> map, BundleDescription desc) {
-        Collection<AccessRule> rules;
-
-        if (desc.getHost() != null) {
-            rules = map.get((BundleDescription) desc.getHost().getSupplier());
-        } else {
-            rules = map.get(desc);
-        }
-
-        return rules != null ? rules : new ArrayList<>();
+    private Collection<AccessRule> getInclusions(Multimap<ModuleRevision, AccessRule> map, ModuleRevision module) {
+        Collection<AccessRule> rules = map.get(getFragmentHost(module).orElse(module));
+        return rules != null ? rules : Collections.emptyList();
     }
 
-    private void addHostPlugin(HostSpecification hostSpec, Collection<BundleDescription> added,
-            Multimap<BundleDescription, AccessRule> map, Collection<DependencyEntry> entries) {
-        BaseDescription desc = hostSpec.getSupplier();
-
-        if (desc instanceof BundleDescription) {
-            BundleDescription host = (BundleDescription) desc;
-
-            // add host plug-in
-            if (added.add(host)) {
-                addPlugin(host, false, map, entries);
-                BundleSpecification[] required = host.getRequiredBundles();
-                for (BundleSpecification required1 : required) {
-                    addDependency((BundleDescription) required1.getSupplier(), added, map, entries);
-                }
-
-                // add Import-Package
-                ImportPackageSpecification[] imports = host.getImportPackages();
-                for (ImportPackageSpecification import1 : imports) {
-                    BaseDescription supplier = import1.getSupplier();
-                    if (supplier instanceof ExportPackageDescription) {
-                        addDependencyViaImportPackage(((ExportPackageDescription) supplier).getExporter(), added, map,
-                                entries);
-                    }
-                }
+    private void addHostPlugin(ModuleRevision host, Collection<ModuleRevision> added,
+            Multimap<ModuleRevision, AccessRule> map, Collection<DependencyEntry> entries) {
+        if (host == null) {
+            return;
+        }
+        // add host plug-in
+        if (added.add(host)) {
+            addPlugin(host, false, map, entries);
+            for (ModuleRevision required : getRequiredBundles(host)) {
+                addDependency(required, added, map, entries);
             }
+
+            // add Import-Package
+            host.getWiring().getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE).stream()
+                    .map(ModuleWire::getProvider)
+                    .forEach(provider -> addDependencyViaImportPackage(provider, added, map, entries));
         }
     }
 
@@ -257,23 +265,25 @@ public class DependencyComputer {
      * 
      * [1] http://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
      */
-    public List<AccessRule> computeBootClasspathExtraAccessRules(BundleDescription desc) {
-        List<AccessRule> result = new ArrayList<>();
-        ExportPackageDescription[] exports = helper.getVisiblePackages(desc);
-        for (ExportPackageDescription export : exports) {
-            BundleDescription host = export.getExporter();
-            BaseDescription fragment = ((ExportPackageDescriptionImpl) export).getFragmentDeclaration();
-            if (host.getBundleId() == 0 && fragment != null && isFrameworkExtension(fragment.getSupplier())) {
-                result.add(getRule(host, export));
-            }
-        }
-        return result;
+
+    public List<AccessRule> computeBootClasspathExtraAccessRules(ModuleContainer container) {
+        ModuleRevision systemBundle = container.getModule(Constants.SYSTEM_BUNDLE_ID).getCurrentRevision();
+        return systemBundle.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                .map(ModuleWire::getRequirer)
+                .flatMap(systemFragment -> systemFragment.getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)
+                        .stream())
+                .map(packageExport -> getRule(systemBundle, packageExport)).collect(Collectors.toList());
     }
 
-    private boolean isFrameworkExtension(BundleDescription bundle) {
-        OsgiManifest mf = manifestReader.loadManifest(new File(bundle.getLocation()));
-        ManifestElement[] elements = mf.getManifestElements(Constants.FRAGMENT_HOST);
-        return elements.length == 1
-                && Constants.EXTENSION_FRAMEWORK.equals(elements[0].getDirective(Constants.EXTENSION_DIRECTIVE));
+    public static boolean isDiscouragedAccess(BundleRevision bundle, Capability export) {
+        if (Boolean.parseBoolean(export.getDirectives().get(StateImpl.INTERNAL_DIRECTIVE))) {
+            return true;
+        }
+        String allFriends = export.getDirectives().get(StateImpl.FRIENDS_DIRECTIVE);
+        if (allFriends != null) {
+            return !Arrays.asList(allFriends.split(",")).contains(bundle.getSymbolicName());
+        }
+        return false;
     }
+
 }
