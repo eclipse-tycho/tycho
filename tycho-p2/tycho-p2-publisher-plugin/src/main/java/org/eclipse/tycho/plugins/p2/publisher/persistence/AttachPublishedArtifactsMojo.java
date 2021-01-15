@@ -22,6 +22,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
@@ -45,6 +46,9 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     @Component
     private EquinoxServiceFactory osgiServices;
 
+    @Component
+    private Logger logger;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
@@ -62,6 +66,7 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
                 } else {
                     String type = getExtension(artifactLocation);
                     projectHelper.attachArtifact(getProject(), type, classifier, artifactLocation);
+                    logger.debug("Attaching " + type + "::" + classifier + " -> " + artifactLocation);
                 }
             }
 

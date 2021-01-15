@@ -59,6 +59,27 @@ public interface MirrorApplicationService {
             boolean includePacked, Map<String, String> filterProperties) throws FacadeException;
 
     /**
+     * recreates the metadata of an existing repository e.g. to account for changes in the contained
+     * artifacts to update artifact size and hashcodes
+     * 
+     * @param destination
+     *            The p2 repository that shall be written to. The location must be a directory.
+     * @throws FacadeException
+     *             if a checked exception occurs while updating
+     */
+    public void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException;
+
+    /**
+     * performs xz compression for the given DestinationRepositoryDescriptor
+     * 
+     * @param destination
+     *            The p2 repository that shall be compressed. The location must be a directory.
+     * @throws FacadeException
+     *             if a checked exception occurs while compression
+     */
+    public void xzCompress(DestinationRepositoryDescriptor destination) throws FacadeException;
+
+    /**
      * Copies installable units from the source repositories to the destination repository. The
      * corresponding artifacts are also copied unless the mirror options specify otherwise.
      * 

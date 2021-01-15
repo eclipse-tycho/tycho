@@ -302,6 +302,7 @@
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-categories,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:attach-artifacts,
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:assemble-repository,
+                org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:update-artifact-metadata
               </prepare-package>
               <package>
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:archive-repository

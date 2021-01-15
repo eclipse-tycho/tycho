@@ -167,14 +167,12 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                             e);
                 }
             }
-            recreateArtifactRepository(destination);
-            xzCompress(destination);
         } finally {
             agent.stop();
         }
     }
 
-    private void xzCompress(DestinationRepositoryDescriptor destination) throws FacadeException {
+    public void xzCompress(DestinationRepositoryDescriptor destination) throws FacadeException {
         if (!destination.isXZCompress()) {
             return;
         }
@@ -188,7 +186,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
-    private void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException {
+    public void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException {
         // bug 357513 - force artifact repo recreation which will
         // create the missing md5 checksums
         if (destination.isMetaDataOnly()) {
