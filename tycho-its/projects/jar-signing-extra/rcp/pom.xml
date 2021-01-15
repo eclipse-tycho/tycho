@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>jarsigning.rcp</artifactId>
+	<packaging>eclipse-repository</packaging>
+
+	<parent>
+		<groupId>org.eclipse.tycho.its.selfsignedcert</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>${jarsigner.plugin.groupId}</groupId>
+				<artifactId>${jarsigner.plugin.artifactId}</artifactId>
+				<version>${jarsigner.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>sign</id>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+						<phase>prepare-package</phase>
+					</execution>
+					<execution>
+						<id>verify</id>
+						<goals>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<certs>true</certs>
+					<verbose>false</verbose>
+					<storetype>${keystore.type}</storetype>
+					<keystore>${keystore.path}</keystore>
+					<alias>${keystore.alias}</alias>
+					<storepass>${keystore.store.password}</storepass>
+					<keypass>${keystore.key.password}</keypass>
+					<archiveDirectory>${project.build.directory}/repository/plugins/</archiveDirectory>
+					<processAttachedArtifacts>false</processAttachedArtifacts>
+					<processMainArtifact>false</processMainArtifact>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>update</id>
+						<goals>
+							<goal>update-artifacts-repository</goal>
+						</goals>
+						<phase>prepare-package</phase>
+					</execution>
+					<execution>
+						<id>verify</id>
+						<goals>
+							<goal>verify-repository</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>
