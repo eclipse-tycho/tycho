@@ -42,6 +42,16 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
         checkMD5SumsArePresent(verifier);
     }
 
+    @Test
+    public void testExtraSigning() throws Exception {
+        Verifier verifier = getVerifier("jar-signing-extra", false);
+
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+        verifier.verifyTextInLog("verified successfully");
+        checkMD5SumsArePresent(verifier);
+    }
+
     private void checkMD5SumsArePresent(Verifier verifier) throws Exception {
         File repoDir = new File(verifier.getBasedir(), "rcp/target/repository");
         File artifacts = new File(repoDir, "artifacts.jar");
