@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9df74d28_aeca3120",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-15T08:48:29Z",
+      "side": 1,
+      "message": "This mojo should not be part of default lifecycle.",
+      "revId": "7646425f2af05688c99c117c2498037ac1e846e9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97ae1adb_bfee7c9c",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-15T08:48:29Z",
+      "side": 1,
+      "message": "This is a bit too vague IMO. I suggest\n\"\"\"\nRebuild the p2 artifacts metadata according to the content of the repository on filesystem. This can typically be used to update size and checksums when some custom build steps have altered some files in the p2 repo after it got assembled (ie after `assemble-repository` step was performed.\n\"\"\"",
+      "revId": "7646425f2af05688c99c117c2498037ac1e846e9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12fc02a4_79e5580f",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-15T08:48:29Z",
+      "side": 1,
+      "message": "I suggest \"rebuild-artifacts-metadata\" (with a plural to artifacts to disambiguate a bit.",
+      "revId": "7646425f2af05688c99c117c2498037ac1e846e9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
