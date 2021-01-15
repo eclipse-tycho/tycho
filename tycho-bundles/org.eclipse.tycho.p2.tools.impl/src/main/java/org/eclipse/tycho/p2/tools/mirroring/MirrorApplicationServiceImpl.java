@@ -168,7 +168,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                 }
             }
             recreateArtifactRepository(destination);
-            xzCompress(destination);
         } finally {
             agent.stop();
         }
@@ -188,7 +187,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
-    private void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException {
+    public void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException {
         // bug 357513 - force artifact repo recreation which will
         // create the missing md5 checksums
         if (destination.isMetaDataOnly()) {
@@ -207,6 +206,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         } catch (ProvisionException e) {
             throw new FacadeException("Recreate artifact repository failed", e);
         }
+        xzCompress(destination);
     }
 
     private static MirrorApplication createMirrorApplication(RepositoryReferences sources,
