@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "c3a21b8a_769ff61a",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 16528
+      },
+      "writtenOn": "2021-01-15T08:49:50Z",
+      "side": 1,
+      "message": "shouldn\u0027t this one be in the package fase?\nso we can do a signing thing in in the pre-package (that comes after all pre packages things above this one)",
+      "revId": "7646425f2af05688c99c117c2498037ac1e846e9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97ae1adb_bfee7c9c",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 1
