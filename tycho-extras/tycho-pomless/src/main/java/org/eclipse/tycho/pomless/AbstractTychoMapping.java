@@ -200,7 +200,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         parentReference.setVersion(version);
         parentReference.setRelativePath(
                 projectRoot.getCanonicalFile().toPath().relativize(parentPom.getPomFile().toPath()).toString());
-        logger.debug("Derived parent for path " + projectRoot + " is goupId: " + parentReference.getGroupId()
+        logger.debug("Derived parent for path " + projectRoot + " is groupId: " + parentReference.getGroupId()
                 + ", artifactId: " + parentReference.getArtifactId() + ", relativePath: "
                 + parentReference.getRelativePath());
         return parentReference;
