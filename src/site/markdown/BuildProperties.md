@@ -28,7 +28,7 @@ Key | Value
 --- | ---
 source.library | supported
 output.library | not supported - compiler output goes to `${project.build.outputDirectory}` (usually `target/classes`) for main jar and `target/nestedjar-classes` for nested jars
-exclude.library | not supported
+exclude.library | supported
 extra.library | supported
 manifest.library | supported
 src.includes | supported
