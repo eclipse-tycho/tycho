@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfe87223_3c30a3d0",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-15T09:39:04Z",
+      "side": 0,
+      "message": "This should be kept. The expectation is that after calling this piece of code as part of any mojo, the result is a valid working repo. If we remove this step, then the artifacts metadata may be incorrect (checksums not fixed), so the expectation is broken and further usage may be broken.",
+      "revId": "f5c48ede9a73f9e1abd3271fda97a450af68b847",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}

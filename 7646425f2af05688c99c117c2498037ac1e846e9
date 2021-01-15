@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "99787f87_e5ee5ccf",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-15T09:39:04Z",
+      "side": 1,
+      "message": "see comment on MirrorApplicationServiceImpl. The existing mojos are supposed to do that already as expectation is workable artifacts in the end. I don\u0027t think we have to split, we could just have a hook to \"rebuild\" in case artifacts are touched by some other custom build step; that would be a safer approach.",
+      "parentUuid": "3557f6e8_8e41ca53",
+      "revId": "7646425f2af05688c99c117c2498037ac1e846e9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97ae1adb_bfee7c9c",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 1
