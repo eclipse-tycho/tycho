@@ -13,10 +13,11 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -33,6 +34,9 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.osgi.framework.Constants;
+
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * Helper class that computes compile dependencies of a bundle project.
@@ -51,20 +55,16 @@ public class DependencyComputer {
 
     public static class DependencyEntry {
         public final BundleDescription desc;
-        public final List<AccessRule> rules;
+        public final Collection<AccessRule> rules;
 
-        public DependencyEntry(BundleDescription desc, List<AccessRule> rules) {
+        public DependencyEntry(BundleDescription desc, Collection<AccessRule> rules) {
             this.desc = desc;
             this.rules = rules;
         }
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((desc == null) ? 0 : desc.hashCode());
-            result = prime * result + ((rules == null) ? 0 : rules.hashCode());
-            return result;
+            return Objects.hash(desc, rules);
         }
 
         @Override
@@ -76,17 +76,7 @@ public class DependencyComputer {
             if (getClass() != obj.getClass())
                 return false;
             DependencyEntry other = (DependencyEntry) obj;
-            if (desc == null) {
-                if (other.desc != null)
-                    return false;
-            } else if (!desc.equals(other.desc))
-                return false;
-            if (rules == null) {
-                if (other.rules != null)
-                    return false;
-            } else if (!rules.equals(other.rules))
-                return false;
-            return true;
+            return Objects.equals(this.desc, other.desc) && Objects.equals(this.rules, other.rules);
         }
 
     }
@@ -97,7 +87,7 @@ public class DependencyComputer {
         if (desc == null)
             return entries;
 
-        Map<BundleDescription, ArrayList<AccessRule>> map = retrieveVisiblePackagesFromState(helper, desc);
+        Multimap<BundleDescription, AccessRule> map = retrieveVisiblePackagesFromState(helper, desc);
 
         HashSet<BundleDescription> added = new HashSet<>();
 
@@ -115,8 +105,6 @@ public class DependencyComputer {
             addDependency((BundleDescription) required1.getSupplier(), added, map, entries);
         }
 
-//		addSecondaryDependencies(desc, added, entries);
-
         // add Import-Package
         // sort by symbolicName_version to get a consistent order
         Map<String, BundleDescription> sortedMap = new TreeMap<>();
@@ -127,26 +115,23 @@ public class DependencyComputer {
             addDependencyViaImportPackage(bundle, added, map, entries);
         }
 
-//		addExtraClasspathEntries(added, entries);
-
-//		for (int i = 0; i < entries.size(); i++) {
-//			System.err.println(i + "\t" + entries.get(i).desc);
-//		}
-
         return entries;
     }
 
-    private Map<BundleDescription, ArrayList<AccessRule>> retrieveVisiblePackagesFromState(StateHelper helper,
+    private Multimap<BundleDescription, AccessRule> retrieveVisiblePackagesFromState(StateHelper helper,
             BundleDescription desc) {
-        Map<BundleDescription, ArrayList<AccessRule>> visiblePackages = new HashMap<>();
-        addVisiblePackagesFromState(helper, desc, visiblePackages);
-        if (desc.getHost() != null)
-            addVisiblePackagesFromState(helper, (BundleDescription) desc.getHost().getSupplier(), visiblePackages);
+        Multimap<BundleDescription, AccessRule> visiblePackages = LinkedHashMultimap.create();
+        if (desc != null) {
+            addVisiblePackagesFromState(helper, desc, visiblePackages);
+            if (desc.getHost() != null) {
+                addVisiblePackagesFromState(helper, (BundleDescription) desc.getHost().getSupplier(), visiblePackages);
+            }
+        }
         return visiblePackages;
     }
 
     private void addVisiblePackagesFromState(StateHelper helper, BundleDescription desc,
-            Map<BundleDescription, ArrayList<AccessRule>> visiblePackages) {
+            Multimap<BundleDescription, AccessRule> visiblePackages) {
         if (desc == null)
             return;
         ExportPackageDescription[] exports = helper.getVisiblePackages(desc, StateHelper.VISIBLE_INCLUDE_EE_PACKAGES);
@@ -154,31 +139,26 @@ public class DependencyComputer {
             BundleDescription exporter = export.getExporter();
             if (exporter == null)
                 continue;
-            ArrayList<AccessRule> list = visiblePackages.get(exporter);
-            if (list == null)
-                list = new ArrayList<>();
-            AccessRule rule = getRule(helper, desc, export);
-            if (!list.contains(rule))
-                list.add(rule);
-            visiblePackages.put(exporter, list);
+            visiblePackages.put(exporter, getRule(helper, desc, export));
         }
     }
 
     private AccessRule getRule(StateHelper helper, BundleDescription desc, ExportPackageDescription export) {
         boolean discouraged = helper.getAccessCode(desc, export) == StateHelper.ACCESS_DISCOURAGED;
         String name = export.getName();
-        String path = (name.equals(".")) ? "*" : name.replaceAll("\\.", "/") + "/*";
+        String path = (name.equals(".")) ? "*" : name.replace('.', '/') + "/*";
         return new DefaultAccessRule(path, discouraged);
     }
 
-    protected void addDependencyViaImportPackage(BundleDescription desc, HashSet<BundleDescription> added,
-            Map<BundleDescription, ArrayList<AccessRule>> map, ArrayList<DependencyEntry> entries) {
-        if (desc == null || !added.add(desc))
+    protected void addDependencyViaImportPackage(BundleDescription desc, Collection<BundleDescription> added,
+            Multimap<BundleDescription, AccessRule> map, Collection<DependencyEntry> entries) {
+        if (desc == null || !added.add(desc)) {
             return;
+        }
 
         addPlugin(desc, true, map, entries);
 
-        if (hasExtensibleAPI(desc) && desc.getContainingState() != null) {
+        if (desc.getContainingState() != null) {
             BundleDescription[] fragments = desc.getFragments();
             for (BundleDescription fragment : fragments) {
                 if (fragment.isResolved()) {
@@ -188,30 +168,23 @@ public class DependencyComputer {
         }
     }
 
-    private void addDependency(BundleDescription desc, HashSet<BundleDescription> added,
-            Map<BundleDescription, ArrayList<AccessRule>> map, ArrayList<DependencyEntry> entries) {
+    private void addDependency(BundleDescription desc, Collection<BundleDescription> added,
+            Multimap<BundleDescription, AccessRule> map, Collection<DependencyEntry> entries) {
         addDependency(desc, added, map, entries, true);
     }
 
-    private void addDependency(BundleDescription desc, HashSet<BundleDescription> added,
-            Map<BundleDescription, ArrayList<AccessRule>> map, ArrayList<DependencyEntry> entries, boolean useInclusion) {
+    private void addDependency(BundleDescription desc, Collection<BundleDescription> added,
+            Multimap<BundleDescription, AccessRule> map, Collection<DependencyEntry> entries, boolean useInclusion) {
         if (desc == null || !added.add(desc))
             return;
 
-        BundleDescription[] fragments = hasExtensibleAPI(desc) ? desc.getFragments() : new BundleDescription[0];
-
-        // add fragment patches before host
-        for (BundleDescription fragment : fragments) {
-            if (fragment.isResolved() && isPatchFragment(fragment)) {
-                addDependency(fragment, added, map, entries, useInclusion);
-            }
-        }
+        BundleDescription[] fragments = desc.getFragments();
 
         addPlugin(desc, useInclusion, map, entries);
 
         // add fragments that are not patches after the host
         for (BundleDescription fragment : fragments) {
-            if (fragment.isResolved() && !isPatchFragment(fragment)) {
+            if (fragment.isResolved()) {
                 addDependency(fragment, added, map, entries, useInclusion);
             }
         }
@@ -222,39 +195,37 @@ public class DependencyComputer {
         }
     }
 
-    private boolean isPatchFragment(BundleDescription bundleDescription) {
-        return false; // TODO
-    }
-
-    private boolean addPlugin(BundleDescription desc, boolean useInclusions,
-            Map<BundleDescription, ArrayList<AccessRule>> map, ArrayList<DependencyEntry> entries) {
-        List<AccessRule> rules = useInclusions ? getInclusions(map, desc) : null;
+    private void addPlugin(BundleDescription desc, boolean useInclusions, Multimap<BundleDescription, AccessRule> map,
+            Collection<DependencyEntry> entries) {
+        Collection<AccessRule> rules = useInclusions ? getInclusions(map, desc) : null;
         DependencyEntry entry = new DependencyEntry(desc, rules);
-        if (!entries.contains(entry))
+        if (!entries.contains(entry)) {
             entries.add(entry);
-        return true;
+        }
     }
 
-    private List<AccessRule> getInclusions(Map<BundleDescription, ArrayList<AccessRule>> map, BundleDescription desc) {
-        ArrayList<AccessRule> rules;
+    private Collection<AccessRule> getInclusions(Multimap<BundleDescription, AccessRule> map, BundleDescription desc) {
+        Collection<AccessRule> rules;
 
-        if (desc.getHost() != null)
+        if (desc.getHost() != null) {
             rules = map.get((BundleDescription) desc.getHost().getSupplier());
-        else
+        } else {
             rules = map.get(desc);
+        }
 
-        return rules != null ? rules : new ArrayList<AccessRule>();
+        return rules != null ? rules : new ArrayList<>();
     }
 
-    private void addHostPlugin(HostSpecification hostSpec, HashSet<BundleDescription> added,
-            Map<BundleDescription, ArrayList<AccessRule>> map, ArrayList<DependencyEntry> entries) {
+    private void addHostPlugin(HostSpecification hostSpec, Collection<BundleDescription> added,
+            Multimap<BundleDescription, AccessRule> map, Collection<DependencyEntry> entries) {
         BaseDescription desc = hostSpec.getSupplier();
 
         if (desc instanceof BundleDescription) {
             BundleDescription host = (BundleDescription) desc;
 
             // add host plug-in
-            if (added.add(host) && addPlugin(host, false, map, entries)) {
+            if (added.add(host)) {
+                addPlugin(host, false, map, entries);
                 BundleSpecification[] required = host.getRequiredBundles();
                 for (BundleSpecification required1 : required) {
                     addDependency((BundleDescription) required1.getSupplier(), added, map, entries);
@@ -271,11 +242,6 @@ public class DependencyComputer {
                 }
             }
         }
-    }
-
-    private boolean hasExtensibleAPI(BundleDescription desc) {
-        // TODO re-enable Eclipse-ExtensibleAPI
-        return true; //"true".equals(state.getManifestAttribute(desc, "Eclipse-ExtensibleAPI"));
     }
 
     /**
@@ -306,11 +272,7 @@ public class DependencyComputer {
     private boolean isFrameworkExtension(BundleDescription bundle) {
         OsgiManifest mf = manifestReader.loadManifest(new File(bundle.getLocation()));
         ManifestElement[] elements = mf.getManifestElements(Constants.FRAGMENT_HOST);
-        if (elements.length == 1) {
-            if (Constants.EXTENSION_FRAMEWORK.equals(elements[0].getDirective(Constants.EXTENSION_DIRECTIVE))) {
-                return true;
-            }
-        }
-        return false;
+        return elements.length == 1
+                && Constants.EXTENSION_FRAMEWORK.equals(elements[0].getDirective(Constants.EXTENSION_DIRECTIVE));
     }
 }

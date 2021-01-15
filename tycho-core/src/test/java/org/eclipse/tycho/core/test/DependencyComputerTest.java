@@ -141,7 +141,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         assertEquals(1, bundle1Dependencies.size());
         DependencyEntry dependency = bundle1Dependencies.get(0);
         assertEquals(1, dependency.rules.size());
-        assertEquals("javax/net/ssl/*", dependency.rules.get(0).getPattern());
+        assertEquals("javax/net/ssl/*", dependency.rules.iterator().next().getPattern());
 
         // 2. bundle importing both a JRE package and an OSGi framework package
         MavenProject bundle2Project = basedirMap.get(new File(basedir, "bundle2"));

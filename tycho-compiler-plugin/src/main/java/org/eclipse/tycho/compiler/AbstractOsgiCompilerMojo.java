@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -455,7 +456,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         return (BundleProject) projectType;
     }
 
-    private String toString(List<AccessRule> rules) {
+    private String toString(Collection<AccessRule> rules) {
         StringBuilder result = new StringBuilder(); // include all
         if (rules != null) {
             result.append("[");
@@ -628,7 +629,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                     .map(accessRule -> new DefaultAccessRule(accessRule, false)) //
                     .forEach(accessRules::add);
             // now add packages exported by framework extension bundles
-            accessRules.addAll(getBundleProject().getBootClasspathExtraAccessRules(DefaultReactorProject.adapt(project)));
+            accessRules
+                    .addAll(getBundleProject().getBootClasspathExtraAccessRules(DefaultReactorProject.adapt(project)));
         }
         if (!accessRules.isEmpty()) {
             compilerConfiguration.addCompilerCustomArgument("org.osgi.framework.system.packages",
