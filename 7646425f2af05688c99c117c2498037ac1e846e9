@@ -36,6 +36,42 @@
     },
     {
       "key": {
+        "uuid": "8d35ead3_74fcfdbe",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-15T09:24:21Z",
+      "side": 1,
+      "message": "I have no problem moving that, i just get the idea from the phase-description that prepare-package should produce a complete, unpacked version, and package just \"zip it up\" in some kind.\nFor the usecase of signing, one would simply call the update-artifact-metadata afterwards again, that\u0027s how its working on other places in tycho already.",
+      "parentUuid": "c3a21b8a_769ff61a",
+      "revId": "7646425f2af05688c99c117c2498037ac1e846e9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3557f6e8_8e41ca53",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-15T09:24:21Z",
+      "side": 1,
+      "message": "I just spited the actions taken in assemble-repository (pack the repository + regenerate metadata) into two mojo  assemble-repository (pack the repository) update-artifact-metadata (regenerate metadata) so it is al fine here.",
+      "parentUuid": "9df74d28_aeca3120",
+      "revId": "7646425f2af05688c99c117c2498037ac1e846e9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97ae1adb_bfee7c9c",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 1
