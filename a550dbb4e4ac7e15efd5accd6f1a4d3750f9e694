@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7a087b0_aaae3156",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-16T12:54:40Z",
+      "side": 1,
+      "message": "Let\u0027s try to be more precise about \"updates\" with something like \"Fix checksums and size of modified artifacts in the p2 repository\" folder. The location of the repo should be a parameter, with `${project.build.director}/repository` being the default value.",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "256daf21_5f78d7d4",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-16T12:54:40Z",
+      "side": 1,
+      "message": "As I wrote comment above, I got the impression \"fix-artifacts-metadata\" would be a bit better.",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3b51225_1adce917",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-16T12:54:40Z",
+      "side": 1,
+      "message": "getLog().info(...)",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
