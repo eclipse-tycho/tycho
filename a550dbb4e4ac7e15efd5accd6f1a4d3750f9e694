@@ -126,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "e666e1bd_4685c24e",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-17T13:21:16Z",
+      "side": 1,
+      "message": "\u003e the name, it doesn\u0027t really matter as long as it solves the issue\n\nThat\u0027s a bit shortsighted IMO, think about people who are going to use this code and maintain starting without any deep knowledge of the details in 5 or 10 years. In file formats and textual languages, the names are bascially the main part of the UX, what will make users feel productive, discover capabilties, and able to write sustainable solutions. Public names are actually more critical than implementation in making users successful, especially since they\u0027re not easy to change after the fact.",
+      "parentUuid": "db67297b_782c597f",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3b51225_1adce917",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 3

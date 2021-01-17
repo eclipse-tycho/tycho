@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a056264_481859d4",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-17T13:21:16Z",
+      "side": 1,
+      "message": "This part of the description seems strange.\nIt it actually something that should be implemented in the mojo.",
+      "revId": "c0a4d9a551c3686c272edbbb7e5d2f5d0f2ab3ff",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9e3d94c_48beec0f",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-17T13:21:16Z",
+      "side": 1,
+      "message": "I find `metadata` more precise than `repository`, especially since the \"repository\" name is already part of the groupId. So `fix-artifacts-metadata` would be slightly better IMO.",
+      "revId": "c0a4d9a551c3686c272edbbb7e5d2f5d0f2ab3ff",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
