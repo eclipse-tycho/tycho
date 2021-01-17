@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fa5c3055_4974c8d9",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-17T10:23:00Z",
+      "side": 1,
+      "message": "If this mojo needs to be called, then it\u0027s really that some previous steps did break the consistency of the p2 repo. Fix is semantically correct to me and more explicit than update.",
+      "parentUuid": "d7fa8eb5_4bd5876b",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3b51225_1adce917",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 3
