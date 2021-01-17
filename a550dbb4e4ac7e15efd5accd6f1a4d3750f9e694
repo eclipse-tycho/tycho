@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "4798b3c0_31056d6e",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-17T12:08:51Z",
+      "side": 1,
+      "message": "The initial use-case was about signing artifacts. If there are no hashcode nor size in metadata, you\u0027re free to modify the repo however you want and repo wouldn\u0027t need a fix and this mojo doesn\u0027t need to be called.\nSo it\u0027s really about fixing, I think having it in the mojo name makes many things much clearer. Also, I like that \"fix\" highlights that the previous steps that bring users to use this mojo are in some kind of danger zone. It\u0027s important people understand what they\u0027re doing is riskier than default.",
+      "parentUuid": "8c0cfef3_838b0bdd",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3b51225_1adce917",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 3
