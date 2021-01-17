@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "975d1363_8fd0c42d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-17T13:31:41Z",
+      "side": 1,
+      "message": "That can actually be a future change, no need to address it in the current change necessarily, it\u0027s more a nice-to-have. And same thing would also be true for the ArchiveRepositoryMojo, so it can be a more complete refactoring (one more reason to ignore it now)",
+      "parentUuid": "8a056264_481859d4",
+      "revId": "c0a4d9a551c3686c272edbbb7e5d2f5d0f2ab3ff",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f9e3d94c_48beec0f",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 6
