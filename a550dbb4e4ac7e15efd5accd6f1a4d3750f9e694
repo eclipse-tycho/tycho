@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "8c0cfef3_838b0bdd",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-17T10:40:54Z",
+      "side": 1,
+      "message": "You can also call the mojo if you have created a p2 repo without hash-codes (if I have understand right this was the initial need for this) :-)",
+      "parentUuid": "fa5c3055_4974c8d9",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3b51225_1adce917",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 3
