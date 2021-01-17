@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "d7fa8eb5_4bd5876b",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-17T10:19:15Z",
+      "side": 1,
+      "message": "I don\u0027t really like the term \"fix\" as it implies something is broken, but I think we should align the name with the other ones in the plugin.",
+      "parentUuid": "256daf21_5f78d7d4",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3b51225_1adce917",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 3
