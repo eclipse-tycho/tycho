@@ -144,6 +144,24 @@
     },
     {
       "key": {
+        "uuid": "83ad57d3_a2b67ce5",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-17T15:00:26Z",
+      "side": 1,
+      "message": "I just find \"update\" less offensive but just wanted to note that it doesn\u0027t mater *for me* too much to delay this feature too much just because of the naming discussion :-)",
+      "parentUuid": "e666e1bd_4685c24e",
+      "revId": "a550dbb4e4ac7e15efd5accd6f1a4d3750f9e694",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3b51225_1adce917",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 3

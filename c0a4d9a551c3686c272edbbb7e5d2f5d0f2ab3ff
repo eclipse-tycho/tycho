@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7b31f004_77bf4f08",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-17T15:00:26Z",
+      "side": 1,
+      "message": "I\u0027m not completely sure what is your suggestion here, but maybe you can just provide a text to use here?",
+      "parentUuid": "975d1363_8fd0c42d",
+      "revId": "c0a4d9a551c3686c272edbbb7e5d2f5d0f2ab3ff",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f9e3d94c_48beec0f",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
         "patchSetId": 6
@@ -48,6 +66,24 @@
       "writtenOn": "2021-01-17T13:21:16Z",
       "side": 1,
       "message": "I find `metadata` more precise than `repository`, especially since the \"repository\" name is already part of the groupId. So `fix-artifacts-metadata` would be slightly better IMO.",
+      "revId": "c0a4d9a551c3686c272edbbb7e5d2f5d0f2ab3ff",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46cfc968_aff80040",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RepositoryMetadataMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-01-17T15:00:26Z",
+      "side": 1,
+      "message": "I just noticed that all mojos in the plugin ends with -repository. The P2 contains of two parts:\nmetadata-repository (containing the units) and artifact-repository (containing the actual files) so artifacts-metadata seems a bit ambiguous here (we only fix the artifact-repository).",
+      "parentUuid": "f9e3d94c_48beec0f",
       "revId": "c0a4d9a551c3686c272edbbb7e5d2f5d0f2ab3ff",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
