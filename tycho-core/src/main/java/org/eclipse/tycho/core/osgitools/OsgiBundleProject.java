@@ -184,8 +184,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         // dependencies
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
-        for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(),
-                bundleDescription)) {
+        for (DependencyEntry entry : dependencyComputer.computeDependencies(bundleDescription)) {
             if (Constants.SYSTEM_BUNDLE_ID == entry.desc.getBundleId()) {
                 if (entry.rules != null) {
                     strictBootClasspathAccessRules.addAll(entry.rules);
@@ -225,7 +224,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES,
                 strictBootClasspathAccessRules);
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES,
-                dependencyComputer.computeBootClasspathExtraAccessRules(state.getStateHelper(), bundleDescription));
+                dependencyComputer.computeBootClasspathExtraAccessRules(bundleDescription));
 
         addPDESourceRoots(project);
     }

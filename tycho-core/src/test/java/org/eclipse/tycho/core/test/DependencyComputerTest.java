@@ -81,7 +81,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         State state = resolver.newResolvedState(reactorProject, null, executionEnvironment, false, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
-        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
+        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
         Assert.assertEquals(3, dependencies.size());
         Assert.assertEquals("dep", dependencies.get(0).desc.getSymbolicName());
         Assert.assertEquals("dep2", dependencies.get(1).desc.getSymbolicName());
@@ -122,7 +122,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         State state = resolver.newResolvedState(reactorProject, null, customProfile, false, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
-        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
+        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
 
         if (dependencies.size() > 0) {
             assertThat(dependencies.size(), is(1));
@@ -162,6 +162,6 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                 ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog()), false,
                 platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
-        return dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
+        return dependencyComputer.computeDependencies(bundle);
     }
 }
