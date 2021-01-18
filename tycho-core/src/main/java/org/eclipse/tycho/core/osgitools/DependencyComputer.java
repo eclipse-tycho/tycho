@@ -23,6 +23,7 @@ import java.util.TreeMap;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.osgi.internal.resolver.ExportPackageDescriptionImpl;
+import org.eclipse.osgi.internal.resolver.StateHelperImpl;
 import org.eclipse.osgi.service.resolver.BaseDescription;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
@@ -53,6 +54,8 @@ public class DependencyComputer {
     @Requirement
     private BundleReader manifestReader;
 
+    final StateHelper helper = StateHelperImpl.getInstance();
+
     public static class DependencyEntry {
         public final BundleDescription desc;
         public final Collection<AccessRule> rules;
@@ -81,13 +84,12 @@ public class DependencyComputer {
 
     }
 
-    public List<DependencyEntry> computeDependencies(StateHelper helper, BundleDescription desc) {
+    public List<DependencyEntry> computeDependencies(BundleDescription desc) {
         ArrayList<DependencyEntry> entries = new ArrayList<>();
 
         if (desc == null)
             return entries;
-
-        Multimap<BundleDescription, AccessRule> map = retrieveVisiblePackagesFromState(helper, desc);
+        Multimap<BundleDescription, AccessRule> map = retrieveVisiblePackagesFromState(desc);
 
         HashSet<BundleDescription> added = new HashSet<>();
 
@@ -118,19 +120,18 @@ public class DependencyComputer {
         return entries;
     }
 
-    private Multimap<BundleDescription, AccessRule> retrieveVisiblePackagesFromState(StateHelper helper,
-            BundleDescription desc) {
+    private Multimap<BundleDescription, AccessRule> retrieveVisiblePackagesFromState(BundleDescription desc) {
         Multimap<BundleDescription, AccessRule> visiblePackages = LinkedHashMultimap.create();
         if (desc != null) {
-            addVisiblePackagesFromState(helper, desc, visiblePackages);
+            addVisiblePackagesFromState(desc, visiblePackages);
             if (desc.getHost() != null) {
-                addVisiblePackagesFromState(helper, (BundleDescription) desc.getHost().getSupplier(), visiblePackages);
+                addVisiblePackagesFromState((BundleDescription) desc.getHost().getSupplier(), visiblePackages);
             }
         }
         return visiblePackages;
     }
 
-    private void addVisiblePackagesFromState(StateHelper helper, BundleDescription desc,
+    private void addVisiblePackagesFromState(BundleDescription desc,
             Multimap<BundleDescription, AccessRule> visiblePackages) {
         if (desc == null)
             return;
@@ -139,11 +140,11 @@ public class DependencyComputer {
             BundleDescription exporter = export.getExporter();
             if (exporter == null)
                 continue;
-            visiblePackages.put(exporter, getRule(helper, desc, export));
+            visiblePackages.put(exporter, getRule(desc, export));
         }
     }
 
-    private AccessRule getRule(StateHelper helper, BundleDescription desc, ExportPackageDescription export) {
+    private AccessRule getRule(BundleDescription desc, ExportPackageDescription export) {
         boolean discouraged = helper.getAccessCode(desc, export) == StateHelper.ACCESS_DISCOURAGED;
         String name = export.getName();
         String path = (name.equals(".")) ? "*" : name.replace('.', '/') + "/*";
@@ -256,14 +257,14 @@ public class DependencyComputer {
      * 
      * [1] http://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
      */
-    public List<AccessRule> computeBootClasspathExtraAccessRules(StateHelper helper, BundleDescription desc) {
+    public List<AccessRule> computeBootClasspathExtraAccessRules(BundleDescription desc) {
         List<AccessRule> result = new ArrayList<>();
         ExportPackageDescription[] exports = helper.getVisiblePackages(desc);
         for (ExportPackageDescription export : exports) {
             BundleDescription host = export.getExporter();
             BaseDescription fragment = ((ExportPackageDescriptionImpl) export).getFragmentDeclaration();
             if (host.getBundleId() == 0 && fragment != null && isFrameworkExtension(fragment.getSupplier())) {
-                result.add(getRule(helper, host, export));
+                result.add(getRule(host, export));
             }
         }
         return result;

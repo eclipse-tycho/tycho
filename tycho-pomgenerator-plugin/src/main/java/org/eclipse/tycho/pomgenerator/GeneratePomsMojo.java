@@ -636,8 +636,7 @@ public class GeneratePomsMojo extends AbstractMojo {
                 State state = resolver.newResolvedState(basedir, session, ee, platform);
                 BundleDescription bundle = state.getBundleByLocation(basedir.getAbsolutePath());
                 if (bundle != null) {
-                    for (DependencyComputer.DependencyEntry entry : dependencyComputer
-                            .computeDependencies(state.getStateHelper(), bundle)) {
+                    for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(bundle)) {
                         BundleDescription supplier = entry.desc;
                         File suppliedDir = new File(supplier.getLocation());
                         if (supplier.getHost() == null && isModuleDir(suppliedDir)) {
