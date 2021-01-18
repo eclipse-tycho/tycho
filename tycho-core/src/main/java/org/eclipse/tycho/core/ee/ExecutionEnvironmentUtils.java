@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
@@ -40,8 +41,8 @@ import org.osgi.framework.Constants;
  */
 public class ExecutionEnvironmentUtils {
 
-    private static Map<String, Properties> profilesProperties = fillEnvironmentsMap();
-    private static Map<String, StandardExecutionEnvironment> executionEnvironmentsMap = new LinkedHashMap<>(
+    private static final Map<String, Properties> profilesProperties = fillEnvironmentsMap();
+    private static final Map<String, StandardExecutionEnvironment> executionEnvironmentsMap = new ConcurrentHashMap<>(
             profilesProperties.size(), 1.f);
 
     private static Map<String, Properties> fillEnvironmentsMap() {
