@@ -57,7 +57,6 @@
 						<goals>
 							<goal>fix-artifacts-metadata</goal>
 						</goals>
-						<phase>prepare-package</phase>
 					</execution>
 					<execution>
 						<id>verify</id>

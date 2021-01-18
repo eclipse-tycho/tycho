@@ -36,7 +36,7 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  * integration test
  * </p>
  */
-@Mojo(name = "fix-artifacts-metadata", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
+@Mojo(name = "fix-artifacts-metadata", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
     private static final Object LOCK = new Object();
     @Parameter(defaultValue = "${project.name}")
