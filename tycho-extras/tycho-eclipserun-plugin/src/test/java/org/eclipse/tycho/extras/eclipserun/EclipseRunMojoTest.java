@@ -24,14 +24,15 @@ import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.rules.TemporaryFolder;
@@ -46,12 +47,13 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        runMojo = new EclipseRunMojo() {
-            @Override
-            public Log getLog() {
-                return new SilentLog();
-            }
-        };
+
+        runMojo = (EclipseRunMojo) lookupMojo("org.eclipse.tycho.extras", "tycho-eclipserun-plugin",
+                TychoVersion.getTychoVersion(), "eclipse-run", null);
+        runMojo.setLog(new SilentLog());
+        MavenSession mavenSession = newMavenSession(mock(MavenProject.class));
+        configureMojoWithDefaultConfiguration(runMojo, mavenSession, "eclipse-run");
+
         installation = mock(EquinoxInstallation.class);
         temporaryFolder = new TemporaryFolder();
         temporaryFolder.create();
