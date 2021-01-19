@@ -75,6 +75,15 @@ public class EclipseRunMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/eclipserun-work")
     private File work;
 
+    /**
+     * Weather the workspace should be cleared before running eclipse.
+     * <p>
+     * If {@code false} and a workspace from a previous run exists, that workspace is reused.
+     * </p>
+     */
+    @Parameter(defaultValue = "true")
+    private boolean clearWorkspaceBeforeLaunch;
+
     @Parameter(property = "project")
     private MavenProject project;
 
@@ -258,7 +267,7 @@ public class EclipseRunMojo extends AbstractMojo {
         }
         addDefaultDependencies(resolver);
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
-        for (P2ResolutionResult result : resolver.resolveDependencies(targetPlatform, null)) {
+        for (P2ResolutionResult result : resolver.resolveTargetDependencies(targetPlatform, null).values()) {
             for (Entry entry : result.getArtifacts()) {
                 if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
                     installationDesc.addBundle(
@@ -273,7 +282,9 @@ public class EclipseRunMojo extends AbstractMojo {
     void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException, MojoFailureException {
         try {
             File workspace = new File(work, "data").getAbsoluteFile();
-            FileUtils.deleteDirectory(workspace);
+            if (clearWorkspaceBeforeLaunch) {
+                FileUtils.deleteDirectory(workspace);
+            }
             LaunchConfiguration cli = createCommandLine(runtime);
             getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
             int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
