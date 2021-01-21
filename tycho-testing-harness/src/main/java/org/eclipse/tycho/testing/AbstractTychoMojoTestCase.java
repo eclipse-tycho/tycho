@@ -31,6 +31,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.Parameter;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -169,17 +170,39 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     // workaround for MPLUGINTESTING-46 - see http://jira.codehaus.org/browse/MPLUGINTESTING-46
     protected Mojo lookupMojoWithDefaultConfiguration(MavenProject project, MavenSession session, String goal)
             throws Exception {
+        Mojo mojo = lookupEmptyMojo(goal, project.getFile());
+        configureMojoWithDefaultConfiguration(mojo, session, goal);
+        return mojo;
+    }
+
+    /**
+     * Configures the given mojo according to the specified goal of the given session.
+     * <p>
+     * Especially this also initializes each {@link Parameter} of the mojo with its default values.
+     * </p>
+     */
+    protected void configureMojoWithDefaultConfiguration(Mojo mojo, MavenSession session, String goal)
+            throws Exception {
         MojoExecution mojoExecution = newMojoExecution(goal);
+        configureMojoWithDefaultConfiguration(mojo, session, mojoExecution);
+    }
+
+    /**
+     * Configures the given mojo according to the specified session and mojo-exectuion.
+     * <p>
+     * Especially this also initializes each {@link Parameter} of the mojo with its default values.
+     * </p>
+     */
+    private void configureMojoWithDefaultConfiguration(Mojo mojo, MavenSession session, MojoExecution mojoExecution)
+            throws Exception {
         Xpp3Dom defaultConfiguration = mojoExecution.getConfiguration();
 
         // the ResolverExpressionEvaluatorStub of lookupMojo is not sufficient to evaluate the variables in the default configuration 
         ExpressionEvaluator expressionEvaluator = new PluginParameterExpressionEvaluator(session, mojoExecution);
         ComponentConfigurator configurator = getContainer().lookup(ComponentConfigurator.class, "basic");
 
-        Mojo mojo = lookupEmptyMojo(goal, project.getFile());
         configurator.configureComponent(mojo, new XmlPlexusConfiguration(defaultConfiguration), expressionEvaluator,
                 getContainer().getContainerRealm(), null);
-        return mojo;
     }
 
     protected static File getBasedir(String name) throws IOException {
