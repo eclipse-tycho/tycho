@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -204,8 +204,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
     private void activateBundlesInWorkingOrder() {
         // activate bundles which need to do work in their respective activator; stick to a working order (cf. bug 359787)
         // TODO this order should come from the EquinoxRuntimeLocator
-    	tryActivateBundle("org.apache.felix.scr");
-        tryActivateBundle("org.eclipse.equinox.ds");
+        tryActivateBundle("org.apache.felix.scr");
         tryActivateBundle("org.eclipse.equinox.registry");
         tryActivateBundle("org.eclipse.core.net");
     }

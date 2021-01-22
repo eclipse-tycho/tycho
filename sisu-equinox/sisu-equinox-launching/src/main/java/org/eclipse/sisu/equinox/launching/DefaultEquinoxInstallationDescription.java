@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,6 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
         setDefaultStartLevel("org.eclipse.core.runtime", 4);
         setDefaultStartLevel("org.eclipse.equinox.simpleconfigurator", 1);
         setDefaultStartLevel("org.eclipse.osgi", -1);
-        setDefaultStartLevel("org.eclipse.equinox.ds", 1);
         setDefaultStartLevel("org.apache.felix.scr", 1);
     }
 
