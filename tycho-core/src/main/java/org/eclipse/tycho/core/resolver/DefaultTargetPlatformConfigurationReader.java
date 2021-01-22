@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,6 +47,7 @@ public class DefaultTargetPlatformConfigurationReader {
     public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";
     public static final String INCLUDE_PACKED_ARTIFACTS = "includePackedArtifacts";
     public static final String DEPENDENCY_RESOLUTION = "dependency-resolution";
+    public static final String OPTIONAL_DEPENDENCIES = "optionalDependencies";
     public static final String FILTERS = "filters";
     public static final String RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS = "resolveWithExecutionEnvironmentConstraints";
     public static final String BREE_HEADER_SELECTION_POLICY = "breeHeaderSelectionPolicy";
@@ -59,6 +60,7 @@ public class DefaultTargetPlatformConfigurationReader {
     public static final String ENVIRONMENTS = "environments";
     private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
     private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
+    private static final String OPTIONAL_RESOLUTION_OPTIONAL = "optional";
     private static final String FILE_EXTENSION = ".target";
 
     @Requirement
@@ -181,7 +183,7 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+    protected void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom resolverDom = configuration.getChild(DEPENDENCY_RESOLUTION);
         if (resolverDom == null) {
             return;
@@ -194,7 +196,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
-        String value = getStringValue(resolverDom.getChild("optionalDependencies"));
+        String value = getStringValue(resolverDom.getChild(OPTIONAL_DEPENDENCIES));
 
         if (value == null) {
             return;
@@ -202,6 +204,8 @@ public class DefaultTargetPlatformConfigurationReader {
             result.setOptionalResolutionAction(OptionalResolutionAction.REQUIRE);
         } else if (OPTIONAL_RESOLUTION_IGNORE.equals(value)) {
             result.setOptionalResolutionAction(OptionalResolutionAction.IGNORE);
+        } else if (OPTIONAL_RESOLUTION_OPTIONAL.equals(value)) {
+            result.setOptionalResolutionAction(OptionalResolutionAction.OPTIONAL);
         } else {
             throw new BuildFailureException(
                     "Illegal value of <optionalDependencies> dependency resolution parameter: " + value);

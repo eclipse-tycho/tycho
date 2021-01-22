@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2020 Bachmann electronics GmbH and others.
+ * Copyright (c) 2014, 2021 Bachmann electronics GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -125,6 +125,21 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
             fail();
         } catch (BuildFailureException e) {
             assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
+        }
+    }
+
+    @Test
+    public void testOptionalResolution() throws MojoExecutionException {
+        Xpp3Dom dom = createConfigurationDom();
+        Xpp3Dom res = new Xpp3Dom(DefaultTargetPlatformConfigurationReader.DEPENDENCY_RESOLUTION);
+        Xpp3Dom opt = new Xpp3Dom(DefaultTargetPlatformConfigurationReader.OPTIONAL_DEPENDENCIES);
+        opt.setValue("optionaal");
+        res.addChild(opt);
+        dom.addChild(res);
+        try {
+            configurationReader.readDependencyResolutionConfiguration(new TargetPlatformConfiguration(), dom);
+        } catch (BuildFailureException e) {
+            fail(e.getMessage());
         }
     }
 
