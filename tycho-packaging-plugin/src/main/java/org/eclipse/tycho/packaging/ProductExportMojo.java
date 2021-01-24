@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -290,8 +289,6 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         Properties rootProperties = new Properties();
         try (FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties))) {
             rootProperties.load(stream);
-        } catch (FileNotFoundException e) {
-            throw new MojoExecutionException("Error including root files for product", e);
         } catch (IOException e) {
             throw new MojoExecutionException("Error including root files for product", e);
         }
