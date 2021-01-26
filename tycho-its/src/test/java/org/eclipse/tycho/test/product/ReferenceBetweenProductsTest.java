@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ public class ReferenceBetweenProductsTest extends AbstractTychoIntegrationTest {
     @Test
     public void testProductCanReferenceProductFromDifferentModule() throws Exception {
         Verifier verifier = getVerifier("product.crossReference", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
+        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
 

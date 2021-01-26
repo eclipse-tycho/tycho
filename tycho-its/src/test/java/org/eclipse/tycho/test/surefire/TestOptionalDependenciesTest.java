@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ public class TestOptionalDependenciesTest extends AbstractTychoIntegrationTest {
     @Test
     public void testIgnoreMutuallyExclusiveOptionalDependenciesForTestRuntimeComputation() throws Exception {
         Verifier verifier = getVerifier("/surefire.optionalDependencies.ignore", false);
-        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
+        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     } // see also OptionalDependenciesTest.testOptionallyRequiredBundleCanBeIgnored()
@@ -32,7 +32,7 @@ public class TestOptionalDependenciesTest extends AbstractTychoIntegrationTest {
     @Test
     public void reactorIndirectOptionalDependencies() throws Exception {
         Verifier verifier = getVerifier("/surefire.optionalDependencies.reactor", false);
-        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
+        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     }
