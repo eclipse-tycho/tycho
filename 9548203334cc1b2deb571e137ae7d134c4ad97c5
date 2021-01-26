@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e53e879_de305fe5",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/TargetDefinitionFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2021-01-26T20:47:55Z",
+      "side": 1,
+      "message": "This replaces a series of (I/O bound + CPU bound) operations with a single I/O bound + CPU bound operation. Should not be a problem on itself.\n\nAnother difference is, instead of fixed memory footprint by reading into same byte[], it will read the whole file, calculate checksum and only then release byte[] (according to JavaDoc, throws OutOfMemoryError - if an array of the required size cannot be allocated, for example the file is larger that 2GB).",
+      "revId": "9548203334cc1b2deb571e137ae7d134c4ad97c5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
