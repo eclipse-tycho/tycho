@@ -230,18 +230,16 @@ public class JavadocMojo extends AbstractMojo {
         runner.setDocletArtifactsResolver(docletArtifactsResolver);
 
         final GatherManifestVisitor gmv = new GatherManifestVisitor();
-        visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, gmv);
-
         final GatherSourcesVisitor gsv = new GatherSourcesVisitor();
-        visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, gsv);
+        final GatherClasspathVisitor gcv = new GatherClasspathVisitor();
+
+        final List<ProjectVisitor> visitors = List.of(gmv, gsv, gcv);
+        visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, visitors);
 
         getLog().info(String.format("%s source folders", gsv.getSourceFolders().size()));
         for (final File file : gsv.getSourceFolders()) {
             getLog().info("Source folder: " + file);
         }
-
-        final GatherClasspathVisitor gcv = new GatherClasspathVisitor();
-        visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, gcv);
 
         final Collection<String> cp = gcv.getClassPath();
 
@@ -287,15 +285,15 @@ public class JavadocMojo extends AbstractMojo {
     }
 
     @SuppressWarnings("unchecked")
-    private void visitProjects(final List<?> dependencies, final Set<String> scopes, final ProjectVisitor visitor)
-            throws MojoExecutionException {
+    private void visitProjects(final List<?> dependencies, final Set<String> scopes,
+            final List<ProjectVisitor> visitors) throws MojoExecutionException {
         for (final Dependency dep : (List<Dependency>) dependencies) {
             getLog().debug("Dependency: " + dep + " / scope=" + dep.getScope());
 
             final String scope = dep.getScope();
 
             if (scopes.contains(scope)) {
-                visitDeps(dep, visitor, scopes);
+                visitDeps(dep, visitors, scopes);
             }
         }
     }
@@ -366,7 +364,7 @@ public class JavadocMojo extends AbstractMojo {
         }
     }
 
-    private void visitDeps(final Dependency dep, final ProjectVisitor visitor, final Set<String> scopes)
+    private void visitDeps(final Dependency dep, final List<ProjectVisitor> visitors, final Set<String> scopes)
             throws MojoExecutionException {
         final MavenProject project = findProject(dep.getGroupId(), dep.getArtifactId());
         if (project == null) {
@@ -376,10 +374,12 @@ public class JavadocMojo extends AbstractMojo {
 
         getLog().debug("Adding sources from: " + project);
 
-        visitor.visit(project);
+        for (ProjectVisitor visitor : visitors) {
+            visitor.visit(project);
+        }
 
         getLog().debug("Scanning dependencies: " + project.getDependencies().size());
-        visitProjects(project.getDependencies(), scopes, visitor);
+        visitProjects(project.getDependencies(), scopes, visitors);
 
         getLog().debug("Done processing: " + project);
     }
