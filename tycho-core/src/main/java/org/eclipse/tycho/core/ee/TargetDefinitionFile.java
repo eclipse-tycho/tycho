@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -479,23 +480,17 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private static byte[] computeFileContentHash(File source) {
         byte[] digest;
         try {
-            try (FileInputStream in = new FileInputStream(source)) {
-                digest = computeMD5Digest(in);
-            }
+            digest = computeMD5Digest(source);
         } catch (IOException e) {
             throw new RuntimeException("I/O error while reading \"" + source + "\": " + e.getMessage(), e);
         }
         return digest;
     }
 
-    private static byte[] computeMD5Digest(FileInputStream in) throws IOException {
+    private static byte[] computeMD5Digest(File in) throws IOException {
         MessageDigest digest = newMD5Digest();
 
-        byte[] buffer = new byte[4 * 1024];
-        int read;
-        while ((read = in.read(buffer)) > -1) {
-            digest.update(buffer, 0, read);
-        }
+        digest.update(Files.readAllBytes(in.toPath()));
         return digest.digest();
     }
 
