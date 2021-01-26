@@ -190,6 +190,9 @@ public class JavadocMojo extends AbstractMojo {
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    /** Cache visited projects to prevent duplicate resolution */
+    private final Set<MavenProject> visitedProjects = new HashSet<>();
+
     public void setTocOptions(TocOptions tocOptions) {
         this.tocOptions = tocOptions;
     }
@@ -234,6 +237,7 @@ public class JavadocMojo extends AbstractMojo {
         final GatherClasspathVisitor gcv = new GatherClasspathVisitor();
 
         final List<ProjectVisitor> visitors = List.of(gmv, gsv, gcv);
+        this.visitedProjects.clear();
         visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, visitors);
 
         getLog().info(String.format("%s source folders", gsv.getSourceFolders().size()));
@@ -284,10 +288,9 @@ public class JavadocMojo extends AbstractMojo {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void visitProjects(final List<?> dependencies, final Set<String> scopes,
+    private void visitProjects(final List<Dependency> dependencies, final Set<String> scopes,
             final List<ProjectVisitor> visitors) throws MojoExecutionException {
-        for (final Dependency dep : (List<Dependency>) dependencies) {
+        for (final Dependency dep : dependencies) {
             getLog().debug("Dependency: " + dep + " / scope=" + dep.getScope());
 
             final String scope = dep.getScope();
@@ -372,15 +375,14 @@ public class JavadocMojo extends AbstractMojo {
             return;
         }
 
-        getLog().debug("Adding sources from: " + project);
-
-        for (ProjectVisitor visitor : visitors) {
-            visitor.visit(project);
+        if (this.visitedProjects.add(project)) {
+            getLog().debug("Adding sources from: " + project);
+            for (ProjectVisitor visitor : visitors) {
+                visitor.visit(project);
+            }
+            getLog().debug("Scanning dependencies: " + project.getDependencies().size());
+            visitProjects(project.getDependencies(), scopes, visitors);
         }
-
-        getLog().debug("Scanning dependencies: " + project.getDependencies().size());
-        visitProjects(project.getDependencies(), scopes, visitors);
-
         getLog().debug("Done processing: " + project);
     }
 
