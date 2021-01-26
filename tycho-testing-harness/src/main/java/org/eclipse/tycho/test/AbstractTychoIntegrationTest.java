@@ -12,20 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.shared.utils.io.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -196,22 +188,6 @@ public abstract class AbstractTychoIntegrationTest {
 
     protected String toURI(File file) throws IOException {
         return file.getCanonicalFile().toURI().normalize().toString();
-    }
-
-    protected void writeStringToFile(File iniFile, String string) throws IOException {
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile))) {
-            IOUtil.copy(string, os);
-        }
-    }
-
-    protected StringBuffer readFileToString(File iniFile) throws IOException {
-        try (InputStream is = new BufferedInputStream(new FileInputStream(iniFile))) {
-            StringWriter buffer = new StringWriter();
-
-            IOUtil.copy(is, buffer, "UTF-8");
-
-            return buffer.getBuffer();
-        }
     }
 
 }
