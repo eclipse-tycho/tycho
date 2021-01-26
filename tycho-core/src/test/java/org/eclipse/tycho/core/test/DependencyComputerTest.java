@@ -179,6 +179,20 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         assertArrayEquals(new String[] { "p004/*" }, getAccessRulePatterns(dependencies, "p004"));
     }
 
+    @Test
+    public void testReexportAccessRules() throws Exception {
+        File basedir = getBasedir("projects/reexport");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(4);
+        assertEquals("p002", project.getName());
+        List<DependencyEntry> dependencies = computeDependencies(project);
+        assertEquals(3, dependencies.size());
+        assertArrayEquals(new String[] { "p001/*" }, getAccessRulePatterns(dependencies, "p001"));
+        // next one should be accessible because p001 reexports
+        assertArrayEquals(new String[] { "p003/*" }, getAccessRulePatterns(dependencies, "p003"));
+        assertArrayEquals(new String[] { "p004/*" }, getAccessRulePatterns(dependencies, "p004"));
+    }
+
     private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
         String[] p001accessRulesPatterns = dependencies.stream()
                 .filter(dep -> dep.desc.getSymbolicName().equals(moduleName)).flatMap(dep -> dep.rules.stream())
