@@ -31,7 +31,7 @@ public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
         v01.verifyErrorFreeLog();
         // TODO this is only an indirect test; it should test that the bundles nested jars are accessible as file URLs
         File antHome = new File(v01.getBasedir(),
-                "tycho340.test/target/work/plugins/org.apache.ant_1.10.8.v20200515-1239");
+                "tycho340.test/target/work/plugins/org.apache.ant_1.10.9.v20201106-1946");
         Assert.assertTrue(antHome.isDirectory());
     }
 
