@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -26,14 +26,14 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
     public void testLocalMavenRepository() throws Exception {
         // build01
         Verifier v01 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build01", false);
-        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_OXYGEN.toString());
+        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
         final boolean ignoreLocallyInstalledArtifacts = false;
         // build02, some dependencies come from local, some from remote repositories
         Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false, ignoreLocallyInstalledArtifacts);
-        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_OXYGEN.toString());
+        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
         v02.executeGoal("install");
         v02.verifyErrorFreeLog();
         v02.verifyTextInLog(
