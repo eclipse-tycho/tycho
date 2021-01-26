@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.test;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
 import java.util.Arrays;
@@ -164,4 +165,25 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
         return dependencyComputer.computeDependencies(bundle);
     }
+
+    @Test
+    public void testAccessRules() throws Exception {
+        File basedir = getBasedir("projects/accessrules");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(4);
+        assertEquals("p002", project.getName());
+        List<DependencyEntry> dependencies = computeDependencies(project);
+        assertEquals(3, dependencies.size());
+        assertArrayEquals(new String[] { "p001/*" }, getAccessRulePatterns(dependencies, "p001"));
+        assertArrayEquals(new String[] { "p003/*" }, getAccessRulePatterns(dependencies, "p003"));
+        assertArrayEquals(new String[] { "p004/*" }, getAccessRulePatterns(dependencies, "p004"));
+    }
+
+    private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
+        String[] p001accessRulesPatterns = dependencies.stream()
+                .filter(dep -> dep.desc.getSymbolicName().equals(moduleName)).flatMap(dep -> dep.rules.stream())
+                .map(AccessRule::getPattern).toArray(String[]::new);
+        return p001accessRulesPatterns;
+    }
+
 }

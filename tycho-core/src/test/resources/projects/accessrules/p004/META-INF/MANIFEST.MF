@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: P004 Plug-in
+Bundle-SymbolicName: p004
+Bundle-Version: 1.0.0
+Export-Package: p004
