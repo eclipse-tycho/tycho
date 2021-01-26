@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ public class HostRequiresFragmentWithP2InfTest extends AbstractTychoIntegrationT
     @Test
     public void testBuildAndTestWithHostRequiringOwnFragment() throws Exception {
         Verifier verifier = getVerifier("/p2Inf.hostRequireFragment", false);
-        verifier.getCliOptions().add("-Dp2Repository=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN);
+        verifier.getCliOptions().add("-Dp2Repository=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST);
 
         // Test that
         // - the install-time dependency from the host to its fragment can be disabled at build 

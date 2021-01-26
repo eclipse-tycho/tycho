@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Rapicorp, Inc. and others.
+ * Copyright (c) 2015, 2021 Rapicorp, Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ public class ProductWithIUTest extends AbstractTychoIntegrationTest {
     @Test
     public void testRootFilesFromIUPackagingInstalledAndInRepo() throws Exception {
         Verifier verifier = getVerifier("iu.product", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
+        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
 

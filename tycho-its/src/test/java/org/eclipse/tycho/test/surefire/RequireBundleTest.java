@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ public class RequireBundleTest extends AbstractTychoIntegrationTest {
     public void loadResourceFromRequireBundle() throws Exception {
         Verifier verifier = getVerifier("/surefire.requireBundle", false, true);
         Properties props = verifier.getSystemProperties();
-        props.setProperty("oxygen-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
+        props.setProperty("oxygen-repo", P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
     }

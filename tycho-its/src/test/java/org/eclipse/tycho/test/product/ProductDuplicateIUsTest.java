@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ public class ProductDuplicateIUsTest extends AbstractTychoIntegrationTest {
     @Test
     public void testMultipleProductsNoDuplicateIUs() throws Exception {
         Verifier verifier = getVerifier("product.duplicateIUs", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_OXYGEN.toString());
+        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2018 SAP AG and others.
+ * Copyright (c) 2012, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
     @BeforeClass
     public static void executeBuild() throws Exception {
         verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository", false);
-        verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
+        verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
