@@ -17,6 +17,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +167,16 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         return dependencyComputer.computeDependencies(bundle);
     }
 
+    private List<DependencyEntry> computeDependenciesIgnoringEE(MavenProject project) throws BundleException {
+        DependencyArtifacts platform = (DependencyArtifacts) DefaultReactorProject.adapt(project)
+                .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
+        State state = resolver.newResolvedState(DefaultReactorProject.adapt(project), null,
+                ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog()), true,
+                platform);
+        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
+        return dependencyComputer.computeDependencies(bundle);
+    }
+
     @Test
     public void testAccessRules() throws Exception {
         File basedir = getBasedir("projects/accessrules");
@@ -191,6 +202,21 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         // next one should be accessible because p001 reexports
         assertArrayEquals(new String[] { "p003/*" }, getAccessRulePatterns(dependencies, "p003"));
         assertArrayEquals(new String[] { "p004/*" }, getAccessRulePatterns(dependencies, "p004"));
+    }
+
+    @Test
+    public void testFragments() throws Exception {
+        File basedir = getBasedir("projects/eeProfile.resolution.fragments");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject jface = projects.get(3);
+        assertEquals("org.eclipse.jface.databinding", jface.getArtifactId());
+        Collection<DependencyEntry> deps = computeDependenciesIgnoringEE(jface);
+        assertTrue(deps.stream().filter(entry -> entry.desc.getSymbolicName().equals("org.eclipse.swt.gtk.linux.x86")) //
+                .flatMap(entry -> entry.rules.stream()) //
+                .filter(accessRule -> !accessRule.isDiscouraged()) //
+                .filter(accessRule -> accessRule.getPattern().startsWith("org/eclipse/swt/graphics")) //
+                .findAny() //
+                .isPresent());
     }
 
     private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
