@@ -219,6 +219,27 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                 .isPresent());
     }
 
+    @Test
+    public void testFragmentSplitPackage() throws Exception {
+        File basedir = getBasedir("projects/fragment-split-package");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject bundleTest = projects.get(3);
+        assertEquals("bundle.tests", bundleTest.getArtifactId());
+        Collection<DependencyEntry> deps = computeDependencies(bundleTest);
+        assertTrue(deps.stream().filter(entry -> entry.desc.getSymbolicName().equals("bundle")) //
+                .flatMap(entry -> entry.rules.stream()) //
+                .filter(accessRule -> !accessRule.isDiscouraged()) //
+                .filter(accessRule -> accessRule.getPattern().startsWith("split")) //
+                .findAny() //
+                .isPresent());
+        assertTrue(deps.stream().filter(entry -> entry.desc.getSymbolicName().equals("fragment")) //
+                .flatMap(entry -> entry.rules.stream()) //
+                .filter(accessRule -> !accessRule.isDiscouraged()) //
+                .filter(accessRule -> accessRule.getPattern().startsWith("split")) //
+                .findAny() //
+                .isPresent());
+    }
+
     private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
         String[] p001accessRulesPatterns = dependencies.stream()
                 .filter(dep -> dep.desc.getSymbolicName().equals(moduleName)).flatMap(dep -> dep.rules.stream())
