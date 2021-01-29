@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "590d5542_d94bc882",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/osgitools/OsgiManifestTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-01-29T21:38:37Z",
+      "side": 0,
+      "message": "Removal of test does seem to indicate that the headers are now case-sensitive.  I\u0027m sure this will result in future bug reports.",
+      "revId": "91802cfa730a78b410a63b92f8189d02a54f0167",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}

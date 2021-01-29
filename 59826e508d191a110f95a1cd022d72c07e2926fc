@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f751f6a_86ea82d6",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-01-29T21:38:37Z",
+      "side": 1,
+      "message": "In most cases this is going to be fine I suspect.  But in the case of a substituted export this is going to be wrong because the wiring for the revision (or in the case of a fragment the wiring of the host) will end up not having the provided capability.\n\nHere is some code that I think does mostly the same thing you are trying to do here, but perhaps more simple (in the eye of the beholder):\n\nhttps://github.com/eclipse/rt.equinox.bundles/blob/master/bundles/org.eclipse.equinox.console/src/org/eclipse/equinox/console/commands/EquinoxCommandProvider.java#L1684-L1759",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "798a6d41_ca1fdf6c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-01-29T21:38:37Z",
+      "side": 1,
+      "message": "I\u0027m not sure I follow what is being done here for fragments and uninstalling them.  Main question is why do you need to remove them?",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8207948_5c1a8535",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-01-29T21:38:37Z",
+      "side": 1,
+      "message": "It is unfortunate that you have to return empty implementations here.  In retrospect these methods could not been abstract and returned the do nothing impls.  On the other hand that would place classes in the framework to implement do nothing hooks that never are used by the framework itself.",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca40a2ad_52203a85",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiManifest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-01-29T21:38:37Z",
+      "side": 1,
+      "message": "I see you were using the x-internal export of org.eclipse.osgi.framework.util to get the case-insensitive Headers implementation.  If you are OK still using that package org.eclipse.osgi.framework.util but don\u0027t want deprecation warnings you could use org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap instead.  Otherwise you will need to implement your own case insensitive Map, or just copy org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap into tycho if you want.",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09912c81_631a310e",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-01-29T21:38:37Z",
+      "side": 1,
+      "message": "Having a hard time following this change.  At first glance it seems to test for some order, but perhaps is a bit more lenient than the original order test?",
+      "range": {
+        "startLine": 126,
+        "startChar": 1,
+        "endLine": 131,
+        "endChar": 0
+      },
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1de755d_497de2dc",
+        "filename": "tycho-core/src/test/resources/manifests/classpath.mf",
+        "patchSetId": 13
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-01-29T21:38:37Z",
+      "side": 1,
+      "message": "I hope you didn\u0027t have to do this because now tycho will be case sensitive.  That will likely cause you some unhappy users.",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "923aaba2_be65d3fa",
+        "filename": "tycho-its/projects/resolver.extraRequirements/fragment-split-package/fragment/META-INF/MANIFEST.MF",
+        "patchSetId": 13
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-01-29T21:38:37Z",
+      "side": 1,
+      "message": "I\u0027m curious why the mandatory directive and attribute was removed here.  The mandatory directive should work with the ModuleContainer during resolution.",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
