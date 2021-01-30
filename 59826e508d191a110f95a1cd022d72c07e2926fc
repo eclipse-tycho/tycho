@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4ab807d5_9d375a7b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-30T15:11:00Z",
+      "side": 1,
+      "message": "So basically, you think all of `addVisiblePackagesFromState` and the methods it calls could be replaced by similar code as what you link here? If so, I\u0027m going to try it.",
+      "parentUuid": "8f751f6a_86ea82d6",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "798a6d41_ca1fdf6c",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
         "patchSetId": 13
