@@ -16,6 +16,24 @@
       "revId": "91802cfa730a78b410a63b92f8189d02a54f0167",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c9e9b33_15360aab",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/osgitools/OsgiManifestTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-30T12:22:08Z",
+      "side": 0,
+      "message": "OK, so OSGi headers are spec\u0027d as being case-insensitive and Tycho should really keep them case insensitive?",
+      "parentUuid": "590d5542_d94bc882",
+      "revId": "91802cfa730a78b410a63b92f8189d02a54f0167",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }

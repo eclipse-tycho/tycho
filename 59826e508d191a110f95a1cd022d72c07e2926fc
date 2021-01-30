@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "15b661ff_b988798e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-30T12:22:08Z",
+      "side": 1,
+      "message": "In Tycho, at build time, we explicitly don\u0027t want fragment to participate to classpath and dependency resolution for their host.",
+      "parentUuid": "798a6d41_ca1fdf6c",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d8207948_5c1a8535",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
         "patchSetId": 13
@@ -70,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "23a4155d_811f0756",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiManifest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-30T12:22:08Z",
+      "side": 1,
+      "message": "I think it\u0027s fine going to plain Manifest and case-sensitive headers. Do you see a reason why case-insensitive headers should be prefer? Are OSGi Headers case-insensitive at runtime in Equinox?",
+      "parentUuid": "ca40a2ad_52203a85",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "09912c81_631a310e",
         "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
         "patchSetId": 13
@@ -81,6 +117,30 @@
       "writtenOn": "2021-01-29T21:38:37Z",
       "side": 1,
       "message": "Having a hard time following this change.  At first glance it seems to test for some order, but perhaps is a bit more lenient than the original order test?",
+      "range": {
+        "startLine": 126,
+        "startChar": 1,
+        "endLine": 131,
+        "endChar": 0
+      },
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be1a3150_e3ffae83",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-30T12:22:08Z",
+      "side": 1,
+      "message": "IIRC, there was an issue with that test: the resolution order was slightly different, yet correct. This set of bundles were able to resolve in different correct orders and the change made switch from 1 correct order to another correct order.",
+      "parentUuid": "09912c81_631a310e",
       "range": {
         "startLine": 126,
         "startChar": 1,
@@ -110,6 +170,24 @@
     },
     {
       "key": {
+        "uuid": "0c465f37_560acb24",
+        "filename": "tycho-core/src/test/resources/manifests/classpath.mf",
+        "patchSetId": 13
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-30T12:22:08Z",
+      "side": 1,
+      "message": "Yes, I changed this because OsgiManifest is now case sensitivity. But the question is whether OSGi is actually case sensitive or not. Tycho should just do like OSGi and not less/more on that topic.",
+      "parentUuid": "e1de755d_497de2dc",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "923aaba2_be65d3fa",
         "filename": "tycho-its/projects/resolver.extraRequirements/fragment-split-package/fragment/META-INF/MANIFEST.MF",
         "patchSetId": 13
@@ -121,6 +199,24 @@
       "writtenOn": "2021-01-29T21:38:37Z",
       "side": 1,
       "message": "I\u0027m curious why the mandatory directive and attribute was removed here.  The mandatory directive should work with the ModuleContainer during resolution.",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15cc8dc7_f45df152",
+        "filename": "tycho-its/projects/resolver.extraRequirements/fragment-split-package/fragment/META-INF/MANIFEST.MF",
+        "patchSetId": 13
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-01-30T12:22:08Z",
+      "side": 1,
+      "message": "The test was kind of erroneous in my understanding: the mandatory flag was set, but the Import-Package in the client bundle wasn\u0027t setting any property, so this fragment wasn\u0027t wired to the consumer.\nUnless I\u0027m mistaken, this test was wrong in 1st place as the fragment package should have been available with this mandatory settings. If you can review the test (from master HEAD commit before this change) and confirm/infirm my understanding, that would be welcome!",
+      "parentUuid": "923aaba2_be65d3fa",
       "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
