@@ -34,6 +34,24 @@
       "revId": "91802cfa730a78b410a63b92f8189d02a54f0167",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f03695de_c87b55fd",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/osgitools/OsgiManifestTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-02-01T21:20:26Z",
+      "side": 0,
+      "message": "Unfortunately yes.  Otherwise I am sure you will be hit with several bug reports at some point complaining about this.",
+      "parentUuid": "6c9e9b33_15360aab",
+      "revId": "91802cfa730a78b410a63b92f8189d02a54f0167",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }

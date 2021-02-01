@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "88d78beb_1ceba57f",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-02-01T21:20:26Z",
+      "side": 1,
+      "message": "Correct, if I was following the code correctly it seemed to be finding the sources to all the visible packages from a Wiring of a bundle.  That is also what the code is doing that I pointed you to from the EquinoxCommandProvider.",
+      "parentUuid": "4ab807d5_9d375a7b",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "798a6d41_ca1fdf6c",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
         "patchSetId": 13
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "In Tycho, at build time, we explicitly don\u0027t want fragment to participate to classpath and dependency resolution for their host.",
       "parentUuid": "798a6d41_ca1fdf6c",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb4240c4_b8c19f20",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-02-01T21:20:26Z",
+      "side": 1,
+      "message": "But are there not many cases where the fragment is required for a successful compilation, let alone a successful resolution?  One prominent case I thought was SWT where the classes are all in the platform specific fragment.",
+      "parentUuid": "15b661ff_b988798e",
       "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
@@ -124,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "bc5dd282_bcaa10b9",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiManifest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-02-01T21:20:26Z",
+      "side": 1,
+      "message": "Yes, unfortunately OSGi specifies case-insensitive headers: \nhttps://docs.osgi.org/javadoc/osgi.core/8.0.0/org/osgi/framework/Bundle.html#getHeaders--\n\nI wish it was not true.  Way back in the beginning of OSGi the spec writers thought it would be nice to be forgiving because they imagined developers using primitive tool to author bundle manifests.",
+      "parentUuid": "23a4155d_811f0756",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "09912c81_631a310e",
         "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
         "patchSetId": 13
@@ -168,6 +222,30 @@
       "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8f1b2f9_23fe0f69",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-02-01T21:20:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "be1a3150_e3ffae83",
+      "range": {
+        "startLine": 126,
+        "startChar": 1,
+        "endLine": 131,
+        "endChar": 0
+      },
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     },
     {
       "key": {
@@ -235,6 +313,24 @@
       "side": 1,
       "message": "The test was kind of erroneous in my understanding: the mandatory flag was set, but the Import-Package in the client bundle wasn\u0027t setting any property, so this fragment wasn\u0027t wired to the consumer.\nUnless I\u0027m mistaken, this test was wrong in 1st place as the fragment package should have been available with this mandatory settings. If you can review the test (from master HEAD commit before this change) and confirm/infirm my understanding, that would be welcome!",
       "parentUuid": "923aaba2_be65d3fa",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "088c7cb4_55c0279c",
+        "filename": "tycho-its/projects/resolver.extraRequirements/fragment-split-package/fragment/META-INF/MANIFEST.MF",
+        "patchSetId": 13
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1197
+      },
+      "writtenOn": "2021-02-01T21:20:26Z",
+      "side": 1,
+      "message": "I see, so `split` is a package split between the host and one of its fragment bundles and the client just does a simple import without using the mandatory matching attribute.  The testcase seems to confirm that the client bundle can compile a reference to a class coming from the fragment.  Seems like a reasonable testcase.  But did this mandatory directive and attribute on the fragment export make the test fail?\n\nAt runtime these three bundles would resolve and the client would get wired to the capability for the split package as specified by the host.  But the host class loader will have visibility to the classes from the host bundle + its attached fragments (regardless of if the fragment exports the package or not).  So the use of the mandatory directive really is meaningless in the testcase because regardless of which capability the client gets wired both package capabilities should be hosted by the host ModuleWiring object.  So it should not matter if the fragment exports the package at all, or with a mandatory directive or not.  If the testcase is failing with this directive then something seems to be wrong.",
+      "parentUuid": "15cc8dc7_f45df152",
       "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
