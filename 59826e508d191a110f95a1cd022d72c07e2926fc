@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "4c0965eb_070fc991",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-02-02T08:16:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d8207948_5c1a8535",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca40a2ad_52203a85",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiManifest.java",
         "patchSetId": 13
