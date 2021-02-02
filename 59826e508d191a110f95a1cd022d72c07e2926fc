@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "1776965c_4df36ae4",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-02-02T22:25:52Z",
+      "side": 1,
+      "message": "So I tried and it seems to work, except in the case of split packages with fragments, which I tried to cover previously with code at line 184.",
+      "parentUuid": "c685ed45_f4c7aec1",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "798a6d41_ca1fdf6c",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
         "patchSetId": 13
