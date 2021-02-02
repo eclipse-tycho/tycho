@@ -178,6 +178,24 @@
     },
     {
       "key": {
+        "uuid": "56bba075_e151de87",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiManifest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-02-02T08:08:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc5dd282_bcaa10b9",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09912c81_631a310e",
         "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
         "patchSetId": 13
@@ -281,6 +299,24 @@
       "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "334b0866_eec524f0",
+        "filename": "tycho-core/src/test/resources/manifests/classpath.mf",
+        "patchSetId": 13
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-02-02T08:08:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c465f37_560acb24",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     },
     {
       "key": {

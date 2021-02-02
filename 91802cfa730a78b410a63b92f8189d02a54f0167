@@ -52,6 +52,24 @@
       "revId": "91802cfa730a78b410a63b92f8189d02a54f0167",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfef1f62_146629d3",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/osgitools/OsgiManifestTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-02-02T08:08:05Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "f03695de_c87b55fd",
+      "revId": "91802cfa730a78b410a63b92f8189d02a54f0167",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
