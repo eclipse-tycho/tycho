@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "897b60f3_892113d8",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-02-02T08:16:01Z",
+      "side": 1,
+      "message": "We have no known case where fragment are required for compilation AFAIK.\nSWT is built the other way round: all sources are in the same bundle, and the platform-specific artifacts are derived from that bundle. The native parts (in fragments) are not necessary at build-time.\nSome pre-existing tests in Tycho have verified the behavior that fragments are excluded from resolution when building their host; and some other verify that if the dependencies includes a host, then the fragment are added transitively.",
+      "parentUuid": "eb4240c4_b8c19f20",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8207948_5c1a8535",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
         "patchSetId": 13
