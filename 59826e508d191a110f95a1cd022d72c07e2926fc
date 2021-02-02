@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "c685ed45_f4c7aec1",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-02-02T08:36:53Z",
+      "side": 1,
+      "message": "Does this code at \nhttps://github.com/eclipse/rt.equinox.bundles/blob/master/bundles/org.eclipse.equinox.console/src/org/eclipse/equinox/console/commands/EquinoxCommandProvider.java#L1684-L1759 play well with fragments? I don\u0027t see any specific case for fragments, is it all handled under the hood or should I add this as extra?",
+      "parentUuid": "88d78beb_1ceba57f",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "798a6d41_ca1fdf6c",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
         "patchSetId": 13
@@ -403,6 +421,24 @@
       "side": 1,
       "message": "I see, so `split` is a package split between the host and one of its fragment bundles and the client just does a simple import without using the mandatory matching attribute.  The testcase seems to confirm that the client bundle can compile a reference to a class coming from the fragment.  Seems like a reasonable testcase.  But did this mandatory directive and attribute on the fragment export make the test fail?\n\nAt runtime these three bundles would resolve and the client would get wired to the capability for the split package as specified by the host.  But the host class loader will have visibility to the classes from the host bundle + its attached fragments (regardless of if the fragment exports the package or not).  So the use of the mandatory directive really is meaningless in the testcase because regardless of which capability the client gets wired both package capabilities should be hosted by the host ModuleWiring object.  So it should not matter if the fragment exports the package at all, or with a mandatory directive or not.  If the testcase is failing with this directive then something seems to be wrong.",
       "parentUuid": "15cc8dc7_f45df152",
+      "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2a72023_aef00fe4",
+        "filename": "tycho-its/projects/resolver.extraRequirements/fragment-split-package/fragment/META-INF/MANIFEST.MF",
+        "patchSetId": 13
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-02-02T08:36:53Z",
+      "side": 1,
+      "message": "DependencyComputerTest#testFragmentSplitPackage() is failing if the mandatory attribute is kept. When debugging, I didn\u0027t see the wire between the consumer and the fragment. I maybe didn\u0027t look well.\nI\u0027ll try to use the code you pointed out instead; and we\u0027ll see if this allows this case to work as it used to.",
+      "parentUuid": "088c7cb4_55c0279c",
       "revId": "59826e508d191a110f95a1cd022d72c07e2926fc",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
