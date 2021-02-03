@@ -13,17 +13,23 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
@@ -31,10 +37,12 @@ import org.eclipse.equinox.p2.internal.repository.tools.RecreateRepositoryApplic
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.internal.repository.tools.XZCompressor;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactType;
@@ -43,6 +51,8 @@ import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -341,5 +351,84 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         public void close() {
         }
 
+    }
+
+    private final class MappingRule {
+        public final String filter;
+        public final String urlPattern;
+
+        public MappingRule(String filter, String urlPattern) {
+            this.filter = filter;
+            this.urlPattern = urlPattern;
+        }
+    }
+
+    @Override
+    public void addMavenMappingRules(File repository, URI[] mavenRepositories) throws FacadeException {
+        SimpleArtifactRepositoryFactory repoFactory = new SimpleArtifactRepositoryFactory();
+        SimpleArtifactRepository repo = null;
+        try {
+            repo = (SimpleArtifactRepository) repoFactory.load(repository.toURI(),
+                    IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+        } catch (ProvisionException ex) {
+            throw new FacadeException(ex);
+        }
+        if (repo == null) {
+            throw new IllegalStateException("Repository couldn't be loaded");
+        }
+        LinkedList<MappingRule> rules = new LinkedList<>();
+        for (String[] rule : repo.getRules()) {
+            rules.add(new MappingRule(rule[0], rule[1]));
+        }
+        for (IArtifactDescriptor artifact : repo.getDescriptors()) {
+            GAV gav = RepositoryLayoutHelper.getGAV(artifact.getProperties());
+            String mavenClassifier = RepositoryLayoutHelper.getClassifier(artifact.getProperties());
+            String mavenExtension = RepositoryLayoutHelper.getExtension(artifact.getProperties());
+            // should care about classifier, extension and other
+            if (gav != null && !gav.getVersion().endsWith("-SNAPSHOT")) {
+                for (URI mavenRepo : mavenRepositories) {
+                    IArtifactKey artifactKey = artifact.getArtifactKey();
+                    URI mavenArtifactURI = URI.create(mavenRepo.toString() + '/'
+                            + RepositoryLayoutHelper.getRelativePath(gav, mavenClassifier, mavenExtension));
+                    try {
+                        URLConnection connection = mavenArtifactURI.toURL().openConnection();
+                        if (connection instanceof HttpURLConnection) {
+                            int responseCode = ((HttpURLConnection) connection).getResponseCode();
+                            if (responseCode != HttpURLConnection.HTTP_OK) {
+                                mavenContext.getLogger()
+                                        .debug(artifactKey.toString() + '/' + gav + " not found in " + mavenRepo);
+                                continue;
+                            }
+                        }
+                        // so far so good, continue
+                        rules.addFirst(new MappingRule(
+                                "(& (classifier=" + artifactKey.getClassifier() + ")(id=" + artifactKey.getId()
+                                        + ")(version=" + artifactKey.getVersion().toString() + "))",
+                                mavenArtifactURI.toString()));
+                        File artifactFile = repo.getArtifactFile(artifactKey);
+                        if (artifactFile != null) {
+                            artifactFile.delete();
+                        }
+                        mavenContext.getLogger().info(artifactKey + " remapped to " + mavenArtifactURI);
+                        break;
+                    } catch (IOException ex) {
+                        throw new FacadeException(ex);
+                    }
+                }
+            }
+        }
+        String[][] newRules = new String[rules.size()][2];
+        int i = 0;
+        for (MappingRule rule : rules) {
+            newRules[i][0] = rule.filter;
+            newRules[i][1] = rule.urlPattern;
+            i++;
+        }
+        repo.setRules(newRules);
+        repo.save();
+        DestinationRepositoryDescriptor desc = new DestinationRepositoryDescriptor(repository, repo.getName(),
+                new File(repository, "artifacts.xml.xz").exists(), new File(repository, "artifacts.xml.xz").exists(),
+                true, false, false, Collections.emptyMap(), Collections.emptyList());
+        xzCompress(desc);
     }
 }
