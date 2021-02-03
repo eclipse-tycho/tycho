@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring.facade;
 
+import java.io.File;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
@@ -92,5 +94,21 @@ public interface MirrorApplicationService {
      */
     void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
+            throws FacadeException;
+
+    /**
+     * Modifies the artifact repository to add mapping rules to download Maven released artifacts
+     * from one of the specified maven repositories (when it's found).
+     * 
+     * @param repository
+     *            the local artifact repository to modify
+     * @param mavenRepositories
+     *            the maven repositories to consider
+     * @param deleteRepositoryArtifactCopies
+     *            if <code>true</code>, the local copy of the artifact under repository is deleted
+     *            when a Maven repository provides it
+     * @throws FacadeException
+     */
+    void addMavenMappingRules(File repository, URI[] mavenRepositories, boolean deleteRepositoryArtifactCopies)
             throws FacadeException;
 }
