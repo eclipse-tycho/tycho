@@ -14,11 +14,18 @@ package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
 
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 
 public abstract class AbstractRepositoryMojo extends AbstractP2Mojo {
 
+    @Parameter
+    private File repositoryLocation;
+
     protected File getAssemblyRepositoryLocation() {
+        if (repositoryLocation != null) {
+            return repositoryLocation;
+        }
         return getBuildDirectory().getChild("repository");
     }
 
