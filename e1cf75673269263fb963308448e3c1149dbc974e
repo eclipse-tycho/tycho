@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c880362_737df2eb",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-02-04T05:36:24Z",
+      "side": 1,
+      "message": "I think building a path from the parts is handled by\norg.eclipse.tycho.p2.repository.RepositoryLayoutHelper.getRelativePath(String, String, String, String, String)\nalready, maybe we can simply reuse the code here?",
+      "revId": "e1cf75673269263fb963308448e3c1149dbc974e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e837f10b_79186da2",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-02-04T05:36:24Z",
+      "side": 1,
+      "message": "debug would be more suitable here I think",
+      "revId": "e1cf75673269263fb963308448e3c1149dbc974e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3303010c_f18d70d6",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/RemapArtifactToMavenRepositoriesMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-02-04T05:36:24Z",
+      "side": 1,
+      "message": "I\u0027m not sure if this is suitable, at least it should be configurable, just think about people using an internal company mirror like nexus to cache artifacts it might be undesirable.\nI don\u0027t know if it is possible to get the repository that is used for deploy artifacts, that should be a better default.",
+      "revId": "e1cf75673269263fb963308448e3c1149dbc974e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
