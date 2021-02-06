@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: nativeCodeConsumer
+Bundle-SymbolicName: nativeCodeConsumer
+Bundle-Version: 1.0.0
+Require-Bundle: com.sun.jna;bundle-version="[4.5.0,5.0.0)"
+Bundle-ActivationPolicy: lazy
