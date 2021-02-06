@@ -62,6 +62,7 @@ import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.hooks.resolver.ResolverHook;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
 import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.NativeNamespace;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
@@ -294,7 +295,12 @@ public class EquinoxResolver {
                 .append(EquinoxConfiguration.PROP_OSGI_WS).append('=')
                 .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_WS)).append(';')
                 .append(EquinoxConfiguration.PROP_OSGI_ARCH).append('=')
-                .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_ARCH)).toString();
+                .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_ARCH)).append(',')
+                .append(NativeNamespace.NATIVE_NAMESPACE).append(';')
+                .append(NativeNamespace.CAPABILITY_OSNAME_ATTRIBUTE).append('=')
+                .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_OS)).append(';')
+                .append(NativeNamespace.CAPABILITY_PROCESSOR_ATTRIBUTE).append('=')
+                .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_ARCH).replace('_', '-')).toString();
         if (!systemBundles.isEmpty()) {
             java.util.Map.Entry<File, OsgiManifest> systemBundle = systemBundles.entrySet().iterator().next();
             ModuleRevisionBuilder moduleRevisionBuilder = OSGiManifestBuilderFactory.createBuilder(
