@@ -104,9 +104,9 @@ public class DependencyComputer {
         }
 
         public void addRequiredBundle(ModuleRevision requiredBundle) {
-            visiblePackages.computeIfAbsent(requiredBundle,
-                    module -> module.getCapabilities(PackageNamespace.PACKAGE_NAMESPACE).stream()
-                            .map(exportPackage -> createRule(consumer, exportPackage)).collect(Collectors.toList()));
+            List<AccessRule> allPackageRules = requiredBundle.getCapabilities(PackageNamespace.PACKAGE_NAMESPACE)
+                    .stream().map(exportPackage -> createRule(consumer, exportPackage)).collect(Collectors.toList());
+            visiblePackages.put(requiredBundle, allPackageRules);
         }
 
         public Collection<ModuleRevision> getParticipatingModules() {

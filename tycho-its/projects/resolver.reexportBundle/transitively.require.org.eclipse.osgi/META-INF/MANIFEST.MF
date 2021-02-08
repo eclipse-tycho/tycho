@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: transitively.require.org.eclipse.osgi
+Bundle-Version: 0.0.1.qualifier
+Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.3.0,4.0.0)"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: transitively.require.org.eclipse.osgi

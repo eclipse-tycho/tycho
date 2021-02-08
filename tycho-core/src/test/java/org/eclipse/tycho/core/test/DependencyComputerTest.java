@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
@@ -256,6 +257,22 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                 .filter(accessRule -> accessRule.getPattern().startsWith("split")) //
                 .findAny() //
                 .isPresent());
+    }
+
+    @Test
+    public void testImportVsRequire() throws Exception {
+        File basedir = getBasedir("projects/importVsRequire");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject bundleTest = projects.get(2);
+        assertEquals("A", bundleTest.getArtifactId());
+        Collection<DependencyEntry> deps = computeDependencies(bundleTest);
+        Collection<String> patterns = deps.stream().filter(entry -> entry.module.getSymbolicName().equals("B")) //
+                .flatMap(entry -> entry.rules.stream()) //
+                .filter(accessRule -> !accessRule.isDiscouraged()) //
+                .map(AccessRule::getPattern) //
+                .collect(Collectors.toSet());
+        assertTrue(patterns.stream().anyMatch(pattern -> pattern.startsWith("b1")));
+        assertTrue(patterns.stream().anyMatch(pattern -> pattern.startsWith("b2")));
     }
 
     private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
