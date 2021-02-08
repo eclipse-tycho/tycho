@@ -77,4 +77,25 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         assertTrue(capabilities.contains(
                 "osgi.ee=\"JavaSE\"; version:List<Version>=\"1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.0, 10.0, 11.0\""));
     }
+
+    public void testBuildFrameworkBundle() throws Exception {
+        File basedir = getBasedir("projects/frameworkBundle/org.eclipse.osgi");
+        Properties properties = new Properties();
+        properties.put("tycho-version", TychoVersion.getTychoVersion());
+        List<MavenProject> projects = getSortedProjects(basedir, properties, null);
+        assertEquals(1, projects.size());
+        MavenProject javaSE10Project = projects.get(0);
+        assertEquals("org.eclipse.osgi", javaSE10Project.getArtifactId());
+//        ReactorProject reactorProject = DefaultReactorProject.adapt(javaSE10Project);
+//        ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject)
+//                .getFullSpecification();
+//        assertEquals("JavaSE-11", ee.getProfileName());
+//        Properties platformProperties = subject.getPlatformProperties(reactorProject, null,
+//                new DefaultDependencyArtifacts(), ee);
+//        String executionEnvironments = platformProperties.getProperty("org.osgi.framework.executionenvironment");
+//        assertTrue(executionEnvironments.contains("JavaSE-10"));
+//        String capabilities = platformProperties.getProperty("org.osgi.framework.system.capabilities");
+//        assertTrue(capabilities.contains(
+//                "osgi.ee=\"JavaSE\"; version:List<Version>=\"1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.0, 10.0, 11.0\""));
+    }
 }

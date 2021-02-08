@@ -84,22 +84,29 @@ public class EquinoxResolver {
         Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);
         ModuleContainer container = newState(artifacts, properties, mavenSession);
         ResolutionReport report = container.resolve(null, false);
-        ModuleRevision module = container.getModule(getNormalizedPath(project.getBasedir())).getCurrentRevision();
+        Module module = container.getModule(getNormalizedPath(project.getBasedir()));
+        if (module == null) {
+            Module systemModule = container.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
+            if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
+                module = systemModule;
+            }
+        }
+        ModuleRevision moduleRevision = module.getCurrentRevision();
         if (report.getEntries().isEmpty()) {
             Collection<org.eclipse.osgi.container.Module> toUninstall = null;
-            if ((module.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
+            if ((moduleRevision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
                 // other fragments for the same host
-                toUninstall = module.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                toUninstall = moduleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE).stream()
                         .map(ModuleWire::getProvider) //
                         .flatMap(host -> host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream())
                         .map(ModuleWire::getRequirer) //
-                        .filter(Predicate.not(module::equals)) //
+                        .filter(Predicate.not(moduleRevision::equals)) //
                         .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
                         .map(revision -> revision.getRevisions().getModule()) //
                         .collect(Collectors.toSet());
             } else {
                 // fragments for the host
-                toUninstall = module.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                toUninstall = moduleRevision.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
                         .map(ModuleWire::getRequirer) //
                         .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
                         .map(revision -> revision.getRevisions().getModule()) //
@@ -117,7 +124,7 @@ public class EquinoxResolver {
                 report = container.refresh(null);
             }
         }
-        assertResolved(report, module);
+        assertResolved(report, moduleRevision);
 
         return container;
     }

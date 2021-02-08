@@ -31,6 +31,7 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.osgi.container.Module;
 import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
@@ -177,7 +178,14 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 //            getLogger().debug(resolver.toDebugString(state));
 //        }
 
-        ModuleRevision bundleDescription = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
+        Module module = state.getModule(project.getBasedir().getAbsolutePath());
+        if (module == null) {
+            Module systemModule = state.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
+            if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
+                module = systemModule;
+            }
+        }
+        ModuleRevision bundleDescription = module.getCurrentRevision();
 
         List<ClasspathEntry> classpath = new ArrayList<>();
 

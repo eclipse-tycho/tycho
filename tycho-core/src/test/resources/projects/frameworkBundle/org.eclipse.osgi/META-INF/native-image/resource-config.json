@@ -1,0 +1,14 @@
+{
+  "resources":[
+    {"pattern":"META-INF/services/org.osgi.framework.connect.ConnectFrameworkFactory"},
+    {"pattern":"META-INF/services/org.osgi.framework.connect.FrameworkUtilHelper"},
+    {"pattern":"META-INF/services/org.osgi.framework.launch.FrameworkFactory"},
+    {"pattern":"hookconfigurators.properties"}, 
+    {"pattern":"org/eclipse/osgi/internal/framework/osname.aliases"},
+    {"pattern":"org/eclipse/osgi/internal/framework/processor.aliases"},
+    {"pattern":"org/eclipse/osgi/internal/messages/ExternalMessages.properties"},
+    {"pattern":"org/eclipse/osgi/internal/permadmin/implied.permissions"},
+    {"pattern":"org/eclipse/osgi/internal/signedcontent/SignedContentMessages.properties"},
+    {"pattern":"org/eclipse/osgi/internal/url/SetAccessible.bytes"}
+  ]
+}
