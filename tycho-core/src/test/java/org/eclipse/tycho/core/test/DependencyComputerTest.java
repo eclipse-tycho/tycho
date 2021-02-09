@@ -275,6 +275,23 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         assertTrue(patterns.stream().anyMatch(pattern -> pattern.startsWith("b2")));
     }
 
+    @Test
+    public void testDeepReexportBundle() throws Exception {
+        File basedir = getBasedir("projects/deepReexport");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject bundleTest = projects.get(4);
+        assertEquals("D", bundleTest.getArtifactId());
+        Collection<DependencyEntry> deps = computeDependencies(bundleTest);
+        Collection<String> patterns = deps.stream().filter(entry -> entry.module.getSymbolicName().equals("B")) //
+                .flatMap(entry -> entry.rules.stream()) //
+                .filter(accessRule -> !accessRule.isDiscouraged()) //
+                .map(AccessRule::getPattern) //
+                .collect(Collectors.toSet());
+        assertTrue(patterns.stream().anyMatch(pattern -> pattern.startsWith("a")));
+        assertTrue(patterns.stream().anyMatch(pattern -> pattern.startsWith("b")));
+        assertTrue(patterns.stream().anyMatch(pattern -> pattern.startsWith("c")));
+    }
+
     private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
         String[] p001accessRulesPatterns = dependencies.stream()
                 .filter(dep -> dep.module.getSymbolicName().equals(moduleName)) //

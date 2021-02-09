@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: B
+Bundle-Version: 1.0.0
+Require-Bundle: A;visibility:=reexport
+Export-Package: b
