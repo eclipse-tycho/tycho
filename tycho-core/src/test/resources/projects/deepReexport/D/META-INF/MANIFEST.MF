@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: D
+Bundle-Version: 1.0.0
+Require-Bundle: C

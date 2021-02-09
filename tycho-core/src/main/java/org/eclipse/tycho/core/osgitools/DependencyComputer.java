@@ -195,26 +195,31 @@ public class DependencyComputer {
             }
         }
 
-        Set<ModuleRevision> requiredBundlesAndFragments = new HashSet<>();
+        Set<ModuleRevision> processedBundlesAndFragments = new HashSet<>();
+        Set<ModuleRevision> toProcessRequiredBundlesAndFragments = new HashSet<>();
         // Required Bundles
         module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
                 .map(ModuleWire::getProvider) //
-                .forEach(requiredBundlesAndFragments::add);
-        // reexported required-bundles on required-bundle
-        module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream() //
-                .map(ModuleWire::getProvider) //
-                .flatMap(requiredBundle -> requiredBundle.getWiring()
-                        .getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()) //
-                .filter(requiredBundleWire -> BundleNamespace.VISIBILITY_REEXPORT.equals(requiredBundleWire
-                        .getRequirement().getDirectives().get(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE))) //
-                .map(ModuleWire::getProvider) //
-                .forEach(requiredBundlesAndFragments::add);
-        // their fragments (normally in case of ExtensibleAPI)
-        requiredBundlesAndFragments.addAll(requiredBundlesAndFragments.stream()
-                .flatMap(bundle -> bundle.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream())
-                .map(ModuleWire::getRequirer).collect(Collectors.toList()));
-        //
-        requiredBundlesAndFragments.forEach(visiblePackages::addRequiredBundle);
+                .forEach(toProcessRequiredBundlesAndFragments::add);
+        while (!toProcessRequiredBundlesAndFragments.isEmpty()) {
+            toProcessRequiredBundlesAndFragments.forEach(visiblePackages::addRequiredBundle);
+            processedBundlesAndFragments.addAll(toProcessRequiredBundlesAndFragments);
+            // add fragments of required bundles
+            toProcessRequiredBundlesAndFragments.addAll(toProcessRequiredBundlesAndFragments.stream()
+                    .flatMap(bundle -> bundle.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream())
+                    .map(ModuleWire::getRequirer) //
+                    .collect(Collectors.toSet()));
+            // add reexported required bundles
+            toProcessRequiredBundlesAndFragments.addAll(toProcessRequiredBundlesAndFragments.stream()
+                    .flatMap(requiredBundle -> requiredBundle.getWiring()
+                            .getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()) //
+                    .filter(requiredBundleWire -> BundleNamespace.VISIBILITY_REEXPORT.equals(requiredBundleWire
+                            .getRequirement().getDirectives().get(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE))) //
+                    .map(ModuleWire::getProvider) //
+                    .collect(Collectors.toSet()));
+            //
+            toProcessRequiredBundlesAndFragments.removeAll(processedBundlesAndFragments);
+        }
     }
 
     private static AccessRule createRule(ModuleRevision consumer, Capability export) {
