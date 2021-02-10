@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: provider-split
+Bundle-Version: 1.0.0
+Export-Package: org.eclipse.core.runtime;registry=split;mandatory:=registry

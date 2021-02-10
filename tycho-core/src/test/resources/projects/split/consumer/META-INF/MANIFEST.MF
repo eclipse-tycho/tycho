@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: consumer
+Bundle-Version: 1.0.0
+Import-Package: org.eclipse.core.runtime;registry=split

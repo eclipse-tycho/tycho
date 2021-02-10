@@ -301,4 +301,20 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         return p001accessRulesPatterns;
     }
 
+    @Test
+    public void testSplitPackage() throws Exception {
+        File basedir = getBasedir("projects/split");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject consumer = projects.stream().filter(p -> p.getName().equals("consumer")).findAny().get();
+        Collection<DependencyEntry> deps = computeDependencies(consumer);
+        assertTrue(deps.stream() //
+                .filter(dep -> dep.module.getSymbolicName().equals("provider-split")) //
+                .flatMap(dep -> dep.rules.stream()).filter(rule -> !rule.isDiscouraged())
+                .anyMatch(rule -> rule.getPattern().startsWith("org/eclipse/core/runtime")));
+        assertTrue(deps.stream() //
+                .filter(dep -> dep.module.getSymbolicName().equals("provider")) //
+                .flatMap(dep -> dep.rules.stream()).filter(rule -> !rule.isDiscouraged())
+                .anyMatch(rule -> rule.getPattern().startsWith("org/eclipse/core/runtime")));
+    }
+
 }

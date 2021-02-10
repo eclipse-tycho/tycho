@@ -14,21 +14,14 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
-public class ReexportedRequireBundle extends AbstractTychoIntegrationTest {
+public class SplitPackagesTest extends AbstractTychoIntegrationTest {
 
     @Test
-    public void testBundleNativeCode() throws Exception {
-        Verifier verifier = getVerifier("/resolver.reexportBundle/transitively.require.org.eclipse.osgi");
+    public void testSplitPackage() throws Exception {
+        Verifier verifier = getVerifier("/resolver.split/org.eclipse.equinox.security");
         verifier.getCliOptions().add("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("compile");
         verifier.verifyErrorFreeLog();
     }
 
-    @Test
-    public void testOrgEclipseCoreExpressions() throws Exception {
-        Verifier verifier = getVerifier("/resolver.reexportBundle/org.eclipse.core.expressions");
-        verifier.getCliOptions().add("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
-        verifier.executeGoal("compile");
-        verifier.verifyErrorFreeLog();
-    }
 }

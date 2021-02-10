@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.equinox.security" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="org.eclipse.equinox.security" id="loginConfigurationProvider" name="Login Configuration Provider"/>
+      </appinfo>
+      <documentation>
+         A login configuration provider is a class that takes a login configuration name and returns a list of login modules that make up that login configuration, including various properties associated with that login module.  The configuration provider must extend the javax.security.auth.login.Configuration class and implement the getAppConfigurationEntry() method.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <documentation>
+            The extension point descriptor.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="loginConfigurationProvider"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="loginConfigurationProvider">
+      <annotation>
+         <documentation>
+            An entry describing a particular Configuration provider from which to load named login configurations. By default, the platform supports loginmodules provided via extension points. See the definition for org.eclipse.equinox.security.loginConfiguration for more information.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The class of the login Configuration, which must be a subclass of &lt;tt&gt;javax.security.auth.login.Configuration&lt;/tt&gt;.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="javax.security.auth.login.Configuration"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         &lt;pre&gt; &lt;extension
+         id=&quot;accountLoginConfigurationProvider&quot;
+         point=&quot;org.eclipse.equinox.security.loginConfigurationProvider&quot;&gt;
+      &lt;loginConfigurationProvider class=&quot;org.eclipse.equinox.accounts.internal.AccountsLoginConfigProvider&quot;/&gt;
+   &lt;/extension&gt;&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiInfo"/>
+      </appinfo>
+      <documentation>
+         The JAAS API is part of the Java Runtime Environment version 1.4 and above.
+      </documentation>
+   </annotation>
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         No public login configuration providers are included in the platform.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+         Copyright (c) 2005, 2007 IBM Corporation and others.&lt;br&gt;
+
+This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at &lt;a href=&quot;https://www.eclipse.org/legal/epl-2.0&quot;&gt;https://www.eclipse.org/legal/epl-v20.html&lt;/a&gt;/
+
+SPDX-License-Identifier: EPL-2.0
+      </documentation>
+   </annotation>
+
+</schema>

@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.equinox.security" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="org.eclipse.equinox.security" id="loginModule" name="JAAS Login Module"/>
+      </appinfo>
+      <documentation>
+         The loginModule extension point provides a way for a bundle to register class implementing LoginModule with the Java Authentication and Authorization Service (JAAS).
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <documentation>
+            The extension point descriptor.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="loginModule"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="loginModule">
+      <annotation>
+         <documentation>
+            An entry defining a single LoginModule that can be used for authenticating users. See
+&lt;A HREF=&quot;http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/spi/LoginModule.html&quot;&gt;javax.security.auth.spi.LoginModule&lt;/A&gt; for more information.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The fully qualified name of a class which implements the LoginModule provider interface, &lt;tt&gt;javax.security.auth.login.spi.LoginModule&lt;/tt&gt;.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":javax.security.auth.spi.LoginModule"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         &lt;pre&gt; &lt;extension
+         id=&quot;httpBasicLoginModule&quot;
+         name=&quot;httpBasicLoginModule&quot;
+         point=&quot;org.eclipse.equinox.security.loginModule&quot;&gt;
+      &lt;loginModule      class=&quot;org.eclipse.equinox.accounts.internal.auth.module.HttpBasicLoginModule&quot;
+description=&quot;org.eclipse.equinox.accounts.internal.auth.module.HttpBasicLoginModule&quot;/&gt;
+   &lt;/extension&gt;&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiInfo"/>
+      </appinfo>
+      <documentation>
+         The JAAS API is part of the Java Runtime Environment version 1.4 and above.
+      </documentation>
+   </annotation>
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         No public login modules are provided by the platform.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+         Copyright (c) 2005, 2007 IBM Corporation and others.&lt;br&gt;
+
+This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at &lt;a href=&quot;https://www.eclipse.org/legal/epl-2.0&quot;&gt;https://www.eclipse.org/legal/epl-v20.html&lt;/a&gt;/
+
+SPDX-License-Identifier: EPL-2.0
+      </documentation>
+   </annotation>
+
+</schema>
