@@ -1,0 +1,7 @@
+# Debugging options for the org.eclipse.equinox.security plugin
+
+# Turn on general debugging for the org.eclipse.equinox.security plugin
+org.eclipse.equinox.security/debug=false
+
+# Debug login framework
+org.eclipse.equinox.security/debug/loginFramework=false
