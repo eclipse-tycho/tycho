@@ -3,3 +3,4 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Dep Plug-in
 Bundle-SymbolicName: dep
 Bundle-Version: 1.0.0
+Export-Package: pack

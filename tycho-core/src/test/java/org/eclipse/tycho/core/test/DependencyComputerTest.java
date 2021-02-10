@@ -301,4 +301,16 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         return p001accessRulesPatterns;
     }
 
+    @Test
+    public void testFragmentRequiredBundle() throws Exception {
+        File basedir = getBasedir("projects/fragment");
+        List<MavenProject> projects = getSortedProjects(basedir);
+        MavenProject fragment = projects.stream().filter(p -> p.getArtifactId().equals("fragment")).findAny().get();
+        Collection<DependencyEntry> deps = computeDependencies(fragment);
+        assertTrue(deps.stream().filter(dep -> dep.module.getSymbolicName().equals("dep")) //
+                .flatMap(dep -> dep.rules.stream()) //
+                .filter(rule -> !rule.isDiscouraged()) //
+                .map(AccessRule::getPattern) //
+                .anyMatch(pack -> pack.startsWith("pack/")));
+    }
 }
