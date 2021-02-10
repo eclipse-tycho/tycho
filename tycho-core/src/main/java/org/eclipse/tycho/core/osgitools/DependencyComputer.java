@@ -32,13 +32,16 @@ import org.eclipse.osgi.container.ModuleCapability;
 import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.ModuleWire;
+import org.eclipse.osgi.container.ModuleWiring;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.osgi.framework.Constants;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.wiring.BundleWire;
 import org.osgi.resource.Capability;
 
 /**
@@ -85,11 +88,9 @@ public class DependencyComputer {
 
     private static final class VisiblePackages {
         private final Map<ModuleRevision, Collection<AccessRule>> visiblePackages = new HashMap<>();
-        public final ModuleRevision consumer;
         private final ModuleRevision consumerHost;
 
         public VisiblePackages(ModuleRevision consumer) {
-            this.consumer = consumer;
             this.consumerHost = getFragmentHost(consumer).orElse(consumer);
         }
 
@@ -103,12 +104,6 @@ public class DependencyComputer {
             return rules != null ? rules : Collections.emptyList();
         }
 
-        public void addRequiredBundle(ModuleRevision requiredBundle) {
-            List<AccessRule> allPackageRules = requiredBundle.getCapabilities(PackageNamespace.PACKAGE_NAMESPACE)
-                    .stream().map(exportPackage -> createRule(consumer, exportPackage)).collect(Collectors.toList());
-            visiblePackages.put(requiredBundle, allPackageRules);
-        }
-
         public Collection<ModuleRevision> getParticipatingModules() {
             return Collections.unmodifiableSet(visiblePackages.keySet());
         }
@@ -119,7 +114,7 @@ public class DependencyComputer {
             return Collections.emptyList();
         }
 
-        VisiblePackages visiblePackages = retrieveVisiblePackagesFromState(module);
+        VisiblePackages visiblePackages = getPackagesInternal(module);
         Set<ModuleRevision> added = new HashSet<>();
 
         // to avoid cycles, e.g. when a bundle imports a package it exports
@@ -155,70 +150,137 @@ public class DependencyComputer {
                 .map(ModuleWire::getProvider).findAny();
     }
 
-    private VisiblePackages retrieveVisiblePackagesFromState(ModuleRevision module) {
-        VisiblePackages visiblePackages = new VisiblePackages(module);
-        if (module != null) {
-            addVisiblePackagesFromState(visiblePackages.consumer, visiblePackages);
-            getFragmentHost(visiblePackages.consumer)
-                    .ifPresent(fragmentHost -> addVisiblePackagesFromState(fragmentHost, visiblePackages));
+    class PackageSource {
+        public final ModuleCapability cap;
+        public final ModuleWire wire;
+
+        PackageSource(ModuleCapability cap, ModuleWire wire) {
+            this.cap = cap;
+            this.wire = wire;
         }
-        return visiblePackages;
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof PackageSource) {
+                return Objects.equals(cap, ((PackageSource) o).cap)
+                        && Objects.equals(wire.getProvider(), ((PackageSource) o).wire.getProvider());
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return cap.hashCode() ^ wire.getProvider().hashCode();
+        }
     }
 
-    private void addVisiblePackagesFromState(ModuleRevision module, VisiblePackages visiblePackages) {
-        for (ModuleWire importPackageWire : module.getWiring()
-                .getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE)) {
-            // Add Import-Packages
-            visiblePackages.add(importPackageWire.getCapability());
-            if ((importPackageWire.getProvider().getTypes() & BundleRevision.TYPE_FRAGMENT) == 0) {
-                // and also add fragment capabilities that match
-                importPackageWire.getProvider().getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)
-                        .stream() //
-                        .map(ModuleWire::getRequirer) //
-                        .flatMap(
-                                fragment -> fragment.getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE).stream())
-                        .filter(cap -> cap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE)
-                                .equals(importPackageWire.getCapability().getAttributes()
-                                        .get(PackageNamespace.PACKAGE_NAMESPACE)))
-                        .forEach(visiblePackages::add);
-            } else {
-                // wired to fragment, try Host
-                importPackageWire.getProvider().getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE)
-                        .stream() //
-                        .map(ModuleWire::getProvider)
-                        .flatMap(
-                                fragment -> fragment.getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE).stream())
-                        .filter(cap -> cap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE)
-                                .equals(importPackageWire.getCapability().getAttributes()
-                                        .get(PackageNamespace.PACKAGE_NAMESPACE)))
-                        .forEach(visiblePackages::add);
+    private VisiblePackages getPackagesInternal(ModuleRevision module) {
+        Map<String, Set<PackageSource>> sources = getPackagesInternal0(module.getWiring(), null);
+        VisiblePackages res = new VisiblePackages(module);
+        sources.values().stream() //
+                .flatMap(Set::stream) //
+                .map(p -> p.cap) //
+                .forEach(res::add);
+        return res;
+    }
+
+    // This part of resolution is copied and adapted from EquinoxCommandProvider `getPackages` implementation
+    private Map<String, Set<PackageSource>> getPackagesInternal0(ModuleWiring wiring,
+            Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources) {
+        if (allSources == null) {
+            allSources = new HashMap<>();
+        }
+        Map<String, Set<PackageSource>> packages = allSources.get(wiring);
+        if (packages != null) {
+            return packages;
+        }
+        packages = new TreeMap<>();
+        allSources.put(wiring, packages);
+
+        // first get the imported packages
+        List<ModuleWire> packageWires = wiring.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE);
+        Set<String> importedPackageNames = new HashSet<>();
+        for (ModuleWire packageWire : packageWires) {
+            String packageName = (String) packageWire.getCapability().getAttributes()
+                    .get(PackageNamespace.PACKAGE_NAMESPACE);
+            importedPackageNames.add(packageName);
+            addAggregatePackageSource(packageWire.getCapability(), packageName, packageWire, packages, allSources);
+        }
+
+        // now get packages from required bundles
+        for (ModuleWire requiredWire : wiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE)) {
+            getRequiredBundlePackages(requiredWire, importedPackageNames, packages, allSources);
+        }
+
+        return packages;
+    }
+
+    private void addAggregatePackageSource(ModuleCapability packageCap, String packageName, ModuleWire wire,
+            Map<String, Set<PackageSource>> packages, Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources) {
+        Set<PackageSource> packageSources = packages.computeIfAbsent(packageName, p -> new LinkedHashSet<>());
+        packageSources.add(new PackageSource(packageCap, wire));
+        // Tycho-specific: Case of split package with fragment, not part of `getPackages` console command but necessary for Tycho
+        for (ModuleWire fragmentWire : packageCap.getResource().getWiring()
+                .getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)) {
+            for (ModuleCapability fragmentExport : fragmentWire.getRequirer()
+                    .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
+                if (fragmentExport.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE)
+                        .equals(packageCap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE))) {
+                    packageSources.add(new PackageSource(fragmentExport, wire));
+                }
+            }
+        }
+        // source may be a split package aggregate
+        Set<PackageSource> providerSource = getPackagesInternal0(wire.getProviderWiring(), allSources).get(packageName);
+        if (providerSource != null) {
+            packageSources.addAll(providerSource);
+        }
+    }
+
+    private void getRequiredBundlePackages(ModuleWire requiredWire, Set<String> importedPackageNames,
+            Map<String, Set<PackageSource>> packages, Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources) {
+        ModuleWiring providerWiring = requiredWire.getProviderWiring();
+        for (ModuleCapability packageCapability : providerWiring
+                .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
+            String packageName = (String) packageCapability.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
+            // if imported then packages from required bundles do not get added
+            if (!importedPackageNames.contains(packageName)) {
+                addAggregatePackageSource(packageCapability, packageName, requiredWire, packages, allSources);
             }
         }
 
-        Set<ModuleRevision> processedBundlesAndFragments = new HashSet<>();
-        Set<ModuleRevision> toProcessRequiredBundlesAndFragments = new HashSet<>();
-        // Required Bundles
-        module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
-                .map(ModuleWire::getProvider) //
-                .forEach(toProcessRequiredBundlesAndFragments::add);
-        while (!toProcessRequiredBundlesAndFragments.isEmpty()) {
-            toProcessRequiredBundlesAndFragments.forEach(visiblePackages::addRequiredBundle);
-            processedBundlesAndFragments.addAll(toProcessRequiredBundlesAndFragments);
-            // add fragments of required bundles
-            toProcessRequiredBundlesAndFragments.addAll(toProcessRequiredBundlesAndFragments.stream()
-                    .flatMap(bundle -> bundle.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream())
-                    .map(ModuleWire::getRequirer) //
-                    .collect(Collectors.toSet()));
-            // add reexported required bundles
-            toProcessRequiredBundlesAndFragments.addAll(toProcessRequiredBundlesAndFragments.stream()
-                    .flatMap(requiredBundle -> requiredBundle.getWiring()
-                            .getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()) //
-                    .filter(requiredBundleWire -> BundleNamespace.VISIBILITY_REEXPORT.equals(requiredBundleWire
-                            .getRequirement().getDirectives().get(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE))) //
-                    .map(ModuleWire::getProvider) //
-                    .collect(Collectors.toSet()));
-            //
-            toProcessRequiredBundlesAndFragments.removeAll(processedBundlesAndFragments);
+        // get the declared packages
+        Set<String> declaredPackageNames = new HashSet<>();
+        for (BundleCapability declaredPackage : providerWiring.getRevision()
+                .getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
+            declaredPackageNames.add((String) declaredPackage.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE));
+        }
+        // and from attached fragments
+        for (BundleWire fragmentWire : providerWiring.getProvidedWires(HostNamespace.HOST_NAMESPACE)) {
+            for (BundleCapability declaredPackage : fragmentWire.getRequirer()
+                    .getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
+                declaredPackageNames
+                        .add((String) declaredPackage.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE));
+            }
+        }
+
+        for (ModuleWire packageWire : providerWiring.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE)) {
+            String packageName = (String) packageWire.getCapability().getAttributes()
+                    .get(PackageNamespace.PACKAGE_NAMESPACE);
+            if (!importedPackageNames.contains(packageName) && declaredPackageNames.contains(packageName)) {
+                // if the package is a declared capability AND the wiring imports the package
+                // then it is substituted
+                addAggregatePackageSource(packageWire.getCapability(), packageName, packageWire, packages, allSources);
+            }
+        }
+
+        // now get packages from re-exported requires of the required bundle
+        for (ModuleWire providerBundleWire : providerWiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE)) {
+            String visibilityDirective = providerBundleWire.getRequirement().getDirectives()
+                    .get(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
+            if (BundleNamespace.VISIBILITY_REEXPORT.equals(visibilityDirective)) {
+                getRequiredBundlePackages(providerBundleWire, importedPackageNames, packages, allSources);
+            }
         }
     }
 
