@@ -26,16 +26,14 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.tycho.p2.impl.Activator;
 
 /**
- * workaround for https://bugs.eclipse.org/357357
+ * workarounds for Bug 357357, Bug 571195
  */
 @SuppressWarnings("restriction")
 class OfflineTransport extends Transport {
 
-    private static final Status OFFLINE_STATUS = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "offline");
-
     @Override
     public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
-        throw new IllegalStateException("no download in offline mode");
+        return new Status(IStatus.CANCEL, Activator.PLUGIN_ID, createMessage(toDownload));
     }
 
     /*
@@ -45,19 +43,22 @@ class OfflineTransport extends Transport {
      */
     @Override
     public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
-        return OFFLINE_STATUS;
+        return new Status(IStatus.CANCEL, Activator.PLUGIN_ID, createMessage(toDownload));
     }
 
     @Override
-    public InputStream stream(URI toDownload, IProgressMonitor monitor) throws FileNotFoundException, CoreException,
-            AuthenticationFailedException {
-        throw new IllegalStateException("no download in offline mode");
+    public InputStream stream(URI toDownload, IProgressMonitor monitor)
+            throws FileNotFoundException, CoreException, AuthenticationFailedException {
+        throw new FileNotFoundException(createMessage(toDownload));
     }
 
     @Override
-    public long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException,
-            AuthenticationFailedException {
-        throw new IllegalStateException("no download in offline mode");
+    public long getLastModified(URI toDownload, IProgressMonitor monitor)
+            throws CoreException, FileNotFoundException, AuthenticationFailedException {
+        return 0;
     }
 
+    private static String createMessage(URI toDownload) {
+        return String.format("maven is currently in offline mode, requested URI: %s", toDownload);
+    }
 }
