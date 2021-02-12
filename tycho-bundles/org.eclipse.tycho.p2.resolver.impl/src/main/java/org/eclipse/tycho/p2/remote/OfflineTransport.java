@@ -49,15 +49,15 @@ class OfflineTransport extends Transport {
     }
 
     @Override
-    public InputStream stream(URI toDownload, IProgressMonitor monitor) throws FileNotFoundException, CoreException,
-            AuthenticationFailedException {
+    public InputStream stream(URI toDownload, IProgressMonitor monitor)
+            throws FileNotFoundException, CoreException, AuthenticationFailedException {
         throw new IllegalStateException("no download in offline mode");
     }
 
     @Override
-    public long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException,
-            AuthenticationFailedException {
-        throw new IllegalStateException("no download in offline mode");
+    public long getLastModified(URI toDownload, IProgressMonitor monitor)
+            throws CoreException, FileNotFoundException, AuthenticationFailedException {
+        return 0;
     }
 
 }
