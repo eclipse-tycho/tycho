@@ -78,7 +78,7 @@ class RemoteRepositoryCacheManager extends CacheManager {
     @Override
     public File createCacheFromFile(URI remoteFile, IProgressMonitor monitor) throws ProvisionException, IOException {
         if (offline) {
-            File cacheFile = getCacheFile(remoteFile);
+            File cacheFile = getCacheFile(remoteFile, getCacheDirectory());
             if (cacheFile != null) {
                 return cacheFile;
             }
@@ -95,8 +95,7 @@ class RemoteRepositoryCacheManager extends CacheManager {
     // this method is copied from the super class, because its private there
     // we calculate the hashcode the same way as p2 and we must 
     // keep the hashcode calculation in sync with them
-    private File getCacheFile(URI url) {
-        File dataAreaFile = getCacheDirectory();
+    public static File getCacheFile(URI url, File dataAreaFile) {
         int hashCode = url.hashCode();
         return new File(dataAreaFile, Integer.toString(hashCode));
     }
