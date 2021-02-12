@@ -51,7 +51,7 @@ public class RemoteAgent implements IProvisioningAgent {
         // suppress p2.index access
         final Transport transport;
         if (mavenContext.isOffline()) {
-            transport = new OfflineTransport();
+            transport = new OfflineTransport(mavenContext);
             agent.registerService(Transport.class, transport);
         } else {
             transport = agent.getService(Transport.class);
@@ -86,7 +86,8 @@ public class RemoteAgent implements IProvisioningAgent {
             MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
 
         // register service which stores mapping between URLs and IDs (used by Maven)
-        RemoteRepositoryLoadingHelper loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings, logger);
+        RemoteRepositoryLoadingHelper loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings,
+                logger);
         agent.registerService(IRepositoryIdManager.class, loadingHelper);
 
         // wrap metadata repository manager
