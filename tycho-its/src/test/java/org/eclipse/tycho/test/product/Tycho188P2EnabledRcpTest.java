@@ -266,7 +266,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
             if (attachId == null) {
                 throw new IllegalStateException();
             }
-            return attachId.length() == 0 ? "" : "-" + attachId;
+            return attachId.isEmpty() ? "" : "-" + attachId;
         }
 
         boolean hasLocalFeature() {

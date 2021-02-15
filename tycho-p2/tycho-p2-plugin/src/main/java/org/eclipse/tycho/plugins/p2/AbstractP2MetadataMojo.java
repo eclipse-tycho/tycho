@@ -100,7 +100,7 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
 
         addArguments(launcher);
 
-        if (argLine != null && argLine.trim().length() > 0) {
+        if (argLine != null && !argLine.trim().isEmpty()) {
             // TODO does this really do anything???
             launcher.addArguments("-vmargs", argLine);
         }

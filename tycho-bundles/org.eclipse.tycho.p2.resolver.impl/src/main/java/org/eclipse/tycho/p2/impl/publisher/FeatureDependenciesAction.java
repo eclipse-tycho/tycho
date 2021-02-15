@@ -187,26 +187,26 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
 
     private int getFilterCount(FeatureEntry entry) {
         int filterCount = 0;
-        if (entry.getOS() != null && entry.getOS().length() > 0) {
+        if (entry.getOS() != null && !entry.getOS().isEmpty()) {
             filterCount++;
         }
-        if (entry.getWS() != null && entry.getWS().length() > 0) {
+        if (entry.getWS() != null && !entry.getWS().isEmpty()) {
             filterCount++;
         }
-        if (entry.getArch() != null && entry.getArch().length() > 0) {
+        if (entry.getArch() != null && !entry.getArch().isEmpty()) {
             filterCount++;
         }
-        if (entry.getNL() != null && entry.getNL().length() > 0) {
+        if (entry.getNL() != null && !entry.getNL().isEmpty()) {
             filterCount++;
         }
-        if (entry.getFilter() != null && entry.getFilter().length() > 0) {
+        if (entry.getFilter() != null && !entry.getFilter().isEmpty()) {
             filterCount++;
         }
         return filterCount;
     }
 
     private void expandFilter(String filter, String osgiFilterValue, StringBuilder result) {
-        if (filter != null && filter.length() != 0) {
+        if (filter != null && !filter.isEmpty()) {
             final StringTokenizer token = new StringTokenizer(filter, ","); //$NON-NLS-1$
             if (token.countTokens() == 1) {
                 result.append('(' + osgiFilterValue + '=' + filter + ')');

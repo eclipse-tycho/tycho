@@ -175,7 +175,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         if (format != null) {
             format = format.trim();
         }
-        if (format == null || format.length() == 0) {
+        if (format == null || format.isEmpty()) {
             format = DEFAULT_ARCHIVE_FORMAT;
         }
         return format;

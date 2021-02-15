@@ -195,7 +195,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
     }
 
     private static TreeFilter createPathFilter(String relPath, MojoExecution execution) throws IOException {
-        if (relPath != null && relPath.length() > 0) {
+        if (relPath != null && !relPath.isEmpty()) {
             return new PathFilter(relPath, getIgnoreFilter(execution));
         }
         return null;

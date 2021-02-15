@@ -133,7 +133,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         if (iu.getQueryMatchExpression() != null) {
             return QueryUtil.createMatchQuery(iu.getQueryMatchExpression(), (Object[]) iu.getQueryParameters());
         } else {
-            if (version == null || version.length() == 0) {
+            if (version == null || version.isEmpty()) {
                 return QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
             } else {
                 return QueryUtil.createIUQuery(id, Version.parseVersion(version));

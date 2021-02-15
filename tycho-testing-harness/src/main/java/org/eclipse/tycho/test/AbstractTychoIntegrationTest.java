@@ -103,7 +103,7 @@ public abstract class AbstractTychoIntegrationTest {
         verifier.setLocalRepo(EnvironmentUtil.getLocalRepo());
 
         String customOptions = System.getProperty("it.cliOptions");
-        if (customOptions != null && customOptions.trim().length() > 0) {
+        if (customOptions != null && !customOptions.trim().isEmpty()) {
             verifier.getCliOptions().add(customOptions);
         }
 

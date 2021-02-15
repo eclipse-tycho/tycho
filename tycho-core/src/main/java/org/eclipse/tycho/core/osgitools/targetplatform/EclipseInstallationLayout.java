@@ -233,7 +233,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
             return null;
         }
 
-        if (relPath.length() > 0 && relPath.charAt(0) == '/') {
+        if (!relPath.isEmpty() && relPath.charAt(0) == '/') {
             return new File(relPath);
         }
 
@@ -283,7 +283,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
                 if (line.startsWith("#")) //$NON-NLS-1$
                     continue;
                 line = line.trim();
-                if (line.length() == 0)
+                if (line.isEmpty())
                     continue;
 
                 // (expectedState is an integer).

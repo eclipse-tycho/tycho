@@ -154,7 +154,7 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().length() == 0) {
+                if (line.trim().isEmpty()) {
                     continue;
                 }
                 try {

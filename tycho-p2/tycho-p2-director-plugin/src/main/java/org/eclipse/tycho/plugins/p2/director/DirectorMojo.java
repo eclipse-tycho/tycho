@@ -123,7 +123,7 @@ public final class DirectorMojo extends AbstractProductMojo {
 
                     File destination = getProductMaterializeDirectory(product, env);
                     String rootFolder = product.getRootFolder(env.getOs());
-                    if (rootFolder != null && rootFolder.length() > 0) {
+                    if (rootFolder != null && !rootFolder.isEmpty()) {
                         destination = new File(destination, rootFolder);
                     }
 

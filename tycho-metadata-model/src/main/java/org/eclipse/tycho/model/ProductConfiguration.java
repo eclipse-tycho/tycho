@@ -310,7 +310,7 @@ public class ProductConfiguration {
             Element osElement = configIniElement.getChild(os);
             if (osElement != null) {
                 String trimmedValue = osElement.getTrimmedText();
-                if (trimmedValue.length() > 0) {
+                if (!trimmedValue.isEmpty()) {
                     return trimmedValue;
                 }
             }

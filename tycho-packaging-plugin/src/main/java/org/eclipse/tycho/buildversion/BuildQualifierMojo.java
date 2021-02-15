@@ -230,7 +230,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
 
         public String getOSGiVersion() {
-            if (qualifier.length() == 0) {
+            if (qualifier.isEmpty()) {
                 return unqualifiedVersion;
             } else {
                 return unqualifiedVersion + '.' + qualifier;
