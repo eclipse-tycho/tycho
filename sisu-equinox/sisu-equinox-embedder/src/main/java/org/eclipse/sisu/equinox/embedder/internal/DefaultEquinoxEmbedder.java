@@ -81,7 +81,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         equinoxLocator.locateRuntime(new EquinoxRuntimeDescription() {
             @Override
             public void addExtraSystemPackage(String systemPackage) {
-                if (systemPackage == null || systemPackage.length() == 0) {
+                if (systemPackage == null || systemPackage.isEmpty()) {
                     throw new IllegalArgumentException();
                 }
                 extraSystemPackages.add(systemPackage);
@@ -89,7 +89,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
 
             @Override
             public void addPlatformProperty(String property, String value) {
-                if (property == null || property.length() == 0) {
+                if (property == null || property.isEmpty()) {
                     throw new IllegalArgumentException();
                 }
                 platformProperties.put(property, value);

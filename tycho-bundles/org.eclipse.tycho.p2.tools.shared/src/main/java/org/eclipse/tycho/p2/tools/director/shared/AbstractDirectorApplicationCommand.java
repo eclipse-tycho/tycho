@@ -108,7 +108,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         args.add("-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures));
         args.add("-roaming");
         if (verifyOnly) {
-        	args.add("-verifyOnly");
+            args.add("-verifyOnly");
         }
 
         if (environment != null) {
@@ -154,7 +154,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
 
         void addUnlessEmpty(String parameterName, StringList list) {
             String parameterValue = list.toString();
-            if (parameterValue.length() > 0) {
+            if (!parameterValue.isEmpty()) {
                 add(parameterName, parameterValue);
             }
         }

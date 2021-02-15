@@ -391,7 +391,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     bundleId = m.group(2).trim();
                     path = m.group(3).trim();
 
-                    if (path != null && path.length() <= 0) {
+                    if (path != null && path.isEmpty()) {
                         path = null;
                     }
 

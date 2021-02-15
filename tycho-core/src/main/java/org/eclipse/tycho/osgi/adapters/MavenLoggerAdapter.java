@@ -65,6 +65,6 @@ public class MavenLoggerAdapter implements MavenLogger {
     }
 
     private boolean isEmpty(String message) {
-        return message == null || message.length() == 0;
+        return message == null || message.isEmpty();
     }
 }

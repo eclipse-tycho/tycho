@@ -65,7 +65,7 @@ public class MutableBundleManifest {
 
         String str;
         while ((str = readLineWithLineEnding(br, mf)) != null) {
-            if (str.trim().length() == 0) {
+            if (str.trim().isEmpty()) {
                 break;
             } else if (str.charAt(0) == ' ') {
                 if (curr == null) {
@@ -123,7 +123,7 @@ public class MutableBundleManifest {
     }
 
     private void setLineEndingWhenFirstLine(String lineEnding) {
-        if (this.lineEnding.length() == 0 && lineEnding != null) {
+        if (this.lineEnding.isEmpty() && lineEnding != null) {
             this.lineEnding = lineEnding;
         }
     }

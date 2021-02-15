@@ -47,7 +47,7 @@ public class ManifestAttribute {
     }
 
     private String chopNewLine(String str) {
-        if (str.length() > 0) {
+        if (!str.isEmpty()) {
             char lastChar = str.charAt(str.length() - 1);
             if (lastChar == '\n' || lastChar == '\r' || lastChar == '\u2028' || lastChar == '\u2029'
                     || lastChar == '\u0085') // see Scanner#LINE_SEPARATOR_PATTERN

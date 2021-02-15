@@ -39,7 +39,7 @@ public class PathFilter extends TreeFilter {
             List<FastIgnoreRule> rules = new ArrayList<>();
             while (st.hasMoreTokens()) {
                 String trimmed = st.nextToken().trim();
-                if (trimmed.length() > 0) {
+                if (!trimmed.isEmpty()) {
                     rules.add(new FastIgnoreRule(trimmed));
                 }
             }

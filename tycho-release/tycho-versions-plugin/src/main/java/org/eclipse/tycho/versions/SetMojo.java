@@ -115,7 +115,7 @@ public class SetMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (newVersion == null || newVersion.length() == 0) {
+        if (newVersion == null || newVersion.isEmpty()) {
             throw new MojoExecutionException("Missing required parameter newVersion");
         }
 

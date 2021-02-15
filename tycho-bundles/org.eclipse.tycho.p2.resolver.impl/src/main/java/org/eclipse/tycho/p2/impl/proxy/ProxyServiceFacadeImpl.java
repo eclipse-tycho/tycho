@@ -46,7 +46,7 @@ public class ProxyServiceFacadeImpl implements ProxyServiceFacade {
         proxyData.setSource(MAVEN_SETTINGS_SOURCE);
         try {
             proxyService.setProxyData(new IProxyData[] { proxyData });
-            if (nonProxyHosts != null && nonProxyHosts.trim().length() > 0) {
+            if (nonProxyHosts != null && !nonProxyHosts.trim().isEmpty()) {
                 proxyService.setNonProxiedHosts(NON_PROXY_DELIMITERS.split(nonProxyHosts.trim()));
             }
         } catch (CoreException e) {

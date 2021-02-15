@@ -36,7 +36,7 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier) {
         this(groupId, artifactId, version);
-        if (classifier != null && classifier.length() > 0) {
+        if (classifier != null && !classifier.isEmpty()) {
             properties.put(RepositoryLayoutHelper.PROP_CLASSIFIER, classifier);
         }
     }

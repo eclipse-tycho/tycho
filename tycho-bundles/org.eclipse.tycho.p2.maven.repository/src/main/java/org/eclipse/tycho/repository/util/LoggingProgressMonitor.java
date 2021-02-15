@@ -28,7 +28,7 @@ public class LoggingProgressMonitor implements IProgressMonitor {
     }
 
     private void writeToLog(String text) {
-        if (text == null || text.length() == 0) {
+        if (text == null || text.isEmpty()) {
             return;
         } else if (suppressOutputOf(text)) {
             return;
