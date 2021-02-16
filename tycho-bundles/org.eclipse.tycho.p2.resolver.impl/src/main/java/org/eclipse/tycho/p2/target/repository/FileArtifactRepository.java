@@ -139,7 +139,7 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
     public boolean contains(IArtifactDescriptor descriptor) {
         Iterator<IArtifactDescriptor> iterator = descriptorSupplier.get();
         while (iterator.hasNext()) {
-            IArtifactDescriptor thisArtifactDescriptor = (IArtifactDescriptor) iterator.next();
+            IArtifactDescriptor thisArtifactDescriptor = iterator.next();
             if (thisArtifactDescriptor.equals(descriptor)) {
                 return true;
             }
@@ -151,7 +151,7 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
     public boolean contains(IArtifactKey key) {
         Iterator<IArtifactDescriptor> iterator = descriptorSupplier.get();
         while (iterator.hasNext()) {
-            IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
+            IArtifactDescriptor descriptor = iterator.next();
             if (matches(key, descriptor)) {
                 return true;
             }
@@ -168,7 +168,7 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
     public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
         Iterator<IArtifactDescriptor> iterator = descriptorSupplier.get();
         while (iterator.hasNext()) {
-            IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
+            IArtifactDescriptor descriptor = iterator.next();
             if (matches(key, descriptor)) {
                 return new IArtifactDescriptor[] { descriptor };
             }
@@ -200,7 +200,7 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
     public File getArtifactFile(IArtifactKey key) {
         Iterator<IArtifactDescriptor> iterator = descriptorSupplier.get();
         while (iterator.hasNext()) {
-            IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
+            IArtifactDescriptor descriptor = iterator.next();
             if (matches(key, descriptor)) {
                 return getArtifactFile(descriptor);
             }

@@ -63,14 +63,12 @@ public class URITargetDefinitionContent implements TargetDefinitionContent {
 
     public synchronized void preload(IProgressMonitor monitor) {
         if (metadataRepository == null) {
-            IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) agent
-                    .getService(IMetadataRepositoryManager.SERVICE_NAME);
+            IMetadataRepositoryManager metadataManager = agent.getService(IMetadataRepositoryManager.class);
             if (metadataManager == null) {
                 throw new TargetDefinitionResolutionException(
                         "IMetadataRepositoryManager is null in IProvisioningAgent");
             }
-            IRepositoryIdManager repositoryIdManager = (IRepositoryIdManager) agent
-                    .getService(IRepositoryIdManager.SERVICE_NAME);
+            IRepositoryIdManager repositoryIdManager = agent.getService(IRepositoryIdManager.class);
             if (repositoryIdManager != null) {
                 repositoryIdManager.addMapping(id, location);
             }

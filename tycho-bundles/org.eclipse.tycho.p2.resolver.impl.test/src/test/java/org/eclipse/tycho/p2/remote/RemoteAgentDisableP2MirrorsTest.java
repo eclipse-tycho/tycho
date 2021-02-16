@@ -66,8 +66,7 @@ public class RemoteAgentDisableP2MirrorsTest {
 
     private static IArtifactRepository loadRepository(IProvisioningAgent agent, URI location)
             throws ProvisionException {
-        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+        IArtifactRepositoryManager repoManager = agent.getService(IArtifactRepositoryManager.class);
         return repoManager.loadRepository(location, null);
     }
 

@@ -107,8 +107,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         if (agent == null) {
             throw new IllegalArgumentException("IProvisioningAgent is null");
         }
-        IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+        IArtifactRepositoryManager repositoryManager = agent.getService(IArtifactRepositoryManager.class);
 
         if (repositoryManager == null) {
             throw new IllegalArgumentException("IArtifactRepositoryManager in p2 agent " + agent);

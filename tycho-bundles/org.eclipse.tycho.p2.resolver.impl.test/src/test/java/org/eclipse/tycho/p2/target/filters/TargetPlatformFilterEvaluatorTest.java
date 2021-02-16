@@ -76,8 +76,7 @@ public class TargetPlatformFilterEvaluatorTest {
     }
 
     private static Set<IInstallableUnit> loadTestUnits() throws Exception {
-        IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) p2Context.getAgent()
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
+        IMetadataRepositoryManager metadataManager = p2Context.getAgent().getService(IMetadataRepositoryManager.class);
         File testDataFile = ResourceUtil.resourceFile("targetfiltering/content.xml");
         IMetadataRepository testDataRepository = metadataManager.loadRepository(testDataFile.getParentFile().toURI(),
                 null);

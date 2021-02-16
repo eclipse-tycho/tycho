@@ -102,18 +102,15 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
 
         this.remoteAgent = remoteAgent;
-        this.remoteRepositoryIdManager = (IRepositoryIdManager) remoteAgent
-                .getService(IRepositoryIdManager.SERVICE_NAME);
+        this.remoteRepositoryIdManager = remoteAgent.getService(IRepositoryIdManager.class);
         this.offline = mavenContext.isOffline();
 
-        this.remoteMetadataRepositoryManager = (IMetadataRepositoryManager) remoteAgent
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
+        this.remoteMetadataRepositoryManager = remoteAgent.getService(IMetadataRepositoryManager.class);
         if (remoteMetadataRepositoryManager == null) {
             throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
         }
 
-        this.remoteArtifactRepositoryManager = (IArtifactRepositoryManager) remoteAgent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+        this.remoteArtifactRepositoryManager = remoteAgent.getService(IArtifactRepositoryManager.class);
         if (remoteArtifactRepositoryManager == null) {
             throw new IllegalStateException("No artifact repository manager found"); //$NON-NLS-1$
         }

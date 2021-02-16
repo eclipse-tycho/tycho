@@ -104,7 +104,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     }
 
     public long createId(String sourceBundleSymbolicName, String version) {
-        return (long) sourceBundleSymbolicName.hashCode() | (((long) version.hashCode()) << 32);
+        return sourceBundleSymbolicName.hashCode() | (((long) version.hashCode()) << 32);
     }
 
 }

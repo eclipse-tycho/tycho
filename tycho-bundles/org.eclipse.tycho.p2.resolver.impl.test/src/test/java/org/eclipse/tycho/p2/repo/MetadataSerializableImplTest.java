@@ -51,8 +51,8 @@ public class MetadataSerializableImplTest {
     }
 
     @Test
-    public void testSerializeAndLoadWithEmptyIUList() throws IOException, ProvisionException,
-            OperationCanceledException {
+    public void testSerializeAndLoadWithEmptyIUList()
+            throws IOException, ProvisionException, OperationCanceledException {
 
         File tmpDir = createTempDir("repo");
         try {
@@ -70,8 +70,8 @@ public class MetadataSerializableImplTest {
 
         File tmpDir = createTempDir("repo");
         try {
-            Set<IInstallableUnit> units = new HashSet<>(Arrays.asList(InstallableUnitUtil.createIU(
-                    "org.example.test", "1.0.0")));
+            Set<IInstallableUnit> units = new HashSet<>(
+                    Arrays.asList(InstallableUnitUtil.createIU("org.example.test", "1.0.0")));
             MetadataSerializableImpl subject = new MetadataSerializableImpl();
             serialize(subject, units, tmpDir);
             Assert.assertEquals(units, deserialize(tmpDir));
@@ -81,16 +81,15 @@ public class MetadataSerializableImplTest {
     }
 
     private Set<IInstallableUnit> deserialize(File tmpDir) throws ProvisionException {
-        IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
+        IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
         IMetadataRepository repository = manager.loadRepository(tmpDir.toURI(), null);
         IQueryResult<IInstallableUnit> queryResult = repository.query(QueryUtil.ALL_UNITS, null);
         Set<IInstallableUnit> result = queryResult.toSet();
         return result;
     }
 
-    private void serialize(MetadataSerializableImpl subject, Set<?> units, File tmpDir) throws FileNotFoundException,
-    IOException {
+    private void serialize(MetadataSerializableImpl subject, Set<?> units, File tmpDir)
+            throws FileNotFoundException, IOException {
         try (FileOutputStream os = new FileOutputStream(new File(tmpDir, "content.xml"))) {
             subject.serialize(os, units);
         }
