@@ -110,15 +110,13 @@ public class RemoteAgentMavenMirrorsTest {
 
     private Repositories loadRepositories(String id, URI specifiedUrl) throws Exception {
 
-        IRepositoryIdManager idManager = (IRepositoryIdManager) subject.getService(IRepositoryIdManager.SERVICE_NAME);
+        IRepositoryIdManager idManager = subject.getService(IRepositoryIdManager.class);
         idManager.addMapping(id, specifiedUrl);
 
-        IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) subject
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
+        IMetadataRepositoryManager metadataManager = subject.getService(IMetadataRepositoryManager.class);
         IMetadataRepository metadataRepo = metadataManager.loadRepository(specifiedUrl, null);
 
-        IArtifactRepositoryManager artifactsManager = (IArtifactRepositoryManager) subject
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+        IArtifactRepositoryManager artifactsManager = subject.getService(IArtifactRepositoryManager.class);
         IArtifactRepository artifactsRepo = artifactsManager.loadRepository(specifiedUrl, null);
 
         return new Repositories(metadataRepo, artifactsRepo);
