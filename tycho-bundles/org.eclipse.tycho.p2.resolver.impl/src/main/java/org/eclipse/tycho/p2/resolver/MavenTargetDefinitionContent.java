@@ -92,7 +92,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     .map(IArtifactFacade.class::cast).iterator();
             Properties defaultProperties = WrappedArtifact.createPropertiesForPrefix("wrapped");
             while (resolvedArtifacts.hasNext()) {
-                IArtifactFacade mavenArtifact = (IArtifactFacade) resolvedArtifacts.next();
+                IArtifactFacade mavenArtifact = resolvedArtifacts.next();
                 logger.debug("Resolved " + mavenArtifact + "...");
                 String symbolicName;
                 String bundleVersion;
@@ -160,7 +160,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     Iterator<IArtifactFacade> sources = sourceArtifacts.stream()
                             .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast).iterator();
                     while (sources.hasNext()) {
-                        IArtifactFacade sourceArtifact = (IArtifactFacade) sources.next();
+                        IArtifactFacade sourceArtifact = sources.next();
                         File sourceFile = sourceArtifact.getLocation();
                         try {
                             Manifest manifest;

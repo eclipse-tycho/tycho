@@ -90,8 +90,7 @@ public class RemoteArtifactTransferPolicyTest {
 
     static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context)
             throws Exception {
-        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) p2Context.getAgent()
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+        IArtifactRepositoryManager repoManager = p2Context.getAgent().getService(IArtifactRepositoryManager.class);
         File repoPath = ResourceUtil.resourceFile("repositories/rawformats/" + repository);
         IArtifactRepository loadedRepo = repoManager.loadRepository(repoPath.toURI(), new NullProgressMonitor());
         return loadedRepo.getArtifactDescriptors(DEFAULT_KEY);

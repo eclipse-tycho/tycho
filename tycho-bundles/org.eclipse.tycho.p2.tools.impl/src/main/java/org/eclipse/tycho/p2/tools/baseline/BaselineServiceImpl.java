@@ -75,12 +75,11 @@ public class BaselineServiceImpl implements BaselineService {
 
         try {
             IProvisioningAgent remoteAgent = remoteAgentManager.getProvisioningAgent();
-            IRepositoryIdManager remoteRepositoryIdManager = (IRepositoryIdManager) remoteAgent
-                    .getService(IRepositoryIdManager.SERVICE_NAME);
-            IMetadataRepositoryManager remoteMetadataRepositoryManager = (IMetadataRepositoryManager) remoteAgent
-                    .getService(IMetadataRepositoryManager.SERVICE_NAME);
-            IArtifactRepositoryManager remoteArtifactRepositoryManager = (IArtifactRepositoryManager) remoteAgent
-                    .getService(IArtifactRepositoryManager.SERVICE_NAME);
+            IRepositoryIdManager remoteRepositoryIdManager = remoteAgent.getService(IRepositoryIdManager.class);
+            IMetadataRepositoryManager remoteMetadataRepositoryManager = remoteAgent
+                    .getService(IMetadataRepositoryManager.class);
+            IArtifactRepositoryManager remoteArtifactRepositoryManager = remoteAgent
+                    .getService(IArtifactRepositoryManager.class);
 
             baselineUnits = CompositeMetadataRepository.createMemoryComposite(remoteAgent);
             baselineArtifacts = CompositeArtifactRepository.createMemoryComposite(remoteAgent);

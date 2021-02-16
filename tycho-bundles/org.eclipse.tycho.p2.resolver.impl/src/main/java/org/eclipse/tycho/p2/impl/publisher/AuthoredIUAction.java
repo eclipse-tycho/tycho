@@ -55,8 +55,8 @@ public class AuthoredIUAction extends AbstractPublisherAction implements IPublis
     public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
         File iuFile = new File(iuProject, "p2iu.xml");
         if (!iuFile.exists())
-            return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Could not find the p2iu.xml file in folder "
-                    + iuProject);
+            return new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+                    "Could not find the p2iu.xml file in folder " + iuProject);
         try {
             FileInputStream is = new FileInputStream(iuFile);
             InstallableUnitDescription iuDescriptions = new MetadataIO().readOneIU(is);
@@ -69,8 +69,8 @@ public class AuthoredIUAction extends AbstractPublisherAction implements IPublis
                 for (IInstallableUnit iu : ius) {
                     Collection<IArtifactKey> associatedKeys = iu.getArtifacts();
                     for (IArtifactKey key : associatedKeys) {
-                        ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info,
-                                key, null);
+                        ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info, key,
+                                null);
                         processArtifactPropertiesAdvice(iu, ad, info);
                         ad.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
                         ad.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, "zip");
@@ -82,7 +82,7 @@ public class AuthoredIUAction extends AbstractPublisherAction implements IPublis
             //If no artifact has been referenced in the metadata, we publish a fake one because the code is not meant to handle this 
             // and fails in many places. I tried to change the code where the failures were occurring but did not succeed.
             if (!artifactReferenced && repo != null) {
-                IInstallableUnit iu = ((IInstallableUnit) ius.iterator().next());
+                IInstallableUnit iu = ius.iterator().next();
                 ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info,
                         new ArtifactKey("binary", "generated_" + iu.getId(), iu.getVersion()), null);
                 processArtifactPropertiesAdvice(iu, ad, info);

@@ -135,15 +135,13 @@ public class VerifierServiceImpl implements VerifierService {
 
     private IMetadataRepository loadMetadataRepository(URI metadataRepository, IProvisioningAgent agent)
             throws ProvisionException {
-        final IMetadataRepositoryManager repositoryManager = (IMetadataRepositoryManager) agent
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
+        final IMetadataRepositoryManager repositoryManager = agent.getService(IMetadataRepositoryManager.class);
         return repositoryManager.loadRepository(metadataRepository, monitor);
     }
 
     private IArtifactRepository loadArtifactRepository(URI artifactRepository, IProvisioningAgent agent)
             throws ProvisionException {
-        final IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+        final IArtifactRepositoryManager repositoryManager = agent.getService(IArtifactRepositoryManager.class);
         return repositoryManager.loadRepository(artifactRepository, monitor);
     }
 
