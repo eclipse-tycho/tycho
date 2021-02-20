@@ -15,6 +15,7 @@ package org.eclipse.tycho.plugins.p2.extras;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +82,19 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
         assertTrue(mirrorDestinationDir.isDirectory());
         assertEquals(1, new File(mirrorDestinationDir, "plugins").listFiles().length);
         assertMirroredBundle(mirrorDestinationDir, "test.bundle1", "1.0.0.201108100850");
+    }
+
+    public void testMirrorProduct() throws Exception {
+        File sourceRepository = new File("src/test/resources/mirroring/sourceP2RepoWithProduct").getCanonicalFile();
+        setVariableValueToObject(mirrorMojo, "source",
+                Collections.singletonList(new Repository(sourceRepository.toURI())));
+        Iu testBundleIu = new Iu();
+        testBundleIu.id = "dummy";
+        setVariableValueToObject(mirrorMojo, "ius", Collections.singletonList(testBundleIu));
+        mirrorMojo.execute();
+        assertTrue(mirrorDestinationDir.isDirectory());
+        assertTrue(Arrays.stream(new File(mirrorDestinationDir, "binary").listFiles()).map(File::getName)
+                .anyMatch(name -> name.startsWith("dummy")));
     }
 
     public void testMirrorWithPlatformFilter() throws Exception {
