@@ -50,7 +50,6 @@ import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
  */
 @Mojo(name = "package-plugin", threadSafe = true)
 public class PackagePluginMojo extends AbstractTychoPackagingMojo {
-    private static final Object LOCK = new Object();
 
     /**
      * The output directory of the jar file
@@ -150,16 +149,14 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        synchronized (LOCK) {
-            pdeProject = (EclipsePluginProject) DefaultReactorProject.adapt(project)
-                    .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
+        pdeProject = (EclipsePluginProject) DefaultReactorProject.adapt(project)
+                .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
 
-            createSubJars();
+        createSubJars();
 
-            File pluginFile = createPluginJar();
+        File pluginFile = createPluginJar();
 
-            project.getArtifact().setFile(pluginFile);
-        }
+        project.getArtifact().setFile(pluginFile);
     }
 
     private void createSubJars() throws MojoExecutionException {
