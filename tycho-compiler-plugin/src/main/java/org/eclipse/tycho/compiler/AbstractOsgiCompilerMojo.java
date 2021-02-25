@@ -103,11 +103,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      */
     public static final String RULE_EXCLUDE_ALL = "?**/*";
 
-    /**
-     * Lock object to ensure thread-safety
-     */
-    private static final Object LOCK = new Object();
-
     private static final Set<String> MATCH_ALL = Collections.singleton("**/*");
 
     private static final String PREFS_FILE_PATH = ".settings" + File.separator + "org.eclipse.jdt.core.prefs";
@@ -331,19 +326,17 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
         checkTargetLevelCompatibleWithManifestBREEs(effectiveTargetLevel, manifestBREEs);
 
-        synchronized (LOCK) {
-            for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
-                this.outputJar = jar;
-                this.outputJar.getOutputDirectory().mkdirs();
-                super.execute();
-                doCopyResources();
-            }
+        for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
+            this.outputJar = jar;
+            this.outputJar.getOutputDirectory().mkdirs();
+            super.execute();
+            doCopyResources();
+        }
 
-            // this does not include classes from nested jars
-            BuildOutputJar dotOutputJar = getEclipsePluginProject().getDotOutputJar();
-            if (dotOutputJar != null) {
-                project.getArtifact().setFile(dotOutputJar.getOutputDirectory());
-            }
+        // this does not include classes from nested jars
+        BuildOutputJar dotOutputJar = getEclipsePluginProject().getDotOutputJar();
+        if (dotOutputJar != null) {
+            project.getArtifact().setFile(dotOutputJar.getOutputDirectory());
         }
     }
 
