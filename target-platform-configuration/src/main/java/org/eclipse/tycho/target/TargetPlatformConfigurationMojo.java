@@ -7,13 +7,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.p2.repository.GAV;
 
 /**
  * Configures the target-platform to use in order to resolve dependencies. <br>
@@ -33,10 +33,14 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
 
     /**
      * List of .target artifacts to use for dependency resolution.<br>
-     * ⚠️ Children element <b>must</b> use <code>&lt;artifact></code> as tag name
+     * Could either be
+     * <ul>
+     * <li><code>&lt;artifact></code> to define a target GAV (either local to the reactor or a
+     * remote one)</li>
+     * <li><code>&lt;file></code> to define a file local to the build
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET)
-    private GAV[] target;
+    private Xpp3Dom target;
 
     /**
      * Defines which strategy to apply to Maven dependencies.
@@ -49,9 +53,8 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * <li>Tycho then checks each of these artifacts, and if the artifact is an OSGi bundle, it is
      * added to the target platform. Other artifacts are ignored in case of <code>consider</code>,
      * or get some OSGi metadata generated and an OSGi bundle created from them.</li>
-     * <li>OSGi bundles which become part of
-     * the target platform in this way are then available to resolve the project's OSGi
-     * dependencies.</li>
+     * <li>OSGi bundles which become part of the target platform in this way are then available to
+     * resolve the project's OSGi dependencies.</li>
      * </ul>
      * </p>
      * <p>

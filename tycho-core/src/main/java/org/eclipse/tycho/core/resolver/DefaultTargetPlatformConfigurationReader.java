@@ -366,12 +366,24 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         Xpp3Dom[] artifactDomArray = targetDom.getChildren("artifact");
-        if (artifactDomArray == null || artifactDomArray.length == 0) {
-            return;
+        if (artifactDomArray != null && artifactDomArray.length > 0) {
+            for (Xpp3Dom artifactDom : artifactDomArray) {
+                addTargetArtifact(result, session, project, artifactDom);
+            }
         }
-
-        for (Xpp3Dom artifactDom : artifactDomArray) {
-            addTargetArtifact(result, session, project, artifactDom);
+        Xpp3Dom[] fileDomArray = targetDom.getChildren("file");
+        if (fileDomArray != null && fileDomArray.length > 0) {
+            for (Xpp3Dom fileDom : fileDomArray) {
+                String file = fileDom.getValue();
+                File target = new File(project.getBasedir(), file);
+                if (isTargetFile(target)) {
+                    result.addTarget(target);
+                    return;
+                } else {
+                    throw new MojoExecutionException(
+                            "target definition file '" + file + "' not found in project '" + project.getName() + "'.");
+                }
+            }
         }
     }
 
