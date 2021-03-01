@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -52,6 +51,7 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
@@ -176,9 +176,10 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
-    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration, String eeName) {
-        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration,
-                new ExecutionEnvironmentConfigurationStub(eeName), null, null);
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentConfiguration eeConfig) {
+        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration, eeConfig, null,
+                null);
 
         ResolutionDataImpl data = new ResolutionDataImpl(contextImpl.getEEResolutionHints());
         data.setAvailableIUs(contextImpl.getInstallableUnits());
@@ -199,6 +200,11 @@ public class P2ResolverImpl implements P2Resolver {
             throw new RuntimeException(e);
         }
         return result;
+    }
+
+    @Override
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration, String eeName) {
+        return resolveMetadata(tpConfiguration, new ExecutionEnvironmentConfigurationStub(eeName));
     }
 
     // TODO 412416 make this obsolete by adding appropriate getters in TargetPlatform interface
@@ -259,10 +265,9 @@ public class P2ResolverImpl implements P2Resolver {
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState,
             ReactorProject currentProject) {
         DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
-        Set<String> missingArtifacts = new TreeSet<>();
 
         for (IInstallableUnit iu : newState) {
-            addUnit(result, iu, currentProject, missingArtifacts);
+            addUnit(result, iu, currentProject);
         }
         // remove entries for which there were only "additional" IUs, but none with a recognized type
         result.removeEntriesWithUnknownType();
@@ -270,15 +275,12 @@ public class P2ResolverImpl implements P2Resolver {
         // local repository index needs to be saved manually
         context.saveLocalMavenRepository();
 
-        failIfArtifactsMissing(missingArtifacts);
-
         // TODO 372780 remove; no longer needed when aggregation uses frozen target platform as source
         collectNonReactorIUs(result, newState);
         return result;
     }
 
-    private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, ReactorProject currentProject,
-            Set<String> missingArtifacts) {
+    private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, ReactorProject currentProject) {
 
         if (currentProjectUnits.contains(iu)) {
             addReactorProject(result, currentProject.getIdentities(), iu);
@@ -299,17 +301,6 @@ public class P2ResolverImpl implements P2Resolver {
 
         for (IArtifactKey key : iu.getArtifacts()) {
             addArtifactFile(result, iu, key, context);
-        }
-    }
-
-    private void failIfArtifactsMissing(Set<String> missingArtifacts) {
-        if (!missingArtifacts.isEmpty()) {
-            logger.error("The following artifacts could not be downloaded: ");
-            for (String missingArtifact : missingArtifacts) {
-                logger.error("  " + missingArtifact);
-            }
-            // TODO throw a typed exception here, so that we can log more information depending on the offline mode further up in the call stack
-            throw new RuntimeException("Some required artifacts could not be downloaded. See log output for details.");
         }
     }
 

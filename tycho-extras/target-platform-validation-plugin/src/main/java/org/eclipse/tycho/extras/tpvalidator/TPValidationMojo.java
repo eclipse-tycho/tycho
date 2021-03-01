@@ -16,10 +16,13 @@ package org.eclipse.tycho.extras.tpvalidator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -27,11 +30,16 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.TargetDefinitionFile;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -50,6 +58,10 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
  */
 @Mojo(name = "validate-target-platform", defaultPhase = LifecyclePhase.VALIDATE)
 public class TPValidationMojo extends AbstractMojo {
+
+    @Parameter(property = "session", readonly = true)
+    private MavenSession session;
+
     @Parameter(property = "project")
     private MavenProject project;
 
@@ -87,7 +99,12 @@ public class TPValidationMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private boolean checkProvisioning;
 
-    @Parameter(defaultValue = "JavaSE-1.7")
+    /**
+     * The execution environment to use for resolution. If not set, the one defined in
+     * &lt;targetJRE> element of .target file is used; and if no such element exists, the running
+     * JRE is used.
+     */
+    @Parameter
     private String executionEnvironment;
 
     @Component
@@ -95,6 +112,9 @@ public class TPValidationMojo extends AbstractMojo {
 
     @Component
     private Logger logger;
+
+    @Component
+    private ToolchainManager toolchainManager;
 
     private P2ResolverFactory factory;
 
@@ -167,11 +187,10 @@ public class TPValidationMojo extends AbstractMojo {
             DirectorRuntime director = this.equinox.getService(DirectorRuntime.class);
             DirectorRuntime.Command directorCommand = director.newInstallCommand();
 
-            TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
-            tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
-
             TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
+            TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
             tpConfiguration.addTargetDefinition(targetDefinition);
+            tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 
             P2Resolver resolver = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));
 
@@ -193,7 +212,60 @@ public class TPValidationMojo extends AbstractMojo {
                     }
                 }
             }
-            resolver.resolveMetadata(tpConfiguration, executionEnvironment);
+            if (this.executionEnvironment == null) {
+                this.executionEnvironment = targetDefinition.getTargetEE();
+                if (this.executionEnvironment == null || this.executionEnvironment.isBlank()) {
+                    this.executionEnvironment = "JavaSE-" + Runtime.version().feature();
+                }
+            }
+            final ExecutionEnvironment ee = ExecutionEnvironmentUtils.getExecutionEnvironment(executionEnvironment,
+                    toolchainManager, session, logger);
+            resolver.resolveMetadata(tpConfiguration, new ExecutionEnvironmentConfiguration() {
+                @Override
+                public void overrideProfileConfiguration(String profileName, String configurationOrigin)
+                        throws IllegalStateException {
+                }
+
+                @Override
+                public void setProfileConfiguration(String profileName, String configurationOrigin)
+                        throws IllegalStateException {
+                }
+
+                @Override
+                public String getProfileName() {
+                    return ee.getProfileName();
+                }
+
+                @Override
+                public boolean isCustomProfile() {
+                    return !ExecutionEnvironmentUtils.getProfileNames().contains(ee.getProfileName());
+                }
+
+                @Override
+                public void setFullSpecificationForCustomProfile(List<SystemCapability> systemCapabilities)
+                        throws IllegalStateException {
+                }
+
+                @Override
+                public ExecutionEnvironment getFullSpecification() throws IllegalStateException {
+                    return ee;
+                }
+
+                @Override
+                public boolean isIgnoredByResolver() {
+                    return false;
+                }
+
+                @Override
+                public Collection<ExecutionEnvironment> getAllKnownEEs() {
+                    return Set.of(ee);
+                }
+
+                @Override
+                public boolean ignoreExecutionEnvironment() {
+                    return false;
+                }
+            });
             if (checkProvisioning) {
                 directorCommand.addMetadataSources(ref.getMetadataRepositories());
                 directorCommand.addArtifactSources(ref.getArtifactRepositories());

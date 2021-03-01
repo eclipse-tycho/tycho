@@ -509,8 +509,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
             Attribute path = targetJRE.getAttribute("path");
             if (path != null) {
                 String pathValue = path.getValue();
-                String ee = pathValue.substring(pathValue.lastIndexOf('/') + 1);
-                return ee;
+                return pathValue.substring(pathValue.lastIndexOf('/') + 1);
             }
         }
         return null;

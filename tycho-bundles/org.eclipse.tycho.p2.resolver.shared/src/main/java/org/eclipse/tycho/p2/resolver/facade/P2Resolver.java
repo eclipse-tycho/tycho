@@ -19,6 +19,7 @@ import java.util.Map;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
@@ -62,7 +63,19 @@ public interface P2Resolver {
     @Deprecated
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project);
 
+    /**
+     * 
+     * @param context
+     * @param executionEnvironmentName
+     * @return
+     * @deprecated use
+     *             {@link #resolveMetadata(TargetPlatformConfigurationStub, ExecutionEnvironmentConfiguration)}
+     */
+    @Deprecated
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String executionEnvironmentName);
+
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentConfiguration eeConfig);
 
     public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
             String eeName);
