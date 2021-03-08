@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1db7afdc_9bdeb85a",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/surefire/OpenTest4JTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2021-03-08T14:34:11Z",
+      "side": 1,
+      "message": "Suggestion: You may want to added methods analogues to `SurefireUtils.assertTestMethodWasSuccessfullyExecuted` to assert that specific methods have been executed.",
+      "revId": "464c16b07e28698a7a0368a2c41f026f1816b0fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51dd01e2_438aad9b",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/util/SurefireUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2021-03-08T14:34:11Z",
+      "side": 1,
+      "message": "Note: I took the liberty to refactor a bit. Hope that is OK.",
+      "revId": "464c16b07e28698a7a0368a2c41f026f1816b0fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b861f6a0_10659297",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/util/SurefireUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2021-03-08T14:34:11Z",
+      "side": 1,
+      "message": "\"Successfully executed\" should not mean \"skipped\". Hence, I\u0027ve added this extra assertion here.",
+      "revId": "464c16b07e28698a7a0368a2c41f026f1816b0fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10868b7e_fe664319",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/util/SurefireUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2021-03-08T14:34:11Z",
+      "side": 1,
+      "message": "I don\u0027t think this method\u0027s name is correct. `@tests` denotes the number of tests executed overall, but \"successful\" suggests to me that they haven\u0027t failed or weren\u0027t skip.\n\nMaybe rename to `assertNumberOfTests` or `assertNumberOfOverallTests`?",
+      "revId": "464c16b07e28698a7a0368a2c41f026f1816b0fa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
