@@ -13,7 +13,6 @@
 package org.eclipse.tycho.test.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -41,37 +40,58 @@ public class SurefireUtil {
 
     public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String className, String methodName)
             throws Exception {
-        File sureFireTestReport = new File(baseDir, "target/surefire-reports/TEST-" + className + ".xml");
-        assertTrue(sureFireTestReport.isFile());
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document document = db.parse(sureFireTestReport);
+        Document document = readDocument(baseDir, className);
         XPath xpath = XPathFactory.newInstance().newXPath();
         // surefire-test-report XML schema: https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd
-        NodeList testCaseNodes = (NodeList) xpath.evaluate(
-                String.format("/testsuite/testcase[@classname='%s' and @name='%s']", className, methodName), document,
-                XPathConstants.NODESET);
-        assertNotNull(testCaseNodes);
+        String testCaseXPath = String.format("/testsuite/testcase[@classname='%s' and @name='%s']", className,
+                methodName);
+        NodeList testCaseNodes = (NodeList) xpath.evaluate(testCaseXPath, document, XPathConstants.NODESET);
         assertEquals(1, testCaseNodes.getLength());
-        NodeList failureNodes = (NodeList) xpath.evaluate(
-                String.format("/testsuite/testcase[@classname='%s' and @name='%s']/failure", className, methodName),
-                document, XPathConstants.NODESET);
+
+        NodeList failureNodes = (NodeList) xpath.evaluate(testCaseXPath + "/failure", document, XPathConstants.NODESET);
         assertEquals(0, failureNodes.getLength());
-        NodeList errorNodes = (NodeList) xpath.evaluate(
-                String.format("/testsuite/testcase[@classname='%s' and @name='%s']/error", className, methodName),
-                document, XPathConstants.NODESET);
+
+        NodeList errorNodes = (NodeList) xpath.evaluate(testCaseXPath + "/error", document, XPathConstants.NODESET);
         assertEquals(0, errorNodes.getLength());
+
+        NodeList skippedNodes = (NodeList) xpath.evaluate(testCaseXPath + "/skipped", document, XPathConstants.NODESET);
+        assertEquals(0, skippedNodes.getLength());
     }
 
     public static void assertNumberOfSuccessfulTests(String baseDir, String className,
             int expectedNumberOfSuccessfulTests) throws Exception {
+        assertEquals(expectedNumberOfSuccessfulTests, extractNumericAttribute(baseDir, className, "/testsuite/@tests"));
+    }
+
+    public static void assertNumberOfFailedTests(String baseDir, String className, int expectedNumberOfFailedTests)
+            throws Exception {
+        assertEquals(expectedNumberOfFailedTests, extractNumericAttribute(baseDir, className, "/testsuite/@failures"));
+    }
+
+    public static void assertNumberOfErrorneousTests(String baseDir, String className, int expectedNumberOfSkippedTests)
+            throws Exception {
+        assertEquals(expectedNumberOfSkippedTests, extractNumericAttribute(baseDir, className, "/testsuite/@errors"));
+    }
+
+    public static void assertNumberOfSkippedTests(String baseDir, String className, int expectedNumberOfSkippedTests)
+            throws Exception {
+        assertEquals(expectedNumberOfSkippedTests, extractNumericAttribute(baseDir, className, "/testsuite/@skipped"));
+    }
+
+    private static int extractNumericAttribute(String baseDir, String className, String attributeXPath)
+            throws Exception {
+        Document document = readDocument(baseDir, className);
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        String numberOfTests = (String) xpath.evaluate(attributeXPath, document, XPathConstants.STRING);
+        return Integer.parseInt(numberOfTests);
+    }
+
+    private static Document readDocument(String baseDir, String className) throws Exception {
         File sureFireTestReport = new File(baseDir, "target/surefire-reports/TEST-" + className + ".xml");
         assertTrue(sureFireTestReport.isFile());
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document document = db.parse(sureFireTestReport);
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        String numberOfTests = (String) xpath.evaluate("/testsuite/@tests", document, XPathConstants.STRING);
-        assertEquals(expectedNumberOfSuccessfulTests, Integer.parseInt(numberOfTests));
+        return document;
     }
 }
