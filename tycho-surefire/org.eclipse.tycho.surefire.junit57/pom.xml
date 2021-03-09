@@ -73,11 +73,6 @@
 							<version>${junit-jupiter-version}</version>
 						</artifactItem>
 						<artifactItem>
-							<groupId>org.opentest4j</groupId>
-							<artifactId>opentest4j</artifactId>
-							<version>1.2.0</version>
-						</artifactItem>
-						<artifactItem>
 							<groupId>org.apiguardian</groupId>
 							<artifactId>apiguardian-api</artifactId>
 							<version>1.1.0</version>
