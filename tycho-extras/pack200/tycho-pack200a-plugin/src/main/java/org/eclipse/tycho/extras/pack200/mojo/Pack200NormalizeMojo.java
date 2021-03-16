@@ -77,11 +77,12 @@ public class Pack200NormalizeMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (this.skip || !supportedProjectTypes.contains(project.getPackaging())) {
+        getLog().warn("Pack200 actions are deprecated and scheduled for removal.");
+        if (Runtime.version().feature() >= 14) {
+            getLog().warn("Pack200 actions are skipped when running on Java 14 and higher");
             return;
         }
-        if (Runtime.version().feature() >= 14) {
-            getLog().warn("pack200 actions are skipped when running on Java 14 and higher");
+        if (this.skip || !supportedProjectTypes.contains(project.getPackaging())) {
             return;
         }
 
