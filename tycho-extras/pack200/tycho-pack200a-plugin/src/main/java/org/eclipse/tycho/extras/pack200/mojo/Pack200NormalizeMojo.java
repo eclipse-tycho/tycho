@@ -32,6 +32,7 @@ import org.eclipse.tycho.extras.pack200.Pack200Archiver;
  * Performs pack200 normalization.
  */
 @Mojo(name = "normalize", defaultPhase = LifecyclePhase.PACKAGE)
+@Deprecated(forRemoval = true, since = "2.3.0")
 public class Pack200NormalizeMojo extends AbstractMojo {
 
     @Parameter(property = "project", required = true)

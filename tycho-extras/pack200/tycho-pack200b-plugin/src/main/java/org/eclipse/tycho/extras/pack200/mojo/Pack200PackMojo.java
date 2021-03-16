@@ -34,6 +34,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
  * Performs pack200 pack.
  */
 @Mojo(name = "pack", defaultPhase = LifecyclePhase.PACKAGE)
+@Deprecated(forRemoval = true, since = "2.3.0")
 public class Pack200PackMojo extends AbstractMojo {
 
     @Parameter(property = "project", required = true, readonly = true)
