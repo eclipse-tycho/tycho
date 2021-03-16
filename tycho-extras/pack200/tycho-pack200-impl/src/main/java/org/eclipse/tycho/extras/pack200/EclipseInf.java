@@ -22,6 +22,7 @@ import java.util.zip.ZipEntry;
 /**
  * https://wiki.eclipse.org/JarProcessor_Options
  */
+@Deprecated(forRemoval = true, since = "2.3.0")
 public class EclipseInf {
 
     public static final String PATH_ECLIPSEINF = "META-INF/eclipse.inf";

@@ -29,6 +29,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 
 @Component(role = Pack200Archiver.class)
+@Deprecated(forRemoval = true, since = "2.3.0")
 public class Pack200Archiver {
 
     @Requirement
@@ -45,7 +46,8 @@ public class Pack200Archiver {
      * @return <code>true</code> if the target pack file was created, <code>false</code> if the
      *         target file was not created
      */
-    public boolean normalize(List<Artifact> pluginArtifacts, File file, File packFile, boolean fork) throws IOException {
+    public boolean normalize(List<Artifact> pluginArtifacts, File file, File packFile, boolean fork)
+            throws IOException {
         File jarToBePacked = file;
         boolean shouldNormalize = false;
         boolean jarToBePackedIsTempFile = false;

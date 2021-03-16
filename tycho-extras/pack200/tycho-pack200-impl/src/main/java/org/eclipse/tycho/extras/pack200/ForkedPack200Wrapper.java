@@ -23,6 +23,7 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
 /**
  * Executes pack200 pack/unpack in external JVM
  */
+@Deprecated(forRemoval = true, since = "2.3.0")
 public class ForkedPack200Wrapper extends Pack200Wrapper {
 
     private static final String ARTIFACT_GROUPID = "org.eclipse.tycho.extras";
@@ -41,7 +42,8 @@ public class ForkedPack200Wrapper extends Pack200Wrapper {
         execute(pluginArtifacts, Pack200Wrapper.COMMAND_UNPACK, packFile, jarFile);
     }
 
-    private void execute(List<Artifact> pluginArtifacts, String command, File fileFrom, File fileTo) throws IOException {
+    private void execute(List<Artifact> pluginArtifacts, String command, File fileFrom, File fileTo)
+            throws IOException {
         Commandline cli = new Commandline();
 
         // use the same JVM as the one used to run Maven (the "java.home" one)
@@ -71,7 +73,8 @@ public class ForkedPack200Wrapper extends Pack200Wrapper {
 
     private File getPack200ImplArtifact(List<Artifact> pluginArtifacts) {
         for (Artifact artifact : pluginArtifacts) {
-            if (ARTIFACT_GROUPID.equals(artifact.getGroupId()) && ARTIFACT_ARTIFACTID.equals(artifact.getArtifactId())) {
+            if (ARTIFACT_GROUPID.equals(artifact.getGroupId())
+                    && ARTIFACT_ARTIFACTID.equals(artifact.getArtifactId())) {
                 return artifact.getFile();
             }
         }

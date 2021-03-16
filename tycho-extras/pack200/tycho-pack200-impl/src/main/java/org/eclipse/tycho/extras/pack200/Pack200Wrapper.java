@@ -32,6 +32,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.maven.artifact.Artifact;
 
+@Deprecated(forRemoval = true, since = "2.3.0")
 public class Pack200Wrapper {
 
     public static final String COMMAND_PACK = "pack";
