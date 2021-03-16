@@ -41,7 +41,6 @@
 		<module>tycho-p2-extras-plugin</module>
 		<module>tycho-custom-bundle-plugin</module>
 		<module>tycho-eclipserun-plugin</module>
-		<module>pack200</module>
 		<module>tycho-buildtimestamp-jgit</module>
 		<module>tycho-sourceref-jgit</module>
 		<module>target-platform-validation-plugin</module>
@@ -196,6 +195,15 @@
 			<id>its</id>
 			<modules>
 				<module>tycho-extras-its</module>
+			</modules>
+		</profile>
+		<profile>
+    		<id>pack200</id>
+    		<activation>
+        		<jdk>(,13]</jdk>
+    		</activation>
+			<modules>
+				<module>pack200</module>
 			</modules>
 		</profile>
 	</profiles>
