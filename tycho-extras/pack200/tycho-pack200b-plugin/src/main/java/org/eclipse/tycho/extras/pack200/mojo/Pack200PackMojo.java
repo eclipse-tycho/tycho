@@ -68,8 +68,9 @@ public class Pack200PackMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        getLog().warn("Pack200 actions are deprecated and scheduled for removal.");
         if (Runtime.version().feature() >= 14) {
-            getLog().warn("pack200 actions are skipped when running on Java 14 and higher");
+            getLog().warn("Pack200 actions are skipped when running on Java 14 and higher.");
             return;
         }
         if (!supportedProjectTypes.contains(project.getPackaging())) {
