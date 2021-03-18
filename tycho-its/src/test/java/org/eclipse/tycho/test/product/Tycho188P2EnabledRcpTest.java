@@ -50,8 +50,10 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
     private static final String ARTIFACT_ID = "pi.eclipse-repository";
     private static final String VERSION = "1.0.0-SNAPSHOT";
 
-    private static final List<Product> TEST_PRODUCTS = Arrays.asList(new Product("main.product.id", "", false, true),
-            new Product("extra.product.id", "extra", "rootfolder", true, false),
+    private static final List<Product> TEST_PRODUCTS = Arrays.asList(
+            new Product("main.product.id", "", false, true, false),
+            new Product("bundlepool.product.id", "bundlepool", false, true, true),
+            new Product("extra.product.id", "extra", "rootfolder", true, false, false),
             new Product("repoonly.product.id", false));
 
     @DataPoints
@@ -69,10 +71,14 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
     }
 
     @Test
-    public void testInstalledProdcutArtifacts() throws Exception {
+    public void testInstalledProductArtifacts() throws Exception {
         for (Product product : TEST_PRODUCTS) {
-            for (TargetEnvironment env : TEST_ENVIRONMENTS) {
-                assertProductArtifacts(verifier, product, env);
+            if (product.hasBundlePool()) {
+                assertProductArtifacts(verifier, product, new TargetEnvironment("any", "any", "any"));
+            } else {
+                for (TargetEnvironment env : TEST_ENVIRONMENTS) {
+                    assertProductArtifacts(verifier, product, env);
+                }
             }
         }
     }
@@ -92,12 +98,20 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
     @Test
     public void testContent() throws Exception {
         assertRepositoryArtifacts(verifier);
-        int environmentsPerProduct = TEST_ENVIRONMENTS.length;
 
-        int publishedArtifacts = TEST_PRODUCTS.size() * environmentsPerProduct; // the branded executables, produced by the ProductAction
+        int publishedArtifacts = 0;
+        int distributionArtifacts = 0;
+        for (Product product : TEST_PRODUCTS) {
+            publishedArtifacts += TEST_ENVIRONMENTS.length;
 
-        int materializedProducts = TEST_PRODUCTS.size() - 1;
-        int distributionArtifacts = materializedProducts * environmentsPerProduct;
+            if (product.isMaterialized()) {
+                if (product.hasBundlePool()) {
+                    distributionArtifacts += 1;
+                } else {
+                    distributionArtifacts += TEST_ENVIRONMENTS.length;
+                }
+            }
+        }
 
         int repositoryArtifacts = 1;
         assertTotalZipArtifacts(verifier, publishedArtifacts + distributionArtifacts + repositoryArtifacts);
@@ -161,33 +175,58 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
             File artifactDirectory = new File(verifier.getArtifactPath(GROUP_ID, ARTIFACT_ID, VERSION, "zip"))
                     .getParentFile();
             File installedProductArchive = new File(artifactDirectory,
-                    ARTIFACT_ID + '-' + VERSION + product.getAttachIdSegment() + "-" + toOsWsArch(env) + ".zip");
+                    ARTIFACT_ID + '-' + VERSION + product.getAttachIdSegment() + "-" + toOsWsArch(env, ".") + ".zip");
             assertTrue("Product archive not found at: " + installedProductArchive, installedProductArchive.exists());
 
             String rootFolder = product.getRootFolderName() != null ? product.getRootFolderName() + "/" : "";
-
-            Properties configIni = openPropertiesFromZip(installedProductArchive,
-                    rootFolder + "configuration/config.ini");
-            String bundleConfiguration = configIni.getProperty("osgi.bundles");
-            assertTrue("Installation is not configured to use the simpleconfigurator",
-                    bundleConfiguration.startsWith("reference:file:org.eclipse.equinox.simpleconfigurator"));
-            // TODO all these assertions should be in the test method directly
-            String expectedProfileName = env.getOs().equals("linux") ? "ProfileNameForLinux"
-                    : "ConfiguredDefaultProfileName";
-            assertEquals("eclipse.p2.profile in config.ini", expectedProfileName,
-                    configIni.getProperty("eclipse.p2.profile"));
-
-            assertRootFolder(installedProductArchive, product.getRootFolderName());
-
-            if (product.hasLocalFeature()) {
-                assertContainsEntry(installedProductArchive, rootFolder + "features/pi.example.feature_1.0.0.");
-                assertContainsEntry(installedProductArchive, rootFolder + "plugins/pi.example.bundle_1.0.0.");
+            if (product.hasBundlePool()) {
+                for (TargetEnvironment subEnv : TEST_ENVIRONMENTS) {
+                    assertRootFolder(product, subEnv, installedProductArchive);
+                }
+            } else {
+                assertRootFolder(product, env, installedProductArchive);
             }
         }
     }
 
-    private static String toOsWsArch(TargetEnvironment env) {
-        return env.getOs() + '.' + env.getWs() + '.' + env.getArch();
+    static private void assertRootFolder(Product product, TargetEnvironment env, File installedProductArchive)
+            throws Exception {
+        String rootFolder = "";
+        if (product.hasBundlePool()) {
+            rootFolder = toOsWsArch(env, "/") + "/";
+        }
+        if (product.getRootFolderName() != null) {
+            rootFolder += product.getRootFolderName() + "/";
+        }
+
+        Properties configIni = openPropertiesFromZip(installedProductArchive,
+                rootFolder + "configuration/config.ini");
+        String bundleConfiguration = configIni.getProperty("osgi.bundles");
+        assertTrue("Installation is not configured to use the simpleconfigurator",
+                bundleConfiguration.startsWith("reference:file:org.eclipse.equinox.simpleconfigurator"));
+        // TODO all these assertions should be in the test method directly
+        String expectedProfileName = env.getOs().equals("linux") ? "ProfileNameForLinux"
+                : "ConfiguredDefaultProfileName";
+        assertEquals("eclipse.p2.profile in config.ini", expectedProfileName,
+                configIni.getProperty("eclipse.p2.profile"));
+
+        Set<String> archiveFiles = ArchiveContentUtil.getFilesInZip(installedProductArchive);
+        if (!rootFolder.isEmpty()) {
+            assertThat(archiveFiles, hasItem(rootFolder));
+        }
+        assertThat(archiveFiles, hasItem(rootFolder + "configuration/config.ini"));
+        if (product.hasBundlePool()) {
+            assertThat(archiveFiles, hasItem("pool/"));
+        }
+
+        if (product.hasLocalFeature()) {
+            assertContainsEntry(installedProductArchive, rootFolder + "features/pi.example.feature_1.0.0.");
+            assertContainsEntry(installedProductArchive, rootFolder + "plugins/pi.example.bundle_1.0.0.");
+        }
+    }
+
+    private static String toOsWsArch(TargetEnvironment env, String sep) {
+        return String.join(sep, env.getOs(), env.getWs(), env.getArch());
     }
 
     private static void assertContainsEntry(File file, String prefix) throws Exception {
@@ -195,14 +234,6 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
             if (archiveFile.startsWith(prefix)) {
                 assertThat(archiveFile, not(endsWith("qualifier")));
             }
-        }
-    }
-
-    private static void assertRootFolder(File file, String rootFolderName) throws Exception {
-        if (rootFolderName != null) {
-            Set<String> archiveFiles = ArchiveContentUtil.getFilesInZip(file);
-            assertThat(archiveFiles, hasItem(rootFolderName + "/"));
-            assertThat(archiveFiles, hasItem(rootFolderName + "/configuration/config.ini"));
         }
     }
 
@@ -239,23 +270,26 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
         boolean p2InfProperty;
 
         private final boolean localFeature;
+        private final boolean bundlePool;
 
         private final String rootFolderName;
 
-        Product(String unitId, String attachId, String rootFolderName, boolean p2InfProperty, boolean localFeature) {
+        Product(String unitId, String attachId, String rootFolderName, boolean p2InfProperty, boolean localFeature,
+                boolean bundlePool) {
             this.unitId = unitId;
             this.attachId = attachId;
             this.p2InfProperty = p2InfProperty;
             this.localFeature = localFeature;
             this.rootFolderName = rootFolderName;
+            this.bundlePool = bundlePool;
         }
 
-        Product(String unitId, String attachId, boolean p2InfProperty, boolean localFeature) {
-            this(unitId, attachId, null, p2InfProperty, localFeature);
+        Product(String unitId, String attachId, boolean p2InfProperty, boolean localFeature, boolean bundlePool) {
+            this(unitId, attachId, null, p2InfProperty, localFeature, bundlePool);
         }
 
         Product(String unitId, boolean p2InfProperty) {
-            this(unitId, null, null, p2InfProperty, false);
+            this(unitId, null, null, p2InfProperty, false, false);
         }
 
         boolean isMaterialized() {
@@ -275,6 +309,10 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
         public String getRootFolderName() {
             return rootFolderName;
+        }
+
+        public boolean hasBundlePool() {
+            return bundlePool;
         }
     }
 }

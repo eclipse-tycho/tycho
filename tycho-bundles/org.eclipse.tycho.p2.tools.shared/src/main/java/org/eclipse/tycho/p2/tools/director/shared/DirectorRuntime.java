@@ -46,6 +46,8 @@ public interface DirectorRuntime {
 
         void setVerifyOnly(boolean verifyOnly);
 
+        void setBundlePool(File path);
+
         void execute() throws DirectorCommandException;
     }
 

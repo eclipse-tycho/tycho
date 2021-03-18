@@ -62,6 +62,11 @@ public final class Product {
      */
     private List<DependencySeed> extraInstallationSeeds;
 
+    /**
+     * If bundle pool should be used for product
+     */
+    private boolean useBundlePool;
+
     public Product() {
     }
 
@@ -80,6 +85,10 @@ public final class Product {
 
     public String getAttachId() {
         return attachId;
+    }
+
+    public boolean getUseBundlePool() {
+        return useBundlePool;
     }
 
     public String getRootFolder(String os) {

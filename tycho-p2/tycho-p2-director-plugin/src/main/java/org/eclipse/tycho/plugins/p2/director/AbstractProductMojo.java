@@ -137,7 +137,17 @@ abstract class AbstractProductMojo extends AbstractMojo {
     }
 
     File getProductMaterializeDirectory(Product product, TargetEnvironment env) {
-        return new File(getProductsBuildDirectory(), product.getId() + "/" + getOsWsArch(env, '/'));
+        if (env != null) {
+            return new File(getProductsBuildDirectory(), product.getId() + "/" + getOsWsArch(env, '/'));
+	}
+        return new File(getProductsBuildDirectory(), product.getId());
+    }
+
+    File getProductBundlePoolDirectory(Product product) {
+        if (product.getUseBundlePool()) {
+            return new File(getProductsBuildDirectory(), product.getId() + "/pool");
+        }
+        return null;
     }
 
     List<TargetEnvironment> getEnvironments() {
@@ -151,6 +161,9 @@ abstract class AbstractProductMojo extends AbstractMojo {
     }
 
     static String getOsWsArch(TargetEnvironment env, char separator) {
-        return env.getOs() + separator + env.getWs() + separator + env.getArch();
+        String os = env != null ? env.getOs() : "any";
+        String ws = env != null ? env.getWs() : "any";
+        String arch = env != null ? env.getArch() : "any";
+        return String.join("" + separator, os, ws, arch);
     }
 }

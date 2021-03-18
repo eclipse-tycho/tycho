@@ -124,42 +124,52 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
             }
 
             for (Product product : config.getProducts()) {
-                for (TargetEnvironment env : getEnvironments()) {
-                    String format = getArchiveFormat(env);
-                    ProductArchiver productArchiver = productArchivers.get(format);
-                    if (productArchiver == null) {
-                        throw new MojoExecutionException(
-                                "Unknown or unsupported archive format os=" + env.getOs() + " format=" + format);
+                File bundlePool = getProductBundlePoolDirectory(product);
+                if (bundlePool != null) {
+                    materialize(product, null);
+                } else {
+                    for (TargetEnvironment env : getEnvironments()) {
+                        materialize(product, env);
                     }
-
-                    File productArchive = new File(getProductsBuildDirectory(),
-                            getArchiveFileName(product) + "-" + getOsWsArch(env, '.') + "." + format);
-
-                    try {
-                        final File sourceDir = getProductMaterializeDirectory(product, env);
-                        if ((TGZ_ARCHIVE_FORMAT.equals(format) || TAR_GZ_ARCHIVE_FORMAT.equals(format))
-                                && !"plexus".equals(getSession().getUserProperties().getProperty("tycho.tar"))) {
-                            getLog().debug("Using commons-compress tar");
-                            createCommonsCompressTarGz(productArchive, sourceDir);
-                        } else {
-                            Archiver archiver = productArchiver.getArchiver();
-                            archiver.setDestFile(productArchive);
-                            DefaultFileSet fileSet = new DefaultFileSet(sourceDir);
-                            fileSet.setUsingDefaultExcludes(false);
-                            archiver.addFileSet(fileSet);
-                            archiver.createArchive();
-                        }
-                    } catch (ArchiverException e) {
-                        throw new MojoExecutionException("Error packing product", e);
-                    } catch (IOException e) {
-                        throw new MojoExecutionException("Error packing product", e);
-                    }
-
-                    final String artifactClassifier = getArtifactClassifier(product, env);
-                    helper.attachArtifact(getProject(), format, artifactClassifier, productArchive);
                 }
             }
         }
+    }
+
+    private void materialize(Product product, TargetEnvironment env) throws MojoExecutionException {
+        String format = getArchiveFormat(product, env);
+        ProductArchiver productArchiver = productArchivers.get(format);
+        if (productArchiver == null) {
+            String os = env != null ? "os=" + env.getOs() : "";
+            throw new MojoExecutionException(
+                    "Unknown or unsupported archive format " + os + " format=" + format);
+        }
+
+        File productArchive = new File(getProductsBuildDirectory(),
+                getArchiveFileName(product) + "-" + getOsWsArch(env, '.') + "." + format);
+
+        try {
+            final File sourceDir = getProductMaterializeDirectory(product, env);
+            if ((TGZ_ARCHIVE_FORMAT.equals(format) || TAR_GZ_ARCHIVE_FORMAT.equals(format))
+                    && !"plexus".equals(getSession().getUserProperties().getProperty("tycho.tar"))) {
+                getLog().debug("Using commons-compress tar");
+                createCommonsCompressTarGz(productArchive, sourceDir);
+            } else {
+                Archiver archiver = productArchiver.getArchiver();
+                archiver.setDestFile(productArchive);
+                DefaultFileSet fileSet = new DefaultFileSet(sourceDir);
+                fileSet.setUsingDefaultExcludes(false);
+                archiver.addFileSet(fileSet);
+                archiver.createArchive();
+            }
+        } catch (ArchiverException e) {
+            throw new MojoExecutionException("Error packing product", e);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error packing product", e);
+        }
+
+        final String artifactClassifier = getArtifactClassifier(product, env);
+        helper.attachArtifact(getProject(), format, artifactClassifier, productArchive);
     }
 
     private void createCommonsCompressTarGz(File productArchive, File sourceDir) throws IOException {
@@ -170,8 +180,15 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         archiver.createArchive();
     }
 
-    private String getArchiveFormat(TargetEnvironment env) {
-        String format = formats != null ? formats.get(env.getOs()) : DEFAULT_ARCHIVE_FORMAT;
+    private String getArchiveFormat(Product product, TargetEnvironment env) {
+        String format = DEFAULT_ARCHIVE_FORMAT;
+        if (formats != null) {
+            if (product.getUseBundlePool()) {
+                format = formats.get("bundlePool");
+            } else {
+                format = formats.get(env.getOs());
+            }
+        }
         if (format != null) {
             format = format.trim();
         }

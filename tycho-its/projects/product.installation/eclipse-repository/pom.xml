@@ -42,6 +42,11 @@
 							<rootFolder>rootfolder</rootFolder>
 							<attachId>extra</attachId>
 						</product>
+						<product>
+							<id>bundlepool.product.id</id>
+							<attachId>bundlepool</attachId>
+							<useBundlePool>true</useBundlePool>
+						</product>
 					</products>
 					<profile>ConfiguredDefaultProfileName</profile>
 					<profileNames>
