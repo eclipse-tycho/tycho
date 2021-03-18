@@ -107,6 +107,9 @@ public final class DirectorMojo extends AbstractProductMojo {
     @Parameter(defaultValue = "internal")
     private DirectorRuntimeType directorRuntime;
 
+    @Parameter(defaultValue = "false")
+    private boolean useBundlePool;
+
     // TODO extract methods
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -125,6 +128,11 @@ public final class DirectorMojo extends AbstractProductMojo {
                     String rootFolder = product.getRootFolder(env.getOs());
                     if (rootFolder != null && !rootFolder.isEmpty()) {
                         destination = new File(destination, rootFolder);
+                    }
+
+                    if (useBundlePool) {
+                        File bundlePool = getProductBundlePoolDirectory(product);
+                        command.setBundlePool(bundlePool);
                     }
 
                     command.addMetadataSources(sources.getMetadataRepositories());

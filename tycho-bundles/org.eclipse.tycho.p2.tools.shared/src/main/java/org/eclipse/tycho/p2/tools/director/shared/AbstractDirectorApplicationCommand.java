@@ -36,6 +36,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     private boolean verifyOnly;
 
     private File destination;
+    private File bundlePool;
 
     @Override
     public final void addMetadataSources(Iterable<URI> metadataRepositories) {
@@ -94,6 +95,11 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         this.destination = path;
     }
 
+    @Override
+    public void setBundlePool(File path) {
+        this.bundlePool = path;
+    }
+
     /**
      * Returns the command line arguments for the p2 director application (not including the
      * <code>-application</code> argument).
@@ -109,6 +115,9 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         args.add("-roaming");
         if (verifyOnly) {
             args.add("-verifyOnly");
+        }
+        if (bundlePool != null) {
+            args.add("-bundlePool " + bundlePool.getAbsolutePath());
         }
 
         if (environment != null) {

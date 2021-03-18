@@ -140,6 +140,10 @@ abstract class AbstractProductMojo extends AbstractMojo {
         return new File(getProductsBuildDirectory(), product.getId() + "/" + getOsWsArch(env, '/'));
     }
 
+    File getProductBundlePoolDirectory(Product product) {
+        return new File(getProductsBuildDirectory(), product.getId() + "/bundlePool");
+    }
+
     List<TargetEnvironment> getEnvironments() {
         TargetPlatformConfiguration configuration = TychoProjectUtils
                 .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
