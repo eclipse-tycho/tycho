@@ -127,6 +127,7 @@ public final class DirectorMojo extends AbstractProductMojo {
                         destination = new File(destination, rootFolder);
                     }
 
+                    command.setBundlePool(getProductBundlePoolDirectory(product));
                     command.addMetadataSources(sources.getMetadataRepositories());
                     command.addArtifactSources(sources.getArtifactRepositories());
                     command.addUnitToInstall(product.getId());

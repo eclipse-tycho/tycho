@@ -42,6 +42,11 @@
 							<rootFolder>rootfolder</rootFolder>
 							<attachId>extra</attachId>
 						</product>
+						<product>
+							<id>multi.platform.package.product.id</id>
+							<attachId>multiPlatformPackage</attachId>
+							<multiPlatformPackage>true</multiPlatformPackage>
+						</product>
 					</products>
 					<profile>ConfiguredDefaultProfileName</profile>
 					<profileNames>
