@@ -286,10 +286,12 @@ public class EclipseRunMojo extends AbstractMojo {
                 FileUtils.deleteDirectory(workspace);
             }
             LaunchConfiguration cli = createCommandLine(runtime);
-            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
+            File expectedLog = new File(workspace, ".metadata/.log");
+            getLog().info("Expected eclipse log file: " + expectedLog.getCanonicalPath());
             int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
             if (returnCode != 0) {
-                throw new MojoExecutionException("Error while executing platform (return code: " + returnCode + ")");
+                throw new MojoExecutionException("Error while executing platform: return code=" + returnCode
+                        + ", see content of " + expectedLog + "for more details.");
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);
