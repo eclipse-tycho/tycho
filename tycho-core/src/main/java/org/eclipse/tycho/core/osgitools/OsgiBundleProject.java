@@ -21,9 +21,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -289,12 +291,30 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         if (pdeProject == null) {
             try {
                 pdeProject = new EclipsePluginProjectImpl(otherProject, buildPropertiesParser);
+                if (otherProject instanceof DefaultReactorProject) {
+                    populateProperties(((DefaultReactorProject) otherProject).project.getProperties(), pdeProject);
+                }
                 otherProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT, pdeProject);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
         return pdeProject;
+    }
+
+    /**
+     * Add to maven project some properties storing info about the plugin project model, for easier
+     * reuse in further mojos (eg combining with eclipse-run and PDE API Tools).
+     * 
+     * @param mavenProjectProperties
+     * @param pdeProject
+     */
+    private void populateProperties(Properties mavenProjectProperties, EclipsePluginProjectImpl pdeProject) {
+        // properties are retained and must not be too big, at the risk of consuming too much memory
+        mavenProjectProperties.put("tycho.project.outputJars",
+                pdeProject.getOutputJars().stream()
+                        .map(outputJar -> new File(outputJar.getOutputDirectory(), outputJar.getName()))
+                        .map(File::getAbsolutePath).collect(Collectors.joining(File.pathSeparator)));
     }
 
     @Override

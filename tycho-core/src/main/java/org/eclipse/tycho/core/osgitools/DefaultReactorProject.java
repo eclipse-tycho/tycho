@@ -29,7 +29,7 @@ import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 
 public class DefaultReactorProject implements ReactorProject {
-    private final MavenProject project;
+    public final MavenProject project;
 
     private final Map<String, Object> context = new ConcurrentHashMap<>();
 
@@ -160,8 +160,7 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public Set<?> getDependencyMetadata(boolean primary) {
-        Set<?> metadata = (Set<?>) getContextValue(getDependencyMetadataKey(primary));
-        return metadata;
+        return (Set<?>) getContextValue(getDependencyMetadataKey(primary));
     }
 
     private static String getDependencyMetadataKey(boolean primary) {
