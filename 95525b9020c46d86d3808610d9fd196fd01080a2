@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78e752d0_610fa155",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-03-20T21:03:58Z",
+      "side": 1,
+      "message": "In case one of those is not set, it should just be skipped, eg\n\n  return String.of(env.getOs(), env.getWs(), env.getArch()).filter(Objects::nonNull).collect(Collectors.joining(separator))",
+      "revId": "95525b9020c46d86d3808610d9fd196fd01080a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f4939a8_6b14eec4",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/Product.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-03-20T21:03:58Z",
+      "side": 1,
+      "message": "It would be good to find a more explicit name about what can be achieved with this. For example `multiPlatformPackage`.",
+      "revId": "95525b9020c46d86d3808610d9fd196fd01080a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
