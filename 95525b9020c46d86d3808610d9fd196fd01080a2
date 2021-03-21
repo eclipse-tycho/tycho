@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7dd715e0_0926bcd8",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 178588
+      },
+      "writtenOn": "2021-03-21T10:52:01Z",
+      "side": 1,
+      "message": "I\u0027m not aware of an String::of method, but regardless, doing this change would have a few (unwanted?) consequences:\n\n1. Products that today rely on \"null\" value for one of os, ws, arch would, with your approach, be different. That means that the produced artifact would have a different name and this would break builds, right?\n2. If none of them are defined, it would mean that the artifact would replace the main artifact of the build, right? Or is this so unlikely to happen?\n3. The placement of the values in the string form would make it possible to distinguish os\u003dwin32 from ws\u003dwin32, but maybe that does not matter?",
+      "parentUuid": "78e752d0_610fa155",
+      "revId": "95525b9020c46d86d3808610d9fd196fd01080a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f4939a8_6b14eec4",
         "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/Product.java",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "95525b9020c46d86d3808610d9fd196fd01080a2",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2223dfa1_c8558c42",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/Product.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 178588
+      },
+      "writtenOn": "2021-03-21T10:52:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f4939a8_6b14eec4",
+      "revId": "95525b9020c46d86d3808610d9fd196fd01080a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
