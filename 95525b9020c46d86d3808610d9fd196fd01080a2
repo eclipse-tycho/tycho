@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "858e22e7_3fbe475c",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 178588
+      },
+      "writtenOn": "2021-03-22T11:42:29Z",
+      "side": 1,
+      "message": "1. My aim was to only touch the new use-case where env is null and let the rest be.\n2. The main artifact would be the p2 repository in this case. If there is no attachid set, I suppose the names would be in the same namespace, right?\n3. Ok :)",
+      "parentUuid": "5949bc83_a5065234",
+      "revId": "95525b9020c46d86d3808610d9fd196fd01080a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f4939a8_6b14eec4",
         "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/Product.java",
         "patchSetId": 2
