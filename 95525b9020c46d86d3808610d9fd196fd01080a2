@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "5949bc83_a5065234",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-03-22T09:13:05Z",
+      "side": 1,
+      "message": "Sorry, I meant Stream.of(...).\n1. Yes, name would be different. I\u0027m not sure about broken builds though. Another possibility is `env \u003d\u003d null ? \"\" : ...`\n2. What\u0027s the main artifact in this context? How would it be replaced? The artifact here is supposed to contain the product id and/or the attachId, so I don\u0027t think the missing os/ws/arch suffix can close a collision. Am I missing something\n3. I think it doesn\u0027t matter ;)",
+      "parentUuid": "7dd715e0_0926bcd8",
+      "revId": "95525b9020c46d86d3808610d9fd196fd01080a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f4939a8_6b14eec4",
         "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/Product.java",
         "patchSetId": 2
