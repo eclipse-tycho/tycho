@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: test.bundleNativeCode.using.aliases
+Bundle-Version: 1.0.0
+Bundle-NativeCode: 
+  /lib/dummyLib.dll;
+  osname=Win10; processor=amd64
