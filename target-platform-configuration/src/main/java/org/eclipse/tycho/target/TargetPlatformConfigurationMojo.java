@@ -93,52 +93,47 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
 
     /**
      * Selectively remove content from the target platform.
-     * <p>This for example allows to restrict the version of a bundle, or to select one particular provider for a package.
-     * Filtering is done as last step in the target platform computation, so the filters apply to all sources listed above.</p>
-     * <p>The filters will only remove content from the target platform; they will not add new content. {@code dependency-resolution} should be used for
-     * addition of extra content. If you specify a restriction that is not fulfilled by any of the units from the target platform sources, all units that
-     * the filter applies to (i.e. units that match the filter.type, filter.id, and filter.version/versionRange criteria) will be removed from the target
-     * platform.</p>
-     * <p>Package provider restrictions work by removing all other bundles exporting the package. This means that these other bundles (and the packages
-     * only exported by them) won't be available in your build.</p>
+     * <p>
+     * This for example allows to restrict the version of a bundle, or to select one particular
+     * provider for a package. Filtering is done as last step in the target platform computation, so
+     * the filters apply to all sources listed above.
+     * </p>
+     * <p>
+     * The filters will only remove content from the target platform; they will not add new content.
+     * {@code dependency-resolution} should be used for addition of extra content. If you specify a
+     * restriction that is not fulfilled by any of the units from the target platform sources, all
+     * units that the filter applies to (i.e. units that match the filter.type, filter.id, and
+     * filter.version/versionRange criteria) will be removed from the target platform.
+     * </p>
+     * <p>
+     * Package provider restrictions work by removing all other bundles exporting the package. This
+     * means that these other bundles (and the packages only exported by them) won't be available in
+     * your build.
+     * </p>
      * 
-     * <p>Example:
+     * <p>
+     * Example:
+     * 
      * <pre>
-     * &lt;plugin>
-     *    &lt;groupId>org.eclipse.tycho&lt;/groupId>
-     *    &lt;artifactId>target-platform-configuration&lt;/artifactId>
-     *    &lt;version>${tycho-version}&lt;/version>
-     *    &lt;configuration>
-     *       &lt;filters>
+     * &lt;plugin> &lt;groupId>org.eclipse.tycho&lt;/groupId>
+     * &lt;artifactId>target-platform-configuration&lt;/artifactId>
+     * &lt;version>${tycho-version}&lt;/version> &lt;configuration> &lt;filters>
      * 
-     *          &lt;!-- example 1: restrict version of a bundle -->
-     *          &lt;filter>
-     *             &lt;type>eclipse-plugin&lt;/type>
-     *             &lt;id>org.eclipse.osgi&lt;/id>
-     *             &lt;restrictTo>
-     *                &lt;versionRange>[3.6,3.7)&lt;/versionRange> &lt;!-- alternative: &lt;version> for selecting exactly one versions -->
-     *             &lt;/restrictTo>
-     *          &lt;/filter>
+     * &lt;!-- example 1: restrict version of a bundle --> &lt;filter>
+     * &lt;type>eclipse-plugin&lt;/type> &lt;id>org.eclipse.osgi&lt;/id> &lt;restrictTo>
+     * &lt;versionRange>[3.6,3.7)&lt;/versionRange> &lt;!-- alternative: &lt;version> for selecting
+     * exactly one versions --> &lt;/restrictTo> &lt;/filter>
      * 
-     *          &lt;!-- example 2: remove all providers of the package javax.persistence except the bundle javax.persistence -->
-     *          &lt;filter>
-     *             &lt;type>java-package&lt;/type>
-     *             &lt;id>javax.persistence&lt;/id>
-     *             &lt;restrictTo>
-     *                &lt;type>eclipse-plugin&lt;/type>
-     *                &lt;id>javax.persistence&lt;/id>
-     *             &lt;/restrictTo>
-     *          &lt;/filter>
+     * &lt;!-- example 2: remove all providers of the package javax.persistence except the bundle
+     * javax.persistence --> &lt;filter> &lt;type>java-package&lt;/type>
+     * &lt;id>javax.persistence&lt;/id> &lt;restrictTo> &lt;type>eclipse-plugin&lt;/type>
+     * &lt;id>javax.persistence&lt;/id> &lt;/restrictTo> &lt;/filter>
      * 
-     *          &lt;!-- example 3: work around Equinox bug 348045 -->
-     *          &lt;filter>
-     *             &lt;type>p2-installable-unit&lt;/type>
-     *             &lt;id>org.eclipse.equinox.servletbridge.extensionbundle&lt;/id>
-     *             &lt;removeAll />
-     *          &lt;/filter>
-     *       &lt;/filters>
-     *    &lt;/configuration>
-     * &lt;/plugin>
+     * &lt;!-- example 3: work around Equinox bug 348045 --> &lt;filter>
+     * &lt;type>p2-installable-unit&lt;/type>
+     * &lt;id>org.eclipse.equinox.servletbridge.extensionbundle&lt;/id> &lt;removeAll />
+     * &lt;/filter> &lt;/filters> &lt;/configuration> &lt;/plugin>
+     * 
      * <pre>
      * </p>
      */
@@ -151,7 +146,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * Example:
      * 
      * <pre>
-     * <plugin>
+     * &lt;plugin>
      *   &lt;groupId>org.eclipse.tycho&lt;/groupId>
      *   &lt;artifactId>target-platform-configuration&lt;/artifactId>
      *   &lt;configuration>
