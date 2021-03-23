@@ -17,7 +17,6 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -40,6 +39,7 @@ import org.eclipse.osgi.container.ModuleWire;
 import org.eclipse.osgi.container.SystemModule;
 import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
+import org.eclipse.osgi.internal.framework.AliasMapper;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.osgi.report.resolution.ResolutionReport;
 import org.eclipse.osgi.report.resolution.ResolutionReport.Entry;
@@ -297,35 +297,25 @@ public class EquinoxResolver {
             }
         }
 
-        String platformCapability = new StringBuilder(EclipsePlatformNamespace.ECLIPSE_PLATFORM_NAMESPACE).append(';')
-                .append(EquinoxConfiguration.PROP_OSGI_OS).append('=')
-                .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_OS)).append(';')
-                .append(EquinoxConfiguration.PROP_OSGI_WS).append('=')
-                .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_WS)).append(';')
-                .append(EquinoxConfiguration.PROP_OSGI_ARCH).append('=')
-                .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_ARCH)).append(',')
-                .append(NativeNamespace.NATIVE_NAMESPACE).append(';')
-                .append(NativeNamespace.CAPABILITY_OSNAME_ATTRIBUTE).append('=')
-                .append(properties.getProperty(EquinoxConfiguration.PROP_OSGI_OS)).append(';')
-                .append(NativeNamespace.CAPABILITY_PROCESSOR_ATTRIBUTE).append('=')
-                .append(Optional.ofNullable(properties.getProperty(EquinoxConfiguration.PROP_OSGI_ARCH))
-                        .map(arch -> arch.replace('_', '-')).orElse(null))
-                .toString();
+        String systemExtraCapabilities = getSystemExtraCapabilities(properties);
+
+        Map<String, String> systemBundleManifest;
+        Object systemBundleInfo;
         if (!systemBundles.isEmpty()) {
-            java.util.Map.Entry<File, OsgiManifest> systemBundle = systemBundles.entrySet().iterator().next();
-            ModuleRevisionBuilder moduleRevisionBuilder = OSGiManifestBuilderFactory.createBuilder(
-                    systemBundle.getValue().getHeaders(), Constants.SYSTEM_BUNDLE_SYMBOLICNAME,
-                    properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES),
-                    properties.getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES) + ',' + platformCapability);
-            moduleContainer.install(null, Constants.SYSTEM_BUNDLE_LOCATION, moduleRevisionBuilder,
-                    systemBundle.getKey());
+            Map.Entry<File, OsgiManifest> systemBundle = systemBundles.entrySet().iterator().next();
+            systemBundleManifest = systemBundle.getValue().getHeaders();
+            systemBundleInfo = systemBundle.getKey();
         } else {
-            ModuleRevisionBuilder moduleRevisionBuilder = OSGiManifestBuilderFactory.createBuilder(
-                    Map.of(Constants.BUNDLE_SYMBOLICNAME, Constants.SYSTEM_BUNDLE_SYMBOLICNAME),
-                    Constants.SYSTEM_BUNDLE_SYMBOLICNAME, properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES),
-                    properties.getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES) + ',' + platformCapability);
-            moduleContainer.install(null, Constants.SYSTEM_BUNDLE_LOCATION, moduleRevisionBuilder, null);
+            systemBundleManifest = Map.of(Constants.BUNDLE_SYMBOLICNAME, Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
+            systemBundleInfo = null;
         }
+
+        ModuleRevisionBuilder systemBundleRevisionBuilder = OSGiManifestBuilderFactory.createBuilder(
+                systemBundleManifest, Constants.SYSTEM_BUNDLE_SYMBOLICNAME,
+                properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES), systemExtraCapabilities);
+
+        moduleContainer.install(null, Constants.SYSTEM_BUNDLE_LOCATION, systemBundleRevisionBuilder, systemBundleInfo);
+
         for (Map.Entry<File, OsgiManifest> external : externalBundles.entrySet()) {
             moduleContainer.install(null, external.getKey().getAbsolutePath(),
                     OSGiManifestBuilderFactory.createBuilder(external.getValue().getHeaders()), external.getKey());
@@ -364,6 +354,55 @@ public class EquinoxResolver {
 
     private static String getNormalizedPath(File file) {
         return file.getAbsolutePath();
+    }
+
+    private static final AliasMapper ALIAS_MAPPER = new AliasMapper(); // has no state
+
+    /**
+     * Heavily based on {@link org.eclipse.osgi.storage.Storage#getSystemExtraCapabilities} and
+     * adjusted to what is put in the properties in
+     * {@link #getPlatformProperties(ReactorProject, MavenSession, DependencyArtifacts, ExecutionEnvironment)}
+     * and its callees.
+     */
+    private static String getSystemExtraCapabilities(Properties equinoxConfig) {
+
+        StringBuilder result = new StringBuilder();
+
+        String systemCapabilities = equinoxConfig.getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES);
+        if (systemCapabilities != null && systemCapabilities.trim().length() > 0) {
+            result.append(systemCapabilities).append(", ");
+        }
+
+        String os = equinoxConfig.getProperty(EquinoxConfiguration.PROP_OSGI_OS);
+        String ws = equinoxConfig.getProperty(EquinoxConfiguration.PROP_OSGI_WS);
+        String osArch = equinoxConfig.getProperty(EquinoxConfiguration.PROP_OSGI_ARCH);
+        String nl = equinoxConfig.getProperty(EquinoxConfiguration.PROP_OSGI_NL);
+        result.append(EclipsePlatformNamespace.ECLIPSE_PLATFORM_NAMESPACE).append("; ");
+        result.append(EquinoxConfiguration.PROP_OSGI_OS).append("=").append(os).append("; ");
+        result.append(EquinoxConfiguration.PROP_OSGI_WS).append("=").append(ws).append("; ");
+        result.append(EquinoxConfiguration.PROP_OSGI_ARCH).append("=").append(osArch).append("; ");
+        result.append(EquinoxConfiguration.PROP_OSGI_NL).append("=").append(nl);
+
+        // For the constants Constants.FRAMEWORK_OS_NAME, Constants.FRAMEWORK_PROCESSOR, Constants.FRAMEWORK_OS_VERSION and Constants.FRAMEWORK_LANGUAGE no value is present.
+        // But at least we have the os and osArch from above.
+        String osName = os == null ? null : ALIAS_MAPPER.getCanonicalOSName(os);
+        String processor = osArch == null ? null : ALIAS_MAPPER.getCanonicalProcessor(osArch);
+
+        result.append(", ").append(NativeNamespace.NATIVE_NAMESPACE);
+        if (osName != null) {
+            String osNames = getStringList(ALIAS_MAPPER.getOSNameAliases(osName));
+            result.append("; ").append(NativeNamespace.CAPABILITY_OSNAME_ATTRIBUTE).append(osNames);
+        }
+        if (processor != null) {
+            String processors = getStringList(ALIAS_MAPPER.getProcessorAliases(processor));
+            result.append("; ").append(NativeNamespace.CAPABILITY_PROCESSOR_ATTRIBUTE).append(processors);
+        }
+        // osVersion and language are not (yet) supported.
+        return result.toString();
+    }
+
+    private static String getStringList(Collection<String> elements) {
+        return ":List<String>=\"" + String.join(",", elements) + "\"";
     }
 
     private OsgiManifest loadManifest(File bundleLocation) {
