@@ -53,7 +53,7 @@ public final class Repository {
     public Repository() {
     }
 
-    Repository(URI location) {
+    public Repository(URI location) {
         this.url = location;
     }
 
