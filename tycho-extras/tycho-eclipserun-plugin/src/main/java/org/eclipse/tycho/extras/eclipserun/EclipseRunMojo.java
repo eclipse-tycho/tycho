@@ -62,8 +62,13 @@ import org.eclipse.tycho.plugins.p2.extras.Repository;
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse installation is
  * defined by the dependencies to bundles specified.
  */
-@Mojo(name = "eclipse-run")
+@Mojo(name = "eclipse-run", threadSafe = true)
 public class EclipseRunMojo extends AbstractMojo {
+
+    /**
+     * Lock object to ensure thread-safety
+     */
+    private static final Object CREATE_LOCK = new Object();
 
     /**
      * Work area. This includes:
@@ -223,7 +228,11 @@ public class EclipseRunMojo extends AbstractMojo {
             getLog().debug("skipping mojo execution");
             return;
         }
-        EquinoxInstallation installation = createEclipseInstallation();
+        EquinoxInstallation installation;
+        synchronized (CREATE_LOCK) {
+            // we only need to lock the creation of the eclipse installations, as those will then each run separately
+            installation = createEclipseInstallation();
+        }
         runEclipse(installation);
     }
 
