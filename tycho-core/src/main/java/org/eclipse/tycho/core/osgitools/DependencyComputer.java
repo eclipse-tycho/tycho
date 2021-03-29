@@ -209,8 +209,7 @@ public class DependencyComputer {
             Map<String, Set<PackageSource>> packages, Set<String> importedPackageNames) {
         // first get the imported packages
         for (ModuleWire packageWire : wiring.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE)) {
-            String packageName = (String) packageWire.getCapability().getAttributes()
-                    .get(PackageNamespace.PACKAGE_NAMESPACE);
+            String packageName = getPackageName(packageWire.getCapability());
             importedPackageNames.add(packageName);
             addAggregatePackageSource(packageWire.getCapability(), packageName, packageWire, packages, allSources);
         }
@@ -229,8 +228,7 @@ public class DependencyComputer {
                 .getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)) {
             for (ModuleCapability fragmentExport : fragmentWire.getRequirer()
                     .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
-                if (fragmentExport.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE)
-                        .equals(packageCap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE))) {
+                if (getPackageName(fragmentExport).equals(getPackageName(packageCap))) {
                     packageSources.add(new PackageSource(fragmentExport, wire));
                 }
             }
@@ -247,7 +245,7 @@ public class DependencyComputer {
         ModuleWiring providerWiring = requiredWire.getProviderWiring();
         for (ModuleCapability packageCapability : providerWiring
                 .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
-            String packageName = (String) packageCapability.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
+            String packageName = getPackageName(packageCapability);
             // if imported then packages from required bundles do not get added
             if (!importedPackageNames.contains(packageName)) {
                 addAggregatePackageSource(packageCapability, packageName, requiredWire, packages, allSources);
@@ -258,20 +256,18 @@ public class DependencyComputer {
         Set<String> declaredPackageNames = new HashSet<>();
         for (BundleCapability declaredPackage : providerWiring.getRevision()
                 .getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
-            declaredPackageNames.add((String) declaredPackage.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE));
+            declaredPackageNames.add(getPackageName(declaredPackage));
         }
         // and from attached fragments
         for (BundleWire fragmentWire : providerWiring.getProvidedWires(HostNamespace.HOST_NAMESPACE)) {
             for (BundleCapability declaredPackage : fragmentWire.getRequirer()
                     .getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
-                declaredPackageNames
-                        .add((String) declaredPackage.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE));
+                declaredPackageNames.add(getPackageName(declaredPackage));
             }
         }
 
         for (ModuleWire packageWire : providerWiring.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE)) {
-            String packageName = (String) packageWire.getCapability().getAttributes()
-                    .get(PackageNamespace.PACKAGE_NAMESPACE);
+            String packageName = getPackageName(packageWire.getCapability());
             if (!importedPackageNames.contains(packageName) && declaredPackageNames.contains(packageName)) {
                 // if the package is a declared capability AND the wiring imports the package
                 // then it is substituted
@@ -290,9 +286,13 @@ public class DependencyComputer {
     }
 
     private static AccessRule createRule(ModuleRevision consumer, Capability export) {
-        String name = (String) export.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
+        String name = getPackageName(export);
         String path = (name.equals(".")) ? "*" : name.replace('.', '/') + "/*";
         return new DefaultAccessRule(path, isDiscouragedAccess(consumer, export));
+    }
+
+    private static String getPackageName(Capability capability) {
+        return (String) capability.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
     }
 
     protected void addDependencyViaImportPackage(ModuleRevision module, Collection<ModuleRevision> added,
