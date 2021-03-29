@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -192,9 +192,6 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     @Component(role = EquinoxResolver.class)
     private EquinoxResolver resolver;
-
-    @Component(role = DependencyComputer.class)
-    private DependencyComputer dependencyComputer;
 
     MavenXpp3Reader modelReader = new MavenXpp3Reader();
     MavenXpp3Writer modelWriter = new MavenXpp3Writer();
@@ -637,6 +634,7 @@ public class GeneratePomsMojo extends AbstractMojo {
                 ModuleContainer state = resolver.newResolvedState(basedir, session, ee, platform);
                 ModuleRevision bundle = state.getModule(basedir.getAbsolutePath()).getCurrentRevision();
                 if (bundle != null) {
+                    DependencyComputer dependencyComputer = new DependencyComputer(state);
                     for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(bundle)) {
                         ModuleRevision supplier = entry.module;
                         File suppliedDir = (File) supplier.getRevisionInfo();
