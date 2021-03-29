@@ -94,9 +94,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private EquinoxResolver resolver;
 
     @Requirement
-    private DependencyComputer dependencyComputer;
-
-    @Requirement
     private Logger logger;
 
     @Requirement
@@ -200,6 +197,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         // dependencies
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
+        DependencyComputer dependencyComputer = new DependencyComputer(state);
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundleDescription);
         for (DependencyEntry entry : dependencies) {
             if (Constants.SYSTEM_BUNDLE_ID == entry.module.getRevisions().getModule().getId()) {
