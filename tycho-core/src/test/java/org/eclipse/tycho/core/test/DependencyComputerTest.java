@@ -58,7 +58,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        dependencyComputer = lookup(DependencyComputer.class);
+        dependencyComputer = new DependencyComputer();
         resolver = lookup(EquinoxResolver.class);
     }
 

@@ -193,9 +193,6 @@ public class GeneratePomsMojo extends AbstractMojo {
     @Component(role = EquinoxResolver.class)
     private EquinoxResolver resolver;
 
-    @Component(role = DependencyComputer.class)
-    private DependencyComputer dependencyComputer;
-
     MavenXpp3Reader modelReader = new MavenXpp3Reader();
     MavenXpp3Writer modelWriter = new MavenXpp3Writer();
 
@@ -637,6 +634,7 @@ public class GeneratePomsMojo extends AbstractMojo {
                 ModuleContainer state = resolver.newResolvedState(basedir, session, ee, platform);
                 ModuleRevision bundle = state.getModule(basedir.getAbsolutePath()).getCurrentRevision();
                 if (bundle != null) {
+                    DependencyComputer dependencyComputer = new DependencyComputer();
                     for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(bundle)) {
                         ModuleRevision supplier = entry.module;
                         File suppliedDir = (File) supplier.getRevisionInfo();
