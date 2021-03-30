@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 572416 - Compile all source folders contained in .classpath
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -83,6 +84,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    private ClasspathParser classpathParser;
 
     @Requirement
     private EquinoxResolver resolver;
@@ -290,7 +294,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
             try {
-                pdeProject = new EclipsePluginProjectImpl(otherProject, buildPropertiesParser);
+                pdeProject = new EclipsePluginProjectImpl(otherProject,
+                        buildPropertiesParser.parse(otherProject.getBasedir()),
+                        classpathParser.parse(otherProject.getBasedir()));
                 if (otherProject instanceof DefaultReactorProject) {
                     populateProperties(((DefaultReactorProject) otherProject).project.getProperties(), pdeProject);
                 }
