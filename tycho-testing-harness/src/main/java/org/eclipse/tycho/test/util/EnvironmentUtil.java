@@ -73,7 +73,7 @@ public class EnvironmentUtil {
     }
 
     public static String getTargetPlatform() {
-        return "https:////download.eclipse.org/releases/2020-03/";
+        return "https://download.eclipse.org/releases/2020-03/";
     }
 
     public static String getTestSettings() {
