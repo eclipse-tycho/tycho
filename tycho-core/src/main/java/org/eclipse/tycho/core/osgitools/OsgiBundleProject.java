@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 572416 - Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -194,7 +195,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         // dependencies
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
-        for (DependencyEntry entry : dependencyComputer.computeDependencies(bundleDescription)) {
+        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundleDescription);
+        for (DependencyEntry entry : dependencies) {
             if (Constants.SYSTEM_BUNDLE_ID == entry.module.getRevisions().getModule().getId()) {
                 if (entry.rules != null) {
                     strictBootClasspathAccessRules.addAll(entry.rules);
@@ -417,17 +419,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     ArtifactDescriptor matchingBundle = artifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN,
                             bundleId, null);
                     if (matchingBundle != null) {
-                        List<File> locations;
-                        if (matchingBundle.getMavenProject() != null) {
-                            locations = getOtherProjectClasspath(matchingBundle, matchingBundle.getMavenProject(),
-                                    path);
-                        } else if (path != null) {
-                            locations = getBundleEntry(matchingBundle, path);
-                        } else {
-                            locations = getBundleClasspath(matchingBundle);
-                        }
-                        classpath.add(new DefaultClasspathEntry(matchingBundle.getMavenProject(),
-                                matchingBundle.getKey(), locations, null));
+                        classpath.add(addBundleToClasspath(matchingBundle, path));
                     } else {
                         getLogger().warn("Missing extra classpath entry " + entry.trim());
                     }
@@ -444,6 +436,18 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 }
             }
         }
+    }
+
+    protected DefaultClasspathEntry addBundleToClasspath(ArtifactDescriptor matchingBundle, String path) {
+        List<File> locations;
+        if (matchingBundle.getMavenProject() != null) {
+            locations = getOtherProjectClasspath(matchingBundle, matchingBundle.getMavenProject(), path);
+        } else if (path != null) {
+            locations = getBundleEntry(matchingBundle, path);
+        } else {
+            locations = getBundleClasspath(matchingBundle);
+        }
+        return new DefaultClasspathEntry(matchingBundle.getMavenProject(), matchingBundle.getKey(), locations, null);
     }
 
     private List<File> getBundleClasspath(ArtifactDescriptor bundle) {
