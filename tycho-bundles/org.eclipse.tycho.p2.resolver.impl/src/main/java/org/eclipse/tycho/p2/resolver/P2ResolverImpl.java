@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Rapicorp, Inc. - add support for IU type (428310)
+ *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -444,6 +445,13 @@ public class P2ResolverImpl implements P2Resolver {
                     "The string \"" + versionRange + "\" is not a valid OSGi version range");
         }
         additionalRequirements.add(ArtifactTypeHelper.createRequirementFor(type, id, parsedVersionRange));
+    }
+
+    @Override
+    public void addAdditionalBundleDependency(String bundleId) {
+        additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, bundleId,
+                VersionRange.emptyRange, null, false, true, true));
+
     }
 
     private void addDependenciesForTests() {
