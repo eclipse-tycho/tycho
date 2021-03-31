@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP AG and others.
+ * Copyright (c) 2011, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,8 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
- *     Christoph Läubrich -     Bug 443083 - generating build.properties resource is not possible
+ *     Christoph Läubrich -     [Bug 443083] generating build.properties resource is not possible
+ *                              [Bug 572481] Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 
 package org.eclipse.tycho.core.shared;
@@ -17,11 +18,15 @@ package org.eclipse.tycho.core.shared;
 import static java.util.Collections.unmodifiableMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class BuildPropertiesImpl implements BuildProperties {
 
@@ -46,6 +51,7 @@ public class BuildPropertiesImpl implements BuildProperties {
     private Map<String, String> jarToManifestMap;
     private Map<String, String> rootEntries;
     private long timestamp;
+    private String additionalBundles;
 
     public BuildPropertiesImpl(Properties properties) {
         this(properties, System.currentTimeMillis());
@@ -53,6 +59,7 @@ public class BuildPropertiesImpl implements BuildProperties {
 
     public BuildPropertiesImpl(Properties properties, long timestamp) {
         this.timestamp = timestamp;
+        additionalBundles = safeTrimValue("additional.bundles", properties);
         javacSource = safeTrimValue("javacSource", properties);
         javacTarget = safeTrimValue("javacTarget", properties);
         forceContextQualifier = safeTrimValue("forceContextQualifier", properties);
@@ -224,6 +231,15 @@ public class BuildPropertiesImpl implements BuildProperties {
     @Override
     public Map<String, String> getRootEntries() {
         return rootEntries;
+    }
+
+    @Override
+    public Collection<String> getAdditionalBundles() {
+        if (additionalBundles != null && !additionalBundles.isBlank()) {
+            return Arrays.stream(additionalBundles.split(",")).map(String::strip).filter(Predicate.not(String::isBlank))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
 }

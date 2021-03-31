@@ -7,11 +7,13 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - Bug 567782 - Platform specific fragment not support in Multi-Platform POMless build
+ *    Christoph Läubrich -  [Bug 567782] Platform specific fragment not support in Multi-Platform POMless build
+ *                          [Bug 572481] Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -54,6 +56,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.Bundle;
@@ -72,6 +75,9 @@ import org.osgi.framework.wiring.BundleRevision;
 public class EquinoxResolver {
     @Requirement
     private BundleReader manifestReader;
+
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
 
     @Requirement
     private Logger logger;
@@ -285,15 +291,30 @@ public class EquinoxResolver {
         Map<File, OsgiManifest> externalBundles = new LinkedHashMap<>();
         Map<File, OsgiManifest> projects = new LinkedHashMap<>();
 
-        for (ArtifactDescriptor artifact : artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
+        List<ArtifactDescriptor> list = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+        for (ArtifactDescriptor artifact : list) {
             File location = artifact.getLocation(true);
             OsgiManifest mf = loadManifest(location);
             if (isFrameworkImplementation(mf)) {
                 systemBundles.put(location, mf);
-            } else if (artifact.getMavenProject() != null) {
-                projects.put(location, mf);
             } else {
-                externalBundles.put(location, mf);
+                ReactorProject mavenProject = artifact.getMavenProject();
+                if (mavenProject != null) {
+                    Collection<String> additionalBundles = buildPropertiesParser.parse(mavenProject.getBasedir())
+                            .getAdditionalBundles();
+                    if (additionalBundles.size() > 0) {
+                        ArrayList<Object> reqb = new ArrayList<>();
+                        String value = mf.getValue(Constants.REQUIRE_BUNDLE);
+                        if (value != null) {
+                            reqb.add(value);
+                        }
+                        reqb.addAll(additionalBundles);
+                        mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", additionalBundles));
+                    }
+                    projects.put(location, mf);
+                } else {
+                    externalBundles.put(location, mf);
+                }
             }
         }
 
@@ -323,8 +344,9 @@ public class EquinoxResolver {
         for (Map.Entry<File, OsgiManifest> entry : projects.entrySet()) {
             // make sure reactor projects override anything from the target platform
             // that has the same bundle symbolic name
-            moduleContainer.install(null, entry.getKey().getAbsolutePath(),
-                    OSGiManifestBuilderFactory.createBuilder(entry.getValue().getHeaders()), entry.getKey());
+            Map<String, String> headers = entry.getValue().getHeaders();
+            ModuleRevisionBuilder builder = OSGiManifestBuilderFactory.createBuilder(headers);
+            moduleContainer.install(null, entry.getKey().getAbsolutePath(), builder, entry.getKey());
         }
 
         return moduleContainer;

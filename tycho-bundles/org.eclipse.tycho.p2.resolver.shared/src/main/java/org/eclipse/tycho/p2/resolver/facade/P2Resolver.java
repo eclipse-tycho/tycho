@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
@@ -35,6 +36,8 @@ public interface P2Resolver {
     public void setAdditionalFilterProperties(Map<String, String> filterProperties);
 
     public void addDependency(String type, String id, String versionRange) throws IllegalArtifactReferenceException;
+
+    public void addAdditionalBundleDependency(String bundle);
 
     /**
      * Returns list ordered of resolution result, one per requested TargetEnvironment.

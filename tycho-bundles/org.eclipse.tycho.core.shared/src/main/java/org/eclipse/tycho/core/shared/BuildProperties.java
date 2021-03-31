@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,10 +9,12 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 
 package org.eclipse.tycho.core.shared;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -67,5 +69,7 @@ public interface BuildProperties {
     public Map<String, List<String>> getJarToExtraClasspathMap();
 
     public boolean isRootFilesUseDefaultExcludes();
+
+    public Collection<String> getAdditionalBundles();
 
 }
