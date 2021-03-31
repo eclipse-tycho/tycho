@@ -79,6 +79,12 @@
 								<id>org.eclipse.osgi.compatibility.state</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
+							<!-- This is a workaround for split packages -->
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.equinox.registry</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
 				</configuration>
