@@ -11,6 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich    - Bug 551739, Bug 538144, Bug 533747
  *                          - [Bug 567098] pomDependencies=consider should wrap non-osgi jars
+ *                          - [Bug 572481] Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -80,6 +81,8 @@ import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.BuildFailureException;
+import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -108,6 +111,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Requirement
     private RepositorySystem repositorySystem;
+
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
 
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
@@ -356,6 +362,11 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             }
         }
 
+        BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+        Collection<String> additionalBundles = buildProperties.getAdditionalBundles();
+        for (String additionalBundle : additionalBundles) {
+            resolver.addAdditionalBundleDependency(additionalBundle);
+        }
         // get reactor project with prepared optional dependencies // TODO use original IU and have the resolver create the modified IUs
         ReactorProject optionalDependencyPreparedProject = getThisReactorProject(session, project, configuration);
 
