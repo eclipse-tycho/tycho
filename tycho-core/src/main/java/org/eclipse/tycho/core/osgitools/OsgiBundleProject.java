@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - Bug 572416 - Tycho does not understand "additional.bundles" directive in build.properties
+ *    Christoph Läubrich -  [Bug 572416] Tycho does not understand "additional.bundles" directive in build.properties
+ *                          [Bug 572416] Compile all source folders contained in .classpath
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -84,6 +85,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    private ClasspathParser classpathParser;
 
     @Requirement
     private EquinoxResolver resolver;
@@ -292,7 +296,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
             try {
-                pdeProject = new EclipsePluginProjectImpl(otherProject, buildPropertiesParser);
+                pdeProject = new EclipsePluginProjectImpl(otherProject,
+                        buildPropertiesParser.parse(otherProject.getBasedir()),
+                        classpathParser.parse(otherProject.getBasedir()));
                 if (otherProject instanceof DefaultReactorProject) {
                     populateProperties(((DefaultReactorProject) otherProject).project.getProperties(), pdeProject);
                 }
@@ -434,6 +440,16 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         getLogger().warn("Missing extra classpath entry " + entry);
                     }
                 }
+            }
+        }
+        for (String additional : pdeProject.getBuildProperties().getAdditionalBundles()) {
+            //TODO actually we need to add dependent bundles of this bundle also
+            ArtifactDescriptor matchingBundle = artifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, additional,
+                    null);
+            if (matchingBundle != null) {
+                classpath.add(addBundleToClasspath(matchingBundle, null));
+            } else {
+                getLogger().warn("Missing additional bundle " + additional);
             }
         }
     }

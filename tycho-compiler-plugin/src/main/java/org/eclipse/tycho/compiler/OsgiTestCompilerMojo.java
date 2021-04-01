@@ -1,5 +1,5 @@
 /*
- * 	Copyright 2006 The Apache Software Foundation.
+ * 	Copyright 2021 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,14 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.tycho.core.osgitools.project.Scope;
 
 /**
- * Compiles application sources with eclipse plugin dependencies
+ * Compiles test sources with eclipse plugin dependencies
  */
-@Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
-public class OsgiCompilerMojo extends AbstractOsgiCompilerMojo {
+@Mojo(name = "testCompile", defaultPhase = LifecyclePhase.TEST_COMPILE, threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
+public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
 
     @Override
     protected Scope getScope() {
-        return Scope.RUNTIME;
+        return Scope.TEST;
     }
 
 }
