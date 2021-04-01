@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60e7e52c_27758a45",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/ClasspathParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-01T08:39:16Z",
+      "side": 1,
+      "message": "Do we have need for this interface (eg multiple implementations)? If not, wouldn\u0027t it be better to rid of it?",
+      "revId": "2c319faa549a4a816662544ec16e7ca461800f2e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
