@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3444f57_c4f0f43b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/ClasspathParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-01T18:53:36Z",
+      "side": 1,
+      "message": "I think having the interface is adding complexity for no value at the moment, I think we can just get rid of it.",
+      "revId": "aee9040360419539b406e7595e34cfd8b3a3d83e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75aff1cc_e581f699",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-01T18:53:36Z",
+      "side": 1,
+      "message": "Doesn\u0027t it belong to another story?",
+      "revId": "aee9040360419539b406e7595e34cfd8b3a3d83e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
