@@ -34,6 +34,24 @@
       "revId": "2c319faa549a4a816662544ec16e7ca461800f2e",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8cdd86a_038d6a7f",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/ClasspathParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-01T08:51:04Z",
+      "side": 1,
+      "message": "OK,",
+      "parentUuid": "f4e15be3_4bd76034",
+      "revId": "2c319faa549a4a816662544ec16e7ca461800f2e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
