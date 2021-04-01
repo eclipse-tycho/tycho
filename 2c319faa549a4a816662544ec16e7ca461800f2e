@@ -16,6 +16,24 @@
       "revId": "2c319faa549a4a816662544ec16e7ca461800f2e",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4e15be3_4bd76034",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/ClasspathParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-04-01T08:42:08Z",
+      "side": 1,
+      "message": "I noticed that this was done with BuildpropertiesParser the same way to allow to mock this if necessary in tests.",
+      "parentUuid": "60e7e52c_27758a45",
+      "revId": "2c319faa549a4a816662544ec16e7ca461800f2e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
