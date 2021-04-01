@@ -81,6 +81,7 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
+import org.eclipse.tycho.core.osgitools.project.Scope;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
 import org.osgi.framework.Constants;
@@ -332,7 +333,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         checkTargetLevelCompatibleWithManifestBREEs(effectiveTargetLevel, manifestBREEs);
 
         synchronized (LOCK) {
-            for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
+            List<BuildOutputJar> outputJars = getEclipsePluginProject().getOutputJars(getScope());
+            for (BuildOutputJar jar : outputJars) {
                 this.outputJar = jar;
                 this.outputJar.getOutputDirectory().mkdirs();
                 super.execute();
@@ -494,7 +496,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     @Override
     public List<SourcepathEntry> getSourcepath() throws MojoExecutionException {
         ArrayList<SourcepathEntry> entries = new ArrayList<>();
-        for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
+        for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars(getScope())) {
             final File outputDirectory = jar.getOutputDirectory();
             for (final File sourcesRoot : jar.getSourceFolders()) {
                 SourcepathEntry entry = new SourcepathEntry() {
@@ -890,4 +892,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
         return null;
     }
+
+    protected abstract Scope getScope();
 }

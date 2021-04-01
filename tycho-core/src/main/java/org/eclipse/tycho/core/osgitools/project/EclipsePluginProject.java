@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,11 @@ public interface EclipsePluginProject {
 
     public BuildProperties getBuildProperties();
 
-    public List<BuildOutputJar> getOutputJars();
+    default List<BuildOutputJar> getOutputJars() {
+        return getOutputJars(Scope.RUNTIME);
+    }
+
+    public List<BuildOutputJar> getOutputJars(Scope scope);
 
     public BuildOutputJar getDotOutputJar();
 
