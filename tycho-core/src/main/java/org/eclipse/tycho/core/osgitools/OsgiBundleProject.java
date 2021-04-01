@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - Bug 572416 - Tycho does not understand "additional.bundles" directive in build.properties
+ *    Christoph Läubrich -  [Bug 572416] Tycho does not understand "additional.bundles" directive in build.properties
+ *                          [Bug 572416] Compile all source folders contained in .classpath
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -84,6 +85,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    private ClasspathParser classpathParser;
 
     @Requirement
     private EquinoxResolver resolver;
@@ -292,7 +296,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
             try {
-                pdeProject = new EclipsePluginProjectImpl(otherProject, buildPropertiesParser);
+                pdeProject = new EclipsePluginProjectImpl(otherProject,
+                        buildPropertiesParser.parse(otherProject.getBasedir()),
+                        classpathParser.parse(otherProject.getBasedir()));
                 if (otherProject instanceof DefaultReactorProject) {
                     populateProperties(((DefaultReactorProject) otherProject).project.getProperties(), pdeProject);
                 }
