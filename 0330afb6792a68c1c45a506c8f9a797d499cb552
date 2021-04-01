@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a10fb8a2_b432cc9e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-01T07:01:24Z",
+      "side": 1,
+      "message": "Since the state of this class fields is deeply depending on the ModuleContainer, and that invoking the methods on this same instance with a different moduleContainer can lead to wrong results (missing/extra wires), it really seems like the ModuleContainer should be a final field set in constructor to avoid erroneous usage.",
+      "revId": "0330afb6792a68c1c45a506c8f9a797d499cb552",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
