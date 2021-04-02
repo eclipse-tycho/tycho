@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8e1b07a0_b7f13893",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 278157
+      },
+      "writtenOn": "2021-04-02T11:50:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d807d362_3fcae492",
+      "revId": "3e52495f5e432aeae49f88388a5e95f3343ee2d5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "27792df1_76af6286",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "56821659_da76695c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 278157
+      },
+      "writtenOn": "2021-04-02T11:50:41Z",
+      "side": 1,
+      "message": "As you prefer, I was inspired by methods like \"Objects.requireNonNull\".",
+      "parentUuid": "27792df1_76af6286",
+      "revId": "3e52495f5e432aeae49f88388a5e95f3343ee2d5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "032ff657_a01a2159",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2021-04-02T08:57:31Z",
       "side": 1,
       "message": "Tycho `getget`",
+      "revId": "3e52495f5e432aeae49f88388a5e95f3343ee2d5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2065547a_04a0c61e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 278157
+      },
+      "writtenOn": "2021-04-02T11:50:41Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "032ff657_a01a2159",
       "revId": "3e52495f5e432aeae49f88388a5e95f3343ee2d5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
