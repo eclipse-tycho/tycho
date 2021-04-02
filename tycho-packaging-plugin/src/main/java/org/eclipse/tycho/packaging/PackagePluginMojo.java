@@ -31,11 +31,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -44,6 +47,7 @@ import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.packaging.sourceref.SourceReferenceComputer;
 import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
+import org.osgi.framework.Constants;
 
 /**
  * Creates a jar-based plugin and attaches it as an artifact
@@ -148,18 +152,68 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
     @Component
     private SourceReferenceComputer soureReferenceComputer;
 
+    @Requirement
+    private MavenProjectHelper projectHelper;
+
     @Override
     public void execute() throws MojoExecutionException {
         synchronized (LOCK) {
-            pdeProject = (EclipsePluginProject) DefaultReactorProject.adapt(project)
+            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+            pdeProject = (EclipsePluginProject) reactorProject
                     .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
 
             createSubJars();
 
             File pluginFile = createPluginJar();
-
             project.getArtifact().setFile(pluginFile);
+            File testPluginFile = createTestPluginJar(reactorProject);
+            if (testPluginFile != null) {
+                projectHelper.attachArtifact(project, "jar", PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, testPluginFile);
+            }
+
         }
+    }
+
+    private File createTestPluginJar(ReactorProject reactorProject) throws MojoExecutionException {
+        File testOutputDirectory = reactorProject.getBuildDirectory().getTestOutputDirectory();
+        if (!testOutputDirectory.isDirectory() || testOutputDirectory.list().length == 0) {
+            return null;
+        }
+
+        JarArchiver archiver = new JarArchiver();
+
+        File fragmentFile = new File(buildDirectory, finalName + "_fragment.jar");
+        if (fragmentFile.exists()) {
+            fragmentFile.delete();
+        }
+        File manifest = new File(project.getBuild().getDirectory(), "FRAGMENT_MANIFEST.MF");
+        try {
+            Manifest bundleManifest = getManifest();
+            Manifest fragmentManifest = new Manifest();
+            Attributes attributes = fragmentManifest.getMainAttributes();
+            attributes.put(Name.MANIFEST_VERSION, "1.0");
+            attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
+            attributes.putValue(Constants.BUNDLE_NAME, "Test Fragment for " + project.getGroupId() + ":"
+                    + project.getArtifactId() + ":" + project.getVersion());
+            String hostVersion = bundleManifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+            String hostSymbolicName = bundleManifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+            attributes.putValue(Constants.BUNDLE_VERSION, hostVersion);
+            attributes.putValue(Constants.BUNDLE_SYMBOLICNAME, hostSymbolicName + ".test");
+            attributes.putValue(Constants.FRAGMENT_HOST,
+                    hostSymbolicName + ";" + Constants.BUNDLE_VERSION_ATTRIBUTE + "=\"" + hostVersion + "\"");
+            writeManifest(manifest, fragmentManifest);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Update Manifest failed", e);
+        }
+        archiver.setManifest(manifest);
+        archiver.setDestFile(fragmentFile);
+        archiver.addDirectory(testOutputDirectory);
+        try {
+            archiver.createArchive();
+        } catch (IOException | ArchiverException e) {
+            throw new MojoExecutionException("Error assembling test JAR", e);
+        }
+        return fragmentFile;
     }
 
     private void createSubJars() throws MojoExecutionException {
@@ -229,10 +283,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
             archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
 
-            File manifest = updateManifest();
-            if (manifest.exists()) {
-                archive.setManifestFile(manifest);
-            }
+            File manifest = new File(project.getBuild().getDirectory(), "MANIFEST.MF");
+            updateManifest(manifest);
+            archive.setManifestFile(manifest);
 
             archiver.setOutputFile(pluginFile);
             if (!archive.isForced()) {
@@ -248,10 +301,23 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
         }
     }
 
-    private File updateManifest() throws IOException, MojoExecutionException {
-        File mfile = new File(project.getBasedir(), "META-INF/MANIFEST.MF");
+    private void updateManifest(File output) throws IOException, MojoExecutionException {
 
-        InputStream is = new FileInputStream(mfile);
+        writeManifest(output, getManifest());
+    }
+
+    protected void writeManifest(File output, Manifest mf) throws IOException {
+        File parentFile = output.getParentFile();
+        if (!parentFile.mkdirs() && !parentFile.exists()) {
+            throw new IOException("creating target directory " + parentFile.getAbsolutePath() + " failed");
+        }
+        try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(output))) {
+            mf.write(os);
+        }
+    }
+
+    protected Manifest getManifest() throws IOException, MojoExecutionException {
+        InputStream is = new FileInputStream(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
         Manifest mf;
         try {
             mf = new Manifest(is);
@@ -267,13 +333,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         attributes.putValue("Bundle-Version", reactorProject.getExpandedVersion());
         soureReferenceComputer.addSourceReferenceHeader(mf, sourceReferences, project);
-        mfile = new File(project.getBuild().getDirectory(), "MANIFEST.MF");
-        mfile.getParentFile().mkdirs();
-        try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(mfile))) {
-            mf.write(os);
-        }
-
-        return mfile;
+        return mf;
     }
 
 }
