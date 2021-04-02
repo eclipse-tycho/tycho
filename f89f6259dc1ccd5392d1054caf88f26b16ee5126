@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8714b67_7f62fca8",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/ClasspathParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-02T08:52:53Z",
+      "side": 1,
+      "message": "Should we move the parser and the hierarchy of ProjectClasspathEntry into a dedicated org.eclipse.tycho.core.osgitools.dotClasspath package for better isolation and to now crowd too much the current osgitools package which is one of the most critical part of Tycho?\n\n(Note that we can also do it later if you prefer not changing it now)",
+      "revId": "f89f6259dc1ccd5392d1054caf88f26b16ee5126",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
