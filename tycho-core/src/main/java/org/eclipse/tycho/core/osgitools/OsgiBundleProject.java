@@ -55,6 +55,7 @@ import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.dotClasspath.ClasspathParser;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;

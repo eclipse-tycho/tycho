@@ -8,7 +8,7 @@
  * Contributors:
  *    Christoph Läubrich  - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.osgitools;
+package org.eclipse.tycho.core.dotClasspath;
 
 import java.io.File;
 import java.io.IOException;
