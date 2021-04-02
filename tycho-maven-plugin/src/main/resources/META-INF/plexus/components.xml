@@ -26,7 +26,8 @@
               <process-test-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:testResources
               </process-test-resources>
-              <test-compile><!-- tests are always in a separate plugin -->
+              <test-compile>
+                org.eclipse.tycho:tycho-compiler-plugin:${project.version}:testCompile
               </test-compile>
               <test>
                 org.apache.maven.plugins:maven-surefire-plugin:${surefire-plugin.version}:test
