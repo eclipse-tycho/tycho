@@ -16,6 +16,24 @@
       "revId": "0330afb6792a68c1c45a506c8f9a797d499cb552",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83cc1d27_6581329f",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 278157
+      },
+      "writtenOn": "2021-04-02T07:58:20Z",
+      "side": 1,
+      "message": "That makes sense and is a good point.\nI added a ModuleContainer field and check every time one of the two non-static public methods is called that the argument is or is from the associated container in order to ensure cache-integrity.\n\nSo can we be sure that for every ModuleRevision passed to computeDependencies() that is from the associated ModuleContainer the wires do not change?",
+      "parentUuid": "a10fb8a2_b432cc9e",
+      "revId": "0330afb6792a68c1c45a506c8f9a797d499cb552",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
