@@ -26,8 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -79,7 +81,6 @@ import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
@@ -113,7 +114,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     private static final String PREFS_FILE_PATH = ".settings" + File.separator + "org.eclipse.jdt.core.prefs";
 
     @Parameter(property = "project", readonly = true)
-    private MavenProject project;
+    protected MavenProject project;
 
     /**
      * Transitively add specified maven artifacts to compile classpath in addition to elements
@@ -240,11 +241,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     @Parameter(defaultValue = "true")
     private boolean deriveReleaseCompilerArgumentFromTargetLevel = true;
 
-    /**
-     * Current build output jar
-     */
-    private BuildOutputJar outputJar;
-
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
@@ -322,8 +318,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     private StandardExecutionEnvironment[] manifestBREEs;
 
+    private File currentOutputDirectory;
+
+    private List<String> currentSourceRoots;
+
+    private List<String> currentExcludes;
+
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public final void execute() throws MojoExecutionException, MojoFailureException {
         getLog().debug("Manifest BREEs: " + Arrays.toString(getBREE()));
         getLog().debug("Target Platform EE: " + getTargetExecutionEnvironment());
         String effectiveTargetLevel = getTargetLevel();
@@ -332,19 +334,28 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         checkTargetLevelCompatibleWithManifestBREEs(effectiveTargetLevel, manifestBREEs);
 
         synchronized (LOCK) {
-            for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
-                this.outputJar = jar;
-                this.outputJar.getOutputDirectory().mkdirs();
-                super.execute();
-                doCopyResources();
-            }
-
-            // this does not include classes from nested jars
-            BuildOutputJar dotOutputJar = getEclipsePluginProject().getDotOutputJar();
-            if (dotOutputJar != null) {
-                project.getArtifact().setFile(dotOutputJar.getOutputDirectory());
-            }
+            doCompile();
         }
+    }
+
+    protected void doCompile() throws MojoExecutionException, MojoFailureException {
+        List<SourcepathEntry> sourcepath = getSourcepath();
+        if (sourcepath.isEmpty()) {
+            return;
+        }
+        Map<File, List<SourcepathEntry>> outputMap = sourcepath.stream().collect(
+                Collectors.groupingBy(SourcepathEntry::getOutputDirectory, LinkedHashMap::new, Collectors.toList()));
+
+        for (Entry<File, List<SourcepathEntry>> entry : outputMap.entrySet()) {
+            this.currentOutputDirectory = entry.getKey();
+            this.currentOutputDirectory.mkdirs();
+            this.currentSourceRoots = entry.getValue().stream().map(SourcepathEntry::getSourcesRoot)
+                    .map(root -> new File(root.toURI().normalize()).toString()).collect(Collectors.toList());
+            this.currentExcludes = entry.getValue().stream().map(SourcepathEntry::getExcludes).filter(Objects::nonNull)
+                    .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+            super.execute();
+        }
+        doCopyResources();
     }
 
     /**
@@ -391,7 +402,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * mimics the behavior of the PDE incremental builder which by default copies all (non-java)
      * resource files in source directories into the target folder
      */
-    private void doCopyResources() throws MojoExecutionException {
+    protected void doCopyResources() throws MojoExecutionException {
         if (!copyResources) {
             return;
         }
@@ -414,15 +425,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             CopyMapping copyMapping = new CopyMapping();
             scanner.addSourceMapping(copyMapping);
             try {
-                scanner.getIncludedSources(sourceRootFile, this.outputJar.getOutputDirectory());
+                scanner.getIncludedSources(sourceRootFile, getOutputDirectory());
                 for (CopyMapping.SourceTargetPair sourceTargetPair : copyMapping.getSourceTargetPairs()) {
                     FileUtils.copyFile(new File(sourceRoot, sourceTargetPair.source), sourceTargetPair.target);
                 }
             } catch (InclusionScanException e) {
                 throw new MojoExecutionException("Exception while scanning for resource files in " + sourceRoot, e);
             } catch (IOException e) {
-                throw new MojoExecutionException("Exception copying resource files from " + sourceRoot + " to "
-                        + this.outputJar.getOutputDirectory(), e);
+                throw new MojoExecutionException(
+                        "Exception copying resource files from " + sourceRoot + " to " + getOutputDirectory(), e);
             }
         }
     }
@@ -434,7 +445,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     @Override
     protected File getOutputDirectory() {
-        return outputJar.getOutputDirectory();
+        return this.currentOutputDirectory;
     }
 
     @Override
@@ -479,49 +490,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     @Override
     protected final List<String> getCompileSourceRoots() throws MojoExecutionException {
-        ArrayList<String> roots = new ArrayList<>();
-        for (File folder : outputJar.getSourceFolders()) {
-            roots.add(new File(folder.getAbsoluteFile().toURI().normalize()).toString());
-        }
-        return roots;
+        return currentSourceRoots;
     }
 
     @Override
     protected final List<String> getCompileSourceExcludePaths() throws MojoExecutionException {
-        return Collections.unmodifiableList(outputJar.getFilesToExclude());
-    }
-
-    @Override
-    public List<SourcepathEntry> getSourcepath() throws MojoExecutionException {
-        ArrayList<SourcepathEntry> entries = new ArrayList<>();
-        for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
-            final File outputDirectory = jar.getOutputDirectory();
-            for (final File sourcesRoot : jar.getSourceFolders()) {
-                SourcepathEntry entry = new SourcepathEntry() {
-                    @Override
-                    public File getSourcesRoot() {
-                        return sourcesRoot;
-                    }
-
-                    @Override
-                    public File getOutputDirectory() {
-                        return outputDirectory;
-                    }
-
-                    @Override
-                    public List<String> getIncludes() {
-                        return null;
-                    }
-
-                    @Override
-                    public List<String> getExcludes() {
-                        return null;
-                    }
-                };
-                entries.add(entry);
-            }
-        }
-        return entries;
+        return currentExcludes;
     }
 
     @Override
@@ -570,11 +544,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 compilerConfiguration.addCompilerCustomArgument("-properties", prefsFilePath);
             }
         }
-        String encoding = getEclipsePluginProject().getBuildProperties().getJarToJavacDefaultEncodingMap()
-                .get(outputJar.getName());
-        if (encoding != null) {
-            compilerConfiguration.setSourceEncoding(encoding);
-        }
         compilerConfiguration.setTargetVersion(getTargetLevel());
         compilerConfiguration.setSourceVersion(getSourceLevel());
         String releaseLevel = getReleaseLevel();
@@ -597,10 +566,22 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
         logDirectory.mkdirs();
         String logFileName = null;
-        if (".".equals(outputJar.getName())) {
+        if (new File(project.getBuild().getOutputDirectory()).getAbsolutePath()
+                .equals(getOutputDirectory().getAbsolutePath())) {
             logFileName = "@dot";
         } else {
-            logFileName = outputJar.getName().replaceAll("/", "_");
+            String suffix = "-classes";
+            String basePath = new File(project.getBuild().getDirectory()).getAbsolutePath();
+            String subPath = getOutputDirectory().getAbsolutePath().substring(basePath.length()).replace('\\', '/');
+            if (subPath.startsWith("/")) {
+                subPath = subPath.substring(1);
+            }
+            String name = subPath.replaceAll("/", "_");
+            if (name.endsWith(suffix)) {
+                logFileName = name.substring(0, name.length() - suffix.length());
+            } else {
+                logFileName = name;
+            }
         }
         String logPath = logDirectory.getAbsolutePath();
         if (!logPath.endsWith(File.separator)) {
@@ -890,4 +871,5 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
         return null;
     }
+
 }
