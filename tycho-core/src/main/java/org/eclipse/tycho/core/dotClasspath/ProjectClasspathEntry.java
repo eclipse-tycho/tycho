@@ -8,21 +8,16 @@
  * Contributors:
  *    Christoph Läubrich  - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.osgitools;
+package org.eclipse.tycho.core.dotClasspath;
 
-import java.io.File;
+import java.util.Map;
 
-public interface SourceFolderClasspathEntry extends ProjectClasspathEntry {
+public interface ProjectClasspathEntry {
 
-    /**
-     * 
-     * @return the source folder
-     */
-    File getSourcePath();
+    Map<String, String> getAttributes();
 
-    /**
-     * 
-     * @return the configured output folder
-     */
-    File getOutputFolder();
+    static interface JreContainerClasspathEntry extends ProjectClasspathEntry {
+
+    }
+
 }
