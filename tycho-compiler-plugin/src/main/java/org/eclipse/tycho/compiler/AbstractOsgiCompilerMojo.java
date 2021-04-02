@@ -64,7 +64,6 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
-import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
@@ -113,7 +112,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     private static final String PREFS_FILE_PATH = ".settings" + File.separator + "org.eclipse.jdt.core.prefs";
 
     @Parameter(property = "project", readonly = true)
-    private MavenProject project;
+    protected MavenProject project;
 
     /**
      * Transitively add specified maven artifacts to compile classpath in addition to elements
@@ -323,7 +322,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     private StandardExecutionEnvironment[] manifestBREEs;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public final void execute() throws MojoExecutionException, MojoFailureException {
         getLog().debug("Manifest BREEs: " + Arrays.toString(getBREE()));
         getLog().debug("Target Platform EE: " + getTargetExecutionEnvironment());
         String effectiveTargetLevel = getTargetLevel();
@@ -332,19 +331,17 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         checkTargetLevelCompatibleWithManifestBREEs(effectiveTargetLevel, manifestBREEs);
 
         synchronized (LOCK) {
-            for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
-                this.outputJar = jar;
-                this.outputJar.getOutputDirectory().mkdirs();
-                super.execute();
-                doCopyResources();
-            }
-
-            // this does not include classes from nested jars
-            BuildOutputJar dotOutputJar = getEclipsePluginProject().getDotOutputJar();
-            if (dotOutputJar != null) {
-                project.getArtifact().setFile(dotOutputJar.getOutputDirectory());
-            }
+            doCompile();
         }
+    }
+
+    protected abstract void doCompile() throws MojoExecutionException, MojoFailureException;
+
+    protected void compile(BuildOutputJar outputJar) throws MojoExecutionException, MojoFailureException {
+        this.outputJar = outputJar;
+        this.outputJar.getOutputDirectory().mkdirs();
+        super.execute();
+        doCopyResources();
     }
 
     /**
@@ -391,7 +388,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * mimics the behavior of the PDE incremental builder which by default copies all (non-java)
      * resource files in source directories into the target folder
      */
-    private void doCopyResources() throws MojoExecutionException {
+    protected void doCopyResources() throws MojoExecutionException {
         if (!copyResources) {
             return;
         }
@@ -489,39 +486,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     @Override
     protected final List<String> getCompileSourceExcludePaths() throws MojoExecutionException {
         return Collections.unmodifiableList(outputJar.getFilesToExclude());
-    }
-
-    @Override
-    public List<SourcepathEntry> getSourcepath() throws MojoExecutionException {
-        ArrayList<SourcepathEntry> entries = new ArrayList<>();
-        for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
-            final File outputDirectory = jar.getOutputDirectory();
-            for (final File sourcesRoot : jar.getSourceFolders()) {
-                SourcepathEntry entry = new SourcepathEntry() {
-                    @Override
-                    public File getSourcesRoot() {
-                        return sourcesRoot;
-                    }
-
-                    @Override
-                    public File getOutputDirectory() {
-                        return outputDirectory;
-                    }
-
-                    @Override
-                    public List<String> getIncludes() {
-                        return null;
-                    }
-
-                    @Override
-                    public List<String> getExcludes() {
-                        return null;
-                    }
-                };
-                entries.add(entry);
-            }
-        }
-        return entries;
     }
 
     @Override
@@ -890,4 +854,5 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
         return null;
     }
+
 }
