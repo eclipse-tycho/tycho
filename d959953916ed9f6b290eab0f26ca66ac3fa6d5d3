@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f976b2f_44613c13",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-02T17:03:51Z",
+      "side": 1,
+      "message": "Do you think it would be possible to implement doCompile in a generic way that consumes getSourcepath() ? It would be nice if the SourcePath would contain all the necessary compiler configuration and processing could happen in this class.",
+      "revId": "d959953916ed9f6b290eab0f26ca66ac3fa6d5d3",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
