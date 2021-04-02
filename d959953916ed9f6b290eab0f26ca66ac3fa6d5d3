@@ -16,6 +16,24 @@
       "revId": "d959953916ed9f6b290eab0f26ca66ac3fa6d5d3",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fe56ddc_363d2356",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-04-02T17:51:40Z",
+      "side": 1,
+      "message": "Maybe :-)\n\nI have not digged too much how the compilation works because of these strange \"compile inner jars\" stuff that require more knowledge than the usual and the extension of the standard maven compiler mojo. But from what I have understand it should be possible I can give it a try.\n\nSo actually the getSourcepath() is what the compiler mojo is using to compile?",
+      "parentUuid": "6f976b2f_44613c13",
+      "revId": "d959953916ed9f6b290eab0f26ca66ac3fa6d5d3",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
