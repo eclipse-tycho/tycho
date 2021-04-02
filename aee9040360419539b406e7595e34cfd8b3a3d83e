@@ -33,6 +33,24 @@
       "revId": "aee9040360419539b406e7595e34cfd8b3a3d83e",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0157febf_4cae370a",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-04-02T03:59:34Z",
+      "side": 1,
+      "message": "I have no idea why this code was merge in here ... I\u0027ll remove it.",
+      "parentUuid": "75aff1cc_e581f699",
+      "revId": "aee9040360419539b406e7595e34cfd8b3a3d83e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
