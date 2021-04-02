@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d807d362_3fcae492",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-02T08:57:31Z",
+      "side": 1,
+      "message": "Please add some Javadoc here, in particular to explicit that module must be part of the container.",
+      "revId": "3e52495f5e432aeae49f88388a5e95f3343ee2d5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27792df1_76af6286",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-02T08:57:31Z",
+      "side": 1,
+      "message": "What about renaming to assertAssociatedModuleContainer?",
+      "revId": "3e52495f5e432aeae49f88388a5e95f3343ee2d5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "032ff657_a01a2159",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-02T08:57:31Z",
+      "side": 1,
+      "message": "Tycho `getget`",
+      "revId": "3e52495f5e432aeae49f88388a5e95f3343ee2d5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
