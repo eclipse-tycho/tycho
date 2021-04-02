@@ -34,6 +34,24 @@
       "revId": "0330afb6792a68c1c45a506c8f9a797d499cb552",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c6ebb70_89e553f0",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DependencyComputer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-02T11:42:45Z",
+      "side": 1,
+      "message": "\u003e So can we be sure that for every ModuleRevision passed to computeDependencies() that is from the associated ModuleContainer the wires do not change?\n\nWires only change when some modules are added/removed and resolution is triggered again. So in Tycho, the ModuleContainer is resolved only once and not modified after than, so wires are unchanged.",
+      "parentUuid": "83cc1d27_6581329f",
+      "revId": "0330afb6792a68c1c45a506c8f9a797d499cb552",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
