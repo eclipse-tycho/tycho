@@ -16,6 +16,24 @@
       "revId": "f89f6259dc1ccd5392d1054caf88f26b16ee5126",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9e394be_bb73db1b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/ClasspathParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-04-02T10:21:53Z",
+      "side": 1,
+      "message": "I would say do it later if there is a higher demand. The whole parsing topic is a sadly scattered around different places in Tycho as well.\nMy ultimate dream would be to have a \"org.eclipse.parsers\" project that unifies/centralize all parsing done for eclipse specific formats (.project, classpath, buildproperties...) in a way that could be reused across different projects (JDT, PDE, paltform, tycho, m2e, P2...). at least we might came up with something like tycho.parsing that includes all tycho related parser stuff",
+      "parentUuid": "d8714b67_7f62fca8",
+      "revId": "f89f6259dc1ccd5392d1054caf88f26b16ee5126",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
