@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -27,6 +30,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.plugin.failsafe.util.FailsafeSummaryXmlUtils;
 import org.apache.maven.plugin.surefire.StartupReportConfiguration;
 import org.apache.maven.plugin.surefire.log.api.PrintStreamLogger;
 import org.apache.maven.plugin.surefire.report.ConsoleReporter;
@@ -54,6 +58,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.service.resolver.ResolverError;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 public class OsgiSurefireBooter {
     private static final String XSD = "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd";
@@ -113,17 +118,36 @@ public class OsgiSurefireBooter {
                 new PrintStreamLogger(startupReportConfig.getOriginalSystemOut()));
         // API indicates we should use testClassLoader below but surefire also tries 
         // to load surefire classes using this classloader
-        RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin), reporterFactory,
-                providerConfiguration, false, startupConfiguration, true);
+        List<URL> testClasspath = new ArrayList<>();
+        for (int i = 0; i < args.length; i++) {
+            String key = args[i];
+            if ("-rtcp".equals(key)) {
+                i++;
+                testClasspath.add(new File(args[i]).toURI().toURL());
+            }
+        }
+        RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin, testClasspath),
+                reporterFactory, providerConfiguration, false, startupConfiguration, true);
+        String failsafe = getArgumentValue(args, "-failsafe");
+        if (failsafe != null) {
+            FailsafeSummaryXmlUtils.writeSummary(result, new File(failsafe), false);
+        }
         // counter-intuitive, but null indicates OK here
         return result.getFailsafeCode() == null ? 0 : result.getFailsafeCode();
     }
 
-    private static ClassLoader createCombinedClassLoader(String testPlugin) throws BundleException {
-        ClassLoader testClassLoader = getBundleClassLoader(testPlugin);
+    private static ClassLoader createCombinedClassLoader(String testPlugin, List<URL> testClasspath)
+            throws BundleException {
+        Bundle testBundle = getBundle(testPlugin);
+
+        ClassLoader mavenClasspath = new CombinedClassLoader(
+                Arrays.stream(getBundle(Constants.SYSTEM_BUNDLE_SYMBOLICNAME).getBundleContext().getBundles())
+                        .filter(b -> b != testBundle).map(BundleClassLoader::new).toArray(ClassLoader[]::new));
+        ClassLoader testClassLoader = getBundleClassLoader(testBundle);
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader surefireClassLoader = ForkedBooter.class.getClassLoader();
-        return new CombinedClassLoader(testClassLoader, surefireClassLoader,
+        return new CombinedClassLoader(testClassLoader,
+                new URLClassLoader(testClasspath.toArray(URL[]::new), mavenClasspath), surefireClassLoader,
                 // Not used contextClassLoader directly because it's a ContextFinder
                 // which not work with tycho sufire osgibooster bundle
                 new ContextFinderWithoutTychoBundle(contextClassLoader.getParent()));
@@ -177,11 +201,7 @@ public class OsgiSurefireBooter {
         return p;
     }
 
-    private static ClassLoader getBundleClassLoader(String symbolicName) throws BundleException {
-        Bundle bundle = Activator.getBundle(symbolicName);
-        if (bundle == null) {
-            throw new RuntimeException("Bundle " + symbolicName + " is not found");
-        }
+    private static ClassLoader getBundleClassLoader(Bundle bundle) throws BundleException {
         try {
             bundle.start();
         } catch (BundleException ex) {
@@ -200,6 +220,14 @@ public class OsgiSurefireBooter {
             throw ex;
         }
         return new BundleClassLoader(bundle);
+    }
+
+    protected static Bundle getBundle(String symbolicName) {
+        Bundle bundle = Activator.getBundle(symbolicName);
+        if (bundle == null) {
+            throw new RuntimeException("Bundle " + symbolicName + " is not found");
+        }
+        return bundle;
     }
 
     private static class BundleClassLoader extends ClassLoader {
@@ -224,4 +252,5 @@ public class OsgiSurefireBooter {
             return bundle.getResources(name);
         }
     }
+
 }

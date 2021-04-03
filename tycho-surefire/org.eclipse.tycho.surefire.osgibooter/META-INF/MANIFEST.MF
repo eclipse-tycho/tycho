@@ -8,11 +8,12 @@ Bundle-ClassPath: .,
  jars/surefire-booter-2.22.2.jar,
  jars/surefire-api-2.22.2.jar,
  jars/surefire-logger-api-2.22.2.jar,
- jars/maven-surefire-common-2.22.2.jar
+ jars/maven-surefire-common-2.22.2.jar,
+ jars/maven-failsafe-plugin-2.22.2.jar
 Bundle-Name: Tycho Surefire OSGi Booter Eclipse Application
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.tycho.surefire.osgibooter;singleton:=true
-Bundle-RequiredExecutionEnvironment: J2SE-1.5, JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Activator: org.eclipse.tycho.surefire.osgibooter.Activator
 Bundle-Vendor: %providerName
 Automatic-Module-Name: org.eclipse.tycho.surefire.osgibooter
