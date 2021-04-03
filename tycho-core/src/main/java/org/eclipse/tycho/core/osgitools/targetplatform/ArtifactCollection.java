@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 572420 - Tycho-Surefire should be executable for eclipse-plugin package type
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools.targetplatform;
 
@@ -23,7 +24,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -43,14 +46,12 @@ public class ArtifactCollection {
     protected final Map<File, Map<String, ArtifactDescriptor>> artifactsWithKnownLocation = new LinkedHashMap<>();
 
     public List<ArtifactDescriptor> getArtifacts(String type) {
-        ArrayList<ArtifactDescriptor> result = new ArrayList<>();
-        for (Map.Entry<ArtifactKey, ArtifactDescriptor> entry : artifacts.entrySet()) {
-            if (type.equals(entry.getKey().getType())) {
-                result.add(entry.getValue());
-            }
-        }
+        return getArtifacts(key -> key.getType().equals(type));
+    }
 
-        return result;
+    public List<ArtifactDescriptor> getArtifacts(Predicate<ArtifactKey> filter) {
+        return artifacts.entrySet().stream().filter(entry -> filter.test(entry.getKey())).map(Entry::getValue)
+                .collect(Collectors.toList());
     }
 
     public List<ArtifactDescriptor> getArtifacts() {
