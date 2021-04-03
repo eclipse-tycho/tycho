@@ -52,6 +52,24 @@
       "revId": "d959953916ed9f6b290eab0f26ca66ac3fa6d5d3",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2509e89f_f192face",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2021-04-03T03:35:43Z",
+      "side": 1,
+      "message": "There is just one think here, in build.properties there exits a (tycho specific?)\n\n\u003e javacDefaultEncoding.. \u003d UTF-8\n\nin the its it is referenced as MNGECLIPSE937... I never have heard about that and I can only guess that it is used as a replacement for org.eclipse.core.resources.prefs.\n\nThe compiler already contains \u0027useProjectSettings\u0027 (defaults to true) that usesother preferences, so if this does not rings a bell and we are doing a major breakage we probably should simply drop that feature and require people to use org.eclipse.core.resources.prefs instead?",
+      "parentUuid": "ae7e9f6a_803bf9db",
+      "revId": "d959953916ed9f6b290eab0f26ca66ac3fa6d5d3",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
