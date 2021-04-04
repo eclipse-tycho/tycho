@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80f38b2d_fcaf4cff",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/OsgiCompilerMojo.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-04T19:42:10Z",
+      "side": 1,
+      "message": "Instead of overriding doCompile, to get more explicit names and better separation, I suggest that we introduce a setArtifact() method that would be empty in abstract class and just overriden here with the content of lines 69..72\nWhat do you think?",
+      "revId": "4364905aa3445a9e09bea6e360b0fa9fa643e5e4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
