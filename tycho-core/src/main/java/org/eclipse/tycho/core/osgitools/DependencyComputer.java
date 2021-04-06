@@ -363,7 +363,7 @@ public class DependencyComputer {
 
     private void addPlugin(ModuleRevision module, boolean useInclusions, VisiblePackages visiblePackages,
             Collection<DependencyEntry> entries) {
-        Collection<AccessRule> rules = useInclusions ? visiblePackages.getInclusions(module) : null;
+        Collection<AccessRule> rules = useInclusions ? visiblePackages.getInclusions(getFragmentHost(module).orElse(module)) : null;
         DependencyEntry entry = new DependencyEntry(module, rules);
         if (!entries.contains(entry)) {
             entries.add(entry);

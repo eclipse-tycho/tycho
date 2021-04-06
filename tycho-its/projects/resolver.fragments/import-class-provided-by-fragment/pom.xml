@@ -1,0 +1,43 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>resolver.fragments.import-class-provided-by-fragment</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <description>
+  'bundle1' exports package 'bundle1'.
+  'bundle1.fragment' adds an additional class to the same package.
+  'bundle2' imports that class (it uses a p2.inf to make sure the fragment is required).
+
+  This test asserts that the exported package of 'bundle1' is added as a classpath inclusion for 'bundle1.fragment',
+  so that 'bundle2' can access it.
+  
+  Bug 572518 - Tycho 2.3.0 cannot import class exported from other bundle's fragment (p2.inf + Eclipse-ExtensibleAPI: true)
+  </description>
+
+  <modules>
+    <module>bundle1</module>
+    <module>bundle1.fragment</module>
+    <module>bundle2</module>
+  </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-compiler-plugin</artifactId>
+        <version>${tycho-version}</version>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
