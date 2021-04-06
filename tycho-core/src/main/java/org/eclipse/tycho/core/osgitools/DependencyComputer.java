@@ -80,8 +80,8 @@ public class DependencyComputer {
         }
     }
 
-    private static final class VisiblePackages {
-        private final Map<ModuleRevision, Collection<AccessRule>> visiblePackages = new HashMap<>();
+    private final class VisiblePackages {
+        private final Map<ModuleRevision, Set<AccessRule>> visiblePackages = new HashMap<>();
         private final ModuleRevision consumerHost;
 
         public VisiblePackages(ModuleRevision consumerHost) {
@@ -94,8 +94,14 @@ public class DependencyComputer {
         }
 
         public Collection<AccessRule> getInclusions(ModuleRevision module) {
-            Collection<AccessRule> rules = visiblePackages.get(module);
-            return rules != null ? rules : Collections.emptyList();
+            Set<AccessRule> rules = visiblePackages.getOrDefault(module, Collections.emptySet());
+            Optional<ModuleRevision> host = getFragmentHost(module);
+            if (host.isPresent()) {
+                Set<AccessRule> hostRules = visiblePackages.getOrDefault(host.get(), Collections.emptySet());
+                rules = new HashSet<>(rules);
+                rules.addAll(hostRules);
+            }
+            return Collections.unmodifiableSet(rules);
         }
 
         public Collection<ModuleRevision> getParticipatingModules() {
