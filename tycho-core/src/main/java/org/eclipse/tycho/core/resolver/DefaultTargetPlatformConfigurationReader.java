@@ -380,8 +380,8 @@ public class DefaultTargetPlatformConfigurationReader {
                     result.addTarget(target);
                     return;
                 } else {
-                    throw new MojoExecutionException(
-                            "target definition file '" + file + "' not found in project '" + project.getName() + "'.");
+                    throw new MojoExecutionException("target definition file '" + target.getAbsolutePath()
+                            + "' not found for project '" + project.getName() + "'.");
                 }
             }
         }
