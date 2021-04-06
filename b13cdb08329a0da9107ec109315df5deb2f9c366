@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48f56032_c0e5c150",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-06T21:05:31Z",
+      "side": 1,
+      "message": "Is this related to current issue?",
+      "revId": "b13cdb08329a0da9107ec109315df5deb2f9c366",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83343288_a0bf9956",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-06T21:05:31Z",
+      "side": 1,
+      "message": "Why adding all these classloader?",
+      "revId": "b13cdb08329a0da9107ec109315df5deb2f9c366",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d237e8d_e5094452",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-06T21:05:31Z",
+      "side": 1,
+      "message": "Shouldn\u0027t it be part of a separate patch?",
+      "revId": "b13cdb08329a0da9107ec109315df5deb2f9c366",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
