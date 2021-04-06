@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e32a9cd9_391677c1",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/resolver/ImportClassProvidedByFragmentFromPackageExportedByHostTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2021-04-06T14:22:05Z",
+      "side": 1,
+      "message": "Do you think it\u0027d be possible to have this test in DependencyComputerTest? That would make debugging easier/faster.",
+      "revId": "79ffc9c8b1934ba31c27c3f2bf8f0897437b607f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
