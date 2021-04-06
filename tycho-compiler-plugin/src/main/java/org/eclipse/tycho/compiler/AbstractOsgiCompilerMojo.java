@@ -339,7 +339,17 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         doFinish();
     }
 
-    private void doCompile() throws MojoExecutionException, MojoFailureException {
+    /**
+     * Subclasses might override this method to perform final tasks and as a last opportunity to
+     * fail the compile
+     * 
+     * @throws MojoExecutionException
+     */
+    protected void doFinish() throws MojoExecutionException {
+        //empty
+    }
+
+    protected void doCompile() throws MojoExecutionException, MojoFailureException {
         List<SourcepathEntry> sourcepath = getSourcepath();
         if (sourcepath.isEmpty()) {
             return;
@@ -357,16 +367,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             super.execute();
         }
         doCopyResources();
-    }
-
-    /**
-     * Subclasses might override this method to perform final tasks and as a last opportunity to
-     * fail the compile
-     * 
-     * @throws MojoExecutionException
-     */
-    protected void doFinish() throws MojoExecutionException {
-        //empty
     }
 
     /**
@@ -413,7 +413,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * mimics the behavior of the PDE incremental builder which by default copies all (non-java)
      * resource files in source directories into the target folder
      */
-    private void doCopyResources() throws MojoExecutionException {
+    protected void doCopyResources() throws MojoExecutionException {
         if (!copyResources) {
             return;
         }
