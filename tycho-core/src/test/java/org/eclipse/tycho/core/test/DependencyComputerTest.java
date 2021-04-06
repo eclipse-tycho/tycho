@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.test;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
@@ -211,6 +212,20 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                 .filter(accessRule -> accessRule.getPattern().startsWith("org/eclipse/swt/graphics")) //
                 .findAny() //
                 .isPresent());
+    }
+
+    @Test
+    public void testFragmentsImportClassProvidedByFragmentFromPackageExportedByHostTest() throws Exception {
+        File basedir = getBasedir("projects/fragment-import-class-provided-by-fragment-from-package-exported-by-host");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject bundle2 = projects.get(2);
+        assertEquals("bundle2", bundle2.getArtifactId());
+        Collection<DependencyEntry> deps = computeDependenciesIgnoringEE(bundle2);
+        assertThat(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle1.fragment")) //
+                .flatMap(entry -> entry.rules.stream()) //
+                .map(rule -> rule.getPattern()) //
+                .collect(Collectors.toList()), //
+                hasItem("bundle1/*"));
     }
 
     @Test

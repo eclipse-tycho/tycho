@@ -81,7 +81,7 @@ public class DependencyComputer {
     }
 
     private static final class VisiblePackages {
-        private final Map<ModuleRevision, Collection<AccessRule>> visiblePackages = new HashMap<>();
+        private final Map<ModuleRevision, Set<AccessRule>> visiblePackages = new HashMap<>();
         private final ModuleRevision consumerHost;
 
         public VisiblePackages(ModuleRevision consumerHost) {
@@ -93,12 +93,12 @@ public class DependencyComputer {
             visiblePackages.computeIfAbsent(packageCapability.getResource(), m -> new LinkedHashSet<>()).add(rule);
         }
 
-        public Collection<AccessRule> getInclusions(ModuleRevision module) {
-            Collection<AccessRule> rules = visiblePackages.get(module);
-            return rules != null ? rules : Collections.emptyList();
+        public Set<AccessRule> getInclusions(ModuleRevision module) {
+            Set<AccessRule> rules = visiblePackages.get(module);
+            return rules != null ? Collections.unmodifiableSet(rules) : Collections.emptySet();
         }
 
-        public Collection<ModuleRevision> getParticipatingModules() {
+        public Set<ModuleRevision> getParticipatingModules() {
             return Collections.unmodifiableSet(visiblePackages.keySet());
         }
     }
@@ -363,7 +363,17 @@ public class DependencyComputer {
 
     private void addPlugin(ModuleRevision module, boolean useInclusions, VisiblePackages visiblePackages,
             Collection<DependencyEntry> entries) {
-        Collection<AccessRule> rules = useInclusions ? visiblePackages.getInclusions(module) : null;
+        Set<AccessRule> rules;
+        if (useInclusions) {
+            rules = visiblePackages.getInclusions(module);
+            Optional<ModuleRevision> host = getFragmentHost(module);
+            if (host.isPresent()) {
+                rules = new HashSet<>(rules);
+                rules.addAll(visiblePackages.getInclusions(host.get()));
+            }
+        } else {
+            rules = null;
+        }
         DependencyEntry entry = new DependencyEntry(module, rules);
         if (!entries.contains(entry)) {
             entries.add(entry);
