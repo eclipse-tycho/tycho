@@ -53,7 +53,7 @@ public class TestMojoToolchainTests {
         systemToolchain = mock(Toolchain.class);
         toolchainProvider = mock(ToolchainProvider.class);
         project = new MavenProject();
-        testMojo = new TestMojo();
+        testMojo = new TestPluginMojo();
         setParameter(testMojo, "useJDK", JDKUsage.SYSTEM);
         setParameter(testMojo, "toolchainManager", toolchainManager);
         setParameter(testMojo, "toolchainProvider", toolchainProvider);
@@ -99,7 +99,8 @@ public class TestMojoToolchainTests {
         setParameter(testMojo, "useJDK", JDKUsage.BREE);
         ExecutionEnvironmentConfiguration envConf = mock(ExecutionEnvironmentConfiguration.class);
         when(envConf.getProfileName()).thenReturn("myId");
-        DefaultReactorProject.adapt(project).setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, envConf);
+        DefaultReactorProject.adapt(project).setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION,
+                envConf);
     }
 
     private void setParameter(Object object, String variable, Object value)

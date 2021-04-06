@@ -25,12 +25,9 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testCompile() throws Exception {
-
         Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
-
         verifier.executeGoals(Arrays.asList("clean", "test-compile"));
         verifier.verifyErrorFreeLog();
-
         assertTrue("compiled class file do not exists",
                 new File(verifier.getBasedir(), "target/classes/bundle/test/Counter.class").exists());
         assertTrue("compiled test-class file do not exists",
@@ -44,7 +41,33 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
         assertTrue("tests where not run",
                 new File(verifier.getBasedir(), "target/surefire-reports/bundle.test.AdderTest.txt").exists());
+    }
 
+    @Test
+    public void testPackage() throws Exception {
+        Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
+        verifier.executeGoals(Arrays.asList("clean", "package"));
+        verifier.verifyErrorFreeLog();
+        assertTrue("test fragment not found",
+                new File(verifier.getBasedir(), "target/bundle.test-1.0.0_fragment.jar").exists());
+    }
+
+    @Test
+    public void testIntegrationTest() throws Exception {
+        Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
+        verifier.executeGoals(Arrays.asList("clean", "integration-test"));
+        verifier.verifyErrorFreeLog();
+        assertTrue("summary report not found",
+                new File(verifier.getBasedir(), "target/failsafe-reports/failsafe-summary.xml").exists());
+        verifier.verifyTextInLog("Tests run: 2, Failures: 1, Errors: 0, Skipped: 0");
+        verifier.verifyTextInLog("OSGiRunningIT.willFail:30 This fail is intentional");
+    }
+
+    @Test
+    public void testVerify() throws Exception {
+        Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
+        verifier.verifyTextInLog("There are test failures");
     }
 
 }
