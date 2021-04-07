@@ -71,6 +71,7 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.BundleProject;
@@ -848,6 +849,13 @@ public class TestMojo extends AbstractMojo {
                 }
             }
             testRuntime.addBundle(artifact);
+        }
+        for (Artifact artifact : project.getAttachedArtifacts()) {
+            if (ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT.equals(artifact.getClassifier())) {
+                DefaultArtifactKey key = new DefaultArtifactKey(artifact.getClassifier(), artifact.getId(),
+                        artifact.getVersion());
+                testRuntime.addBundle(key, artifact.getFile());
+            }
         }
 
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
