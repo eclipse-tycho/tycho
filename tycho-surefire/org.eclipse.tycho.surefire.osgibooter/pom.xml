@@ -72,6 +72,11 @@
 									<artifactId>maven-surefire-common</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.plugins</groupId>
+									<artifactId>maven-failsafe-plugin</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
