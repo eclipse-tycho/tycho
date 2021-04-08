@@ -18,9 +18,7 @@ with Maven.
 * 🪲 Bug Tracker
      * New https://github.com/eclipse/tycho/issues
      * Legacy https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho
-* ⌨️ How to Contribute
-     * New [CONTRIBUTING.md](./CONTRIBUTING.md)
-     * Legacy http://wiki.eclipse.org/Tycho/Contributor_Guide and https://wiki.eclipse.org/Developing_Tycho
+* ⌨️ How to Contribute: [CONTRIBUTING.md](./CONTRIBUTING.md)
 * 💬 Community mailing-lists
      * Usage assistance https://dev.eclipse.org/mailman/listinfo/tycho-user
      * Development https://dev.eclipse.org/mailman/listinfo/tycho-dev

@@ -11,15 +11,128 @@ and the minimal reproducer project to Tycho's [issue tracker](./issues).
 
 ## Development environment
 
-Tycho requires Eclipse IDE, Eclipse m2e and Eclipse PDE. Then it can be imported as any Maven project.
-
 <a href="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirect.html"><img src="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/cloneToEclipseBadge.png" alt="Clone to Eclipse IDE"/></a>  
 
-You can also [set up the Tycho Development Environment using the Eclipse Installer](setup/README.md).
-  
+### Prerequisites
+
+Java 11 and Maven 3.6.3, or newer.
+
+If your Internet connection uses a proxy, make sure that you have the proxy configured in your [Maven settings.xml](http://maven.apache.org/settings.html).
+
+### Using the Eclipse Installer (Oomph)
+
+Step by step instructions:
+
+1. Download the [Eclipse Installer](https://wiki.eclipse.org/Eclipse_Installer). 
+2. Start the installer using the `eclipse-inst` executable.
+3. On the first page (product selection), click the preference button in the top-right corner and select the _Advanced Mode_ .
+4. If you are behind a proxy, at this point you might want to double check your network settings by clicking in the _Network Proxy Settings_ at the bottom.
+5. Select _Eclipse IDE for Eclipse Committers_ . Click _Next_ .
+6. Under _Eclipse.org_ , double-click on _Tycho_ (single click is not enough!). Make sure that _Tycho_ is shown in the table on the bottom. Click _Next_.
+7. You can edit the _Installation Folder_ , but you do not have to select the _Target Platform_ here, this will be set later automatically. By choosing _Show all variables_ at the bottom of the page, you are able to change other values as well but you do not have to. Click _Next_ .
+8. Press _Finished_ on the _Confirmation_ page will start the installation process. 
+9. The installer will download the selected Eclipse version, starts Eclipse and will perform all the additional steps (cloning the git repos, etc...). When the downloaded Eclispe started, the progress bar in the status bar shows the progress of the overall setup.
+10. Once the _Executing startup task_ job is finished you should have all the Tycho and Tycho Extras projects imported into 2 working sets called _Tycho_ and _Tycho Extras_ .
+11. Some Projects might sill have errors. Select them (or all) and choose _Maven > Update Project.._ from the context menu. De-select _Clean projects_ in the shown dialog and press _OK_ to update the projects. After that, no more error should be there.  
+
+### Manually setup
+
+Prefered and easier way is to follow the instructions above, but you could also setup your environment manually:
+
+1. Get an [Eclipse IDE](https://www.eclipse.org/downloads/eclipse-packages/) with a recent version of the [Maven integration for Eclipse (m2eclipse)](https://www.eclipse.org/m2e/) and Eclipse PDE installed. m2eclipse is included in various Eclipse packages, e.g. the _Eclipse IDE for Eclipse Committers_ package. To add m2eclipse to your existing Eclipse installation, install it from the Eclipse Marketplace.
+2. Clone this repository (via CLI or EGit)
+3. In Eclipse, use ''File > Import > Existing Maven Projects'', select the root directory of the sources, and import all projects. If prompted by m2eclipse, install the proposed project configurators and restart Eclipse.
+4. For Tycho only: Configure the target platform: Open the file `tycho-bundles-target/tycho-bundles-target.target` and click on _Set as Target Platform_ in the upper right corner of the target definition editor.
+
+
+The result should be an Eclipse workspace without build errors. m2eclipse may take some time to download required libraries from Maven central.
+
+* If there are compile errors in the projects `org.eclipse.tycho.surefire.junit<`, `org.eclipse.tycho.surefire.junit4`,  `org.eclipse.tycho.surefire.junit47`, or `org.eclipse.tycho.surefire.osgibooter`, just select these projects and manually trigger an update via _Maven > Update project..._ from the context menu.
+
+## Tests
+
+Tycho has two types of tests: unit tests (locally in each module) and a global integration test suite in module tycho-its.
+
+Unit tests are preferred if possible because they are in general much faster and better targeted at the functionality under test. Integration tests generally invoke a forked Maven build on a sample project (stored under projects/) and then do some assertions on the build results.
+
+### Tycho integration tests
+
+The Tycho integration tests are located in the project `tycho-its`. To run all Tycho integration tests, execute `mvn clean install -f tycho-its/pom.xml`. To run a single integration test, select the test class in Eclipse and run it as ''JUnit Test''.
+
+_Background information on the Tycho integration tests_
+
+The integration tests trigger sample builds that use Tycho. These builds expect that Tycho has been installed to the local Maven repository. This is why you need to build Tycho through a `mvn install` before you can run the integration tests.
+
+Alternatively, e.g. if you are only interested in modifying an integration test and do not want to patch Tycho itself, you can configure the integration tests to download the current Tycho snapshot produced by the [http://hudson.eclipse.org/tycho/view/CI Tycho CI builds]. To do this, you need to edit the Maven settings stored in `tycho-its/settings.xml` and add the tycho-snapshots repository as described in [[Getting Tycho]]. (Advanced note: The integration tests can also be pointed to a different settings.xml with the system property `tycho.testSettings`.)
+
+### Writing Tycho integration tests
+
+The hardest part for writing Tycho integration tests is the naming. While names are mostly important for readability, there were also cases where the ID "feature" was used multiple times and hence a test used the build result of a different integration test.
+
+Therefore, here are a few tips for writing good integration tests:
+* Test project name: Although many existing test have a bug number in the name, this is '''not''' the recommended naming scheme. Since integration test can take some time to execute, it may be a good idea to test related things in one test. <br>So name the test projects in a way that they can be found, and that related tests are sorted next to each other, e.g. in the form <tt>&lt;component&gt;.&lt;aspect&gt;</tt>.
+* Package: Should be <tt>org.eclipse.tycho.test.&lt;component&gt;</tt> (without the aspect so that we don't get an excessive number of packages)
+* Test project groupIds: Should be <tt>tycho-its-project.&lt;component&gt;.&lt;aspect&gt;</tt> plus a segment for the reactor in case of multi-reactor tests. The groupId is particularly important if the test project is installed to the local Maven repository. (Avoid install; use verify if possible.)
+* Test project artifactIds: Have to be the same as the ID of the feature/bundle; need to start with something unique, e.g. the first letters of each segment of the project name.
+
+### Tycho Extras integration tests
+
+Each Tycho Extras project does have its own integration tests located in the subdirectory `it` within the project (e.g. `tycho-eclipserun-plugin/src/it`). 
+To run the tests use the maven profile `its`, run `mvn integration-test -Pits` either within the Tycho Extras source folder to run all Tycho Extras integration tests or within a Tycho Extras plugin directory to run only the integration tests of that project.
+
+_Background information on the Tycho Extras integration tests_
+
+Tycho Extras and Tycho are developed and released in parallel and will use the snapshot version of Tycho from the repository `https://repo.eclipse.org/content/repositories/tycho-snapshots/`. 
+If you want to run the tests with a specific version of Tycho use the `tycho-version` system property, e.g. `mvn integration-test -Pits -Dtycho-version=0.22.0`.
+To use a different Tycho snapshot repository use the system property `tycho-snapshots-url`, e.g. `mvn integration-test -Pits -Dtycho-snapshots-url=file:/path/to/repo`
+
+## Advanced development tricks
+
+### Building Tycho against a locally built version of p2
+
+Tycho makes heavy use of p2 functionality. Therefore it may be useful to try out patches to p2 without waiting for a new p2 release, or even just the next nightly build. With the following steps it is possible to build Tycho against a locally built version of p2.
+
+1. Get the p2 sources (see [http://projects.eclipse.org/projects/rt.equinox.p2/developer p2 project information])
+2. Make changes in the p2 sources
+3. Build the changed p2 bundles individually with <tt>mvn clean install -Pbuild-individual-bundles</tt> (see [[Equinox/p2/Build]] for more information)
+4. Build at least the Tycho module tycho-bundles-external with <tt>mvn clean install</tt> - you should see a warning that the locally built p2 bundles have been used.
+Then the locally built Tycho SNAPSHOT includes the patched p2 version.
+
+Note: Tycho always allows references to locally built artifacts, even if they are not part of the target platform. Therefore you may want to clear the list of locally built artifacts (in the local Maven repository in .meta/p2-local-metadata.properties) after you have finished your trials with the patched p2 version.
+
+### Updating the Equinox and JDT dependencies of Tycho
+
+Tycho has Maven dependencies to Equinox and JDT, so these artifact are used from  Maven  Central repository. 
+
 ## 🏗️ Build & Test
 
-`mvn clean install`
+`mvn clean install -Pits`
+
+## Debugging 
+
+In order to debug Tycho plugins inside Eclipse:
+
+1. Get the Tycho sources in Eclipse
+2. Create/get a project that highlights the bug
+3. Run the project with `mvnDebug clean install`
+4. Go into your Eclipse, use `Debug > Remote Java Application`, select port 8000
+
+
+## Commits
+
+### Message Guidelines
+
+Start with `Bug: <number>` stating the bug number the change is related to; this will enable the eclipse genie bot to automatically cross-link bug and gerrit proposal
+
+Also in the first line, provide a clear and concise description of the change
+
+Add one blank line, followed by more details about the change. This could include a motivation for the change and/or reasons why things were done in the particular way they are done in the change.
+
+### Granularity
+
+Make small commits, yet self-contained commits. This makes them easy to review.
+
+Do not mix concerns in commits: have a commit do a single thing. This makes them reviewable 'in isolation'. This is particularly important if you need to do refactorings to the existing code: Refactorings tend to lead to large diffs which are difficult to review. Therefore make sure to have separate commits for refactorings and for functional changes.
 
 ## Submit patch
 
