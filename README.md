@@ -1,5 +1,5 @@
-About Tycho
-===========
+Eclipse Tycho
+=============
 
 Tycho is a manifest-first way to build
 
@@ -10,16 +10,18 @@ Tycho is a manifest-first way to build
   
 with Maven.
 
-  * [Project Homepage](http://www.eclipse.org/tycho/)
-  * [Documentation](http://eclipse.org/tycho/documentation.php)
-  * [Bug Tracker](https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho)
-  * [How to Contribute](http://wiki.eclipse.org/Tycho/Contributor_Guide)
-  * [Contact Us](https://dev.eclipse.org/mailman/listinfo/tycho-user)
 
-Building Tycho from sources:
-
-    mvn clean install
-
-For more details, see [Developing Tycho](http://wiki.eclipse.org/Developing_Tycho).
-
-You can also [set up the Tycho Development Environment using the Eclipse Installer](setup/README.md).
+* 👔 Eclipe project entry: https://projects.eclipse.org/projects/technology.tycho
+* 🗒️ Documentation (some content to be reincorporated into this repository):
+      * https://www.eclipse.org/tycho/sitedocs/
+      * https://wiki.eclipse.org/Tycho/
+* 🪲 Bug Tracker
+     * New https://github.com/eclipse/tycho/issues
+     * Legacy https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho
+* ⌨️ How to Contribute
+     * New [CONTRIBUTING.md](./CONTRIBUTING.md)
+     * Legacy http://wiki.eclipse.org/Tycho/Contributor_Guide and https://wiki.eclipse.org/Developing_Tycho
+* 💬 Community mailing-lists
+     * Usage assistance https://dev.eclipse.org/mailman/listinfo/tycho-user
+     * Development https://dev.eclipse.org/mailman/listinfo/tycho-dev
+  

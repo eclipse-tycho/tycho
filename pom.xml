@@ -23,7 +23,7 @@
 	<licenses>
 		<license>
 			<name>Eclipse Public License</name>
-			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+			<url>http://www.eclipse.org/legal/epl-v20.html</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -32,13 +32,13 @@
 		<url>http://www.eclipse.org/</url>
 	</organization>
 	<issueManagement>
-		<system>Bugzilla</system>
-		<url>https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho</url>
+		<system>GitHub</system>
+		<url>https://github.com/eclipse/tycho/issues</url>
 	</issueManagement>
 	<scm>
-		<connection>scm:git:http://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.git</connection>
+		<connection>scm:git:https://github.com/eclipse/tycho.git</connection>
 		<developerConnection>scm:git:ssh://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.git</developerConnection>
-		<url>http://git.eclipse.org/c/tycho/org.eclipse.tycho.git</url>
+		<url>https://github.com/eclipse/tycho/</url>
 	</scm>
 	<developers>
 		<developer>
