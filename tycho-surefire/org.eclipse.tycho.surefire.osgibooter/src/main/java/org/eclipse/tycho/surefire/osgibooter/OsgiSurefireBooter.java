@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.plugin.failsafe.util.FailsafeSummaryXmlUtils;
 import org.apache.maven.plugin.surefire.StartupReportConfiguration;
 import org.apache.maven.plugin.surefire.log.api.PrintStreamLogger;
 import org.apache.maven.plugin.surefire.report.ConsoleReporter;
@@ -115,6 +116,10 @@ public class OsgiSurefireBooter {
         // to load surefire classes using this classloader
         RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin), reporterFactory,
                 providerConfiguration, false, startupConfiguration, true);
+        String failsafe = testProps.getProperty("failsafe");
+        if (failsafe != null && !failsafe.isBlank()) {
+            FailsafeSummaryXmlUtils.writeSummary(result, new File(failsafe), false);
+        }
         // counter-intuitive, but null indicates OK here
         return result.getFailsafeCode() == null ? 0 : result.getFailsafeCode();
     }
@@ -223,5 +228,11 @@ public class OsgiSurefireBooter {
         protected Enumeration<URL> findResources(String name) throws IOException {
             return bundle.getResources(name);
         }
+
+        @Override
+        public String toString() {
+            return bundle.getSymbolicName() + " [" + bundle.getVersion() + "]";
+        }
     }
+
 }

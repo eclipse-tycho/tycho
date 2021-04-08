@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,8 @@
  *    SAP SE - port to surefire 2.10
  *    Mickael Istria (Red Hat Inc.) - 386988 Support for provisioned applications
  *    Bachmann electrontic GmbH - 510425 parallel mode requires threadCount>1 or useUnlimitedThreads=true
- *    Christoph Läubrich - improve error message in case of failures
+ *    Christoph Läubrich    - [Bug 529929] improve error message in case of failures
+ *                          - [Bug 572420] Tycho-Surefire should be executable for eclipse-plugin package type
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
@@ -43,10 +44,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.surefire.util.DirectoryScanner;
 import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.surefire.booter.BooterConstants;
@@ -100,22 +98,7 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilder;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilderFactory;
 
-/**
- * <p>
- * Executes tests in an OSGi runtime.
- * </p>
- * <p>
- * The goal launches an OSGi runtime and executes the project's tests in that runtime. The "test
- * runtime" consists of the bundle built in this project and its transitive dependencies, plus some
- * Equinox and test harness bundles. The bundles are resolved from the target platform of the
- * project. Note that the test runtime does typically <em>not</em> contain the entire target
- * platform. If there are implicitly required bundles (e.g. <tt>org.apache.felix.scr</tt> to make
- * declarative services work), they need to be added manually through an <tt>extraRequirements</tt>
- * configuration on the <tt>target-platform-configuration</tt> plugin.
- * </p>
- */
-@Mojo(name = "test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
-public class TestMojo extends AbstractMojo {
+public abstract class AbstractTestMojo extends AbstractMojo {
 
     private static String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, singles start with 1
             "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL", "SIGUSR1",
@@ -149,7 +132,7 @@ public class TestMojo extends AbstractMojo {
     private boolean deleteOsgiDataDirectory;
 
     @Parameter(property = "project", readonly = true)
-    private MavenProject project;
+    protected MavenProject project;
 
     /**
      * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
@@ -205,12 +188,6 @@ public class TestMojo extends AbstractMojo {
     private Boolean skip;
 
     /**
-     * If set to "false" the test execution will not fail in case there are no tests found.
-     */
-    @Parameter(property = "failIfNoTests", defaultValue = "true")
-    private boolean failIfNoTests;
-
-    /**
      * (junit47 provider with JUnit4.8+ only) Groups/categories for this test (comma-separated).
      * Only classes/methods/etc decorated with one of the group/category specified here will be
      * included in test run, if specified. For JUnit, this parameter forces the use of the junit47
@@ -228,19 +205,6 @@ public class TestMojo extends AbstractMojo {
     private String excludedGroups;
 
     /**
-     * Set this to true to ignore a failure during testing. Its use is NOT RECOMMENDED, but quite
-     * convenient on occasion.
-     */
-    @Parameter(property = "maven.test.failure.ignore", defaultValue = "false")
-    private boolean testFailureIgnore;
-
-    /**
-     * The directory containing generated test classes of the project being tested.
-     */
-    @Parameter(property = "project.build.outputDirectory")
-    private File testClassesDirectory;
-
-    /**
      * Enables -debug -consolelog for the test OSGi runtime
      */
     @Parameter(property = "tycho.showEclipseLog", defaultValue = "false")
@@ -252,12 +216,6 @@ public class TestMojo extends AbstractMojo {
      */
     @Parameter(property = "maven.test.redirectTestOutputToFile", defaultValue = "false")
     private boolean redirectTestOutputToFile;
-
-    /**
-     * Base directory where all reports are written to.
-     */
-    @Parameter(defaultValue = "${project.build.directory}/surefire-reports")
-    private File reportsDirectory;
 
     @Parameter(defaultValue = "${project.build.directory}/surefire.properties")
     private File surefireProperties;
@@ -695,26 +653,24 @@ public class TestMojo extends AbstractMojo {
             getLog().info("Skipping tests");
             return;
         }
+        if (shouldRun()) {
+            synchronized (LOCK) {
+                EquinoxInstallation equinoxTestRuntime;
+                if ("p2Installed".equals(testRuntime)) {
+                    equinoxTestRuntime = createProvisionedInstallation();
+                } else if ("default".equals(testRuntime)) {
+                    equinoxTestRuntime = createEclipseInstallation();
+                } else {
+                    throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
+                            + "' is unkown. Allowed values: 'default', 'p2Installed'.");
+                }
 
-        if (!"eclipse-test-plugin".equals(project.getPackaging())) {
-            getLog().warn("Unsupported packaging type " + project.getPackaging());
-            return;
-        }
-
-        synchronized (LOCK) {
-            EquinoxInstallation equinoxTestRuntime;
-            if ("p2Installed".equals(testRuntime)) {
-                equinoxTestRuntime = createProvisionedInstallation();
-            } else if ("default".equals(testRuntime)) {
-                equinoxTestRuntime = createEclipseInstallation();
-            } else {
-                throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
-                        + "' is unkown. Allowed values: 'default', 'p2Installed'.");
+                runTest(equinoxTestRuntime);
             }
-
-            runTest(equinoxTestRuntime);
         }
     }
+
+    protected abstract boolean shouldRun();
 
     protected boolean shouldSkip() {
         if (skip != null && skipTests != null && !skip.equals(skipTests)) {
@@ -743,7 +699,8 @@ public class TestMojo extends AbstractMojo {
             TestFrameworkProvider provider = providerHelper.selectProvider(
                     getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
                     providerHint);
-            createSurefireProperties(provider);
+            PropertiesWrapper wrapper = createSurefireProperties(provider);
+            storeProperties(wrapper.getProperties(), surefireProperties);
 
             ProvisionedInstallationBuilder installationBuilder = provisionedInstallationBuilderFactory
                     .createInstallationBuilder();
@@ -831,7 +788,8 @@ public class TestMojo extends AbstractMojo {
         TestFrameworkProvider provider = providerHelper.selectProvider(
                 getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
                 providerHint);
-        createSurefireProperties(provider);
+        PropertiesWrapper wrapper = createSurefireProperties(provider);
+        storeProperties(wrapper.getProperties(), surefireProperties);
         for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
             // note that this project is added as directory structure rooted at project basedir.
             // project classes and test-classes are added via dev.properties file (see #createDevProperties())
@@ -874,7 +832,7 @@ public class TestMojo extends AbstractMojo {
 
         testRuntime.addDevEntries(getTestBundleSymbolicName(), getBuildOutputDirectories());
 
-        reportsDirectory.mkdirs();
+        getReportsDirectory().mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
     }
 
@@ -924,14 +882,13 @@ public class TestMojo extends AbstractMojo {
         return ideapp;
     }
 
-    private void createSurefireProperties(TestFrameworkProvider provider) throws MojoExecutionException {
+    protected PropertiesWrapper createSurefireProperties(TestFrameworkProvider provider) throws MojoExecutionException {
         PropertiesWrapper wrapper = new PropertiesWrapper(new HashMap<>());
         wrapper.setProperty("testpluginname", getTestBundleSymbolicName());
-        wrapper.setProperty("testclassesdirectory", testClassesDirectory.getAbsolutePath());
-        wrapper.setProperty("reportsdirectory", reportsDirectory.getAbsolutePath());
+        wrapper.setProperty("testclassesdirectory", getTestClassesDirectory().getAbsolutePath());
+        wrapper.setProperty("reportsdirectory", getReportsDirectory().getAbsolutePath());
         wrapper.setProperty("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
 
-        wrapper.setProperty("failifnotests", String.valueOf(failIfNoTests));
         wrapper.setProperty("runOrder", runOrder);
         wrapper.setProperty("trimStackTrace", String.valueOf(trimStackTrace));
         wrapper.setProperty("skipAfterFailureCount", String.valueOf(skipAfterFailureCount));
@@ -947,7 +904,7 @@ public class TestMojo extends AbstractMojo {
         wrapper.setProperty("testprovider", provider.getSurefireProviderClassName());
         getLog().debug("Using test framework provider " + provider.getClass().getName());
         wrapper.addList(suiteXmlFiles, BooterConstants.TEST_SUITE_XML_FILES);
-        storeProperties(wrapper.getProperties(), surefireProperties);
+        return wrapper;
     }
 
     protected Properties getMergedProviderProperties() throws MojoExecutionException {
@@ -983,9 +940,8 @@ public class TestMojo extends AbstractMojo {
     }
 
     protected ScanResult scanForTests() {
-        List<String> defaultIncludes = Arrays.asList("**/Test*.class", "**/*Test.class", "**/*Tests.class",
-                "**/*TestCase.class");
-        List<String> defaultExcludes = Arrays.asList("**/*$*");
+        List<String> defaultIncludes = getDefaultInclude();
+        List<String> defaultExcludes = getDefaultExclude();
         List<String> includeList;
         List<String> excludeList;
         if (test != null) {
@@ -1012,10 +968,16 @@ public class TestMojo extends AbstractMojo {
         // by passing in the unparsed String or Strings instead of already parsed include/exclude list
         // (this would add support for running single test methods, negation etc.)
         TestListResolver resolver = new TestListResolver(includeList, excludeList);
-        DirectoryScanner scanner = new DirectoryScanner(testClassesDirectory, resolver);
+        DirectoryScanner scanner = new DirectoryScanner(getTestClassesDirectory(), resolver);
         DefaultScanResult scanResult = scanner.scan();
         return scanResult;
     }
+
+    protected List<String> getDefaultExclude() {
+        return Arrays.asList("**/*$*");
+    }
+
+    protected abstract List<String> getDefaultInclude();
 
     private void storeProperties(Map<String, String> propertiesMap, File file) throws MojoExecutionException {
         Properties p = new Properties();
@@ -1046,7 +1008,7 @@ public class TestMojo extends AbstractMojo {
         }
         switch (result) {
         case 0:
-            getLog().info("All tests passed!");
+            handleSuccess();
             break;
 
         case 200: /* see AbstractUITestApplication */
@@ -1061,22 +1023,11 @@ public class TestMojo extends AbstractMojo {
             }
 
         case 254/* RunResult.NO_TESTS */:
-            String message = "No tests found.";
-            if (failIfNoTests) {
-                throw new MojoFailureException(message);
-            } else {
-                getLog().warn(message);
-            }
+            handleNoTestsFound();
             break;
 
         case 255/* RunResult.FAILURE */:
-            String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
-                    + " for the individual test results.";
-            if (testFailureIgnore) {
-                getLog().error(errorMessage);
-            } else {
-                throw new MojoFailureException(errorMessage);
-            }
+            handleTestFailures();
             break;
 
         default:
@@ -1108,6 +1059,12 @@ public class TestMojo extends AbstractMojo {
             throw new MojoFailureException(defaultMessage.toString());
         }
     }
+
+    protected abstract void handleTestFailures() throws MojoFailureException;
+
+    protected abstract void handleSuccess();
+
+    protected abstract void handleNoTestsFound() throws MojoFailureException;
 
     private String decodeReturnCode(int result) {
         try {
@@ -1145,7 +1102,7 @@ public class TestMojo extends AbstractMojo {
         return toolChain;
     }
 
-    LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime)
+    private EquinoxLaunchConfiguration createCommandLine(EquinoxInstallation testRuntime)
             throws MalformedURLException, MojoExecutionException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(testRuntime);
 
@@ -1320,5 +1277,9 @@ public class TestMojo extends AbstractMojo {
 
         return files;
     }
+
+    protected abstract File getTestClassesDirectory();
+
+    protected abstract File getReportsDirectory();
 
 }
