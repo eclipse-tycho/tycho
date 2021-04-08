@@ -1,0 +1,4 @@
+requires.0.namespace = osgi.bundle
+requires.0.name = bundle1.fragment
+requires.0.greedy = true
+requires.0.optional = false

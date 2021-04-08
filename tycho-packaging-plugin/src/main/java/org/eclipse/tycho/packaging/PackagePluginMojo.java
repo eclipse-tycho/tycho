@@ -39,7 +39,7 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -169,7 +169,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             project.getArtifact().setFile(pluginFile);
             File testPluginFile = createTestPluginJar(reactorProject);
             if (testPluginFile != null) {
-                projectHelper.attachArtifact(project, "jar", PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, testPluginFile);
+                projectHelper.attachArtifact(project, "jar", ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT, testPluginFile);
             }
 
         }
