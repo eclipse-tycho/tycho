@@ -55,7 +55,6 @@ import org.osgi.framework.Constants;
  */
 @Mojo(name = "package-plugin", threadSafe = true)
 public class PackagePluginMojo extends AbstractTychoPackagingMojo {
-    private static final Object LOCK = new Object();
 
     /**
      * The output directory of the jar file
@@ -158,20 +157,16 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        synchronized (LOCK) {
-            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            pdeProject = (EclipsePluginProject) reactorProject
-                    .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        pdeProject = (EclipsePluginProject) reactorProject.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
 
-            createSubJars();
+        createSubJars();
 
-            File pluginFile = createPluginJar();
-            project.getArtifact().setFile(pluginFile);
-            File testPluginFile = createTestPluginJar(reactorProject);
-            if (testPluginFile != null) {
-                projectHelper.attachArtifact(project, "jar", ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT, testPluginFile);
-            }
-
+        File pluginFile = createPluginJar();
+        project.getArtifact().setFile(pluginFile);
+        File testPluginFile = createTestPluginJar(reactorProject);
+        if (testPluginFile != null) {
+            projectHelper.attachArtifact(project, "jar", ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT, testPluginFile);
         }
     }
 
