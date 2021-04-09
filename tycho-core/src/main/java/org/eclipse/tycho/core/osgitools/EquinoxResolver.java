@@ -303,13 +303,14 @@ public class EquinoxResolver {
                     Collection<String> additionalBundles = buildPropertiesParser.parse(mavenProject.getBasedir())
                             .getAdditionalBundles();
                     if (additionalBundles.size() > 0) {
-                        ArrayList<Object> reqb = new ArrayList<>();
+                        List<String> reqb = new ArrayList<>();
                         String value = mf.getValue(Constants.REQUIRE_BUNDLE);
                         if (value != null) {
                             reqb.add(value);
                         }
-                        reqb.addAll(additionalBundles);
-                        mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", additionalBundles));
+                        reqb.addAll(additionalBundles.stream().map(b -> b + ";resolution:=optional")
+                                .collect(Collectors.toList()));
+                        mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", reqb));
                     }
                     projects.put(location, mf);
                 } else {
