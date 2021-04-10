@@ -90,6 +90,9 @@ public class ClasspathParser implements Disposable {
                             }
                             list.add(new JDTSourceFolder(new File(file.getParentFile(), path),
                                     new File(file.getParentFile(), output), attributes));
+                        } else if ("con".equals(kind)) {
+                            String path = classpathentry.getAttribute("path");
+                            list.add(new JDTContainerClasspathEntry(path, attributes));
                         }
                     }
                     entries = Collections.unmodifiableList(list);
@@ -115,7 +118,29 @@ public class ClasspathParser implements Disposable {
 
     }
 
-    private static class JDTSourceFolder implements SourceFolderClasspathEntry {
+    private static final class JDTContainerClasspathEntry implements ContainerClasspathEntry {
+
+        private String path;
+        private Map<String, String> attributes;
+
+        public JDTContainerClasspathEntry(String path, Map<String, String> attributes) {
+            this.path = path;
+            this.attributes = attributes;
+        }
+
+        @Override
+        public Map<String, String> getAttributes() {
+            return attributes;
+        }
+
+        @Override
+        public String getContainerPath() {
+            return path;
+        }
+
+    }
+
+    private static final class JDTSourceFolder implements SourceFolderClasspathEntry {
 
         private File path;
         private Map<String, String> attributes;

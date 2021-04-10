@@ -16,8 +16,4 @@ public interface ProjectClasspathEntry {
 
     Map<String, String> getAttributes();
 
-    static interface JreContainerClasspathEntry extends ProjectClasspathEntry {
-
-    }
-
 }
