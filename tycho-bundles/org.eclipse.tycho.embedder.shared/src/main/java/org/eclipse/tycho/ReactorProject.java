@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * A Tycho project in the reactor.
  */
-public interface ReactorProject {
+public interface ReactorProject extends IDependencyMetadata {
     /**
      * Conventional key used to store ReactorProject in MavenProject.context
      */
@@ -84,12 +84,14 @@ public interface ReactorProject {
      * Returns set of p2 <tt>IInstallableUnit</tt>s that describe requirements and provided
      * capabilities of this project.
      */
+    @Override
     public Set<?> getDependencyMetadata(boolean primary);
 
     /**
      * Returns project dependency metadata with both primary and secondary project installable
      * units.
      */
+    @Override
     public Set<?> getDependencyMetadata();
 
     public String getBuildQualifier();

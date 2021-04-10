@@ -16,8 +16,8 @@ import java.util.Set;
 
 public interface IDependencyMetadata {
 
-    Set<Object /* IInstallableUnit */> getDependencyMetadata(boolean primary);
+    Set<? /* IInstallableUnit */> getDependencyMetadata(boolean primary);
 
-    Set<Object /* IInstallableUnit */> getDependencyMetadata();
+    Set<? /* IInstallableUnit */> getDependencyMetadata();
 
 }
