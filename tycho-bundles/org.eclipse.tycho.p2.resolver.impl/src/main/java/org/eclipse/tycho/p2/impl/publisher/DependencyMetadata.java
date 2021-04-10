@@ -56,7 +56,7 @@ public class DependencyMetadata implements IDependencyMetadata {
     }
 
     public Set<IInstallableUnit> getInstallableUnits() {
-        return typeMap.values().stream().flatMap(Collection::stream).map(IInstallableUnit.class::isInstance)
+        return typeMap.values().stream().flatMap(Collection::stream).filter(IInstallableUnit.class::isInstance)
                 .map(IInstallableUnit.class::cast).distinct().collect(Collectors.toSet());
     }
 }
