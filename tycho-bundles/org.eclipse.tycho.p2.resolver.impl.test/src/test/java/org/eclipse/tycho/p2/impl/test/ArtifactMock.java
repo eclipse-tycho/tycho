@@ -94,7 +94,7 @@ public class ArtifactMock implements IArtifactFacade {
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(true));
-        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(false));
+        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getDependencyMetadata(true));
+        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getDependencyMetadata(false));
     }
 }

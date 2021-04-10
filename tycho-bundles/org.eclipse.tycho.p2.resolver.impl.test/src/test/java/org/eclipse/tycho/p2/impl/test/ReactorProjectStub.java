@@ -98,8 +98,8 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(true));
-        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(false));
+        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getDependencyMetadata(true));
+        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getDependencyMetadata(false));
     }
 
     @Override

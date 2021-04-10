@@ -144,8 +144,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         Set<Object> primaryMetadata = new LinkedHashSet<>();
         Set<Object> secondaryMetadata = new LinkedHashSet<>();
         for (Map.Entry<String, IDependencyMetadata> entry : metadata.entrySet()) {
-            primaryMetadata.addAll(entry.getValue().getMetadata(true));
-            secondaryMetadata.addAll(entry.getValue().getMetadata(false));
+            primaryMetadata.addAll(entry.getValue().getDependencyMetadata(true));
+            secondaryMetadata.addAll(entry.getValue().getDependencyMetadata(false));
         }
         reactorProject.setDependencyMetadata(true, primaryMetadata);
         reactorProject.setDependencyMetadata(false, secondaryMetadata);
@@ -234,8 +234,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         final Set<Object> metadata = new LinkedHashSet<>();
         final Set<Object> secondaryMetadata = new LinkedHashSet<>();
         for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
-            metadata.addAll(entry.getValue().getMetadata(true));
-            secondaryMetadata.addAll(entry.getValue().getMetadata(false));
+            metadata.addAll(entry.getValue().getDependencyMetadata(true));
+            secondaryMetadata.addAll(entry.getValue().getDependencyMetadata(false));
         }
         ReactorProject reactorProjet = new DefaultReactorProject(project) {
             @Override

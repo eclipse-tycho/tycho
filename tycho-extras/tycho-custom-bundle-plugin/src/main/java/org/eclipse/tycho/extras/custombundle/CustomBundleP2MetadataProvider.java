@@ -102,14 +102,14 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
         final Set<Object> metadata;
 
         public SecondaryDependencyMetadata(IDependencyMetadata original) {
-            metadata = Collections.unmodifiableSet(original.getMetadata());
+            metadata = Collections.unmodifiableSet(original.getDependencyMetadata());
         }
 
-        public Set<Object> getMetadata(boolean primary) {
+        public Set<Object> getDependencyMetadata(boolean primary) {
             return primary ? Collections.emptySet() : metadata;
         }
 
-        public Set<Object> getMetadata() {
+        public Set<Object> getDependencyMetadata() {
             return metadata;
         }
     }
