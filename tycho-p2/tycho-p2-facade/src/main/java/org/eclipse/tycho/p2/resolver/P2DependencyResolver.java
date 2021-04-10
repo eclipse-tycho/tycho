@@ -56,6 +56,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -88,7 +89,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;

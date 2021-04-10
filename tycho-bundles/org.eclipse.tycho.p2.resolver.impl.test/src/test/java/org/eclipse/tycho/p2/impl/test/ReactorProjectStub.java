@@ -21,9 +21,9 @@ import java.util.Set;
 
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 
 // TODO use interface with a subset of methods to ease stubbing?
 public class ReactorProjectStub extends ReactorProjectIdentities implements ReactorProject {

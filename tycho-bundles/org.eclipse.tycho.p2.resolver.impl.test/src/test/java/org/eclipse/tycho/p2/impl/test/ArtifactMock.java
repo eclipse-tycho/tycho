@@ -16,8 +16,8 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 
 public class ArtifactMock implements IArtifactFacade {
     private File location;

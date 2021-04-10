@@ -117,6 +117,13 @@ public abstract class AbstractMetadataGenerator {
                     VersionRange.emptyRange, null, false, false));
     }
 
+    public Object createBundleDependecy(String id, String versionRange) {
+        // TODO Auto-generated method stub
+//        requirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(),
+//                PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+        return null;
+    }
+
     private DependencyMetadata publish(PublisherInfo publisherInfo, List<IPublisherAction> actions) {
         PublisherResult result = new PublisherResult();
 

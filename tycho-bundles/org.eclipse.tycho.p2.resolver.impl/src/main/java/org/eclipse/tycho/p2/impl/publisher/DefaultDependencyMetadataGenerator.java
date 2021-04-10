@@ -33,4 +33,5 @@ public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implemen
             OptionalResolutionAction optionalAction, PublisherOptions options) {
         return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction, options);
     }
+
 }

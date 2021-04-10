@@ -18,7 +18,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.IDependencyMetadata;
 
 public class DependencyMetadata implements IDependencyMetadata {
 
