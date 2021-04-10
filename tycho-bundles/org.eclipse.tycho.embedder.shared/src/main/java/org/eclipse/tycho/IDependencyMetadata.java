@@ -12,12 +12,19 @@
  *******************************************************************************/
 package org.eclipse.tycho;
 
+import java.util.Collection;
 import java.util.Set;
 
 public interface IDependencyMetadata {
 
-    Set<? /* IInstallableUnit */> getDependencyMetadata(boolean primary);
+    enum DependencyMetadataType {
+        SEED, RESOLVE;
+    }
+
+    Set<? /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type);
 
     Set<? /* IInstallableUnit */> getDependencyMetadata();
+
+    void setDependencyMetadata(DependencyMetadataType type, Collection<? /* IInstallableUnit */> units);
 
 }

@@ -14,6 +14,8 @@
 package org.eclipse.tycho.p2.impl.test;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -93,28 +95,37 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     @Override
-    public Set<?> getDependencyMetadata(boolean primary) {
-        return primary ? dependencyMetadata : secondaryDependencyMetadata;
+    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+        switch (type) {
+        case SEED:
+            return dependencyMetadata;
+        case RESOLVE:
+            return secondaryDependencyMetadata;
+        default:
+            return Collections.emptySet();
+        }
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getDependencyMetadata(true));
-        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getDependencyMetadata(false));
+        this.dependencyMetadata = new LinkedHashSet<>(
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.SEED));
+        this.secondaryDependencyMetadata = new LinkedHashSet<>(
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.RESOLVE));
     }
 
     @Override
-    public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
-        if (primary)
-            this.dependencyMetadata = installableUnits;
-        else
-            this.secondaryDependencyMetadata = installableUnits;
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+        if (type == DependencyMetadataType.SEED)
+            this.dependencyMetadata = new LinkedHashSet<>(units);
+        else if (type == DependencyMetadataType.RESOLVE)
+            this.secondaryDependencyMetadata = new LinkedHashSet<>(units);
     }
 
     // TODO share with real implementation?
     @Override
     public Set<?> getDependencyMetadata() {
-        Set<?> primary = getDependencyMetadata(true);
-        Set<?> secondary = getDependencyMetadata(false);
+        Set<?> primary = getDependencyMetadata(DependencyMetadataType.SEED);
+        Set<?> secondary = getDependencyMetadata(DependencyMetadataType.RESOLVE);
 
         if (primary == null) {
             return secondary;
@@ -185,4 +196,5 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
         // TODO implement
         throw new UnsupportedOperationException();
     }
+
 }

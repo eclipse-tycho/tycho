@@ -46,6 +46,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -123,7 +124,8 @@ public class P2ResolverImpl implements P2Resolver {
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         usedTargetPlatformUnits = new LinkedHashSet<>();
-        Set<?> metadata = project != null ? project.getDependencyMetadata(true) : Collections.emptySet();
+        Set<?> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
+                : Collections.emptySet();
         for (TargetEnvironment environment : environments) {
             if (isMatchingEnv(metadata, environment)) {
                 results.put(environment,
@@ -229,9 +231,9 @@ public class P2ResolverImpl implements P2Resolver {
 
         Set<IInstallableUnit> availableUnits = context.getInstallableUnits();
         if (project != null) {
-            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(true));
+            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(DependencyMetadataType.SEED));
             Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
-                    .getDependencyMetadata(false);
+                    .getDependencyMetadata(DependencyMetadataType.RESOLVE);
             if (!projectSecondaryIUs.isEmpty()) {
                 availableUnits = new LinkedHashSet<>(availableUnits);
                 availableUnits.addAll(projectSecondaryIUs);

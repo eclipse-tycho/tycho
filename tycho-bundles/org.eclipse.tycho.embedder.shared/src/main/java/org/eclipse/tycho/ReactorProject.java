@@ -14,26 +14,11 @@
 package org.eclipse.tycho;
 
 import java.io.File;
-import java.util.Set;
 
 /**
  * A Tycho project in the reactor.
  */
 public interface ReactorProject extends IDependencyMetadata {
-    /**
-     * Conventional key used to store ReactorProject in MavenProject.context
-     */
-    public static final String CTX_REACTOR_PROJECT = "tycho.reactor-project";
-
-    /**
-     * Conventional key used to store dependency metadata in MavenProject.context
-     */
-    public static final String CTX_DEPENDENCY_METADATA = "tycho.dependency-metadata";
-
-    /**
-     * Conventional key used to store secondary dependency metadata in MavenProject.context
-     */
-    public static final String CTX_SECONDARY_DEPENDENCY_METADATA = "tycho.secondary-dependency-metadata";
 
     /**
      * Conventional sources jar Maven artifact classifier.
@@ -75,24 +60,6 @@ public interface ReactorProject extends IDependencyMetadata {
     public Object getContextValue(String key);
 
     public void setContextValue(String key, Object value);
-
-    //
-
-    public void setDependencyMetadata(boolean primary, Set<? /* IInstallableUnit */> installableUnits);
-
-    /**
-     * Returns set of p2 <tt>IInstallableUnit</tt>s that describe requirements and provided
-     * capabilities of this project.
-     */
-    @Override
-    public Set<?> getDependencyMetadata(boolean primary);
-
-    /**
-     * Returns project dependency metadata with both primary and secondary project installable
-     * units.
-     */
-    @Override
-    public Set<?> getDependencyMetadata();
 
     public String getBuildQualifier();
 

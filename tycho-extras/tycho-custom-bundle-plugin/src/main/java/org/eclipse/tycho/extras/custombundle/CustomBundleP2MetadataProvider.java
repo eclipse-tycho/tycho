@@ -13,6 +13,7 @@
 package org.eclipse.tycho.extras.custombundle;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -105,12 +106,19 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
             metadata = Collections.unmodifiableSet(original.getDependencyMetadata());
         }
 
-        public Set<Object> getDependencyMetadata(boolean primary) {
-            return primary ? Collections.emptySet() : metadata;
-        }
-
+        @Override
         public Set<Object> getDependencyMetadata() {
             return metadata;
+        }
+
+        @Override
+        public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+            return type == DependencyMetadataType.RESOLVE ? metadata : Collections.emptySet();
+        }
+
+        @Override
+        public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+            throw new UnsupportedOperationException();
         }
     }
 }
