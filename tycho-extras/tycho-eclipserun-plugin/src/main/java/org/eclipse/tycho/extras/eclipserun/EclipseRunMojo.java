@@ -76,7 +76,7 @@ public class EclipseRunMojo extends AbstractMojo {
     private File work;
 
     /**
-     * Weather the workspace should be cleared before running eclipse.
+     * Whether the workspace should be cleared before running eclipse.
      * <p>
      * If {@code false} and a workspace from a previous run exists, that workspace is reused.
      * </p>
@@ -216,6 +216,41 @@ public class EclipseRunMojo extends AbstractMojo {
 
     @Component
     private ToolchainManager toolchainManager;
+
+    public EclipseRunMojo() {
+        // default constructor
+    }
+
+    /**
+     * Constructor for use of EclipseRunMojo in other Mojos.
+     */
+    public EclipseRunMojo(File work, boolean clearWorkspaceBeforeLaunch, MavenProject project,
+            List<Dependency> dependencies, boolean addDefaultDependencies, String executionEnvironment,
+            List<Repository> repositories, MavenSession session, List<String> jvmArgs, boolean skip,
+            List<String> applicationsArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
+            EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
+            ToolchainProvider toolchainProvider, EquinoxServiceFactory equinox, Logger logger,
+            ToolchainManager toolchainManager) {
+        this.work = work;
+        this.clearWorkspaceBeforeLaunch = clearWorkspaceBeforeLaunch;
+        this.project = project;
+        this.dependencies = dependencies;
+        this.addDefaultDependencies = addDefaultDependencies;
+        this.executionEnvironment = executionEnvironment;
+        this.repositories = repositories;
+        this.session = session;
+        this.jvmArgs = jvmArgs;
+        this.skip = skip;
+        this.applicationsArgs = applicationsArgs;
+        this.forkedProcessTimeoutInSeconds = forkedProcessTimeoutInSeconds;
+        this.environmentVariables = environmentVariables;
+        this.installationFactory = installationFactory;
+        this.launcher = launcher;
+        this.toolchainProvider = toolchainProvider;
+        this.equinox = equinox;
+        this.logger = logger;
+        this.toolchainManager = toolchainManager;
+    }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
