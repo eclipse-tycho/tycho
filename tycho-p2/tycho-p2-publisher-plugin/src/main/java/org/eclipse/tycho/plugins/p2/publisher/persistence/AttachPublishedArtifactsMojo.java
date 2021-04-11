@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
@@ -71,8 +72,8 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
             }
 
             ReactorProject reactorProject = getReactorProject();
-            reactorProject.setDependencyMetadata(true, publishingRepo.getInstallableUnits());
-            reactorProject.setDependencyMetadata(false, Collections.emptySet());
+            reactorProject.setDependencyMetadata(DependencyMetadataType.SEED, publishingRepo.getInstallableUnits());
+            reactorProject.setDependencyMetadata(DependencyMetadataType.RESOLVE, Collections.emptySet());
         }
     }
 

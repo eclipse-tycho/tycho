@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.ProjectDependenciesResolver;
@@ -56,6 +57,8 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -88,7 +91,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -139,16 +141,20 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) reactorProject
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<TargetEnvironment> environments = configuration.getEnvironments();
-        Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, environments,
+        Map<String, IDependencyMetadata> metadataMap = getDependencyMetadata(session, project, environments,
                 OptionalResolutionAction.OPTIONAL);
-        Set<Object> primaryMetadata = new LinkedHashSet<>();
-        Set<Object> secondaryMetadata = new LinkedHashSet<>();
-        for (Map.Entry<String, IDependencyMetadata> entry : metadata.entrySet()) {
-            primaryMetadata.addAll(entry.getValue().getMetadata(true));
-            secondaryMetadata.addAll(entry.getValue().getMetadata(false));
+        Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
+        for (DependencyMetadataType type : DependencyMetadataType.values()) {
+            typeMap.put(type, new LinkedHashSet<Object>());
         }
-        reactorProject.setDependencyMetadata(true, primaryMetadata);
-        reactorProject.setDependencyMetadata(false, secondaryMetadata);
+        for (IDependencyMetadata metadata : metadataMap.values()) {
+            for (Entry<DependencyMetadataType, Set<Object>> map : typeMap.entrySet()) {
+                map.getValue().addAll(metadata.getDependencyMetadata(map.getKey()));
+            }
+        }
+        for (Entry<DependencyMetadataType, Set<Object>> entry : typeMap.entrySet()) {
+            reactorProject.setDependencyMetadata(entry.getKey(), entry.getValue());
+        }
     }
 
     protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
@@ -231,16 +237,17 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 .getOptionalResolutionAction();
         Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
                 optionalAction);
-        final Set<Object> metadata = new LinkedHashSet<>();
-        final Set<Object> secondaryMetadata = new LinkedHashSet<>();
+        Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
         for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
-            metadata.addAll(entry.getValue().getMetadata(true));
-            secondaryMetadata.addAll(entry.getValue().getMetadata(false));
+            IDependencyMetadata value = entry.getValue();
+            for (DependencyMetadataType type : DependencyMetadataType.values()) {
+                typeMap.computeIfAbsent(type, t -> new LinkedHashSet<>()).addAll(value.getDependencyMetadata(type));
+            }
         }
         ReactorProject reactorProjet = new DefaultReactorProject(project) {
             @Override
-            public Set<?> getDependencyMetadata(boolean primary) {
-                return primary ? metadata : secondaryMetadata;
+            public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+                return typeMap.get(type);
             }
         };
         return reactorProjet;

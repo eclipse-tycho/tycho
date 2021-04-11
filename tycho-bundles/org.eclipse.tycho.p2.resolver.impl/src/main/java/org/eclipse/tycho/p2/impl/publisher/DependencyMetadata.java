@@ -13,38 +13,38 @@
 package org.eclipse.tycho.p2.impl.publisher;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.IDependencyMetadata;
 
 public class DependencyMetadata implements IDependencyMetadata {
 
-    private Set<Object> metadata;
-    private Set<Object> secondaryMetadata;
+    private Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
     private Set<IArtifactDescriptor> artifacts;
 
     @Override
-    public Set<Object /* IInstallableUnit */> getMetadata(boolean primary) {
-        return primary ? metadata : secondaryMetadata;
+    public Set<Object /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type) {
+        return typeMap.getOrDefault(type, Collections.emptySet());
     }
 
     @Override
-    public Set<Object /* IInstallableUnit */> getMetadata() {
+    public Set<Object /* IInstallableUnit */> getDependencyMetadata() {
         LinkedHashSet<Object> result = new LinkedHashSet<>();
-        result.addAll(metadata);
-        result.addAll(secondaryMetadata);
+        result.addAll(getDependencyMetadata(DependencyMetadataType.SEED));
+        result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
-    public void setMetadata(boolean primary, Collection<IInstallableUnit> units) {
-        if (primary) {
-            metadata = new LinkedHashSet<Object>(units);
-        } else {
-            secondaryMetadata = new LinkedHashSet<Object>(units);
-        }
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+
+        typeMap.put(type, new LinkedHashSet<Object>(units));
     }
 
     public void setArtifacts(Collection<IArtifactDescriptor> artifacts) {
@@ -56,13 +56,7 @@ public class DependencyMetadata implements IDependencyMetadata {
     }
 
     public Set<IInstallableUnit> getInstallableUnits() {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
-        for (Object unit : metadata) {
-            result.add((IInstallableUnit) unit);
-        }
-        for (Object unit : secondaryMetadata) {
-            result.add((IInstallableUnit) unit);
-        }
-        return result;
+        return typeMap.values().stream().flatMap(Collection::stream).filter(IInstallableUnit.class::isInstance)
+                .map(IInstallableUnit.class::cast).distinct().collect(Collectors.toSet());
     }
 }

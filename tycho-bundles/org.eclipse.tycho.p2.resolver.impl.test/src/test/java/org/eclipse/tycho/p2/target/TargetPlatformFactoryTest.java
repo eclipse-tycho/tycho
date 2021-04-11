@@ -38,6 +38,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
@@ -308,8 +309,8 @@ public class TargetPlatformFactoryTest {
         ReactorProjectStub result = new ReactorProjectStub(basedir, artifactId);
 
         DependencyMetadata dependencyMetadata = new DependencyMetadata();
-        dependencyMetadata.setMetadata(true, createUnits(primaryUnitIds));
-        dependencyMetadata.setMetadata(false, createUnits(secondaryUnitIds));
+        dependencyMetadata.setDependencyMetadata(DependencyMetadataType.SEED, createUnits(primaryUnitIds));
+        dependencyMetadata.setDependencyMetadata(DependencyMetadataType.RESOLVE, createUnits(secondaryUnitIds));
         result.setDependencyMetadata(dependencyMetadata);
 
         return result;

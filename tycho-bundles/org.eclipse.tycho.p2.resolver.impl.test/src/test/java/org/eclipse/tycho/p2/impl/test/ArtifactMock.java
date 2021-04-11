@@ -16,8 +16,9 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 
 public class ArtifactMock implements IArtifactFacade {
     private File location;
@@ -51,8 +52,8 @@ public class ArtifactMock implements IArtifactFacade {
     }
 
     public ArtifactMock(ReactorProjectStub project, String classifier) {
-        this(project.getBasedir(), project.getGroupId(), project.getArtifactId(), project.getVersion(), project
-                .getPackaging(), classifier);
+        this(project.getBasedir(), project.getGroupId(), project.getArtifactId(), project.getVersion(),
+                project.getPackaging(), classifier);
     }
 
     @Override
@@ -94,7 +95,9 @@ public class ArtifactMock implements IArtifactFacade {
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(true));
-        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(false));
+        this.dependencyMetadata = new LinkedHashSet<>(
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.SEED));
+        this.secondaryDependencyMetadata = new LinkedHashSet<>(
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.RESOLVE));
     }
 }

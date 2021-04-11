@@ -13,6 +13,7 @@
 package org.eclipse.tycho.extras.custombundle;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,12 +30,12 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 
@@ -102,15 +103,22 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
         final Set<Object> metadata;
 
         public SecondaryDependencyMetadata(IDependencyMetadata original) {
-            metadata = Collections.unmodifiableSet(original.getMetadata());
+            metadata = Collections.unmodifiableSet(original.getDependencyMetadata());
         }
 
-        public Set<Object> getMetadata(boolean primary) {
-            return primary ? Collections.emptySet() : metadata;
-        }
-
-        public Set<Object> getMetadata() {
+        @Override
+        public Set<Object> getDependencyMetadata() {
             return metadata;
+        }
+
+        @Override
+        public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+            return type == DependencyMetadataType.RESOLVE ? metadata : Collections.emptySet();
+        }
+
+        @Override
+        public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+            throw new UnsupportedOperationException();
         }
     }
 }

@@ -48,6 +48,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
@@ -209,8 +210,8 @@ public class P2MetadataMojo extends AbstractMojo {
             }
 
             // TODO 353889 distinguish between dependency resolution seed units ("primary") and other units of the project
-            reactorProject.setDependencyMetadata(true, installableUnits);
-            reactorProject.setDependencyMetadata(false, Collections.emptySet());
+            reactorProject.setDependencyMetadata(DependencyMetadataType.SEED, installableUnits);
+            reactorProject.setDependencyMetadata(DependencyMetadataType.RESOLVE, Collections.emptySet());
         } catch (IOException e) {
             throw new MojoExecutionException("Could not generate P2 metadata", e);
         }

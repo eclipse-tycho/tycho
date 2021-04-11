@@ -32,6 +32,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
@@ -112,7 +113,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
             return;
         }
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        Set<?> dependencyMetadata = reactorProject.getDependencyMetadata(true);
+        Set<?> dependencyMetadata = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
         if (dependencyMetadata == null || dependencyMetadata.isEmpty()) {
             getLog().debug("Skipping baseline version comparison, no p2 artifacts created in build.");
             return;

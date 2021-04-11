@@ -10,14 +10,21 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.metadata;
+package org.eclipse.tycho;
 
+import java.util.Collection;
 import java.util.Set;
 
 public interface IDependencyMetadata {
 
-    Set<Object /* IInstallableUnit */> getMetadata(boolean primary);
+    enum DependencyMetadataType {
+        SEED, RESOLVE;
+    }
 
-    Set<Object /* IInstallableUnit */> getMetadata();
+    Set<? /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type);
+
+    Set<? /* IInstallableUnit */> getDependencyMetadata();
+
+    void setDependencyMetadata(DependencyMetadataType type, Collection<? /* IInstallableUnit */> units);
 
 }

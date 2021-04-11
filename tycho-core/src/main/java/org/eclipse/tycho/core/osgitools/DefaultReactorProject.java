@@ -13,9 +13,12 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,6 +32,17 @@ import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 
 public class DefaultReactorProject implements ReactorProject {
+
+    /**
+     * Conventional key used to store ReactorProject in MavenProject.context
+     */
+    private static final String CTX_REACTOR_PROJECT = "tycho.reactor-project";
+
+    /**
+     * Conventional key used to store dependency metadata in MavenProject.context
+     */
+    private static final String CTX_DEPENDENCY_METADATA_PREFIX = "tycho.dependency-metadata-";
+
     public final MavenProject project;
 
     private final Map<String, Object> context = new ConcurrentHashMap<>();
@@ -138,33 +152,25 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     @Override
-    public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
-        setContextValue(getDependencyMetadataKey(primary), installableUnits);
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+        setContextValue(getDependencyMetadataKey(type), units);
     }
 
     @Override
     public Set<?> getDependencyMetadata() {
-        Set<?> primary = getDependencyMetadata(true);
-        Set<?> secondary = getDependencyMetadata(false);
-
-        if (primary == null) {
-            return secondary;
-        } else if (secondary == null) {
-            return primary;
-        }
-
-        LinkedHashSet<Object> result = new LinkedHashSet<>(primary);
-        result.addAll(secondary);
+        LinkedHashSet<Object> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataType.SEED));
+        result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
     @Override
-    public Set<?> getDependencyMetadata(boolean primary) {
-        return (Set<?>) getContextValue(getDependencyMetadataKey(primary));
+    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+        return Objects.requireNonNullElse((Set<?>) getContextValue(getDependencyMetadataKey(type)),
+                Collections.emptySet());
     }
 
-    private static String getDependencyMetadataKey(boolean primary) {
-        return primary ? CTX_DEPENDENCY_METADATA : CTX_SECONDARY_DEPENDENCY_METADATA;
+    private static String getDependencyMetadataKey(DependencyMetadataType type) {
+        return CTX_DEPENDENCY_METADATA_PREFIX + type.name().toLowerCase();
     }
 
     @Override

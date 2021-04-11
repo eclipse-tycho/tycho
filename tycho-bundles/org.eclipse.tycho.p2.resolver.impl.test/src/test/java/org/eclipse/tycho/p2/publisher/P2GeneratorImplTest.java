@@ -54,8 +54,9 @@ public class P2GeneratorImplTest {
         DependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
         File location = new File("resources/generator/bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
-        Set<Object> units = p2GeneratorImpl
-                .generateMetadata(artifactMock, getEnvironments(), null, new PublisherOptions(false)).getMetadata();
+        Set<?> units = p2GeneratorImpl
+                .generateMetadata(artifactMock, getEnvironments(), null, new PublisherOptions(false))
+                .getDependencyMetadata();
         assertEquals(1, units.size());
         IInstallableUnit sourceBundleUnit = getUnit("foo.source", units);
         assertNotNull(sourceBundleUnit);
@@ -76,8 +77,9 @@ public class P2GeneratorImplTest {
         DependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
         File location = new File("resources/generator/bundle-p2-inf").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
-        Set<Object> units = p2GeneratorImpl
-                .generateMetadata(artifactMock, getEnvironments(), null, new PublisherOptions(false)).getMetadata();
+        Set<?> units = p2GeneratorImpl
+                .generateMetadata(artifactMock, getEnvironments(), null, new PublisherOptions(false))
+                .getDependencyMetadata();
 
         assertEquals(1, units.size());
 
@@ -85,7 +87,7 @@ public class P2GeneratorImplTest {
         assertEquals(0, unit.getRequirements().size());
     }
 
-    private IInstallableUnit getUnit(String id, Set<Object> units) {
+    private IInstallableUnit getUnit(String id, Set<?> units) {
         for (Object obj : units) {
             IInstallableUnit unit = (IInstallableUnit) obj;
             if (id.equals(unit.getId())) {
@@ -106,7 +108,7 @@ public class P2GeneratorImplTest {
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-import-package", "optional-import-package",
                 "0.0.1", "eclipse-plugin");
         Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(),
-                OptionalResolutionAction.REQUIRE, new PublisherOptions()).getMetadata();
+                OptionalResolutionAction.REQUIRE, new PublisherOptions()).getDependencyMetadata();
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-import-package", units);
         assertNotNull(iu);
@@ -132,8 +134,8 @@ public class P2GeneratorImplTest {
         File location = new File("resources/generator/optional-import-package").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-import-package", "optional-import-package",
                 "0.0.1", "eclipse-plugin");
-        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.IGNORE,
-                new PublisherOptions()).getMetadata();
+        Set<?> units = generator.generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.IGNORE,
+                new PublisherOptions()).getDependencyMetadata();
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-import-package", units);
         assertNotNull(iu);
@@ -147,8 +149,8 @@ public class P2GeneratorImplTest {
         File location = new File("resources/generator/optional-require-bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-require-bundle", "optional-require-bundle",
                 "0.0.1", "eclipse-plugin");
-        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(),
-                OptionalResolutionAction.REQUIRE, new PublisherOptions()).getMetadata();
+        Set<?> units = generator.generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.REQUIRE,
+                new PublisherOptions()).getDependencyMetadata();
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
@@ -168,8 +170,8 @@ public class P2GeneratorImplTest {
         File location = new File("resources/generator/optional-require-bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-require-bundle", "optional-require-bundle",
                 "0.0.1", "eclipse-plugin");
-        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(),
-                OptionalResolutionAction.OPTIONAL, new PublisherOptions()).getMetadata();
+        Set<?> units = generator.generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.OPTIONAL,
+                new PublisherOptions()).getDependencyMetadata();
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
@@ -189,8 +191,8 @@ public class P2GeneratorImplTest {
         File location = new File("resources/generator/optional-require-bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-require-bundle", "optional-require-bundle",
                 "0.0.1", "eclipse-plugin");
-        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.IGNORE,
-                new PublisherOptions()).getMetadata();
+        Set<?> units = generator.generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.IGNORE,
+                new PublisherOptions()).getDependencyMetadata();
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
@@ -204,8 +206,8 @@ public class P2GeneratorImplTest {
         File location = new File("resources/generator/optional-reqiure-bundle-p2inf").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-reqiure-bundle-p2inf",
                 "optional-reqiure-bundle-p2inf", "0.0.1", "eclipse-plugin");
-        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(),
-                OptionalResolutionAction.REQUIRE, new PublisherOptions()).getMetadata();
+        Set<?> units = generator.generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.REQUIRE,
+                new PublisherOptions()).getDependencyMetadata();
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-reqiure-bundle-p2inf", units);
         assertNotNull(iu);
