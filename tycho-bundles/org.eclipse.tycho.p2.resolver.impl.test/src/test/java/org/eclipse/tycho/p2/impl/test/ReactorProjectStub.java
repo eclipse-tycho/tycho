@@ -26,6 +26,7 @@ import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.Requirements;
 
 // TODO use interface with a subset of methods to ease stubbing?
 public class ReactorProjectStub extends ReactorProjectIdentities implements ReactorProject {
@@ -194,6 +195,11 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     @Override
     public String getName() {
         // TODO implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Requirements getRequirements() {
         throw new UnsupportedOperationException();
     }
 

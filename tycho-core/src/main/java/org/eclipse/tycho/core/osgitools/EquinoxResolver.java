@@ -29,8 +29,6 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.osgi.container.Module;
 import org.eclipse.osgi.container.Module.Settings;
 import org.eclipse.osgi.container.Module.State;
@@ -49,12 +47,12 @@ import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.osgi.report.resolution.ResolutionReport;
 import org.eclipse.osgi.report.resolution.ResolutionReport.Entry;
 import org.eclipse.osgi.util.ManifestElement;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.RequiredCapability;
+import org.eclipse.tycho.Requirements;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
@@ -65,7 +63,6 @@ import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependenc
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2.resolver.facade.Requirements;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -81,7 +78,7 @@ import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
 @Component(role = EquinoxResolver.class)
-public class EquinoxResolver implements Initializable {
+public class EquinoxResolver {
     @Requirement
     private BundleReader manifestReader;
 
@@ -93,11 +90,6 @@ public class EquinoxResolver implements Initializable {
 
     @Requirement
     private ToolchainManager toolchainManager;
-
-    @Requirement
-    private EquinoxServiceFactory equinox;
-
-    private Requirements requirements;
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
@@ -328,8 +320,11 @@ public class EquinoxResolver implements Initializable {
                         mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", reqb));
                     }
                     projects.put(location, mf);
-                    requirementsMap.put(location,
-                            requirements.getRequiredCapabilities(mavenProject, DependencyMetadataType.COMPILE));
+                    Requirements requirements = mavenProject.getRequirements();
+                    if (requirements != null) {
+                        requirementsMap.put(location,
+                                requirements.getRequiredCapabilities(mavenProject, DependencyMetadataType.COMPILE));
+                    }
                 } else {
                     externalBundles.put(location, mf);
                 }
@@ -476,11 +471,6 @@ public class EquinoxResolver implements Initializable {
             throw new BundleException("Bundle " + desc.getSymbolicName() + " cannot be resolved:"
                     + report.getResolutionReportMessage(desc));
         }
-    }
-
-    @Override
-    public void initialize() throws InitializationException {
-        this.requirements = equinox.getService(Requirements.class);
     }
 
 }

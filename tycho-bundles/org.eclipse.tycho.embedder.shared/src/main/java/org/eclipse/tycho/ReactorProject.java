@@ -25,6 +25,8 @@ public interface ReactorProject extends IDependencyMetadata {
      */
     public static final String SOURCE_ARTIFACT_CLASSIFIER = "sources";
 
+    public static final String CTX_REQUIREMENTS = "tycho.requirements";
+
     public File getBasedir();
 
     public String getPackaging();
@@ -64,6 +66,8 @@ public interface ReactorProject extends IDependencyMetadata {
     public String getBuildQualifier();
 
     public String getExpandedVersion();
+
+    public Requirements getRequirements();
 
     // misc
 

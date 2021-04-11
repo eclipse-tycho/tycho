@@ -244,10 +244,18 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 typeMap.computeIfAbsent(type, t -> new LinkedHashSet<>()).addAll(value.getDependencyMetadata(type));
             }
         }
+
+        ReactorProject adapt = DefaultReactorProject.adapt(project);
+
         ReactorProject reactorProjet = new DefaultReactorProject(project) {
             @Override
             public Set<?> getDependencyMetadata(DependencyMetadataType type) {
                 return typeMap.get(type);
+            }
+
+            public void setContextValue(String key, Object value) {
+                super.setContextValue(key, value);
+                adapt.setContextValue(key, value);
             }
         };
         return reactorProjet;

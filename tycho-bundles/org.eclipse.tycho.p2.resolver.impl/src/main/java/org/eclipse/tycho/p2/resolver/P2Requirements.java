@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.RequiredCapability;
-import org.eclipse.tycho.p2.resolver.facade.Requirements;
+import org.eclipse.tycho.Requirements;
 
 @SuppressWarnings("restriction")
 public class P2Requirements implements Requirements {

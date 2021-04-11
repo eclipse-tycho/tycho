@@ -241,6 +241,7 @@ public class P2ResolverImpl implements P2Resolver {
             }
             project.getDependencyMetadata(IRequirement.class, DependencyMetadataType.COMPILE)
                     .forEach(requirements::add);
+            project.setContextValue(ReactorProject.CTX_REQUIREMENTS, new P2Requirements());
         } else {
             data.setRootIUs(Collections.<IInstallableUnit> emptySet());
         }
