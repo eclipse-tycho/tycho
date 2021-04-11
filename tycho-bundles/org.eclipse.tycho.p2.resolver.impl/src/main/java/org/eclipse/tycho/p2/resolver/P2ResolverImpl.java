@@ -230,6 +230,7 @@ public class P2ResolverImpl implements P2Resolver {
         ResolutionDataImpl data = new ResolutionDataImpl(context.getEEResolutionHints());
 
         Set<IInstallableUnit> availableUnits = context.getInstallableUnits();
+        List<IRequirement> requirements = new ArrayList<>(additionalRequirements);
         if (project != null) {
             data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(DependencyMetadataType.SEED));
             Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
@@ -238,10 +239,13 @@ public class P2ResolverImpl implements P2Resolver {
                 availableUnits = new LinkedHashSet<>(availableUnits);
                 availableUnits.addAll(projectSecondaryIUs);
             }
+            project.getDependencyMetadata(IRequirement.class, DependencyMetadataType.COMPILE)
+                    .forEach(requirements::add);
         } else {
             data.setRootIUs(Collections.<IInstallableUnit> emptySet());
         }
-        data.setAdditionalRequirements(additionalRequirements);
+
+        data.setAdditionalRequirements(requirements);
         data.setAvailableIUs(availableUnits);
         data.setAdditionalFilterProperties(additionalFilterProperties);
 

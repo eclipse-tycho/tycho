@@ -12,13 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public interface IDependencyMetadata {
 
     enum DependencyMetadataType {
-        SEED, RESOLVE;
+        SEED, RESOLVE, COMPILE;
     }
 
     Set<? /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type);
@@ -26,5 +28,10 @@ public interface IDependencyMetadata {
     Set<? /* IInstallableUnit */> getDependencyMetadata();
 
     void setDependencyMetadata(DependencyMetadataType type, Collection<? /* IInstallableUnit */> units);
+
+    default <T> Stream<T> getDependencyMetadata(Class<T> type, DependencyMetadataType... types) {
+        return Arrays.stream(types).flatMap(t -> getDependencyMetadata(t).stream()).filter(type::isInstance)
+                .map(type::cast);
+    }
 
 }

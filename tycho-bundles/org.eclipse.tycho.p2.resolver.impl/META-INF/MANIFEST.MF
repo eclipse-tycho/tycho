@@ -54,12 +54,7 @@ Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.repository.registry,
  org.eclipse.tycho.repository.registry.facade,
  org.eclipse.tycho.repository.util
-Service-Component: OSGI-INF/generator.xml,
- OSGI-INF/metadataserializable.xml,
- OSGI-INF/proxyfacade.xml,
- OSGI-INF/reactorRepoManager.xml,
- OSGI-INF/remoteAgentManager.xml,
- OSGI-INF/resolver.xml,
- OSGI-INF/targetDefinitionResolverService.xml
+Service-Component: OSGI-INF/generator.xml,OSGI-INF/metadataserializable.xml,OSGI-INF/proxyfacade.xml,OSGI-INF/reactorRepoManager.xml,OSGI-INF/remoteAgentManager.xml,OSGI-INF/resolver.xml,OSGI-INF/targetDefinitionResolverService.xml,
+ OSGI-INF/requirements.xml
 Bundle-Vendor: %providerName
 Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl
