@@ -27,12 +27,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.maven.artifact.Artifact;
@@ -70,6 +73,8 @@ import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.dotClasspath.ContainerClasspathEntry;
+import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -82,6 +87,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
+import org.eclipse.tycho.core.userlibraries.UserLibrary;
+import org.eclipse.tycho.core.userlibraries.UserLibraryParser;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
 import org.osgi.framework.Constants;
@@ -107,6 +114,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     private static final Set<String> MATCH_ALL = Collections.singleton("**/*");
 
     private static final String PREFS_FILE_PATH = ".settings" + File.separator + "org.eclipse.jdt.core.prefs";
+
+    private Map<File, Map<String, UserLibrary>> userLibrariesMap = new ConcurrentHashMap<>();
 
     @Parameter(property = "project", readonly = true)
     protected MavenProject project;
@@ -270,6 +279,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      */
     @Parameter(defaultValue = "${project.build.directory}/compile-logs")
     private File logDirectory;
+
+    /**
+     * Points to an eclipse jdt exported User Libraries file (*.userlibraries) used to resolve
+     * classpath container of type {@link ContainerClasspathEntry#USER_LIBRARY_PATH_PREFIX}
+     */
+    @Parameter()
+    private File userlibraries;
 
     /**
      * The format of the compiler log file. <code>plain</code> will log into a plain text file
@@ -454,13 +470,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     @Override
     public List<String> getClasspathElements() throws MojoExecutionException {
-        final List<String> classpath = new ArrayList<>();
-        for (ClasspathEntry cpe : getClasspath()) {
+        final Set<String> classpathElements = new LinkedHashSet<>();
+        List<ClasspathEntry> classpath = getClasspath();
+        for (ClasspathEntry cpe : classpath) {
             for (File location : cpe.getLocations()) {
-                classpath.add(location.getAbsolutePath() + toString(cpe.getAccessRules()));
+                classpathElements.add(location.getAbsolutePath() + toString(cpe.getAccessRules()));
             }
         }
-        return classpath;
+        return new ArrayList<String>(classpathElements);
     }
 
     private BundleProject getBundleProject() throws MojoExecutionException {
@@ -708,12 +725,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
-        TychoProject projectType = getBundleProject();
+        TychoProject tychoProject = getBundleProject();
         ArrayList<ClasspathEntry> classpath = new ArrayList<>(
-                ((BundleProject) projectType).getClasspath(DefaultReactorProject.adapt(project)));
+                ((BundleProject) tychoProject).getClasspath(DefaultReactorProject.adapt(project)));
 
+        ArtifactRepository localRepository = session.getLocalRepository();
         if (extraClasspathElements != null) {
-            ArtifactRepository localRepository = session.getLocalRepository();
             List<ArtifactRepository> remoteRepositories = project.getRemoteArtifactRepositories();
             for (Dependency extraDependency : extraClasspathElements) {
                 Artifact artifact = repositorySystem.createDependencyArtifact(extraDependency);
@@ -740,6 +757,52 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                     bLocations.add(b.getFile()); // TODO properly handle multiple project locations maybe
                     classpath.add(
                             new DefaultClasspathEntry(DefaultReactorProject.adapt(bProject), null, bLocations, null));
+                }
+            }
+        }
+
+        for (ProjectClasspathEntry entry : getEclipsePluginProject().getClasspathEntries()) {
+            if (entry instanceof ContainerClasspathEntry) {
+                ContainerClasspathEntry container = (ContainerClasspathEntry) entry;
+                String path = container.getContainerPath();
+                if (path.startsWith(ContainerClasspathEntry.USER_LIBRARY_PATH_PREFIX)) {
+                    Map<String, UserLibrary> map = userLibrariesMap.computeIfAbsent(userlibraries, file -> {
+                        if (file != null) {
+                            try {
+                                return UserLibraryParser.parse(file).stream()
+                                        .collect(Collectors.toMap(UserLibrary::getName, Function.identity()));
+                            } catch (IOException e) {
+                                logger.warn("can't read userlibraries file " + file.getAbsolutePath(), e);
+                            }
+                        }
+                        return Collections.emptyMap();
+
+                    });
+                    String name = path.substring(ContainerClasspathEntry.USER_LIBRARY_PATH_PREFIX.length());
+                    UserLibrary userLibrary = map.get(name);
+                    if (userLibrary == null) {
+                        logger.warn("User Library '" + name + "' not found, classpath might be incomplete!");
+                        continue;
+                    }
+                    List<File> files = new ArrayList<>();
+                    for (String userLibPath : userLibrary.getPathList()) {
+                        File file = new File(userLibPath);
+                        if (!file.exists()) {
+                            String prefix = "M2_REPO/";
+                            if (userLibPath.startsWith(prefix)) {
+                                file = new File(localRepository.getBasedir(), userLibPath.substring(prefix.length()));
+                            }
+                        }
+                        if (file.exists()) {
+                            files.add(file);
+                        } else {
+                            logger.warn("User Library '" + name + "' references non existing path " + userLibPath);
+                        }
+                    }
+                    if (!files.isEmpty()) {
+                        classpath.add(
+                                new DefaultClasspathEntry(DefaultReactorProject.adapt(project), null, files, null));
+                    }
                 }
             }
         }
