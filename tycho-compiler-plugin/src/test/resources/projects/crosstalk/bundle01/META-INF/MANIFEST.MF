@@ -2,4 +2,4 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: bundle01
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0
+Bundle-RequiredExecutionEnvironment: OSGi/Minimum-1.0

@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2014, 2019 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -27,12 +29,9 @@ public class ArchiveContentUtil {
     public static Set<String> getFilesInZip(File archive) throws Exception {
         final HashSet<String> result = new HashSet<>();
 
-        visitEntries(archive, new ZipEntryVisitor() {
-            @Override
-            public boolean visitEntry(ZipEntry entry, ZipInputStream stream) {
-                result.add(entry.getName());
-                return true;
-            }
+        visitEntries(archive, (ZipEntryVisitor) (entry, stream) -> {
+            result.add(entry.getName());
+            return true;
         });
 
         return result;
@@ -44,15 +43,12 @@ public class ArchiveContentUtil {
     public static String getFileContent(File archive, final String fileInArchive) throws Exception {
         final String[] result = new String[1];
 
-        visitEntries(archive, new ZipEntryVisitor() {
-            @Override
-            public boolean visitEntry(ZipEntry entry, ZipInputStream stream) throws Exception {
-                if (fileInArchive.equals(entry.getName())) {
-                    result[0] = IOUtil.toString(stream);
-                    return false;
-                }
-                return true;
+        visitEntries(archive, (ZipEntryVisitor) (entry, stream) -> {
+            if (fileInArchive.equals(entry.getName())) {
+                result[0] = IOUtil.toString(stream);
+                return false;
             }
+            return true;
         });
 
         if (result[0] == null) {
@@ -62,16 +58,13 @@ public class ArchiveContentUtil {
     }
 
     static void visitEntries(File archive, ZipEntryVisitor visitor) throws Exception {
-        FileInputStream fileStream = new FileInputStream(archive);
-        try {
+        try (FileInputStream fileStream = new FileInputStream(archive)) {
             ZipInputStream zipStream = new ZipInputStream(fileStream);
             try {
                 visitEntries(zipStream, visitor);
             } finally {
                 zipStream.close();
             }
-        } finally {
-            fileStream.close();
         }
 
     }

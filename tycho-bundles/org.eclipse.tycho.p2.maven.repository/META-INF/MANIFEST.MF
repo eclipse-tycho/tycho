@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho Maven/p2 Repository Integration
 Bundle-SymbolicName: org.eclipse.tycho.p2.maven.repository;singleton:=true
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 2.4.0.qualifier
 Bundle-Vendor: %providerName
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.6.100",
  org.eclipse.equinox.p2.repository;bundle-version="2.2.0",
@@ -35,3 +35,4 @@ Import-Package: org.eclipse.osgi.util,
  org.osgi.framework
 Bundle-Activator: org.eclipse.tycho.p2.maven.repository.Activator
 Service-Component: OSGI-INF/localRepoP2Indices.xml
+Automatic-Module-Name: org.eclipse.tycho.p2.maven.repository

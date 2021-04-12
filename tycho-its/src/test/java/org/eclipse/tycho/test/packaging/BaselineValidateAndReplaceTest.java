@@ -14,7 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 // tests the support for reproducible artifacts (bug 362883 - "do not generate new artifact unless there is a change")
-@SuppressWarnings("unchecked")
 public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest {
 
     private static File baselineRepo;
@@ -166,6 +165,16 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
         }
 
         verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
+    }
+
+    @Test
+    public void testBaselineFailCommon_Changed_ignoredFiles() throws Exception {
+        Verifier verifier = getVerifier("contentchanged", baselineRepo);
+        verifier.getCliOptions().addAll(Arrays.asList("--projects", "bundle01"));
+        verifier.getCliOptions().add("-PignoreChanged");
+        verifier.getCliOptions().add("-Dtycho.baseline=failCommon");
+        verifier.executeGoals(Arrays.asList("clean", "package"));
+        verifier.verifyErrorFreeLog();
     }
 
     @Test

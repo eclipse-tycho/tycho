@@ -6,3 +6,4 @@ Require-Bundle: org.junit,
  org.eclipse.core.runtime,
  sodr.reactorbundle,
  org.apache.ant;resolution:=optional;x-installation:=greedy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

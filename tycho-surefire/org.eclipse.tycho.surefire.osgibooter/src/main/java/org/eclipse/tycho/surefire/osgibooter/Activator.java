@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -35,7 +37,7 @@ public class Activator implements BundleActivator {
     }
 
     public void start(BundleContext context) throws Exception {
-        ServiceReference platformAdminRef = context.getServiceReference(PlatformAdmin.class.getName());
+        ServiceReference<?> platformAdminRef = context.getServiceReference(PlatformAdmin.class.getName());
         if (platformAdminRef != null) {
             platformAdmin = (PlatformAdmin) context.getService(platformAdminRef);
         }
@@ -66,8 +68,8 @@ public class Activator implements BundleActivator {
         Set<ResolverError> errors = new LinkedHashSet<ResolverError>();
         try {
             if (platformAdmin == null) {
-                System.err
-                        .println("Could not compute diagnostic information for the test bundle resolution problems - PlatformAdmin service is not available");
+                System.err.println(
+                        "Could not compute diagnostic information for the test bundle resolution problems - PlatformAdmin service is not available");
                 return errors;
             }
             State state = platformAdmin.getState(false /* mutable */);
@@ -89,15 +91,13 @@ public class Activator implements BundleActivator {
 
     private static void getRelevantErrors(State state, Set<ResolverError> errors, BundleDescription bundle) {
         ResolverError[] bundleErrors = state.getResolverErrors(bundle);
-        for (int j = 0; j < bundleErrors.length; j++) {
-            ResolverError error = bundleErrors[j];
+        for (ResolverError error : bundleErrors) {
             errors.add(error);
-
             VersionConstraint constraint = error.getUnsatisfiedConstraint();
             if (constraint instanceof BundleSpecification || constraint instanceof HostSpecification) {
                 BundleDescription[] requiredBundles = state.getBundles(constraint.getName());
-                for (int i = 0; i < requiredBundles.length; i++) {
-                    getRelevantErrors(state, errors, requiredBundles[i]);
+                for (BundleDescription requiredBundle : requiredBundles) {
+                    getRelevantErrors(state, errors, requiredBundle);
                 }
             }
         }

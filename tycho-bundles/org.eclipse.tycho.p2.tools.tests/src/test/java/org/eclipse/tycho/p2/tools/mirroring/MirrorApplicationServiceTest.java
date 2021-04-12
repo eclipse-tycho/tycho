@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2018 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -12,16 +14,20 @@ package org.eclipse.tycho.p2.tools.mirroring;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
@@ -44,8 +50,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
-@SuppressWarnings("restriction")
 public class MirrorApplicationServiceTest {
 
     // feature containing org.eclipse.core.runtime 3.4
@@ -94,12 +102,41 @@ public class MirrorApplicationServiceTest {
 
     @Test
     public void testMirrorFeatureWithContent() throws Exception {
-        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context,
-                false, false, null);
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
+                false, null);
 
         logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
         assertTrue(repoFile(destinationRepo, "features/" + SIMPLE_FEATURE + "_1.0.0.jar").exists());
+    }
+
+    @Test
+    public void testExtraArtifactRepositoryProperties() throws Exception {
+        Map<String, String> extraArtifactRepositoryProperties = new HashMap<>(3, 1.f);
+        extraArtifactRepositoryProperties.put("p2.statsURI", "http://some.where");
+        extraArtifactRepositoryProperties.put("p2.mirrorsURL", "http://some.where.else");
+        extraArtifactRepositoryProperties.put("foo", "bar");
+        destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest2"), DEFAULT_NAME, false, false,
+                false, false, true, extraArtifactRepositoryProperties, Collections.emptyList());
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
+                false, null);
+
+        logVerifier.expectNoWarnings();
+        File artifactsXml = repoFile(destinationRepo, "artifacts.xml");
+        // parse manually, would be better if we can directly retrieve the repo model from the file
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(artifactsXml);
+        NodeList properties = ((Element) (((Element) document.getElementsByTagName("repository").item(0))
+                .getElementsByTagName("properties").item(0))).getElementsByTagName("property");
+        for (int i = 0; i < properties.getLength(); i++) {
+            Element property = (Element) properties.item(i);
+            String propertyName = property.getAttribute("name");
+            if (extraArtifactRepositoryProperties.containsKey(propertyName)
+                    && extraArtifactRepositoryProperties.get(propertyName).equals(property.getAttribute("value"))) {
+                extraArtifactRepositoryProperties.remove(propertyName);
+            }
+        }
+        assertEquals("Artifact repository is missing extra properties", Collections.emptyMap(),
+                extraArtifactRepositoryProperties);
     }
 
     @Test
@@ -145,8 +182,8 @@ public class MirrorApplicationServiceTest {
          * While it is hard to get an IU from the target platform (cf. bug 412416, bug 372780), we
          * need to allow {@link DependencySeed} instances with null IU.
          */
-        List<DependencySeed> seeds = Collections.singletonList(new DependencySeed(null, "org.eclipse.core.runtime",
-                null));
+        List<DependencySeed> seeds = Collections
+                .singletonList(new DependencySeed(null, "org.eclipse.core.runtime", null));
 
         subject.mirrorReactor(sourceRepos("e342"), destinationRepo, seeds, context, false, false, null);
 
@@ -176,8 +213,8 @@ public class MirrorApplicationServiceTest {
 
     private static Set<IRequirement> strictRequirementTo(VersionedId unit) {
         VersionRange strictRange = new VersionRange(unit.getVersion(), true, unit.getVersion(), true);
-        IRequirement requirement = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), strictRange,
-                null, false, false);
+        IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(),
+                strictRange, null, false, false);
         return Collections.singleton(requirement);
     }
 

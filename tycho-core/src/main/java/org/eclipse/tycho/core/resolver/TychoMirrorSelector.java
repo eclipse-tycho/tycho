@@ -29,15 +29,15 @@ import org.codehaus.plexus.util.StringUtils;
  * <pre>
  * &lt;mirror&gt;
  *   &lt;id&gt;example-mirror&lt;/id&gt;
- *   &lt;mirrorOf>http://download.eclipse.org&lt;/mirrorOf&gt;
- *   &lt;url>http://mirror.example.org/eclipse-mirror&lt;/url&gt;
- *   &lt;layout>p2&lt;/layout&gt;
- *   &lt;mirrorOfLayouts>p2&lt;/mirrorOfLayouts&gt;
+ *   &lt;mirrorOf&gt;https://download.eclipse.org&lt;/mirrorOf&gt;
+ *   &lt;url&gt;http://mirror.example.org/eclipse-mirror&lt;/url&gt;
+ *   &lt;layout&gt;p2&lt;/layout&gt;
+ *   &lt;mirrorOfLayouts&gt;p2&lt;/mirrorOfLayouts&gt;
  *  &lt;/mirror&gt;
  * </pre>
  * </p>
  * 
- * will cause the repository URL http://download.eclipse.org/eclipse/updates/4.6 to be mirrored to
+ * will cause the repository URL https://download.eclipse.org/eclipse/updates/4.6 to be mirrored to
  * http://mirror.example.org/eclipse-mirror/eclipse/updates/4.6 <br/>
  * 
  * 

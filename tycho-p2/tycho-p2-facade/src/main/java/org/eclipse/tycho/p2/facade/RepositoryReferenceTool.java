@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
@@ -108,25 +110,27 @@ public class RepositoryReferenceTool {
         try {
             File repositoryLocation = new File(project.getBuild().getDirectory(), "targetPlatformRepository");
             repositoryLocation.mkdirs();
-            FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"));
-            try {
+            try (FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"))) {
                 MetadataSerializable serializer = osgiServices.getService(MetadataSerializable.class);
 
-                TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(project);
+                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+                TargetPlatform targetPlatform = TychoProjectUtils
+                        .getTargetPlatform(reactorProject);
 
                 DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
 
-                TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+                TargetPlatformConfiguration configuration = TychoProjectUtils
+                        .getTargetPlatformConfiguration(reactorProject);
 
                 DependencyResolverConfiguration resolverConfiguration = configuration
                         .getDependencyResolverConfiguration();
 
-                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
-                        targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration);
+                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
+                        DefaultReactorProject.adapt(session), resolverConfiguration);
+                dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
 
                 // this contains dependency-only metadata for 'this' project
-                Set<Object> targetPlatformInstallableUnits = new HashSet<>(
-                        dependencyArtifacts.getInstallableUnits());
+                Set<Object> targetPlatformInstallableUnits = new HashSet<>(dependencyArtifacts.getInstallableUnits());
 
                 for (ArtifactDescriptor artifact : dependencyArtifacts.getArtifacts()) {
                     ReactorProject otherProject = artifact.getMavenProject();
@@ -140,8 +144,6 @@ public class RepositoryReferenceTool {
                 }
 
                 serializer.serialize(stream, targetPlatformInstallableUnits);
-            } finally {
-                stream.close();
             }
             sources.addMetadataRepository(repositoryLocation);
         } catch (IOException e) {

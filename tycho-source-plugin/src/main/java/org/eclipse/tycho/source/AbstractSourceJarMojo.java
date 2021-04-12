@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -40,6 +41,7 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -49,6 +51,12 @@ import org.codehaus.plexus.util.FileUtils;
  * @since 2.0.3
  */
 public abstract class AbstractSourceJarMojo extends AbstractMojo {
+
+    /**
+     * Lock object to ensure thread-safety
+     */
+    private static final Object LOCK = new Object();
+
     private static final String[] DEFAULT_INCLUDES = new String[] { "**/*" };
 
     private static final String[] DEFAULT_EXCLUDES = new String[] {};
@@ -85,6 +93,12 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      */
     @Parameter(property = "project", readonly = true, required = true)
     protected MavenProject project;
+
+    /**
+     * The Maven Session Object
+     */
+    @Parameter(property = "session", readonly = true)
+    protected MavenSession session;
 
     /**
      * The Jar archiver.
@@ -187,7 +201,9 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /** {@inheritDoc} */
     @Override
     public void execute() throws MojoExecutionException {
-        packageSources(project);
+        synchronized (LOCK) {
+            packageSources(project);
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -211,7 +227,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      *            not null
      * @return the compile or test resources
      */
-    protected abstract List getResources(MavenProject p) throws MojoExecutionException;
+    protected abstract List<Resource> getResources(MavenProject p) throws MojoExecutionException;
 
     protected void packageSources(MavenProject p) throws MojoExecutionException {
         if (isRelevantProject(p)) {
@@ -260,14 +276,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
                 getLog().warn("ignoring unsupported archive forced = false parameter.");
                 archive.setForced(true);
             }
-            archiver.createArchive(project, archive);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error creating source archive: " + e.getMessage(), e);
-        } catch (ArchiverException e) {
-            throw new MojoExecutionException("Error creating source archive: " + e.getMessage(), e);
-        } catch (DependencyResolutionRequiredException e) {
-            throw new MojoExecutionException("Error creating source archive: " + e.getMessage(), e);
-        } catch (ManifestException e) {
+            archiver.createArchive(session, project, archive);
+        } catch (IOException | ArchiverException | DependencyResolutionRequiredException | ManifestException e) {
             throw new MojoExecutionException("Error creating source archive: " + e.getMessage(), e);
         }
 
@@ -291,9 +301,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
             }
         }
 
-        for (Iterator i = getSources(p).iterator(); i.hasNext();) {
-            Resource resource = (Resource) i.next();
-
+        for (Resource resource : getSources(p)) {
             File sourceDirectory = new File(resource.getDirectory());
             if (sourceDirectory.exists()) {
                 String path = resource.getTargetPath();
@@ -309,8 +317,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         }
 
         //MAPI: this should be taken from the resources plugin
-        for (Iterator i = getResources(p).iterator(); i.hasNext();) {
-            Resource resource = (Resource) i.next();
+        for (Resource resource : getResources(p)) {
 
             File sourceDirectory = new File(resource.getDirectory());
 
@@ -318,11 +325,11 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
                 continue;
             }
 
-            List resourceIncludes = resource.getIncludes();
+            List<String> resourceIncludes = resource.getIncludes();
 
             String[] combinedIncludes = getCombinedIncludes(resourceIncludes);
 
-            List resourceExcludes = resource.getExcludes();
+            List<String> resourceExcludes = resource.getExcludes();
 
             String[] combinedExcludes = getCombinedExcludes(resourceExcludes);
 
@@ -343,11 +350,9 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         archiver.setArchiver(jarArchiver);
 
         if (project.getBuild() != null) {
-            List resources = project.getBuild().getResources();
+            List<Resource> resources = project.getBuild().getResources();
 
-            for (Iterator i = resources.iterator(); i.hasNext();) {
-                Resource r = (Resource) i.next();
-
+            for (Resource r : resources) {
                 if (r.getDirectory().endsWith("maven-shared-archive-resources")) {
                     addDirectory(archiver.getArchiver(), new File(r.getDirectory()), getCombinedIncludes(null),
                             getCombinedExcludes(null));
@@ -361,7 +366,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     protected void addDirectory(Archiver archiver, File sourceDirectory, String[] includes, String[] excludes)
             throws MojoExecutionException {
         try {
-            archiver.addDirectory(sourceDirectory, includes, excludes);
+            archiver.addFileSet(
+                    DefaultFileSet.fileSet(sourceDirectory).prefixed("").includeExclude(includes, excludes));
         } catch (ArchiverException e) {
             throw new MojoExecutionException("Error adding directory to source archive.", e);
         }
@@ -370,7 +376,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     protected void addDirectory(Archiver archiver, File sourceDirectory, String prefix, String[] includes,
             String[] excludes) throws MojoExecutionException {
         try {
-            archiver.addDirectory(sourceDirectory, prefix, includes, excludes);
+            archiver.addFileSet(
+                    DefaultFileSet.fileSet(sourceDirectory).prefixed(prefix).includeExclude(includes, excludes));
         } catch (ArchiverException e) {
             throw new MojoExecutionException("Error adding directory to source archive.", e);
         }
@@ -401,7 +408,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      *            The includes specified in the pom resources section
      * @return The combined array of includes.
      */
-    private String[] getCombinedIncludes(List additionalIncludes) {
+    private String[] getCombinedIncludes(List<String> additionalIncludes) {
         ArrayList<String> combinedIncludes = new ArrayList<>();
 
         if (includes != null && includes.length > 0) {
@@ -413,7 +420,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         }
 
         // If there are no other includes, use the default.
-        if (combinedIncludes.size() == 0) {
+        if (combinedIncludes.isEmpty()) {
             combinedIncludes.addAll(Arrays.asList(DEFAULT_INCLUDES));
         }
 
@@ -429,7 +436,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * @return The combined list of excludes.
      */
 
-    private String[] getCombinedExcludes(List additionalExcludes) {
+    private String[] getCombinedExcludes(List<String> additionalExcludes) {
         ArrayList<String> combinedExcludes = new ArrayList<>();
 
         if (useDefaultExcludes) {
@@ -444,7 +451,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
             combinedExcludes.addAll(additionalExcludes);
         }
 
-        if (combinedExcludes.size() == 0) {
+        if (combinedExcludes.isEmpty()) {
             combinedExcludes.addAll(Arrays.asList(DEFAULT_EXCLUDES));
         }
 

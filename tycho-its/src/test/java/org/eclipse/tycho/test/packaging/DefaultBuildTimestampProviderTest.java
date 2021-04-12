@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2016 Bachmann electronic GmbH. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2016, 2021 Bachmann electronic GmbH. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Bachmann electronic GmbH. - initial API and implementation
@@ -11,9 +13,10 @@
 package org.eclipse.tycho.test.packaging;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -36,22 +39,18 @@ public class DefaultBuildTimestampProviderTest extends AbstractTychoIntegrationT
         verifier.verifyErrorFreeLog();
         File baseDir = new File(verifier.getBasedir());
 
-        String mavenBuildTimestamp = readFileToString(
-                new File(baseDir, "mavenPlugin/target/classes/buildtimestamp.txt")).toString();
+        String mavenBuildTimestamp = Files
+                .readString(Paths.get(baseDir.getAbsolutePath(), "mavenPlugin/target/classes/buildtimestamp.txt"));
 
-        // Tycho ITs are running with maven 3.0. In that version of maven, the
-        // build timestamp uses the local time zone, Tycho is using UTC, so we
-        // convert here the maven timestamp to UCT before comparing
-        // see: https://issues.apache.org/jira/browse/MNG-5452
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
         Date buildTimestamp = format.parse(mavenBuildTimestamp);
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        String plugin1Manifest = readFileToString(new File(baseDir, "plugin01/target/MANIFEST.MF")).toString();
-        String plugin2Manifest = readFileToString(new File(baseDir, "plugin02/target/MANIFEST.MF")).toString();
-        Assert.assertTrue("Expected" + mavenBuildTimestamp + "\nbut was\n" + plugin1Manifest,
-                plugin1Manifest.contains("Bundle-Version: 1.0.0." + format.format(buildTimestamp)));
-        Assert.assertTrue(plugin2Manifest.contains("Bundle-Version: 1.0.0." + format.format(buildTimestamp)));
+        String plugin1Manifest = Files.readString(Paths.get(baseDir.getAbsolutePath(), "plugin01/target/MANIFEST.MF"));
+        String plugin2Manifest = Files.readString(Paths.get(baseDir.getAbsolutePath(), "plugin02/target/MANIFEST.MF"));
+        String expectedBundleVersion = "Bundle-Version: 1.0.0." + format.format(buildTimestamp);
+        Assert.assertTrue(
+                "Expected Bundle-Version in MANIFEST: '" + expectedBundleVersion + "'\nbut was\n" + plugin1Manifest,
+                plugin1Manifest.contains(expectedBundleVersion));
+        Assert.assertTrue(plugin2Manifest.contains(expectedBundleVersion));
     }
 
 }

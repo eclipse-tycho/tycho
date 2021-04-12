@@ -1,16 +1,16 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
-
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +28,11 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
+import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.Interpolator;
@@ -48,12 +51,12 @@ import org.osgi.framework.Version;
  * project.
  * </p>
  * 
- * @see http://wiki.eclipse.org/Equinox/p2/Publisher
+ * @see https://wiki.eclipse.org/Equinox/p2/Publisher
  */
-@Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class PublishProductMojo extends AbstractPublishMojo {
 
-    // as per http://download.eclipse.org/releases/luna/201502271000/features/org.eclipse.equinox.executable_3.6.102.v20150204-1316.jar
+    // as per https://download.eclipse.org/releases/luna/201502271000/features/org.eclipse.equinox.executable_3.6.102.v20150204-1316.jar
     private static final Version LUNA_SR2_EXECUTABLE_FEATURE_VERSION = Version.parseVersion("3.6.102.v20150204-1316");
 
     /**
@@ -75,6 +78,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Component
     private FileLockService fileLockService;
 
+    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    private EclipseRepositoryProject eclipseRepositoryProject;
+
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
@@ -83,13 +89,13 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 getEnvironments(), getQualifier(), interpolator);
 
         List<DependencySeed> seeds = new ArrayList<>();
-        for (File productFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
+        for (File productFile : eclipseRepositoryProject.getProductFiles(getReactorProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
-                if (isEmpty(productConfiguration.getId())) {
+                if (productConfiguration.getId() == null || productConfiguration.getId().isEmpty()) {
                     throw new MojoExecutionException("The product file " + productFile.getName()
                             + " does not contain the mandatory attribute 'uid'. Please ensure you entered an id in the product file.");
-                } else if (isEmpty(productConfiguration.getVersion())) {
+                } else if (productConfiguration.getVersion() == null || productConfiguration.getVersion().isEmpty()) {
                     throw new MojoExecutionException("The product file " + productFile.getName()
                             + " does not contain the mandatory attribute 'version'. Please ensure you entered a version in the product file.");
                 }
@@ -106,7 +112,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
     private File getExpandedLauncherBinaries() throws MojoExecutionException, MojoFailureException {
         // TODO 364134 take the executable feature from the target platform instead
-        DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getProject());
+        DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getReactorProject());
         ArtifactDescriptor artifact = dependencyArtifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
                 "org.eclipse.equinox.executable", null);
 
@@ -115,7 +121,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                     "Unable to locate feature 'org.eclipse.equinox.executable'. This feature is required for native product launchers.");
         }
         checkMacOSLauncherCompatibility(artifact);
-        File equinoxExecFeature = artifact.getLocation();
+        File equinoxExecFeature = artifact.getLocation(true);
         if (equinoxExecFeature.isDirectory()) {
             return equinoxExecFeature.getAbsoluteFile();
         } else {
@@ -138,7 +144,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                     locker.release();
                 }
             } catch (ArchiverException e) {
-                throw new MojoFailureException("Unable to unzip the eqiuinox executable feature", e);
+                throw new MojoFailureException("Unable to unzip the equinox executable feature", e);
             }
         }
     }

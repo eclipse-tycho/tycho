@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
@@ -145,8 +147,8 @@ public class CompositeArtifactProvider extends CompositeArtifactProviderBaseImpl
 
     @Override
     protected Status getArtifactNotFoundError(String artifact) {
-        return new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact " + artifact
-                + " is not available in the following sources: " + components, null);
+        return new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_NOT_FOUND,
+                "Artifact " + artifact + " is not available in the following sources: " + components, null);
     }
 
     @Override
@@ -162,6 +164,11 @@ public class CompositeArtifactProvider extends CompositeArtifactProviderBaseImpl
             IArtifactProvider[] repositoriesArray = components.toArray(new IArtifactProvider[repositoryCount]);
             return new CompoundQueryable<>(repositoriesArray);
         }
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return components.stream().anyMatch(component -> component.isFileAlreadyAvailable(artifactKey));
     }
 
 }

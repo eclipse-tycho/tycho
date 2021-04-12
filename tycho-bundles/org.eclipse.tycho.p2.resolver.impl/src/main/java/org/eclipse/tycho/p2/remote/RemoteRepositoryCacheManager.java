@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -76,7 +78,7 @@ class RemoteRepositoryCacheManager extends CacheManager {
     @Override
     public File createCacheFromFile(URI remoteFile, IProgressMonitor monitor) throws ProvisionException, IOException {
         if (offline) {
-            File cacheFile = getCacheFile(remoteFile);
+            File cacheFile = getCacheFile(remoteFile, getCacheDirectory());
             if (cacheFile != null) {
                 return cacheFile;
             }
@@ -93,8 +95,7 @@ class RemoteRepositoryCacheManager extends CacheManager {
     // this method is copied from the super class, because its private there
     // we calculate the hashcode the same way as p2 and we must 
     // keep the hashcode calculation in sync with them
-    private File getCacheFile(URI url) {
-        File dataAreaFile = getCacheDirectory();
+    public static File getCacheFile(URI url, File dataAreaFile) {
         int hashCode = url.hashCode();
         return new File(dataAreaFile, Integer.toString(hashCode));
     }

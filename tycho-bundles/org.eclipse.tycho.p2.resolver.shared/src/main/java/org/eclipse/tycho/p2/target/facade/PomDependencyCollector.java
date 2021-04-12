@@ -1,16 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
-
-import java.io.File;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
@@ -21,13 +22,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
  */
 public interface PomDependencyCollector {
 
-    // TODO 412416 get rid of this method
-    /**
-     * Sets the root folder of the project the target platform applies to.
-     */
-    public void setProjectLocation(File projectLocation);
-
-    public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact);
+    public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle);
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
 

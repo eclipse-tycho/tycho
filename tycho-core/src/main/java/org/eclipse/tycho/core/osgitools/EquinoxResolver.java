@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,221 +7,359 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich -  [Bug 567782] Platform specific fragment not support in Multi-Platform POMless build
+ *                          [Bug 572481] Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.osgi.internal.resolver.StateImpl;
-import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.BundleSpecification;
-import org.eclipse.osgi.service.resolver.HostSpecification;
-import org.eclipse.osgi.service.resolver.ResolverError;
-import org.eclipse.osgi.service.resolver.State;
-import org.eclipse.osgi.service.resolver.StateObjectFactory;
-import org.eclipse.osgi.service.resolver.VersionConstraint;
+import org.eclipse.osgi.container.Module;
+import org.eclipse.osgi.container.Module.Settings;
+import org.eclipse.osgi.container.Module.State;
+import org.eclipse.osgi.container.ModuleCollisionHook;
+import org.eclipse.osgi.container.ModuleContainer;
+import org.eclipse.osgi.container.ModuleContainerAdaptor;
+import org.eclipse.osgi.container.ModuleDatabase;
+import org.eclipse.osgi.container.ModuleRevision;
+import org.eclipse.osgi.container.ModuleRevisionBuilder;
+import org.eclipse.osgi.container.ModuleWire;
+import org.eclipse.osgi.container.SystemModule;
+import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
+import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
+import org.eclipse.osgi.internal.framework.AliasMapper;
+import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
+import org.eclipse.osgi.report.resolution.ResolutionReport;
+import org.eclipse.osgi.report.resolution.ResolutionReport.Entry;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.hooks.resolver.ResolverHook;
+import org.osgi.framework.hooks.resolver.ResolverHookFactory;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.NativeNamespace;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
 
 @Component(role = EquinoxResolver.class)
 public class EquinoxResolver {
-    // see http://wiki.osgi.org/wiki/System_Bundle
-    public static final String SYSTEM_BUNDLE_SYMBOLIC_NAME = "system.bundle";
-    public static final long SYSTEM_BUNDLE_ID = 0L;
-
-    private static StateObjectFactory factory = StateObjectFactory.defaultFactory;
-
     @Requirement
     private BundleReader manifestReader;
 
     @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
     private Logger logger;
 
-    public State newResolvedState(MavenProject project, ExecutionEnvironment ee, boolean ignoreEE,
+    @Requirement
+    private ToolchainManager toolchainManager;
+
+    public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
-        Properties properties = getPlatformProperties(project, ee);
-
-        State state = newState(artifacts, properties, ignoreEE);
-
-        resolveState(state);
-
-        BundleDescription bundleDescription = state.getBundleByLocation(getNormalizedPath(project.getBasedir()));
-
-        assertResolved(state, bundleDescription);
-
-        return state;
-    }
-
-    public State newResolvedState(File basedir, ExecutionEnvironment ee, DependencyArtifacts artifacts)
-            throws BundleException {
-        Properties properties = getPlatformProperties(new Properties(), null, ee);
-
-        State state = newState(artifacts, properties, false);
-
-        resolveState(state);
-
-        BundleDescription bundleDescription = state.getBundleByLocation(getNormalizedPath(basedir));
-
-        assertResolved(state, bundleDescription);
-
-        return state;
-    }
-
-    protected void resolveState(State state) {
-        state.resolve(false);
-
-        // warn about missing/ambiguous/inconsistent system.bundle
-        BundleDescription[] bundles = state.getBundles("system.bundle");
-        if (bundles == null || bundles.length == 0) {
-            logger.warn("No system.bundle");
-        } else if (bundles.length > 1) {
-            logger.warn("Multiple system.bundles " + Arrays.toString(bundles));
-        } else if (bundles[0].getBundleId() != SYSTEM_BUNDLE_ID) {
-            logger.warn("system.bundle bundleId == " + bundles[0].getBundleId());
-        }
-    }
-
-    public String toDebugString(State state) {
-        StringBuilder sb = new StringBuilder("Resolved OSGi state\n");
-        for (BundleDescription otherBundle : state.getBundles()) {
-            if (!otherBundle.isResolved()) {
-                sb.append("NOT ");
-            }
-            sb.append("RESOLVED ");
-            sb.append(otherBundle.toString()).append(" : ").append(otherBundle.getLocation());
-            sb.append('\n');
-            for (ResolverError error : state.getResolverErrors(otherBundle)) {
-                sb.append('\t').append(error.toString()).append('\n');
+        Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);
+        ModuleContainer container = newState(artifacts, properties, mavenSession);
+        ResolutionReport report = container.resolve(null, false);
+        Module module = container.getModule(getNormalizedPath(project.getBasedir()));
+        if (module == null) {
+            Module systemModule = container.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
+            if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
+                module = systemModule;
             }
         }
-        return sb.toString();
+        ModuleRevision moduleRevision = module.getCurrentRevision();
+        if (report.getEntries().isEmpty()) {
+            Collection<org.eclipse.osgi.container.Module> toUninstall = null;
+            if ((moduleRevision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
+                // other fragments for the same host
+                toUninstall = moduleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                        .map(ModuleWire::getProvider) //
+                        .flatMap(host -> host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream())
+                        .map(ModuleWire::getRequirer) //
+                        .filter(Predicate.not(moduleRevision::equals)) //
+                        .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
+                        .map(revision -> revision.getRevisions().getModule()) //
+                        .collect(Collectors.toSet());
+            } else {
+                // fragments for the host
+                toUninstall = moduleRevision.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                        .map(ModuleWire::getRequirer) //
+                        .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
+                        .map(revision -> revision.getRevisions().getModule()) //
+                        .collect(Collectors.toSet());
+            }
+            if (!toUninstall.isEmpty()) {
+                for (Module uninstall : toUninstall) {
+                    try {
+                        container.uninstall(uninstall);
+                    } catch (BundleException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                report = container.refresh(null);
+            }
+        }
+        assertResolved(report, moduleRevision);
+
+        return container;
     }
 
-    protected Properties getPlatformProperties(MavenProject project, ExecutionEnvironment ee) {
+    public ModuleContainer newResolvedState(File basedir, MavenSession mavenSession, ExecutionEnvironment ee,
+            DependencyArtifacts artifacts) throws BundleException {
+        Properties properties = getPlatformProperties(new Properties(), mavenSession, null, ee);
+        ModuleContainer container = newState(artifacts, properties, mavenSession);
+        ResolutionReport report = container.resolve(null, false);
+
+        ModuleRevision bundleDescription = container.getModule(getNormalizedPath(basedir)).getCurrentRevision();
+        assertResolved(report, bundleDescription);
+
+        return container;
+    }
+
+    protected Properties getPlatformProperties(ReactorProject project, MavenSession mavenSession,
+            DependencyArtifacts artifacts, ExecutionEnvironment ee) {
+
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         TargetEnvironment environment = configuration.getEnvironments().get(0);
-
+        if (artifacts instanceof MultiEnvironmentDependencyArtifacts) {
+            environment = ((MultiEnvironmentDependencyArtifacts) artifacts).getPlatforms().stream().findFirst()
+                    .orElse(environment);
+        }
+        logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");
         Properties properties = new Properties();
         properties.putAll((Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES));
 
-        return getPlatformProperties(properties, environment, ee);
+        return getPlatformProperties(properties, mavenSession, environment, ee);
     }
 
-    protected Properties getPlatformProperties(Properties properties, TargetEnvironment environment,
-            ExecutionEnvironment ee) {
+    protected Properties getPlatformProperties(Properties properties, MavenSession mavenSession,
+            TargetEnvironment environment, ExecutionEnvironment ee) {
         if (environment != null) {
-            properties.put(PlatformPropertiesUtils.OSGI_OS, environment.getOs());
-            properties.put(PlatformPropertiesUtils.OSGI_WS, environment.getWs());
-            properties.put(PlatformPropertiesUtils.OSGI_ARCH, environment.getArch());
+            properties.put(EquinoxConfiguration.PROP_OSGI_OS, environment.getOs());
+            properties.put(EquinoxConfiguration.PROP_OSGI_WS, environment.getWs());
+            properties.put(EquinoxConfiguration.PROP_OSGI_ARCH, environment.getArch());
         }
 
-        ExecutionEnvironmentUtils.applyProfileProperties(properties, ee.getProfileProperties());
-
-        // Put Equinox OSGi resolver into development mode.
-        // See http://www.nabble.com/Re:-resolving-partially-p18449054.html
-        properties.put(StateImpl.OSGI_RESOLVER_MODE, StateImpl.DEVELOPMENT_MODE);
+        if (ee != null) {
+            ExecutionEnvironmentUtils.applyProfileProperties(properties, ee);
+        } else {
+            // ignoring EE by adding all known EEs
+            StringBuilder allSystemPackages = new StringBuilder();
+            StringBuilder allSystemCapabilities = new StringBuilder();
+            for (String profile : ExecutionEnvironmentUtils.getProfileNames()) {
+                StandardExecutionEnvironment executionEnvironment = ExecutionEnvironmentUtils
+                        .getExecutionEnvironment(profile, toolchainManager, mavenSession, logger);
+                String currentSystemPackages = (String) executionEnvironment.getProfileProperties()
+                        .get(Constants.FRAMEWORK_SYSTEMPACKAGES);
+                if (currentSystemPackages != null && !currentSystemPackages.isEmpty()) {
+                    allSystemPackages.append(currentSystemPackages);
+                    allSystemPackages.append(',');
+                }
+                String currentSystemCapabilities = (String) executionEnvironment.getProfileProperties()
+                        .get(Constants.FRAMEWORK_SYSTEMCAPABILITIES);
+                if (currentSystemCapabilities != null && !currentSystemCapabilities.isEmpty()) {
+                    allSystemCapabilities.append(currentSystemCapabilities);
+                    allSystemCapabilities.append(',');
+                }
+            }
+            if (allSystemPackages.length() > 0) {
+                allSystemPackages.deleteCharAt(allSystemPackages.length() - 1);
+            }
+            properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES, allSystemPackages.toString());
+            if (allSystemCapabilities.length() > 0) {
+                allSystemCapabilities.deleteCharAt(allSystemCapabilities.length() - 1);
+            }
+            properties.put(Constants.FRAMEWORK_SYSTEMCAPABILITIES, allSystemCapabilities.toString());
+        }
         return properties;
     }
 
-    protected State newState(DependencyArtifacts artifacts, Properties properties, boolean ignoreEE)
+    protected ModuleContainer newState(DependencyArtifacts artifacts, Properties properties, MavenSession mavenSession)
             throws BundleException {
-        State state = factory.createState(true);
+        ModuleContainer[] moduleContainerAccessor = new ModuleContainer[1];
+        ModuleContainerAdaptor moduleContainerAdaptor = new ModuleContainerAdaptor() {
+            @Override
+            public void publishModuleEvent(ModuleEvent type, Module module, Module origin) {
+                // nothing to do
+            }
 
-        Map<File, Dictionary<String, String>> systemBundles = new LinkedHashMap<>();
-        Map<File, Dictionary<String, String>> externalBundles = new LinkedHashMap<>();
-        Map<File, Dictionary<String, String>> projects = new LinkedHashMap<>();
+            @Override
+            public void publishContainerEvent(ContainerEvent type, Module module, Throwable error,
+                    FrameworkListener... listeners) {
+                // nothing to do
+            }
 
-        for (ArtifactDescriptor artifact : artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
-            File location = artifact.getLocation();
-            Dictionary<String, String> mf = loadManifest(location);
-            if (isFrameworkImplementation(location, mf)) {
+            @Override
+            public ResolverHookFactory getResolverHookFactory() {
+                return triggers -> new ResolverHook() {
+                    @Override
+                    public void filterSingletonCollisions(BundleCapability singleton,
+                            Collection<BundleCapability> collisionCandidates) {
+                        // nothing to do
+                    }
+
+                    @Override
+                    public void filterResolvable(Collection<BundleRevision> candidates) {
+                        // nothing to do
+                    }
+
+                    @Override
+                    public void filterMatches(BundleRequirement requirement, Collection<BundleCapability> candidates) {
+                        // nothing to do
+                    }
+
+                    @Override
+                    public void end() {
+                        // nothing to do
+                    }
+                };
+            }
+
+            @Override
+            public ModuleCollisionHook getModuleCollisionHook() {
+                return (operationType, target, collisionCandidates) -> {
+                    // do nothing as collision (same SymbolicName+version) are not supported by Tycho anyway
+                };
+            }
+
+            @Override
+            public SystemModule createSystemModule() {
+                return new SystemModule(moduleContainerAccessor[0]) {
+                    @Override
+                    public Bundle getBundle() {
+                        return null;
+                    }
+
+                    @Override
+                    protected void cleanup(ModuleRevision revision) {
+                        // nothing to do
+                    }
+                };
+            }
+
+            @Override
+            public Module createModule(String location, long id, EnumSet<Settings> settings, int startlevel) {
+                return new Module(id, location, moduleContainerAccessor[0], settings, startlevel) {
+                    @Override
+                    public Bundle getBundle() {
+                        return null;
+                    }
+
+                    @Override
+                    protected void cleanup(ModuleRevision revision) {
+                        // nothing to do
+                    }
+                };
+            }
+        };
+        ModuleDatabase moduleDatabase = new ModuleDatabase(moduleContainerAdaptor);
+        ModuleContainer moduleContainer = new ModuleContainer(moduleContainerAdaptor, moduleDatabase);
+        moduleContainerAccessor[0] = moduleContainer;
+
+        Map<File, OsgiManifest> systemBundles = new LinkedHashMap<>();
+        Map<File, OsgiManifest> externalBundles = new LinkedHashMap<>();
+        Map<File, OsgiManifest> projects = new LinkedHashMap<>();
+
+        List<ArtifactDescriptor> list = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+        for (ArtifactDescriptor artifact : list) {
+            File location = artifact.getLocation(true);
+            OsgiManifest mf = loadManifest(location);
+            if (isFrameworkImplementation(mf)) {
                 systemBundles.put(location, mf);
-            } else if (artifact.getMavenProject() != null) {
-                projects.put(location, mf);
             } else {
-                externalBundles.put(location, mf);
+                ReactorProject mavenProject = artifact.getMavenProject();
+                if (mavenProject != null) {
+                    Collection<String> additionalBundles = buildPropertiesParser.parse(mavenProject.getBasedir())
+                            .getAdditionalBundles();
+                    if (additionalBundles.size() > 0) {
+                        List<String> reqb = new ArrayList<>();
+                        String value = mf.getValue(Constants.REQUIRE_BUNDLE);
+                        if (value != null) {
+                            reqb.add(value);
+                        }
+                        reqb.addAll(additionalBundles.stream().map(b -> b + ";resolution:=optional")
+                                .collect(Collectors.toList()));
+                        mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", reqb));
+                    }
+                    projects.put(location, mf);
+                } else {
+                    externalBundles.put(location, mf);
+                }
             }
         }
 
-        long id = SYSTEM_BUNDLE_ID;
-        if (systemBundles.isEmpty()) {
-            // there were no OSGi framework implementations among bundles being resolve
-            // fabricate system.bundle to export visible JRE packages
-            state.addBundle(factory.createBundleDescription(state, getSystemBundleManifest(properties), "", id++));
+        String systemExtraCapabilities = getSystemExtraCapabilities(properties);
+
+        Map<String, String> systemBundleManifest;
+        Object systemBundleInfo;
+        if (!systemBundles.isEmpty()) {
+            Map.Entry<File, OsgiManifest> systemBundle = systemBundles.entrySet().iterator().next();
+            systemBundleManifest = systemBundle.getValue().getHeaders();
+            systemBundleInfo = systemBundle.getKey();
         } else {
-            // use first framework implementation found as system bundle, i.e. bundleId==0
-            // TODO test what happens when multiple framework implementations are present
-            for (Map.Entry<File, Dictionary<String, String>> entry : systemBundles.entrySet()) {
-                addBundle(state, id++, entry.getKey(), entry.getValue(), false);
-            }
+            systemBundleManifest = Map.of(Constants.BUNDLE_SYMBOLICNAME, Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
+            systemBundleInfo = null;
         }
-        for (Map.Entry<File, Dictionary<String, String>> entry : externalBundles.entrySet()) {
-            addBundle(state, id++, entry.getKey(), entry.getValue(), false);
+
+        ModuleRevisionBuilder systemBundleRevisionBuilder = OSGiManifestBuilderFactory.createBuilder(
+                systemBundleManifest, Constants.SYSTEM_BUNDLE_SYMBOLICNAME,
+                properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES), systemExtraCapabilities);
+
+        moduleContainer.install(null, Constants.SYSTEM_BUNDLE_LOCATION, systemBundleRevisionBuilder, systemBundleInfo);
+
+        for (Map.Entry<File, OsgiManifest> external : externalBundles.entrySet()) {
+            moduleContainer.install(null, external.getKey().getAbsolutePath(),
+                    OSGiManifestBuilderFactory.createBuilder(external.getValue().getHeaders()), external.getKey());
         }
-        for (Map.Entry<File, Dictionary<String, String>> entry : projects.entrySet()) {
+        for (Map.Entry<File, OsgiManifest> entry : projects.entrySet()) {
             // make sure reactor projects override anything from the target platform
             // that has the same bundle symbolic name
-            addBundle(state, id++, entry.getKey(), entry.getValue(), true/* override */);
+            Map<String, String> headers = entry.getValue().getHeaders();
+            ModuleRevisionBuilder builder = OSGiManifestBuilderFactory.createBuilder(headers);
+            moduleContainer.install(null, entry.getKey().getAbsolutePath(), builder, entry.getKey());
         }
 
-        List<Dictionary<Object, Object>> allProps = new ArrayList<>();
-
-        // force our system.bundle
-        Hashtable<Object, Object> platformProperties = new Hashtable<>(properties);
-        platformProperties.put(StateImpl.STATE_SYSTEM_BUNDLE, state.getBundle(SYSTEM_BUNDLE_ID).getSymbolicName());
-        allProps.add(platformProperties);
-        if (ignoreEE) {
-            // ignoring EE by adding all known EEs
-            for (String profile : ExecutionEnvironmentUtils.getProfileNames()) {
-                Properties envProps = ExecutionEnvironmentUtils.getExecutionEnvironment(profile).getProfileProperties();
-                String systemPackages = envProps.getProperty("org.osgi.framework.system.packages");
-                String execEnv = envProps.getProperty("org.osgi.framework.executionenvironment");
-                Dictionary<Object, Object> prop = new Hashtable<>();
-                prop.put("org.osgi.framework.system.packages", systemPackages);
-                prop.put("org.osgi.framework.executionenvironment", execEnv);
-                allProps.add(prop);
-            }
-        }
-
-        Dictionary<Object, Object>[] stateProperties = allProps.toArray(new Dictionary[allProps.size()]);
-
-        state.setPlatformProperties(stateProperties);
-
-        return state;
+        return moduleContainer;
     }
 
-    private boolean isFrameworkImplementation(File location, Dictionary<String, String> mf) {
+    private boolean isFrameworkImplementation(OsgiManifest mf) {
         // starting with OSGi R4.2, /META-INF/services/org.osgi.framework.launch.FrameworkFactory
         // can be used to detect framework implementation
         // See http://www.osgi.org/javadoc/r4v42/org/osgi/framework/launch/FrameworkFactory.html
 
         // Assume only framework implementation export org.osgi.framework package
-        String value = (String) mf.get(Constants.EXPORT_PACKAGE);
+        String value = mf.getHeaders().get(Constants.EXPORT_PACKAGE);
         if (value != null) {
             try {
                 ManifestElement[] exports = ManifestElement.parseHeader(Constants.EXPORT_PACKAGE, value);
@@ -237,99 +375,75 @@ public class EquinoxResolver {
         return false;
     }
 
-    public void addBundle(State state, long id, File bundleLocation, Dictionary<String, String> mf, boolean override)
-            throws BundleException {
-        BundleDescription descriptor = factory
-                .createBundleDescription(state, mf, getNormalizedPath(bundleLocation), id);
-
-        if (override) {
-            BundleDescription[] conflicts = state.getBundles(descriptor.getSymbolicName());
-            if (conflicts != null) {
-                for (BundleDescription conflict : conflicts) {
-                    state.removeBundle(conflict);
-                    logger.warn(conflict.toString()
-                            + " has been replaced by another bundle with the same symbolic name "
-                            + descriptor.toString());
-                }
-            }
-        }
-
-        state.addBundle(descriptor);
-    }
-
-    private static String getNormalizedPath(File file) throws BundleException {
+    private static String getNormalizedPath(File file) {
         return file.getAbsolutePath();
     }
 
-    private Dictionary<String, String> loadManifest(File bundleLocation) {
+    private static final AliasMapper ALIAS_MAPPER = new AliasMapper(); // has no state
+
+    /**
+     * Heavily based on {@link org.eclipse.osgi.storage.Storage#getSystemExtraCapabilities} and
+     * adjusted to what is put in the properties in
+     * {@link #getPlatformProperties(ReactorProject, MavenSession, DependencyArtifacts, ExecutionEnvironment)}
+     * and its callees.
+     */
+    private static String getSystemExtraCapabilities(Properties equinoxConfig) {
+
+        StringBuilder result = new StringBuilder();
+
+        String systemCapabilities = equinoxConfig.getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES);
+        if (systemCapabilities != null && systemCapabilities.trim().length() > 0) {
+            result.append(systemCapabilities).append(", ");
+        }
+
+        String os = equinoxConfig.getProperty(EquinoxConfiguration.PROP_OSGI_OS);
+        String ws = equinoxConfig.getProperty(EquinoxConfiguration.PROP_OSGI_WS);
+        String osArch = equinoxConfig.getProperty(EquinoxConfiguration.PROP_OSGI_ARCH);
+        String nl = equinoxConfig.getProperty(EquinoxConfiguration.PROP_OSGI_NL);
+        result.append(EclipsePlatformNamespace.ECLIPSE_PLATFORM_NAMESPACE).append("; ");
+        result.append(EquinoxConfiguration.PROP_OSGI_OS).append("=").append(os).append("; ");
+        result.append(EquinoxConfiguration.PROP_OSGI_WS).append("=").append(ws).append("; ");
+        result.append(EquinoxConfiguration.PROP_OSGI_ARCH).append("=").append(osArch).append("; ");
+        result.append(EquinoxConfiguration.PROP_OSGI_NL).append("=").append(nl);
+
+        // For the constants Constants.FRAMEWORK_OS_NAME, Constants.FRAMEWORK_PROCESSOR, Constants.FRAMEWORK_OS_VERSION and Constants.FRAMEWORK_LANGUAGE no value is present.
+        // But at least we have the os and osArch from above.
+        String osName = os == null ? null : ALIAS_MAPPER.getCanonicalOSName(os);
+        String processor = osArch == null ? null : ALIAS_MAPPER.getCanonicalProcessor(osArch);
+
+        result.append(", ").append(NativeNamespace.NATIVE_NAMESPACE);
+        if (osName != null) {
+            String osNames = getStringList(ALIAS_MAPPER.getOSNameAliases(osName));
+            result.append("; ").append(NativeNamespace.CAPABILITY_OSNAME_ATTRIBUTE).append(osNames);
+        }
+        if (processor != null) {
+            String processors = getStringList(ALIAS_MAPPER.getProcessorAliases(processor));
+            result.append("; ").append(NativeNamespace.CAPABILITY_PROCESSOR_ATTRIBUTE).append(processors);
+        }
+        // osVersion and language are not (yet) supported.
+        return result.toString();
+    }
+
+    private static String getStringList(Collection<String> elements) {
+        return ":List<String>=\"" + String.join(",", elements) + "\"";
+    }
+
+    private OsgiManifest loadManifest(File bundleLocation) {
         if (bundleLocation == null || !bundleLocation.exists()) {
             throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation);
         }
-
-        return manifestReader.loadManifest(bundleLocation).getHeaders();
+        return manifestReader.loadManifest(bundleLocation);
     }
 
-    private Dictionary<String, String> getSystemBundleManifest(Properties properties) {
-        String systemPackages = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
-
-        Dictionary<String, String> systemBundleManifest = new Hashtable<>();
-        systemBundleManifest.put(Constants.BUNDLE_SYMBOLICNAME, SYSTEM_BUNDLE_SYMBOLIC_NAME);
-        systemBundleManifest.put(Constants.BUNDLE_VERSION, "0.0.0");
-        systemBundleManifest.put(Constants.BUNDLE_MANIFESTVERSION, "2");
-        if (systemPackages != null && systemPackages.trim().length() > 0) {
-            systemBundleManifest.put(Constants.EXPORT_PACKAGE, systemPackages);
-        } else {
-            logger.warn("Undefined or empty org.osgi.framework.system.packages system property, system.bundle does not export any packages.");
+    public void assertResolved(ResolutionReport report, ModuleRevision desc) throws BundleException {
+        if (desc.getRevisions().getModule().getState() == State.RESOLVED || report == null
+                || report.getEntries() == null || report.getEntries().isEmpty()) {
+            return;
         }
-
-        return systemBundleManifest;
-    }
-
-    public void assertResolved(State state, BundleDescription desc) throws BundleException {
-        if (!desc.isResolved()) {
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Equinox resolver state:\n" + toDebugString(state));
-            }
-
-            StringBuffer msg = new StringBuffer();
-            msg.append("Bundle ").append(desc.getSymbolicName()).append(" cannot be resolved\n");
-            msg.append("Resolution errors:\n");
-            ResolverError[] errors = getResolverErrors(state, desc);
-            for (int i = 0; i < errors.length; i++) {
-                ResolverError error = errors[i];
-                msg.append("   Bundle ").append(error.getBundle().getSymbolicName()).append(" - ")
-                        .append(error.toString()).append("\n");
-            }
-
-            throw new BundleException(msg.toString());
-        }
-    }
-
-    public ResolverError[] getResolverErrors(State state, BundleDescription bundle) {
-        Set<ResolverError> errors = new LinkedHashSet<>();
-        getRelevantErrors(state, errors, bundle);
-        return (ResolverError[]) errors.toArray(new ResolverError[errors.size()]);
-    }
-
-    private void getRelevantErrors(State state, Set<ResolverError> errors, BundleDescription bundle) {
-        ResolverError[] bundleErrors = state.getResolverErrors(bundle);
-        for (int j = 0; j < bundleErrors.length; j++) {
-            ResolverError error = bundleErrors[j];
-            errors.add(error);
-
-            VersionConstraint constraint = error.getUnsatisfiedConstraint();
-            if (constraint instanceof BundleSpecification || constraint instanceof HostSpecification) {
-                BundleDescription[] requiredBundles = state.getBundles(constraint.getName());
-                for (int i = 0; i < requiredBundles.length; i++) {
-                    // if one of the constraints is the bundle itself (recursive dependency)
-                    // do not handle that bundle (again). See bug 442594.
-                    if (bundle.equals(requiredBundles[i])) {
-                        continue;
-                    }
-                    getRelevantErrors(state, errors, requiredBundles[i]);
-                }
-            }
+        List<Entry> errors = report.getEntries().get(desc);
+        if (errors != null && !errors.isEmpty()) {
+            throw new BundleException("Bundle " + desc.getSymbolicName() + " cannot be resolved:"
+                    + report.getResolutionReportMessage(desc));
         }
     }
 

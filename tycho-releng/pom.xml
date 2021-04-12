@@ -12,7 +12,7 @@
 	<parent>
 		<artifactId>tycho</artifactId>
 		<groupId>org.eclipse.tycho</groupId>
-		<version>1.1.0-SNAPSHOT</version>
+		<version>2.4.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>tycho-releng</artifactId>
@@ -78,6 +78,7 @@
 				<groupId>org.eclipse.tycho.extras</groupId>
 				<artifactId>tycho-p2-extras-plugin</artifactId>
 				<version>${tychoBootstrapVersion}</version>
+				<!-- 
 				<executions>
 					<execution>
 						<phase>validate</phase>
@@ -86,10 +87,11 @@
 						</goals>
 					</execution>
 				</executions>
+				-->
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/releases/neon/201612211000/</url>
+							<url>https://download.eclipse.org/releases/photon/201806271001/</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
@@ -110,25 +112,38 @@
 							<id>org.eclipse.osgi.compatibility.state.source</id>
 							<version>${equinoxCompatVersion}</version>
 						</iu>
-						<iu>
-							<id>org.eclipse.jdt.core</id>
-							<version>${jdtVersion}</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.jdt.core.source</id>
-							<version>${jdtVersion}</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.jdt.compiler.apt</id>
-							<version>${jdtAptVersion}</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.jdt.compiler.apt.source</id>
-							<version>${jdtAptVersion}</version>
-						</iu>
 					</ius>
 					<followStrictOnly>true</followStrictOnly>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<version>1.4.1</version>
+				<executions>
+					<execution>
+						<id>download-ecj</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://download.eclipse.org/eclipse/downloads/drops4/${ecjVersion}/ecj-${ecjVersion}.jar</url>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>download-ecj-sources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://download.eclipse.org/eclipse/downloads/drops4/${ecjVersion}/ecjsrc-${ecjVersion}.jar</url>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -147,7 +162,7 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>deploy-jdt-snapshots</id>
+			<id>deploy-ecj-snapshot</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
@@ -158,27 +173,15 @@
 						<artifactId>maven-deploy-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>deploy-jdt-core</id>
+								<id>deploy-ecj</id>
 								<phase>deploy</phase>
 								<goals>
 									<goal>deploy-file</goal>
 								</goals>
 								<configuration>
-									<file>${downloaded}/org.eclipse.jdt.core_${jdtVersion}.jar</file>
-									<sources>${downloaded}/org.eclipse.jdt.core.source_${jdtVersion}.jar</sources>
-									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
-								</configuration>
-							</execution>
-							<execution>
-								<id>deploy-jdt-apt</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>deploy-file</goal>
-								</goals>
-								<configuration>
-									<file>${downloaded}/org.eclipse.jdt.compiler.apt_${jdtAptVersion}.jar</file>
-									<sources>${downloaded}/org.eclipse.jdt.compiler.apt.source_${jdtAptVersion}.jar</sources>
-									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
+									<file>${project.build.directory}/ecj-${ecjVersion}.jar</file>
+									<sources>${project.build.directory}/ecjsrc-${ecjVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.ecj.pom</pomFile>
 								</configuration>
 							</execution>
 						</executions>
@@ -240,27 +243,15 @@
 						</configuration>
 						<executions>
 							<execution>
-								<id>deploy-jdt-core</id>
+								<id>deploy-ecj</id>
 								<phase>deploy</phase>
 								<goals>
 									<goal>sign-and-deploy-file</goal>
 								</goals>
 								<configuration>
-									<file>${downloaded}/org.eclipse.jdt.core_${jdtVersion}.jar</file>
-									<sources>${downloaded}/org.eclipse.jdt.core.source_${jdtVersion}.jar</sources>
-									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
-								</configuration>
-							</execution>
-							<execution>
-								<id>deploy-jdt-apt</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>sign-and-deploy-file</goal>
-								</goals>
-								<configuration>
-									<file>${downloaded}/org.eclipse.jdt.compiler.apt_${jdtAptVersion}.jar</file>
-									<sources>${downloaded}/org.eclipse.jdt.compiler.apt.source_${jdtAptVersion}.jar</sources>
-									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
+									<file>${project.build.directory}/ecj-${ecjVersion}.jar</file>
+									<sources>${project.build.directory}/ecjsrc-${ecjVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.ecj.pom</pomFile>
 								</configuration>
 							</execution>
 							<execution>

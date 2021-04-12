@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2015 Sebastien Arod and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sebastien Arod - Initial implementation
@@ -17,7 +19,7 @@ import org.osgi.framework.Version;
 /**
  * Represent a version constraint using version and match attributes as defined
  * in feature manifest file (feature>requires>import)
- * {@link http://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Ffeature_manifest.html&cp=2_1_5_20}
+ * {@link https://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Ffeature_manifest.html&cp=2_1_5_20}
  * 
  * @author sarod
  *

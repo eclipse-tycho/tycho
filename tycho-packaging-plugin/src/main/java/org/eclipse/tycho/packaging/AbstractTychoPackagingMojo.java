@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -31,6 +33,7 @@ import org.codehaus.plexus.util.AbstractScanner;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 
 public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
@@ -99,7 +102,7 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     }
 
     protected ArtifactDependencyWalker getDependencyWalker() {
-        return getTychoProjectFacet().getDependencyWalker(project);
+        return getTychoProjectFacet().getDependencyWalker(DefaultReactorProject.adapt(project));
     }
 
     protected TychoProject getTychoProjectFacet() {
@@ -115,7 +118,7 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     }
 
     protected DependencyArtifacts getDependencyArtifacts() {
-        return getTychoProjectFacet().getDependencyArtifacts(project);
+        return getTychoProjectFacet().getDependencyArtifacts(DefaultReactorProject.adapt(project));
     }
 
     protected void checkBinIncludesExist(BuildProperties buildProperties, String... ignoredIncludes)

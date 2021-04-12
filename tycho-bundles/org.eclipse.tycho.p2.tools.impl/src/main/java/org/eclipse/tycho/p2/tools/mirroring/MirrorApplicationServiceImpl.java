@@ -1,26 +1,35 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Bachmann electronic GmbH. - Support for ignoreError flag
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
@@ -28,18 +37,22 @@ import org.eclipse.equinox.p2.internal.repository.tools.RecreateRepositoryApplic
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.internal.repository.tools.XZCompressor;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -59,20 +72,21 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     @Override
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
+            Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent,
                     mirrorOptions.isIncludePacked());
             mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
+            mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
             try {
                 // we want to see mirror progress as this is a possibly long-running operation
                 mirrorApp.setVerbose(true);
                 mirrorApp.setLog(new LogListener(mavenContext.getLogger()));
                 mirrorApp.setSourceIUs(querySourceIus(seedIUs, mirrorApp.getCompositeMetadataRepository(), sources));
                 IStatus returnStatus = mirrorApp.run(null);
-                checkStatus(returnStatus);
+                checkStatus(returnStatus, mirrorOptions.isIgnoreErrors());
 
             } catch (ProvisionException e) {
                 throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
@@ -119,7 +133,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         if (iu.getQueryMatchExpression() != null) {
             return QueryUtil.createMatchQuery(iu.getQueryMatchExpression(), (Object[]) iu.getQueryParameters());
         } else {
-            if (version == null || version.length() == 0) {
+            if (version == null || version.isEmpty()) {
                 return QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
             } else {
                 return QueryUtil.createIUQuery(id, Version.parseVersion(version));
@@ -156,7 +170,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                     mirrorApp.setLog(logListener);
 
                     IStatus returnStatus = mirrorApp.run(null);
-                    checkStatus(returnStatus);
+                    checkStatus(returnStatus, false);
                     logListener.showHelpForLoggedMessages();
                 } catch (ProvisionException e) {
                     throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()),
@@ -164,7 +178,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                 }
             }
             recreateArtifactRepository(destination);
-            xzCompress(destination);
         } finally {
             agent.stop();
         }
@@ -184,7 +197,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
-    private void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException {
+    public void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException {
         // bug 357513 - force artifact repo recreation which will
         // create the missing md5 checksums
         if (destination.isMetaDataOnly()) {
@@ -197,17 +210,20 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         descriptor.setLocation(destination.getLocation().toURI());
 
         RecreateRepositoryApplication application = new RecreateRepositoryApplication();
-        application.setArtifactRepository(descriptor);
+        application.setArtifactRepository(descriptor.getRepoLocation());
         try {
             application.run(new NullProgressMonitor());
         } catch (ProvisionException e) {
             throw new FacadeException("Recreate artifact repository failed", e);
         }
+        xzCompress(destination);
     }
 
     private static MirrorApplication createMirrorApplication(RepositoryReferences sources,
             DestinationRepositoryDescriptor destination, IProvisioningAgent agent, boolean includePacked) {
-        final MirrorApplication mirrorApp = new MirrorApplication(agent, includePacked);
+        final MirrorApplication mirrorApp = new MirrorApplication(agent, includePacked,
+                destination.getExtraArtifactRepositoryProperties(), destination.getRepositoryReferences());
+        mirrorApp.setRaw(false);
 
         List<RepositoryDescriptor> sourceDescriptors = createSourceDescriptors(sources);
         for (RepositoryDescriptor sourceDescriptor : sourceDescriptors) {
@@ -281,10 +297,13 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         return result;
     }
 
-    private static void checkStatus(IStatus status) throws FacadeException {
+    private void checkStatus(IStatus status, boolean ignoreErrors) throws FacadeException {
         if (status.matches(IStatus.ERROR)) {
-            throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(status),
-                    StatusTool.findException(status));
+            String message = MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(status);
+            if (!ignoreErrors) {
+                throw new FacadeException(message, StatusTool.findException(status));
+            }
+            mavenContext.getLogger().info(message);
         }
     }
 
@@ -295,7 +314,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     static class LogListener implements IArtifactMirrorLog {
         private static final String MIRROR_TOOL_MESSAGE_PREFIX = "Mirror tool: ";
         private static final URI MIRROR_TOOL_MESSAGE_HELP = URI
-                .create("http://wiki.eclipse.org/Tycho_Messages_Explained#Mirror_tool");
+                .create("https://wiki.eclipse.org/Tycho_Messages_Explained#Mirror_tool");
 
         private final MavenLogger logger;
         private boolean hasLogged = false;
@@ -332,5 +351,84 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         public void close() {
         }
 
+    }
+
+    private final class MappingRule {
+        public final String filter;
+        public final String urlPattern;
+
+        public MappingRule(String filter, String urlPattern) {
+            this.filter = filter;
+            this.urlPattern = urlPattern;
+        }
+    }
+
+    @Override
+    public void addMavenMappingRules(File repository, URI[] mavenRepositories) throws FacadeException {
+        SimpleArtifactRepositoryFactory repoFactory = new SimpleArtifactRepositoryFactory();
+        SimpleArtifactRepository repo = null;
+        try {
+            repo = (SimpleArtifactRepository) repoFactory.load(repository.toURI(),
+                    IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+        } catch (ProvisionException ex) {
+            throw new FacadeException(ex);
+        }
+        if (repo == null) {
+            throw new IllegalStateException("Repository couldn't be loaded");
+        }
+        LinkedList<MappingRule> rules = new LinkedList<>();
+        for (String[] rule : repo.getRules()) {
+            rules.add(new MappingRule(rule[0], rule[1]));
+        }
+        for (IArtifactDescriptor artifact : repo.getDescriptors()) {
+            GAV gav = RepositoryLayoutHelper.getGAV(artifact.getProperties());
+            String mavenClassifier = RepositoryLayoutHelper.getClassifier(artifact.getProperties());
+            String mavenExtension = RepositoryLayoutHelper.getExtension(artifact.getProperties());
+            // should care about classifier, extension and other
+            if (gav != null && !gav.getVersion().endsWith("-SNAPSHOT")) {
+                for (URI mavenRepo : mavenRepositories) {
+                    IArtifactKey artifactKey = artifact.getArtifactKey();
+                    URI mavenArtifactURI = URI.create(mavenRepo.toString() + '/'
+                            + RepositoryLayoutHelper.getRelativePath(gav, mavenClassifier, mavenExtension));
+                    try {
+                        URLConnection connection = mavenArtifactURI.toURL().openConnection();
+                        if (connection instanceof HttpURLConnection) {
+                            int responseCode = ((HttpURLConnection) connection).getResponseCode();
+                            if (responseCode != HttpURLConnection.HTTP_OK) {
+                                mavenContext.getLogger()
+                                        .debug(artifactKey.toString() + '/' + gav + " not found in " + mavenRepo);
+                                continue;
+                            }
+                        }
+                        // so far so good, continue
+                        rules.addFirst(new MappingRule(
+                                "(& (classifier=" + artifactKey.getClassifier() + ")(id=" + artifactKey.getId()
+                                        + ")(version=" + artifactKey.getVersion().toString() + "))",
+                                mavenArtifactURI.toString()));
+                        File artifactFile = repo.getArtifactFile(artifactKey);
+                        if (artifactFile != null) {
+                            artifactFile.delete();
+                        }
+                        mavenContext.getLogger().info(artifactKey + " remapped to " + mavenArtifactURI);
+                        break;
+                    } catch (IOException ex) {
+                        throw new FacadeException(ex);
+                    }
+                }
+            }
+        }
+        String[][] newRules = new String[rules.size()][2];
+        int i = 0;
+        for (MappingRule rule : rules) {
+            newRules[i][0] = rule.filter;
+            newRules[i][1] = rule.urlPattern;
+            i++;
+        }
+        repo.setRules(newRules);
+        repo.save();
+        DestinationRepositoryDescriptor desc = new DestinationRepositoryDescriptor(repository, repo.getName(),
+                new File(repository, "artifacts.xml.xz").exists(), new File(repository, "artifacts.xml.xz").exists(),
+                true, false, false, Collections.emptyMap(), Collections.emptyList());
+        xzCompress(desc);
     }
 }

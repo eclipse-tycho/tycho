@@ -1,35 +1,29 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO109product;
 
-import static org.eclipse.tycho.test.util.EnvironmentUtil.isEclipse32Platform;
-
 import java.io.File;
-
-import junit.framework.Assert;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class Tycho109ProductExportTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void exportFeatureProduct() throws Exception {
-        Verifier verifier;
-        if (isEclipse32Platform()) {
-            verifier = getVerifier("/TYCHO109product/eclipse32/feature-rcp");
-        } else {
-            verifier = getVerifier("/TYCHO109product/feature-rcp");
-        }
+        Verifier verifier = getVerifier("/TYCHO109product/feature-rcp");
 
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
@@ -92,11 +86,6 @@ public class Tycho109ProductExportTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void exportPluginRcpApplication() throws Exception {
-        if (isEclipse32Platform()) {
-            // regression test for TYCHO-199, no need to verify on e32 
-            return;
-        }
-
         Verifier verifier = getVerifier("/TYCHO109product/plugin-rcp-app");
 
         verifier.executeGoal("package");
@@ -105,11 +94,6 @@ public class Tycho109ProductExportTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void productNoZip() throws Exception {
-        if (isEclipse32Platform()) {
-            // regression test for TYCHO-199, no need to verify on e32 
-            return;
-        }
-
         Verifier verifier = getVerifier("/TYCHO109product/product-nozip/product");
         verifier.getSystemProperties().setProperty("tycho.product.createArchive", "false");
 

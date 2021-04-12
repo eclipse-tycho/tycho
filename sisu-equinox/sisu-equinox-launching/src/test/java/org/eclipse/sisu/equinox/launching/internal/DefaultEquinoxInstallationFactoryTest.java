@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2014 Bachmann electronic GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Bachmann electronic GmbH - initial API and implementation
@@ -11,7 +13,7 @@
 package org.eclipse.sisu.equinox.launching.internal;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,8 +29,8 @@ import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DefaultEquinoxInstallationFactoryTest {
 
@@ -38,7 +40,7 @@ public class DefaultEquinoxInstallationFactoryTest {
 
     private DefaultEquinoxInstallationFactory subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         bundles = new HashMap<>();
         bundles.put(new DefaultArtifactKey("eclipse-plugin", "org.example.bundle1", "1.0"),
@@ -56,7 +58,8 @@ public class DefaultEquinoxInstallationFactoryTest {
     public void testExplicitlyConfiguredStartLevel() throws IOException {
         instDesc.addBundleStartLevel(new BundleStartLevel("org.example.bundle1", 6, false));
 
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@6"));
     }
 
@@ -64,13 +67,15 @@ public class DefaultEquinoxInstallationFactoryTest {
     public void testExplicitlyConfiguredStartLevelAndAutoStart() throws IOException {
         instDesc.addBundleStartLevel(new BundleStartLevel("org.example.bundle1", 6, true));
 
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@6:start"));
     }
 
     @Test
     public void testDefaultStartLevelIsNotSet() throws Exception {
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle2")); // don't need @n here because this would be redundant
     }
 
@@ -78,7 +83,8 @@ public class DefaultEquinoxInstallationFactoryTest {
     public void testDefaultAutoStartIsSet() throws Exception {
         defaultLevel = new BundleStartLevel(null, 7, true);
 
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle2@start"));
     }
 
@@ -86,7 +92,8 @@ public class DefaultEquinoxInstallationFactoryTest {
     public void testExplicitlyConfiguredAutoStart() throws Exception {
         instDesc.addBundleStartLevel(new BundleStartLevel("org.example.bundle1", 0, true)); // level attribute omitted
 
-        List<String> config = splitAtComma(subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
+        List<String> config = splitAtComma(
+                subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
         assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@start")); // implicitly use default start level
     }
 

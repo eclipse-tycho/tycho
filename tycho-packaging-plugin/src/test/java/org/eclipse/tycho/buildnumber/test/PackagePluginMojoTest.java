@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -21,7 +24,6 @@ import java.util.jar.Manifest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.packaging.PackagePluginMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
@@ -33,12 +35,9 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         createDummyClassFile(basedir);
         mojo.execute();
-        JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"));
-        try {
+        try (JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"))) {
             assertNull("class files from target/classes must not be included in plugin jar if no '.' in bin.includes",
                     pluginJar.getEntry("TestNoDot.class"));
-        } finally {
-            pluginJar.close();
         }
     }
 
@@ -50,8 +49,7 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         createDummyClassFile(basedir);
         mojo.execute();
-        JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"));
-        try {
+        try (JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"))) {
             //make sure we can find the WEB-INF/classes/hello.properties
             //and no hello.properties in the root.
             assertNotNull(pluginJar.getEntry("WEB-INF/classes/hello.properties"));
@@ -60,8 +58,6 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
             //and no TestNoDot.class in the root.
             assertNotNull(pluginJar.getEntry("WEB-INF/classes/TestNoDot.class"));
             assertNull(pluginJar.getEntry("TestNoDot.class"));
-        } finally {
-            pluginJar.close();
         }
     }
 
@@ -69,15 +65,12 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/binIncludesSpaces");
         File classes = new File(basedir, "target/classes");
         classes.mkdirs();
-        FileUtils.fileWrite(new File(classes, "foo.bar").getCanonicalPath(), "foobar");
+        Files.writeString(new File(classes, "foo.bar").toPath(), "foobar");
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 
-        JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"));
-        try {
+        try (JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"))) {
             assertNotNull(pluginJar.getEntry("foo.bar"));
-        } finally {
-            pluginJar.close();
         }
     }
 
@@ -88,11 +81,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 
-        JarFile nestedJar = new JarFile(new File(basedir, "nested.jar"));
-        try {
+        try (JarFile nestedJar = new JarFile(new File(basedir, "nested.jar"))) {
             assertEquals("nested", nestedJar.getManifest().getMainAttributes().getValue("Bundle-SymbolicName"));
-        } finally {
-            nestedJar.close();
         }
     }
 
@@ -102,11 +92,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         mojo.execute();
 
         Manifest mf;
-        InputStream is = new FileInputStream(new File(basedir, "target/MANIFEST.MF"));
-        try {
+        try (InputStream is = new FileInputStream(new File(basedir, "target/MANIFEST.MF"))) {
             mf = new Manifest(is);
-        } finally {
-            IOUtil.close(is);
         }
 
         String symbolicName = mf.getMainAttributes().getValue("Bundle-SymbolicName");
@@ -121,12 +108,9 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 
-        JarFile nestedJar = new JarFile(new File(basedir, "target/pluginForcedToFalse.jar"));
-        try {
+        try (JarFile nestedJar = new JarFile(new File(basedir, "target/pluginForcedToFalse.jar"))) {
             assertNull("Jar must not contain the maven descriptor if forced to not include it!",
                     nestedJar.getEntry("META-INF/maven"));
-        } finally {
-            nestedJar.close();
         }
     }
 
@@ -137,11 +121,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 
-        JarFile nestedJar = new JarFile(new File(basedir, "target/pluginDefault.jar"));
-        try {
+        try (JarFile nestedJar = new JarFile(new File(basedir, "target/pluginDefault.jar"))) {
             assertNotNull("Jar must contain the maven descriptor per default!", nestedJar.getEntry("META-INF/maven"));
-        } finally {
-            nestedJar.close();
         }
     }
 
@@ -162,7 +143,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         classFile.createNewFile();
     }
 
-    private <T> T getMojo(String goal, Class<T> mojoClass, MavenProject project, MavenSession session) throws Exception {
+    private <T> T getMojo(String goal, Class<T> mojoClass, MavenProject project, MavenSession session)
+            throws Exception {
         T mojo = mojoClass.cast(lookupMojo(goal, project.getFile()));
         setVariableValueToObject(mojo, "project", project);
         setVariableValueToObject(mojo, "session", session);

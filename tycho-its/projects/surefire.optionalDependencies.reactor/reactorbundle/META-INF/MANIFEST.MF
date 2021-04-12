@@ -3,3 +3,4 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: sodr.reactorbundle
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.equinox.frameworkadmin;resolution:=optional;x-installation:=greedy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

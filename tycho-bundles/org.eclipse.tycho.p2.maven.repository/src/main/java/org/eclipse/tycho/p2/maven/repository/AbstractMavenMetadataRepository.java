@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -75,14 +77,11 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     metadataIndex.removeGav(gav);
                 } else {
-                    InputStream is = new FileInputStream(localArtifactFileLocation);
-                    try {
+                    try (InputStream is = new FileInputStream(localArtifactFileLocation)) {
                         Set<IInstallableUnit> gavUnits = io.readXML(is);
 
                         unitsMap.put(gav, gavUnits);
                         units.addAll(gavUnits);
-                    } finally {
-                        is.close();
                     }
                 }
             } catch (IOException e) {

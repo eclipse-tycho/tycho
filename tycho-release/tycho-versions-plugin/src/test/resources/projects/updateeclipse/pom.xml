@@ -13,6 +13,7 @@
     <module>repository</module>
     <module>repositoryWithOneProductFile</module>
     <module>repositoryWith2ProductFiles</module>
+    <module>iu</module>
   </modules>
 
 </project>

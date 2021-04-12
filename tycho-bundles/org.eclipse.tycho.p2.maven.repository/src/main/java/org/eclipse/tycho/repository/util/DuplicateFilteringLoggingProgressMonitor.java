@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2013, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - filter additional string
  *******************************************************************************/
 package org.eclipse.tycho.repository.util;
 
@@ -24,11 +27,9 @@ import org.eclipse.tycho.core.shared.MavenLogger;
  */
 public final class DuplicateFilteringLoggingProgressMonitor extends LoggingProgressMonitor {
 
-    private final Pattern PROGRESS_WITH_UNKNOWN_SPEED = Pattern.compile("\\(.* at 0B/s\\)");
-
     private static final String NON_MATCHING_LINE = "";
-    private String lastLoggedFile = NON_MATCHING_LINE;
-    private boolean lastLoggedFileFiltered = false;
+    private String lastLine = NON_MATCHING_LINE;
+    private static final Pattern PATTERN_FETCHING = Pattern.compile("Fetching \\S+ from");
 
     public DuplicateFilteringLoggingProgressMonitor(MavenLogger logger) {
         super(logger);
@@ -40,35 +41,22 @@ public final class DuplicateFilteringLoggingProgressMonitor extends LoggingProgr
             // filter out
             return true;
         }
+        if (text.equals("Performing subquery")) {
+            return true;
+        }
         boolean isUnneededLine = checkIfDuplicateOfLastOutput(text);
         return isUnneededLine;
     }
 
     private boolean checkIfDuplicateOfLastOutput(String message) {
-        // special handling for "Fetching %file from %url (%bytes [of %total ]at %speed)" lines
-        int startOfByteProgress = message.indexOf('(');
-        if (startOfByteProgress > 0) {
-            if (startOfByteProgress == lastLoggedFile.length() && message.startsWith(lastLoggedFile)) {
-                if (!lastLoggedFileFiltered
-                        && PROGRESS_WITH_UNKNOWN_SPEED.matcher(message.substring(startOfByteProgress)).matches()) {
-                    /*
-                     * p2 (or more precisely: ECF) always seems to print at least two "Fetching ..."
-                     * lines for the same file. Remove the second one, which doesn't really add
-                     * anything. Later lines may be interesting because they include the download
-                     * speed.
-                     */
-                    lastLoggedFileFiltered = true;
-                    return true;
-                }
-            } else {
-                lastLoggedFile = message.substring(0, startOfByteProgress);
-                lastLoggedFileFiltered = false;
-            }
-        } else {
-            lastLoggedFile = NON_MATCHING_LINE;
-            lastLoggedFileFiltered = false;
+        // special handling for "Fetching %file from %url ..." lines
+        if (!PATTERN_FETCHING.matcher(message).find()) {
+            lastLine = NON_MATCHING_LINE;
+            return false;
         }
-        return false;
+        boolean duplicate = message.equals(lastLine);
+        lastLine = message;
+        return duplicate;
     }
 
 }

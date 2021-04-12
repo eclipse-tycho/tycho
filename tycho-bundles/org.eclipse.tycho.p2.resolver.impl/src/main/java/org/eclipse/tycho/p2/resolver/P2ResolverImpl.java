@@ -1,29 +1,36 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Rapicorp, Inc. - add support for IU type (428310)
+ *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -31,17 +38,22 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
@@ -101,24 +113,63 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
-    public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project) {
+    public Map<TargetEnvironment, P2ResolutionResult> resolveTargetDependencies(TargetPlatform targetPlatform,
+            ReactorProject project) {
         setContext(targetPlatform, project);
 
         if (project != null && PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging())) {
             addDependenciesForTests();
         }
 
-        ArrayList<P2ResolutionResult> results = new ArrayList<>();
+        // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
+        Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         usedTargetPlatformUnits = new LinkedHashSet<>();
-
+        Set<?> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
+                : Collections.emptySet();
         for (TargetEnvironment environment : environments) {
-            results.add(resolveDependencies(project, new ProjectorResolutionStrategy(logger), environment));
+            if (isMatchingEnv(metadata, environment)) {
+                results.put(environment,
+                        resolveDependencies(project, new ProjectorResolutionStrategy(logger), environment));
+            } else {
+                logger.info(MessageFormat.format(
+                        "Project {0}:{1}:{2} does not match environment {3} skipp dependecy resolution",
+                        project.getGroupId(), project.getArtifactId(), project.getVersion(),
+                        environment.toFilterExpression()));
+            }
         }
 
         context.reportUsedLocalIUs(usedTargetPlatformUnits);
         usedTargetPlatformUnits = null;
 
         return results;
+    }
+
+    /**
+     * Check if the Metadata contains any constraints that forbid the given
+     * {@link TargetEnvironment}
+     * 
+     * @param metadata
+     * @param environment
+     * @return
+     */
+    private boolean isMatchingEnv(Set<?> metadata, TargetEnvironment environment) {
+        if (metadata != null) {
+            for (Object meta : metadata) {
+                if (meta instanceof IInstallableUnit) {
+                    IMatchExpression<IInstallableUnit> filter = ((IInstallableUnit) meta).getFilter();
+                    if (filter != null) {
+                        boolean match = filter.isMatch(InstallableUnit.contextIU(environment.toFilterProperties()));
+                        logger.debug(MessageFormat.format("{0}: {1} (matches {2})", filter,
+                                Arrays.toString(filter.getParameters()), match));
+                        if (!match) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+
     }
 
     @Override
@@ -128,13 +179,14 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
-    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration, String eeName) {
-        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration,
-                new ExecutionEnvironmentConfigurationStub(eeName), null, null);
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentConfiguration eeConfig) {
+        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration, eeConfig, null,
+                null);
 
         ResolutionDataImpl data = new ResolutionDataImpl(contextImpl.getEEResolutionHints());
         data.setAvailableIUs(contextImpl.getInstallableUnits());
-        data.setRootIUs(new HashSet<IInstallableUnit>());
+        data.setRootIUs(new HashSet<>());
         data.setAdditionalRequirements(additionalRequirements);
 
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
@@ -151,6 +203,11 @@ public class P2ResolverImpl implements P2Resolver {
             throw new RuntimeException(e);
         }
         return result;
+    }
+
+    @Override
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration, String eeName) {
+        return resolveMetadata(tpConfiguration, new ExecutionEnvironmentConfigurationStub(eeName));
     }
 
     // TODO 412416 make this obsolete by adding appropriate getters in TargetPlatform interface
@@ -174,9 +231,9 @@ public class P2ResolverImpl implements P2Resolver {
 
         Set<IInstallableUnit> availableUnits = context.getInstallableUnits();
         if (project != null) {
-            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(true));
+            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(DependencyMetadataType.SEED));
             Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
-                    .getDependencyMetadata(false);
+                    .getDependencyMetadata(DependencyMetadataType.RESOLVE);
             if (!projectSecondaryIUs.isEmpty()) {
                 availableUnits = new LinkedHashSet<>(availableUnits);
                 availableUnits.addAll(projectSecondaryIUs);
@@ -197,7 +254,7 @@ public class P2ResolverImpl implements P2Resolver {
             logger.error("Cannot resolve project dependencies:");
             new MultiLineLogger(logger).error(e.getDetails(), "  ");
             logger.error("");
-            logger.error("See http://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
+            logger.error("See https://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
             throw new DependencyResolutionException("Cannot resolve dependencies of " + project, e);
         }
 
@@ -211,10 +268,9 @@ public class P2ResolverImpl implements P2Resolver {
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState,
             ReactorProject currentProject) {
         DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
-        Set<String> missingArtifacts = new TreeSet<>();
 
         for (IInstallableUnit iu : newState) {
-            addUnit(result, iu, currentProject, missingArtifacts);
+            addUnit(result, iu, currentProject);
         }
         // remove entries for which there were only "additional" IUs, but none with a recognized type
         result.removeEntriesWithUnknownType();
@@ -222,15 +278,12 @@ public class P2ResolverImpl implements P2Resolver {
         // local repository index needs to be saved manually
         context.saveLocalMavenRepository();
 
-        failIfArtifactsMissing(missingArtifacts);
-
         // TODO 372780 remove; no longer needed when aggregation uses frozen target platform as source
         collectNonReactorIUs(result, newState);
         return result;
     }
 
-    private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, ReactorProject currentProject,
-            Set<String> missingArtifacts) {
+    private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, ReactorProject currentProject) {
 
         if (currentProjectUnits.contains(iu)) {
             addReactorProject(result, currentProject.getIdentities(), iu);
@@ -250,25 +303,7 @@ public class P2ResolverImpl implements P2Resolver {
         }
 
         for (IArtifactKey key : iu.getArtifacts()) {
-            // this downloads artifacts if necessary; TODO parallelize download?
-            File artifactLocation = context.getLocalArtifactFile(key);
-
-            if (artifactLocation == null) {
-                missingArtifacts.add(key.toString());
-            } else {
-                addArtifactFile(result, iu, key, artifactLocation);
-            }
-        }
-    }
-
-    private void failIfArtifactsMissing(Set<String> missingArtifacts) {
-        if (!missingArtifacts.isEmpty()) {
-            logger.error("The following artifacts could not be downloaded: ");
-            for (String missingArtifact : missingArtifacts) {
-                logger.error("  " + missingArtifact);
-            }
-            // TODO throw a typed exception here, so that we can log more information depending on the offline mode further up in the call stack
-            throw new RuntimeException("Some required artifacts could not be downloaded. See log output for details.");
+            addArtifactFile(result, iu, key, context);
         }
     }
 
@@ -282,20 +317,24 @@ public class P2ResolverImpl implements P2Resolver {
         }
     }
 
-    private void addArtifactFile(DefaultP2ResolutionResult result, IInstallableUnit iu, IArtifactKey key,
-            File artifactLocation) {
+    private void addArtifactFile(DefaultP2ResolutionResult result, IInstallableUnit iu, IArtifactKey p2ArtifactKey,
+            P2TargetPlatform context) {
         String id = iu.getId();
         String version = iu.getVersion().toString();
         String mavenClassifier = null;
 
-        if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            result.addArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version, artifactLocation, mavenClassifier, iu);
-        } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
+        if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
+            ArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version);
+            result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey, context);
+        } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                result.addArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, version, artifactLocation,
-                        mavenClassifier, iu);
+                ArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, version);
+                result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey, context);
             }
+        } else {
+            ArtifactKey key = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT, id, version);
+            result.addArtifact(key, mavenClassifier, iu, p2ArtifactKey, context);
         }
 
         // ignore other/unknown artifacts, like binary blobs for now.
@@ -350,13 +389,14 @@ public class P2ResolverImpl implements P2Resolver {
             }
         }
 
-        result.addArtifact(contributingArtifactType, contributingArtifactId, version, location, mavenClassifier, iu);
+        result.addResolvedArtifact(
+                Optional.ofNullable(contributingArtifactId)
+                        .map(artifactId -> new DefaultArtifactKey(contributingArtifactType, artifactId, version)),
+                mavenClassifier, iu, location);
     }
 
     private boolean isPureIU(IInstallableUnit iu) {
-        if ("true".equals(iu.getProperty(AuthoredIUAction.IU_TYPE)))
-            return true;
-        return false;
+        return Boolean.parseBoolean(iu.getProperty(AuthoredIUAction.IU_TYPE));
     }
 
     private String getFeatureId(IInstallableUnit iu) {
@@ -407,6 +447,13 @@ public class P2ResolverImpl implements P2Resolver {
                     "The string \"" + versionRange + "\" is not a valid OSGi version range");
         }
         additionalRequirements.add(ArtifactTypeHelper.createRequirementFor(type, id, parsedVersionRange));
+    }
+
+    @Override
+    public void addAdditionalBundleDependency(String bundleId) {
+        additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, bundleId,
+                VersionRange.emptyRange, null, false, true, true));
+
     }
 
     private void addDependenciesForTests() {

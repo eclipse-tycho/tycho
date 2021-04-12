@@ -1,18 +1,23 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -23,12 +28,17 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
+import org.eclipse.tycho.p2.tools.RepositoryReference;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 
@@ -52,8 +62,9 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  * </p>
  * 
  */
-@Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
+    private static final Object LOCK = new Object();
     /**
      * <p>
      * By default, this goal creates a p2 repository. Set this to <code>false</code> if only a p2
@@ -116,35 +127,52 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter
     private Map<String, String> profileProperties;
 
+    @Parameter
+    private Map<String, String> extraArtifactRepositoryProperties;
+
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
     @Component
     private EquinoxServiceFactory p2;
 
+    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    private EclipseRepositoryProject eclipseRepositoryProject;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try {
-            File destination = getAssemblyRepositoryLocation();
-            destination.mkdirs();
-            copyResources(destination);
+        synchronized (LOCK) {
+            try {
+                File destination = getAssemblyRepositoryLocation();
+                destination.mkdirs();
+                copyResources(destination);
 
-            Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
-            if (projectSeeds.size() == 0) {
-                throw new MojoFailureException("No content specified for p2 repository");
+                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getReactorProject());
+                if (projectSeeds.isEmpty()) {
+                    throw new MojoFailureException("No content specified for p2 repository");
+                }
+
+                RepositoryReferences sources = getVisibleRepositories();
+
+                TargetPlatformConfiguration configuration = TychoProjectUtils
+                        .getTargetPlatformConfiguration(getReactorProject());
+
+                MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
+
+                List<RepositoryReference> repositoryRefrences = getCategories().stream()//
+                        .map(Category::getRepositoryReferences)//
+                        .flatMap(List::stream)//
+                        .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
+                        .collect(toList());
+
+                DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
+                        destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
+                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryRefrences);
+                mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
+                        includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
+            } catch (FacadeException e) {
+                throw new MojoExecutionException("Could not assemble p2 repository", e);
             }
-
-            RepositoryReferences sources = getVisibleRepositories();
-
-            TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(getProject());
-
-            MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
-            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
-                    repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true);
-            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                    includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
-        } catch (FacadeException e) {
-            throw new MojoExecutionException("Could not assemble p2 repository", e);
         }
     }
 
@@ -163,6 +191,10 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     protected RepositoryReferences getVisibleRepositories() throws MojoExecutionException, MojoFailureException {
         int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
         return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
+    }
+
+    private List<Category> getCategories() {
+        return eclipseRepositoryProject.loadCategories(getReactorProject());
     }
 
 }

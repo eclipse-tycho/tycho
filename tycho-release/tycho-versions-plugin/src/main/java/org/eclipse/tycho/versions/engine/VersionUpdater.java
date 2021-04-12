@@ -1,15 +1,18 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2017 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann electronic GmbH. - #472579 Support setting the version for pomless builds
  *    Bachmann electronic GmbH. - #512326 Support product file names other than artifact id
  *    Guillaume Dufour - Support for release-process like Maven
+ *    Bachmann electronic GmbH. - #517664 Support for updating p2iu versions
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
@@ -23,6 +26,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.model.IU;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
 import org.eclipse.tycho.versions.pom.PomFile;
@@ -48,39 +52,34 @@ public abstract class VersionUpdater {
     private Collection<ProjectMetadata> projects;
 
     static {
-        VersionAdaptor bundleVersionAdaptor = new VersionAdaptor() {
-            @Override
-            public String getVersion(ProjectMetadata project, Logger logger) throws IOException {
-                MutableBundleManifest manifest = MutableBundleManifest
-                        .read(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
-                return manifest.getVersion();
-            }
+        VersionAdaptor bundleVersionAdaptor = (project, logger) -> {
+            MutableBundleManifest manifest = MutableBundleManifest
+                    .read(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
+            return manifest.getVersion();
         };
         updaters.put(PackagingType.TYPE_ECLIPSE_PLUGIN, bundleVersionAdaptor);
         updaters.put(PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, bundleVersionAdaptor);
 
-        updaters.put(PackagingType.TYPE_ECLIPSE_FEATURE, new VersionAdaptor() {
-            @Override
-            public String getVersion(ProjectMetadata project, Logger logger) throws IOException {
-                Feature feature = Feature.read(new File(project.getBasedir(), Feature.FEATURE_XML));
-                return feature.getVersion();
-            }
+        updaters.put(PackagingType.TYPE_ECLIPSE_FEATURE, (project, logger) -> {
+            Feature feature = Feature.read(new File(project.getBasedir(), Feature.FEATURE_XML));
+            return feature.getVersion();
         });
 
-        VersionAdaptor productVersionAdapter = new VersionAdaptor() {
-            @Override
-            public String getVersion(ProjectMetadata project, Logger logger) throws IOException {
-                PomFile pom = project.getMetadata(PomFile.class);
-                File productFile = findProductFile(project, pom, logger);
-                if (productFile == null) {
-                    return null;
-                }
-                ProductConfiguration product = ProductConfiguration.read(productFile);
-                return product.getVersion();
+        VersionAdaptor productVersionAdapter = (project, logger) -> {
+            PomFile pom = project.getMetadata(PomFile.class);
+            File productFile = findProductFile(project, pom, logger);
+            if (productFile == null) {
+                return null;
             }
+            ProductConfiguration product = ProductConfiguration.read(productFile);
+            return product.getVersion();
         };
         updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, productVersionAdapter);
         updaters.put(PackagingType.TYPE_ECLIPSE_REPOSITORY, productVersionAdapter);
+        updaters.put(PackagingType.TYPE_P2_IU, (project, logger) -> {
+            IU iu = IU.loadIU(project.getBasedir());
+            return iu.getVersion();
+        });
     }
 
     public void setProjects(Collection<ProjectMetadata> projects) {

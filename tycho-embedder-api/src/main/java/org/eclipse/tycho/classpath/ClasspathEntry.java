@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -11,6 +13,7 @@
 package org.eclipse.tycho.classpath;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.tycho.ArtifactKey;
@@ -51,6 +54,6 @@ public interface ClasspathEntry {
      * Exported packages patterns. Empty list means "no exported packages". <code>null</code> means
      * "no access restrictions", i.e. all packages are exported.
      */
-    public List<AccessRule> getAccessRules();
+    public Collection<AccessRule> getAccessRules();
 
 }

@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -15,7 +18,7 @@ import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_A;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_AB;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -23,7 +26,6 @@ import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -32,7 +34,6 @@ import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
-import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider.RepositoryLoader;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Before;
 import org.junit.Rule;
@@ -82,13 +83,8 @@ public class FileRepositoryArtifactProviderTest {
         return new File(new File(localRepository), "plugins/" + key.getId() + "_" + key.getVersion() + extension);
     }
 
-    private static RepositoryLoader loaderFor(final IArtifactRepository repository) throws Exception {
-        return new RepositoryLoader(null, null) {
-            @Override
-            List<IArtifactRepository> loadRepositories() {
-                return Collections.singletonList(repository);
-            }
-        };
+    private static ArtifactRepositorySupplier loaderFor(final IArtifactRepository repository) throws Exception {
+        return () -> Collections.singletonList(repository);
     }
 
 }

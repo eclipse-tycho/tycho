@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bundle
 Bundle-SymbolicName: offlinemode.xzrepo.bundle
 Bundle-Version: 0.0.1.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: offlinemode.xzrepo.bundlefromrepo

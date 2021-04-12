@@ -5,3 +5,4 @@ Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.junit
 Import-Package: split;a=split,
  unsplit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -26,16 +26,23 @@
               <process-test-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:testResources
               </process-test-resources>
-              <test-compile><!-- tests are always in a separate plugin -->
+              <test-compile>
+                org.eclipse.tycho:tycho-compiler-plugin:${project.version}:testCompile
               </test-compile>
-              <test><!-- tests are always in a separate plugin -->
+              <test>
+                org.apache.maven.plugins:maven-surefire-plugin:${surefire-plugin.version}:test
               </test>
               <package>
                 org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-plugin,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default
               </package>
-              <integration-test></integration-test>
+              <integration-test>
+               org.eclipse.tycho:tycho-surefire-plugin:${project.version}:integration-test
+              </integration-test>
+              <verify>
+               org.apache.maven.plugins:maven-failsafe-plugin:${surefire-plugin.version}:verify
+              </verify>
               <install>
                 org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:update-local-index
@@ -144,8 +151,10 @@
               </validate>
               <generate-resources>
               </generate-resources>
-              <package>
+              <prepare-package>
                 org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
+              </prepare-package>
+              <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-feature,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:feature-p2-metadata
@@ -293,12 +302,15 @@
               <process-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
               </process-resources>
-              <package>
+              <prepare-package>
                 org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
+                org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-osgi-ee,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-products,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-categories,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:attach-artifacts,
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:assemble-repository,
+              </prepare-package>
+              <package>
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:archive-repository
               </package>
               <install>

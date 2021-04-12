@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,10 +34,10 @@ import org.codehaus.plexus.logging.Logger;
  * components are not visible from tycho-core extensions plugin and require treatment. Typical usage
  * 
  * <pre>
- * @Requirement
+ * &#64;Requirement
  * private EquinoxServiceFactory equinox;
  * 
- * @Requirement
+ * &#64;Requirement
  * private PluginRealmHelper pluginRealmHelper;
  * 
  * ...
@@ -106,15 +106,6 @@ public class PluginRealmHelper {
                 }
 
                 if (pluginDescriptor != null) {
-                    if (pluginDescriptor.getArtifactMap().isEmpty() && pluginDescriptor.getDependencies().isEmpty()) {
-                        // force plugin descriptor reload to workaround http://jira.codehaus.org/browse/MNG-5212
-                        // this branch won't be executed on 3.0.5+, where MNG-5212 is fixed already
-                        PluginDescriptorCache.Key descriptorCacheKey = compatibilityHelper.createKey(plugin, project,
-                                session);
-                        pluginDescriptorCache.put(descriptorCacheKey, null);
-                        pluginDescriptor = compatibilityHelper.getPluginDescriptor(plugin, project, session);
-                    }
-
                     if (filter == null || filter.accept(pluginDescriptor)) {
                         ClassRealm pluginRealm;
                         MavenProject oldCurrentProject = session.getCurrentProject();
@@ -135,15 +126,8 @@ public class PluginRealmHelper {
                         }
                     }
                 }
-            } catch (PluginManagerException e) {
-                throw newMavenExecutionException(e);
-            } catch (PluginResolutionException e) {
-                throw newMavenExecutionException(e);
-            } catch (PluginVersionResolutionException e) {
-                throw newMavenExecutionException(e);
-            } catch (PluginDescriptorParsingException e) {
-                throw newMavenExecutionException(e);
-            } catch (InvalidPluginDescriptorException e) {
+            } catch (PluginManagerException | PluginResolutionException | PluginVersionResolutionException
+                    | PluginDescriptorParsingException | InvalidPluginDescriptorException e) {
                 throw newMavenExecutionException(e);
             }
         }

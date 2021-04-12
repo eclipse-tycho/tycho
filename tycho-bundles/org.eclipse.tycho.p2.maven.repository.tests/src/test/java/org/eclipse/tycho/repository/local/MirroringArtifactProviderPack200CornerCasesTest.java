@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -15,7 +17,9 @@ import static org.eclipse.tycho.repository.p2base.artifact.provider.formats.Arti
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.packedDescriptorFor;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -38,7 +42,6 @@ import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 @RunWith(Theories.class)
@@ -48,8 +51,6 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
 
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
-    @Rule
-    public ExpectedException exceptionVerifier = ExpectedException.none();
     @Rule
     public P2Context p2Context = new P2Context();
 
@@ -85,11 +86,11 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
         subject = MirroringArtifactProvider.createInstance(localRepository,
                 providerFor(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT), true, logVerifier.getLogger());
 
-        exceptionVerifier.expect(MirroringFailedException.class);
-        exceptionVerifier.expectMessage(BUNDLE_A_KEY.toString());
         logVerifier.expectError(containsString(BUNDLE_A_KEY.toString()));
 
-        subject.getArtifactDescriptors(BUNDLE_A_KEY);
+        MirroringFailedException e = assertThrows(MirroringFailedException.class,
+                () -> subject.getArtifactDescriptors(BUNDLE_A_KEY));
+        assertTrue(e.getMessage().contains(BUNDLE_A_KEY.toString()));
     }
 
     @Test
@@ -112,6 +113,11 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
 
     @Theory
     public void testCanonicalArtifactCreatedIfPackedArtifactAlreadyMirrored(Boolean mirrorPacked) throws Exception {
+        if (Runtime.version().feature() >= 14) {
+            // This test doesn't make sense in non-pack200 friendly envs
+            // we cannot easily use Assume with Theory
+            return;
+        }
         prefillLocalRepositoryWithPackedArtifact(localRepository, providerFor(TestRepositoryContent.REPO_BUNDLE_AB),
                 BUNDLE_A_KEY);
         assertThat(localRepository.getArtifactDescriptors(BUNDLE_A_KEY).length, is(1)); // self-test

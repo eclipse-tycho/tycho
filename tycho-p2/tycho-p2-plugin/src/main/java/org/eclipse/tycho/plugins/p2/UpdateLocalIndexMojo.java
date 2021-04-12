@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -24,8 +26,9 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
-@Mojo(name = "update-local-index")
+@Mojo(name = "update-local-index", threadSafe = true)
 public class UpdateLocalIndexMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "project", readonly = true, required = true)
     private MavenProject project;
@@ -35,15 +38,17 @@ public class UpdateLocalIndexMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        LocalRepositoryP2Indices localRepoIndices = serviceFactory.getService(LocalRepositoryP2Indices.class);
-        GAV gav = new GAV(project.getGroupId(), project.getArtifactId(), project.getArtifact().getVersion());
-        TychoRepositoryIndex artifactsIndex = localRepoIndices.getArtifactsIndex();
-        TychoRepositoryIndex metadataIndex = localRepoIndices.getMetadataIndex();
-        try {
-            addGavAndSave(gav, artifactsIndex);
-            addGavAndSave(gav, metadataIndex);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Could not update local repository index", e);
+        synchronized (LOCK) {
+            LocalRepositoryP2Indices localRepoIndices = serviceFactory.getService(LocalRepositoryP2Indices.class);
+            GAV gav = new GAV(project.getGroupId(), project.getArtifactId(), project.getArtifact().getVersion());
+            TychoRepositoryIndex artifactsIndex = localRepoIndices.getArtifactsIndex();
+            TychoRepositoryIndex metadataIndex = localRepoIndices.getMetadataIndex();
+            try {
+                addGavAndSave(gav, artifactsIndex);
+                addGavAndSave(gav, metadataIndex);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Could not update local repository index", e);
+            }
         }
     }
 

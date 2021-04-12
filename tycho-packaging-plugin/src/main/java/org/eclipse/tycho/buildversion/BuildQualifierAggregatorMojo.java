@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -14,6 +16,9 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -21,12 +26,7 @@ import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-
 import org.osgi.framework.Version;
-
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * <p>
@@ -50,7 +50,7 @@ import org.apache.maven.plugins.annotations.Mojo;
  * timestamp of any included bundle/feature project, which makes qualifier aggregation redundant.
  * </p>
  */
-@Mojo(name = "build-qualifier-aggregator", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "build-qualifier-aggregator", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
     private final TimestampFinder timestampFinder = new TimestampFinder();
@@ -74,7 +74,7 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
         final ReactorProject thisProject = DefaultReactorProject.adapt(project);
 
-        projectType.getDependencyWalker(project).walk(new ArtifactDependencyVisitor() {
+        projectType.getDependencyWalker(thisProject).walk(new ArtifactDependencyVisitor() {
             @Override
             public boolean visitFeature(FeatureDescription feature) {
                 if (feature.getFeatureRef() == null || thisProject.equals(feature.getMavenProject())) {

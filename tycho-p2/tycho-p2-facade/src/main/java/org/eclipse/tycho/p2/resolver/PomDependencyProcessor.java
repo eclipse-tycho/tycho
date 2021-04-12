@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - reuse p2 data of POM dependencies if available (bug 342851)
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -19,6 +22,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
@@ -44,10 +48,10 @@ public class PomDependencyProcessor {
         this.localRepoIndices = localRepoIndices;
     }
 
-    PomDependencyCollector collectPomDependencies(MavenProject project, Collection<Artifact> transitivePomDependencies) {
+    PomDependencyCollector collectPomDependencies(MavenProject project, Collection<Artifact> transitivePomDependencies,
+            boolean allowGenerateOSGiBundle) {
         final TychoRepositoryIndex p2ArtifactsInLocalRepo = localRepoIndices.getArtifactsIndex();
-        PomDependencyCollector result = resolverFactory.newPomDependencyCollector();
-        result.setProjectLocation(project.getBasedir());
+        PomDependencyCollector result = resolverFactory.newPomDependencyCollector(DefaultReactorProject.adapt(project));
 
         for (Artifact artifact : transitivePomDependencies) {
             if (Artifact.SCOPE_SYSTEM.equals(artifact.getScope())) {
@@ -68,8 +72,8 @@ public class PomDependencyProcessor {
                     logger.debug("P2TargetPlatformResolver: Using existing metadata of " + artifact.toString());
                 }
 
-                result.addArtifactWithExistingMetadata(new ArtifactFacade(artifact), new ArtifactFacade(
-                        p2Data.p2MetadataXml.artifact));
+                result.addArtifactWithExistingMetadata(new ArtifactFacade(artifact),
+                        new ArtifactFacade(p2Data.p2MetadataXml.artifact));
 
                 /*
                  * Since the p2artifacts.xml exists on disk, we can add the artifact to the (global)
@@ -77,8 +81,8 @@ public class PomDependencyProcessor {
                  * available in the build.
                  */
                 // TODO this should happen in resolution context
-                p2ArtifactsInLocalRepo.addGav(new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact
-                        .getBaseVersion()));
+                p2ArtifactsInLocalRepo
+                        .addGav(new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion()));
 
             } else if (!p2Data.p2MetadataXml.isAvailable() && !p2Data.p2ArtifactsXml.isAvailable()) {
                 /*
@@ -88,9 +92,7 @@ public class PomDependencyProcessor {
                 if (logger.isDebugEnabled()) {
                     logger.debug("P2resolver.addMavenArtifact " + artifact.toString());
                 }
-
-                result.publishAndAddArtifactIfBundleArtifact(new ArtifactFacade(artifact));
-
+                result.addMavenArtifact(new ArtifactFacade(artifact), allowGenerateOSGiBundle);
             } else {
                 failDueToPartialP2Data(artifact, p2Data);
             }

@@ -2,4 +2,9 @@
 <feature
       id="feature.license"
       version="1.0.0.qualifier">
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
 </feature>

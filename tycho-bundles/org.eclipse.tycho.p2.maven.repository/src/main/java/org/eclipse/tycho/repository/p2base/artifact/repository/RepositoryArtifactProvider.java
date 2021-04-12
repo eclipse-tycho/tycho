@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - Bug 538144 - Support other target locations (Directory, Features, Installations) 
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -14,8 +17,12 @@ import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -41,71 +48,80 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtif
 
 public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImpl implements IRawArtifactProvider {
 
-    static class RepositoryLoader {
+    private static class RepositoryLoader implements ArtifactRepositorySupplier {
 
-        private IArtifactRepositoryManager repositoryManager;
-        private List<URI> repositoryURLs;
+        private Collection<URI> repositoryURLs;
+        private IProvisioningAgent agent;
 
-        RepositoryLoader(List<URI> repositoryURLs, IArtifactRepositoryManager repositoryManager) {
+        RepositoryLoader(Collection<URI> repositoryURLs, IProvisioningAgent agent) {
             this.repositoryURLs = repositoryURLs;
-            this.repositoryManager = repositoryManager;
+            this.agent = agent;
         }
 
-        List<IArtifactRepository> loadRepositories() {
+        @Override
+        public Collection<IArtifactRepository> get() {
             List<IArtifactRepository> result = new ArrayList<>(repositoryURLs.size());
             for (URI repositoryURL : repositoryURLs) {
-                try {
-                    result.add(repositoryManager.loadRepository(repositoryURL, null));
-                } catch (ProvisionException e) {
-                    // don't ignore if repositories can't be loaded
-                    // TODO improve message?
-                    throw new RuntimeException(e);
-                }
+                result.add(loadRepository(repositoryURL, agent));
             }
             return result;
         }
 
-        List<URI> getRepositoryURLs() {
-            return repositoryURLs;
+        @Override
+        public Collection<URI> getRepositoryURLs() {
+            return Collections.unmodifiableCollection(repositoryURLs);
         }
+
     }
 
-    private final RepositoryLoader repositoryLoader;
-    List<? extends IArtifactRepository> repositories;
+    private final ArtifactRepositorySupplier repositoryLoader;
+    IArtifactRepository[] repositories;
 
     final ArtifactTransferPolicy transferPolicy;
 
     public RepositoryArtifactProvider(List<? extends IArtifactRepository> repositories,
             ArtifactTransferPolicy transferPolicy) {
-        this.repositories = repositories;
+        this.repositories = repositories.toArray(new IArtifactRepository[0]);
         this.repositoryLoader = null;
         this.transferPolicy = transferPolicy;
     }
 
     public RepositoryArtifactProvider(List<URI> artifactRepositories, ArtifactTransferPolicy transferPolicy,
             IProvisioningAgent agent) {
-        this(new RepositoryLoader(artifactRepositories, getRepositoryManager(agent)), transferPolicy);
+        this(createRepositoryLoader(artifactRepositories, agent), transferPolicy);
     }
 
-    RepositoryArtifactProvider(RepositoryLoader repositoryLoader, ArtifactTransferPolicy transferPolicy) {
+    public RepositoryArtifactProvider(ArtifactRepositorySupplier repositoryLoader,
+            ArtifactTransferPolicy transferPolicy) {
         this.repositories = null;
         this.repositoryLoader = repositoryLoader;
         this.transferPolicy = transferPolicy;
     }
 
-    private static IArtifactRepositoryManager getRepositoryManager(IProvisioningAgent agent) {
-        IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+    public static ArtifactRepositorySupplier createRepositoryLoader(Collection<URI> artifactRepositories,
+            IProvisioningAgent agent) {
+        return new RepositoryLoader(artifactRepositories, agent);
+    }
+
+    public static IArtifactRepository loadRepository(URI repositoryURL, IProvisioningAgent agent) {
+        if (agent == null) {
+            throw new IllegalArgumentException("IProvisioningAgent is null");
+        }
+        IArtifactRepositoryManager repositoryManager = agent.getService(IArtifactRepositoryManager.class);
 
         if (repositoryManager == null) {
             throw new IllegalArgumentException("IArtifactRepositoryManager in p2 agent " + agent);
         }
-        return repositoryManager;
+        try {
+            return repositoryManager.loadRepository(repositoryURL, null);
+        } catch (ProvisionException e) {
+            throw new RuntimeException("Load repository from url " + repositoryURL + " failed (" + e + ")", e);
+        }
     }
 
     protected void init() {
         if (repositories == null) {
-            repositories = repositoryLoader.loadRepositories();
+            repositories = repositoryLoader.get().toArray(new IArtifactRepository[0]);
             repositoriesLoaded();
         }
     }
@@ -137,11 +153,8 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
     @Override
     protected void getArtifactDescriptorsOfAllSources(IArtifactKey key, Set<IArtifactDescriptor> result) {
         init();
-
         for (IArtifactRepository repository : repositories) {
-            for (IArtifactDescriptor descriptor : repository.getArtifactDescriptors(key)) {
-                result.add(descriptor);
-            }
+            result.addAll(Arrays.asList(repository.getArtifactDescriptors(key)));
         }
     }
 
@@ -179,12 +192,14 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
          * the transfer of a broken pack200 artifact fails (cf. bug 412945).
          */
         BooleanStatusArtifactRequest request = new BooleanStatusArtifactRequest(sink.getArtifactToBeWritten()) {
-            private final RetryTracker retryTracker = new RetryTracker();
-
             @Override
             public void perform(IArtifactRepository childRepository, IProgressMonitor monitor) {
+                final RetryTracker retryTracker = new RetryTracker();
+                List<IArtifactDescriptor> localArtifactDescriptors = availableDescriptors.stream()
+                        .filter(desc -> desc.getRepository() == null || desc.getRepository().equals(childRepository))
+                        .collect(Collectors.toList());
                 try {
-                    boolean artifactWasRead = getArtifactFromAnyMirror(availableDescriptors, childRepository, sink,
+                    boolean artifactWasRead = getArtifactFromAnyMirror(localArtifactDescriptors, childRepository, sink,
                             statusCollector, retryTracker, monitor);
                     if (artifactWasRead) {
                         this.markSuccessful();
@@ -222,6 +237,9 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
             RetryTracker retryTracker, IProgressMonitor monitor) throws ArtifactSinkException {
 
         for (IArtifactDescriptor descriptor : availableDescriptors) {
+            if (descriptor.getRepository() != null && !descriptor.getRepository().equals(repository)) {
+                return false;
+            }
             if (!sink.canBeginWrite()) {
                 return false;
             }
@@ -309,12 +327,10 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
     }
 
     private IQueryable<IArtifactKey> repositoriesAsQueriable() {
-        int repositoryCount = repositories.size();
-        if (repositoryCount == 1) {
-            return repositories.get(0);
+        if (repositories.length == 1) {
+            return repositories[0];
         } else {
-            IArtifactRepository[] repositoriesArray = repositories.toArray(new IArtifactRepository[repositoryCount]);
-            return new CompoundQueryable<>(repositoriesArray);
+            return new CompoundQueryable<>(repositories.clone());
         }
     }
 
@@ -335,7 +351,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         }
     }
 
-    private static abstract class BooleanStatusArtifactRequest implements IArtifactRequest {
+    private abstract static class BooleanStatusArtifactRequest implements IArtifactRequest {
         private final IArtifactKey key;
         private boolean successful = false;
 
@@ -370,7 +386,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
 
     @SuppressWarnings("serial")
     private static class ArtifactSinkExceptionWrapper extends RuntimeException {
-        private ArtifactSinkException wrappedException;
+        private final ArtifactSinkException wrappedException;
 
         public ArtifactSinkExceptionWrapper(ArtifactSinkException wrappedException) {
             this.wrappedException = wrappedException;

@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2014, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -12,9 +14,9 @@
 package org.eclipse.tycho.plugins.tar;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -22,12 +24,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,7 +39,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
-import org.codehaus.plexus.util.FileUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,7 +68,7 @@ public class TarGzArchiverTest {
         archiver.addDirectory(archiveRoot);
         File textFile = new File(dir2, "test.txt");
         assertTrue(textFile.createNewFile());
-        FileUtils.fileWrite(textFile, "hello");
+        Files.writeString(textFile.toPath(), "hello");
         File dir3 = new File(dir2, "dir3");
         assertTrue(dir3.mkdirs());
         assertTrue(new File(dir3, "test.sh").createNewFile());
@@ -94,7 +93,7 @@ public class TarGzArchiverTest {
         TarArchiveEntry textFileEntry = tarEntries.get("dir2/test.txt");
         assertTrue(textFileEntry.isFile());
         byte[] content = getTarEntry("dir2/test.txt");
-        assertEquals("hello", new String(content, "UTF-8"));
+        assertEquals("hello", new String(content, StandardCharsets.UTF_8));
     }
 
     @Test
@@ -154,26 +153,26 @@ public class TarGzArchiverTest {
     @Test
     public void testSymbolicLinkOutsideArchiveInlined() throws Exception {
         File linkTargetFile = tempFolder.newFile("linkTargetOutsideArchiveRoot");
-        FileUtils.fileWrite(linkTargetFile, "testContent");
+        Files.writeString(linkTargetFile.toPath(), "testContent");
         createSymbolicLink(new File(archiveRoot, "testSymLink"), linkTargetFile.toPath());
         archiver.createArchive();
         TarArchiveEntry inlinedSymLinkEntry = getTarEntries().get("testSymLink");
         assertFalse(inlinedSymLinkEntry.isSymbolicLink());
         assertTrue(inlinedSymLinkEntry.isFile());
-        String content = new String(getTarEntry("testSymLink"), "UTF-8");
+        String content = new String(getTarEntry("testSymLink"), StandardCharsets.UTF_8);
         assertEquals("testContent", content);
     }
 
     @Test
     public void testSymbolicLinkToDirOutsideArchiveInlined() throws Exception {
         File linkTargetDir = tempFolder.newFolder("dirLinkTargetOutsideArchiveRoot");
-        FileUtils.fileWrite(new File(linkTargetDir, "test.txt"), "testContent");
+        Files.writeString(new File(linkTargetDir, "test.txt").toPath(), "testContent");
         createSymbolicLink(new File(archiveRoot, "testDirSymLink"), linkTargetDir.toPath());
         archiver.createArchive();
         TarArchiveEntry inlinedSymLinkEntry = getTarEntries().get("testDirSymLink/");
         assertFalse(inlinedSymLinkEntry.isSymbolicLink());
         assertTrue(inlinedSymLinkEntry.isDirectory());
-        String content = new String(getTarEntry("testDirSymLink/test.txt"), "UTF-8");
+        String content = new String(getTarEntry("testDirSymLink/test.txt"), StandardCharsets.UTF_8);
         assertEquals("testContent", content);
     }
 
@@ -197,18 +196,6 @@ public class TarGzArchiverTest {
         } catch (Exception e) {
             Assume.assumeNoException("skip test on filesystems that do not support POSIX file permissions", e);
         }
-    }
-
-    private PosixFileAttributes getPosixFileAttributes(File file) {
-        try {
-            PosixFileAttributeView attributeView = Files.getFileAttributeView(file.toPath(),
-                    PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
-            return attributeView.readAttributes();
-        } catch (Exception e) {
-            Assume.assumeNoException("skip test on filesystems that do not support POSIX file attributes", e);
-        }
-        // never reached
-        return null;
     }
 
     private void createSymbolicLink(File link, Path linkTarget) {
@@ -235,9 +222,8 @@ public class TarGzArchiverTest {
     }
 
     private byte[] getTarEntry(String name) throws IOException {
-        TarArchiveInputStream tarStream = new TarArchiveInputStream(
-                new GzipCompressorInputStream(new FileInputStream(tarGzArchive)));
-        try {
+        try (TarArchiveInputStream tarStream = new TarArchiveInputStream(
+                new GzipCompressorInputStream(new FileInputStream(tarGzArchive)))) {
             TarArchiveEntry tarEntry = null;
             while ((tarEntry = tarStream.getNextTarEntry()) != null) {
                 if (name.equals(tarEntry.getName())) {
@@ -246,8 +232,6 @@ public class TarGzArchiverTest {
                     return baos.toByteArray();
                 }
             }
-        } finally {
-            tarStream.close();
         }
         throw new IOException(name + " not found in " + tarGzArchive);
     }

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2015 Rapicorp, Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Rapicorp, Inc. - initial API and implementation
@@ -32,8 +34,9 @@ import org.eclipse.tycho.model.IU;
 /**
  * Creates the zip for the IU and attaches it as an artifact
  */
-@Mojo(name = "package-iu", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME)
+@Mojo(name = "package-iu", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageIUMojo extends AbstractTychoPackagingMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "project.build.directory", required = true, readonly = true)
     protected File outputDirectory;
@@ -55,24 +58,25 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        outputDirectory.mkdirs();
+        synchronized (LOCK) {
+            outputDirectory.mkdirs();
 
-        IU iu = IU.loadIU(basedir);
-        File iuXML = new File(outputDirectory, IU.SOURCE_FILE_NAME);
-        try {
-            addSelfCapability(iu);
-            addArtifactReference(iu);
-            addMavenProperties(iu);
-            expandVersions(iu);
-            IU.write(iu, iuXML);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error updating " + IU.SOURCE_FILE_NAME, e);
+            IU iu = IU.loadIU(basedir);
+            File iuXML = new File(outputDirectory, IU.SOURCE_FILE_NAME);
+            try {
+                addSelfCapability(iu);
+                addArtifactReference(iu);
+                addMavenProperties(iu);
+                expandVersions(iu);
+                IU.write(iu, iuXML);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error updating " + IU.SOURCE_FILE_NAME, e);
+            }
+
+            //Create the artifact
+            File artifactForIU = createArtifact();
+            project.getArtifact().setFile(artifactForIU);
         }
-
-        //Create the artifact
-        File artifactForIU = createArtifact();
-        project.getArtifact().setFile(artifactForIU);
-
     }
 
     private void addMavenProperties(IU iu) {
@@ -97,7 +101,8 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
         iuTransformer.replaceQualifierInCapabilities(iu.getProvidedCapabilites(),
                 DefaultReactorProject.adapt(project).getBuildQualifier());
 
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(project);
+        TargetPlatform targetPlatform = TychoProjectUtils
+                .getTargetPlatformIfAvailable(DefaultReactorProject.adapt(project));
         if (targetPlatform == null) {
             getLog().warn(
                     "Skipping version reference expansion in p2iu project using the deprecated -Dtycho.targetPlatform configuration");
@@ -131,9 +136,7 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
                 newArtifact.createNewFile();
             }
             return newArtifact;
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error assembling ZIP", e);
-        } catch (ArchiverException e) {
+        } catch (IOException | ArchiverException e) {
             throw new MojoExecutionException("Error assembling ZIP", e);
         }
     }

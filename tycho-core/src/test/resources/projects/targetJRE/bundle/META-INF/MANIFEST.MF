@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: bundle
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

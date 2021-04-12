@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -21,7 +23,7 @@ public class ProductP2TargetPlatformResolverTest extends AbstractTychoIntegratio
     @Test
     public void testBasic() throws Exception {
         Verifier verifier = getVerifier("/TYCHO0294ProductP2TargetPlatformResolver");
-        verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+        verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("install");
         verifier.verifyErrorFreeLog();
 
@@ -31,7 +33,8 @@ public class ProductP2TargetPlatformResolverTest extends AbstractTychoIntegratio
                 "linux.gtk.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_*");
         assertDirectoryExists(target,
                 "macosx.cocoa.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64_*");
-        assertDirectoryExists(target, "win32.win32.x86/eclipse/plugins/org.eclipse.equinox.launcher.win32.win32.x86_*");
+        assertDirectoryExists(target,
+                "win32.win32.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.win32.win32.x86_64_*");
     }
 
 }

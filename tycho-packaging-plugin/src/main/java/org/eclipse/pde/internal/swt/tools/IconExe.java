@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -21,8 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Customize the icon of a Windows exe
@@ -70,20 +72,18 @@ public class IconExe {
 		}
 		ImageLoader loader = new ImageLoader();
 
-		List images = new ArrayList();
+		List<ImageData> images = new ArrayList<>();
 		for (int i = 1; i < args.length; i++) {
 			try {
 				//An ICO should contain 7 images, a BMP will contain 1
 				ImageData[] current = loader.load(args[i]);
-				for (int j = 0; j < current.length; j++) {
-					images.add(current[j]);
-				}
+				images.addAll(Arrays.asList(current));
 			} catch (RuntimeException e) {
 				//ignore so that we process the other images
 			}
 		}
 		ImageData[] data = new ImageData[images.size()];
-		data = (ImageData[]) images.toArray(data);
+		data = images.toArray(data);
 		
 		int nMissing = unloadIcons(args[0], data);
 		if (nMissing != 0)
@@ -159,18 +159,19 @@ public class IconExe {
 		    return 0;
 		}
 		int cnt = 0;
-		for (int i = 0; i < iconInfo.length; i++) {
-			for (int j = 0; j < icons.length; j++) {
-				if (icons[j] == null)
-					continue;
-				if (iconInfo[i].data.width == icons[j].width && iconInfo[i].data.height == icons[j].height && iconInfo[i].data.depth == icons[j].depth) {
-					raf.seek(iconInfo[i].offset);
-					unloadIcon(raf, icons[j]);
-					cnt++;
-					break;
-				}
-			}
+	    for (IconResInfo iconInfo1 : iconInfo) {
+		for (ImageData icon : icons) {
+		    if (icon == null) {
+			continue;
+		    }
+		    if (iconInfo1.data.width == icon.width && iconInfo1.data.height == icon.height && iconInfo1.data.depth == icon.depth) {
+			raf.seek(iconInfo1.offset);
+			unloadIcon(raf, icon);
+			cnt++;
+			break;
+		    }
 		}
+	    }
 		raf.close();
 		return iconInfo.length - cnt;
 	}
@@ -249,32 +250,32 @@ void dumpResourceDirectory(RandomAccessFile raf, int imageResourceDirectoryOffse
 		imageResourceDirectoryEntries[i] = new IMAGE_RESOURCE_DIRECTORY_ENTRY();
 		read(raf, imageResourceDirectoryEntries[i]);
 	}
-	for (int i = 0; i < imageResourceDirectoryEntries.length; i++) {
-		if (imageResourceDirectoryEntries[i].DataIsDirectory) {
-			dumpResourceDirectory(raf, imageResourceDirectoryEntries[i].OffsetToDirectory + resourceBase, resourceBase, delta, imageResourceDirectoryEntries[i].Id, level + 1, rt_icon_root ? true : type == RT_ICON);
+	    for (IMAGE_RESOURCE_DIRECTORY_ENTRY imageResourceDirectoryEntrie : imageResourceDirectoryEntries) {
+		if (imageResourceDirectoryEntrie.DataIsDirectory) {
+		    dumpResourceDirectory(raf, imageResourceDirectoryEntrie.OffsetToDirectory + resourceBase, resourceBase, delta, imageResourceDirectoryEntrie.Id, level + 1, rt_icon_root ? true : type == RT_ICON);
 		} else {
-			// Resource found
-			/// pResDirEntry->Name
-			IMAGE_RESOURCE_DIRECTORY_ENTRY irde = imageResourceDirectoryEntries[i];
-			IMAGE_RESOURCE_DATA_ENTRY data = new IMAGE_RESOURCE_DATA_ENTRY();
-			raf.seek(imageResourceDirectoryEntries[i].OffsetToData + resourceBase);
-			read(raf, data);
-			if (DEBUG) System.out.println("Resource Id "+irde.Id+" Data Offset RVA "+data.OffsetToData+", Size "+data.Size); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if (rt_icon_root) {
-				if (DEBUG) System.out.println("iconcnt "+iconCnt+" |"+iconInfo.length); //$NON-NLS-1$ //$NON-NLS-2$
-				iconInfo[iconCnt] = new IconResInfo();
-				iconInfo[iconCnt].data = parseIcon(raf, data.OffsetToData - delta, data.Size);
-				iconInfo[iconCnt].offset = data.OffsetToData - delta;
-				iconInfo[iconCnt].size = data.Size;	
-				iconCnt++;
-				if (iconCnt == iconInfo.length) {
-					IconResInfo[] newArray = new IconResInfo[iconInfo.length + 4];
-					System.arraycopy(iconInfo, 0, newArray, 0, iconInfo.length);
-					iconInfo = newArray;
-				}
+		    // Resource found
+		    /// pResDirEntry->Name
+		    IMAGE_RESOURCE_DIRECTORY_ENTRY irde = imageResourceDirectoryEntrie;
+		    IMAGE_RESOURCE_DATA_ENTRY data = new IMAGE_RESOURCE_DATA_ENTRY();
+		    raf.seek(imageResourceDirectoryEntrie.OffsetToData + resourceBase);
+		    read(raf, data);
+		    if (DEBUG) System.out.println("Resource Id "+irde.Id+" Data Offset RVA "+data.OffsetToData+", Size "+data.Size); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		    if (rt_icon_root) {
+			if (DEBUG) System.out.println("iconcnt "+iconCnt+" |"+iconInfo.length); //$NON-NLS-1$ //$NON-NLS-2$
+			iconInfo[iconCnt] = new IconResInfo();
+			iconInfo[iconCnt].data = parseIcon(raf, data.OffsetToData - delta, data.Size);
+			iconInfo[iconCnt].offset = data.OffsetToData - delta;
+			iconInfo[iconCnt].size = data.Size;
+			iconCnt++;
+			if (iconCnt == iconInfo.length) {
+			    IconResInfo[] newArray = new IconResInfo[iconInfo.length + 4];
+			    System.arraycopy(iconInfo, 0, newArray, 0, iconInfo.length);
+			    iconInfo = newArray;
 			}
+		    }
 		}
- 	}
+	    }
 }
 
 static ImageData parseIcon(RandomAccessFile raf, int offset, int size) throws IOException {
@@ -941,11 +942,12 @@ public RGB(int red, int green, int blue) {
  *
  * @see #hashCode()
  */
+@Override
 public boolean equals (Object object) {
-	if (object == this) return true;
-	if (!(object instanceof RGB)) return false;
-	RGB rgb = (RGB)object;
-	return (rgb.red == this.red) && (rgb.green == this.green) && (rgb.blue == this.blue);
+    if (object == this) return true;
+    if (!(object instanceof RGB)) return false;
+    RGB rgb = (RGB)object;
+    return (rgb.red == this.red) && (rgb.green == this.green) && (rgb.blue == this.blue);
 }
 
 /**
@@ -958,7 +960,8 @@ public boolean equals (Object object) {
  *
  * @see #equals(Object)
  */
-public int hashCode () {
+	@Override
+	public int hashCode () {
 	return (blue << 16) | (green << 8) | red;
 }
 
@@ -968,7 +971,8 @@ public int hashCode () {
  *
  * @return a string representation of the <code>RGB</code>
  */
-public String toString () {
+	@Override
+	public String toString () {
 	return "RGB {" + red + ", " + green + ", " + blue + "}"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 
 //$NON-NLS-4$
@@ -1171,11 +1175,6 @@ static class ImageLoader {
 	 */
 	public int repeatCount;
 		
-	/*
-	 * the set of ImageLoader event listeners, created on demand
-	 */
-	Vector imageLoaderListeners;
-
 /**
  * Construct a new empty ImageLoader.
  */
@@ -2631,6 +2630,7 @@ static class LEDataInputStream extends InputStream {
 		else throw new IllegalArgumentException();
 	}
 	
+	@Override
 	public void close() throws IOException {
 		buf = null;
 		if (in != null) {
@@ -2649,6 +2649,7 @@ static class LEDataInputStream extends InputStream {
 	/**
 	 * Answers how many bytes are available for reading without blocking
 	 */
+	@Override
 	public int available() throws IOException {
 		if (buf == null) throw new IOException();
 		return (buf.length - pos) + in.available();
@@ -2657,6 +2658,7 @@ static class LEDataInputStream extends InputStream {
 	/**
 	 * Answer the next byte of the input stream.
 	 */
+	@Override
 	public int read() throws IOException {
 		if (buf == null) throw new IOException();
 		position++;
@@ -2668,6 +2670,7 @@ static class LEDataInputStream extends InputStream {
 	 * Don't imitate the JDK behaviour of reading a random number
 	 * of bytes when you can actually read them all.
 	 */
+	@Override
 	public int read(byte b[], int off, int len) throws IOException {
 		int result;
 		int left = len;
@@ -2960,6 +2963,7 @@ int decompressRLE8Data(byte[] src, int numBytes, int stride, byte[] dest, int de
 	}
 	return 1;
 }
+@Override
 boolean isFileFormat(LEDataInputStream stream) {
 	try {
 		byte[] header = new byte[18];
@@ -3021,6 +3025,7 @@ int[] loadFileHeader() {
 		SWT.error(SWT.ERROR_INVALID_IMAGE);
 	return header;
 }
+	@Override
 ImageData[] loadFromByteStream() {
 	int[] fileHeader = loadFileHeader();
 	byte[] infoHeader = new byte[BMPHeaderFixedSize];
@@ -3162,6 +3167,7 @@ int iconSize(ImageData i) {
 	int paletteSize = i.palette.colors != null ? i.palette.colors.length * 4 : 0;
 	return WinBMPFileFormat.BMPHeaderFixedSize + paletteSize + dataSize;
 }
+@Override
 boolean isFileFormat(LEDataInputStream stream) {
 	try {
 		byte[] header = new byte[4];
@@ -3223,6 +3229,7 @@ int loadFileHeader(LEDataInputStream byteStream, boolean hasHeader) {
 		SWT.error(SWT.ERROR_INVALID_IMAGE);
 	return numIcons;
 }
+@Override
 ImageData[] loadFromByteStream() {
 	int numIcons = loadFileHeader(inputStream);
 	int[][] headers = loadIconHeaders(numIcons);

@@ -7,21 +7,11 @@
   <version>1.0.0</version>
   <packaging>eclipse-test-plugin</packaging>
 
-  <properties>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
-    <e352-repo>http://download.eclipse.org/releases/galileo</e352-repo>
-  </properties>
-
   <repositories>
     <repository>
       <id>e342</id>
       <layout>p2</layout>
       <url>${e342-repo}</url>
-    </repository>
-    <repository>
-      <id>e352</id>
-      <layout>p2</layout>
-      <url>${e352-repo}</url>
     </repository>
   </repositories>
 
@@ -44,7 +34,7 @@
               <requirement>
                 <type>eclipse-plugin</type>
                 <id>org.eclipse.osgi</id>
-                <versionRange>[3.4,3.5)</versionRange>
+                <versionRange>[3.4,4.0)</versionRange>
               </requirement>
             </extraRequirements>
           </dependency-resolution>

@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -14,16 +17,17 @@ import java.io.File;
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
@@ -41,13 +45,14 @@ public class TestResolverFactory implements P2ResolverFactory {
         boolean offline = false;
         mavenContext = createMavenContext(offline, logger);
 
-        targetDefinitionResolverService = new TargetDefinitionResolverService(mavenContext);
+        targetDefinitionResolverService = new TargetDefinitionResolverService();
+        targetDefinitionResolverService.setMavenContext(mavenContext);
 
         File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
         LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
         LocalRepositoryReader localRepositoryReader = new LocalRepositoryReader(localMavenRepoRoot);
-        localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
-                localRepoIndices.getMetadataIndex(), localRepositoryReader);
+        localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(), localRepoIndices.getMetadataIndex(),
+                localRepositoryReader);
         localArtifactRepo = new LocalArtifactRepository(localRepoIndices, localRepositoryReader);
     }
 
@@ -72,13 +77,13 @@ public class TestResolverFactory implements P2ResolverFactory {
     }
 
     @Override
-    public PomDependencyCollector newPomDependencyCollector() {
-        return newPomDependencyCollectorImpl();
+    public PomDependencyCollectorImpl newPomDependencyCollector(ReactorProject project) {
+        return new PomDependencyCollectorImpl(
+                new MavenContextImpl(mavenContext.getLocalRepositoryRoot(), mavenContext.getLogger()), project);
     }
 
-    public PomDependencyCollectorImpl newPomDependencyCollectorImpl() {
-        return new PomDependencyCollectorImpl(new MavenContextImpl(mavenContext.getLocalRepositoryRoot(),
-                mavenContext.getLogger()));
+    public PomDependencyCollectorImpl newPomDependencyCollector() {
+        return newPomDependencyCollector(new ReactorProjectStub(new File("."), "test"));
     }
 
     @Override

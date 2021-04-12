@@ -41,8 +41,8 @@ public class P2RepositoryTool {
         } else if (contentJar.isFile()) {
             return new P2RepositoryTool(contentJar);
         } else {
-            throw new IllegalStateException("Not an eclipse-repository project, or project has not been built: "
-                    + projectRootFolder);
+            throw new IllegalStateException(
+                    "Not an eclipse-repository project, or project has not been built: " + projectRootFolder);
         }
     }
 
@@ -62,22 +62,14 @@ public class P2RepositoryTool {
     }
 
     public File findFeatureArtifact(final String featureId) {
-        File[] matchingFeatures = new File(repoLocation, "features").listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith(featureId + "_");
-            }
-        });
+        File[] matchingFeatures = new File(repoLocation, "features")
+                .listFiles((FilenameFilter) (dir, name) -> name.startsWith(featureId + "_"));
         return matchingFeatures[0];
     }
 
     public File findBinaryArtifact(final String artifactId) {
-        File[] matchingFeatures = new File(repoLocation, "binary").listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith(artifactId + "_");
-            }
-        });
+        File[] matchingFeatures = new File(repoLocation, "binary")
+                .listFiles((FilenameFilter) (dir, name) -> name.startsWith(artifactId + "_"));
         return matchingFeatures[0];
     }
 
@@ -116,7 +108,7 @@ public class P2RepositoryTool {
 
         List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "']");
 
-        if (nodes.size() == 0)
+        if (nodes.isEmpty())
             Assert.fail("Could not find IU with id '" + unitId + "'");
         else if (nodes.size() == 1)
             return new IU(nodes.get(0));
@@ -136,10 +128,10 @@ public class P2RepositoryTool {
     public IU getIU(String unitId, String version) throws Exception {
         loadMetadata();
 
-        List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "' and @version='" + version
-                + "']");
+        List<Node> nodes = getNodes(contentXml,
+                "/repository/units/unit[@id='" + unitId + "' and @version='" + version + "']");
 
-        if (nodes.size() == 0)
+        if (nodes.isEmpty())
             Assert.fail("Could not find IU with id '" + unitId + "' and version '" + version + "'");
         else if (nodes.size() == 1)
             return new IU(nodes.get(0));

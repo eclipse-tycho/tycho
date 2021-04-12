@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,7 +123,12 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
             bundleReader.loadManifest(jar);
             fail();
         } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("error in opening zip file"));
+            if (System.getProperty("java.specification.version").compareTo("11") >= 0) {
+                assertTrue(e.getMessage().contains("zip END header not found"));
+            } else {
+            	assertTrue(e.getMessage().contains("error in opening zip file"));
+            }
+
         }
     }
 

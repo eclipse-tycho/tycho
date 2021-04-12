@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2021 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -22,7 +24,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,25 +47,19 @@ public class BuildPropertiesImplTest {
         }
 
         @Override
-        public Set keySet() {
-            List sortedList = new ArrayList(super.keySet());
-            Collections.sort(sortedList);
+        public Set<Object> keySet() {
+            List<Object> sortedList = new ArrayList<>(super.keySet());
+            sortedList.sort(null);
             if (reverse) {
                 Collections.reverse(sortedList);
             }
-            return new LinkedHashSet(sortedList);
+            return new LinkedHashSet<>(sortedList);
         }
 
         @Override
         public Set<Map.Entry<Object, Object>> entrySet() {
             List<Map.Entry<Object, Object>> sortedList = new ArrayList<>(super.entrySet());
-            Collections.sort(sortedList, new Comparator<Map.Entry<Object, Object>>() {
-
-                @Override
-                public int compare(java.util.Map.Entry<Object, Object> o1, java.util.Map.Entry<Object, Object> o2) {
-                    return ((String) o2.getKey()).compareTo((String) o1.getKey());
-                }
-            });
+            Collections.sort(sortedList, (o1, o2) -> ((String) o2.getKey()).compareTo((String) o1.getKey()));
             if (reverse) {
                 Collections.reverse(sortedList);
             }

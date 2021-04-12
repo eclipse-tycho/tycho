@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.equinox.security" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.equinox.security" id="secureStorage" name="Secure storage modules"/>
+      </appInfo>
+      <documentation>
+         Describes implementation of the Equinox secure storage module.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="provider"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="provider">
+      <complexType>
+         <sequence>
+            <element ref="hint" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Class implementing password provider interface. The class must extend the &lt;tt&gt;org.eclipse.equinox.security.storage.provider.PasswordProvider&lt;/tt&gt; class.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.security.storage.provider.PasswordProvider:"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="priority" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The integer number 0 to 10 describing priority of this password provider, with 0 being the lowest priority. Newly created secure preferences will use the password provider with the highest priority. If multiple providers have the same priority, an arbitrary provider among them will be selected.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string">
+            <annotation>
+               <documentation>
+                  Optional text describing to the user functionality of this password provider.
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="hint">
+      <complexType>
+         <attribute name="value" use="required">
+            <annotation>
+               <documentation>
+                  To help secure storage optimize workflows, providers that acquire master passwords without input from the user the should specify &lt;tt&gt;AutomaticPasswordGeneration&lt;/tt&gt; hint.
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="AutomaticPasswordGeneration">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         &lt;pre&gt;
+   &lt;extension
+         id=&quot;custom&quot;
+         point=&quot;org.eclipse.equinox.security.secureStorage&quot;&gt;
+      &lt;provider
+            class=&quot;com.xyz.PasswordProvider&quot;
+            priority=&quot;7&quot;&gt;
+      &lt;/provider&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         &lt;p&gt;The &lt;code&gt;org.eclipse.equinox.security.ui&lt;/code&gt; bundle supplies default password provider that prompts user to enter the password.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;org.eclipse.equinox.security.win32.x86_64&lt;/code&gt; fragment provides Windows OS integration.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;org.eclipse.equinox.security.linux&lt;/code&gt; fragment provides Linux OS integration.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;org.eclipse.equinox.security.macosx&lt;/code&gt; fragment provides Mac OS integration.&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2008 IBM Corporation and others.&lt;br&gt;
+
+This program and the accompanying materials are made available under the terms of the Eclipse Public License 2.0 which accompanies this distribution, and is available at &lt;a href=&quot;https://www.eclipse.org/legal/epl-2.0&quot;&gt;https://www.eclipse.org/legal/epl-v20.html&lt;/a&gt;/
+
+SPDX-License-Identifier: EPL-2.0
+      </documentation>
+   </annotation>
+
+</schema>

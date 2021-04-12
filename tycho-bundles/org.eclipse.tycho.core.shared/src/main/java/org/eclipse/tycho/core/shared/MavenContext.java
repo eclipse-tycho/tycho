@@ -1,17 +1,23 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich - Bug 564363 - add access to reactor projects
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Properties;
+
+import org.eclipse.tycho.ReactorProject;
 
 /**
  * Makes maven information which is constant for the whole maven session available as a service to
@@ -37,5 +43,11 @@ public interface MavenContext {
      * </ol>
      */
     public Properties getSessionProperties();
+
+    /**
+     * 
+     * @return collection of all reactor projects
+     */
+    public Collection<ReactorProject> getProjects();
 
 }

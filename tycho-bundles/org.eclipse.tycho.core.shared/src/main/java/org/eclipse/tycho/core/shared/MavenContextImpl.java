@@ -1,17 +1,26 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich - Bug 564363 - Make ReactorProject available in MavenContext
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
+
+import org.eclipse.tycho.ReactorProject;
 
 public class MavenContextImpl implements MavenContext {
 
@@ -19,6 +28,7 @@ public class MavenContextImpl implements MavenContext {
     private MavenLogger mavenLogger;
     private boolean offline;
     private Properties mergedProperties;
+    private List<ReactorProject> projects = new ArrayList<>();
 
     public MavenContextImpl(File localRepositoryRoot, boolean offline, MavenLogger mavenLogger,
             Properties mergedProperties) {
@@ -51,6 +61,15 @@ public class MavenContextImpl implements MavenContext {
     @Override
     public Properties getSessionProperties() {
         return mergedProperties;
+    }
+
+    @Override
+    public Collection<ReactorProject> getProjects() {
+        return Collections.unmodifiableCollection(projects);
+    }
+
+    public void addProject(ReactorProject reactorProject) {
+        projects.add(reactorProject);
     }
 
 }

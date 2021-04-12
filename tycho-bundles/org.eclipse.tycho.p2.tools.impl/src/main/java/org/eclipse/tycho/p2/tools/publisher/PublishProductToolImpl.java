@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2015 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -116,12 +118,7 @@ public class PublishProductToolImpl implements PublishProductTool {
         final String productId = product.getId();
 
         // add root features as special dependency seed which are marked as "add-on" for the product
-        DependencySeed.Filter filter = new DependencySeed.Filter() {
-            @Override
-            public boolean isAddOnFor(String type, String id) {
-                return ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
-            }
-        };
+        DependencySeed.Filter filter = (type, id) -> ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
         for (IInstallableUnit featureIU : product.getRootFeatures()) {
             ArtifactKey featureArtifact = ArtifactTypeHelper.toTychoArtifact(featureIU);
             seeds.add(new DependencySeed(featureArtifact.getType(), featureArtifact.getId(), featureIU, filter));

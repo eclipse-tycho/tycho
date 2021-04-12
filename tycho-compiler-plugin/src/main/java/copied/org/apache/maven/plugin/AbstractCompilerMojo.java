@@ -20,9 +20,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -57,9 +57,9 @@ import org.codehaus.plexus.util.StringUtils;
  */
 public abstract class AbstractCompilerMojo extends AbstractMojo {
 
-    public static final String DEFAULT_SOURCE_VERSION = "1.7";
+    public static final String DEFAULT_SOURCE_VERSION = "11";
 
-    public static final String DEFAULT_TARGET_VERSION = "1.7";
+    public static final String DEFAULT_TARGET_VERSION = "11";
 
     // ----------------------------------------------------------------------
     // Configurables
@@ -97,6 +97,12 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     private boolean showWarnings;
 
     /**
+     * Fail on warnings
+     */
+    @Parameter(property = "maven.compiler.failOnWarning", defaultValue = "false")
+    private boolean failOnWarning;
+
+    /**
      * The -source argument for the Java compiler
      */
     @Parameter(property = "maven.compiler.source")
@@ -107,6 +113,12 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      */
     @Parameter(property = "maven.compiler.target")
     protected String target;
+
+    /**
+     * The -release argument for the Java compiler
+     */
+    @Parameter(property = "maven.compiler.release")
+    protected String release;
 
     /**
      * The -encoding argument for the Java compiler (kept for backwards compatibility)
@@ -213,7 +225,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      * @deprecated use {@link #compilerArgs} instead.
      */
     @Parameter
-    private Map compilerArguments;
+    private Map<String, String> compilerArguments;
 
     /**
      * Arguments to be passed to the compiler.
@@ -269,7 +281,9 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
     protected abstract List<String> getClasspathElements() throws MojoExecutionException;
 
-    protected abstract List getCompileSourceRoots() throws MojoExecutionException;
+    protected abstract List<String> getCompileSourceRoots() throws MojoExecutionException;
+
+    protected abstract List<String> getCompileSourceExcludePaths() throws MojoExecutionException;
 
     protected abstract File getOutputDirectory();
 
@@ -313,7 +327,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         // Create the compiler configuration
         // ----------------------------------------------------------------------
 
-        CompilerConfiguration compilerConfiguration = getCompilerConfiguration(compileSourceRoots);
+        CompilerConfiguration compilerConfiguration = getCompilerConfiguration(compileSourceRoots,
+                getCompileSourceExcludePaths());
 
         // TODO: have an option to always compile (without need to clean)
         Set<File> staleSources;
@@ -355,17 +370,13 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         if (getLog().isDebugEnabled()) {
             getLog().debug("Classpath:");
 
-            for (Iterator<String> it = getClasspathElements().iterator(); it.hasNext();) {
-                String s = it.next();
-
+            for (String s : getClasspathElements()) {
                 getLog().debug(" " + s);
             }
 
             getLog().debug("Source roots:");
 
-            for (Iterator it = getCompileSourceRoots().iterator(); it.hasNext();) {
-                String root = (String) it.next();
-
+            for (String root : getCompileSourceRoots()) {
                 getLog().debug(" " + root);
             }
 
@@ -421,8 +432,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         }
     }
 
-    protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots)
-            throws MojoExecutionException, MojoFailureException {
+    protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots,
+            List<String> compileSourceExcludes) throws MojoExecutionException, MojoFailureException {
 
         CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
 
@@ -444,6 +455,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
         compilerConfiguration.setProc(proc);
 
+        compilerConfiguration.setFailOnWarning(failOnWarning);
+
         compilerConfiguration.setAnnotationProcessors(annotationProcessors);
 
         compilerConfiguration.setGeneratedSourcesDirectory(generatedSourcesDirectory);
@@ -451,35 +464,35 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         compilerConfiguration.setSourceVersion(source != null ? source : DEFAULT_SOURCE_VERSION);
 
         compilerConfiguration.setTargetVersion(target != null ? target : DEFAULT_TARGET_VERSION);
+        if (release != null) {
+            compilerConfiguration.setReleaseVersion(release);
+        }
 
         compilerConfiguration.setSourceEncoding(getEncoding());
 
         if ((compilerArguments != null) || (compilerArgument != null) || compilerArgs != null) {
-            LinkedHashMap<String, String> cplrArgsCopy = new LinkedHashMap<>();
             if (compilerArguments != null) {
-                for (Iterator i = compilerArguments.entrySet().iterator(); i.hasNext();) {
-                    Map.Entry me = (Map.Entry) i.next();
+                for (Entry<String, String> me : compilerArguments.entrySet()) {
                     String key = (String) me.getKey();
                     String value = (String) me.getValue();
                     if (!key.startsWith("-")) {
                         key = "-" + key;
                     }
                     if (key.startsWith("-A") && StringUtils.isNotEmpty(value)) {
-                        cplrArgsCopy.put(key + "=" + value, null);
+                        compilerConfiguration.addCompilerCustomArgument(key + "=" + value, null);
                     } else {
-                        cplrArgsCopy.put(key, value);
+                        compilerConfiguration.addCompilerCustomArgument(key, value);
                     }
                 }
             }
             if (!StringUtils.isEmpty(compilerArgument)) {
-                cplrArgsCopy.put(compilerArgument, null);
+                compilerConfiguration.addCompilerCustomArgument(compilerArgument, null);
             }
             if (compilerArgs != null) {
                 for (String arg : compilerArgs) {
-                    cplrArgsCopy.put(arg, null);
+                    compilerConfiguration.addCompilerCustomArgument(arg, null);
                 }
             }
-            compilerConfiguration.setCustomCompilerArguments(cplrArgsCopy);
         }
 
         compilerConfiguration.setFork(fork);
@@ -515,6 +528,10 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         compilerConfiguration.setBuildDirectory(buildDirectory);
 
         compilerConfiguration.setOutputFileName(outputFileName);
+
+        for (String exclude : compileSourceExcludes) {
+            compilerConfiguration.addExclude(exclude);
+        }
         return compilerConfiguration;
     }
 
@@ -574,9 +591,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
         Set<File> staleSources = new HashSet<>();
 
-        for (Iterator it = getCompileSourceRoots().iterator(); it.hasNext();) {
-            String sourceRoot = (String) it.next();
-
+        for (String sourceRoot : getCompileSourceRoots()) {
             File rootFile = new File(sourceRoot);
 
             if (!rootFile.isDirectory()) {
@@ -589,6 +604,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
                 throw new MojoExecutionException(
                         "Error scanning source root: \'" + sourceRoot + "\' " + "for stale files to recompile.", e);
             }
+
         }
 
         return staleSources;
@@ -598,12 +614,11 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      * @todo also in ant plugin. This should be resolved at some point so that it does not need to
      *       be calculated continuously - or should the plugins accept empty source roots as is?
      */
-    protected static List<String> removeEmptyCompileSourceRoots(List compileSourceRootsList) {
+    protected static List<String> removeEmptyCompileSourceRoots(List<String> compileSourceRootsList) {
         List<String> newCompileSourceRootsList = new ArrayList<>();
         if (compileSourceRootsList != null) {
             // copy as I may be modifying it
-            for (Iterator i = compileSourceRootsList.iterator(); i.hasNext();) {
-                String srcDir = (String) i.next();
+            for (String srcDir : compileSourceRootsList) {
                 if (!newCompileSourceRootsList.contains(srcDir) && new File(srcDir).exists()) {
                     newCompileSourceRootsList.add(srcDir);
                 }

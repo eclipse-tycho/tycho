@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -27,6 +29,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Before;
@@ -54,7 +57,8 @@ public class P2DependencyGeneratorImplTest {
 
         ArrayList<TargetEnvironment> emptyEnvironments = new ArrayList<>();
 
-        DependencyMetadata metadata = subject.generateMetadata(reactorProject, emptyEnvironments);
+        DependencyMetadata metadata = subject.generateMetadata(reactorProject, emptyEnvironments,
+                new PublisherOptions(false));
 
         this.units = new ArrayList<>(metadata.getInstallableUnits());
         this.artifacts = new ArrayList<>(metadata.getArtifactDescriptors());
@@ -69,7 +73,7 @@ public class P2DependencyGeneratorImplTest {
 
         assertEquals("org.eclipse.tycho.p2.impl.test.bundle", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-        assertEquals(2, unit.getRequirements().size());
+        assertEquals(3, unit.getRequirements().size());
         assertEquals(DEFAULT_CLASSIFIER, unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER));
 
         // not really necessary, but we get this because we reuse standard p2 implementation

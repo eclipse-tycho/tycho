@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -57,10 +59,8 @@ public class ProductConfiguration {
     }
 
     public static void write(ProductConfiguration product, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-
         Document document = product.document;
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
@@ -69,8 +69,6 @@ public class ProductConfiguration {
             } finally {
                 xw.flush();
             }
-        } finally {
-            IOUtil.close(os);
         }
     }
 
@@ -107,7 +105,8 @@ public class ProductConfiguration {
     private static FeatureRef parseFeature(Element featureDom) throws ModelFileSyntaxException {
         // knowing the name of the parent element is useful for the error message, so we check the name here
         if (!"feature".equals(featureDom.getName())) {
-            throw new ModelFileSyntaxException("Invalid child element \"" + featureDom.getName() + "\" in \"features\"");
+            throw new ModelFileSyntaxException(
+                    "Invalid child element \"" + featureDom.getName() + "\" in \"features\"");
         }
         return new FeatureRef(featureDom);
     }
@@ -220,6 +219,20 @@ public class ProductConfiguration {
         return linux.getAttributeValue("icon");
     }
 
+    public String getFreeBSDIcon() {
+        Element domLauncher = dom.getChild("launcher");
+        if (domLauncher == null) {
+
+            return null;
+        }
+        Element freebsd = domLauncher.getChild("freebsd");
+        if (freebsd == null) {
+            return null;
+        }
+
+        return freebsd.getAttributeValue("icon");
+    }
+
     public Map<String, BundleConfiguration> getPluginConfiguration() {
         Element configurationsDom = dom.getChild("configurations");
         if (configurationsDom == null) {
@@ -274,6 +287,7 @@ public class ProductConfiguration {
 
     public static class ConfigIni {
         private String linuxConfigIni;
+        private String freebsdConfigIni;
         private String macosxConfigIni;
         private String solarisConfigIni;
         private String win32ConfigIni;
@@ -282,6 +296,7 @@ public class ProductConfiguration {
         private ConfigIni(Element configIniElement) {
             useDefault = "default".equals(configIniElement.getAttributeValue("use"));
             linuxConfigIni = getOsSpecificConfigIni(configIniElement, "linux");
+            freebsdConfigIni = getOsSpecificConfigIni(configIniElement, "freebsd");
             macosxConfigIni = getOsSpecificConfigIni(configIniElement, "macosx");
             solarisConfigIni = getOsSpecificConfigIni(configIniElement, "solaris");
             win32ConfigIni = getOsSpecificConfigIni(configIniElement, "win32");
@@ -295,7 +310,7 @@ public class ProductConfiguration {
             Element osElement = configIniElement.getChild(os);
             if (osElement != null) {
                 String trimmedValue = osElement.getTrimmedText();
-                if (trimmedValue.length() > 0) {
+                if (!trimmedValue.isEmpty()) {
                     return trimmedValue;
                 }
             }
@@ -304,6 +319,10 @@ public class ProductConfiguration {
 
         public String getLinuxConfigIni() {
             return linuxConfigIni;
+        }
+
+        public String getFreeBSDConfigIni() {
+            return freebsdConfigIni;
         }
 
         public String getMacosxConfigIni() {

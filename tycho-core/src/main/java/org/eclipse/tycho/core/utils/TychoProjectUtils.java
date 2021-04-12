@@ -13,7 +13,7 @@ package org.eclipse.tycho.core.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
@@ -33,7 +33,7 @@ public class TychoProjectUtils {
      * @throws IllegalStateException
      *             if the given project does not have the resolved project dependencies stored
      */
-    public static DependencyArtifacts getDependencyArtifacts(MavenProject project) throws IllegalStateException {
+    public static DependencyArtifacts getDependencyArtifacts(ReactorProject project) throws IllegalStateException {
         DependencyArtifacts resolvedDependencies = (DependencyArtifacts) project
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
         if (resolvedDependencies == null) {
@@ -51,7 +51,7 @@ public class TychoProjectUtils {
      * @throws IllegalStateException
      *             if the given project does not have an associated target platform configuration
      */
-    public static TargetPlatformConfiguration getTargetPlatformConfiguration(MavenProject project)
+    public static TargetPlatformConfiguration getTargetPlatformConfiguration(ReactorProject project)
             throws IllegalStateException {
         TargetPlatformConfiguration targetPlatformConfiguration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
@@ -64,7 +64,7 @@ public class TychoProjectUtils {
     /**
      * Returns the final target platform of the given project.
      */
-    public static TargetPlatform getTargetPlatform(MavenProject project) {
+    public static TargetPlatform getTargetPlatform(ReactorProject project) {
         TargetPlatform targetPlatform = getTargetPlatformIfAvailable(project);
         if (targetPlatform == null) {
             throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
@@ -79,11 +79,11 @@ public class TychoProjectUtils {
      * Projects with -Dtycho.targetPlatform use the legacy LocalDependencyResolver, which doesn't
      * provide the {@link TargetPlatform} interface.
      */
-    public static TargetPlatform getTargetPlatformIfAvailable(MavenProject project) {
+    public static TargetPlatform getTargetPlatformIfAvailable(ReactorProject project) {
         return (TargetPlatform) project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
     }
 
-    public static ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(MavenProject project) {
+    public static ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(ReactorProject project) {
         ExecutionEnvironmentConfiguration storedConfig = (ExecutionEnvironmentConfiguration) project
                 .getContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION);
         if (storedConfig == null) {
@@ -96,7 +96,7 @@ public class TychoProjectUtils {
      * Returns the (editable) list of {@link DependencySeed}s for the given project.
      */
     @SuppressWarnings("unchecked")
-    public static List<DependencySeed> getDependencySeeds(MavenProject project) {
+    public static List<DependencySeed> getDependencySeeds(ReactorProject project) {
         List<DependencySeed> dependencySeeds = (List<DependencySeed>) project
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS);
         if (dependencySeeds == null) {

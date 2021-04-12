@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2012 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -274,26 +276,6 @@ public class TargetPlatformFilterEvaluator {
                         + "} because none of the units passed the restriction filter {"
                         + currentFilter.getActionPattern().printMembers() + "}");
             }
-        }
-    }
-
-    private class DebugFilterLogger extends FilterLogger {
-        @Override
-        public void beginEvaluation(TargetPlatformFilter filter) {
-            super.beginEvaluation(filter);
-            logger.debug("Applying " + filter);
-        }
-
-        @Override
-        public void unitKept(IInstallableUnit unit) {
-            super.unitKept(unit);
-            logger.debug("  Keeping unit " + unit.getId() + "/" + unit.getVersion());
-        }
-
-        @Override
-        public void unitRemoved(IInstallableUnit unit) {
-            super.unitRemoved(unit);
-            logger.debug("  Removing unit " + unit.getId() + "/" + unit.getVersion());
         }
     }
 }

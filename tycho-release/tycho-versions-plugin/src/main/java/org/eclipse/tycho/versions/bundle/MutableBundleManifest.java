@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -25,13 +27,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PushbackReader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.osgi.framework.BundleException;
@@ -49,23 +51,21 @@ public class MutableBundleManifest {
     }
 
     public static MutableBundleManifest read(File file) throws IOException {
-        InputStream is = new BufferedInputStream(new FileInputStream(file));
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
             return read(is);
-        } finally {
-            IOUtil.close(is);
         }
     }
 
     public static MutableBundleManifest read(InputStream is) throws IOException {
-        PushbackReader br = new PushbackReader(new BufferedReader(new InputStreamReader(is, "UTF8")), 1);
+        PushbackReader br = new PushbackReader(new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)),
+                1);
 
         MutableBundleManifest mf = new MutableBundleManifest();
         ManifestAttribute curr = null;
 
         String str;
         while ((str = readLineWithLineEnding(br, mf)) != null) {
-            if (str.trim().length() == 0) {
+            if (str.trim().isEmpty()) {
                 break;
             } else if (str.charAt(0) == ' ') {
                 if (curr == null) {
@@ -123,7 +123,7 @@ public class MutableBundleManifest {
     }
 
     private void setLineEndingWhenFirstLine(String lineEnding) {
-        if (this.lineEnding.length() == 0 && lineEnding != null) {
+        if (this.lineEnding.isEmpty() && lineEnding != null) {
             this.lineEnding = lineEnding;
         }
     }
@@ -133,16 +133,13 @@ public class MutableBundleManifest {
     }
 
     public static void write(MutableBundleManifest mf, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             write(mf, os);
-        } finally {
-            IOUtil.close(os);
         }
     }
 
     public static void write(MutableBundleManifest mf, OutputStream os) throws IOException {
-        Writer w = new OutputStreamWriter(os, "UTF8");
+        Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8);
 
         for (ManifestAttribute attribute : mf.attributes) {
             attribute.writeTo(w, mf.lineEnding);

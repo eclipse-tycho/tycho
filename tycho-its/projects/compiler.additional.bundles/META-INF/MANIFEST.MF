@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundles
+Bundle-SymbolicName: compiler.additional.bundles
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: compiler.additional.bundles
+Bundle-RequiredExecutionEnvironment: JavaSE-11

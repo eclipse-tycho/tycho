@@ -4,3 +4,4 @@ Bundle-SymbolicName: spir.extProductTest
 Bundle-Version: 1.0.0
 Require-Bundle: org.junit,
  org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

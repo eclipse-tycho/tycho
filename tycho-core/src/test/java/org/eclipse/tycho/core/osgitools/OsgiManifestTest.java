@@ -1,16 +1,14 @@
 package org.eclipse.tycho.core.osgitools;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.junit.Test;
 
 public class OsgiManifestTest {
@@ -35,7 +33,7 @@ public class OsgiManifestTest {
             parseManifest("noBsn.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(e.getMessage(), containsString("The \"Bundle-SymbolicName\" header must be specified"));
+            assertThat(e.getMessage(), containsString("Bundle-SymbolicName header is required"));
         }
     }
 
@@ -56,9 +54,8 @@ public class OsgiManifestTest {
             parseManifest("invalidVersion.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\""));
+            assertThat(e.getMessage(),
+                    containsString("Invalid Manifest header \"Bundle-Version\": 1.0.0.%invalidQualifier"));
         }
     }
 
@@ -68,9 +65,8 @@ public class OsgiManifestTest {
             parseManifest("duplicateImport.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
+            assertThat(e.getMessage(), containsString(
+                    "Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
         }
     }
 
@@ -80,9 +76,7 @@ public class OsgiManifestTest {
             parseManifest("invalidVersionQualifier.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("Invalid manifest header Bundle-Version: \"invalid\" : invalid version \"invalid\": non-numeric \"invalid\""));
+            assertThat(e.getMessage(), containsString("Invalid Manifest header \"Bundle-Version\""));
         }
     }
 
@@ -107,16 +101,13 @@ public class OsgiManifestTest {
     @Test
     public void testMultipleBREEs() throws Exception {
         OsgiManifest manifest = parseManifest("bree.mf");
-        ExecutionEnvironment[] expected = { ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5"),
-                ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7") };
-        assertArrayEquals(expected, manifest.getExecutionEnvironments());
+        assertArrayEquals(new String[] { "J2SE-1.5", "JavaSE-1.7" }, manifest.getExecutionEnvironments());
     }
 
     @Test
     public void testNoBREE() throws Exception {
         OsgiManifest manifest = parseManifest("noBree.mf");
-        ExecutionEnvironment[] expected = new ExecutionEnvironment[0];
-        assertArrayEquals(expected, manifest.getExecutionEnvironments());
+        assertArrayEquals(new String[0], manifest.getExecutionEnvironments());
     }
 
     @Test(expected = OsgiManifestParserException.class)

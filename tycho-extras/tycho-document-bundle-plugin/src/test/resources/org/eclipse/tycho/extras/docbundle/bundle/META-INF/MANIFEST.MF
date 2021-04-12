@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core bundle
+Bundle-SymbolicName: com.example.bundle.core;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Activator: com.example.bundle.core.internal.CorePlugin
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.example.bundle.core;uses:="org.eclipse.core.runtime",
+ com.example.bundle.core.conf,
+ com.example.bundle.core.internal;x-internal:=true,
+ com.acme.other.core,
+ com.acme.other.core.internal.utils;x-internal:=true,
+ com.acme.other.core.internal.ui;x-internal:=true,
+ nu.xom
+Bundle-Vendor: Acme Inc.
+Bundle-ActivationPolicy: lazy

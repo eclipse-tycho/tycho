@@ -1,25 +1,31 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich - adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.test;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 
 // TODO use interface with a subset of methods to ease stubbing?
 public class ReactorProjectStub extends ReactorProjectIdentities implements ReactorProject {
@@ -89,28 +95,37 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     @Override
-    public Set<?> getDependencyMetadata(boolean primary) {
-        return primary ? dependencyMetadata : secondaryDependencyMetadata;
+    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+        switch (type) {
+        case SEED:
+            return dependencyMetadata;
+        case RESOLVE:
+            return secondaryDependencyMetadata;
+        default:
+            return Collections.emptySet();
+        }
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(true));
-        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(false));
+        this.dependencyMetadata = new LinkedHashSet<>(
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.SEED));
+        this.secondaryDependencyMetadata = new LinkedHashSet<>(
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.RESOLVE));
     }
 
     @Override
-    public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
-        if (primary)
-            this.dependencyMetadata = installableUnits;
-        else
-            this.secondaryDependencyMetadata = installableUnits;
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+        if (type == DependencyMetadataType.SEED)
+            this.dependencyMetadata = new LinkedHashSet<>(units);
+        else if (type == DependencyMetadataType.RESOLVE)
+            this.secondaryDependencyMetadata = new LinkedHashSet<>(units);
     }
 
     // TODO share with real implementation?
     @Override
     public Set<?> getDependencyMetadata() {
-        Set<?> primary = getDependencyMetadata(true);
-        Set<?> secondary = getDependencyMetadata(false);
+        Set<?> primary = getDependencyMetadata(DependencyMetadataType.SEED);
+        Set<?> secondary = getDependencyMetadata(DependencyMetadataType.RESOLVE);
 
         if (primary == null) {
             return secondary;
@@ -130,18 +145,8 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     @Override
-    public File getOutputDirectory() {
-        return new File(getBasedir(), "target");
-    }
-
-    @Override
-    public BuildOutputDirectory getBuildDirectory() {
-        return new BuildOutputDirectory(getOutputDirectory());
-    }
-
-    @Override
-    public File getTestOutputDirectory() {
-        throw new UnsupportedOperationException();
+    public BuildDirectory getBuildDirectory() {
+        return new BuildOutputDirectory(new File(getBasedir(), "target"));
     }
 
     @Override
@@ -185,4 +190,11 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
         // TODO implement
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String getName() {
+        // TODO implement
+        throw new UnsupportedOperationException();
+    }
+
 }

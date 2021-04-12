@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-SymbolicName: org.eclipse.swt; singleton:=true
+Bundle-Version: 3.102.0.qualifier
+Bundle-ManifestVersion: 2
+Bundle-Localization: plugin
+Eclipse-ExtensibleAPI: true
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -1,23 +1,23 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #519941 Copy the shared license info
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -37,6 +37,7 @@ import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
@@ -44,8 +45,9 @@ import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 
-@Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME)
+@Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
+    private static final Object LOCK = new Object();
 
     private static final String FEATURE_PROPERTIES = "feature.properties";
 
@@ -110,119 +112,121 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        outputDirectory.mkdirs();
+        synchronized (LOCK) {
+            outputDirectory.mkdirs();
 
-        Feature feature = Feature.loadFeature(basedir);
+            Feature feature = Feature.loadFeature(basedir);
 
-        File licenseFeature = licenseFeatureHelper.getLicenseFeature(feature, project);
+            File licenseFeature = licenseFeatureHelper.getLicenseFeature(feature, project);
 
+            updateLicenseProperties(feature, licenseFeature);
+
+            File featureXml = new File(outputDirectory, Feature.FEATURE_XML);
+            try {
+                expandVersionQualifiers(feature);
+                Feature.write(feature, featureXml);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error updating feature.xml", e);
+            }
+
+            BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+            checkBinIncludesExist(buildProperties);
+
+            File featureProperties = getFeatureProperties(licenseFeature, buildProperties);
+
+            File outputJar = new File(outputDirectory, finalName + ".jar");
+            outputJar.getParentFile().mkdirs();
+
+            MavenArchiver archiver = new MavenArchiver();
+            JarArchiver jarArchiver = getJarArchiver();
+            archiver.setArchiver(jarArchiver);
+            archiver.setOutputFile(outputJar);
+            jarArchiver.setDestFile(outputJar);
+
+            try {
+                archiver.getArchiver().addFileSet(getManuallyIncludedFiles(buildProperties));
+                if (licenseFeature != null) {
+                    archiver.getArchiver()
+                            .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
+                }
+                archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
+                if (featureProperties != null) {
+                    archiver.getArchiver().addFile(featureProperties, FEATURE_PROPERTIES);
+                }
+                if (archive == null) {
+                    archive = new MavenArchiveConfiguration();
+                    archive.setAddMavenDescriptor(false);
+                }
+                archiver.createArchive(session, project, archive);
+            } catch (Exception e) {
+                throw new MojoExecutionException("Error creating feature package", e);
+            }
+
+            project.getArtifact().setFile(outputJar);
+
+            if (deployableFeature) {
+                assembleDeployableFeature();
+            }
+        }
+    }
+
+    private void updateLicenseProperties(Feature feature, File licenseFeatureFile) {
         // remove license feature id and version from feature.xml
         feature.setLicenseFeature(null);
         feature.setLicenseFeatureVersion(null);
-
-        File featureXml = new File(outputDirectory, Feature.FEATURE_XML);
-        try {
-            expandVersionQualifiers(feature);
-            Feature.write(feature, featureXml);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error updating feature.xml", e);
-        }
-
-        BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
-        checkBinIncludesExist(buildProperties);
-
-        File featureProperties = getFeatureProperties(licenseFeature, buildProperties);
-
-        File outputJar = new File(outputDirectory, finalName + ".jar");
-        outputJar.getParentFile().mkdirs();
-
-        MavenArchiver archiver = new MavenArchiver();
-        JarArchiver jarArchiver = getJarArchiver();
-        archiver.setArchiver(jarArchiver);
-        archiver.setOutputFile(outputJar);
-        jarArchiver.setDestFile(outputJar);
-
-        try {
-            archiver.getArchiver().addFileSet(getManuallyIncludedFiles(buildProperties));
-            if (licenseFeature != null) {
-                archiver.getArchiver()
-                        .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
+        // copy the license text and URL from the license feature
+        if (licenseFeatureFile != null) {
+            Feature licenseFeature = Feature.loadFeature(licenseFeatureFile);
+            if (licenseFeature.getLicenseURL() != null) {
+                feature.setLicenseURL(licenseFeature.getLicenseURL());
             }
-            archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
-            if (featureProperties != null) {
-                archiver.getArchiver().addFile(featureProperties, FEATURE_PROPERTIES);
+            if (licenseFeature.getLicense() != null) {
+                feature.setLicense(licenseFeature.getLicense());
             }
-            if (archive == null) {
-                archive = new MavenArchiveConfiguration();
-                archive.setAddMavenDescriptor(false);
-            }
-            archiver.createArchive(session, project, archive);
-        } catch (Exception e) {
-            throw new MojoExecutionException("Error creating feature package", e);
-        }
-
-        project.getArtifact().setFile(outputJar);
-
-        if (deployableFeature) {
-            assembleDeployableFeature();
         }
     }
 
     private File getFeatureProperties(File licenseFeature, BuildProperties buildProperties)
             throws MojoExecutionException {
-        File featureProperties = null;
-        if (buildProperties.getBinIncludes().contains(FEATURE_PROPERTIES)) {
-            featureProperties = new File(outputDirectory, FEATURE_PROPERTIES);
-            if (featureProperties.exists() && !featureProperties.delete()) {
-                throw new MojoExecutionException("Could not delete file " + featureProperties.getAbsolutePath());
+        try {
+            File localFeatureProperties = new File(basedir, FEATURE_PROPERTIES);
+            File targetFeatureProperties = new File(outputDirectory, FEATURE_PROPERTIES);
+            if (targetFeatureProperties.exists() && !targetFeatureProperties.delete()) {
+                throw new MojoExecutionException("Could not delete file " + targetFeatureProperties.getAbsolutePath());
             }
+            // copy the feature.properties from the current feature to the target directory
+            if (buildProperties.getBinIncludes().contains(FEATURE_PROPERTIES) && localFeatureProperties.canRead()) {
+                Files.copy(localFeatureProperties.toPath(), targetFeatureProperties.toPath());
+            }
+            // if there is a license feature, append to the existing feature.properties or create
+            // a new one containing the license features's feature.properties content
+            if (licenseFeature != null) {
+                appendToOrAddFeatureProperties(targetFeatureProperties, licenseFeature);
+            }
+            if (targetFeatureProperties.exists()) {
+                return targetFeatureProperties;
+            }
+            return null;
+        } catch (IOException e) {
+            throw new MojoExecutionException("Could not create feature.properties file for project " + project, e);
+        }
+    }
 
-            OutputStream os = null;
-            try {
-                File localFeatureProperties = new File(basedir, FEATURE_PROPERTIES);
-
-                if (localFeatureProperties.canRead()) {
-                    os = new BufferedOutputStream(new FileOutputStream(featureProperties));
-                    InputStream is = new BufferedInputStream(new FileInputStream(localFeatureProperties));
-                    try {
-                        IOUtil.copy(is, os);
-                    } finally {
-                        IOUtil.close(is);
+    private void appendToOrAddFeatureProperties(File targetFeatureProperties, File licenseFeature) throws IOException {
+        try (ZipFile zip = new ZipFile(licenseFeature)) {
+            ZipEntry entry = zip.getEntry(FEATURE_PROPERTIES);
+            if (entry != null) {
+                try (InputStream inputStream = zip.getInputStream(entry);
+                        FileWriter writer = new FileWriter(targetFeatureProperties.getAbsolutePath(), true)) {
+                    // if we append, first add a new line to be sure that we start 
+                    // in a new line of the existing file
+                    if (targetFeatureProperties.exists()) {
+                        IOUtil.copy("\n", writer);
                     }
-                }
-
-                if (licenseFeature != null) {
-                    ZipFile zip = new ZipFile(licenseFeature);
-                    try {
-                        ZipEntry entry = zip.getEntry(FEATURE_PROPERTIES);
-                        if (entry != null) {
-                            if (os == null) {
-                                os = new BufferedOutputStream(new FileOutputStream(featureProperties));
-                            } else {
-                                IOUtil.copy("\n", os);
-                            }
-                            InputStream is = zip.getInputStream(entry);
-                            try {
-                                IOUtil.copy(is, os);
-                            } finally {
-                                is.close();
-                            }
-                        }
-                    } finally {
-                        zip.close();
-                    }
-                } else if (localFeatureProperties.canRead()) {
-                    featureProperties = localFeatureProperties;
-                }
-            } catch (IOException e) {
-                throw new MojoExecutionException("Could not create feature.properties file for project " + project, e);
-            } finally {
-                if (os != null) {
-                    IOUtil.close(os);
+                    IOUtil.copy(inputStream, writer);
                 }
             }
         }
-        return featureProperties;
     }
 
     /**
@@ -238,14 +242,15 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     }
 
     private void assembleDeployableFeature() throws MojoExecutionException {
-        UpdateSiteAssembler assembler = new UpdateSiteAssembler(session, target);
+        UpdateSiteAssembler assembler = new UpdateSiteAssembler(plexus, target);
         getDependencyWalker().walk(assembler);
     }
 
     private void expandVersionQualifiers(Feature feature) throws MojoFailureException {
-        feature.setVersion(DefaultReactorProject.adapt(project).getExpandedVersion());
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        feature.setVersion(reactorProject.getExpandedVersion());
 
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(project);
+        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(reactorProject);
         if (targetPlatform == null) {
             getLog().warn(
                     "Skipping version reference expansion in eclipse-feature project using the deprecated -Dtycho.targetPlatform configuration");

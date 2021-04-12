@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2013 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -23,7 +26,7 @@ import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
@@ -71,10 +74,11 @@ public class P2ResolverTestBase {
     }
 
     protected final void addContextProject(File projectRoot, String packaging) throws IOException {
-        ArtifactMock artifact = new ArtifactMock(projectRoot.getAbsoluteFile(), DEFAULT_GROUP_ID,
-                projectRoot.getName(), DEFAULT_VERSION, packaging);
+        ArtifactMock artifact = new ArtifactMock(projectRoot.getAbsoluteFile(), DEFAULT_GROUP_ID, projectRoot.getName(),
+                DEFAULT_VERSION, packaging);
 
-        DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments());
+        DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments(),
+                new PublisherOptions());
 
         pomDependencies.addMavenArtifact(artifact, metadata.getInstallableUnits());
     }
@@ -93,7 +97,7 @@ public class P2ResolverTestBase {
         ReactorProjectStub project = new ReactorProjectStub(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
                 packagingType);
         IDependencyMetadata metadata = dependencyGenerator.generateMetadata(new ArtifactMock(project, null),
-                getEnvironments(), optionalDependencies);
+                getEnvironments(), optionalDependencies, new PublisherOptions());
         project.setDependencyMetadata(metadata);
         return project;
     }

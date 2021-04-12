@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
@@ -13,6 +15,7 @@ package org.eclipse.tycho.p2.tools.publisher.facade;
 import java.io.File;
 import java.util.Collection;
 
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.FacadeException;
 
@@ -36,6 +39,34 @@ public interface PublisherService {
      * @throws FacadeException
      *             if a checked exception occurs during publishing
      * @return handles to the root IUs in the publisher result
+     * @deprecated use {@link #publishEEProfile(ExecutionEnvironment)} instead because profile files
+     *             are not reliable with modular Java
      */
+    @Deprecated(since = "2.2.0", forRemoval = true)
     Collection<DependencySeed> publishEEProfile(File profileFile) throws FacadeException;
+
+    /**
+     * Publishes the given OSGi execution environment profile.
+     * 
+     * @param profilename
+     *            the profile name
+     * @throws FacadeException
+     *             if a checked exception occurs during publishing
+     * @return handles to the root IUs in the publisher result
+     * @deprecated use {@link #publishEEProfile(ExecutionEnvironment)} instead because profile files
+     *             are not reliable with modular Java
+     */
+    @Deprecated(since = "2.2.0", forRemoval = true)
+    Collection<DependencySeed> publishEEProfile(String profileName) throws FacadeException;
+
+    /**
+     * Publishes the given OSGi execution environment profile.
+     * 
+     * @param profilename
+     *            the profile name
+     * @throws FacadeException
+     *             if a checked exception occurs during publishing
+     * @return handles to the root IUs in the publisher result
+     */
+    Collection<DependencySeed> publishEEProfile(ExecutionEnvironment ee) throws FacadeException;
 }

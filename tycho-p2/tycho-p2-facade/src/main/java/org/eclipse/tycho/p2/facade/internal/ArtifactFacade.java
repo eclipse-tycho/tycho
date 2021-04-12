@@ -1,23 +1,27 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Christoph Läubrich - add toString/equals/hashCode
  *******************************************************************************/
 package org.eclipse.tycho.p2.facade.internal;
 
 import java.io.File;
+import java.util.Objects;
 
 import org.apache.maven.artifact.Artifact;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
-public class ArtifactFacade implements IArtifactFacade {
+public final class ArtifactFacade implements IArtifactFacade {
 
-    private Artifact wrappedArtifact;
+    private final Artifact wrappedArtifact;
 
     public ArtifactFacade(Artifact wrappedArtifact) {
         this.wrappedArtifact = wrappedArtifact;
@@ -52,6 +56,28 @@ public class ArtifactFacade implements IArtifactFacade {
     @Override
     public String getClassifier() {
         return wrappedArtifact.getClassifier();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(wrappedArtifact);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ArtifactFacade other = (ArtifactFacade) obj;
+        return Objects.equals(wrappedArtifact, other.wrappedArtifact);
+    }
+
+    @Override
+    public String toString() {
+        return "ArtifactFacade [wrappedArtifact=" + wrappedArtifact + "]";
     }
 
 }

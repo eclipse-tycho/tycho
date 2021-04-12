@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,15 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 572416 - Compile all source folders contained in .classpath
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools.project;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +23,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
 import org.eclipse.tycho.core.shared.BuildProperties;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 
 public class EclipsePluginProjectImpl implements EclipsePluginProject {
 
@@ -30,11 +33,13 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
 
     private final LinkedHashMap<String, BuildOutputJar> outputJars = new LinkedHashMap<>();
     private final BuildOutputJar dotOutputJar;
+    private Collection<ProjectClasspathEntry> classpathEntries;
 
-    public EclipsePluginProjectImpl(ReactorProject project, BuildPropertiesParser buildPropertiesParser)
-            throws IOException {
+    public EclipsePluginProjectImpl(ReactorProject project, BuildProperties buildProperties,
+            Collection<ProjectClasspathEntry> classpathEntries) throws IOException {
         this.project = project;
-        this.buildProperties = buildPropertiesParser.parse(project.getBasedir());
+        this.buildProperties = buildProperties;
+        this.classpathEntries = classpathEntries;
 
         LinkedHashMap<String, BuildOutputJar> jars = new LinkedHashMap<>();
         for (String jarName : buildProperties.getJarsCompileOrder()) {
@@ -55,7 +60,7 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
                 // in case of one classpath entry which is not ".", also use standard
                 // maven output dir for better interoperability with plain maven plugins
                 dotJarName = jarName;
-                outputDirectory = project.getOutputDirectory();
+                outputDirectory = project.getBuildDirectory().getOutputDirectory();
             } else {
                 String classesDir = jarName;
                 if (jarName.endsWith("/")) {
@@ -65,11 +70,15 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
             }
             List<File> sourceFolders = toFileList(project.getBasedir(), entry.getValue());
 
+            List<String> excludeFiles = buildProperties.getJarToExcludeFileMap().getOrDefault(jarName,
+                    Collections.emptyList());
+
             List<String> jarExtraEntries = buildProperties.getJarToExtraClasspathMap().get(jarName);
             if (jarExtraEntries != null) {
                 extraClasspath.addAll(jarExtraEntries);
             }
-            jars.put(jarName, new BuildOutputJar(jarName, outputDirectory, sourceFolders, extraClasspath));
+            jars.put(jarName,
+                    new BuildOutputJar(jarName, outputDirectory, sourceFolders, extraClasspath, excludeFiles));
         }
 
         this.dotOutputJar = dotJarName != null ? jars.get(dotJarName) : null;
@@ -98,6 +107,11 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
     @Override
     public List<BuildOutputJar> getOutputJars() {
         return new ArrayList<>(outputJars.values());
+    }
+
+    @Override
+    public Collection<ProjectClasspathEntry> getClasspathEntries() {
+        return Collections.unmodifiableCollection(classpathEntries);
     }
 
     @Override

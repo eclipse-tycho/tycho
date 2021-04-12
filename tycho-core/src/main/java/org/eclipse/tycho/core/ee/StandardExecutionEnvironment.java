@@ -10,20 +10,36 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.toolchain.Toolchain;
+import org.codehaus.plexus.logging.Logger;
+import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.core.ee.EEVersion.EEType;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 /**
@@ -43,7 +59,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     private static final Map<String, String> TARGET_ALIASES;
 
     static {
-        // http://help.eclipse.org/juno/topic/org.eclipse.jdt.doc.user/tasks/task-using_batch_compiler.htm
+        // https://help.eclipse.org/juno/topic/org.eclipse.jdt.doc.user/tasks/task-using_batch_compiler.htm
 
         Map<String, String> targetAliases = new HashMap<>();
         targetAliases.put("jsr14", "1.4");
@@ -55,51 +71,98 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         targetAliases.put("7.0", "1.7");
         targetAliases.put("8", "1.8");
         targetAliases.put("8.0", "1.8");
+        targetAliases.put("9", "1.9");
+        targetAliases.put("9.0", "1.9");
+        targetAliases.put("10", "1.10");
+        targetAliases.put("10.0", "1.10");
         TARGET_ALIASES = Collections.unmodifiableMap(targetAliases);
     }
 
-    private String profileName;
-    private String compilerSourceLevel;
-    private String compilerTargetLevel;
-    private Set<String> systemPackages;
-    private EEVersion eeVersion;
-    private Properties profileProperties;
+    private final String profileName;
+    private final String compilerSourceLevel;
+    private final String compilerTargetLevel;
+    private List<SystemPackageEntry> systemPackages;
+    private final EEVersion eeVersion;
+    private final Properties profileProperties;
+    private final Toolchain toolchain;
+    private Logger logger;
 
     /**
      * Do no instantiate. Use factory method instead
      * {@link ExecutionEnvironmentUtils#getExecutionEnvironment(String)}.
      */
-    /* package */StandardExecutionEnvironment(Properties profileProperties) {
-        this.profileName = profileProperties.getProperty("osgi.java.profile.name");
+    @Deprecated
+    StandardExecutionEnvironment(@Nonnull Properties profileProperties) {
+        this(profileProperties, null, null);
+    }
+
+    /* package */ StandardExecutionEnvironment(@Nonnull Properties profileProperties, @Nullable Toolchain toolchain,
+            @Nullable Logger logger) {
+        this.toolchain = toolchain;
+        this.profileName = profileProperties.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME);
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-        this.systemPackages = new LinkedHashSet<>(Arrays.asList(profileProperties.getProperty(
-                "org.osgi.framework.system.packages").split(",")));
-        this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
+        this.eeVersion = parseEEVersion(profileProperties.getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES));
         this.profileProperties = new Properties();
         this.profileProperties.putAll(profileProperties);
+        this.logger = logger;
     }
 
-    private EEVersion parseEEVersion(String systemCaps) {
+    private Set<String> readFromToolchains(Toolchain toolchain) {
+        if (toolchain == null) {
+            return Collections.emptySet();
+        }
+        String java = toolchain.findTool("java");
+        if (java == null) {
+            return Collections.emptySet();
+        }
+        Set<String> res = new HashSet<>();
+        try {
+            ProcessBuilder builder = new ProcessBuilder(java, "-jar",
+                    getSystemPackagesCompanionJar().getAbsolutePath());
+            try (BufferedReader reader = new BufferedReader(
+                    new java.io.InputStreamReader(builder.start().getInputStream(), Charset.defaultCharset()))) {
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    res.add(line);
+                }
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return res;
+    }
+
+    static File getSystemPackagesCompanionJar() throws IOException {
+        File companionFile = File.createTempFile("tycho-system-packages-companion", ".jar");
+        companionFile.deleteOnExit();
+        try (InputStream contents = ListSystemPackages.class.getClassLoader()
+                .getResourceAsStream("system-packages-companion.jar")) {
+            FileUtils.copyToFile(contents, companionFile);
+        }
+        return companionFile;
+    }
+
+    private static EEVersion parseEEVersion(String systemCaps) {
         List<EEVersion> eeVersions = new ArrayList<>();
         try {
             ManifestElement[] systemCapValues = ManifestElement.parseHeader("org.osgi.framework.system.capabilities",
                     systemCaps);
-            for (int i = 0; i < systemCapValues.length; i++) {
+            for (ManifestElement systemCapValue : systemCapValues) {
                 Version version;
-                String singleVersion = systemCapValues[i].getAttribute("version:Version");
+                String singleVersion = systemCapValue.getAttribute("version:Version");
                 if (singleVersion != null) {
                     version = Version.parseVersion(singleVersion);
                 } else {
-                    String[] versions = systemCapValues[i].getAttribute("version:List<Version>").split(",");
+                    String[] versions = systemCapValue.getAttribute("version:List<Version>").split(",");
                     List<Version> osgiVersions = new ArrayList<>(versions.length);
                     for (String currentVersion : versions) {
                         osgiVersions.add(Version.parseVersion(currentVersion));
                     }
                     version = Collections.max(osgiVersions);
                 }
-                String execEnv = systemCapValues[i].getAttribute("osgi.ee");
+                String execEnv = systemCapValue.getAttribute("osgi.ee");
                 EEType eeType = EEType.fromName(execEnv);
                 if (eeType != null) {
                     eeVersions.add(new EEVersion(version, eeType));
@@ -136,7 +199,49 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     }
 
     @Override
-    public Set<String> getSystemPackages() {
+    public Collection<SystemPackageEntry> getSystemPackages() {
+        if (systemPackages == null) {
+            // EE definitions in Tycho for JVMs 11+ will no longer contain system packages as with modular JVMs it's not sure
+            // all packages will be available at runtime
+            if (profileProperties.containsKey(Constants.FRAMEWORK_SYSTEMPACKAGES)) {
+                logger.debug("Found system.packages in profile defintion file for " + profileName + ",");
+                String systemPackagesValue = profileProperties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
+                if (systemPackagesValue.isBlank()) {
+                    this.systemPackages = Collections.emptyList();
+                } else {
+                    try {
+                        this.systemPackages = Arrays.stream(
+                                ManifestElement.parseHeader(Constants.FRAMEWORK_SYSTEMPACKAGES, systemPackagesValue))
+                                .map(jrePackage -> {
+                                    String packageName = jrePackage.getValue();
+                                    String version = jrePackage.getAttribute("version");
+                                    return new SystemPackageEntry(packageName, version);
+                                }).collect(Collectors.toList());
+                    } catch (BundleException e) {
+                        logger.error(e.getMessage(), e);
+                        this.systemPackages = Collections.emptyList();
+                    }
+                }
+            } else if (toolchain != null) {
+                logger.debug(
+                        "No system.packages in profile defintion file for " + profileName + "; checking toolchain.");
+                this.systemPackages = readFromToolchains(toolchain).stream()
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+            } else if (Integer.parseInt(compilerSourceLevel) == Runtime.version().feature()) {
+                logger.debug("Currently running JRE matches source level for " + getProfileName()
+                        + "; current JRE system packages are used.");
+                this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+            }
+            if (this.systemPackages == null || this.systemPackages.isEmpty()) {
+                logger.warn("No system packages found in profile nor toolchain for " + profileName
+                        + ", using current JRE system packages.\n"
+                        + "This can cause faulty dependency resolution, consider adding a definition for a 'jdk' with id="
+                        + profileName + " in your toolchains.xml");
+                this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+            }
+        }
         return systemPackages;
     }
 
@@ -147,15 +252,8 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((compilerSourceLevel == null) ? 0 : compilerSourceLevel.hashCode());
-        result = prime * result + ((compilerTargetLevel == null) ? 0 : compilerTargetLevel.hashCode());
-        result = prime * result + ((eeVersion == null) ? 0 : eeVersion.hashCode());
-        result = prime * result + ((profileName == null) ? 0 : profileName.hashCode());
-        result = prime * result + ((profileProperties == null) ? 0 : profileProperties.hashCode());
-        result = prime * result + ((systemPackages == null) ? 0 : systemPackages.hashCode());
-        return result;
+        return Objects.hash(compilerSourceLevel, compilerTargetLevel, eeVersion, profileName, profileProperties,
+                systemPackages);
     }
 
     @Override
@@ -170,49 +268,12 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
             return false;
         }
         StandardExecutionEnvironment other = (StandardExecutionEnvironment) obj;
-        if (this.compilerSourceLevel == null) {
-            if (other.compilerSourceLevel != null) {
-                return false;
-            }
-        } else if (!this.compilerSourceLevel.equals(other.compilerSourceLevel)) {
-            return false;
-        }
-        if (this.compilerTargetLevel == null) {
-            if (other.compilerTargetLevel != null) {
-                return false;
-            }
-        } else if (!this.compilerTargetLevel.equals(other.compilerTargetLevel)) {
-            return false;
-        }
-        if (this.eeVersion == null) {
-            if (other.eeVersion != null) {
-                return false;
-            }
-        } else if (!this.eeVersion.equals(other.eeVersion)) {
-            return false;
-        }
-        if (this.profileName == null) {
-            if (other.profileName != null) {
-                return false;
-            }
-        } else if (!this.profileName.equals(other.profileName)) {
-            return false;
-        }
-        if (this.profileProperties == null) {
-            if (other.profileProperties != null) {
-                return false;
-            }
-        } else if (!this.profileProperties.equals(other.profileProperties)) {
-            return false;
-        }
-        if (this.systemPackages == null) {
-            if (other.systemPackages != null) {
-                return false;
-            }
-        } else if (!this.systemPackages.equals(other.systemPackages)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.compilerSourceLevel, other.compilerSourceLevel)
+                && Objects.equals(this.compilerTargetLevel, other.compilerTargetLevel)
+                && Objects.equals(this.eeVersion, other.eeVersion)
+                && Objects.equals(this.profileName, other.profileName)
+                && Objects.equals(this.profileProperties, other.profileProperties)
+                && Objects.equals(this.systemPackages, other.systemPackages);
     }
 
     @Override

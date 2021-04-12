@@ -1,21 +1,23 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
+import static org.mockito.Mockito.mock;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
-
-import junit.framework.Assert;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,13 +30,16 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
+import org.eclipse.tycho.test.util.NoopFileLockService;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
+public class LocalMetadataRepositoryTest {
     private IProgressMonitor monitor = new NullProgressMonitor();
 
     @Test
@@ -47,8 +52,13 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
     }
 
     protected IMetadataRepository loadRepository(File location) throws ProvisionException {
-        return new LocalMetadataRepository(location.toURI(), createMetadataIndex(location), new LocalRepositoryReader(
-                location));
+        return new LocalMetadataRepository(location.toURI(), createMetadataIndex(location),
+                new LocalRepositoryReader(location));
+    }
+
+    private TychoRepositoryIndex createMetadataIndex(File location) {
+        return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService(),
+                mock(MavenLogger.class));
     }
 
     private LocalMetadataRepository createRepository(File location) throws ProvisionException {

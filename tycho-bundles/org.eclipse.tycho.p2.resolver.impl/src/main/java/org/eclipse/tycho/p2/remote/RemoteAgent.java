@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -49,7 +51,7 @@ public class RemoteAgent implements IProvisioningAgent {
         // suppress p2.index access
         final Transport transport;
         if (mavenContext.isOffline()) {
-            transport = new OfflineTransport();
+            transport = new OfflineTransport(mavenContext);
             agent.registerService(Transport.class, transport);
         } else {
             transport = agent.getService(Transport.class);
@@ -84,7 +86,8 @@ public class RemoteAgent implements IProvisioningAgent {
             MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
 
         // register service which stores mapping between URLs and IDs (used by Maven)
-        RemoteRepositoryLoadingHelper loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings, logger);
+        RemoteRepositoryLoadingHelper loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings,
+                logger);
         agent.registerService(IRepositoryIdManager.class, loadingHelper);
 
         // wrap metadata repository manager

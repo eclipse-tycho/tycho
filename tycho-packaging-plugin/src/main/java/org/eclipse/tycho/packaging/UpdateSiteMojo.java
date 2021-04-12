@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -25,8 +27,9 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 
-@Mojo(name = "update-site")
+@Mojo(name = "update-site", threadSafe = true)
 public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(defaultValue = "${project.build.directory}/site")
     private File target;
@@ -39,61 +42,64 @@ public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        target.mkdirs();
-        try {
-            // remove content collected in former builds.
-            // Even without clean goal the build result must not assembly out dated content
-            FileUtils.cleanDirectory(target);
-        } catch (IOException e) {
-            throw new MojoFailureException("Unable to delete old update site content: " + target.getAbsolutePath(), e);
-        }
-        // expandVersion();
-
-        try {
-            UpdateSite site = UpdateSite.read(new File(basedir, UpdateSite.SITE_XML));
-
-            UpdateSiteAssembler assembler = new UpdateSiteAssembler(session, target);
-            if (inlineArchives) {
-                assembler.setArchives(site.getArchives());
+        synchronized (LOCK) {
+            target.mkdirs();
+            try {
+                // remove content collected in former builds.
+                // Even without clean goal the build result must not assembly out dated content
+                FileUtils.cleanDirectory(target);
+            } catch (IOException e) {
+                throw new MojoFailureException("Unable to delete old update site content: " + target.getAbsolutePath(),
+                        e);
             }
+            // expandVersion();
 
-            getDependencyWalker().walk(assembler);
-            getDependencyWalker().traverseUpdateSite(site, new ArtifactDependencyVisitor() {
-                @Override
-                public boolean visitFeature(FeatureDescription feature) {
-                    FeatureRef featureRef = feature.getFeatureRef();
-                    String id = featureRef.getId();
-                    ReactorProject otherProject = feature.getMavenProject();
-                    String version;
-                    if (otherProject != null) {
-                        version = otherProject.getExpandedVersion();
-                    } else {
-                        version = feature.getKey().getVersion();
+            try {
+                UpdateSite site = UpdateSite.read(new File(basedir, UpdateSite.SITE_XML));
+
+                UpdateSiteAssembler assembler = new UpdateSiteAssembler(plexus, target);
+                if (inlineArchives) {
+                    assembler.setArchives(site.getArchives());
+                }
+
+                getDependencyWalker().walk(assembler);
+                getDependencyWalker().traverseUpdateSite(site, new ArtifactDependencyVisitor() {
+                    @Override
+                    public boolean visitFeature(FeatureDescription feature) {
+                        FeatureRef featureRef = feature.getFeatureRef();
+                        String id = featureRef.getId();
+                        ReactorProject otherProject = feature.getMavenProject();
+                        String version;
+                        if (otherProject != null) {
+                            version = otherProject.getExpandedVersion();
+                        } else {
+                            version = feature.getKey().getVersion();
+                        }
+                        String url = UpdateSiteAssembler.FEATURES_DIR + id + "_" + version + ".jar";
+                        ((SiteFeatureRef) featureRef).setUrl(url);
+                        featureRef.setVersion(version);
+                        return false; // don't traverse included features
                     }
-                    String url = UpdateSiteAssembler.FEATURES_DIR + id + "_" + version + ".jar";
-                    ((SiteFeatureRef) featureRef).setUrl(url);
-                    featureRef.setVersion(version);
-                    return false; // don't traverse included features
+                });
+
+                if (inlineArchives) {
+                    site.removeArchives();
                 }
-            });
 
-            if (inlineArchives) {
-                site.removeArchives();
-            }
+                File file = new File(target, "site.xml");
+                UpdateSite.write(site, file);
 
-            File file = new File(target, "site.xml");
-            UpdateSite.write(site, file);
-
-            // Copy the associate sites file, if necessary
-            if (site.getAssociateSitesUrl() != null) {
-                File srcAssociateSitesFile = new File(basedir, site.getAssociateSitesUrl());
-                if (srcAssociateSitesFile.exists()) {
-                    FileUtils.copyFile(srcAssociateSitesFile,
-                            new File(target + File.separator + site.getAssociateSitesUrl()));
+                // Copy the associate sites file, if necessary
+                if (site.getAssociateSitesUrl() != null) {
+                    File srcAssociateSitesFile = new File(basedir, site.getAssociateSitesUrl());
+                    if (srcAssociateSitesFile.exists()) {
+                        FileUtils.copyFile(srcAssociateSitesFile,
+                                new File(target + File.separator + site.getAssociateSitesUrl()));
+                    }
                 }
+            } catch (Exception e) {
+                throw new MojoExecutionException(e.getMessage(), e);
             }
-        } catch (Exception e) {
-            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 }

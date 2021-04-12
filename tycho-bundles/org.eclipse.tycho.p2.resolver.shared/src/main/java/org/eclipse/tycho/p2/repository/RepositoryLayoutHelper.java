@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 519221 - The Maven artifact to be added to the target platform is not stored at the required location on disk
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
@@ -83,7 +86,7 @@ public class RepositoryLayoutHelper {
 
         // filename
         sb.append(artifactId).append('-').append(version);
-        if (classifier != null) {
+        if (classifier != null && !classifier.isEmpty()) {
             sb.append('-').append(classifier);
         }
         sb.append('.').append(extension != null ? extension : DEFAULT_EXTERNSION);
@@ -99,7 +102,7 @@ public class RepositoryLayoutHelper {
     // TODO these methods do not belong here - they should go to GAV or some kind of GAV helper
     // TODO writing to Maps should be implemented next to reading
 
-    public static GAV getGAV(Map properties) {
+    public static GAV getGAV(Map<?, ?> properties) {
         String groupId = (String) properties.get(PROP_GROUP_ID);
         String artifactId = (String) properties.get(PROP_ARTIFACT_ID);
         String version = (String) properties.get(PROP_VERSION);
@@ -117,11 +120,11 @@ public class RepositoryLayoutHelper {
     }
 
     // TODO it would be useful to have a GAV+C+T class
-    public static String getClassifier(Map properties) {
+    public static String getClassifier(Map<?, ?> properties) {
         return (String) properties.get(PROP_CLASSIFIER);
     }
 
-    public static String getExtension(Map properties) {
+    public static String getExtension(Map<?, ?> properties) {
         String explicitExtension = (String) properties.get(PROP_EXTENSION);
         return explicitExtension == null ? DEFAULT_EXTERNSION : explicitExtension;
     }

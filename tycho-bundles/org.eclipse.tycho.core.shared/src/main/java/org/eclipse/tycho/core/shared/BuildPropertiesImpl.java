@@ -1,23 +1,32 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2021 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich -     [Bug 443083] generating build.properties resource is not possible
+ *                              [Bug 572481] Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 
 package org.eclipse.tycho.core.shared;
 
+import static java.util.Collections.unmodifiableMap;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class BuildPropertiesImpl implements BuildProperties {
 
@@ -38,11 +47,19 @@ public class BuildPropertiesImpl implements BuildProperties {
     private Map<String, List<String>> jarToExtraClasspathMap;
     private Map<String, String> jarToJavacDefaultEncodingMap;
     private Map<String, String> jarToOutputFolderMap;
+    private Map<String, List<String>> jarToExcludeFileMap;
     private Map<String, String> jarToManifestMap;
     private Map<String, String> rootEntries;
+    private long timestamp;
+    private String additionalBundles;
 
-    @SuppressWarnings("unchecked")
     public BuildPropertiesImpl(Properties properties) {
+        this(properties, System.currentTimeMillis());
+    }
+
+    public BuildPropertiesImpl(Properties properties, long timestamp) {
+        this.timestamp = timestamp;
+        additionalBundles = safeTrimValue("additional.bundles", properties);
         javacSource = safeTrimValue("javacSource", properties);
         javacTarget = safeTrimValue("javacTarget", properties);
         forceContextQualifier = safeTrimValue("forceContextQualifier", properties);
@@ -57,14 +74,15 @@ public class BuildPropertiesImpl implements BuildProperties {
         jarsExtraClasspath = splitAndTrimCommaSeparated(properties.getProperty("jars.extra.classpath"));
         jarsCompileOrder = splitAndTrimCommaSeparated(properties.getProperty("jars.compile.order"));
 
-        HashMap<String, List<String>> jarTosourceFolderTmp = new LinkedHashMap<>();
-        HashMap<String, List<String>> jarToExtraClasspathTmp = new LinkedHashMap<>();
-        HashMap<String, String> jarToJavacDefaultEncodingTmp = new LinkedHashMap<>();
-        HashMap<String, String> jarToOutputFolderMapTmp = new LinkedHashMap<>();
-        HashMap<String, String> jarToManifestMapTmp = new LinkedHashMap<>();
-        HashMap<String, String> rootEntriesTmp = new LinkedHashMap<>();
+        Map<String, List<String>> jarTosourceFolderTmp = new LinkedHashMap<>();
+        Map<String, List<String>> jarToExtraClasspathTmp = new LinkedHashMap<>();
+        Map<String, String> jarToJavacDefaultEncodingTmp = new LinkedHashMap<>();
+        Map<String, String> jarToOutputFolderMapTmp = new LinkedHashMap<>();
+        Map<String, List<String>> jarToExcludeFileMapTmp = new LinkedHashMap<>();
+        Map<String, String> jarToManifestMapTmp = new LinkedHashMap<>();
+        Map<String, String> rootEntriesTmp = new LinkedHashMap<>();
 
-        List<String> sortedKeys = new ArrayList(properties.keySet());
+        List<String> sortedKeys = new ArrayList<>(properties.stringPropertyNames());
         Collections.sort(sortedKeys);
         for (String key : sortedKeys) {
             String trimmedKey = key.trim();
@@ -81,6 +99,9 @@ public class BuildPropertiesImpl implements BuildProperties {
             } else if (trimmedKey.startsWith("output.")) {
                 String jarName = trimmedKey.substring("output.".length());
                 jarToOutputFolderMapTmp.put(jarName, value);
+            } else if (trimmedKey.startsWith("exclude.")) {
+                String jarName = trimmedKey.substring("exclude.".length());
+                jarToExcludeFileMapTmp.put(jarName, splitAndTrimCommaSeparated(value));
             } else if (trimmedKey.startsWith("manifest.")) {
                 String jarName = trimmedKey.substring("manifest.".length());
                 jarToManifestMapTmp.put(jarName, value);
@@ -92,16 +113,13 @@ public class BuildPropertiesImpl implements BuildProperties {
         jarToExtraClasspathMap = unmodifiableMap(jarToExtraClasspathTmp);
         jarToJavacDefaultEncodingMap = unmodifiableMap(jarToJavacDefaultEncodingTmp);
         jarToOutputFolderMap = unmodifiableMap(jarToOutputFolderMapTmp);
+        jarToExcludeFileMap = unmodifiableMap(jarToExcludeFileMapTmp);
         jarToManifestMap = unmodifiableMap(jarToManifestMapTmp);
         rootEntries = unmodifiableMap(rootEntriesTmp);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static Map unmodifiableMap(Map map) {
-        if (map.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        return Collections.unmodifiableMap(map);
+    public long getTimestamp() {
+        return timestamp;
     }
 
     private static String safeTrimValue(String key, Properties buildProperties) {
@@ -186,6 +204,11 @@ public class BuildPropertiesImpl implements BuildProperties {
     }
 
     @Override
+    public Map<String, List<String>> getJarToExcludeFileMap() {
+        return jarToExcludeFileMap;
+    }
+
+    @Override
     public Map<String, String> getJarToManifestMap() {
         return jarToManifestMap;
     }
@@ -208,6 +231,15 @@ public class BuildPropertiesImpl implements BuildProperties {
     @Override
     public Map<String, String> getRootEntries() {
         return rootEntries;
+    }
+
+    @Override
+    public Collection<String> getAdditionalBundles() {
+        if (additionalBundles != null && !additionalBundles.isBlank()) {
+            return Arrays.stream(additionalBundles.split(",")).map(String::strip).filter(Predicate.not(String::isBlank))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
 }

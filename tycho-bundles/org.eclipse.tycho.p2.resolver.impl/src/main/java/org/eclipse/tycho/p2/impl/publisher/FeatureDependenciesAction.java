@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -185,26 +187,26 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
 
     private int getFilterCount(FeatureEntry entry) {
         int filterCount = 0;
-        if (entry.getOS() != null && entry.getOS().length() > 0) {
+        if (entry.getOS() != null && !entry.getOS().isEmpty()) {
             filterCount++;
         }
-        if (entry.getWS() != null && entry.getWS().length() > 0) {
+        if (entry.getWS() != null && !entry.getWS().isEmpty()) {
             filterCount++;
         }
-        if (entry.getArch() != null && entry.getArch().length() > 0) {
+        if (entry.getArch() != null && !entry.getArch().isEmpty()) {
             filterCount++;
         }
-        if (entry.getNL() != null && entry.getNL().length() > 0) {
+        if (entry.getNL() != null && !entry.getNL().isEmpty()) {
             filterCount++;
         }
-        if (entry.getFilter() != null && entry.getFilter().length() > 0) {
+        if (entry.getFilter() != null && !entry.getFilter().isEmpty()) {
             filterCount++;
         }
         return filterCount;
     }
 
     private void expandFilter(String filter, String osgiFilterValue, StringBuilder result) {
-        if (filter != null && filter.length() != 0) {
+        if (filter != null && !filter.isEmpty()) {
             final StringTokenizer token = new StringTokenizer(filter, ","); //$NON-NLS-1$
             if (token.countTokens() == 1) {
                 result.append('(' + osgiFilterValue + '=' + filter + ')');

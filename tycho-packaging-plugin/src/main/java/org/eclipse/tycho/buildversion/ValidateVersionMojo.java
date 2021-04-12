@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -26,7 +28,7 @@ import org.eclipse.tycho.model.IU;
  * ".qualifier" and unqualified Maven and OSGi versions must be equal. For RELEASE versions, OSGi
  * and Maven versions must be equal.
  */
-@Mojo(name = "validate-version", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "validate-version", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class ValidateVersionMojo extends AbstractVersionMojo {
     /**
      * If <code>true</code> (the default) will fail the build if Maven and OSGi project versions do
@@ -92,8 +94,8 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
             String unqualifiedOSGiVersion = osgiVersion.substring(0,
                     osgiVersion.length() - VersioningHelper.QUALIFIER.length() - 1);
             if (!unqualifiedMavenVersion.equals(unqualifiedOSGiVersion)) {
-                fail("Unqualified OSGi version " + osgiVersion + " must match unqualified Maven version "
-                        + mavenVersion + " for SNAPSHOT builds");
+                fail("Unqualified OSGi version " + osgiVersion + " must match unqualified Maven version " + mavenVersion
+                        + " for SNAPSHOT builds");
             }
         }
     }

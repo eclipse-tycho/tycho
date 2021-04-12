@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Guillaume Dufour - Bug 453708 Support for site/repository-reference/@location in eclipse-repository
  *******************************************************************************/
 package org.eclipse.tycho.model;
 
@@ -64,6 +67,14 @@ public class Category {
         return Collections.unmodifiableList(plugins);
     }
 
+    public List<RepositoryReference> getRepositoryReferences() {
+        ArrayList<RepositoryReference> repos = new ArrayList<>();
+        for (Element repoDom : dom.getChildren("repository-reference")) {
+            repos.add(new RepositoryReference(repoDom));
+        }
+        return Collections.unmodifiableList(repos);
+    }
+
     public static Category read(File file) throws IOException {
         return read(new BufferedInputStream(new FileInputStream(file)));
     }
@@ -77,10 +88,8 @@ public class Category {
     }
 
     public static void write(Category category, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-
         Document document = category.document;
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
@@ -89,8 +98,6 @@ public class Category {
             } finally {
                 xw.flush();
             }
-        } finally {
-            IOUtil.close(os);
         }
     }
 

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2016 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -29,6 +31,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.Parameter;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -38,7 +41,7 @@ import org.codehaus.plexus.component.configurator.ComponentConfigurator;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.sonatype.aether.util.DefaultRepositorySystemSession;
+import org.eclipse.aether.DefaultRepositorySystemSession;
 
 public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
@@ -97,6 +100,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         Settings settings = settingsBuilder.buildSettings(request);
         requestPopulator.populateFromSettings(request, settings);
         request.setGoals(Arrays.asList("validate"));
+        request.setLocalRepositoryPath(getLocalRepository().getBasedir());
         return request;
     }
 
@@ -106,11 +110,8 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
             return new File(systemValue);
         }
         Properties props = new Properties();
-        InputStream stream = AbstractTychoMojoTestCase.class.getResourceAsStream("settings.properties");
-        try {
+        try (InputStream stream = AbstractTychoMojoTestCase.class.getResourceAsStream("settings.properties")) {
             props.load(stream);
-        } finally {
-            stream.close();
         }
         String settingsFilePath = props.getProperty("settings.file");
         return new File(settingsFilePath);
@@ -169,17 +170,39 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     // workaround for MPLUGINTESTING-46 - see http://jira.codehaus.org/browse/MPLUGINTESTING-46
     protected Mojo lookupMojoWithDefaultConfiguration(MavenProject project, MavenSession session, String goal)
             throws Exception {
+        Mojo mojo = lookupEmptyMojo(goal, project.getFile());
+        configureMojoWithDefaultConfiguration(mojo, session, goal);
+        return mojo;
+    }
+
+    /**
+     * Configures the given mojo according to the specified goal of the given session.
+     * <p>
+     * Especially this also initializes each {@link Parameter} of the mojo with its default values.
+     * </p>
+     */
+    protected void configureMojoWithDefaultConfiguration(Mojo mojo, MavenSession session, String goal)
+            throws Exception {
         MojoExecution mojoExecution = newMojoExecution(goal);
+        configureMojoWithDefaultConfiguration(mojo, session, mojoExecution);
+    }
+
+    /**
+     * Configures the given mojo according to the specified session and mojo-exectuion.
+     * <p>
+     * Especially this also initializes each {@link Parameter} of the mojo with its default values.
+     * </p>
+     */
+    private void configureMojoWithDefaultConfiguration(Mojo mojo, MavenSession session, MojoExecution mojoExecution)
+            throws Exception {
         Xpp3Dom defaultConfiguration = mojoExecution.getConfiguration();
 
         // the ResolverExpressionEvaluatorStub of lookupMojo is not sufficient to evaluate the variables in the default configuration 
         ExpressionEvaluator expressionEvaluator = new PluginParameterExpressionEvaluator(session, mojoExecution);
         ComponentConfigurator configurator = getContainer().lookup(ComponentConfigurator.class, "basic");
 
-        Mojo mojo = lookupEmptyMojo(goal, project.getFile());
         configurator.configureComponent(mojo, new XmlPlexusConfiguration(defaultConfiguration), expressionEvaluator,
                 getContainer().getContainerRealm(), null);
-        return mojo;
     }
 
     protected static File getBasedir(String name) throws IOException {

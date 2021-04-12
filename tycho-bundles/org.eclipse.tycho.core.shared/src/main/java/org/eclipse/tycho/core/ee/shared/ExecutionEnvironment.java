@@ -1,26 +1,70 @@
 /*******************************************************************************
  * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.core.ee.shared;
 
+import java.util.Collection;
+import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 
 public interface ExecutionEnvironment {
+
+    public static final class SystemPackageEntry {
+        public final String packageName;
+
+        /**
+         * May be null
+         */
+        public final String version;
+
+        public SystemPackageEntry(String packageName, String version) {
+            this.packageName = packageName;
+            this.version = version;
+        }
+
+        public String toPackageSpecifier() {
+            if (version != null) {
+                return packageName + ";version=\"" + version + "\"";
+            } else {
+                return packageName;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(packageName, version);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || !(o instanceof SystemPackageEntry)) {
+                return false;
+            }
+            SystemPackageEntry other = (SystemPackageEntry) o;
+            return Objects.equals(this.packageName, other.packageName) && Objects.equals(this.version, other.version);
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + '[' + packageName + '/' + version + ']';
+        }
+    }
 
     String getProfileName();
 
     /**
      * Returns the list of packages (without versions) provided by the execution environment.
      */
-    Set<String> getSystemPackages();
+    Collection<SystemPackageEntry> getSystemPackages();
 
     Properties getProfileProperties();
 

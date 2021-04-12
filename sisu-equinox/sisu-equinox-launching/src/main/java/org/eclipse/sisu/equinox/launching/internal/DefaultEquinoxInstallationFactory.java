@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2014 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -75,7 +77,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
         for (ArtifactDescriptor artifact : description.getBundles()) {
             ArtifactKey key = artifact.getKey();
-            File file = artifact.getLocation();
+            File file = artifact.getLocation(true);
             OsgiManifest mf = manifestReader.loadManifest(file);
 
             boolean directoryShape = bundlesToExplode.contains(key.getId()) || mf.isDirectoryShape();
@@ -122,7 +124,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
                 File file;
                 ArtifactDescriptor desc = description.getBundle(url, null);
                 if (desc != null) {
-                    url = "file:" + desc.getLocation().getAbsolutePath().replace('\\', '/');
+                    url = "file:" + desc.getLocation(true).getAbsolutePath().replace('\\', '/');
                 } else if (url.startsWith("file:")) {
                     String path = url.substring("file:".length());
                     file = new File(path);
@@ -137,7 +139,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             }
 
             if (!frameworkExtensions.isEmpty()) {
-                // see osgi.framework.extensions at http://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Fruntime-options.html
+                // see osgi.framework.extensions at https://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Fruntime-options.html
                 Collection<String> bundleNames = unpackFrameworkExtensions(location, frameworkExtensions);
                 p.setProperty("osgi.framework", copySystemBundle(description, location));
                 p.setProperty("osgi.framework.extensions", StringUtils.join(bundleNames.iterator(), ","));
@@ -150,11 +152,8 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             File configIni = new File(location, TychoConstants.CONFIG_INI_PATH);
             File configurationLocation = configIni.getParentFile();
             configurationLocation.mkdirs();
-            FileOutputStream fos = new FileOutputStream(configIni);
-            try {
+            try (FileOutputStream fos = new FileOutputStream(configIni)) {
                 p.store(fos, null);
-            } finally {
-                fos.close();
             }
 
             return new DefaultEquinoxInstallation(description, location, configurationLocation);
@@ -167,18 +166,15 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
      * See
      * 
      * <pre>
-     * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgidev
+     * https://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgidev
      * </pre>
      */
     private String createDevProperties(File location, Map<String, String> devEntries) throws IOException {
         File file = new File(location, "dev.properties");
         Properties properties = new Properties();
         properties.putAll(devEntries);
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             properties.store(os, null);
-        } finally {
-            os.close();
         }
         return file.toURI().toURL().toExternalForm();
     }
@@ -222,7 +218,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
     private String copySystemBundle(EquinoxInstallationDescription description, File location) throws IOException {
         ArtifactDescriptor bundle = description.getSystemBundle();
-        File srcFile = bundle.getLocation();
+        File srcFile = bundle.getLocation(true);
         File dstFile = new File(location, "plugins/" + srcFile.getName());
         FileUtils.copyFileIfModified(srcFile, dstFile);
 

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -11,7 +13,7 @@
 package org.eclipse.tycho.buildversion;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -189,7 +191,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
         DefaultDependencyArtifacts dependencyArtifacts = (DefaultDependencyArtifacts) TychoProjectUtils
-                .getDependencyArtifacts(project);
+                .getDependencyArtifacts(reactorProject);
 
         // replace target platform dependencies with fake attached feature and bundle atrifacts
         ArtifactDescriptor attachedFeature = dependencyArtifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
@@ -231,6 +233,18 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
             fail();
         } catch (MojoFailureException e) {
             assertThat(e.getMessage(), containsString("Invalid build qualifier"));
+        }
+    }
+
+    public void testInvalidQualifierDisplaysInErrorMessage() throws Exception {
+        MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
+        BuildQualifierMojo mojo = createMojoWithProject(project);
+        mojo.setFormat("'This qualifier should be in error message'");
+        try {
+            mojo.execute();
+            fail();
+        } catch (MojoFailureException e) {
+            assertThat(e.getMessage(), containsString("This qualifier should be in error message"));
         }
     }
 

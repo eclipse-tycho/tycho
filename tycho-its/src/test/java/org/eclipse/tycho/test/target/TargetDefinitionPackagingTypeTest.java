@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2018 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -14,7 +16,7 @@ package org.eclipse.tycho.test.target;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.apache.maven.it.util.FileUtils;
+import org.apache.maven.shared.utils.io.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
@@ -37,8 +39,8 @@ public class TargetDefinitionPackagingTypeTest extends AbstractTychoIntegrationT
         // make sure target is not installed already
         verifier.deleteArtifact(TARGET_GROUPID, TARGET_ARTIFACTID, TARGET_VERSION, TARGET_EXTENSION);
         targetDefinitionFile = new File(verifier.getBasedir(), "target-definition/target-definition.target");
-        TargetDefinitionUtil
-                .setRepositoryURLs(targetDefinitionFile, ResourceUtil.P2Repositories.ECLIPSE_352.toString());
+        TargetDefinitionUtil.setRepositoryURLs(targetDefinitionFile,
+                ResourceUtil.P2Repositories.ECLIPSE_352.toString());
     }
 
     @Test

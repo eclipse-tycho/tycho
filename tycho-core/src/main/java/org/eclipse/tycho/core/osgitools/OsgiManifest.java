@@ -3,17 +3,17 @@ package org.eclipse.tycho.core.osgitools;
 import static org.osgi.framework.Constants.BUNDLE_CLASSPATH;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
-import org.eclipse.osgi.framework.util.Headers;
-import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl;
-import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
+import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
-import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -26,27 +26,26 @@ import org.osgi.framework.Version;
  */
 public class OsgiManifest {
 
-    private static final StandardExecutionEnvironment[] EMPTY_EXEC_ENV = new StandardExecutionEnvironment[0];
+    private static final String[] EMPTY_EXEC_ENV = new String[0];
 
-    private String location;
-    private Headers<String, String> headers;
+    private final String location;
+    private final CaseInsensitiveDictionaryMap<String, String> headers;
 
     // cache for parsed values of commonly used headers
-    private String bundleSymbolicName;
-    private String bundleVersion;
-    private String[] bundleClassPath;
-    private StandardExecutionEnvironment[] executionEnvironments;
-    private boolean isDirectoryShape;
+    private final String bundleSymbolicName;
+    private final String bundleVersion;
+    private final String[] bundleClassPath;
+    private final String[] executionEnvironments;
+    private final boolean isDirectoryShape;
 
     private OsgiManifest(InputStream stream, String location) throws OsgiManifestParserException {
         this.location = location;
         try {
-            this.headers = Headers.parseManifest(stream);
+            this.headers = new CaseInsensitiveDictionaryMap<>();
+            ManifestElement.parseBundleManifest(stream, headers);
             // this will do more strict validation of headers on OSGi semantical level
-            BundleDescription bundleDescription = StateObjectFactoryImpl.defaultFactory.createBundleDescription(null,
-                    headers, location, 0L);
-            this.bundleSymbolicName = bundleDescription.getSymbolicName();
-        } catch (BundleException e) {
+            this.bundleSymbolicName = OSGiManifestBuilderFactory.createBuilder(headers).getSymbolicName();
+        } catch (IOException | BundleException e) {
             throw new OsgiManifestParserException(location, e);
         }
         this.bundleVersion = parseBundleVersion();
@@ -55,18 +54,19 @@ public class OsgiManifest {
         this.executionEnvironments = parseExecutionEnvironments();
     }
 
-    private StandardExecutionEnvironment[] parseExecutionEnvironments() {
+    private String[] parseExecutionEnvironments() {
         ManifestElement[] brees = getManifestElements(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
         if (brees == null || brees.length == 0) {
             return EMPTY_EXEC_ENV;
         }
-        StandardExecutionEnvironment[] envs = new StandardExecutionEnvironment[brees.length];
-        try {
-            for (int i = 0; i < brees.length; i++) {
-                envs[i] = ExecutionEnvironmentUtils.getExecutionEnvironment(brees[i].getValue());
+        String[] envs = new String[brees.length];
+        for (int i = 0; i < brees.length; i++) {
+            String ee = brees[i].getValue();
+            if (ExecutionEnvironmentUtils.getProfileNames().contains(ee)) {
+                envs[i] = ee;
+            } else {
+                throw new OsgiManifestParserException(location, new UnknownEnvironmentException(ee));
             }
-        } catch (UnknownEnvironmentException e) {
-            throw new OsgiManifestParserException(location, e);
         }
         return envs;
     }
@@ -105,7 +105,7 @@ public class OsgiManifest {
                 && "dir".equals(bundleShapeElements[0].getValue());
     }
 
-    public Headers<String, String> getHeaders() {
+    public Map<String, String> getHeaders() {
         return headers;
     }
 
@@ -132,14 +132,14 @@ public class OsgiManifest {
         return bundleClassPath;
     }
 
-    public StandardExecutionEnvironment[] getExecutionEnvironments() {
+    public String[] getExecutionEnvironments() {
         return executionEnvironments;
     }
 
     /**
      * Returns true if Eclipse-BundleShape header is set to dir.
      * 
-     * http://help.eclipse.org/galileo/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/misc/
+     * https://help.eclipse.org/galileo/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/misc/
      * bundle_manifest.html
      * 
      * http://eclipsesource.com/blogs/2009/01/20/tip-eclipse-bundleshape/

@@ -3,5 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: bundle.tests Fragment
 Bundle-SymbolicName: bundle.tests;singleton:=true
 Bundle-Version: 0.0.1.qualifier
-Require-Bundle: org.junit;bundle-version="3.8.0",
+Require-Bundle: org.junit;bundle-version="4.0.0",
  bundle;bundle-version="0.0.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

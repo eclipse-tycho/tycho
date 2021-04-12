@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2015 Rapicorp, Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2015, 2020 Rapicorp, Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Rapicorp, Inc. - initial API and implementation
@@ -20,8 +22,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.codehaus.plexus.util.IOUtil;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -80,7 +80,7 @@ public class IU {
 
     public List<Element> getProvidedCapabilites() {
         List<Element> provides = iuDom.getChildren(PROVIDES);
-        if (provides == null || provides.size() == 0)
+        if (provides == null || provides.isEmpty())
             return null;
         return provides.get(0).getChildren(PROVIDED);
     }
@@ -114,14 +114,14 @@ public class IU {
 
     public List<Element> getRequiredCapabilites() {
         List<Element> requires = iuDom.getChildren(REQUIRES);
-        if (requires == null || requires.size() == 0)
+        if (requires == null || requires.isEmpty())
             return null;
         return requires.get(0).getChildren(REQUIRED);
     }
 
     public List<Element> getProperties() {
         List<Element> properties = iuDom.getChildren(PROPERTIES);
-        if (properties == null || properties.size() == 0)
+        if (properties == null || properties.isEmpty())
             return null;
         return properties.get(0).getChildren(PROPERTY);
     }
@@ -172,9 +172,7 @@ public class IU {
     }
 
     public static IU read(File file) throws IOException {
-        FileInputStream is = new FileInputStream(file);
-        try {
-
+        try (FileInputStream is = new FileInputStream(file)) {
             Document iuDocument = parser.parse(new XMLIOSource(is));
             Element root = iuDocument.getChild(UNIT);
             if (root == null)
@@ -188,8 +186,6 @@ public class IU {
                 throw new RuntimeException(
                         String.format("The IU defined in %s is missing a version.", file.getAbsolutePath()));
             return result;
-        } finally {
-            IOUtil.close(is);
         }
     }
 
@@ -216,10 +212,8 @@ public class IU {
     }
 
     public static void write(IU iu, File file, String indent) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-
         Document document = iu.document;
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
@@ -229,8 +223,6 @@ public class IU {
             } finally {
                 xw.flush();
             }
-        } finally {
-            IOUtil.close(os);
         }
     }
 }

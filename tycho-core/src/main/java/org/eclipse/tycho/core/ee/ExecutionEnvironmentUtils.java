@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,13 +14,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.toolchain.Toolchain;
+import org.apache.maven.toolchain.ToolchainManager;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment.SystemPackageEntry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Constants;
 
@@ -32,15 +41,20 @@ import org.osgi.framework.Constants;
  */
 public class ExecutionEnvironmentUtils {
 
-    private static Map<String, StandardExecutionEnvironment> executionEnvironmentsMap = fillEnvironmentsMap();
+    private static final Map<String, Properties> profilesProperties = fillEnvironmentsMap();
+    private static final Map<String, StandardExecutionEnvironment> executionEnvironmentsMap = new ConcurrentHashMap<>(
+            profilesProperties.size(), 1.f);
 
-    private static Map<String, StandardExecutionEnvironment> fillEnvironmentsMap() {
+    private static Map<String, Properties> fillEnvironmentsMap() {
         Properties listProps = readProperties(findInSystemBundle("profile.list"));
-        String[] profileFiles = listProps.getProperty("java.profiles").split(",");
-        Map<String, StandardExecutionEnvironment> envMap = new LinkedHashMap<>();
+        List<String> profileFiles = new ArrayList<>(Arrays.asList(listProps.getProperty("java.profiles").split(",")));
+        profileFiles.add("JavaSE-11.profile");
+        profileFiles.add("JavaSE-15.profile");
+        profileFiles.add("JavaSE-16.profile");
+        Map<String, Properties> envMap = new LinkedHashMap<>(profileFiles.size(), 1.f);
         for (String profileFile : profileFiles) {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));
-            envMap.put(props.getProperty("osgi.java.profile.name").trim(), new StandardExecutionEnvironment(props));
+            envMap.put(props.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim(), props);
         }
         return envMap;
     }
@@ -75,29 +89,36 @@ public class ExecutionEnvironmentUtils {
      * @throws UnknownEnvironmentException
      *             if profileName is unknown.
      */
-    public static StandardExecutionEnvironment getExecutionEnvironment(String profileName)
-            throws UnknownEnvironmentException {
-        StandardExecutionEnvironment executionEnvironment = executionEnvironmentsMap.get(profileName);
-        if (executionEnvironment == null) {
+    public static StandardExecutionEnvironment getExecutionEnvironment(String profileName, ToolchainManager manager,
+            MavenSession session, Logger logger) throws UnknownEnvironmentException {
+        if (!profilesProperties.containsKey(profileName)) {
             throw new UnknownEnvironmentException(profileName);
         }
-        return executionEnvironment;
+        return executionEnvironmentsMap.computeIfAbsent(profileName, name -> {
+            List<Toolchain> toolchains = manager != null && session != null
+                    ? manager.getToolchains(session, "jdk", Collections.singletonMap("id", profileName))
+                    : Collections.emptyList();
+            return new StandardExecutionEnvironment(profilesProperties.get(name),
+                    toolchains.isEmpty() ? null : toolchains.iterator().next(), logger);
+        });
     }
 
     public static List<String> getProfileNames() {
-        return new ArrayList<>(executionEnvironmentsMap.keySet());
+        return new ArrayList<>(profilesProperties.keySet());
     }
 
-    public static void applyProfileProperties(Properties properties, Properties profileProps) {
+    public static void applyProfileProperties(Properties properties, ExecutionEnvironment executionEnvironment) {
         String systemExports = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
         // set the system exports property using the vm profile; only if the property is not already set
         if (systemExports == null) {
-            systemExports = profileProps.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
-            if (systemExports != null)
+            systemExports = executionEnvironment.getSystemPackages().stream()
+                    .map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(","));
+            if (systemExports != null && !systemExports.isEmpty())
                 properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES, systemExports);
         }
         // set the org.osgi.framework.bootdelegation property according to the java profile
         String type = properties.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_BOOTDELEGATION); // a null value means ignore
+        Properties profileProps = executionEnvironment.getProfileProperties();
         String profileBootDelegation = profileProps.getProperty(Constants.FRAMEWORK_BOOTDELEGATION);
         if (EquinoxConfiguration.PROP_OSGI_BOOTDELEGATION_OVERRIDE.equals(type)) {
             if (profileBootDelegation == null)

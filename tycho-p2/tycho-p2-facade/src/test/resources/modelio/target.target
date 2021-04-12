@@ -6,7 +6,7 @@
 
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
 <unit id="org.eclipse.platform.sdk" version="3.5.2.M20100211-1343"/>
-<repository location="http://download.eclipse.org/eclipse/updates/3.5/"/>
+<repository location="https://download.eclipse.org/eclipse/updates/3.5/"/>
 </location>
 
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
@@ -22,7 +22,7 @@
 <!-- ... but this repository is needed nevertheless because the transitive dependencies of the 
      unit org.tigris.subversion.subclipse.mylyn.feature.group is neither in first repository nor 
      already installed because of a preceding 'location' element -->
-<repository location="http://download.eclipse.org/tools/mylyn/update/e3.4/"/>
+<repository location="https://download.eclipse.org/tools/mylyn/update/e3.4/"/>
 </location>
 
 </locations>

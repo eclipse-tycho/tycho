@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -11,8 +13,8 @@
 package org.eclipse.tycho.p2.remote;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.net.URI;
@@ -108,15 +110,13 @@ public class RemoteAgentMavenMirrorsTest {
 
     private Repositories loadRepositories(String id, URI specifiedUrl) throws Exception {
 
-        IRepositoryIdManager idManager = (IRepositoryIdManager) subject.getService(IRepositoryIdManager.SERVICE_NAME);
+        IRepositoryIdManager idManager = subject.getService(IRepositoryIdManager.class);
         idManager.addMapping(id, specifiedUrl);
 
-        IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) subject
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
+        IMetadataRepositoryManager metadataManager = subject.getService(IMetadataRepositoryManager.class);
         IMetadataRepository metadataRepo = metadataManager.loadRepository(specifiedUrl, null);
 
-        IArtifactRepositoryManager artifactsManager = (IArtifactRepositoryManager) subject
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+        IArtifactRepositoryManager artifactsManager = subject.getService(IArtifactRepositoryManager.class);
         IArtifactRepository artifactsRepo = artifactsManager.loadRepository(specifiedUrl, null);
 
         return new Repositories(metadataRepo, artifactsRepo);

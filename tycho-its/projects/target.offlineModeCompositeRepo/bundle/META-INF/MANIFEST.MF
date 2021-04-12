@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bundle
 Bundle-SymbolicName: offlinemode.compositerepo.bundle
 Bundle-Version: 0.0.1.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: offlinemode.compositerepo.child1.bundle, offlinemode.compositerepo.child2.bundle

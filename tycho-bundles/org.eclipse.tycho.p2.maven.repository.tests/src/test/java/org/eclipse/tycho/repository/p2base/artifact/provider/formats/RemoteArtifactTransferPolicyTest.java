@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
@@ -12,7 +14,7 @@ package org.eclipse.tycho.repository.p2base.artifact.provider.formats;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.Arrays;
@@ -30,6 +32,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
 import org.eclipse.tycho.test.util.P2Context;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -51,6 +54,7 @@ public class RemoteArtifactTransferPolicyTest {
 
     @Test
     public void testPreferredOrder() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         IArtifactDescriptor[] descriptors = loadDescriptorsFromRepository("packedCanonicalAndOther", p2Context);
 
         List<IArtifactDescriptor> result = subject.sortFormatsByPreference(descriptors);
@@ -84,9 +88,9 @@ public class RemoteArtifactTransferPolicyTest {
         return new HashSet<>(Arrays.asList(values));
     }
 
-    static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context) throws Exception {
-        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) p2Context.getAgent().getService(
-                IArtifactRepositoryManager.SERVICE_NAME);
+    static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context)
+            throws Exception {
+        IArtifactRepositoryManager repoManager = p2Context.getAgent().getService(IArtifactRepositoryManager.class);
         File repoPath = ResourceUtil.resourceFile("repositories/rawformats/" + repository);
         IArtifactRepository loadedRepo = repoManager.loadRepository(repoPath.toURI(), new NullProgressMonitor());
         return loadedRepo.getArtifactDescriptors(DEFAULT_KEY);

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.tycho.tycho-its.surefire-junit5tempdir</groupId>
+  <artifactId>bundle.test.junit5tempdir</artifactId>
+  <packaging>eclipse-test-plugin</packaging>
+  <version>1.0.0</version>
+  
+  <repositories>
+    <repository>
+      <id>2019-09</id>
+      <layout>p2</layout>
+      <url>${2019-09-repo}</url>
+    </repository>
+  </repositories>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>

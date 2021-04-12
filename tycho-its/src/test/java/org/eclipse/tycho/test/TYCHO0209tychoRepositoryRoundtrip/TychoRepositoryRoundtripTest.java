@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -24,17 +26,18 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
     public void testLocalMavenRepository() throws Exception {
         // build01
         Verifier v01 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build01", false);
-        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
         final boolean ignoreLocallyInstalledArtifacts = false;
         // build02, some dependencies come from local, some from remote repositories
         Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false, ignoreLocallyInstalledArtifacts);
-        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
         v02.executeGoal("install");
         v02.verifyErrorFreeLog();
-        v02.verifyTextInLog("[WARNING] The following locally built units have been used to resolve project dependencies:");
+        v02.verifyTextInLog(
+                "[WARNING] The following locally built units have been used to resolve project dependencies:");
         v02.verifyTextInLog("[WARNING]   org.codehaus.tycho.tychoits.tycho0209.build01.bundle01/0.0.1.");
         File site = new File(v02.getBasedir(), "build02.site01/target/site");
         Assert.assertEquals(2, new File(site, "features").listFiles().length);

@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 2.4.0.qualifier
 Bundle-Name: Tycho p2 Tools Bundle
 Bundle-ManifestVersion: 2
 Bundle-Description: Implementation of tools for generating, copying, and using p2 repositories in Tycho
 Bundle-SymbolicName: org.eclipse.tycho.p2.tools.impl
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.equinox.p2.director.app,
  org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.publisher,
@@ -21,6 +21,7 @@ Require-Bundle: org.eclipse.equinox.p2.director.app,
  org.eclipse.equinox.frameworkadmin
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
+ org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.core.shared,
  org.eclipse.tycho.p2.impl.publisher,
@@ -46,3 +47,4 @@ Service-Component: OSGI-INF/directorapp.xml, OSGI-INF/publisherfactory.xml, OSGI
 Bundle-Activator: org.eclipse.tycho.p2.tools.impl.Activator
 Bundle-Vendor: %providerName
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.tycho.p2.tools.impl

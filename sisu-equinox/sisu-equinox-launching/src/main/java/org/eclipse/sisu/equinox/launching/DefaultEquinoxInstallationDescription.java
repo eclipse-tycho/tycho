@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 572420 - Tycho-Surefire should be executable for eclipse-plugin package type
  *******************************************************************************/
 package org.eclipse.sisu.equinox.launching;
 
@@ -31,9 +34,8 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
         setDefaultStartLevel("org.eclipse.equinox.common", 2);
         setDefaultStartLevel("org.eclipse.core.runtime", 4);
         setDefaultStartLevel("org.eclipse.equinox.simpleconfigurator", 1);
-        setDefaultStartLevel("org.eclipse.update.configurator", 3);
         setDefaultStartLevel("org.eclipse.osgi", -1);
-        setDefaultStartLevel("org.eclipse.equinox.ds", 1);
+        setDefaultStartLevel("org.apache.felix.scr", 1);
     }
 
     private static void setDefaultStartLevel(String id, int level) {
@@ -81,7 +83,8 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     @Override
     public List<ArtifactDescriptor> getBundles() {
-        return bundles.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+        return bundles.getArtifacts(key -> ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(key.getType())
+                || ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT.equals(key.getType()));
     }
 
     @Override

@@ -9,95 +9,87 @@
  - Contributors:
  -    Sonatype Inc. - initial API and implementation
  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
+		<artifactId>tycho-bundles</artifactId>
+		<version>2.4.0-SNAPSHOT</version>
+		<relativePath>../tycho-bundles/pom.xml</relativePath>
 	</parent>
-
 	<artifactId>tycho-surefire</artifactId>
 	<packaging>pom</packaging>
-
 	<name>Tycho Surefire Parent</name>
-
-	<properties>
-		<surefire-version>2.17</surefire-version>
-		<!-- NOTE: when updating surefire version above, run BND manually to find Import-Package 
-		statements to JUnit packages required for org.eclipse.tycho.surefire.junit* OSGi wrappers.
-		Surefire jars are shaded but not fully self-contained (various package dependencies to org.apache.maven.* 
-		packages in classes we do not use) so we can't use BND (maven-bundle-plugin) for creating the wrappers -->
-	</properties>
-
 	<modules>
 		<module>tycho-surefire-plugin</module>
 		<module>org.eclipse.tycho.surefire.osgibooter</module>
 		<module>org.eclipse.tycho.surefire.junit</module>
 		<module>org.eclipse.tycho.surefire.junit4</module>
 		<module>org.eclipse.tycho.surefire.junit47</module>
-		<module>org.eclipse.tycho.surefire.testnghelper</module>
+		<module>org.eclipse.tycho.surefire.junit5</module>
+		<module>org.eclipse.tycho.surefire.junit54</module>
+		<module>org.eclipse.tycho.surefire.junit55</module>
+		<module>org.eclipse.tycho.surefire.junit56</module>
+		<module>org.eclipse.tycho.surefire.junit57</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 	</modules>
-
-	<repositories>
-		<repository>
-			<id>eclipse</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/indigo/201202240900</url>
-		</repository>
-	</repositories>
-
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>about.html</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>about.html</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<pluginManagement>
 			<plugins>
-
-				<!-- Copy surefire jars into folder 'jars' in wrappers -->
+				<plugin>
+					<groupId>biz.aQute.bnd</groupId>
+					<artifactId>bnd-maven-plugin</artifactId>
+					<version>5.2.0</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>bnd-process</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<configuration>
-						<outputDirectory>jars</outputDirectory>
-					</configuration>
+					<executions>
+						<execution>
+							<id>unpack</id>
+							<phase>generate-resources</phase>
+							<goals>
+								<goal>unpack</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+								<!-- we include license info in about.html and about_files/ -->
+								<excludes>META-INF/maven/**,META-INF/DEPENDENCIES,META-INF/LICENSE*,META-INF/NOTICE*</excludes>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
-
-				<!-- Have m2e execute the jar copy step for easy project import in Eclipse -->
 				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
 					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-dependency-plugin</artifactId>
-										<versionRange>[2.1,)</versionRange>
-										<goals>
-											<goal>copy</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-
-				<plugin>
-					<artifactId>maven-clean-plugin</artifactId>
-					<configuration>
-						<filesets>
-							<fileset>
-								<directory>jars</directory>
-							</fileset>
-						</filesets>
+						<archive>
+							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+						</archive>
 					</configuration>
 				</plugin>
 			</plugins>

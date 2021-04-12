@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,12 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 567782 - Platform specific fragment not support in Multi-Platform POMless build
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools.targetplatform;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -50,5 +53,9 @@ public class MultiEnvironmentDependencyArtifacts extends DefaultDependencyArtifa
             sb.append("Target environment: ").append(entry.getKey().toString()).append("\n");
             entry.getValue().toDebugString(sb, linePrefix);
         }
+    }
+
+    public Collection<TargetEnvironment> getPlatforms() {
+        return Collections.unmodifiableCollection(platforms.keySet());
     }
 }

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2013 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -28,6 +30,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
@@ -43,7 +46,7 @@ public class LicenseFeatureHelper {
     /**
      * Get the license feature jar for feature (or <code>null</code> if it has no license feature).
      * 
-     * See {@linkplain http://wiki.eclipse.org/Equinox/p2/License_Mechanism }.
+     * See {@linkplain https://wiki.eclipse.org/Equinox/p2/License_Mechanism }.
      * 
      * @param feature
      *            original feature
@@ -58,17 +61,18 @@ public class LicenseFeatureHelper {
             return null;
         }
 
-        ArtifactDescriptor licenseFeature = TychoProjectUtils.getDependencyArtifacts(mavenProject).getArtifact(
-                ArtifactType.TYPE_ECLIPSE_FEATURE, id, feature.getLicenseFeatureVersion());
+        ArtifactDescriptor licenseFeature = TychoProjectUtils
+                .getDependencyArtifacts(DefaultReactorProject.adapt(mavenProject))
+                .getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, id, feature.getLicenseFeatureVersion());
 
         if (licenseFeature == null) {
-            throw new IllegalStateException("License feature with id " + id
-                    + " is not found among project dependencies");
+            throw new IllegalStateException(
+                    "License feature with id " + id + " is not found among project dependencies");
         }
 
         ReactorProject licenseProject = licenseFeature.getMavenProject();
         if (licenseProject == null) {
-            return licenseFeature.getLocation();
+            return licenseFeature.getLocation(true);
         }
 
         File artifact = licenseProject.getArtifact();
@@ -92,8 +96,7 @@ public class LicenseFeatureHelper {
         // feature.properties, feature.xml and build.properties itself
         BuildProperties buildProperties;
 
-        ZipFile zip = new ZipFile(licenseFeature);
-        try {
+        try (ZipFile zip = new ZipFile(licenseFeature)) {
             ZipEntry entry = zip.getEntry(BuildPropertiesParser.BUILD_PROPERTIES);
             if (entry != null) {
                 InputStream is = zip.getInputStream(entry);
@@ -103,8 +106,6 @@ public class LicenseFeatureHelper {
             } else {
                 throw new IllegalArgumentException("license feature must include build.properties file");
             }
-        } finally {
-            zip.close();
         }
 
         List<String> includes = buildProperties.getBinIncludes();
@@ -117,8 +118,7 @@ public class LicenseFeatureHelper {
         // mavenArchiver ignores license feature files that are also present in 'this' feature
         // i.e. if there is a conflict, files from 'this' feature win
 
-        DefaultArchivedFileSet result = new DefaultArchivedFileSet();
-        result.setArchive(licenseFeature);
+        DefaultArchivedFileSet result = new DefaultArchivedFileSet(licenseFeature);
         result.setIncludes(includes.toArray(new String[includes.size()]));
         result.setExcludes(excludes.toArray(new String[excludes.size()]));
 

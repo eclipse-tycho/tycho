@@ -20,15 +20,17 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 @Component(role = DefaultDependencyResolverFactory.class)
 public class DefaultDependencyResolverFactory {
-    private static final String DEFAULT_RESOLVER_HINT = "p2";
+    public static final String DEFAULT_RESOLVER_HINT = "p2";
 
     @Requirement
     private Logger logger;
@@ -37,8 +39,9 @@ public class DefaultDependencyResolverFactory {
     private PlexusContainer container;
 
     public DependencyResolver lookupDependencyResolver(MavenProject project) {
-        Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        Properties properties = (Properties) reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
 
         String property = properties.getProperty("tycho.targetPlatform");
         DependencyResolver resolver;

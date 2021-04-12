@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -20,9 +22,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.plugins.p2.publisher.AbstractP2Mojo;
+import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
@@ -33,8 +37,9 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFaca
  * reactor.
  * </p>
  */
-@Mojo(name = "attach-artifacts")
+@Mojo(name = "attach-artifacts", threadSafe = true)
 public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
+    private static final Object LOCK = new Object();
 
     @Component
     private MavenProjectHelper projectHelper;
@@ -42,29 +47,34 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     @Component
     private EquinoxServiceFactory osgiServices;
 
+    @Component
+    private Logger logger;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        synchronized (LOCK) {
+            ReactorRepositoryManagerFacade reactorRepoManager = osgiServices
+                    .getService(ReactorRepositoryManagerFacade.class);
+            PublishingRepositoryFacade publishingRepo = reactorRepoManager
+                    .getPublishingRepository(getProjectIdentities());
+            Map<String, File> artifacts = publishingRepo.getArtifactLocations();
 
-        ReactorRepositoryManagerFacade reactorRepoManager = osgiServices
-                .getService(ReactorRepositoryManagerFacade.class);
-        PublishingRepositoryFacade publishingRepo = reactorRepoManager.getPublishingRepository(getProjectIdentities());
-        Map<String, File> artifacts = publishingRepo.getArtifactLocations();
-
-        for (Entry<String, File> entry : artifacts.entrySet()) {
-            String classifier = entry.getKey();
-            File artifactLocation = entry.getValue();
-            if (classifier == null) {
-                getProject().getArtifact().setFile(artifactLocation);
-
-            } else {
-                String type = getExtension(artifactLocation);
-                projectHelper.attachArtifact(getProject(), type, classifier, artifactLocation);
+            for (Entry<String, File> entry : artifacts.entrySet()) {
+                String classifier = entry.getKey();
+                File artifactLocation = entry.getValue();
+                if (classifier == null) {
+                    getProject().getArtifact().setFile(artifactLocation);
+                } else {
+                    String type = getExtension(artifactLocation);
+                    projectHelper.attachArtifact(getProject(), type, classifier, artifactLocation);
+                    logger.debug("Attaching " + type + "::" + classifier + " -> " + artifactLocation);
+                }
             }
-        }
 
-        ReactorProject reactorProject = getReactorProject();
-        reactorProject.setDependencyMetadata(true, publishingRepo.getInstallableUnits());
-        reactorProject.setDependencyMetadata(false, Collections.emptySet());
+            ReactorProject reactorProject = getReactorProject();
+            reactorProject.setDependencyMetadata(DependencyMetadataType.SEED, publishingRepo.getInstallableUnits());
+            reactorProject.setDependencyMetadata(DependencyMetadataType.RESOLVE, Collections.emptySet());
+        }
     }
 
     private static String getExtension(File file) {

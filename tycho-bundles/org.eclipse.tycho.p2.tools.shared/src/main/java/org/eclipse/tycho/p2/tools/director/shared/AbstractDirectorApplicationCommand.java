@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -34,6 +36,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     private boolean verifyOnly;
 
     private File destination;
+    private File bundlePool;
 
     @Override
     public final void addMetadataSources(Iterable<URI> metadataRepositories) {
@@ -92,6 +95,11 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         this.destination = path;
     }
 
+    @Override
+    public void setBundlePool(File path) {
+        this.bundlePool = path;
+    }
+
     /**
      * Returns the command line arguments for the p2 director application (not including the
      * <code>-application</code> argument).
@@ -106,7 +114,10 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         args.add("-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures));
         args.add("-roaming");
         if (verifyOnly) {
-        	args.add("-verifyOnly");
+            args.add("-verifyOnly");
+        }
+        if (bundlePool != null) {
+            args.add("-bundlePool", bundlePool.getAbsolutePath());
         }
 
         if (environment != null) {
@@ -152,7 +163,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
 
         void addUnlessEmpty(String parameterName, StringList list) {
             String parameterValue = list.toString();
-            if (parameterValue.length() > 0) {
+            if (!parameterValue.isEmpty()) {
                 add(parameterName, parameterValue);
             }
         }

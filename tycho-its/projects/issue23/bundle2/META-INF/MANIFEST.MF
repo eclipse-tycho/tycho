@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: bundle2
+Bundle-SymbolicName: bundle2;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Require-Bundle: bundle;bundle-version="0.0.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: bundle2

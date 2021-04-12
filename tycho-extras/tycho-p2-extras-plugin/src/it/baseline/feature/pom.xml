@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.tycho.extras.its</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>feature</artifactId>
+	<version>1.0.1-SNAPSHOT</version>
+	<packaging>eclipse-feature</packaging>
+
+	<profiles>
+		<profile>
+			<!-- mimics the behaviour of reproducible version qualifier, replacing from baseline -->
+			<id>reuse</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<id>copy-baseline-jar</id>
+								<!-- Choose a lifecycle between package and verify -->
+								<phase>integration-test</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<copy
+											file="${basedir}/../repo/target/repository/features/${project.artifactId}_1.0.1.original.jar"
+											tofile="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+											overwrite="true"/>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-p2-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>p2-metadata</id>
+								<goals>
+									<goal>p2-metadata</goal>
+								</goals>
+								<!-- Choose a lifecycle between package and verify -->
+								<phase>integration-test</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<defaultP2Metadata>false</defaultP2Metadata>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+		    <id>with-repo</id>
+	        <repositories>
+                <repository>
+                    <id>p2-repo</id>
+                    <layout>p2</layout>
+                    <url>${project.baseUri}/../repo/target/repository</url>
+                </repository>
+            </repositories>
+		</profile>
+	</profiles>
+
+</project>

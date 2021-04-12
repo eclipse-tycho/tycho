@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.FileUtils;
@@ -29,7 +32,7 @@ public class NestedZipComparator implements ContentsComparator {
     private ArtifactComparator zipComparator;
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
         File zip = File.createTempFile("zip", ".zip");
         try {
             FileUtils.copyStreamToFile(new RawInputStreamFacade(baseline), zip);
@@ -37,7 +40,7 @@ public class NestedZipComparator implements ContentsComparator {
             File zip2 = File.createTempFile("zip2", ".zip");
             try {
                 FileUtils.copyStreamToFile(new RawInputStreamFacade(reactor), zip2);
-                return zipComparator.getDelta(zip, zip2);
+                return zipComparator.getDelta(zip, zip2, mojo);
             } finally {
                 zip2.delete();
             }

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2017 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -150,9 +152,9 @@ public class RootPropertiesParser {
             break;
         case FOLDER:
             RootFilePatternParser filePatternParserWithinFolder = new RootFilePatternParser(baseDir, target, useDefaultExcludes);
-            // last element in keySegments is the destination subdirectory
+            // parameterInKey is the destination subdirectory
             // (root.folder.<subdir> and root.<config>.folder.<subdir>)
-            filePatternParserWithinFolder.addFilesFromPatterns(valueSegments, keySegments[keySegments.length - 1]);
+            filePatternParserWithinFolder.addFilesFromPatterns(valueSegments, parameterInKey);
             break;
         case PERMISSION:
             target.addPermission(parameterInKey, valueSegments);
@@ -182,9 +184,15 @@ public class RootPropertiesParser {
     static String getParameterFromKey(String[] keySegments, int indexOfKeyType) {
         int indexOfLastSegment = keySegments.length - 1;
         int parameters = indexOfLastSegment - indexOfKeyType;
-        if (parameters > 1)
-            throw new IllegalArgumentException(segmentsToString(keySegments, '.') + " has too many segments");
-        else if (parameters == 1)
+        if (parameters > 1) {
+            String param = "";
+            for (int i = 1; i <= parameters; i++) {
+                param += keySegments[indexOfKeyType + i];
+                if (i < parameters)
+                    param += ".";
+            }
+            return param;
+        } else if (parameters == 1)
             return keySegments[indexOfKeyType + 1];
         else
             return null;

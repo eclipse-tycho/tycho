@@ -1,14 +1,18 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho;
+
+import java.util.Objects;
 
 public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
     private final String type;
@@ -25,10 +29,7 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
 
     @Override
     public int hashCode() {
-        int hash = getType().hashCode();
-        hash = 17 * hash + getId().hashCode();
-        hash = 17 * hash + getVersion().hashCode();
-        return hash;
+        return Objects.hash(getType(), getId(), getVersion());
     }
 
     @Override
@@ -43,8 +44,9 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
 
         ArtifactKey other = (ArtifactKey) obj;
 
-        return getType().equals(other.getType()) && getId().equals(other.getId())
-                && getVersion().equals(other.getVersion());
+        return Objects.equals(getType(), other.getType()) && //
+                Objects.equals(getId(), other.getId()) && //
+                Objects.equals(getVersion(), other.getVersion());
     }
 
     @Override

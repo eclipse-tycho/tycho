@@ -1,21 +1,29 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *                         Bug 567639 - wrapAsBundle fails when dealing with esoteric versions
+ *                         Bug 567957 - wrapAsBundle must check if artifact has a classifier
+ *                         Bug 568729 - Support new "Maven" Target location
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -24,25 +32,29 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
-import org.eclipse.tycho.repository.local.GAVArtifactDescriptor;
+import org.eclipse.tycho.p2.resolver.WrappedArtifact;
+import org.eclipse.tycho.p2.target.repository.MavenBundlesArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
-import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 import org.eclipse.tycho.repository.util.StatusTool;
+import org.osgi.framework.BundleException;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
 
     private final MavenLogger logger;
-    private final PublishedBundlesArtifactRepository publishedArtifacts;
+    private final MavenBundlesArtifactRepository publishedArtifacts;
+    private ReactorProject project;
 
-    public TargetPlatformBundlePublisher(File localMavenRepositoryRoot, MavenLogger logger) {
-        this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepositoryRoot);
+    public TargetPlatformBundlePublisher(File localMavenRepositoryRoot, ReactorProject project, MavenLogger logger) {
+        this.project = project;
+        this.publishedArtifacts = new MavenBundlesArtifactRepository(localMavenRepositoryRoot);
         this.logger = logger;
     }
 
@@ -70,18 +82,14 @@ public class TargetPlatformBundlePublisher {
      * @return the p2 metadata of the artifact, or <code>null</code> if the artifact isn't a valid
      *         OSGi bundle.
      */
-    IInstallableUnit attemptToPublishBundle(IArtifactFacade mavenArtifact) {
+    MavenBundleInfo attemptToPublishBundle(IArtifactFacade mavenArtifact, boolean wrapIfNessesary) {
         if (!isAvailableAsLocalFile(mavenArtifact)) {
             // this should have been ensured by the caller
             throw new IllegalArgumentException("Not an artifact file: " + mavenArtifact.getLocation());
         }
-        if (isCertainlyNoBundle(mavenArtifact)) {
-            return null;
-        }
-
-        PublisherRun publisherRun = new PublisherRun(mavenArtifact);
+        PublisherRun publisherRun = new PublisherRun(mavenArtifact, project, publishedArtifacts.getBaseDir(), logger,
+                wrapIfNessesary);
         IStatus status = publisherRun.execute();
-
         if (!status.isOK()) {
             /**
              * If publishing of a jar fails, it is simply not added to the resolution context. The
@@ -91,10 +99,9 @@ public class TargetPlatformBundlePublisher {
             logger.warn(StatusTool.collectProblems(status), status.getException());
         }
 
-        IInstallableUnit publishedIU = publisherRun.getPublishedUnitIfExists();
+        MavenBundleInfo publishedIU = publisherRun.getPublishedUnitIfExists();
         if (publishedIU != null) {
-            IArtifactDescriptor publishedDescriptor = publisherRun.getPublishedArtifactDescriptor();
-            publishedArtifacts.addPublishedArtifact(publishedDescriptor, mavenArtifact);
+            publishedArtifacts.addPublishedArtifact(publishedIU.getDescriptor(), publishedIU.getArtifact());
         }
 
         return publishedIU;
@@ -103,10 +110,6 @@ public class TargetPlatformBundlePublisher {
     private boolean isAvailableAsLocalFile(IArtifactFacade artifact) {
         File localLocation = artifact.getLocation();
         return localLocation != null && localLocation.isFile();
-    }
-
-    private boolean isCertainlyNoBundle(IArtifactFacade artifact) {
-        return !artifact.getLocation().getName().endsWith(".jar");
     }
 
     IRawArtifactFileProvider getArtifactRepoOfPublishedBundles() {
@@ -122,17 +125,82 @@ public class TargetPlatformBundlePublisher {
         private PublisherInfo publisherInfo;
         private TransientArtifactRepository collectedDescriptors;
         private PublisherResult publisherResult;
+        private IArtifactFacade publishedArtifact;
 
-        PublisherRun(IArtifactFacade artifact) {
+        private ReactorProject project;
+
+        private File basedir;
+
+        private MavenLogger logger;
+
+        private boolean wrapIfNessesary;
+
+        PublisherRun(IArtifactFacade artifact, ReactorProject project, File basedir, MavenLogger logger,
+                boolean wrapIfNessesary) {
             this.mavenArtifact = artifact;
+            this.project = project;
+            this.basedir = basedir;
+            this.logger = logger;
+            this.wrapIfNessesary = wrapIfNessesary;
         }
 
         IStatus execute() {
+            try {
+                BundleDescription bundleDescription = BundlesAction
+                        .createBundleDescription(mavenArtifact.getLocation());
+                if (bundleDescription == null) {
+                    return new Status(IStatus.OK, TargetPlatformBundlePublisher.class.getName(),
+                            "artifact file " + mavenArtifact.getLocation() + " is certainly not a bundle/jar file");
+                }
+                if (bundleDescription.getSymbolicName() == null) {
+                    if (wrapIfNessesary) {
+                        try {
+                            MavenRepositoryCoordinates repositoryCoordinates = new MavenRepositoryCoordinates(
+                                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
+                                    mavenArtifact.getVersion(),
+                                    WrappedArtifact.createClassifierFromArtifact(mavenArtifact), null);
+                            File wrappedFile = new File(basedir, repositoryCoordinates.getLocalRepositoryPath());
+                            WrappedArtifact wrappedArtifact = WrappedArtifact.createWrappedArtifact(mavenArtifact,
+                                    project.getGroupId(), wrappedFile);
+                            publishedArtifact = wrappedArtifact;
+                            logger.warn("Maven Artifact " + mavenArtifact.getGroupId() + ":"
+                                    + mavenArtifact.getArtifactId() + ":" + mavenArtifact.getVersion()
+                                    + " is not a bundle and was automatically wrapped with bundle-symbolic name "
+                                    + wrappedArtifact.getWrappedBsn()
+                                    + ", ignoring such artifacts can be enabled with <pomDependencies>consider</pomDependencies> in target platform configuration.");
+                            logger.info(wrappedArtifact.getReferenceHint());
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("The follwoing manifest was generated for this artifact:\r\n"
+                                        + wrappedArtifact.getGeneratedManifest());
+                            }
+                        } catch (Exception e) {
+                            return new Status(IStatus.ERROR, TargetPlatformBundlePublisher.class.getName(),
+                                    "wrapping file " + mavenArtifact.getLocation() + " failed", e);
+                        }
+                    } else {
+                        logger.info("Maven Artifact " + mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId()
+                                + ":" + mavenArtifact.getVersion()
+                                + " is not a bundle and will be ignored, automatic wrapping of such artifacts can be enabled with "
+                                + "<pomDependencies>wrapAsBundle</pomDependencies> in target platform configuration.");
+                        return new Status(IStatus.OK, TargetPlatformBundlePublisher.class.getName(), "Nothing to do");
+                    }
+
+                } else {
+                    publishedArtifact = mavenArtifact;
+                }
+            } catch (IOException e) {
+                return new Status(IStatus.WARNING, TargetPlatformBundlePublisher.class.getName(),
+                        "reading file " + mavenArtifact.getLocation() + " failed", e);
+            } catch (BundleException e) {
+                return new Status(IStatus.WARNING, TargetPlatformBundlePublisher.class.getName(),
+                        "reading maven manifest from file: " + mavenArtifact.getLocation() + " failed", e);
+            }
+
             publisherInfo = new PublisherInfo();
             enableArtifactDescriptorCollection();
             enableUnitAnnotationWithGAV();
 
-            BundlesAction bundlesAction = new BundlesAction(new File[] { mavenArtifact.getLocation() });
+            BundlesAction bundlesAction = new BundlesAction(new File[] { publishedArtifact.getLocation() });
             IStatus status = executePublisherAction(bundlesAction);
             return status;
         }
@@ -144,8 +212,9 @@ public class TargetPlatformBundlePublisher {
         }
 
         private void enableUnitAnnotationWithGAV() {
-            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact.getGroupId(),
-                    mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), mavenArtifact.getClassifier());
+            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(publishedArtifact.getGroupId(),
+                    publishedArtifact.getArtifactId(), publishedArtifact.getVersion(),
+                    publishedArtifact.getClassifier());
             publisherInfo.addAdvice(advice);
         }
 
@@ -155,13 +224,18 @@ public class TargetPlatformBundlePublisher {
             return new Publisher(publisherInfo, publisherResult).publish(actions, null);
         }
 
-        IInstallableUnit getPublishedUnitIfExists() {
+        MavenBundleInfo getPublishedUnitIfExists() {
+            if (publisherResult == null) {
+                return null;
+            }
             Collection<IInstallableUnit> units = publisherResult.getIUs(null, null);
             if (units.isEmpty()) {
                 // the BundlesAction simply does not create any IUs if the JAR is not a bundle
                 return null;
             } else if (units.size() == 1) {
-                return units.iterator().next();
+                IInstallableUnit unit = units.iterator().next();
+                IArtifactDescriptor artifactDescriptor = getPublishedArtifactDescriptor();
+                return new MavenBundleInfo(unit, artifactDescriptor, publishedArtifact);
             } else {
                 throw new AssertionFailedException(EXCEPTION_CONTEXT + "BundlesAction produced more than one IU for "
                         + mavenArtifact.getLocation());
@@ -180,92 +254,7 @@ public class TargetPlatformBundlePublisher {
                         + "BundlesAction created more than one artifact entry for " + mavenArtifact.getLocation());
             }
         }
-    }
-
-    /**
-     * p2 artifact repository providing the POM dependency Maven artifacts.
-     * 
-     * <p>
-     * Although the provided artifacts are also stored in the local Maven repository, they cannot be
-     * made available via the <tt>LocalArtifactRepository</tt> artifact repository implementation.
-     * The reason is that there are differences is how the artifacts provided by the respective
-     * implementations may be updated:
-     * <ul>
-     * <li>For the <tt>LocalArtifactRepository</tt> artifacts, it can be assumed that all updates
-     * (e.g. as a result of a <tt>mvn install</tt>) are done by Tycho. Therefore it is safe to write
-     * the p2 artifact index data to disk together with the artifacts.</li>
-     * <li>For the POM dependency artifacts, this assumption does not hold true: e.g. a
-     * maven-bundle-plugin build may update an artifact in the local Maven repository without
-     * notifying Tycho. So if we had written p2 artifact index data to disk, that data might then be
-     * stale.</li>
-     * </ul>
-     * To avoid the need to implement and index invalidation logic, we use this separate artifact
-     * repository implementation with an in-memory index.
-     * </p>
-     */
-    private static class PublishedBundlesArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtifactDescriptor> {
-
-        PublishedBundlesArtifactRepository(File localMavenRepositoryRoot) {
-            super(null, localMavenRepositoryRoot.toURI(), ArtifactTransferPolicies.forLocalArtifacts());
-        }
-
-        void addPublishedArtifact(IArtifactDescriptor baseDescriptor, IArtifactFacade mavenArtifact) {
-            // TODO allow other extensions than the default ("jar")?
-            MavenRepositoryCoordinates repositoryCoordinates = new MavenRepositoryCoordinates(
-                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
-                    mavenArtifact.getClassifier(), null);
-
-            GAVArtifactDescriptor descriptorForRepository = new GAVArtifactDescriptor(baseDescriptor,
-                    repositoryCoordinates);
-
-            File requiredArtifactLocation = new File(getBaseDir(), descriptorForRepository.getMavenCoordinates()
-                    .getLocalRepositoryPath());
-            File actualArtifactLocation = mavenArtifact.getLocation();
-            if (!equivalentPaths(requiredArtifactLocation, actualArtifactLocation)) {
-                throw new AssertionFailedException(
-                        "The Maven artifact to be added to the target platform is not stored at the required location on disk: required \""
-                                + requiredArtifactLocation + "\" but was \"" + actualArtifactLocation + "\"");
-            }
-
-            internalAddInternalDescriptor(descriptorForRepository);
-        }
-
-        private boolean equivalentPaths(File path, File otherPath) {
-            return path.equals(otherPath);
-        }
-
-        @Override
-        protected GAVArtifactDescriptor getInternalDescriptorForAdding(IArtifactDescriptor descriptor) {
-            // artifacts are only added via the dedicated method
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected IArtifactDescriptor getComparableDescriptor(IArtifactDescriptor descriptor) {
-            // any descriptor can be converted to our internal type GAVArtifactDescriptor
-            return toInternalDescriptor(descriptor);
-        }
-
-        private GAVArtifactDescriptor toInternalDescriptor(IArtifactDescriptor descriptor) {
-            // TODO share with LocalArtifactRepository?
-            if (descriptor instanceof GAVArtifactDescriptor && descriptor.getRepository() == this) {
-                return (GAVArtifactDescriptor) descriptor;
-            } else {
-                GAVArtifactDescriptor internalDescriptor = new GAVArtifactDescriptor(descriptor);
-                internalDescriptor.setRepository(this);
-                return internalDescriptor;
-            }
-        }
-
-        @Override
-        protected File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor) {
-            String relativePath = toInternalDescriptor(descriptor).getMavenCoordinates().getLocalRepositoryPath();
-            return new File(getBaseDir(), relativePath);
-        }
-
-        private File getBaseDir() {
-            return new File(getLocation());
-        }
 
     }
+
 }

@@ -81,18 +81,18 @@
         </instructions>
       </touchpointData>
     </unit>
-    <unit id='config.a.jre' version='1.6.0' singleton='false'>
+    <unit id='config.a.jre' version='1.5.0' singleton='false'>
       <hostRequirements size='1'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='a.jre' range='1.6.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='a.jre' range='1.5.0'/>
       </hostRequirements>
       <properties size='1'>
         <property name='org.eclipse.equinox.p2.type.fragment' value='true'/>
       </properties>
       <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='config.a.jre' version='1.6.0'/>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='config.a.jre' version='1.5.0'/>
       </provides>
       <requires size='1'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='a.jre' range='1.6.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='a.jre' range='1.5.0'/>
       </requires>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
       <touchpointData size='1'>
@@ -103,9 +103,9 @@
         </instructions>
       </touchpointData>
     </unit>
-    <unit id='a.jre' version='1.6.0' singleton='false'>
-      <provides size='159'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre' version='1.6.0'/>
+    <unit id='a.jre' version='1.5.0' singleton='false'>
+      <provides size='161'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre' version='1.5.0'/>
         <provided namespace='java.package' name='javax.accessibility' version='0.0.0'/>
         <provided namespace='java.package' name='javax.activation' version='0.0.0'/>
         <provided namespace='java.package' name='javax.activity' version='0.0.0'/>
@@ -264,6 +264,8 @@
         <provided namespace='java.package' name='org.xml.sax' version='0.0.0'/>
         <provided namespace='java.package' name='org.xml.sax.ext' version='0.0.0'/>
         <provided namespace='java.package' name='org.xml.sax.helpers' version='0.0.0'/>
+        <provided namespace='osgi.ee' name='J2SE' version='1.5.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.5.0'/>
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
     </unit>

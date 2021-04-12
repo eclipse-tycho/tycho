@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2013, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
@@ -14,8 +16,8 @@ package org.eclipse.tycho.p2.util.resolution;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -143,7 +145,8 @@ public class ProjectorResolutionStrategyTest {
         assertThat(selectedIUs, hasItem(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0")));
     }
 
-    private void invokefixSwtWithLinuxFragmentPresent(IInstallableUnit rootIU, final List<IInstallableUnit> selectedIUs) {
+    private void invokefixSwtWithLinuxFragmentPresent(IInstallableUnit rootIU,
+            final List<IInstallableUnit> selectedIUs) {
         data.setRootIUs(Collections.singleton(rootIU));
         final List<IInstallableUnit> availableIUs = new ArrayList<>();
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
@@ -164,9 +167,9 @@ public class ProjectorResolutionStrategyTest {
         if (nls != null) {
             iuSuffix += "." + nls;
         }
-        IInstallableUnit linuxSwtFragment = InstallableUnitUtil.createIUWithCapabilitiesAndFilter("org.eclipse.swt."
-                + iuSuffix, "1.0.0", createCapabilities(capsMap), "(&(osgi.arch=" + arch + ")(osgi.os=" + os
-                + ")(osgi.ws=" + ws + "))");
+        IInstallableUnit linuxSwtFragment = InstallableUnitUtil.createIUWithCapabilitiesAndFilter(
+                "org.eclipse.swt." + iuSuffix, "1.0.0", createCapabilities(capsMap),
+                "(&(osgi.arch=" + arch + ")(osgi.os=" + os + ")(osgi.ws=" + ws + "))");
         return linuxSwtFragment;
     }
 

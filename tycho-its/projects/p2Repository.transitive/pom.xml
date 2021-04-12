@@ -8,10 +8,6 @@
 	<artifactId>parent</artifactId>
 	<packaging>pom</packaging>
 
-	<properties>
-		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
-	</properties>
-
 	<!-- with bug TYCHO-554, the build order was not computed correctly - bundle3 was built last -->
 	<modules>
 		<module>repository-includedOnly</module>
@@ -31,7 +27,7 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>${tycho-groupid}</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>

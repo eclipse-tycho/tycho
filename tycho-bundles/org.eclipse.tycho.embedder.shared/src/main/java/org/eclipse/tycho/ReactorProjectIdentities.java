@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -26,7 +28,7 @@ public abstract class ReactorProjectIdentities {
 
     public abstract File getBasedir();
 
-    public abstract BuildOutputDirectory getBuildDirectory();
+    public abstract BuildDirectory getBuildDirectory();
 
     // equals and hashCode could be based on any of the unique keys; GAV is promising the most stable hash values, so use that
     @Override

@@ -11,6 +11,7 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.tycho.ArtifactKey;
@@ -24,7 +25,7 @@ public class DefaultClasspathEntry implements ClasspathEntry {
 
     private final List<File> locations;
 
-    private final List<AccessRule> rules;
+    private final Collection<AccessRule> rules;
 
     public static class DefaultAccessRule implements AccessRule {
         private final String pattern;
@@ -77,7 +78,8 @@ public class DefaultClasspathEntry implements ClasspathEntry {
 
     }
 
-    public DefaultClasspathEntry(ReactorProject project, ArtifactKey key, List<File> locations, List<AccessRule> rules) {
+    public DefaultClasspathEntry(ReactorProject project, ArtifactKey key, List<File> locations,
+            Collection<AccessRule> rules) {
         this.project = project;
         this.key = key;
         this.locations = locations;
@@ -90,7 +92,7 @@ public class DefaultClasspathEntry implements ClasspathEntry {
     }
 
     @Override
-    public List<AccessRule> getAccessRules() {
+    public Collection<AccessRule> getAccessRules() {
         return rules;
     }
 

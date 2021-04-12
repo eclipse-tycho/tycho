@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,10 +33,12 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.Repository;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.plugin.AbstractMojo;
@@ -42,14 +47,16 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.toolchain.ToolchainManager;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.osgi.container.ModuleContainer;
+import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.framework.util.FilePath;
-import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -65,6 +72,7 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.wiring.BundleRevision;
 
 /**
  * Traverse the current directory to find eclipse-plugin/bundle, feature, update site (site.xml) or
@@ -75,8 +83,9 @@ import org.osgi.framework.BundleException;
  * during build.
  * 
  */
-@Mojo(name = "generate-poms", requiresProject = false)
+@Mojo(name = "generate-poms", requiresProject = false, threadSafe = true)
 public class GeneratePomsMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     private static final class DirectoryFilter implements FileFilter {
         @Override
@@ -102,6 +111,9 @@ public class GeneratePomsMojo extends AbstractMojo {
      */
     @Parameter(property = "baseDir", defaultValue = "${basedir}", required = true)
     private File baseDir;
+
+    @Parameter(property = "session", readonly = true)
+    private MavenSession session;
 
     /**
      * Additional directories to be traversed recursively when searching for projects.
@@ -143,6 +155,18 @@ public class GeneratePomsMojo extends AbstractMojo {
     private String testSuite;
 
     /**
+     * URL to p2 repository to add in the aggregator pom.
+     */
+    @Parameter(property = "repoURL")
+    private String repoURL;
+
+    /**
+     * ID of the p2 repository to add in the aggregator pom.
+     */
+    @Parameter(property = "repoID", defaultValue = "injected-repository")
+    private String repoID;
+
+    /**
      * Location of directory with template pom.xml file. pom.xml templates will be looked at this
      * directory first, default templates will be used if template directory and the template itself
      * does not exist.
@@ -169,9 +193,6 @@ public class GeneratePomsMojo extends AbstractMojo {
     @Component(role = EquinoxResolver.class)
     private EquinoxResolver resolver;
 
-    @Component(role = DependencyComputer.class)
-    private DependencyComputer dependencyComputer;
-
     MavenXpp3Reader modelReader = new MavenXpp3Reader();
     MavenXpp3Writer modelWriter = new MavenXpp3Writer();
 
@@ -179,110 +200,118 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private DefaultDependencyArtifacts platform = new DefaultDependencyArtifacts();
 
+    @Component
+    private ToolchainManager toolchainManager;
+
+    @Component
+    private Logger logger;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        List<File> baseDirs = getBaseDirs();
-        if (getLog().isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("baseDir=").append(toString(baseDir)).append('\n');
-            sb.append("extraDirs=").append(extraDirs).append('\n');
-            for (int i = 0; i < baseDirs.size(); i++) {
-                sb.append("dir[").append(i).append("]=").append(toString(baseDirs.get(i))).append('\n');
+        synchronized (LOCK) {
+            List<File> baseDirs = getBaseDirs();
+            if (getLog().isDebugEnabled()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("baseDir=").append(toString(baseDir)).append('\n');
+                sb.append("extraDirs=").append(extraDirs).append('\n');
+                for (int i = 0; i < baseDirs.size(); i++) {
+                    sb.append("dir[").append(i).append("]=").append(toString(baseDirs.get(i))).append('\n');
+                }
+                getLog().debug(sb.toString());
             }
-            getLog().debug(sb.toString());
-        }
 
-        // find all candidate folders
-        List<File> candidateDirs = new ArrayList<>();
-        for (File basedir : baseDirs) {
-            findAndAddCandidates(candidateDirs, basedir);
-        }
-
-        // find all root projects
-        List<File> rootProjects = getRootProjects();
-        if (getLog().isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("rootProjects=").append(this.rootProjects);
-            for (int i = 0; i < rootProjects.size(); i++) {
-                sb.append("rootProject[").append(i).append("]=").append(toString(rootProjects.get(i))).append('\n');
+            // find all candidate folders
+            List<File> candidateDirs = new ArrayList<>();
+            for (File basedir : baseDirs) {
+                findAndAddCandidates(candidateDirs, basedir);
             }
-            getLog().debug(sb.toString());
-        }
 
-        for (File dir : candidateDirs) {
-            if (isPluginProject(dir)) {
-                OsgiManifest mf = bundleReader.loadManifest(dir);
-                platform.addArtifactFile(mf.toArtifactKey(), dir, null);
+            // find all root projects
+            List<File> rootProjects = getRootProjects();
+            if (getLog().isDebugEnabled()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("rootProjects=").append(this.rootProjects);
+                for (int i = 0; i < rootProjects.size(); i++) {
+                    sb.append("rootProject[").append(i).append("]=").append(toString(rootProjects.get(i))).append('\n');
+                }
+                getLog().debug(sb.toString());
             }
-        }
 
-        // testSuite
-        File testSuiteLocation = null;
-        if (testSuite != null) {
-            ArtifactDescriptor bundle = platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, testSuite, null);
-            if (bundle != null) {
-                testSuiteLocation = bundle.getLocation();
-            }
-        }
-
-        Set<File> projects = new LinkedHashSet<>();
-
-        // always add baseDir
-        projects.add(baseDirs.get(0));
-
-        if (rootProjects.size() > 0) {
-            if (testSuiteLocation != null) {
-                rootProjects.add(testSuiteLocation);
-            }
-            for (File rootProject : rootProjects) {
-                getLog().info("Resolving root project " + toString(rootProject));
-                if (isUpdateSiteProject(rootProject)) {
-                    projects.addAll(getSiteFeaturesAndPlugins(rootProject));
-                    projects.add(rootProject);
-                } else if (isFeatureProject(rootProject)) {
-                    projects.addAll(getFeatureFeaturesAndPlugins(rootProject));
-                    projects.add(rootProject);
-                } else if (isPluginProject(rootProject)) {
-                    addPluginImpl(projects, rootProject); // TODO getPluginAndDependencies
-                    projects.add(rootProject);
-                } else {
-                    getLog().warn("Unsupported root project " + toString(rootProject));
+            for (File dir : candidateDirs) {
+                if (isPluginProject(dir)) {
+                    OsgiManifest mf = bundleReader.loadManifest(dir);
+                    platform.addArtifactFile(mf.toArtifactKey(), dir, null);
                 }
             }
-        } else {
-            projects.addAll(candidateDirs);
-        }
 
-        if (getLog().isDebugEnabled()) {
-            getLog().debug("Collected " + projects.size() + " projects");
-            for (File dir : projects) {
-                getLog().debug("\t" + toString(dir));
+            // testSuite
+            File testSuiteLocation = null;
+            if (testSuite != null) {
+                ArtifactDescriptor bundle = platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, testSuite, null);
+                if (bundle != null) {
+                    testSuiteLocation = bundle.getLocation(true);
+                }
             }
-        }
 
-        // write poms
-        Iterator<File> projectIter = projects.iterator();
-        File parentDir = projectIter.next();
-        if (!projectIter.hasNext()) {
-            if (isProjectDir(parentDir)) {
-                generatePom(null, parentDir);
+            Set<File> projects = new LinkedHashSet<>();
+
+            // always add baseDir
+            projects.add(baseDirs.get(0));
+
+            if (!rootProjects.isEmpty()) {
+                if (testSuiteLocation != null) {
+                    rootProjects.add(testSuiteLocation);
+                }
+                for (File rootProject : rootProjects) {
+                    getLog().info("Resolving root project " + toString(rootProject));
+                    if (isUpdateSiteProject(rootProject)) {
+                        projects.addAll(getSiteFeaturesAndPlugins(rootProject));
+                        projects.add(rootProject);
+                    } else if (isFeatureProject(rootProject)) {
+                        projects.addAll(getFeatureFeaturesAndPlugins(rootProject));
+                        projects.add(rootProject);
+                    } else if (isPluginProject(rootProject)) {
+                        addPluginImpl(projects, rootProject); // TODO getPluginAndDependencies
+                        projects.add(rootProject);
+                    } else {
+                        getLog().warn("Unsupported root project " + toString(rootProject));
+                    }
+                }
             } else {
-                throw new MojoExecutionException("Could not find any valid projects");
+                projects.addAll(candidateDirs);
             }
-        } else {
-            Model parent = readPomTemplate("parent-pom.xml");
-            parent.setGroupId(groupId);
-            parent.setArtifactId(parentDir.getName());
-            parent.setVersion(version);
-            while (projectIter.hasNext()) {
-                File projectDir = projectIter.next();
-                generatePom(parent, projectDir);
-                parent.addModule(getModuleName(parentDir, projectDir));
+
+            if (getLog().isDebugEnabled()) {
+                getLog().debug("Collected " + projects.size() + " projects");
+                for (File dir : projects) {
+                    getLog().debug("\t" + toString(dir));
+                }
             }
-            reorderModules(parent, parentDir, testSuiteLocation);
-            addTychoExtension(parent);
-            writePom(parentDir, parent);
-            generateAggregatorPoms(testSuiteLocation);
+
+            // write poms
+            Iterator<File> projectIter = projects.iterator();
+            File parentDir = projectIter.next();
+            if (!projectIter.hasNext()) {
+                if (isProjectDir(parentDir)) {
+                    generatePom(null, parentDir);
+                } else {
+                    throw new MojoExecutionException("Could not find any valid projects");
+                }
+            } else {
+                Model parent = readPomTemplate("parent-pom.xml");
+                parent.setGroupId(groupId);
+                parent.setArtifactId(parentDir.getName());
+                parent.setVersion(version);
+                while (projectIter.hasNext()) {
+                    File projectDir = projectIter.next();
+                    generatePom(parent, projectDir);
+                    parent.addModule(getModuleName(parentDir, projectDir));
+                }
+                reorderModules(parent, parentDir, testSuiteLocation);
+                addTychoExtension(parent);
+                writePom(parentDir, parent);
+                generateAggregatorPoms(testSuiteLocation);
+            }
         }
     }
 
@@ -343,6 +372,15 @@ public class GeneratePomsMojo extends AbstractMojo {
         tychoPlugin.setExtensions(true);
 
         build.addPlugin(tychoPlugin);
+        if (repoURL != null) {
+            Repository repo = new Repository();
+            repo.setLayout("p2");
+            repo.setUrl(repoURL);
+            repo.setId(repoID);
+            List<Repository> repositories = new ArrayList<>();
+            repositories.add(repo);
+            model.setRepositories(repositories);
+        }
     }
 
     private String toString(File file) {
@@ -390,7 +428,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             File basedir = updateSite.getKey();
             Model parent = updateSite.getValue();
             Set<File> modules = getSiteFeaturesAndPlugins(basedir);
-            if (aggregator && modules.size() > 0) {
+            if (aggregator && !modules.isEmpty()) {
                 Model modela = readPomTemplate("update-site-poma.xml");
                 setParentOrAddTychoExtension(basedir, modela, parent);
                 modela.setGroupId(groupId);
@@ -417,10 +455,9 @@ public class GeneratePomsMojo extends AbstractMojo {
             generateEclipseRepositoryPom(parent, basedir);
         } else if (isUpdateSiteProject(basedir)) {
             getLog().debug("Found update site PDE project " + toString(basedir));
-            getLog().warn(
-                    "Old style update site found for " + toString(basedir)
-                            + ". It is recommended you rename your site.xml to category.xml "
-                            + "and use packaging type eclipse-repository instead.");
+            getLog().warn("Old style update site found for " + toString(basedir)
+                    + ". It is recommended you rename your site.xml to category.xml "
+                    + "and use packaging type eclipse-repository instead.");
             generateUpdateSitePom(parent, basedir);
         } else {
             getLog().debug("Not a PDE project " + toString(basedir));
@@ -442,10 +479,10 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private boolean isPluginProject(File dir) {
-        return new File(dir, "META-INF/MANIFEST.MF").canRead() /*
-                                                                * || new File(dir,
-                                                                * "plugin.xml").canRead()
-                                                                */;
+        return new File(dir, "META-INF/MANIFEST.MF")
+                .canRead() /*
+                            * || new File(dir, "plugin.xml").canRead()
+                            */;
     }
 
     private void generateUpdateSitePom(Model parent, File basedir) throws MojoExecutionException {
@@ -506,8 +543,8 @@ public class GeneratePomsMojo extends AbstractMojo {
         }
     }
 
-    private void addFeature(Set<File> result, String name) throws IOException, XmlPullParserException,
-            MojoExecutionException {
+    private void addFeature(Set<File> result, String name)
+            throws IOException, XmlPullParserException, MojoExecutionException {
         if (name != null) {
             File dir = getModuleDir(name);
             if (dir != null && isFeatureProject(dir)) {
@@ -527,7 +564,7 @@ public class GeneratePomsMojo extends AbstractMojo {
                 moduleDirs.add(dir);
             }
         }
-        if (moduleDirs.size() == 0) {
+        if (moduleDirs.isEmpty()) {
             return null;
         }
         if (moduleDirs.size() > 1) {
@@ -562,9 +599,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             }
             return result;
 
-        } catch (IOException e) {
-            throw new MojoExecutionException("Exception processing feature " + toString(basedir), e);
-        } catch (XmlPullParserException e) {
+        } catch (IOException | XmlPullParserException e) {
             throw new MojoExecutionException("Exception processing feature " + toString(basedir), e);
         }
 
@@ -595,15 +630,15 @@ public class GeneratePomsMojo extends AbstractMojo {
         if (result.add(basedir)) {
             try {
                 StandardExecutionEnvironment ee = ExecutionEnvironmentUtils
-                        .getExecutionEnvironment(executionEnvironment);
-                State state = resolver.newResolvedState(basedir, ee, platform);
-                BundleDescription bundle = state.getBundleByLocation(basedir.getAbsolutePath());
+                        .getExecutionEnvironment(executionEnvironment, toolchainManager, session, logger);
+                ModuleContainer state = resolver.newResolvedState(basedir, session, ee, platform);
+                ModuleRevision bundle = state.getModule(basedir.getAbsolutePath()).getCurrentRevision();
                 if (bundle != null) {
-                    for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(
-                            state.getStateHelper(), bundle)) {
-                        BundleDescription supplier = entry.desc;
-                        File suppliedDir = new File(supplier.getLocation());
-                        if (supplier.getHost() == null && isModuleDir(suppliedDir)) {
+                    DependencyComputer dependencyComputer = new DependencyComputer(state);
+                    for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(bundle)) {
+                        ModuleRevision supplier = entry.module;
+                        File suppliedDir = (File) supplier.getRevisionInfo();
+                        if (((supplier.getTypes() & BundleRevision.TYPE_FRAGMENT) == 0) && isModuleDir(suppliedDir)) {
                             addPlugin(result, suppliedDir.getName());
                         }
                     }
@@ -670,8 +705,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         setParentOrAddTychoExtension(basedir, model, parent);
 
         try {
-            FileInputStream is = new FileInputStream(new File(basedir, "feature.xml"));
-            try {
+            try (FileInputStream is = new FileInputStream(new File(basedir, "feature.xml"))) {
                 XmlStreamReader reader = new XmlStreamReader(is);
                 Xpp3Dom dom = Xpp3DomBuilder.build(reader);
 
@@ -683,12 +717,8 @@ public class GeneratePomsMojo extends AbstractMojo {
                 model.setArtifactId(dom.getAttribute("id"));
                 model.setVersion(toMavenVersion(dom.getAttribute("version")));
 
-            } finally {
-                is.close();
             }
-        } catch (XmlPullParserException e) {
-            throw new MojoExecutionException("Can't create pom.xml file", e);
-        } catch (IOException e) {
+        } catch (XmlPullParserException | IOException e) {
             throw new MojoExecutionException("Can't create pom.xml file", e);
         }
 
@@ -737,11 +767,9 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private void writePom(File dir, String filename, Model model) throws MojoExecutionException {
         try {
-            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(dir, filename)), "UTF-8");
-            try {
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(new File(dir, filename)),
+                    StandardCharsets.UTF_8)) {
                 modelWriter.write(writer, model);
-            } finally {
-                writer.close();
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Can't write pom.xml", e);
@@ -771,9 +799,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             } else {
                 throw new MojoExecutionException("pom.xml template cannot be found " + name);
             }
-        } catch (XmlPullParserException e) {
-            throw new MojoExecutionException("Can't read pom.xml template " + name, e);
-        } catch (IOException e) {
+        } catch (XmlPullParserException | IOException e) {
             throw new MojoExecutionException("Can't read pom.xml template " + name, e);
         }
     }

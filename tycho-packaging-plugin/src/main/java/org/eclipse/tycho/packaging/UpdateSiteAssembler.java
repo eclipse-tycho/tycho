@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -19,7 +21,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Map;
 
-import org.apache.maven.execution.MavenSession;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
@@ -45,7 +47,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
 
     public static final String FEATURES_DIR = "features/";
 
-    private final MavenSession session;
+    private final PlexusContainer session;
 
     private final File target;
 
@@ -63,14 +65,14 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
      */
     private boolean unpackFeatures;
 
-    public UpdateSiteAssembler(MavenSession session, File target) {
+    public UpdateSiteAssembler(PlexusContainer session, File target) {
         this.session = session;
         this.target = target;
     }
 
     @Override
     public boolean visitFeature(FeatureDescription feature) {
-        File location = feature.getLocation();
+        File location = feature.getLocation(true);
         String artifactId = feature.getKey().getId();
         String version = feature.getKey().getVersion();
 
@@ -133,7 +135,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
             return;
         }
 
-        if (plugin.getLocation() == null) {
+        if (plugin.getLocation(true) == null) {
             throw new IllegalStateException("Unresolved bundle reference " + bundleId + "_" + version);
         }
 
@@ -151,7 +153,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
             }
             version = bundleProject.getExpandedVersion();
         } else {
-            location = plugin.getLocation();
+            location = plugin.getLocation(true);
         }
 
         if (unpackPlugins && isDirectoryShape(plugin, location)) {
@@ -220,16 +222,9 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
     private void copyUrl(String source, File destination) {
         try {
             URL url = new URL(source);
-            InputStream is = url.openStream();
-            try {
-                OutputStream os = new BufferedOutputStream(new FileOutputStream(destination));
-                try {
-                    IOUtil.copy(is, os);
-                } finally {
-                    os.close();
-                }
-            } finally {
-                is.close();
+            try (InputStream is = url.openStream();
+                    OutputStream os = new BufferedOutputStream(new FileOutputStream(destination))) {
+                IOUtil.copy(is, os);
             }
         } catch (IOException e) {
             throw new RuntimeException("Could not copy URL contents", e);
@@ -256,9 +251,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
         try {
             archiver.addDirectory(sourceDir);
             archiver.createArchive();
-        } catch (IOException e) {
-            throw new RuntimeException("Error packing zip", e);
-        } catch (ArchiverException e) {
+        } catch (IOException | ArchiverException e) {
             throw new RuntimeException("Error packing zip", e);
         }
     }

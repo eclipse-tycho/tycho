@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -21,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -41,7 +44,6 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     public static final String ARTIFACTS_INDEX_RELPATH = ".meta/p2-artifacts.properties";
     public static final String METADATA_INDEX_RELPATH = ".meta/p2-local-metadata.properties";
 
-    private static final String ENCODING = "UTF8";
     private static final String EOL = "\n";
 
     private final File indexFile;
@@ -138,25 +140,21 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     }
 
     private void write(OutputStream outStream) throws IOException {
-        Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), ENCODING);
-        try {
+        try (Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), StandardCharsets.UTF_8)) {
             for (GAV gav : getProjectGAVs()) {
                 out.write(gav.toExternalForm());
                 out.write(EOL);
             }
             out.flush();
-        } finally {
-            out.close();
         }
     }
 
     private Set<GAV> read(InputStream inStream) throws IOException {
         LinkedHashSet<GAV> result = new LinkedHashSet<>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, ENCODING));
-        try {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().length() == 0) {
+                if (line.trim().isEmpty()) {
                     continue;
                 }
                 try {
@@ -166,8 +164,6 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
                     logger.warn("Ignoring invalid line '" + line + "' in " + indexFile);
                 }
             }
-        } finally {
-            reader.close();
         }
         return result;
     }

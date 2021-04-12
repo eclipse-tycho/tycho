@@ -4,3 +4,4 @@ Bundle-SymbolicName: bundle.tests
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.junit,
  bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: test.bundleNativeCode
+Bundle-Version: 1.0.0
+Bundle-NativeCode: 
+  /lib/dummyLib.dll;
+  osname=win32; processor=x86-64

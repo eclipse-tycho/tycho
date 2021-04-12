@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
@@ -20,8 +22,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -54,6 +56,7 @@ import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeOutputStream;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -96,8 +99,7 @@ public class LocalArtifactRepositoryP2APITest {
     private static final IArtifactKey NEW_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
     private static final IArtifactDescriptor NEW_DESCRIPTOR = localPackedDescriptorFor(NEW_KEY);
 
-    private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<>(Arrays.asList(ARTIFACT_A_KEY,
-            ARTIFACT_B_KEY));
+    private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<>(Arrays.asList(ARTIFACT_A_KEY, ARTIFACT_B_KEY));
     private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = new HashSet<>(
             Arrays.asList(ARTIFACT_A_CANONICAL, ARTIFACT_A_PACKED, ARTIFACT_B_PACKED));
 
@@ -329,6 +331,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Test
     public void testGetArtifactOnlyAvailableInPackedFormat() throws Exception {
+        Assume.assumeTrue("pack200 not available on current Java version", Runtime.version().feature() < 14);
         testSink = newArtifactSinkFor(ARTIFACT_B_KEY);
         // this method must return the original artifact, regardless of how the artifact is stored internally
         status = subject.getArtifact(testSink, null);
@@ -413,6 +416,7 @@ public class LocalArtifactRepositoryP2APITest {
     @SuppressWarnings("deprecation")
     @Test
     public void testGetArtifactToStreamOnlyAvailableInPackedFormat() throws Exception {
+        Assume.assumeTrue("pack200 not available on current Java version", Runtime.version().feature() < 14);
         // this method must always return the original artifact, even if called with a pack200 descriptor  
         status = subject.getArtifact(ARTIFACT_B_PACKED, testOutputStream, null);
 
@@ -565,9 +569,9 @@ public class LocalArtifactRepositoryP2APITest {
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteArtifactViaStream() throws Exception {
-        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
-        addSink.write(new byte[33]);
-        addSink.close();
+        try (OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR))) {
+            addSink.write(new byte[33]);
+        }
 
         assertThat(subject.contains(NEW_KEY), is(true));
         assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
@@ -579,10 +583,9 @@ public class LocalArtifactRepositoryP2APITest {
     @Test
     public void testReWriteArtifactViaStreamFails() throws Exception {
         ProvisionException expectedException = null;
-        try {
-            OutputStream addSink = subject.getOutputStream(ARTIFACT_A_CANONICAL);
+
+        try (OutputStream addSink = subject.getOutputStream(ARTIFACT_A_CANONICAL)) {
             addSink.write(new byte[1]);
-            addSink.close();
         } catch (ProvisionException e) {
             expectedException = e;
         }
@@ -594,11 +597,11 @@ public class LocalArtifactRepositoryP2APITest {
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteArtifactViaStreamAndCancel() throws Exception {
-        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
-        addSink.write(new byte[33]);
-        // setStatus needs to be called when copying from a repository using getArtifact, and that method returns an error (e.g. due to artifact corruption)
-        ((IStateful) addSink).setStatus(new Status(IStatus.ERROR, "test", "written data is bad"));
-        addSink.close();
+        try (OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR))) {
+            addSink.write(new byte[33]);
+            // setStatus needs to be called when copying from a repository using getArtifact, and that method returns an error (e.g. due to artifact corruption)
+            ((IStateful) addSink).setStatus(new Status(IStatus.ERROR, "test", "written data is bad"));
+        }
 
         assertThat(subject.contains(NEW_DESCRIPTOR), is(false));
         assertThat(subject.contains(NEW_KEY), is(false));
@@ -607,10 +610,10 @@ public class LocalArtifactRepositoryP2APITest {
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteArtifactViaStreamWithNonFatalStatus() throws Exception {
-        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
-        addSink.write(new byte[33]);
-        ((IStateful) addSink).setStatus(new Status(IStatus.WARNING, "test", "irrelevant warning"));
-        addSink.close();
+        try (OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR))) {
+            addSink.write(new byte[33]);
+            ((IStateful) addSink).setStatus(new Status(IStatus.WARNING, "test", "irrelevant warning"));
+        }
 
         assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
     }
@@ -629,8 +632,8 @@ public class LocalArtifactRepositoryP2APITest {
      */
     private static IArtifactDescriptor localPackedDescriptorFor(IArtifactKey key) {
         GAVArtifactDescriptor result = new GAVArtifactDescriptor(key);
-        result.setProcessingSteps(new IProcessingStepDescriptor[] { new ProcessingStepDescriptor(
-                "org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) });
+        result.setProcessingSteps(new IProcessingStepDescriptor[] {
+                new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) });
         result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
         return result;
     }
@@ -665,9 +668,9 @@ public class LocalArtifactRepositoryP2APITest {
     }
 
     private File artifactLocationOf(IArtifactKey key, String classifierAndExtension) {
-        return new File(temporaryLocalMavenRepo.getLocalRepositoryRoot(), "p2/" + key.getClassifier().replace('.', '/')
-                + "/" + key.getId() + "/" + key.getVersion() + "/" + key.getId() + "-" + key.getVersion()
-                + classifierAndExtension);
+        return new File(temporaryLocalMavenRepo.getLocalRepositoryRoot(),
+                "p2/" + key.getClassifier().replace('.', '/') + "/" + key.getId() + "/" + key.getVersion() + "/"
+                        + key.getId() + "-" + key.getVersion() + classifierAndExtension);
     }
 
     private int readSizeOfArtifact(IArtifactKey key) throws ArtifactSinkException {

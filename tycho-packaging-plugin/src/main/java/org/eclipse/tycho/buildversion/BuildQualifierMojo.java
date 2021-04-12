@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -36,7 +38,7 @@ import org.osgi.framework.Version;
 /**
  * <p>
  * This mojo generates the build qualifier according to the <a href=
- * "http://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/tasks/pde_version_qualifiers.htm"
+ * "https://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/tasks/pde_version_qualifiers.htm"
  * >rules described in the PDE documentation</a>:
  * <ol>
  * <li>Explicit -DforceContextQualifier command line parameter</li>
@@ -60,28 +62,29 @@ import org.osgi.framework.Version;
  * 
  * <pre>
  * ...
- * &lt;plugin>
- *    &lt;groupId>org.eclipse.tycho&lt;/groupId>
- *    &lt;artifactId>tycho-packaging-plugin&lt;/artifactId>
- *    &lt;version>${tycho-version}&lt;/version>
- *    &lt;dependencies>
- *      &lt;dependency>
- *        &lt;groupId>timestamp-provider-groupid&lt;/groupId>
- *        &lt;artifactId>timestamp-provider-artifactid&lt;/artifactId>
- *        &lt;version>timestamp-provider-version&lt;/version>
- *      &lt;/dependency>
- *    &lt;/dependencies>
- *    &lt;configuration>
- *      &lt;timestampProvider>custom&lt;/timestampProvider>
- *    &lt;/configuration>
- * &lt;/plugin>
+ * &lt;plugin&gt;
+ *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+ *    &lt;artifactId&gt;tycho-packaging-plugin&lt;/artifactId&gt;
+ *    &lt;version&gt;${tycho-version}&lt;/version&gt;
+ *    &lt;dependencies&gt;
+ *      &lt;dependency&gt;
+ *        &lt;groupId&gt;timestamp-provider-groupid&lt;/groupId&gt;
+ *        &lt;artifactId&gt;timestamp-provider-artifactid&lt;/artifactId&gt;
+ *        &lt;version&gt;timestamp-provider-version&lt;/version&gt;
+ *      &lt;/dependency&gt;
+ *    &lt;/dependencies&gt;
+ *    &lt;configuration&gt;
+ *      &lt;timestampProvider&gt;custom&lt;/timestampProvider&gt;
+ *    &lt;/configuration&gt;
+ * &lt;/plugin&gt;
  * ...
  * 
  * </pre>
  * 
  */
-@Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierMojo extends AbstractVersionMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "session", readonly = true)
     protected MavenSession session;
@@ -132,12 +135,14 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        TychoProjectVersion projectVersion = calculateQualifiedVersion();
-        project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
-        project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
-        project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
+        synchronized (LOCK) {
+            TychoProjectVersion projectVersion = calculateQualifiedVersion();
+            project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
+            project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
+            project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
 
-        getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
+            getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
+        }
     }
 
     private TychoProjectVersion calculateQualifiedVersion() throws MojoFailureException, MojoExecutionException {
@@ -186,8 +191,8 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         try {
             Version.parseVersion("1.0.0." + qualifier);
         } catch (IllegalArgumentException e) {
-            throw new MojoFailureException(
-                    "Invalid build qualifier, it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')");
+            throw new MojoFailureException("Invalid build qualifier '" + qualifier
+                    + "', it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')");
         }
     }
 
@@ -225,7 +230,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
 
         public String getOSGiVersion() {
-            if (qualifier.length() == 0) {
+            if (qualifier.isEmpty()) {
                 return unqualifiedVersion;
             } else {
                 return unqualifiedVersion + '.' + qualifier;

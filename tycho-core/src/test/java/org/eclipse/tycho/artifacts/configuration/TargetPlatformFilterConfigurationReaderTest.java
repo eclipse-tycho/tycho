@@ -14,7 +14,7 @@ import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,13 +23,14 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.model.Plugin;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
-import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.FilterAction;
@@ -37,7 +38,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.core.utils.TychoVersion;
 
-public class TargetPlatformFilterConfigurationReaderTest extends PlexusTestCase {
+public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTestCase {
 
     private TargetPlatformFilterConfigurationReader subject;
 
@@ -82,10 +83,8 @@ public class TargetPlatformFilterConfigurationReaderTest extends PlexusTestCase 
             assertThat(filter.getAction(), is(FilterAction.REMOVE_ALL));
         }
 
-        assertThat(
-                filters.get(0).getScopePattern(),
-                is(patternWithoutVersion(CapabilityType.OSGI_BUNDLE,
-                        "org.eclipse.equinox.servletbridge.extensionbundle")));
+        assertThat(filters.get(0).getScopePattern(), is(patternWithoutVersion(CapabilityType.OSGI_BUNDLE,
+                "org.eclipse.equinox.servletbridge.extensionbundle")));
         assertThat(filters.get(1).getScopePattern(),
                 is(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "org.eclipse.equinox.app", "[3.6.0,3.6.1)")));
         assertThat(filters.get(2).getScopePattern(),
@@ -175,7 +174,7 @@ public class TargetPlatformFilterConfigurationReaderTest extends PlexusTestCase 
 
         // this disables the expansion of packaging types (which are undefined at this point in the build)
         projectBuildingRequest.setProcessPlugins(false);
-
+        projectBuildingRequest.setRepositorySession(new DefaultRepositorySystemSession());
         return projectBuildingRequest;
     }
 

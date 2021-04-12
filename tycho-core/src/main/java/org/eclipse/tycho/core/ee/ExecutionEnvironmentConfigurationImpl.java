@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -19,7 +23,8 @@ import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 
 public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
-    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-1.7";
+    // Most likely best to always be the latest known supported EE
+    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-11";
 
     private static final int PRIMARY = 0;
     private static final int SECONDARY = 1;
@@ -34,9 +39,16 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
 
     private final boolean ignoredByResolver;
 
-    public ExecutionEnvironmentConfigurationImpl(Logger logger, boolean ignoredByResolver) {
+    private final ToolchainManager toolchainManager;
+
+    private MavenSession session;
+
+    public ExecutionEnvironmentConfigurationImpl(Logger logger, boolean ignoredByResolver,
+            ToolchainManager toolchainManager, MavenSession session) {
         this.logger = logger;
         this.ignoredByResolver = ignoredByResolver;
+        this.toolchainManager = toolchainManager;
+        this.session = session;
     }
 
     @Override
@@ -90,18 +102,12 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     @Override
     public boolean isCustomProfile() {
         String profileName = getProfileName();
-
-        // TODO 385930 add explicit method for this in ExecutionEnvironmentUtils
-        try {
-            ExecutionEnvironmentUtils.getExecutionEnvironment(profileName);
-            return false;
-        } catch (UnknownEnvironmentException e) {
-            if (ignoredByResolver) {
-                throw new BuildFailureException(
-                        "When using a custom execution environment profile, resolveWithExecutionEnvironmentConstraints must not be set to false");
-            }
-            return true;
+        boolean profileExists = ExecutionEnvironmentUtils.getProfileNames().contains(profileName);
+        if (!profileExists && ignoredByResolver) {
+            throw new BuildFailureException(
+                    "When using a custom execution environment profile, resolveWithExecutionEnvironmentConstraints must not be set to false");
         }
+        return !profileExists;
     }
 
     @Override
@@ -126,8 +132,10 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             }
             return customExecutionEnvironment;
         }
-
-        return ExecutionEnvironmentUtils.getExecutionEnvironment(getProfileName());
+        if (ignoreExecutionEnvironment()) {
+            return NoExecutionEnvironment.INSTANCE;
+        }
+        return ExecutionEnvironmentUtils.getExecutionEnvironment(getProfileName(), toolchainManager, session, logger);
     }
 
     private static class ProfileConfiguration {
@@ -145,6 +153,19 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     @Override
     public boolean isIgnoredByResolver() {
         return ignoredByResolver;
+    }
+
+    @Override
+    public Collection<ExecutionEnvironment> getAllKnownEEs() {
+        return ExecutionEnvironmentUtils.getProfileNames().stream() //
+                .map(profileName -> ExecutionEnvironmentUtils.getExecutionEnvironment(profileName, toolchainManager,
+                        session, logger)) //
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean ignoreExecutionEnvironment() {
+        return NoExecutionEnvironment.NAME.equals(getProfileName());
     }
 
 }

@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -49,11 +48,11 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
     }
 
     @Override
-    protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
+    protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         final List<ProductConfiguration> products = loadProducts(project);
         final List<Category> categories = loadCategories(project);
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
-                project, environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
+                getEnvironments(project, environment)) {
             @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 WalkbackPath visited = new WalkbackPath();
@@ -75,7 +74,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      * @param project
      * @return
      */
-    public List<Category> loadCategories(final MavenProject project) {
+    public List<Category> loadCategories(final ReactorProject project) {
         List<Category> categories = new ArrayList<>();
         for (File file : getCategoryFiles(project)) {
             try {
@@ -93,7 +92,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      * @param project
      * @return
      */
-    protected List<ProductConfiguration> loadProducts(final MavenProject project) {
+    protected List<ProductConfiguration> loadProducts(final ReactorProject project) {
         List<ProductConfiguration> products = new ArrayList<>();
         for (File file : getProductFiles(project)) {
             try {
@@ -105,7 +104,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
         return products;
     }
 
-    private List<File> getCategoryFiles(MavenProject project) {
+    private List<File> getCategoryFiles(ReactorProject project) {
         List<File> res = new ArrayList<>();
         File categoryFile = new File(project.getBasedir(), "category.xml");
         if (categoryFile.exists()) {
@@ -121,11 +120,11 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      * @param project
      * @return The list of product files to parse for an eclipse-repository project
      */
-    public List<File> getProductFiles(MavenProject project) {
+    public List<File> getProductFiles(ReactorProject project) {
         File projectLocation = project.getBasedir();
         List<File> res = new ArrayList<>();
         for (File f : projectLocation.listFiles()) {
-            if (f.isFile() && f.getName().endsWith(".product")) {
+            if (f.isFile() && f.getName().endsWith(".product") && !f.getName().startsWith(".polyglot")) {
                 res.add(f);
             }
         }

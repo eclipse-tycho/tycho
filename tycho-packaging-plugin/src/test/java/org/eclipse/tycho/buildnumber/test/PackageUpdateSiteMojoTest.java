@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010, 2018 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -16,13 +18,12 @@ import java.util.List;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import junit.framework.Assert;
-
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.it.util.FileUtils;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.utils.io.FileUtils;
 import org.eclipse.tycho.packaging.PackageUpdateSiteMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Assert;
 
 public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
 
@@ -54,10 +55,8 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         FileUtils.fileAppend(siteXml.getAbsolutePath(),
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?><site associateSitesURL=\"associate-sites.xml\"></site>");
         File associateSitesFile = new File(siteFolder, "associate-sites.xml");
-        FileUtils
-                .fileAppend(
-                        associateSitesFile.getAbsolutePath(),
-                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"http://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>");
+        FileUtils.fileAppend(associateSitesFile.getAbsolutePath(),
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"https://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>");
         new File(siteFolder, "content.xml").createNewFile();
         new File(siteFolder, "artifacts.xml").createNewFile();
 
@@ -79,12 +78,9 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         Assert.assertTrue(attachedArtifacts.get(0).getFile().equals(assemblyZip));
         Assert.assertTrue(attachedArtifacts.get(0).getClassifier().equals("assembly"));
         Assert.assertTrue(attachedArtifacts.get(0).getType().equals("zip"));
-        ZipFile zip = new ZipFile(assemblyZip);
-        try {
+        try (ZipFile zip = new ZipFile(assemblyZip)) {
             assertNotNull(zip.getEntry("site.xml"));
             assertNotNull(zip.getEntry("content.xml"));
-        } finally {
-            zip.close();
         }
     }
 
@@ -108,11 +104,8 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         Assert.assertTrue(attachedArtifacts.get(0).getFile().equals(assemblyZip));
         Assert.assertTrue(attachedArtifacts.get(0).getClassifier().equals("assembly"));
         Assert.assertTrue(attachedArtifacts.get(0).getType().equals("zip"));
-        ZipFile zip = new ZipFile(assemblyZip);
-        try {
+        try (ZipFile zip = new ZipFile(assemblyZip)) {
             assertNotNull(zip.getEntry("associate-sites.xml"));
-        } finally {
-            zip.close();
         }
     }
 
@@ -121,12 +114,9 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         Assert.assertTrue(resultzip.exists());
         Assert.assertEquals(project.getArtifact().getFile(), resultzip);
 
-        ZipFile zip = new ZipFile(resultzip);
-        try {
+        try (ZipFile zip = new ZipFile(resultzip)) {
             assertNotNull(zip.getEntry("site.xml"));
             assertNull(zip.getEntry("content.xml"));
-        } finally {
-            zip.close();
         }
     }
 

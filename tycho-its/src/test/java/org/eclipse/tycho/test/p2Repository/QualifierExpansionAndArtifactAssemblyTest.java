@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
@@ -13,7 +15,7 @@ package org.eclipse.tycho.test.p2Repository;
 import static org.eclipse.tycho.test.util.P2RepositoryTool.withIdAndVersion;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.List;
@@ -79,7 +81,8 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
         assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.group=true"));
 
         List<IdAndVersion> inclusions = featureIU.getInclusions();
-        assertThat(inclusions, hasItem(withIdAndVersion("prr.example.included.feature.feature.group", DEFAULT_VERSION)));
+        assertThat(inclusions,
+                hasItem(withIdAndVersion("prr.example.included.feature.feature.group", DEFAULT_VERSION)));
         assertThat(inclusions, hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
         assertThat(inclusions, hasItem(withIdAndVersion("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451"))); // a bundle from the external target platform
 

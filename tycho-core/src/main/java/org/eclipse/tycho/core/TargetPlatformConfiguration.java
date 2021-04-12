@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - [Bug 550169] - Improve Tychos handling of includeSource="true" in target definition
+ *                         [Bug 567098] - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
@@ -29,7 +31,22 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         first, minimal
     }
 
-    public static final String POM_DEPENDENCIES_CONSIDER = "consider";
+    public enum PomDependencies {
+        /**
+         * pom dependencies are ignored
+         */
+        ignore,
+        /**
+         * pom dependencies are considered if the are already valid osgi artifacts. p2 metadata may
+         * be generated if missing
+         */
+        consider,
+        /**
+         * pom dependencies are used and wrapped into OSGi bundles if necessary. p2 metadata may be
+         * generated if missing.
+         */
+        wrapAsBundle;
+    }
 
     private String resolver;
 
@@ -38,9 +55,9 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private boolean implicitTargetEnvironment = true;
 
     private final List<File> targets = new ArrayList<>();
-    private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.ignore;
+    private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
-    private String pomDependencies;
+    private PomDependencies pomDependencies = PomDependencies.ignore;
 
     private Boolean allowConflictingDependencies;
 
@@ -97,11 +114,11 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         this.targetDefinitionIncludeSourceMode = includeSourcesMode;
     }
 
-    public void setPomDependencies(String pomDependencies) {
+    public void setPomDependencies(PomDependencies pomDependencies) {
         this.pomDependencies = pomDependencies;
     }
 
-    public String getPomDependencies() {
+    public PomDependencies getPomDependencies() {
         return pomDependencies;
     }
 

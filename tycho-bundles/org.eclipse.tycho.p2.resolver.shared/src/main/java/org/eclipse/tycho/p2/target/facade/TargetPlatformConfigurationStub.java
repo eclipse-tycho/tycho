@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2013, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich    - [Bug 550169] - Improve Tychos handling of includeSource="true" in target definition
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -17,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
@@ -30,6 +34,7 @@ public class TargetPlatformConfigurationStub {
     private final Set<MavenRepositoryLocation> repositories = new LinkedHashSet<>();
     private final List<TargetDefinition> targetDefinitions = new ArrayList<>();
     private boolean forceIgnoreLocalArtifacts = false;
+    private IncludeSourceMode includeSourceMode = IncludeSourceMode.honor;
 
     public void setEnvironments(List<TargetEnvironment> environments) {
         this.environments = environments;
@@ -82,6 +87,14 @@ public class TargetPlatformConfigurationStub {
 
     public boolean getForceIgnoreLocalArtifacts() {
         return forceIgnoreLocalArtifacts;
+    }
+
+    public IncludeSourceMode getIncludeSourceMode() {
+        return includeSourceMode;
+    }
+
+    public void setIncludeSourceMode(IncludeSourceMode includeSourceMode) {
+        this.includeSourceMode = includeSourceMode;
     }
 
 }

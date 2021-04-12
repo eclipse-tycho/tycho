@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -95,13 +97,7 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
 
     private void assertUpdateSiteContainsSourceJar(Verifier verifier) throws IOException {
         File[] sourceJars = new File(verifier.getBasedir(), "helloworld.updatesite/target/site/plugins")
-                .listFiles(new FileFilter() {
-
-                    @Override
-                    public boolean accept(File pathname) {
-                        return pathname.isFile() && pathname.getName().startsWith("helloworld.source_");
-                    }
-                });
+                .listFiles((FileFilter) pathname -> pathname.isFile() && pathname.getName().startsWith("helloworld.source_"));
         assertEquals(1, sourceJars.length);
         JarFile sourceJar = new JarFile(sourceJars[0]);
         try {

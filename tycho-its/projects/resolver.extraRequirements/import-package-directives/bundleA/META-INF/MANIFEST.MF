@@ -4,3 +4,4 @@ Bundle-SymbolicName: bundleA
 Bundle-Version: 1.0.0.qualifier
 Export-Package: split;a=split;mandatory:=a
 Import-Package: split;a=split
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

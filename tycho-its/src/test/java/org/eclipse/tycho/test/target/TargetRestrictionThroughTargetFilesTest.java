@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -26,10 +28,17 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
     private Verifier verifier;
 
     @Test
+    public void testWithFile() throws Exception {
+        verifier = getVerifier("target.usefile", false);
+        verifier.executeGoal("package");
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
     public void testVersionRestrictionWithPlanner() throws Exception {
         verifier = getVerifier("target.restriction.targetFile/testProject", false);
-        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "planner.target"), new File(
-                "projects/target.restriction.targetFile/testProject/trt.targets"));
+        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "planner.target"),
+                new File("projects/target.restriction.targetFile/testProject/trt.targets"));
 
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
@@ -51,8 +60,8 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
     public void testContentAndVersionRestrictionWithSlicer() throws Exception {
         verifier = getVerifier("target.restriction.targetFile/testProject", false);
         verifier.getCliOptions().add("-Pwith-slicer-target");
-        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "slicer.target"), new File(
-                "projects/target.restriction.targetFile/testProject/trt.targets"));
+        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "slicer.target"),
+                new File("projects/target.restriction.targetFile/testProject/trt.targets"));
 
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();

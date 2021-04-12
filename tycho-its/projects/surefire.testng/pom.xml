@@ -5,6 +5,13 @@
 	<artifactId>parent</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0.0</version>
+	<repositories>
+		<repository>
+			<id>platform</id>
+			<url>${target-platform}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
 	<build>
 		<plugins>
 			<plugin>

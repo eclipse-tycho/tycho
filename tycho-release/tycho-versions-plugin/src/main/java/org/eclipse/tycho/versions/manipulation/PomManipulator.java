@@ -1,14 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Sebastien Arod - introduce VersionChangesDescriptor
  *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
+ *    Christoph Läubrich - Bug 550313 - tycho-versions-plugin uses hard-coded polyglot file 
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -42,6 +45,9 @@ public class PomManipulator extends AbstractMetadataManipulator {
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         PomFile pom = project.getMetadata(PomFile.class);
+        if (pom == null) {
+            throw new RuntimeException("no pom avaiable for " + project.getBasedir());
+        }
         GAV parent = pom.getParent();
 
         boolean moreChanges = false;

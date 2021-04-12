@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+- Copyright (c) 2010, 2018 SAP AG and others.
+- All rights reserved. This program and the accompanying materials
+- are made available under the terms of the Eclipse Public License v1.0
+- which accompanies this distribution, and is available at
+- http://www.eclipse.org/legal/epl-v10.html
+-
+- Contributors:
+-    SAP AG - initial API and implementation
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho</artifactId>
+		<version>2.4.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>org.eclipse.tycho.extras</groupId>
+	<artifactId>tycho-extras</artifactId>
+	<packaging>pom</packaging>
+
+	<name>Tycho Extras</name>
+	<description>Additional tools for Tycho</description>
+
+	<properties>
+		<jgit-version>5.10.0.202012080955-r</jgit-version>
+		<tycho-version>${project.version}</tycho-version>
+		<invoker.debug>true</invoker.debug>
+	</properties>
+
+	<modules>
+		<module>tycho-document-bundle-plugin</module>
+		<module>tycho-version-bump-plugin</module>
+		<!-- tycho-source-feature-plugin must run *before* tycho-p2-extras-plguin -->
+		<module>tycho-source-feature-plugin</module>
+		<module>tycho-p2-extras-plugin</module>
+		<module>tycho-custom-bundle-plugin</module>
+		<module>tycho-eclipserun-plugin</module>
+		<module>tycho-buildtimestamp-jgit</module>
+		<module>tycho-sourceref-jgit</module>
+		<module>target-platform-validation-plugin</module>
+		<module>tycho-pomless</module>
+		<module>tycho-dependency-tools-plugin</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-model-builder</artifactId>
+				<version>${maven-version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.plugin-tools</groupId>
+				<artifactId>maven-plugin-annotations</artifactId>
+				<version>${pluginToolsVersion}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<version>${project.version}</version>
+				<type>maven-plugin</type>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-core</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-facade</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.tycho.core.shared</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-testing-harness</artifactId>
+				<version>${tycho-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>sisu-equinox-launching</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-bundles-external</artifactId>
+				<version>${tycho-version}</version>
+				<type>zip</type>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-pomless</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jgit</groupId>
+				<artifactId>org.eclipse.jgit</artifactId>
+				<version>${jgit-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-invoker-plugin</artifactId>
+					<version>3.2.1</version>
+					<configuration>
+						<debug>${invoker.debug}</debug>
+						<projectsDirectory>src/it</projectsDirectory>
+						<cloneProjectsTo>target/it</cloneProjectsTo>
+						<localRepositoryPath>target/local-repo</localRepositoryPath>
+						<postBuildHookScript>verify</postBuildHookScript>
+						<properties>
+							<tycho-version>${tycho-version}</tycho-version>
+							<tycho-snapshots-url>file://${session.localRepository.basedir}</tycho-snapshots-url>
+							<tycho-extras-version>${project.version}</tycho-extras-version>
+						</properties>
+						<useLocalRepository>true</useLocalRepository>
+						<extraArtifacts>
+							<artifact>org.eclipse.tycho:tycho-maven-plugin:${tycho-version}:maven-plugin</artifact>
+						</extraArtifacts>
+					</configuration>
+					<executions>
+						<execution>
+							<id>integration-test</id>
+							<goals>
+								<goal>install</goal>
+								<goal>run</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- m2eclipse lifecycle mapping -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.sonatype.plugins</groupId>
+										<artifactId>maven-properties-plugin</artifactId>
+										<versionRange>[0.0.2,)</versionRange>
+										<goals>
+											<goal>filter-file</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>its</id>
+			<modules>
+				<module>tycho-extras-its</module>
+			</modules>
+		</profile>
+		<profile>
+    		<id>pack200</id>
+    		<activation>
+        		<jdk>(,13]</jdk>
+    		</activation>
+			<modules>
+				<module>pack200</module>
+			</modules>
+		</profile>
+	</profiles>
+
+</project>

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2017 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
@@ -12,14 +14,16 @@
 package org.eclipse.tycho.surefire;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -31,14 +35,13 @@ import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
-import org.eclipse.tycho.testing.TestUtil;
 import org.junit.Test;
 
 public class TestMojoTest {
 
     @Test
     public void testSplitArgLineNull() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         String[] parts = testMojo.splitArgLine(null);
         assertNotNull(parts);
         assertEquals(0, parts.length);
@@ -46,7 +49,7 @@ public class TestMojoTest {
 
     @Test
     public void testSplitArgLineMultipleArgs() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         String[] parts = testMojo.splitArgLine(" -Dfoo=bar -Dkey2=value2 \"-Dkey3=spacy value\"");
         assertEquals(3, parts.length);
         assertEquals("-Dfoo=bar", parts[0]);
@@ -56,7 +59,7 @@ public class TestMojoTest {
 
     @Test
     public void testSplitArgLineUnbalancedQuotes() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         try {
             testMojo.splitArgLine("\"'missing closing double-quote'");
             fail("unreachable code");
@@ -68,7 +71,7 @@ public class TestMojoTest {
     @Test
     public void testAddProgramArgsWithSpaces() throws Exception {
         EquinoxLaunchConfiguration cli = createEquinoxConfiguration();
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         testMojo.addProgramArgs(cli, "-data", "/path with spaces ");
         assertEquals(2, cli.getProgramArguments().length);
         assertEquals("-data", cli.getProgramArguments()[0]);
@@ -78,7 +81,7 @@ public class TestMojoTest {
     @Test
     public void testAddProgramArgsNullArg() throws Exception {
         EquinoxLaunchConfiguration cli = createEquinoxConfiguration();
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         // null arg must be ignored
         testMojo.addProgramArgs(cli, "-data", null);
         assertEquals(1, cli.getProgramArguments().length);
@@ -86,27 +89,27 @@ public class TestMojoTest {
 
     @Test
     public void testShouldSkipWithNoValueSet() {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         assertFalse(testMojo.shouldSkip());
     }
 
     @Test
     public void testShouldSkipWithSkipTestsSetToTrue() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "skipTests", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
     }
 
     @Test
     public void testShouldSkipWithMavenTestSkipSetToTrue() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "skip", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
     }
 
     @Test
     public void testShouldSkipThatSkipTestsWillBePrefered() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "skip", Boolean.FALSE);
         setParameter(testMojo, "skipTests", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
@@ -114,7 +117,7 @@ public class TestMojoTest {
 
     @Test
     public void testShouldSkipWithSkipExeSetToTrue() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "skipExec", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
     }
@@ -122,12 +125,12 @@ public class TestMojoTest {
     @Test
     public void testExcludes() throws Exception {
         List<String> includes = new ArrayList<>();
-        includes.add("*.*");
+        includes.add("*");
         List<String> excludes = new ArrayList<>();
         // adding a null to simulate an unresolved parameter interpolation
         excludes.add(null);
         excludes.add("*Another*");
-        ScanResult result = executeScanForTests(includes, excludes);
+        ScanResult result = createDirectoryAndScanForTests(includes, excludes);
         assertEquals(1, result.size());
     }
 
@@ -136,13 +139,13 @@ public class TestMojoTest {
         List<String> includes = new ArrayList<>();
         includes.add("*Another*");
         includes.add(null);
-        ScanResult result = executeScanForTests(includes, null);
+        ScanResult result = createDirectoryAndScanForTests(includes, null);
         assertEquals(1, result.size());
     }
 
     @Test
     public void testParallelModeMissingThreadCountParameter() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         try {
             testMojo.getMergedProviderProperties();
@@ -154,7 +157,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeThreadCountSetTo1() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "threadCount", 1);
         try {
@@ -167,7 +170,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeWithThreadCountSet() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "threadCount", 2);
         Properties providerProperties = testMojo.getMergedProviderProperties();
@@ -177,7 +180,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeWithUseUnlimitedThreads() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "useUnlimitedThreads", Boolean.TRUE);
         Properties providerProperties = testMojo.getMergedProviderProperties();
@@ -187,7 +190,7 @@ public class TestMojoTest {
 
     @Test(expected = MojoExecutionException.class)
     public void testParallelModeWithPerCoreThreadCountMissingCount() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "perCoreThreadCount", true);
         testMojo.getMergedProviderProperties();
@@ -195,7 +198,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeWithPerCoreThreadCount() throws Exception {
-        TestMojo testMojo = new TestMojo();
+        AbstractTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "perCoreThreadCount", true);
         setParameter(testMojo, "threadCount", 1);
@@ -205,17 +208,29 @@ public class TestMojoTest {
         assertEquals("true", providerProperties.get("perCoreThreadCount"));
     }
 
-    public ScanResult executeScanForTests(List<String> includes, List<String> excludes) throws Exception {
-        TestMojo testMojo = new TestMojo();
-        setParameter(testMojo, "includes", includes);
-        setParameter(testMojo, "excludes", excludes);
-        setParameter(testMojo, "testClassesDirectory",
-                TestUtil.getTestResourceLocation("excludesIncludesTestDirectory"));
-        return testMojo.scanForTests();
+    public ScanResult createDirectoryAndScanForTests(List<String> includes, List<String> excludes) throws Exception {
+        File directory = null;
+        try {
+            AbstractTestMojo testMojo = new TestPluginMojo();
+            directory = Files.createTempDirectory(this.getClass().getName()).toFile();
+            File aTestFile = new File(directory, "ATest.class");
+            aTestFile.createNewFile();
+            File anotherTestcase = new File(directory, "AnotherTestCase.class");
+            anotherTestcase.createNewFile();
+
+            setParameter(testMojo, "includes", includes);
+            setParameter(testMojo, "excludes", excludes);
+            setParameter(testMojo, "testClassesDirectory", directory);
+            return testMojo.scanForTests();
+        } finally {
+            if (directory != null) {
+                directory.delete();
+            }
+        }
     }
 
-    private void setParameter(Object object, String variable, Object value) throws IllegalArgumentException,
-            IllegalAccessException {
+    private void setParameter(Object object, String variable, Object value)
+            throws IllegalArgumentException, IllegalAccessException {
         Field field = ReflectionUtils.getFieldByNameIncludingSuperclasses(variable, object.getClass());
         field.setAccessible(true);
         field.set(object, value);

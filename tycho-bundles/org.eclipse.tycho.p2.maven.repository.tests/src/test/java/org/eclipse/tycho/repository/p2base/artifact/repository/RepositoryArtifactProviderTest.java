@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - adjust test to changed exception message
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -25,11 +28,12 @@ import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -48,16 +52,12 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactPr
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
-import org.junit.Rule;
+import org.junit.Assume;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTestBase<IRawArtifactProvider> {
 
     private static final ArtifactTransferPolicy TRANSFER_POLICY = ArtifactTransferPolicies.forRemoteArtifacts();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Override
     protected IRawArtifactProvider createCompositeArtifactProvider(URI... repositoryURLs) throws Exception {
@@ -66,13 +66,13 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
 
     @Test
     public void testRepositoryLoadingFails() throws Exception {
-        expectedException.expectMessage(both(containsString("No repository found")).and(
-                containsString("nonRepoLocation")));
 
         URI locationWithoutArtifactRepository = new File("nonRepoLocation").getAbsoluteFile().toURI();
         subject = createCompositeArtifactProvider(locationWithoutArtifactRepository);
 
-        subject.query(ANY_ARTIFACT_KEY_QUERY, null);
+        Exception e = assertThrows(Exception.class, () -> subject.query(ANY_ARTIFACT_KEY_QUERY, null));
+        assertThat(e.getMessage(),
+                both(containsString("Load repository from url")).and(containsString("nonRepoLocation")));
     }
 
     @Test
@@ -83,10 +83,8 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         status = subject.getArtifact(testSink, null);
 
         assertThat(status, is(errorStatus()));
-        assertThat(
-                status.getMessage(),
-                both(containsString("An error occurred while transferring artifact")).and(
-                        containsString(REPO_BUNDLE_A_CORRUPT.toString())));
+        assertThat(status.getMessage(), both(containsString("An error occurred while transferring artifact"))
+                .and(containsString(REPO_BUNDLE_A_CORRUPT.toString())));
         assertThat(testSink.writeIsCommitted(), is(false));
     }
 
@@ -98,15 +96,14 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         status = subject.getRawArtifact(rawTestSink, null);
 
         assertThat(status, is(errorStatus()));
-        assertThat(
-                status.getMessage(),
-                both(containsString("An error occurred while transferring artifact")).and(
-                        containsString(REPO_BUNDLE_A_CORRUPT.toString())));
+        assertThat(status.getMessage(), both(containsString("An error occurred while transferring artifact"))
+                .and(containsString(REPO_BUNDLE_A_CORRUPT.toString())));
         assertThat(rawTestSink.writeIsCommitted(), is(false));
     }
 
     @Test
     public void testGetArtifactWherePreferredFormatIsCorrupt() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         subject = createCompositeArtifactProvider(REPO_BUNLDE_AB_PACK_CORRUPT);
 
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);
@@ -132,14 +129,12 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
     public void testGetArtifactWithSomeMirrorFailures() throws Exception {
         IArtifactRepository failingMirrorsRepository = createArtifactRepositoryMock();
         when(failingMirrorsRepository.contains(BUNDLE_A_KEY)).thenReturn(true);
-        when(failingMirrorsRepository.getArtifactDescriptors(BUNDLE_A_KEY)).thenReturn(
-                new IArtifactDescriptor[] { canonicalDescriptorFor(BUNDLE_A_KEY) });
-        when(
-                failingMirrorsRepository.getArtifact(argThat(is(canonicalDescriptorFor(BUNDLE_A_KEY))),
-                        any(OutputStream.class), any(IProgressMonitor.class)))
-                .thenReturn(errorWithRetry("mirror 1 failure")) //
-                .thenReturn(errorWithRetry("mirror 2 failure")) //
-                .thenReturn(Status.OK_STATUS);
+        when(failingMirrorsRepository.getArtifactDescriptors(BUNDLE_A_KEY))
+                .thenReturn(new IArtifactDescriptor[] { canonicalDescriptorFor(BUNDLE_A_KEY) });
+        when(failingMirrorsRepository.getArtifact(argThat(is(canonicalDescriptorFor(BUNDLE_A_KEY))),
+                any(OutputStream.class), any(IProgressMonitor.class))).thenReturn(errorWithRetry("mirror 1 failure")) //
+                        .thenReturn(errorWithRetry("mirror 2 failure")) //
+                        .thenReturn(Status.OK_STATUS);
         subject = new RepositoryArtifactProvider(Collections.singletonList(failingMirrorsRepository), TRANSFER_POLICY);
 
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);
@@ -154,12 +149,10 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
     public void testGetArtifactWithInfiniteMirrorFailures() throws Exception {
         IArtifactRepository failingMirrorsRepository = createArtifactRepositoryMock();
         when(failingMirrorsRepository.contains(BUNDLE_A_KEY)).thenReturn(true);
-        when(failingMirrorsRepository.getArtifactDescriptors(BUNDLE_A_KEY)).thenReturn(
-                new IArtifactDescriptor[] { canonicalDescriptorFor(BUNDLE_A_KEY) });
-        when(
-                failingMirrorsRepository.getArtifact(argThat(is(canonicalDescriptorFor(BUNDLE_A_KEY))),
-                        any(OutputStream.class), any(IProgressMonitor.class))).thenReturn(
-                errorWithRetry("mirror failure"));
+        when(failingMirrorsRepository.getArtifactDescriptors(BUNDLE_A_KEY))
+                .thenReturn(new IArtifactDescriptor[] { canonicalDescriptorFor(BUNDLE_A_KEY) });
+        when(failingMirrorsRepository.getArtifact(argThat(is(canonicalDescriptorFor(BUNDLE_A_KEY))),
+                any(OutputStream.class), any(IProgressMonitor.class))).thenReturn(errorWithRetry("mirror failure"));
         subject = new RepositoryArtifactProvider(Collections.singletonList(failingMirrorsRepository), TRANSFER_POLICY);
 
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);

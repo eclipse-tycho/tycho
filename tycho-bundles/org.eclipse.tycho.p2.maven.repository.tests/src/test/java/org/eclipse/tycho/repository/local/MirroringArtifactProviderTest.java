@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
@@ -20,8 +22,8 @@ import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
@@ -51,6 +53,7 @@ import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -73,10 +76,8 @@ public class MirroringArtifactProviderTest {
     // bundle already in local repository
     private static final IArtifactKey BUNDLE_L_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.core.jobs",
             Version.parseVersion("3.4.1.R34x_v20081128"));
-    private static final Set<String> BUNDLE_L_CONTENT_FILES = new HashSet<>(Arrays.asList(new String[] {
-            "META-INF/", "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/",
-            "org/eclipse/core/internal/", "org/eclipse/core/internal/jobs/", "org/eclipse/core/runtime/",
-            "org/eclipse/core/runtime/jobs/", "plugin.properties" }));
+    private static final Set<String> BUNDLE_L_CONTENT_FILES = new HashSet<>(
+            Arrays.asList("META-INF/", "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/", "org/eclipse/core/internal/", "org/eclipse/core/internal/jobs/", "org/eclipse/core/runtime/", "org/eclipse/core/runtime/jobs/", "plugin.properties"));
 
     // not available bundle
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
@@ -146,8 +147,8 @@ public class MirroringArtifactProviderTest {
         assertTrue(subject.contains(BUNDLE_L_KEY));
         assertFalse(subject.contains(OTHER_KEY));
 
-        assertFalse(subject.contains(new ArtifactKey(BUNDLE_A_KEY.getClassifier(), BUNDLE_A_KEY.getId(),
-                Version.emptyVersion)));
+        assertFalse(subject
+                .contains(new ArtifactKey(BUNDLE_A_KEY.getClassifier(), BUNDLE_A_KEY.getId(), Version.emptyVersion)));
 
         // no download triggered
         assertNotMirrored(BUNDLE_A_KEY);
@@ -175,6 +176,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetArtifact() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         testSink = newArtifactSinkFor(BUNDLE_B_KEY);
         status = subject.getArtifact(testSink, null);
 
@@ -207,14 +209,14 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetAlreadyMirroredArtifactFile() {
-        assertThat(subject.getArtifactFile(BUNDLE_L_KEY), is(new File(localRepositoryRoot,
-                localRepoPathOf(BUNDLE_L_KEY))));
+        assertThat(subject.getArtifactFile(BUNDLE_L_KEY),
+                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_L_KEY))));
     }
 
     @Test
     public void testGetArtifactFile() {
-        assertThat(subject.getArtifactFile(BUNDLE_A_KEY), is(new File(localRepositoryRoot,
-                localRepoPathOf(BUNDLE_A_KEY))));
+        assertThat(subject.getArtifactFile(BUNDLE_A_KEY),
+                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY))));
 
         assertMirrored(BUNDLE_A_KEY);
     }
@@ -226,6 +228,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetArtifactDescriptors_NoPackedMirroring() {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         assumeFalse(mirrorPacked);
 
         IArtifactDescriptor[] result = subject.getArtifactDescriptors(BUNDLE_B_KEY);
@@ -239,6 +242,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetArtifactDescriptors_WithPackedMirroring() {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         assumeTrue(mirrorPacked);
 
         IArtifactDescriptor[] result = subject.getArtifactDescriptors(BUNDLE_B_KEY);
@@ -277,8 +281,8 @@ public class MirroringArtifactProviderTest {
     @Test
     public void testGetRawCanonicalArtifactFile() {
         // the getArtifactFile method that takes a descriptor returns the raw file
-        assertThat(subject.getArtifactFile(canonicalDescriptorFor(BUNDLE_A_KEY)), is(new File(localRepositoryRoot,
-                localRepoPathOf(BUNDLE_A_KEY))));
+        assertThat(subject.getArtifactFile(canonicalDescriptorFor(BUNDLE_A_KEY)),
+                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY))));
 
         assertMirrored(BUNDLE_A_KEY);
     }
@@ -287,8 +291,8 @@ public class MirroringArtifactProviderTest {
     public void testGetRawPackedArtifactFile_WithPackedMirroring() {
         assumeTrue(mirrorPacked);
 
-        assertThat(subject.getArtifactFile(packedDescriptorFor(BUNDLE_A_KEY)), is(new File(localRepositoryRoot,
-                localRepoPathOf(BUNDLE_A_KEY, "-pack200.jar.pack.gz"))));
+        assertThat(subject.getArtifactFile(packedDescriptorFor(BUNDLE_A_KEY)),
+                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY, "-pack200.jar.pack.gz"))));
 
         assertMirrored(BUNDLE_A_KEY);
     }
@@ -300,6 +304,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetRawCanonicalArtifact() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         rawTestSink = newRawArtifactSinkFor(canonicalDescriptorFor(BUNDLE_B_KEY));
         status = subject.getRawArtifact(rawTestSink, null);
 
@@ -311,6 +316,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetRawPackedArtifact_NoPackedMirroring() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         assumeFalse(mirrorPacked);
 
         rawTestSink = newRawArtifactSinkFor(packedDescriptorFor(BUNDLE_B_KEY));

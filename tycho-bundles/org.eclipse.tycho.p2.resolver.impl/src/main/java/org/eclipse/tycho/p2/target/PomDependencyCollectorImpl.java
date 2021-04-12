@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -17,10 +20,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
@@ -36,31 +41,30 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     private final MavenLogger logger;
 
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<>();
+    private ReactorProject project;
 
-    // TODO 412416 get rid of this field
-    private File projectLocation;
-
-    public PomDependencyCollectorImpl(MavenContext mavenContext) {
+    public PomDependencyCollectorImpl(MavenContext mavenContext, ReactorProject project) {
+        this.project = project;
         this.logger = mavenContext.getLogger();
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
-        this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, mavenContext.getLogger());
-    }
-
-    @Override
-    public void setProjectLocation(File projectLocation) {
-        this.projectLocation = projectLocation;
+        this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, project,
+                mavenContext.getLogger());
     }
 
     public File getProjectLocation() {
-        return projectLocation;
+        if (project != null) {
+            return project.getBasedir();
+        }
+        return null;
     }
 
     @Override
-    public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact) {
-        IInstallableUnit bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
-        if (bundleIU != null)
-            addMavenArtifact(artifact, Collections.singleton(bundleIU));
+    public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle) {
+        MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact, allowGenerateOSGiBundle);
+        if (bundleIU != null) {
+            addMavenArtifact(bundleIU.getArtifact(), Collections.singleton(bundleIU.getUnit()));
+        }
     }
 
     @Override
@@ -73,28 +77,33 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     }
 
     private Set<IInstallableUnit> readUnits(IArtifactFacade p2MetadataFile) throws IOException {
-        FileInputStream inputStream = new FileInputStream(p2MetadataFile.getLocation());
-        try {
+        try (FileInputStream inputStream = new FileInputStream(p2MetadataFile.getLocation())) {
             MetadataIO io = new MetadataIO();
             return io.readXML(inputStream);
-        } finally {
-            inputStream.close();
         }
     }
 
     public void addMavenArtifact(IArtifactFacade artifact, Set<IInstallableUnit> units) {
         for (IInstallableUnit unit : units) {
             String classifier = unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
-            if (classifier == null ? artifact.getClassifier() == null : classifier.equals(artifact.getClassifier())) {
+            if (Objects.equals(classifier, artifact.getClassifier())) {
                 mavenInstallableUnits.put(unit, artifact);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("P2Resolver: artifact "
-                            + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion())
-                                    .toString() + " at location " + artifact.getLocation()
-                            + " resolves installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
+                    logger.debug(
+                            "P2Resolver: artifact "
+                                    + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion())
+                                            .toString()
+                                    + " at location " + artifact.getLocation() + " resolves installable unit "
+                                    + new VersionedId(unit.getId(), unit.getVersion()));
                 }
+            } else if (logger.isDebugEnabled()) {
+                logger.debug("P2Resolver: artifact "
+                        + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()).toString()
+                        + " for installable unit " + new VersionedId(unit.getId(), unit.getVersion())
+                        + " is ignored because of classifier missmatch");
             }
         }
+
     }
 
     LinkedHashSet<IInstallableUnit> gatherMavenInstallableUnits() {

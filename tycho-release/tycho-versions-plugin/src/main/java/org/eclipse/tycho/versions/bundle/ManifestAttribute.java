@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -45,7 +47,7 @@ public class ManifestAttribute {
     }
 
     private String chopNewLine(String str) {
-        if (str.length() > 0) {
+        if (!str.isEmpty()) {
             char lastChar = str.charAt(str.length() - 1);
             if (lastChar == '\n' || lastChar == '\r' || lastChar == '\u2028' || lastChar == '\u2029'
                     || lastChar == '\u0085') // see Scanner#LINE_SEPARATOR_PATTERN

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
@@ -22,12 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -66,8 +69,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     private static final IArtifactDescriptor[] EMPTY_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
 
-    protected Set<ArtifactDescriptorT> descriptors = new HashSet<>();
-    protected Map<IArtifactKey, Set<ArtifactDescriptorT>> descriptorsMap = new HashMap<>();
+    protected Map<IArtifactKey, Set<ArtifactDescriptorT>> descriptorsMap = new ConcurrentHashMap<>();
 
     private ArtifactTransferPolicy transferPolicy;
 
@@ -80,7 +82,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     /**
      * Returns an {@link IArtifactDescriptor} instance which is comparable to the artifact
-     * descriptors stored in the index (i.e. the {@link #descriptors} member). A valid
+     * descriptors stored in the index (i.e. the {@link #descriptorsMap} member). A valid
      * implementation is to convert the argument to the internal descriptor type
      * <code>ArtifactDescriptorT</code>, but this is not a requirement. This method should be
      * implemented in a way so that calling
@@ -106,7 +108,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     public final boolean contains(IArtifactDescriptor descriptor) {
-        return descriptors.contains(getComparableDescriptor(descriptor));
+        IArtifactDescriptor comparableDescriptor = getComparableDescriptor(descriptor);
+        return descriptorsMap.values().stream().anyMatch(set -> set.contains(comparableDescriptor));
     }
 
     @Override
@@ -120,20 +123,17 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     public final IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
-        // TODO 397355 copy collection for thread-safety
         return query.perform(descriptorsMap.keySet().iterator());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public final IQueryable<IArtifactDescriptor> descriptorQueryable() {
-        // TODO 397355 copy collection for thread-safety
-        return new IQueryable<IArtifactDescriptor>() {
-            @Override
-            public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
-                return query.perform((Iterator<IArtifactDescriptor>) descriptors.iterator());
-            }
-        };
+        return (query, monitor) -> query.perform((Iterator<IArtifactDescriptor>) flattenedValues().iterator());
+    }
+
+    protected final Stream<ArtifactDescriptorT> flattenedValues() {
+        return descriptorsMap.values().stream().flatMap(Collection::stream);
     }
 
     // index write access
@@ -163,36 +163,20 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     protected final void internalAddInternalDescriptor(ArtifactDescriptorT internalDescriptor) {
-        descriptors.add(internalDescriptor);
-
-        Set<ArtifactDescriptorT> descriptorsForKey = initDescriptorsMapEntry(internalDescriptor.getArtifactKey());
+        Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.computeIfAbsent(internalDescriptor.getArtifactKey(),
+                k -> ConcurrentHashMap.newKeySet());
         descriptorsForKey.add(internalDescriptor);
-    }
-
-    private Set<ArtifactDescriptorT> initDescriptorsMapEntry(IArtifactKey key) {
-        Set<ArtifactDescriptorT> mapEntry = descriptorsMap.get(key);
-
-        if (mapEntry == null) {
-            mapEntry = new HashSet<>();
-            descriptorsMap.put(key, mapEntry);
-        }
-        return mapEntry;
     }
 
     @Override
     protected final void internalRemoveDescriptor(IArtifactDescriptor descriptor) {
         IArtifactDescriptor comparableDescriptor = getComparableDescriptor(descriptor);
-        descriptors.remove(comparableDescriptor);
 
         IArtifactKey artifactKey = comparableDescriptor.getArtifactKey();
-        Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.get(artifactKey);
-        if (descriptorsForKey != null) {
-            descriptorsForKey.remove(comparableDescriptor);
-
-            if (descriptorsForKey.isEmpty()) {
-                descriptorsMap.remove(artifactKey);
-            }
-        }
+        descriptorsMap.computeIfPresent(artifactKey, (k, descriptors) -> {
+            descriptors.remove(comparableDescriptor);
+            return descriptors.isEmpty() ? null : descriptors;
+        });
     }
 
     @Override
@@ -204,12 +188,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     protected final void internalRemoveDescriptors(IArtifactKey key) {
-        Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.remove(key);
-        if (descriptorsForKey != null) {
-            for (ArtifactDescriptorT descriptor : descriptorsForKey) {
-                descriptors.remove(descriptor);
-            }
-        }
+        descriptorsMap.remove(key);
     }
 
     @Override
@@ -221,7 +200,6 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     @Override
     protected final void internalRemoveAllDescriptors() {
-        descriptors.clear();
         descriptorsMap.clear();
     }
 

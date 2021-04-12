@@ -4,3 +4,4 @@ Bundle-SymbolicName: fragment
 Bundle-Version: 1.0.0.qualifier
 Export-Package: fragment
 Fragment-Host: bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

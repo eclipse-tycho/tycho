@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
@@ -15,7 +17,7 @@ import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
@@ -26,6 +28,7 @@ import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifac
 import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,8 +56,8 @@ public class MirroringArtifactProviderErrorTest {
 
         subject = MirroringArtifactProvider.createInstance(localRepository,
                 new RepositoryArtifactProvider(singletonList(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT),
-                        ArtifactTransferPolicies.forRemoteArtifacts(), p2Context.getAgent()), false, logVerifier
-                        .getLogger());
+                        ArtifactTransferPolicies.forRemoteArtifacts(), p2Context.getAgent()),
+                false, logVerifier.getLogger());
     }
 
     @Test(expected = MirroringFailedException.class)
@@ -74,6 +77,7 @@ public class MirroringArtifactProviderErrorTest {
 
     @Test
     public void testMirrorArtifactWhichOnlySucceedsInSecondAttempt() throws Exception {
+        Assume.assumeTrue("This test requires pack200", Runtime.version().feature() < 14);
         assertThat(subject.contains(canonicalDescriptorFor(ARTIFACT_ONLY_PACK200_CORRUPT)), is(true));
 
         assertMirrored(ARTIFACT_ONLY_PACK200_CORRUPT);

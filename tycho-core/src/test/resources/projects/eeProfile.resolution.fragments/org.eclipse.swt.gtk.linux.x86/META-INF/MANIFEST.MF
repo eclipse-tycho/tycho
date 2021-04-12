@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Fragment-Host: org.eclipse.swt; bundle-version="[3.0.0,4.0.0)"
+Bundle-Name: %fragmentName
+Bundle-Vendor: %providerName
+Bundle-SymbolicName: org.eclipse.swt.gtk.linux.x86; singleton:=true
+Bundle-Version: 3.102.0.qualifier
+Bundle-ManifestVersion: 2
+Bundle-Localization: fragment
+Export-Package: org.eclipse.swt.graphics
+Eclipse-PlatformFilter: (& (osgi.ws=gtk) (osgi.os=linux) (osgi.arch=x86))
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

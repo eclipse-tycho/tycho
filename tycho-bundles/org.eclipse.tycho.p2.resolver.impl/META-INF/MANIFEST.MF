@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho p2 Resolver Bundle
 Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.impl;singleton:=true
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 2.4.0.qualifier
 Bundle-Activator: org.eclipse.tycho.p2.impl.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.security;bundle-version="1.0.100",
@@ -17,8 +17,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.p2.director;bundle-version="2.0.0",
  org.eclipse.equinox.p2.repository;bundle-version="2.0.0",
  org.eclipse.equinox.p2.updatesite;bundle-version="1.0.200",
- org.eclipse.core.net;bundle-version="1.2.100"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+ org.eclipse.core.net;bundle-version="1.2.100",
+ biz.aQute.bndlib;bundle-version="5.1.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.tycho.p2.impl;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.publisher;x-friends:="org.eclipse.tycho.p2.impl.test",
@@ -61,3 +62,4 @@ Service-Component: OSGI-INF/generator.xml,
  OSGI-INF/resolver.xml,
  OSGI-INF/targetDefinitionResolverService.xml
 Bundle-Vendor: %providerName
+Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl

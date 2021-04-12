@@ -1,23 +1,32 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich    - [Bug 538144] - Support other target locations (Directory, Features, Installations)
+ *                          - [Bug 533747] - Target file is read and parsed over and over again
+ *                          - [Bug 568729] - Support new "Maven" Target location
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
@@ -31,43 +40,56 @@ public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
 
-    private Map<ResolutionArguments, TargetDefinitionContent> resolutionCache = new HashMap<>();
+    private Map<ResolutionArguments, CompletableFuture<TargetDefinitionContent>> resolutionCache = new ConcurrentHashMap<>();
 
-    // (static) collaborator
-    private MavenLogger logger;
+    private MavenContext mavenContext;
+
+    private IProvisioningAgent provisioningAgent;
+
+    private final AtomicReference<MavenDependenciesResolver> dependenciesResolver = new AtomicReference<>();
 
     // constructor for DS
     public TargetDefinitionResolverService() {
     }
 
-    // constructor for tests
-    public TargetDefinitionResolverService(MavenContext mavenContext) {
-        this.logger = mavenContext.getLogger();
-    }
-
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
-            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
-        ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
+            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs,
+            IncludeSourceMode includeSourceMode, IProvisioningAgent agent) {
+        this.provisioningAgent = agent;
+        ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, includeSourceMode,
+                agent);
 
-        TargetDefinitionContent resolution = resolutionCache.get(arguments);
+        CompletableFuture<TargetDefinitionContent> future = resolutionCache.computeIfAbsent(arguments,
+                this::resolveFromArguments);
 
-        if (resolution == null) {
-            if (logger.isDebugEnabled()) {
-                debugCacheMiss(arguments);
-                logger.debug("Resolving target definition content...");
-            }
-
-            resolution = resolveFromArguments(arguments);
-            resolutionCache.put(arguments, resolution);
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException();
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException)
+                throw (RuntimeException) cause;
+            throw new RuntimeException(cause);
         }
-        return resolution;
+
     }
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
-    private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
+    private CompletableFuture<TargetDefinitionContent> resolveFromArguments(ResolutionArguments arguments) {
+        if (mavenContext.getLogger().isDebugEnabled()) {
+            debugCacheMiss(arguments);
+            mavenContext.getLogger().debug("Resolving target definition content...");
+        }
 
-        return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.agent, logger)
-                .resolveContent(arguments.definition);
+        TargetDefinitionResolver resolver = new TargetDefinitionResolver(arguments.environments, arguments.jreIUs,
+                arguments.includeSourceMode, mavenContext, dependenciesResolver.get());
+        try {
+            return CompletableFuture.completedFuture(resolver.resolveContent(arguments.definition, provisioningAgent));
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
     }
 
     private void debugCacheMiss(ResolutionArguments arguments) {
@@ -85,17 +107,27 @@ public class TargetDefinitionResolverService {
         }
 
         if (fieldsInWhichDistanceOneEntriesDiffer.isEmpty()) {
-            logger.debug(CACHE_MISS_MESSAGE + "All entries differ in more than one parameter");
+            mavenContext.getLogger().debug(CACHE_MISS_MESSAGE + "All entries differ in more than one parameter");
         } else {
-            logger.debug(CACHE_MISS_MESSAGE
-                    + "All entries differ, but there are entries which only differ in one parameter: "
-                    + fieldsInWhichDistanceOneEntriesDiffer);
+            mavenContext.getLogger()
+                    .debug(CACHE_MISS_MESSAGE
+                            + "All entries differ, but there are entries which only differ in one parameter: "
+                            + fieldsInWhichDistanceOneEntriesDiffer);
         }
     }
 
     // setter for DS
     public void setMavenContext(MavenContext mavenContext) {
-        this.logger = mavenContext.getLogger();
+        this.mavenContext = mavenContext;
+    }
+
+    // setter for DS
+    public void setMavenDependenciesResolver(MavenDependenciesResolver mavenDependenciesResolver) {
+        this.dependenciesResolver.set(mavenDependenciesResolver);
+    }
+
+    public void unsetMavenDependenciesResolver(MavenDependenciesResolver mavenDependenciesResolver) {
+        this.dependenciesResolver.compareAndSet(mavenDependenciesResolver, null);
     }
 
     private static final class ResolutionArguments {
@@ -104,12 +136,15 @@ public class TargetDefinitionResolverService {
         final List<TargetEnvironment> environments;
         final ExecutionEnvironmentResolutionHints jreIUs;
         final IProvisioningAgent agent;
+        private IncludeSourceMode includeSourceMode;
 
         public ResolutionArguments(TargetDefinition definition, List<TargetEnvironment> environments,
-                ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
+                ExecutionEnvironmentResolutionHints jreIUs, IncludeSourceMode includeSourceMode,
+                IProvisioningAgent agent) {
             this.definition = definition;
             this.environments = environments;
             this.jreIUs = jreIUs;
+            this.includeSourceMode = includeSourceMode;
             this.agent = agent;
         }
 
@@ -121,6 +156,7 @@ public class TargetDefinitionResolverService {
             result = prime * result + ((definition == null) ? 0 : definition.hashCode());
             result = prime * result + ((environments == null) ? 0 : environments.hashCode());
             result = prime * result + ((jreIUs == null) ? 0 : jreIUs.hashCode());
+            result = prime * result + ((includeSourceMode == null) ? 0 : includeSourceMode.hashCode());
             return result;
         }
 
@@ -135,7 +171,8 @@ public class TargetDefinitionResolverService {
             return eq(jreIUs, other.jreIUs) //
                     && eq(definition, other.definition) //
                     && eq(agent, other.agent) // expected to be object identity
-                    && eq(environments, other.environments);
+                    && eq(environments, other.environments) //
+                    && eq(includeSourceMode, other.includeSourceMode);
         }
 
         public List<String> getNonEqualFields(ResolutionArguments other) {
@@ -144,6 +181,7 @@ public class TargetDefinitionResolverService {
             addIfNonEqual(result, "execution environment", jreIUs, other.jreIUs);
             addIfNonEqual(result, "target environments", environments, other.environments);
             addIfNonEqual(result, "remote p2 repository options", agent, other.agent);
+            addIfNonEqual(result, "include source mode", includeSourceMode, other.includeSourceMode);
             return result;
         }
 

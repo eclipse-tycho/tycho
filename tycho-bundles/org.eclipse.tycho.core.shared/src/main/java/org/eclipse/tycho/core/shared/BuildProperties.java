@@ -1,16 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2021 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 
 package org.eclipse.tycho.core.shared;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +22,7 @@ import java.util.Map;
  * Represents a PDE build.properties file as defined by
  * 
  * <pre>
- * {@link http://help.eclipse.org/indigo/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm} .
+ * {@link https://help.eclipse.org/indigo/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm} .
  * </pre>
  * 
  * Note that not all keys defined by PDE are supported.
@@ -51,6 +55,8 @@ public interface BuildProperties {
 
     public Map<String, String> getJarToOutputFolderMap();
 
+    public Map<String, List<String>> getJarToExcludeFileMap();
+
     /**
      * Custom manifests for nested jars
      */
@@ -63,5 +69,7 @@ public interface BuildProperties {
     public Map<String, List<String>> getJarToExtraClasspathMap();
 
     public boolean isRootFilesUseDefaultExcludes();
+
+    public Collection<String> getAdditionalBundles();
 
 }

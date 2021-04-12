@@ -1,34 +1,27 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
 
 import org.apache.maven.it.Verifier;
-import org.apache.maven.it.util.DirectoryScanner;
+import org.apache.maven.shared.utils.io.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.TestName;
-import org.osgi.framework.Version;
 
 public abstract class AbstractTychoIntegrationTest {
 
@@ -74,7 +67,6 @@ public abstract class AbstractTychoIntegrationTest {
         return getVerifier(test, setTargetPlatform, userSettings, true);
     }
 
-    @SuppressWarnings("unchecked")
     protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings,
             boolean ignoreLocalArtifacts) throws Exception {
         /*
@@ -100,7 +92,7 @@ public abstract class AbstractTychoIntegrationTest {
         tmpDir.mkdirs();
         verifier.getCliOptions().add("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
-            verifier.getCliOptions().add("-Dtycho.targetPlatform=" + getTargetPlatform());
+            verifier.getCliOptions().add("-Dtarget-platform=" + getTargetPlatform());
         }
         if (ignoreLocalArtifacts) {
             verifier.getCliOptions().add("-Dtycho.localArtifacts=ignore");
@@ -111,7 +103,7 @@ public abstract class AbstractTychoIntegrationTest {
         verifier.setLocalRepo(EnvironmentUtil.getLocalRepo());
 
         String customOptions = System.getProperty("it.cliOptions");
-        if (customOptions != null && customOptions.trim().length() > 0) {
+        if (customOptions != null && !customOptions.trim().isEmpty()) {
             verifier.getCliOptions().add(customOptions);
         }
 
@@ -169,7 +161,7 @@ public abstract class AbstractTychoIntegrationTest {
     protected void assertFileExists(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
-        ds.setIncludes(new String[] { pattern });
+        ds.setIncludes(pattern);
         ds.scan();
         Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedFiles().length);
         Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
@@ -179,66 +171,23 @@ public abstract class AbstractTychoIntegrationTest {
     protected void assertDirectoryExists(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
-        ds.setIncludes(new String[] { pattern });
+        ds.setIncludes(pattern);
         ds.scan();
         Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedDirectories().length);
-        Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern, new File(targetdir,
-                ds.getIncludedDirectories()[0]).exists());
+        Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
+                new File(targetdir, ds.getIncludedDirectories()[0]).exists());
     }
 
     protected void assertFileDoesNotExist(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
-        ds.setIncludes(new String[] { pattern });
+        ds.setIncludes(pattern);
         ds.scan();
         Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedFiles().length);
     }
 
     protected String toURI(File file) throws IOException {
         return file.getCanonicalFile().toURI().normalize().toString();
-    }
-
-    protected void writeStringToFile(File iniFile, String string) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile));
-        try {
-            IOUtil.copy(string, os);
-        } finally {
-            IOUtil.close(os);
-        }
-    }
-
-    protected StringBuffer readFileToString(File iniFile) throws IOException {
-        InputStream is = new BufferedInputStream(new FileInputStream(iniFile));
-        try {
-            StringWriter buffer = new StringWriter();
-
-            IOUtil.copy(is, buffer, "UTF-8");
-
-            return buffer.getBuffer();
-        } finally {
-            IOUtil.close(is);
-        }
-    }
-
-    /**
-     * Returns approximate target platform version.
-     */
-    public static Version getEclipseVersion() {
-        String location = EnvironmentUtil.getTargetPlatform();
-
-        DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir(new File(location, "plugins"));
-        ds.setIncludes(new String[] { "org.eclipse.osgi_*.jar" });
-        ds.scan();
-
-        String[] files = ds.getIncludedFiles();
-        if (files == null || files.length < 1) {
-            throw new IllegalStateException("Unable to determine version of the test target platform " + location);
-        }
-
-        String version = files[0].substring("org.eclipse.osgi_".length(), files[0].length() - ".jar".length());
-
-        return Version.parseVersion(version);
     }
 
 }

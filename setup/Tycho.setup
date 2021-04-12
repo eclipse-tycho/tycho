@@ -8,16 +8,47 @@
     xmlns:maven="http://www.eclipse.org/oomph/setup/maven/1.0"
     xmlns:pde="http://www.eclipse.org/oomph/setup/pde/1.0"
     xmlns:predicates="http://www.eclipse.org/oomph/predicates/1.0"
+    xmlns:projects="http://www.eclipse.org/oomph/setup/projects/1.0"
     xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
     xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
     xmlns:setup.workingsets="http://www.eclipse.org/oomph/setup/workingsets/1.0"
-    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/maven/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Maven.ecore http://www.eclipse.org/oomph/setup/pde/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/PDE.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/workingsets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupWorkingSets.ecore"
+    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/maven/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Maven.ecore http://www.eclipse.org/oomph/setup/pde/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/PDE.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore http://www.eclipse.org/oomph/setup/workingsets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupWorkingSets.ecore"
     name="tycho"
     label="Tycho">
   <setupTask
+      xsi:type="setup:CompoundTask"
+      name="User Preferences">
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.core.resources">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.core.resources/description.autobuilding"
+          value="false"/>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.egit.ui">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.egit.ui/commit_dialog_signed_off_by"
+          value="true">
+        <description>Have egit add the signed-off-by footer to the commit message by default</description>
+      </setupTask>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.jdt.ui">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.text.custom_code_templates"
+          value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?>&lt;templates>&lt;template autoinsert=&quot;false&quot; context=&quot;filecomment_context&quot; deleted=&quot;false&quot; description=&quot;Comment for created Java files&quot; enabled=&quot;true&quot; id=&quot;org.eclipse.jdt.ui.text.codetemplates.filecomment&quot; name=&quot;filecomment&quot;>/*******************************************************************************&#xD;&#xA; * Copyright (c) $${currentDate:date('yyyy')} $${user} and others.&#xD;&#xA; * All rights reserved. This program and the accompanying materials&#xD;&#xA; * are made available under the terms of the Eclipse Public License v1.0&#xD;&#xA; * which accompanies this distribution, and is available at&#xD;&#xA; * http://www.eclipse.org/legal/epl-v10.html&#xD;&#xA; *&#xD;&#xA; * Contributors:&#xD;&#xA; *    $${user}&#xD;&#xA; *&#xD;&#xA; * TODO: comment here what the class does&#xD;&#xA; *******************************************************************************/&lt;/template>&lt;/templates>"/>
+    </setupTask>
+  </setupTask>
+  <setupTask
       xsi:type="jdt:JRETask"
-      version="JavaSE-1.7"
-      location="${jre.location-1.7}">
+      version="JavaSE-11"
+      location="${jre.location-11}">
     <description>Define the JRE needed to compile and run the Java projects of ${scope.project.label}</description>
   </setupTask>
   <setupTask
@@ -30,10 +61,22 @@
   <setupTask
       xsi:type="setup:ResourceCreationTask"
       excludedTriggers="STARTUP MANUAL"
-      content="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;section name=&quot;Workbench&quot;>&#xD;&#xA;&#x9;&lt;section name=&quot;org.eclipse.jdt.internal.ui.packageview.PackageExplorerPart&quot;>&#xD;&#xA;&#x9;&#x9;&lt;item value=&quot;true&quot; key=&quot;group_libraries&quot;/>&#xD;&#xA;&#x9;&#x9;&lt;item value=&quot;false&quot; key=&quot;linkWithEditor&quot;/>&#xD;&#xA;&#x9;&#x9;&lt;item value=&quot;2&quot; key=&quot;layout&quot;/>&#xD;&#xA;&#x9;&#x9;&lt;item value=&quot;2&quot; key=&quot;rootMode&quot;/>&#xD;&#xA;&#x9;&#x9;&lt;item value=&quot;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;packageExplorer configured=&amp;quot;true&amp;quot; group_libraries=&amp;quot;1&amp;quot; layout=&amp;quot;2&amp;quot; linkWithEditor=&amp;quot;0&amp;quot; rootMode=&amp;quot;2&amp;quot; sortWorkingSets=&amp;quot;false&amp;quot; workingSetName=&amp;quot;&amp;quot;&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;localWorkingSetManager&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;workingSet editPageId=&amp;quot;org.eclipse.jdt.internal.ui.OthersWorkingSet&amp;quot; factoryID=&amp;quot;org.eclipse.ui.internal.WorkingSetFactory&amp;quot; id=&amp;quot;1382792884467_1&amp;quot; label=&amp;quot;Other Projects&amp;quot; name=&amp;quot;Other Projects&amp;quot;/&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;/localWorkingSetManager&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;activeWorkingSet workingSetName=&amp;quot;Other Projects&amp;quot;/&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;allWorkingSets workingSetName=&amp;quot;Other Projects&amp;quot;/&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;/packageExplorer&amp;gt;&quot; key=&quot;memento&quot;/>&#xD;&#xA;&#x9;&lt;/section>&#xD;&#xA;&lt;/section>&#xD;&#xA;"
       targetURL="${workspace.location|uri}/.metadata/.plugins/org.eclipse.jdt.ui/dialog_settings.xml"
       encoding="UTF-8">
     <description>Initialize JDT's package explorer to show working sets as its root objects</description>
+    <content>
+      &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>
+      &lt;section name=&quot;Workbench&quot;>
+      	&lt;section name=&quot;org.eclipse.jdt.internal.ui.packageview.PackageExplorerPart&quot;>
+      		&lt;item value=&quot;true&quot; key=&quot;group_libraries&quot;/>
+      		&lt;item value=&quot;false&quot; key=&quot;linkWithEditor&quot;/>
+      		&lt;item value=&quot;2&quot; key=&quot;layout&quot;/>
+      		&lt;item value=&quot;2&quot; key=&quot;rootMode&quot;/>
+      		&lt;item value=&quot;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;packageExplorer configured=&amp;quot;true&amp;quot; group_libraries=&amp;quot;1&amp;quot; layout=&amp;quot;2&amp;quot; linkWithEditor=&amp;quot;0&amp;quot; rootMode=&amp;quot;2&amp;quot; sortWorkingSets=&amp;quot;false&amp;quot; workingSetName=&amp;quot;&amp;quot;&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;localWorkingSetManager&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;workingSet editPageId=&amp;quot;org.eclipse.jdt.internal.ui.OthersWorkingSet&amp;quot; factoryID=&amp;quot;org.eclipse.ui.internal.WorkingSetFactory&amp;quot; id=&amp;quot;1382792884467_1&amp;quot; label=&amp;quot;Other Projects&amp;quot; name=&amp;quot;Other Projects&amp;quot;/&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;/localWorkingSetManager&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;activeWorkingSet workingSetName=&amp;quot;Other Projects&amp;quot;/&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;allWorkingSets workingSetName=&amp;quot;Other Projects&amp;quot;/&amp;gt;&amp;#x0D;&amp;#x0A;&amp;lt;/packageExplorer&amp;gt;&quot; key=&quot;memento&quot;/>
+      	&lt;/section>
+      &lt;/section>
+
+    </content>
   </setupTask>
   <setupTask
       xsi:type="setup.p2:P2Task">
@@ -45,14 +88,20 @@
         name="com.ifedorenko.m2e.mavendev.feature.feature.group"/>
     <requirement
         name="com.ianbrandt.tools.m2e.mdp.feature.feature.group"/>
+    <requirement
+        name="org.eclipse.m2e.feature.feature.group"/>
+    <requirement
+        name="org.eclipse.m2e.logback.feature.feature.group"/>
     <repository
-        url="http://repo1.maven.org/maven2/.m2e/connectors/m2eclipse-tycho/0.8.0/N/0.8.0.201409231215/"/>
+        url="https://repo1.maven.org/maven2/.m2e/connectors/m2eclipse-tycho/0.8.1/N/0.8.1.201704211436/"/>
     <repository
-        url="http://repo1.maven.org/maven2/.m2e/connectors/m2eclipse-plexus/0.15.0/N/0.15.0.201207090126/"/>
+        url="https://repo1.maven.org/maven2/.m2e/connectors/m2eclipse-plexus/0.15.0/N/0.15.0.201409152016/"/>
     <repository
-        url="http://ifedorenko.github.com/m2e-extras/"/>
+        url="https://repo1.maven.org/maven2/.m2e/connectors/mavendev/0.5.0/N/0.5.0.201807010411/"/>
     <repository
-        url="http://ianbrandt.github.io/m2e-maven-dependency-plugin/0.0.4/"/>
+        url="http://ianbrandt.github.io/m2e-maven-dependency-plugin/"/>
+    <repository
+        url="https://download.eclipse.org/technology/m2e/releases/"/>
     <description>P2 Update Sites for the m2e connectors</description>
   </setupTask>
   <setupTask
@@ -75,67 +124,218 @@
         <value>remoteURI</value>
       </detail>
     </annotation>
+    <configSections
+        name="gerrit">
+      <properties
+          key="createchangeid"
+          value="true"/>
+    </configSections>
     <description>${scope.project.label}</description>
   </setupTask>
   <setupTask
-      xsi:type="git:GitCloneTask"
-      id="git.cloneTychoExtras"
-      remoteURI="tycho/org.eclipse.tycho.extras"
-      pushURI="">
-    <annotation
-        source="http://www.eclipse.org/oomph/setup/InducedChoices">
-      <detail
-          key="inherit">
-        <value>eclipse.gerrit.remoteURIs</value>
-      </detail>
-      <detail
-          key="label">
-        <value>${scope.project.label} Extras Gerrit repository</value>
-      </detail>
-      <detail
-          key="target">
-        <value>remoteURI</value>
-      </detail>
-    </annotation>
-    <description>${scope.project.label}</description>
-  </setupTask>
-  <setupTask
-      xsi:type="maven:MavenImportTask"
-      id="TychoProjectImport"
-      projectNameTemplate="">
-    <sourceLocator
-        rootFolder="${git.cloneTycho.location}"
-        locateNestedProjects="true"/>
-    <description>Imports all the Tycho Projects as Maven Projects</description>
-  </setupTask>
-  <setupTask
-      xsi:type="maven:MavenImportTask"
-      id="TychoExtrasProjectImport"
-      projectNameTemplate="">
-    <sourceLocator
-        rootFolder="${git.cloneTychoExtras.location}"
-        locateNestedProjects="true"/>
-    <description>Imports all the Tycho Extra Projects as Maven Projects</description>
-  </setupTask>
-  <setupTask
-      xsi:type="setup.workingsets:WorkingSetTask">
+      xsi:type="setup.workingsets:WorkingSetTask"
+      id="workingsets.tycho">
     <workingSet
         name="Tycho">
       <predicate
-          xsi:type="predicates:RepositoryPredicate"
-          project="tycho"/>
+          xsi:type="predicates:LocationPredicate"
+          pattern=".*tycho.*"/>
     </workingSet>
-    <workingSet
-        name="TychoExtras">
-      <predicate
-          xsi:type="predicates:RepositoryPredicate"
-          project="tycho-extras"/>
-    </workingSet>
-    <description>The dynamic working sets for ${scope.project.label}</description>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:CompoundTask"
+      name="Maven Project Import">
+    <setupTask
+        xsi:type="maven:MavenImportTask">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-bundles/tycho-bundles-target"
+          locateNestedProjects="true"/>
+      <description>Import Target Platform Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        id="TychoProjectImport"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}"/>
+      <description>Import the root project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/sisu-equinox"
+          locateNestedProjects="true"/>
+      <description>Import project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/target-platform-configuration"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-artifactcomparator"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-bundles"
+          locateNestedProjects="true"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-compiler-jdt"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-compiler-plugin"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-core"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-embedder-api"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-extras"
+          locateNestedProjects="true"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-lib-detector"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-maven-plugin"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-metadata-model"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-p2"
+          locateNestedProjects="true"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-packaging-plugin"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-pomgenerator-plugin"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-release"
+          locateNestedProjects="true"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-releng"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-source-plugin"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-surefire"
+          locateNestedProjects="true"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-testing-harness"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-its"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <description>Maven Project Import</description>
   </setupTask>
   <setupTask
       xsi:type="pde:TargetPlatformTask"
-      name="Target platform for Tycho's bundles"/>
+      name="Target platform for Tycho's bundles">
+    <description>Set Tycho Target Platform</description>
+  </setupTask>
+  <setupTask
+      xsi:type="projects:ProjectsBuildTask"
+      refresh="true"
+      clean="true"/>
+  <setupTask
+      xsi:type="setup:CompoundTask"
+      name="User Preferences">
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.core.resources">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.core.resources/description.autobuilding"
+          value="true"/>
+    </setupTask>
+  </setupTask>
   <stream name="master"
       label="master">
     <description>Tycho Master</description>

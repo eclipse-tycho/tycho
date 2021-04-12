@@ -1,14 +1,18 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2013 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
+
+import static java.util.stream.Collectors.toSet;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -18,7 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -39,6 +47,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     private Set<IArtifactDescriptor> descriptorsOnLastSave;
     private final LocalRepositoryP2Indices localRepoIndices;
     private final RepositoryReader contentLocator;
+    private final Map<IArtifactKey, Lock> downloadLocks = new ConcurrentHashMap<>();
 
     // TODO what is the agent needed for? does using the default agent harm?
     public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices) {
@@ -73,16 +82,13 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     index.removeGav(gav);
                 } else {
-                    final InputStream is = new FileInputStream(contentLocator.getLocalArtifactLocation(gav,
-                            RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                            RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS));
-                    try {
+                    try (InputStream is = new FileInputStream(
+                            contentLocator.getLocalArtifactLocation(gav, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
+                                    RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS))) {
                         final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
                         for (IArtifactDescriptor descriptor : gavDescriptors) {
                             internalAddDescriptor(descriptor);
                         }
-                    } finally {
-                        is.close();
                     }
                 }
             } catch (IOException e) {
@@ -91,16 +97,17 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
             }
         }
 
-        descriptorsOnLastSave = new HashSet<IArtifactDescriptor>(descriptors);
+        descriptorsOnLastSave = flattenedValues().collect(toSet());
     }
 
-    private void saveMaven() {
+    private synchronized void saveMaven() {
         File location = getBasedir();
 
         TychoRepositoryIndex index = localRepoIndices.getArtifactsIndex();
 
         ArtifactsIO io = new ArtifactsIO();
 
+        Set<GAVArtifactDescriptor> descriptors = flattenedValues().collect(toSet());
         Set<IArtifactDescriptor> changedDescriptors = new HashSet<IArtifactDescriptor>(descriptors);
         changedDescriptors.removeAll(descriptorsOnLastSave);
 
@@ -122,13 +129,8 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                 File file = new File(location, relpath);
                 file.getParentFile().mkdirs();
 
-                try {
-                    OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-                    try {
-                        io.writeXML(keyDescriptors, os);
-                    } finally {
-                        os.close();
-                    }
+                try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
+                    io.writeXML(keyDescriptors, os);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -201,4 +203,12 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         return true;
     }
 
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return contains(artifactKey);
+    }
+
+    Lock getLockForDownload(IArtifactKey key) {
+        return downloadLocks.computeIfAbsent(key, k -> new ReentrantLock());
+    }
 }

@@ -1,62 +1,72 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
+ *                          - [Bug 533747] Target file is read and parsed over and over again
+ *                          - [Bug 568729] Support new "Maven" Target location
+ *                          - [Bug 569060] All ids of target file must be different 
+ *                          - [Bug 569481] Support for maven target location includeSource="true" attribute
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.query.CompoundQueryable;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.BuildFailureException;
+import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
+import org.eclipse.tycho.p2.resolver.FileTargetDefinitionContent;
+import org.eclipse.tycho.p2.resolver.InstallableUnitResolver;
+import org.eclipse.tycho.p2.resolver.MavenTargetDefinitionContent;
+import org.eclipse.tycho.p2.resolver.URITargetDefinitionContent;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.DirectoryLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.FeaturesLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.PathLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.ProfileLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
-import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
-import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
-import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
-import org.eclipse.tycho.p2.util.resolution.SlicerResolutionStrategy;
-import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
+import org.eclipse.tycho.repository.p2base.artifact.repository.ListCompositeArtifactRepository;
+import org.eclipse.tycho.repository.p2base.artifact.repository.ListCompositeMetadataRepository;
+import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 /**
  * Class which performs target definition resolution. This class is used by the
@@ -66,10 +76,9 @@ import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonito
  */
 public final class TargetDefinitionResolver {
 
-    private static final String SOURCE_IU_ID = "org.eclipse.tycho.internal.target.source.bundles";
-
-    private IMetadataRepositoryManager metadataManager;
-    private IRepositoryIdManager repositoryIdManager;
+    private static final Pattern SYSTEM_PROPERTY_PATTERN = createVariablePatternArgument("system_property");
+    private static final Pattern PROJECT_LOC_PATTERN = createVariablePatternArgument("project_loc");
+    private static final Pattern ENV_VAR_PATTERN = createVariablePatternArgument("env_var");
 
     private final MavenLogger logger;
 
@@ -77,27 +86,30 @@ public final class TargetDefinitionResolver {
 
     private final ExecutionEnvironmentResolutionHints executionEnvironment;
 
-    private final IProgressMonitor monitor;
+    private MavenContext mavenContext;
+    private IncludeSourceMode includeSourceMode;
+    private MavenDependenciesResolver mavenDependenciesResolver;
 
     public TargetDefinitionResolver(List<TargetEnvironment> environments,
-            ExecutionEnvironmentResolutionHints executionEnvironment, IProvisioningAgent agent, MavenLogger logger) {
+            ExecutionEnvironmentResolutionHints executionEnvironment, IncludeSourceMode includeSourceMode,
+            MavenContext mavenContext, MavenDependenciesResolver mavenDependenciesResolver) {
         this.environments = environments;
         this.executionEnvironment = executionEnvironment;
-        this.logger = logger;
-        this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
-        this.metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-        this.repositoryIdManager = (IRepositoryIdManager) agent.getService(IRepositoryIdManager.SERVICE_NAME);
+        this.includeSourceMode = includeSourceMode;
+        this.mavenContext = mavenContext;
+        this.mavenDependenciesResolver = mavenDependenciesResolver;
+        this.logger = mavenContext.getLogger();
     }
 
-    public TargetDefinitionContent resolveContent(TargetDefinition definition) {
+    public TargetDefinitionContent resolveContent(TargetDefinition definition, IProvisioningAgent provisioningAgent) {
         try {
-            return resolveContentWithExceptions(definition);
+            return resolveContentWithExceptions(definition, provisioningAgent);
         } catch (TargetDefinitionSyntaxException e) {
-            throw new BuildFailureException("Invalid syntax in target definition " + definition.getOrigin() + ": "
-                    + e.getMessage(), e);
+            throw new BuildFailureException(
+                    "Invalid syntax in target definition " + definition.getOrigin() + ": " + e.getMessage(), e);
         } catch (TargetDefinitionResolutionException e) {
-            throw new BuildFailureException("Failed to resolve target definition " + definition.getOrigin() + ": "
-                    + e.getMessage(), e);
+            throw new BuildFailureException(
+                    "Failed to resolve target definition " + definition.getOrigin() + ": " + e.getMessage(), e);
         } catch (ResolverException e) {
             logResolverException(e);
             throw new BuildFailureException("Failed to resolve target definition " + definition.getOrigin(), e);
@@ -110,18 +122,65 @@ public final class TargetDefinitionResolver {
         logger.error("");
     }
 
-    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
+    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition,
+            IProvisioningAgent provisioningAgent)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException, ResolverException {
-
-        List<URI> artifactRepositories = new ArrayList<>();
-        ResolverRun resolverRun = new ResolverRun();
-
+        Collector<IInstallableUnit> unitResultSet = new Collector<>();
+        InstallableUnitResolver installableUnitResolver = null;
+        Map<String, FileTargetDefinitionContent> fileRepositories = new LinkedHashMap<>();
+        Map<String, URITargetDefinitionContent> uriRepositories = new LinkedHashMap<>();
+        List<MavenTargetDefinitionContent> mavenLocations = new ArrayList<>();
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation) {
-                resolverRun.addLocation((InstallableUnitLocation) locationDefinition);
-
-                for (Repository repository : ((InstallableUnitLocation) locationDefinition).getRepositories()) {
-                    artifactRepositories.add(repository.getLocation());
+                InstallableUnitLocation installableUnitLocation = (InstallableUnitLocation) locationDefinition;
+                if (installableUnitResolver == null) {
+                    installableUnitResolver = new InstallableUnitResolver(environments, executionEnvironment,
+                            includeSourceMode, logger);
+                }
+                List<URITargetDefinitionContent> locations = new ArrayList<>();
+                for (Repository repository : installableUnitLocation.getRepositories()) {
+                    URI location = repository.getLocation();
+                    String key = location.normalize().toASCIIString();
+                    locations.add(uriRepositories.computeIfAbsent(key,
+                            s -> new URITargetDefinitionContent(provisioningAgent, location, repository.getId())));
+                }
+                IQueryable<IInstallableUnit> locationUnits = QueryUtil.compoundQueryable(locations);
+                installableUnitResolver.addLocation((InstallableUnitLocation) locationDefinition, locationUnits);
+            } else if (locationDefinition instanceof PathLocation) {
+                PathLocation pathLocation = (PathLocation) locationDefinition;
+                File path = resolvePath(pathLocation.getPath(), definition);
+                if (path.exists()) {
+                    FileTargetDefinitionContent fileRepositoryRolver = fileRepositories.computeIfAbsent(
+                            path.getAbsolutePath(), key -> new FileTargetDefinitionContent(provisioningAgent, path));
+                    if (pathLocation instanceof DirectoryLocation || pathLocation instanceof ProfileLocation) {
+                        unitResultSet.addAll(
+                                fileRepositoryRolver.query(QueryUtil.ALL_UNITS, new LoggingProgressMonitor(logger)));
+                    } else if (pathLocation instanceof FeaturesLocation) {
+                        //
+                        FeaturesLocation featuresLocation = (FeaturesLocation) pathLocation;
+                        @SuppressWarnings("restriction")
+                        IArtifactKey key = org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction
+                                .createFeatureArtifactKey(featuresLocation.getId(), featuresLocation.getVersion());
+                        unitResultSet.addAll(fileRepositoryRolver.query(QueryUtil.createIUQuery(key),
+                                new LoggingProgressMonitor(logger)));
+                    }
+                } else {
+                    logger.warn("Target location path '" + path.getAbsolutePath()
+                            + "' does not exits, target resoloution might be incomplete.");
+                }
+            } else if (locationDefinition instanceof MavenGAVLocation) {
+                MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
+                MavenTargetDefinitionContent targetDefinitionContent = new MavenTargetDefinitionContent(location,
+                        mavenDependenciesResolver, includeSourceMode, provisioningAgent, logger);
+                mavenLocations.add(targetDefinitionContent);
+                IQueryResult<IInstallableUnit> result = targetDefinitionContent.query(QueryUtil.ALL_UNITS,
+                        new LoggingProgressMonitor(logger));
+                unitResultSet.addAll(result);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("The following artifacts where resolved from location " + location);
+                    for (IInstallableUnit iu : result.toUnmodifiableSet()) {
+                        logger.debug("\t" + iu);
+                    }
                 }
             } else {
                 logger.warn("Target location type '" + locationDefinition.getTypeDescription() + "' is not supported");
@@ -130,219 +189,116 @@ public final class TargetDefinitionResolver {
 
         if (definition.hasIncludedBundles()) {
             // the bundle selection list is currently not taken into account (see bug 373776)
-            logger.warn("De-selecting bundles in a target definition file is not supported. See http://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
+            logger.warn(
+                    "De-selecting bundles in a target definition file is not supported. See https://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
         }
 
-        return new TargetDefinitionContent(resolverRun.resolve(), artifactRepositories);
+        List<IMetadataRepository> metadataRepositories = new ArrayList<>();
+        List<IArtifactRepository> artifactRepositories = new ArrayList<>();
+        //preliminary step : add all file locations and make the installable unit resolver aware of it
+        for (FileTargetDefinitionContent fileDefinitionContent : fileRepositories.values()) {
+            metadataRepositories.add(fileDefinitionContent.getMetadataRepository());
+            artifactRepositories.add(fileDefinitionContent.getArtifactRepository());
+        }
+        //preliminary step : add all file locations and make the installable unit resolver aware of it
+        for (URITargetDefinitionContent uriDefinitionContent : uriRepositories.values()) {
+            metadataRepositories.add(uriDefinitionContent.getMetadataRepository());
+            artifactRepositories.add(uriDefinitionContent.getArtifactRepository());
+        }
+        //preliminary step : add all maven locations and make the installable unit resolver aware of it
+        for (MavenTargetDefinitionContent mavenContent : mavenLocations) {
+            metadataRepositories.add(mavenContent.getMetadataRepository());
+            artifactRepositories.add(mavenContent.getArtifactRepository());
+        }
+        //now we can resolve the p2 sources
+        if (installableUnitResolver != null) {
+            //FIXME installableUnitResolver should provide Meta+Artifact repositories so we have a complete view on the target!
+            IMetadataRepository metadataRepository = new ListCompositeMetadataRepository(metadataRepositories,
+                    provisioningAgent);
+            unitResultSet.addAll(installableUnitResolver.resolve(metadataRepository));
+        }
+        return new TargetDefinitionContent() {
+
+            private ListCompositeArtifactRepository artifactRepository;
+
+            private IMetadataRepository metadataRepository;
+
+            @Override
+            public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+                return unitResultSet.query(query, monitor);
+            }
+
+            @Override
+            public IMetadataRepository getMetadataRepository() {
+                if (metadataRepository == null) {
+                    metadataRepository = new ListCompositeMetadataRepository(metadataRepositories, provisioningAgent);
+                }
+                return metadataRepository;
+            }
+
+            @Override
+            public IArtifactRepository getArtifactRepository() {
+                if (artifactRepository == null) {
+                    artifactRepository = new ListCompositeArtifactRepository(provisioningAgent, artifactRepositories);
+                }
+                return artifactRepository;
+            }
+
+        };
     }
 
-    private class ResolverRun {
-
-        private List<IQueryable<IInstallableUnit>> availableUnitSources = new ArrayList<>();
-        private Set<IInstallableUnit> rootIUs = new LinkedHashSet<>();
-
-        private IncludeMode includeMode = null;
-        private Boolean includeAllEnvironments = null;
-        private Boolean includeSource = null;
-
-        public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException,
-                TargetDefinitionResolutionException {
-            setIncludeMode(iuLocationDefinition.getIncludeMode());
-            setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
-            setIncludeSource(iuLocationDefinition.includeSource());
-
-            LoadedIULocation loadedLocation = new LoadedIULocation(iuLocationDefinition);
-            rootIUs.addAll(loadedLocation.getRootIUs());
-
-            availableUnitSources.addAll(loadedLocation.getAvailableUnits());
-        }
-
-        private void setIncludeMode(IncludeMode newValue) throws TargetDefinitionResolutionException {
-            if (includeMode != newValue) {
-                if (includeMode != null) {
-                    throw new TargetDefinitionResolutionException("Include mode must be the same for all locations");
-                }
-                includeMode = newValue;
-            }
-        }
-
-        private void setIncludeAllEnvironments(Boolean newValue) throws TargetDefinitionResolutionException {
-            if (!newValue.equals(includeAllEnvironments)) {
-                if (includeAllEnvironments != null) {
-                    throw new TargetDefinitionResolutionException(
-                            "The attribute 'includeAllPlatforms' must be the same for all locations");
-                }
-                includeAllEnvironments = newValue;
-            }
-        }
-
-        private void setIncludeSource(Boolean newValue) {
-            if (!newValue.equals(includeSource)) {
-                if (includeSource != null) {
-                    throw new TargetDefinitionResolutionException(
-                            "The attribute 'includeSource' must be the same for all locations");
-                }
-                includeSource = newValue;
-            }
-        }
-
-        public Collection<IInstallableUnit> resolve() throws TargetDefinitionResolutionException, ResolverException {
-            if (!addedLocationsHaveContent()) {
-                return Collections.emptySet();
-            }
-
-            ResolutionDataImpl data = new ResolutionDataImpl(executionEnvironment);
-            data.setRootIUs(rootIUs);
-            data.setAvailableIUsAndFilter(compoundQueriable(availableUnitSources));
-
-            AbstractResolutionStrategy strategy = getResolutionStrategy();
-            strategy.setData(data);
-            Collection<IInstallableUnit> units = strategy.multiPlatformResolve(environments, monitor);
-            if (includeSource && !units.isEmpty()) {
-                addSourceBundleUnits(data, strategy, units);
-            }
-
-            return units;
-        }
-
-        private void addSourceBundleUnits(ResolutionDataImpl data, AbstractResolutionStrategy strategy,
-                Collection<IInstallableUnit> units) throws ResolverException {
-            // see org.eclipse.pde.internal.core.target.P2TargetUtils#createSourceIU()
-            final IRequirement bundleRequirement = MetadataFactory.createRequirement(
-                    "org.eclipse.equinox.p2.eclipse.type", "bundle", null, null, false, false, false);
-            ArrayList<IRequirement> sourceBundleRequirements = new ArrayList<>();
-            for (IInstallableUnit unit : units) {
-                if (unit.satisfies(bundleRequirement)) {
-                    final VersionRange perfectVersionMatch = new VersionRange(unit.getVersion(), true,
-                            unit.getVersion(), true);
-                    IRequirement optionalGreedySourceBundleRequirement = MetadataFactory.createRequirement(
-                            "osgi.bundle", unit.getId() + ".source", perfectVersionMatch, null, true, false, true);
-                    sourceBundleRequirements.add(optionalGreedySourceBundleRequirement);
-                }
-            }
-            InstallableUnitDescription sourceDescription = new MetadataFactory.InstallableUnitDescription();
-            sourceDescription.setId(SOURCE_IU_ID);
-            final Version sourceIUVersion = Version.createOSGi(1, 0, 0);
-            sourceDescription.setVersion(sourceIUVersion);
-            IProvidedCapability capability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID,
-                    SOURCE_IU_ID, sourceIUVersion);
-            sourceDescription.setCapabilities(new IProvidedCapability[] { capability });
-            sourceDescription.addRequirements(sourceBundleRequirements);
-
-            IInstallableUnit sourceIU = MetadataFactory.createInstallableUnit(sourceDescription);
-            // TODO also reconstruct strategy?
-            data.setRootIUs(Collections.singleton(sourceIU));
-            final TargetEnvironment nonFilteringEnvironment = new TargetEnvironment();
-            Collection<IInstallableUnit> sourceUnits = strategy.resolve(nonFilteringEnvironment, monitor);
-            sourceUnits.remove(sourceIU); // nobody wants to see our artificial IU
-            units.addAll(sourceUnits); // TODO: remove duplicates?
-        }
-
-        private boolean addedLocationsHaveContent() {
-            return !availableUnitSources.isEmpty();
-        }
-
-        private AbstractResolutionStrategy getResolutionStrategy() throws TargetDefinitionResolutionException {
-            switch (includeMode) {
-            case PLANNER:
-                return getPlannerResolutionStrategy();
-            case SLICER:
-                return getSlicerResolutionStrategy();
-            default:
-                throw new IllegalStateException();
-            }
-        }
-
-        private AbstractResolutionStrategy getSlicerResolutionStrategy() {
-            boolean ignoreFilters = includeAllEnvironments;
-            return new SlicerResolutionStrategy(logger, ignoreFilters);
-        }
-
-        private AbstractResolutionStrategy getPlannerResolutionStrategy() throws TargetDefinitionResolutionException {
-            if (includeAllEnvironments) {
-                throw new TargetDefinitionResolutionException(
-                        "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
-            }
-            return new ProjectorResolutionStrategy(logger);
-        }
-
-    }
-
-    private class LoadedIULocation {
-
-        private InstallableUnitLocation locationDefinition;
-        private List<IMetadataRepository> loadedRepositories;
-
-        public LoadedIULocation(InstallableUnitLocation locationDefinition) throws TargetDefinitionResolutionException {
-            this.locationDefinition = locationDefinition;
-
-            loadedRepositories = new ArrayList<>();
-            for (Repository repository : locationDefinition.getRepositories()) {
-                repositoryIdManager.addMapping(repository.getId(), repository.getLocation());
-                loadedRepositories.add(loadRepository(repository));
-            }
-        }
-
-        private IMetadataRepository loadRepository(Repository repository) throws TargetDefinitionResolutionException {
-            try {
-                return metadataManager.loadRepository(repository.getLocation(), monitor);
-            } catch (ProvisionException e) {
-                throw new TargetDefinitionResolutionException("Failed to load p2 metadata repository from location "
-                        + repository.getLocation(), e);
-            }
-        }
-
-        public Collection<? extends IQueryable<IInstallableUnit>> getAvailableUnits() {
-            return loadedRepositories;
-        }
-
-        public Collection<? extends IInstallableUnit> getRootIUs() throws TargetDefinitionSyntaxException,
-                TargetDefinitionResolutionException {
-            List<IInstallableUnit> result = new ArrayList<>();
-            for (Unit unitReference : locationDefinition.getUnits()) {
-                result.add(findUnitInThisLocation(unitReference));
-            }
-            return result;
-        }
-
-        private IInstallableUnit findUnitInThisLocation(Unit unitReference) throws TargetDefinitionSyntaxException,
-                TargetDefinitionResolutionException {
-            IQueryResult<IInstallableUnit> queryResult = findUnit(unitReference, compoundQueriable(loadedRepositories));
-
-            if (queryResult.isEmpty()) {
-                throw new TargetDefinitionResolutionException(NLS.bind(
-                        "Could not find \"{0}/{1}\" in the repositories of the current location",
-                        unitReference.getId(), unitReference.getVersion()));
-            }
-            // if the repository contains the same iu/version twice, both are identical and it is OK to use either
-            IInstallableUnit unitInstance = queryResult.iterator().next();
-            return unitInstance;
-        }
-
-        private IQueryResult<IInstallableUnit> findUnit(Unit unitReference, IQueryable<IInstallableUnit> units)
-                throws TargetDefinitionSyntaxException {
-            Version version = parseVersion(unitReference);
-
-            // the createIUQuery treats 0.0.0 version as "any version", and all other versions as exact versions
-            IQuery<IInstallableUnit> matchingIUQuery = QueryUtil.createIUQuery(unitReference.getId(), version);
-            IQuery<IInstallableUnit> latestMatchingIUQuery = QueryUtil.createLatestQuery(matchingIUQuery);
-
-            IQueryResult<IInstallableUnit> queryResult = units.query(latestMatchingIUQuery, new NullProgressMonitor());
-            return queryResult;
-        }
-
-        private Version parseVersion(Unit unitReference) throws TargetDefinitionSyntaxException {
-            try {
-                return Version.parseVersion(unitReference.getVersion());
-            } catch (IllegalArgumentException e) {
-                throw new TargetDefinitionSyntaxException(NLS.bind("Cannot parse version \"{0}\" of unit \"{1}\"",
-                        unitReference.getVersion(), unitReference.getId()), e);
-            }
+    protected File resolvePath(String path, TargetDefinition definition) throws ResolverException {
+        path = resolvePattern(path, SYSTEM_PROPERTY_PATTERN,
+                key -> mavenContext.getSessionProperties().getProperty(key, ""));
+        path = resolvePattern(path, ENV_VAR_PATTERN, key -> {
+            String env = System.getenv(key);
+            return env == null ? "" : env;
+        });
+        path = resolvePattern(path, PROJECT_LOC_PATTERN, this::findProjectLocation);
+        try {
+            return new File(path).getCanonicalFile();
+        } catch (IOException e) {
+            throw new ResolverException("I/O Error while resolve path " + path, e);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    static CompoundQueryable<IInstallableUnit> compoundQueriable(List<? extends IQueryable<IInstallableUnit>> queryable) {
-        return new CompoundQueryable<>(queryable.toArray(new IQueryable[queryable.size()]));
+    private String findProjectLocation(String projectName) {
+        for (ReactorProject project : mavenContext.getProjects()) {
+            if (project.getName().equals(projectName)) {
+                return project.getBasedir().getAbsolutePath();
+            }
+        }
+        for (ReactorProject project : mavenContext.getProjects()) {
+            if (project.getArtifactId().equals(projectName)) {
+                return project.getBasedir().getAbsolutePath();
+            }
+        }
+        for (ReactorProject project : mavenContext.getProjects()) {
+            if (project.getBasedir().getName().equals(projectName)) {
+                return project.getBasedir().getAbsolutePath();
+            }
+        }
+
+        //if we can't resolve this, we will return the original one as this might be intentional to not include the project in the build
+        String defaultValue = "${project_loc:" + projectName + "}";
+        logger.warn("Can't resolve " + defaultValue + " target resoloution might be incomplete");
+        return defaultValue;
     }
+
+    private static String resolvePattern(String input, Pattern pattern, Function<String, String> parameterResolver) {
+        Matcher matcher = pattern.matcher(input);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            String group = matcher.group(1);
+            String resolved = parameterResolver.apply(group);
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(resolved));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    private static Pattern createVariablePatternArgument(String variableName) {
+        return Pattern.compile("\\$\\{" + variableName + ":([^}]+)\\}", Pattern.CASE_INSENSITIVE);
+    }
+
 }

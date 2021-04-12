@@ -4,3 +4,4 @@ Bundle-SymbolicName: bundle.tests
 Bundle-Version: 1.0.0.qualifier
 DynamicImport-Package: bundle
 Require-Bundle: org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

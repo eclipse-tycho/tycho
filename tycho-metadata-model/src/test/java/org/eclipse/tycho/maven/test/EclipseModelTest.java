@@ -1,43 +1,47 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.maven.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
 
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Platform;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.UpdateSite;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLParser;
 
-public class EclipseModelTest extends TestCase {
+public class EclipseModelTest {
 
     File target = new File("target/modelio");
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @BeforeEach
+    public void setUp() throws Exception {
         target.mkdirs();
     }
 
+    @Test
     public void testUpdateSite() throws Exception {
         UpdateSite site = UpdateSite.read(new File("src/test/resources/modelio/site.xml"));
 
@@ -63,6 +67,7 @@ public class EclipseModelTest extends TestCase {
         assertTrue(updated.getArchives().isEmpty());
     }
 
+    @Test
     public void testFeature() throws Exception {
         Feature feature = Feature.read(new File("src/test/resources/modelio/feature.xml"));
 
@@ -114,6 +119,7 @@ public class EclipseModelTest extends TestCase {
         assertEquals("Test Copyright", feature.getCopyright());
     }
 
+    @Test
     public void testPlatform() throws Exception {
         Platform platform = Platform.read(new File("src/test/resources/modelio/platform.xml"));
 
@@ -164,6 +170,7 @@ public class EclipseModelTest extends TestCase {
         assertEquals(transientFeature.getVersion(), updatedFeatures.get(0).getVersion());
     }
 
+    @Test
     public void testDefaultXmlEncoding() throws Exception {
         // Run the test with -Dfile.encoding=Cp1252 to be sure
 

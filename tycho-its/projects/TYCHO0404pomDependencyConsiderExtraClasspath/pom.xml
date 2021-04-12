@@ -8,10 +8,6 @@
 
   <packaging>pom</packaging>
 
-  <properties>
-    <tycho-version>0.9.0-SNAPSHOT</tycho-version>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

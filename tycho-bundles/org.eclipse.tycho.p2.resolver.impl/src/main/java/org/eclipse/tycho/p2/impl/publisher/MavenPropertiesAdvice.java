@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -34,13 +36,14 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier) {
         this(groupId, artifactId, version);
-        if (classifier != null && classifier.length() > 0) {
+        if (classifier != null && !classifier.isEmpty()) {
             properties.put(RepositoryLayoutHelper.PROP_CLASSIFIER, classifier);
         }
     }
 
     @Override
     public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
+        // workaround Bug 539672
         // TODO this is a nasty hack, and it doesn't even work; see org.eclipse.equinox.p2.publisher.AbstractPublisherAction.processArtifactPropertiesAdvice(IInstallableUnit, IArtifactDescriptor, IPublisherInfo) 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String key = entry.getKey();

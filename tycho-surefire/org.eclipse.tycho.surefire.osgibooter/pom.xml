@@ -9,30 +9,39 @@
  - Contributors:
  -    Sonatype Inc. - initial API and implementation
  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-surefire</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
+		<artifactId>tycho-bundles</artifactId>
+		<version>2.4.0-SNAPSHOT</version>
+		<relativePath>../../tycho-bundles/pom.xml</relativePath>
 	</parent>
-
 	<artifactId>org.eclipse.tycho.surefire.osgibooter</artifactId>
 	<packaging>eclipse-plugin</packaging>
-
 	<name>Tycho Surefire OSGi Booter Eclipse Application</name>
-
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>about.html</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>about.html</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>jars</outputDirectory>
-				</configuration>
 				<executions>
 					<execution>
 						<id>copy</id>
@@ -41,10 +50,16 @@
 							<goal>copy</goal>
 						</goals>
 						<configuration>
+							<outputDirectory>jars</outputDirectory>
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.apache.maven.surefire</groupId>
 									<artifactId>surefire-api</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-logger-api</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
 								<artifactItem>
@@ -57,12 +72,36 @@
 									<artifactId>maven-surefire-common</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.plugins</groupId>
+									<artifactId>maven-failsafe-plugin</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>jars</directory>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tychoBootstrapVersion}</version>
+				<configuration>
+					<!-- let maven-resources-plugin do the filtering in src/main/resources -->
+					<copyResources>false</copyResources>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>

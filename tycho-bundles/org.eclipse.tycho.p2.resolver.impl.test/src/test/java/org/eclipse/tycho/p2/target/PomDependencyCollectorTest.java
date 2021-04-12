@@ -1,13 +1,16 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - Moved tests to a separate class; refactorings
+ *    Christoph Läubrich - Adjust to API
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -15,7 +18,7 @@ import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.Collection;
@@ -24,12 +27,14 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class PomDependencyCollectorTest {
 
@@ -40,10 +45,13 @@ public class PomDependencyCollectorTest {
 
     private ArtifactMock artifact;
 
+    @Rule
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+
     @Before
     public void setUpSubject() throws Exception {
         MavenContextImpl mavenContext = new MavenContextImpl(new File("dummy"), logVerifier.getLogger());
-        subject = new PomDependencyCollectorImpl(mavenContext);
+        subject = new PomDependencyCollectorImpl(mavenContext, new ReactorProjectStub(tempManager.newFolder(), "test"));
     }
 
     @Test
@@ -82,9 +90,9 @@ public class PomDependencyCollectorTest {
     }
 
     static ArtifactMock artifactWithClassifier(String classifier) throws Exception {
-        return new ArtifactMock(new File(
-                "resources/platformbuilder/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"), "groupId",
-                "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, classifier);
+        return new ArtifactMock(
+                new File("resources/platformbuilder/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"),
+                "groupId", "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, classifier);
     }
 
     static ArtifactMock existingMetadata() {
@@ -94,8 +102,8 @@ public class PomDependencyCollectorTest {
 
     private Collection<IInstallableUnit> getTargetPlatformUnits() {
         TestResolverFactory resolverFactory = new TestResolverFactory(logVerifier.getLogger());
-        P2TargetPlatform platform = resolverFactory.getTargetPlatformFactoryImpl().createTargetPlatform(
-                new TargetPlatformConfigurationStub(), NOOP_EE_RESOLUTION_HANDLER, null, subject);
+        P2TargetPlatform platform = resolverFactory.getTargetPlatformFactoryImpl()
+                .createTargetPlatform(new TargetPlatformConfigurationStub(), NOOP_EE_RESOLUTION_HANDLER, null, subject);
         return platform.getInstallableUnits();
     }
 }

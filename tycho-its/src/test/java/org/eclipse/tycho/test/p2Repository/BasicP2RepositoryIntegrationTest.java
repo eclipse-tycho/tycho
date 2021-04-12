@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2021 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -14,12 +16,12 @@ package org.eclipse.tycho.test.p2Repository;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.apache.maven.it.util.FileUtils;
+import org.apache.maven.shared.utils.io.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
@@ -34,11 +36,10 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
     private static Verifier verifier;
     private static P2RepositoryTool p2Repo;
 
-    @SuppressWarnings("unchecked")
     @BeforeClass
     public static void executeBuild() throws Exception {
         verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository", false);
-        verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_KEPLER.toString());
+        verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
@@ -60,10 +61,10 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 
     @Test
     public void testIncludeIUViaMatchQuery() throws Exception {
-        assertThat(p2Repo.getAllUnitIds(), hasItem("javax.xml"));
+        assertThat(p2Repo.getAllUnitIds(), hasItem("javax.annotation"));
 
         IU categoryIU = p2Repo.getUniqueIU("Test Category");
-        assertThat(categoryIU.getRequiredIds(), hasItem("javax.xml"));
+        assertThat(categoryIU.getRequiredIds(), hasItem("javax.annotation"));
     }
 
     @Test

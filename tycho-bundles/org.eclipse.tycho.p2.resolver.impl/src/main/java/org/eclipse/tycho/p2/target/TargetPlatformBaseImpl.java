@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -131,6 +133,24 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
     @Override
     public final void saveLocalMavenRepository() {
         localArtifactRepository.save();
+    }
+
+    @Override
+    public File getArtifactLocation(org.eclipse.tycho.ArtifactKey artifact) {
+        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
+        if (p2Artifact != null) {
+            return artifacts.getArtifactFile(p2Artifact);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(org.eclipse.tycho.ArtifactKey artifact) {
+        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
+        if (p2Artifact != null) {
+            return artifacts.isFileAlreadyAvailable(p2Artifact);
+        }
+        return false;
     }
 
 }

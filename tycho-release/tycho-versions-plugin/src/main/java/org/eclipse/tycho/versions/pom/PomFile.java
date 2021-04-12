@@ -1,13 +1,16 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
+ *    Christoph Läubrich - Bug 550313 - tycho-versions-plugin uses hard-coded polyglot file 
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom;
 
@@ -26,8 +29,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.codehaus.plexus.util.IOUtil;
-
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.Node;
@@ -40,7 +41,6 @@ import de.pdark.decentxml.XMLWriter;
 public class PomFile {
 
     public static final String POM_XML = "pom.xml";
-    public static final String POLYGLOT_POM_XML = ".polyglot.build.properties";
     private static final String DEFAULT_XML_ENCODING = "UTF-8";
 
     private static XMLParser parser = new XMLParser();
@@ -68,13 +68,10 @@ public class PomFile {
     }
 
     public static PomFile read(File file, boolean isMutable) throws IOException {
-        InputStream is = new BufferedInputStream(new FileInputStream(file));
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
             return read(is, isMutable);
         } catch (XMLParseException xpe) {
             throw new XMLParseException("This Pom " + file.getAbsolutePath() + " is in the Wrong Format", xpe);
-        } finally {
-            IOUtil.close(is);
         }
     }
 
@@ -95,11 +92,8 @@ public class PomFile {
     }
 
     public static void write(PomFile pom, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             write(pom, os);
-        } finally {
-            IOUtil.close(os);
         }
     }
 

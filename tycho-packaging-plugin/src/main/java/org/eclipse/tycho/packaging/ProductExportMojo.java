@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -14,7 +16,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +44,6 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.ArchiveEntryUtils;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -57,6 +57,7 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -65,8 +66,9 @@ import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.BundleConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration;
 
-@Mojo(name = "product-export")
+@Mojo(name = "product-export", threadSafe = true)
 public class ProductExportMojo extends AbstractTychoPackagingMojo {
+    private static final Object LOCK = new Object();
     /**
      * The product configuration, a .product file. This file manages all aspects of a product
      * definition from its constituent plug-ins to configuration files to branding.
@@ -118,109 +120,110 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     private BundleReader manifestReader;
 
     @Component
-    private Logger logger;
-
-    @Component
     private FileLockService fileLockService;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        getLog().warn(
-                "The packaging type 'eclipse-application' is deprecated; use 'eclipse-repository' instead. "
-                        + "See http://wiki.eclipse.org/Tycho_Messages_Explained#Eclipse_Application");
-        if (!productConfigurationFile.exists()) {
-            throw new MojoExecutionException("Product configuration file not found "
-                    + productConfigurationFile.getAbsolutePath());
-        }
+        synchronized (LOCK) {
+            getLog().warn("The packaging type 'eclipse-application' is deprecated; use 'eclipse-repository' instead. "
+                    + "See https://wiki.eclipse.org/Tycho_Messages_Explained#Eclipse_Application");
+            if (!productConfigurationFile.exists()) {
+                throw new MojoExecutionException(
+                        "Product configuration file not found " + productConfigurationFile.getAbsolutePath());
+            }
 
-        try {
-            getLog().debug("Parsing productConfiguration");
-            productConfiguration = ProductConfiguration.read(productConfigurationFile);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error reading product configuration file", e);
-        }
+            try {
+                getLog().debug("Parsing productConfiguration");
+                productConfiguration = ProductConfiguration.read(productConfigurationFile);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error reading product configuration file", e);
+            }
 
-        // build results will vary from system to system without explicit target environment configuration
-        boolean implicitTargetEnvironment = TychoProjectUtils.getTargetPlatformConfiguration(project)
-                .isImplicitTargetEnvironment();
-        if (productConfiguration.includeLaunchers() && implicitTargetEnvironment && environments == null) {
-            throw new MojoFailureException("Product includes native launcher but no target environment was specified");
-        }
+            // build results will vary from system to system without explicit target environment configuration
+            boolean implicitTargetEnvironment = TychoProjectUtils
+                    .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).isImplicitTargetEnvironment();
+            if (productConfiguration.includeLaunchers() && implicitTargetEnvironment && environments == null) {
+                throw new MojoFailureException(
+                        "Product includes native launcher but no target environment was specified");
+            }
 
-        if (separateEnvironments) {
-            for (TargetEnvironment environment : getEnvironments()) {
-                File target = getTarget(environment);
+            if (separateEnvironments) {
+                for (TargetEnvironment environment : getEnvironments()) {
+                    File target = getTarget(environment);
+                    File targetEclipse = new File(target, "eclipse");
+                    targetEclipse.mkdirs();
+
+                    generateDotEclipseProduct(targetEclipse);
+                    generateConfigIni(environment, targetEclipse);
+                    includeRootFiles(environment, targetEclipse);
+
+                    ProductAssembler assembler = new ProductAssembler(plexus, manifestReader, targetEclipse,
+                            environment);
+                    assembler.setIncludeSources(includeSources);
+                    getDependencyWalker(environment).walk(assembler);
+
+                    if (productConfiguration.includeLaunchers()) {
+                        copyExecutable(environment, targetEclipse);
+                    }
+
+                    if (createProductArchive) {
+                        createProductArchive(target, toString(environment));
+                    }
+                }
+            } else {
+                File target = getTarget(null);
                 File targetEclipse = new File(target, "eclipse");
                 targetEclipse.mkdirs();
 
                 generateDotEclipseProduct(targetEclipse);
-                generateConfigIni(environment, targetEclipse);
-                includeRootFiles(environment, targetEclipse);
+                generateConfigIni(null, targetEclipse);
 
-                ProductAssembler assembler = new ProductAssembler(session, manifestReader, targetEclipse, environment);
+                for (TargetEnvironment environment : getEnvironments()) {
+                    includeRootFiles(environment, targetEclipse);
+                }
+
+                ProductAssembler assembler = new ProductAssembler(plexus, manifestReader, targetEclipse, null);
                 assembler.setIncludeSources(includeSources);
-                getDependencyWalker(environment).walk(assembler);
+                if (forcePackedDependencies) {
+                    assembler.setUnpackFeatures(false);
+                    assembler.setUnpackPlugins(false);
+                }
+                getDependencyWalker().walk(assembler);
 
                 if (productConfiguration.includeLaunchers()) {
-                    copyExecutable(environment, targetEclipse);
+                    for (TargetEnvironment environment : getEnvironments()) {
+                        copyExecutable(environment, targetEclipse);
+                    }
                 }
 
                 if (createProductArchive) {
-                    createProductArchive(target, toString(environment));
-                }
-            }
-        } else {
-            File target = getTarget(null);
-            File targetEclipse = new File(target, "eclipse");
-            targetEclipse.mkdirs();
-
-            generateDotEclipseProduct(targetEclipse);
-            generateConfigIni(null, targetEclipse);
-
-            for (TargetEnvironment environment : getEnvironments()) {
-                includeRootFiles(environment, targetEclipse);
-            }
-
-            ProductAssembler assembler = new ProductAssembler(session, manifestReader, targetEclipse, null);
-            assembler.setIncludeSources(includeSources);
-            if (forcePackedDependencies) {
-                assembler.setUnpackFeatures(false);
-                assembler.setUnpackPlugins(false);
-            }
-            getDependencyWalker().walk(assembler);
-
-            if (productConfiguration.includeLaunchers()) {
-                for (TargetEnvironment environment : getEnvironments()) {
-                    copyExecutable(environment, targetEclipse);
+                    createProductArchive(target, null);
                 }
             }
 
-            if (createProductArchive) {
-                createProductArchive(target, null);
+            // String version = getTychoProjectFacet().getArtifactKey( project ).getVersion();
+            // String productVersion = VersioningHelper.getExpandedVersion( project, version );
+            // productConfiguration.setVersion( productVersion.toString() );
+
+            try {
+                ProductConfiguration.write(productConfiguration, expandedProductFile);
+
+                if (p2inf.canRead()) {
+                    FileUtils.copyFile(p2inf, new File(expandedProductFile.getParentFile(), p2inf.getName()));
+                }
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error writing expanded product configuration file", e);
             }
-        }
 
-        // String version = getTychoProjectFacet().getArtifactKey( project ).getVersion();
-        // String productVersion = VersioningHelper.getExpandedVersion( project, version );
-        // productConfiguration.setVersion( productVersion.toString() );
-
-        try {
-            ProductConfiguration.write(productConfiguration, expandedProductFile);
-
-            if (p2inf.canRead()) {
-                FileUtils.copyFile(p2inf, new File(expandedProductFile.getParentFile(), p2inf.getName()));
+            if (!createProductArchive || environments != null) {
+                project.getArtifact().setFile(expandedProductFile);
             }
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error writing expanded product configuration file", e);
-        }
-
-        if (!createProductArchive || environments != null) {
-            project.getArtifact().setFile(expandedProductFile);
         }
     }
 
     private ArtifactDependencyWalker getDependencyWalker(TargetEnvironment environment) {
-        return getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_APPLICATION).getDependencyWalker(project, environment);
+        return getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_APPLICATION)
+                .getDependencyWalker(DefaultReactorProject.adapt(project), environment);
     }
 
     private List<TargetEnvironment> getEnvironments() {
@@ -230,7 +233,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             return Arrays.asList(environments);
         }
 
-        return TychoProjectUtils.getTargetPlatformConfiguration(project).getEnvironments();
+        return TychoProjectUtils.getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).getEnvironments();
     }
 
     private File getTarget(TargetEnvironment environment) {
@@ -270,7 +273,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
      * 
      * Not supported are the properties root.permissions and root.link.
      * 
-     * @see http 
+     * @see http
      *      ://help.eclipse.org/ganymede/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles
      *      .htm
      * @throws MojoExecutionException
@@ -279,51 +282,45 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         Properties properties = project.getProperties();
         String generatedBuildProperties = properties.getProperty("generatedBuildProperties");
         getLog().debug("includeRootFiles from " + generatedBuildProperties);
-        if (generatedBuildProperties != null) {
-            Properties rootProperties = new Properties();
-            try {
-                FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties));
-                try {
-                    rootProperties.load(stream);
-                } finally {
-                    stream.close();
-                }
-                if (!rootProperties.isEmpty()) {
-                    String config = getConfig(environment);
-                    String root = "root";
-                    String rootConfig = "root." + config;
-                    String rootFolder = "root.folder.";
-                    String rootConfigFolder = "root." + config + ".folder.";
-                    Set<Entry<Object, Object>> entrySet = rootProperties.entrySet();
-                    for (Iterator iterator = entrySet.iterator(); iterator.hasNext();) {
-                        Entry<String, String> entry = (Entry<String, String>) iterator.next();
-                        String key = entry.getKey().trim();
-                        // root=
-                        if (root.equals(key)) {
-                            handleRootEntry(target, entry.getValue(), null);
-                        }
-                        // root.xxx=
-                        else if (rootConfig.equals(key)) {
-                            handleRootEntry(target, entry.getValue(), null);
-                        }
-                        // root.folder.yyy=
-                        else if (key.startsWith(rootFolder)) {
-                            String subFolder = entry.getKey().substring((rootFolder.length()));
-                            handleRootEntry(target, entry.getValue(), subFolder);
-                        }
-                        // root.xxx.folder.yyy=
-                        else if (key.startsWith(rootConfigFolder)) {
-                            String subFolder = entry.getKey().substring((rootConfigFolder.length()));
-                            handleRootEntry(target, entry.getValue(), subFolder);
-                        } else {
-                            getLog().debug("ignoring property " + entry.getKey() + "=" + entry.getValue());
-                        }
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                throw new MojoExecutionException("Error including root files for product", e);
-            } catch (IOException e) {
-                throw new MojoExecutionException("Error including root files for product", e);
+        if (generatedBuildProperties == null) {
+            return;
+        }
+
+        Properties rootProperties = new Properties();
+        try (FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties))) {
+            rootProperties.load(stream);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error including root files for product", e);
+        }
+
+        String config = getConfig(environment);
+        String root = "root";
+        String rootConfig = "root." + config;
+        String rootFolder = "root.folder.";
+        String rootConfigFolder = "root." + config + ".folder.";
+        Set<Entry<Object, Object>> entrySet = rootProperties.entrySet();
+        for (Iterator iterator = entrySet.iterator(); iterator.hasNext();) {
+            Entry<String, String> entry = (Entry<String, String>) iterator.next();
+            String key = entry.getKey().trim();
+            // root=
+            if (root.equals(key)) {
+                handleRootEntry(target, entry.getValue(), null);
+            }
+            // root.xxx=
+            else if (rootConfig.equals(key)) {
+                handleRootEntry(target, entry.getValue(), null);
+            }
+            // root.folder.yyy=
+            else if (key.startsWith(rootFolder)) {
+                String subFolder = entry.getKey().substring((rootFolder.length()));
+                handleRootEntry(target, entry.getValue(), subFolder);
+            }
+            // root.xxx.folder.yyy=
+            else if (key.startsWith(rootConfigFolder)) {
+                String subFolder = entry.getKey().substring((rootConfigFolder.length()));
+                handleRootEntry(target, entry.getValue(), subFolder);
+            } else {
+                getLog().debug("ignoring property " + entry.getKey() + "=" + entry.getValue());
             }
         }
     }
@@ -436,8 +433,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         }
     }
 
-    private void generateConfigIni(TargetEnvironment environment, File target) throws MojoExecutionException,
-            MojoFailureException {
+    private void generateConfigIni(TargetEnvironment environment, File target)
+            throws MojoExecutionException, MojoFailureException {
         getLog().debug("Generating config.ini");
         Properties props = new Properties();
         String id = productConfiguration.getProduct();
@@ -455,14 +452,10 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         configsFolder.mkdirs();
 
         File configIni = new File(configsFolder, "config.ini");
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(configIni);
+        try (FileOutputStream fos = new FileOutputStream(configIni)) {
             props.store(fos, "Product Runtime Configuration File");
         } catch (IOException e) {
             throw new MojoExecutionException("Error creating .eclipseproduct file.", e);
-        } finally {
-            IOUtil.close(fos);
         }
     }
 
@@ -475,8 +468,6 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             // This is the wellknown set of bundles for Eclipse based application for 3.3 and 3.4 without p2
             bundlesToStart.put("org.eclipse.equinox.common", // 
                     new BundleConfiguration("org.eclipse.equinox.common", 2, true));
-            bundlesToStart.put("org.eclipse.update.configurator", //
-                    new BundleConfiguration("org.eclipse.update.configurator", 3, true));
             bundlesToStart.put("org.eclipse.core.runtime", // 
                     new BundleConfiguration("org.eclipse.core.runtime", -1, true));
         }
@@ -531,8 +522,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         return bundles;
     }
 
-    private void copyExecutable(TargetEnvironment environment, File target) throws MojoExecutionException,
-            MojoFailureException {
+    private void copyExecutable(TargetEnvironment environment, File target)
+            throws MojoExecutionException, MojoFailureException {
         getLog().debug("Creating launcher");
 
         ArtifactDescriptor artifact = getDependencyArtifacts().getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
@@ -542,7 +533,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             throw new MojoExecutionException("Native launcher is not found for " + environment.toString());
         }
 
-        File location = artifact.getLocation();
+        File location = artifact.getLocation(true);
 
         String os = environment.getOs();
         String ws = environment.getWs();
@@ -566,7 +557,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         // make launcher executable
         try {
             getLog().debug("running chmod");
-            ArchiveEntryUtils.chmod(launcher, 0755, logger);
+            ArchiveEntryUtils.chmod(launcher, 0755);
         } catch (ArchiverException e) {
             throw new MojoExecutionException("Unable to make launcher being executable", e);
         }
@@ -648,6 +639,17 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                         throw new MojoExecutionException("Unable to create ico.xpm", e);
                     }
                 }
+            } else if (PlatformPropertiesUtils.OS_FREEBSD.equals(os)) {
+                String icon = productConfiguration.getFreeBSDIcon();
+                if (icon != null) {
+                    try {
+                        File sourceXPM = new File(project.getBasedir(), removeFirstSegment(icon));
+                        File targetXPM = new File(launcher.getParentFile(), "icon.xpm");
+                        FileUtils.copyFile(sourceXPM, targetXPM);
+                    } catch (IOException e) {
+                        throw new MojoExecutionException("Unable to create ico.xpm", e);
+                    }
+                }
             } else if (PlatformPropertiesUtils.OS_MACOSX.equals(os)) {
                 String icon = productConfiguration.getMacIcon();
                 if (icon != null) {
@@ -677,24 +679,18 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private void writeStringToFile(File iniFile, String string) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile))) {
             IOUtil.copy(string, os);
-        } finally {
-            IOUtil.close(os);
         }
     }
 
     private StringBuffer readFileToString(File iniFile) throws IOException {
-        InputStream is = new BufferedInputStream(new FileInputStream(iniFile));
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(iniFile))) {
             StringWriter buffer = new StringWriter();
 
             IOUtil.copy(is, buffer, "UTF-8");
 
             return buffer.getBuffer();
-        } finally {
-            IOUtil.close(is);
         }
     }
 
@@ -768,7 +764,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         }
 
         if (PlatformPropertiesUtils.OS_LINUX.equals(os) || PlatformPropertiesUtils.OS_SOLARIS.equals(os)
-                || PlatformPropertiesUtils.OS_HPUX.equals(os) || PlatformPropertiesUtils.OS_AIX.equals(os)) {
+                || PlatformPropertiesUtils.OS_HPUX.equals(os) || PlatformPropertiesUtils.OS_AIX.equals(os)
+                || PlatformPropertiesUtils.OS_FREEBSD.equals(os)) {
             return new File(target, "launcher");
         }
 

@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -43,7 +45,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.PackagingType;
@@ -60,7 +61,7 @@ import org.osgi.framework.Version;
 /**
  * Goal to create a JAR-package containing all the source files of a osgi project.
  */
-@Mojo(name = "plugin-source", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "plugin-source", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     private static final String GOAL = "plugin-source";
@@ -107,8 +108,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private String qualifier;
 
     /**
-     * Whether default source excludes for SCM files defined in {@see
-     * AbstractScanner#DEFAULTEXCLUDES} should be used.
+     * Whether default source excludes for SCM files defined in
+     * {@see AbstractScanner#DEFAULTEXCLUDES} should be used.
      */
     @Parameter(defaultValue = "true")
     protected boolean useDefaultSourceExcludes;
@@ -244,17 +245,15 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         Properties l10nProps = readL10nProps(origManifest);
         String bundleName = getL10nResolvedValue(origManifest, BUNDLE_NAME, l10nProps);
         if (bundleName == null) {
-            getLog().warn(
-                    "Bundle-Name header not found in " + new File(project.getBasedir(), JarFile.MANIFEST_NAME)
-                            + ", fallback to Bundle-SymbolicName for source bundle");
+            getLog().warn("Bundle-Name header not found in " + new File(project.getBasedir(), JarFile.MANIFEST_NAME)
+                    + ", fallback to Bundle-SymbolicName for source bundle");
             bundleName = origManifest.getBundleSymbolicName();
         }
         String sourceBundleName = bundleName + " Source";
         String bundleVendor = getL10nResolvedValue(origManifest, BUNDLE_VENDOR, l10nProps);
         if (bundleVendor == null) {
-            getLog().warn(
-                    "Bundle-Vendor header not found in " + new File(project.getBasedir(), JarFile.MANIFEST_NAME)
-                            + ", fallback to 'unknown' for source bundle");
+            getLog().warn("Bundle-Vendor header not found in " + new File(project.getBasedir(), JarFile.MANIFEST_NAME)
+                    + ", fallback to 'unknown' for source bundle");
             bundleVendor = "unknown";
         }
         File l10nOutputDir = new File(project.getBuild().getDirectory(), "sourcebundle-l10n-gen");
@@ -263,14 +262,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         sourceL10nProps.setProperty(I18N_KEY_BUNDLE_VENDOR, bundleVendor);
         File l10nPropsFile = new File(l10nOutputDir, MANIFEST_BUNDLE_LOCALIZATION_FILENAME);
         l10nPropsFile.getParentFile().mkdirs();
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(l10nPropsFile);
+        try (OutputStream out = new FileOutputStream(l10nPropsFile)) {
             sourceL10nProps.store(out, "Source Bundle Localization");
         } catch (IOException e) {
             throw new MojoExecutionException("error while generating source bundle localization file", e);
-        } finally {
-            IOUtil.close(out);
         }
         Resource l10nResource = new Resource();
         l10nResource.setDirectory(l10nOutputDir.getAbsolutePath());
@@ -278,8 +273,9 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         return l10nResource;
     }
 
-    private Properties readL10nProps(OsgiManifest manifest) throws MojoExecutionException {
+    protected Properties readL10nProps(OsgiManifest manifest) throws MojoExecutionException {
         String bundleL10nBase = manifest.getValue(BUNDLE_LOCALIZATION);
+        boolean hasL10nProperty = bundleL10nBase != null;
         if (bundleL10nBase == null) {
             bundleL10nBase = BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
         }
@@ -288,19 +284,17 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             bundleL10nBase = "plugin";
             l10nPropsFile = new File(project.getBasedir(), bundleL10nBase + ".properties");
             if (!l10nPropsFile.isFile()) {
-                getLog().warn("bundle localization file " + l10nPropsFile + " not found");
+                if (hasL10nProperty) {
+                    getLog().warn("bundle localization file " + l10nPropsFile + " not found");
+                }
                 return null;
             }
         }
         Properties l10nProps = new Properties();
-        FileInputStream in = null;
-        try {
-            in = new FileInputStream(l10nPropsFile);
+        try (FileInputStream in = new FileInputStream(l10nPropsFile)) {
             l10nProps.load(in);
         } catch (IOException e) {
             throw new MojoExecutionException("error loading " + l10nPropsFile, e);
-        } finally {
-            IOUtil.close(in);
         }
         return l10nProps;
     }
@@ -418,8 +412,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
         for (PluginExecution execution : plugin.getExecutions()) {
             if (execution.getGoals().contains(GOAL)) {
-                boolean requireSourceRoots = Boolean.parseBoolean(getParameterValue(execution, "requireSourceRoots",
-                        "false"));
+                boolean requireSourceRoots = Boolean
+                        .parseBoolean(getParameterValue(execution, "requireSourceRoots", "false"));
                 if (requireSourceRoots) {
                     return true;
                 }

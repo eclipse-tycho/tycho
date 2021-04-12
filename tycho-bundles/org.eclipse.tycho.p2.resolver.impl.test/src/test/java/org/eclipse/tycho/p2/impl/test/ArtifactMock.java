@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2013 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -14,8 +16,9 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 
 public class ArtifactMock implements IArtifactFacade {
     private File location;
@@ -49,8 +52,8 @@ public class ArtifactMock implements IArtifactFacade {
     }
 
     public ArtifactMock(ReactorProjectStub project, String classifier) {
-        this(project.getBasedir(), project.getGroupId(), project.getArtifactId(), project.getVersion(), project
-                .getPackaging(), classifier);
+        this(project.getBasedir(), project.getGroupId(), project.getArtifactId(), project.getVersion(),
+                project.getPackaging(), classifier);
     }
 
     @Override
@@ -92,7 +95,9 @@ public class ArtifactMock implements IArtifactFacade {
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(true));
-        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(false));
+        this.dependencyMetadata = new LinkedHashSet<>(
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.SEED));
+        this.secondaryDependencyMetadata = new LinkedHashSet<>(
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.RESOLVE));
     }
 }

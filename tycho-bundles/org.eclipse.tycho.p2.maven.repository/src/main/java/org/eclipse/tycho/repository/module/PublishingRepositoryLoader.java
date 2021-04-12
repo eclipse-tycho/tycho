@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -40,8 +42,7 @@ class PublishingRepositoryLoader {
 
     public ModuleMetadataRepository getModuleMetadataRepository() {
 
-        IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
+        IMetadataRepositoryManager repoManager = agent.getService(IMetadataRepositoryManager.class);
 
         // TODO use p2metadata.xml file instead of folder? Could prevent loading a content.xml from the folder
         URI location = project.getBuildDirectory().getLocation().toURI();
@@ -63,7 +64,8 @@ class PublishingRepositoryLoader {
         }
     }
 
-    private ModuleMetadataRepository createModuleMetadataRepository(IMetadataRepositoryManager repoManager, URI location) {
+    private ModuleMetadataRepository createModuleMetadataRepository(IMetadataRepositoryManager repoManager,
+            URI location) {
         try {
             return (ModuleMetadataRepository) repoManager.createRepository(location, BUILD_REPOSITORY_NAME,
                     ModuleMetadataRepository.REPOSITORY_TYPE, EMPTY_MAP);
@@ -73,8 +75,7 @@ class PublishingRepositoryLoader {
     }
 
     public ModuleArtifactRepository getModuleArtifactRepository() {
-        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+        IArtifactRepositoryManager repoManager = agent.getService(IArtifactRepositoryManager.class);
 
         // TODO use p2artifacts.xml file instead of folder? Could prevent loading a artifacts.xml from the folder
         final URI location = project.getBuildDirectory().getLocation().toURI();
@@ -102,7 +103,8 @@ class PublishingRepositoryLoader {
         }
     }
 
-    private ModuleArtifactRepository createModuleArtifactRepository(IArtifactRepositoryManager repoManager, URI location) {
+    private ModuleArtifactRepository createModuleArtifactRepository(IArtifactRepositoryManager repoManager,
+            URI location) {
         try {
             return (ModuleArtifactRepository) repoManager.createRepository(location, BUILD_REPOSITORY_NAME,
                     ModuleArtifactRepository.REPOSITORY_TYPE, EMPTY_MAP);

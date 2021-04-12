@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2015 Sebastien Arod and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sebastien Arod - Initial implementation
@@ -30,9 +32,10 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
         VersionRange originalVersionRangeObject = VersionRange.valueOf(originalVersionRange);
         Version originalReferencedVersionObject = parseBaseVersion(originalReferencedVersion);
         Version newReferencedVersionObject = parseBaseVersion(newReferencedVersion);
+        Version newArtifactVersion = Version.valueOf(newReferencedVersion);
 
         VersionRange newVersionRangeObject = computeNewVersionRange(originalVersionRangeObject,
-                originalReferencedVersionObject, newReferencedVersionObject);
+                originalReferencedVersionObject, newReferencedVersionObject, newArtifactVersion);
 
         return newVersionRangeObject.toString();
     }
@@ -43,14 +46,15 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
     }
 
     private VersionRange computeNewVersionRange(VersionRange versionRange, Version originalReferencedVersion,
-            Version newReferencedVersion) {
+            Version newReferencedVersion, Version newArtifactVersion) {
         VersionRange newVersionRange;
         if (updateMatchingBounds) {
             newVersionRange = handleMatchingBouds(versionRange, originalReferencedVersion, newReferencedVersion);
         } else {
             newVersionRange = versionRange;
         }
-        return handleNewlyOutOfScopeVersions(newVersionRange, originalReferencedVersion, newReferencedVersion);
+        return handleNewlyOutOfScopeVersions(newVersionRange, originalReferencedVersion, newReferencedVersion,
+                newArtifactVersion);
     }
 
     private VersionRange handleMatchingBouds(VersionRange versionRange, Version originalReferencedVersion,
@@ -73,18 +77,30 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
     }
 
     private VersionRange handleNewlyOutOfScopeVersions(VersionRange versionRange, Version originalReferencedVersion,
-            Version newReferencedVersion) {
-        if (versionRange.includes(originalReferencedVersion) && !versionRange.includes(newReferencedVersion)) {
+            Version newReferencedVersion, Version newArtifactVersion) {
+        if (versionRange.includes(originalReferencedVersion) && !versionRange.includes(newArtifactVersion)) {
             // newVersions becomes out of scope adapt range
             if (newReferencedVersion.compareTo(originalReferencedVersion) > 0) {
                 // upgrading version adapt upper bound
-                versionRange = updateRightBound(versionRange, VersionRange.RIGHT_CLOSED, newReferencedVersion);
+                versionRange = handleRightBoundOutOfScopeVersions(versionRange, newReferencedVersion,
+                        newArtifactVersion);
             } else {
                 // downgrading version adapt lower bound
                 versionRange = updateLeftBound(versionRange, VersionRange.LEFT_CLOSED, newReferencedVersion);
             }
         }
         return versionRange;
+    }
+
+    private VersionRange handleRightBoundOutOfScopeVersions(VersionRange versionRange, Version newReferencedVersion,
+            Version newArtifactVersion) {
+        // if the new artifact version is one with a qualifier, we have to increase the right version range bound
+        // e.g. [1.0.0, 1.1.0] (new version: 1.2.0.qualifier) -> new range [1.0.0, 1.2.1) 
+        if (newArtifactVersion.getQualifier() != null && !newArtifactVersion.getQualifier().isEmpty()) {
+            return updateRightBound(versionRange, VersionRange.RIGHT_OPEN, new Version(newReferencedVersion.getMajor(),
+                    newReferencedVersion.getMinor(), newReferencedVersion.getMicro() + 1));
+        }
+        return updateRightBound(versionRange, VersionRange.RIGHT_CLOSED, newReferencedVersion);
     }
 
     private VersionRange updateLeftBound(VersionRange range, char leftType, Version leftVersion) {

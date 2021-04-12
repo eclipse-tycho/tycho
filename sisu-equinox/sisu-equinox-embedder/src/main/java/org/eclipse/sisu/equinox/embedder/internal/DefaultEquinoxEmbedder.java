@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -84,7 +86,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         equinoxLocator.locateRuntime(new EquinoxRuntimeDescription() {
             @Override
             public void addExtraSystemPackage(String systemPackage) {
-                if (systemPackage == null || systemPackage.length() == 0) {
+                if (systemPackage == null || systemPackage.isEmpty()) {
                     throw new IllegalArgumentException();
                 }
                 extraSystemPackages.add(systemPackage);
@@ -92,7 +94,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
 
             @Override
             public void addPlatformProperty(String property, String value) {
-                if (property == null || property.length() == 0) {
+                if (property == null || property.isEmpty()) {
                     throw new IllegalArgumentException();
                 }
                 platformProperties.put(property, value);
@@ -221,7 +223,6 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         if (!(tempConfigDir.mkdirs())) {
             throw new IOException("Could not create temp config dir " + tempConfigDir);
         }
-        FileUtils.copyFileToDirectory(new File(configDir, "config.ini"), tempConfigDir);
         this.tempEquinoxDir = equinoxTmp;
         return tempConfigDir.getAbsolutePath();
     }
@@ -229,7 +230,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
     private void activateBundlesInWorkingOrder() {
         // activate bundles which need to do work in their respective activator; stick to a working order (cf. bug 359787)
         // TODO this order should come from the EquinoxRuntimeLocator
-        tryActivateBundle("org.eclipse.equinox.ds");
+        tryActivateBundle("org.apache.felix.scr");
         tryActivateBundle("org.eclipse.equinox.registry");
         tryActivateBundle("org.eclipse.core.net");
     }
@@ -307,7 +308,6 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
     }
 
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T> T getService(Class<T> clazz, String filter) {
         checkStarted();
 

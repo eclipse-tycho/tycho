@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -12,7 +14,7 @@ package org.eclipse.tycho.packaging;
 
 import java.io.File;
 
-import org.apache.maven.execution.MavenSession;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
@@ -27,9 +29,9 @@ public class ProductAssembler extends UpdateSiteAssembler {
 
     private final BundleReader manifestReader;
 
-    public ProductAssembler(MavenSession session, BundleReader manifestReader, File target,
+    public ProductAssembler(PlexusContainer plexus, BundleReader manifestReader, File target,
             TargetEnvironment environment) {
-        super(session, target);
+        super(plexus, target);
         this.manifestReader = manifestReader;
         setUnpackPlugins(true);
         setUnpackFeatures(true);
@@ -50,7 +52,7 @@ public class ProductAssembler extends UpdateSiteAssembler {
     }
 
     private boolean isSourceBundle(PluginDescription plugin) {
-        OsgiManifest mf = manifestReader.loadManifest(plugin.getLocation());
+        OsgiManifest mf = manifestReader.loadManifest(plugin.getLocation(true));
         return mf.getValue("Eclipse-SourceBundle") != null;
     }
 

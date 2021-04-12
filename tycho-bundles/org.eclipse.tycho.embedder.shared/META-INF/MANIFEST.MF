@@ -1,8 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.tycho.embedder.shared
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 2.4.0.qualifier
 Bundle-Name: Tycho Embedder API Maven/OSGi Shared Classes
 Bundle-Vendor: %providerName
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.eclipse.tycho
+Automatic-Module-Name: org.eclipse.tycho.embedder.shared

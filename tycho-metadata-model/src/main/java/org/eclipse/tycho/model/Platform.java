@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -15,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +31,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
- * http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/reference/misc/
+ * https://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/reference/misc/
  * update_platform_xml.html
  */
 public class Platform {
@@ -167,23 +170,16 @@ public class Platform {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static Platform read(File file) throws IOException, XmlPullParserException {
-        XmlStreamReader reader = ReaderFactory.newXmlReader(file);
-        try {
+        try (XmlStreamReader reader = ReaderFactory.newXmlReader(file)) {
             return new Platform(Xpp3DomBuilder.build(reader));
-        } finally {
-            reader.close();
         }
     }
 
     public static void write(Platform platform, File file) throws IOException {
         file.getParentFile().mkdirs();
-        Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-        try {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             Xpp3DomWriter.write(writer, platform.dom);
-        } finally {
-            writer.close();
         }
     }
 

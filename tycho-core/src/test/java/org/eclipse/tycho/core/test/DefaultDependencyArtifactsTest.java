@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -148,9 +149,7 @@ public class DefaultDependencyArtifactsTest {
 
     private Set<Object> asSet(Object... values) {
         Set<Object> result = new LinkedHashSet<>();
-        for (Object v : values) {
-            result.add(v);
-        }
+        result.addAll(Arrays.asList(values));
         return result;
     }
 

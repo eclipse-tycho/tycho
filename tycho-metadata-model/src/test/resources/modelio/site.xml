@@ -15,7 +15,7 @@
    <archive path="plugins/pluginB_2.0.0.jar" url="http://www.company.com/updates/plugins/pluginB_2.0.0.jar"/>
 
 <!--
-   <archive path="plugins/org.eclipse.draw2d_3.4.0.v20080529.jar" url="http://download.eclipse.org/tools/gef/updates/milestones/plugins/org.eclipse.draw2d_3.4.0.v20080529.jar"/>
+   <archive path="plugins/org.eclipse.draw2d_3.4.0.v20080529.jar" url="https://download.eclipse.org/tools/gef/updates/milestones/plugins/org.eclipse.draw2d_3.4.0.v20080529.jar"/>
 -->
 
    <category-def name="Maven Integration" label="Maven Integration"/>

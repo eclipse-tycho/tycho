@@ -1,16 +1,18 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,9 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class P2MetadataMojoTest {
     private static final File MAIN_ARTIFACT = new File("bin.jar");
@@ -32,13 +34,13 @@ public class P2MetadataMojoTest {
 
     File testFile;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         testFile = File.createTempFile(this.getClass().getName(), ".properties");
         testFile.delete();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         testFile.delete();
     }
@@ -80,11 +82,8 @@ public class P2MetadataMojoTest {
 
     private static Properties loadProperties(File propertiesFile) throws IOException {
         Properties properties = new Properties();
-        FileInputStream propertiesStream = new FileInputStream(propertiesFile);
-        try {
+        try (FileInputStream propertiesStream = new FileInputStream(propertiesFile)) {
             properties.load(propertiesStream);
-        } finally {
-            propertiesStream.close();
         }
         return properties;
     }

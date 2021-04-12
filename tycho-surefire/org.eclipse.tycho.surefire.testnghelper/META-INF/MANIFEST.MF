@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Helper Bundle for the Tycho Surefire TestNG Runner
-Bundle-SymbolicName: org.eclipse.tycho.surefire.testnghelper
-Bundle-Version: 1.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .
-Export-Package: org.testng,
- org.testng.xml

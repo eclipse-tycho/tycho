@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2014 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -12,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -22,7 +23,6 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -67,8 +67,8 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     }
 
     public static LinkedHashSet<IInstallableUnit> collectAllInstallableUnits(
-            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
-            Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment) {
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs, Collection<IInstallableUnit> externalIUs,
+            ExecutionEnvironmentResolutionHints executionEnvironment) {
         LinkedHashSet<IInstallableUnit> allius = new LinkedHashSet<>();
 
         allius.addAll(reactorProjectIUs.keySet());
@@ -117,12 +117,6 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     public IRawArtifactFileProvider getExternalArtifacts() {
         return artifacts;
-    }
-
-    @Override
-    public File getArtifactLocation(ArtifactKey artifact) {
-        // the preliminary TP lacks the reactor artifacts so this method doesn't make sense
-        throw new UnsupportedOperationException();
     }
 
     @Override

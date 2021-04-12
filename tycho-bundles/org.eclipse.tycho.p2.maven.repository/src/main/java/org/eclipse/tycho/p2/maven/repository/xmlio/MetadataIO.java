@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -17,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,7 +45,7 @@ import org.xml.sax.SAXException;
 public class MetadataIO {
     private static class Writer extends MetadataWriter {
 
-        public Writer(OutputStream output) throws UnsupportedEncodingException {
+        public Writer(OutputStream output) {
             super(output, null);
         }
 
@@ -190,11 +191,8 @@ public class MetadataIO {
     }
 
     public void writeXML(Set<IInstallableUnit> units, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             writeXML(units, os);
-        } finally {
-            os.close();
         }
     }
 }

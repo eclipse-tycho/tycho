@@ -1,33 +1,41 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.ee;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherResult;
-import org.eclipse.equinox.p2.publisher.actions.JREAction;
-import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 /**
  * Resolution hints for a standard execution environment, e.g. "CDC-1.0/Foundation-1.0" or
@@ -36,22 +44,14 @@ import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 @SuppressWarnings("restriction")
 public final class StandardEEResolutionHints implements ExecutionEnvironmentResolutionHints {
 
-    private static final String JRE_ACTION_FALLBACK_EE = "JavaSE-1.6";
-    private static final Version JRE_ACTION_FALLBACK_VERSION = Version.parseVersion("1.6.0");
-
-    private final String executionEnvironment;
     private final Map<VersionedId, IInstallableUnit> additionalUnits;
     private final Map<VersionedId, IInstallableUnit> temporaryUnits;
+    private final ExecutionEnvironment executionEnvironment;
 
-    public StandardEEResolutionHints(String executionEnvironment) {
-        if (executionEnvironment == null) {
-            // don't specify a default here; ExecutionEnvironmentConfiguration does the defaulting
-            throw new NullPointerException();
-        }
-
+    public StandardEEResolutionHints(ExecutionEnvironment executionEnvironment) {
         this.executionEnvironment = executionEnvironment;
-        this.additionalUnits = computeAdditionalUnits(executionEnvironment);
-        this.temporaryUnits = computeTemporaryAdditions(additionalUnits);
+        additionalUnits = computeAdditionalUnits(executionEnvironment);
+        temporaryUnits = computeTemporaryAdditions(additionalUnits);
     }
 
     /**
@@ -75,33 +75,34 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
      * 
      * @param executionEnvironment
      */
-    private static Map<VersionedId, IInstallableUnit> computeAdditionalUnits(String executionEnvironment) {
+    private static Map<VersionedId, IInstallableUnit> computeAdditionalUnits(
+            ExecutionEnvironment executionEnvironment) {
         Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<>();
         addIUsFromEnvironment(executionEnvironment, units);
-        ensureEEWasKnownToJREAction(executionEnvironment, units.values());
         return units;
     }
 
-    static void addIUsFromEnvironment(String executionEnvironment, Map<VersionedId, IInstallableUnit> units) {
+    static void addIUsFromEnvironment(ExecutionEnvironment executionEnvironment,
+            Map<VersionedId, IInstallableUnit> units) {
+        InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+        iu.setSingleton(false);
+        String[] segements = executionEnvironment.getProfileName().split("-");
+        iu.setId("a.jre." + segements[0].toLowerCase()); // using conventional name
+        iu.setVersion(Version.create(segements[segements.length - 1]));
+        iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
+        List<IProvidedCapability> capabilities = new ArrayList<>();
+        capabilities.add(PublisherHelper.createSelfCapability(iu.getId(), iu.getVersion()));
+        executionEnvironment.getSystemPackages().stream()
+                .map(systemPackage -> MetadataFactory.createProvidedCapability(
+                        PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, systemPackage.packageName,
+                        Version.create(systemPackage.version == null ? "0.0.0" : systemPackage.version)))
+                .forEach(capabilities::add);
+        String systemCapabilities = executionEnvironment.getProfileProperties()
+                .getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES);
+        capabilities.addAll(parseSystemCapabilities(systemCapabilities));
+        iu.setCapabilities(capabilities.toArray(IProvidedCapability[]::new));
         // generate real IUs that represent requested execution environment
-        PublisherResult results = new PublisherResult();
-        new JREAction(executionEnvironment).perform(new PublisherInfo(), results, null);
-        results.query(QueryUtil.ALL_UNITS, null);
-        Iterator<IInstallableUnit> iterator = results.query(QueryUtil.ALL_UNITS, null).iterator();
-        while (iterator.hasNext()) {
-            put(units, iterator.next());
-        }
-    }
-
-    private static void ensureEEWasKnownToJREAction(String executionEnvironment, Collection<IInstallableUnit> eeUnits) {
-        for (IInstallableUnit unit : eeUnits) {
-            if (JRE_ACTION_FALLBACK_VERSION.equals(unit.getVersion())
-                    && !JRE_ACTION_FALLBACK_EE.equals(executionEnvironment)) {
-                // the JREAction didn't actually recognize the EE but fell back to JavaSE-1.6 - and this although the EE was recognized as standard EE before -> internal error 
-                throw new RuntimeException("The execution environment '" + executionEnvironment
-                        + "' is not know by the embedded version of p2");
-            }
-        }
+        put(units, MetadataFactory.createInstallableUnit(iu));
     }
 
     @Override
@@ -115,38 +116,14 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return Collections.emptyList();
     }
 
-    private static Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(
+    private Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(
             Map<VersionedId, IInstallableUnit> additionalUnits) {
-        Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<>();
-
-        // Some notable installable units, like org.eclipse.sdk.ide, have hard dependency on the garbage JRE IUs.
-        // We provide those IUs as empty shells, i.e. without any provided capabilities.
-        // This way these garbage IUs are present but are not interfering with dependency resolution.
-
-        put(units, newIU("a.jre", Version.create("1.6.0")));
-        put(units, newIU("a.jre.javase", Version.create("1.6.0")));
-        put(units, newIU("config.a.jre.javase", Version.create("1.6.0")));
-
-        // don't override real units
-        for (Entry<VersionedId, IInstallableUnit> entry : additionalUnits.entrySet()) {
-            units.remove(entry.getKey());
-        }
-
-        return units;
+        return Collections.emptyMap();
     }
 
     @Override
     public Collection<IInstallableUnit> getTemporaryAdditions() {
         return temporaryUnits.values();
-    }
-
-    private static IInstallableUnit newIU(String id, Version version) {
-        InstallableUnitDescription iud = new InstallableUnitDescription();
-        iud.setId(id);
-        iud.setVersion(version);
-        iud.addProvidedCapabilities(Collections.singleton(MetadataFactory.createProvidedCapability(
-                IInstallableUnit.NAMESPACE_IU_ID, id, version)));
-        return MetadataFactory.createInstallableUnit(iud);
     }
 
     private static void put(Map<VersionedId, IInstallableUnit> units, IInstallableUnit unit) {
@@ -155,10 +132,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((executionEnvironment == null) ? 0 : executionEnvironment.hashCode());
-        return result;
+        return Objects.hashCode(executionEnvironment);
     }
 
     @Override
@@ -168,16 +142,42 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         if (!(obj instanceof StandardEEResolutionHints))
             return false;
         StandardEEResolutionHints other = (StandardEEResolutionHints) obj;
-        return eq(executionEnvironment, other.executionEnvironment);
+        return Objects.equals(executionEnvironment, other.executionEnvironment);
     }
 
-    private static <T> boolean eq(T left, T right) {
-        if (left == right) {
-            return true;
-        } else if (left == null) {
-            return false;
-        } else {
-            return left.equals(right);
+    static Collection<IProvidedCapability> parseSystemCapabilities(String systemCapabilities) {
+        if (systemCapabilities == null || systemCapabilities.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        try {
+            return Arrays
+                    .stream(ManifestElement.parseHeader(Constants.FRAMEWORK_SYSTEMCAPABILITIES, systemCapabilities)) //
+                    .flatMap(eeCapability -> {
+                        String eeName = eeCapability.getAttribute("osgi.ee"); //$NON-NLS-1$
+                        if (eeName == null) {
+                            return Stream.empty();
+                        }
+                        return parseEECapabilityVersion(eeCapability) //
+                                .map(version -> MetadataFactory.createProvidedCapability("osgi.ee", eeName, version)); //$NON-NLS-1$
+                    }).collect(Collectors.toList());
+        } catch (BundleException e) {
+            return Collections.emptyList();
         }
     }
+
+    private static Stream<Version> parseEECapabilityVersion(ManifestElement eeCapability) {
+        String singleVersion = eeCapability.getAttribute("version:Version"); //$NON-NLS-1$
+        String[] multipleVersions = ManifestElement
+                .getArrayFromList(eeCapability.getAttribute("version:List<Version>")); //$NON-NLS-1$
+
+        if (singleVersion == null && multipleVersions == null) {
+            return Stream.empty();
+        } else if (singleVersion == null) {
+            return Arrays.stream(multipleVersions).map(Version::parseVersion);
+        } else if (multipleVersions == null) {
+            return Stream.of(singleVersion).map(Version::parseVersion);
+        }
+        return Stream.empty();
+    }
+
 }

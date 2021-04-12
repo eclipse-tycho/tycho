@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <!-- settings file to be used for executing tycho integration tests (-Dtycho.testSettings=...) on hudson.eclipse.org -->
+  <profiles>
+    <profile>
+      <id>tycho-extras-its</id>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>tycho-snapshots</id>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+          <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>tycho-snapshots</activeProfile>
+  </activeProfiles>
+</settings>

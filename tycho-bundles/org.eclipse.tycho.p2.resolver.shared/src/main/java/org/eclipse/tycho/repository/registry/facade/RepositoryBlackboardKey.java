@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -12,10 +14,10 @@
 package org.eclipse.tycho.repository.registry.facade;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class RepositoryBlackboardKey {
 
@@ -39,16 +41,16 @@ public class RepositoryBlackboardKey {
      */
     public static RepositoryBlackboardKey forResolutionContextArtifacts(File projectLocation) {
         try {
-            return new RepositoryBlackboardKey(new URI(SCHEME,
-                    "/resolution-context-artifacts@" + URLEncoder.encode(String.valueOf(projectLocation), "UTF-8"),
-                    null));
+            return new RepositoryBlackboardKey(
+                    new URI(SCHEME,
+                            "/resolution-context-artifacts@"
+                                    + URLEncoder.encode(String.valueOf(projectLocation), StandardCharsets.UTF_8),
+                            null));
         } catch (URISyntaxException e) {
             // the used constructor does not escape invalid characters but we encode, so I don't see this happening (bug 509028)
             throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            // UTF-8 should be supported on any JVM
-            throw new RuntimeException(e);
         }
+
     }
 
     @Override

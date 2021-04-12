@@ -1,0 +1,10 @@
+# org.apache.maven.surefire.* packages are provided by the fragment host
+# org.apache.maven.shared.util is shaded in maven-surefire-common
+Import-Package: \
+	junit.framework.*;version=3,\
+	org.junit.*;version=4,\
+	!org.apache.maven.surefire.*,\
+	!org.apache.maven.shared.utils.*,\
+	*
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+-removeheaders: Tool, Bnd-*, Created-By, Private-Package

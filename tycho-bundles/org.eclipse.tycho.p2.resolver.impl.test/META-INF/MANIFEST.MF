@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho p2 Resolver Bundle Tests
 Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.impl.test;singleton:=true
-Bundle-Version: 1.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Version: 2.4.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.eclipse.tycho.p2.resolver.impl
 Require-Bundle: org.junit,
+ org.hamcrest.core,
  org.apache.commons.io,
- org.eclipse.equinox.ds,
  org.eclipse.equinox.p2.transport.ecf
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
@@ -16,4 +16,6 @@ Import-Package: org.eclipse.tycho.p2.remote.testutil,
  org.eclipse.tycho.repository.local.index,
  org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.testutil,
- org.eclipse.tycho.test.util
+ org.eclipse.tycho.test.util,
+ org.eclipse.tycho.core.ee.shared
+Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl.test

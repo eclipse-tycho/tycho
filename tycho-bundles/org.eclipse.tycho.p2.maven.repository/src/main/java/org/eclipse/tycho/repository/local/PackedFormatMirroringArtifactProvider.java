@@ -1,14 +1,18 @@
 /*******************************************************************************
  * Copyright (c) 2013 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
+
+import java.util.concurrent.locks.Lock;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -30,18 +34,30 @@ final class PackedFormatMirroringArtifactProvider extends MirroringArtifactProvi
     protected boolean makeOneFormatLocallyAvailable(IArtifactKey key) throws MirroringFailedException,
             ProvisionException, ArtifactSinkException {
 
-        if (findPackedDescriptor(localArtifactRepository.getArtifactDescriptors(key)) != null) {
+        if (isAvailableLocally(key)) {
             return true;
 
         } else if (findPackedDescriptor(remoteProviders.getArtifactDescriptors(key)) != null) {
             // packed format is available remotely but not yet locally -> download it
-            downloadArtifact(key);
+            Lock downloadLock = localArtifactRepository.getLockForDownload(key);
+            downloadLock.lock();
+            try {
+                if (!isAvailableLocally(key)) { // check again within lock
+                    downloadArtifact(key);
+                }
+            } finally {
+                downloadLock.unlock();
+            }
             return true;
 
         } else {
             // no packed format available -> try to make at least the canonical format available
             return super.makeOneFormatLocallyAvailable(key);
         }
+    }
+
+    private boolean isAvailableLocally(IArtifactKey key) {
+        return findPackedDescriptor(localArtifactRepository.getArtifactDescriptors(key)) != null;
     }
 
     @Override

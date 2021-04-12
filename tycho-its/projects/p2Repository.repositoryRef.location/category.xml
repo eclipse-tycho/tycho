@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <category-def name="Test Category" label="Test Category Label">
+      <description>
+         Test Category Description
+      </description>
+   </category-def>
+   <repository-reference location="http://some.where" enabled="false" />
+   <repository-reference location="http://some.where.else" enabled="true" />
+</site>

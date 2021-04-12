@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -15,7 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -121,7 +123,7 @@ public class MutableBundleManifestTest {
         String manifestStr = "Bundle-SymbolicName: name";
 
         // when
-        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes("ascii"));
+        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes(StandardCharsets.US_ASCII));
         MutableBundleManifest manifest = MutableBundleManifest.read(manifestIs);
         String written = toAsciiString(manifest);
 
@@ -136,7 +138,7 @@ public class MutableBundleManifestTest {
         String manifestStr = "Bundle-SymbolicName: name\r\nBundle-Version: version\r\n\r\nUnparsed1\r\nUnparsed2\r\n";
 
         // when
-        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes("ascii"));
+        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes(StandardCharsets.US_ASCII));
         MutableBundleManifest manifest = MutableBundleManifest.read(manifestIs);
         String written = toAsciiString(manifest);
 
@@ -152,7 +154,7 @@ public class MutableBundleManifestTest {
         String manifestStr = "Bundle-SymbolicName: name\nBundle-Version: version\n\nUnparsed1\nUnparsed2\n";
 
         // when
-        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes("ascii"));
+        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes(StandardCharsets.US_ASCII));
         MutableBundleManifest manifest = MutableBundleManifest.read(manifestIs);
         String written = toAsciiString(manifest);
 
@@ -168,7 +170,7 @@ public class MutableBundleManifestTest {
         String manifestStr = "Bundle-SymbolicName: name\rBundle-Version: version\r\rUnparsed1\rUnparsed2\r";
 
         // when
-        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes("ascii"));
+        InputStream manifestIs = new ByteArrayInputStream(manifestStr.getBytes(StandardCharsets.US_ASCII));
         MutableBundleManifest manifest = MutableBundleManifest.read(manifestIs);
         String written = toAsciiString(manifest);
 
@@ -184,12 +186,11 @@ public class MutableBundleManifestTest {
         assertContents(mf, path);
     }
 
-    private void assertContents(MutableBundleManifest mf, String path)
-            throws UnsupportedEncodingException, IOException {
+    private void assertContents(MutableBundleManifest mf, String path) throws IOException {
         Assert.assertEquals(toAsciiString(toByteArray(path)), toAsciiString(mf));
     }
 
-    private String toAsciiString(MutableBundleManifest mf) throws IOException, UnsupportedEncodingException {
+    private String toAsciiString(MutableBundleManifest mf) throws IOException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         MutableBundleManifest.write(mf, buf);
 
@@ -203,17 +204,14 @@ public class MutableBundleManifestTest {
 
     private static byte[] toByteArray(String path) throws IOException {
         byte expected[];
-        InputStream is = MutablePomFileTest.class.getResourceAsStream(path);
-        try {
+        try (InputStream is = MutablePomFileTest.class.getResourceAsStream(path)) {
             expected = IOUtil.toByteArray(is);
-        } finally {
-            IOUtil.close(is);
         }
         return expected;
     }
 
-    private static String toAsciiString(byte[] bytes) throws UnsupportedEncodingException {
-        return new String(bytes, "ascii");
+    private static String toAsciiString(byte[] bytes) {
+        return new String(bytes, StandardCharsets.US_ASCII);
     }
 
 }

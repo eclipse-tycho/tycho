@@ -1,16 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -30,17 +31,12 @@ public class EnvironmentUtil {
     static {
         props = new Properties();
         ClassLoader cl = AbstractTychoIntegrationTest.class.getClassLoader();
-        InputStream is = cl.getResourceAsStream("baseTest.properties");
-        if (is != null) {
-            try {
-                try {
-                    props.load(is);
-                } finally {
-                    is.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try (InputStream is = cl.getResourceAsStream("baseTest.properties")) {
+            if (is != null) {
+                props.load(is);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -56,6 +52,8 @@ public class EnvironmentUtil {
 
     private static final String LINUX_OS = "linux";
 
+    private static final String FREEBSD_OS = "freebsd";
+
     private static final String OS = System.getProperty("os.name").toLowerCase();
 
     public static boolean isWindows() {
@@ -66,21 +64,16 @@ public class EnvironmentUtil {
         return OS.startsWith(LINUX_OS);
     }
 
+    public static boolean isFreeBSD() {
+        return OS.startsWith(FREEBSD_OS);
+    }
+
     public static boolean isMac() {
         return OS.startsWith(MAC_OS) || OS.startsWith(MAC_OS_DARWIN);
     }
 
-    // TODO find a more reliable way
-    public static boolean isEclipse32Platform() {
-        return new File(getTargetPlatform(), "startup.jar").exists();
-    }
-
     public static String getTargetPlatform() {
-        String systemValue = System.getProperty("tychodev-testTargetPlatform");
-        if (systemValue != null) {
-            return systemValue;
-        }
-        return getProperty("its-target-platform");
+        return "https:////download.eclipse.org/releases/2020-03/";
     }
 
     public static String getTestSettings() {

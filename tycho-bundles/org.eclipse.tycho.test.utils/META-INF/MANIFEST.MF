@@ -2,9 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho Test Utilities
 Bundle-SymbolicName: org.eclipse.tycho.test.utils
-Bundle-Version: 1.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Version: 2.4.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit;bundle-version="[4.8.1,5.0.0)",
+ org.hamcrest.core,
  org.eclipse.equinox.p2.core;bundle-version="1.0.100",
  org.eclipse.equinox.p2.metadata;bundle-version="1.0.0",
  org.eclipse.equinox.p2.repository;bundle-version="2.2.0",
@@ -14,7 +15,7 @@ Require-Bundle: org.junit;bundle-version="[4.8.1,5.0.0)",
  org.eclipse.jetty.security,
  org.eclipse.jetty.servlet,
  org.eclipse.equinox.common;bundle-version="3.6.100",
- org.eclipse.equinox.ds;bundle-version="1.4.0"
+ org.apache.felix.scr;bundle-version="2.1.16"
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.tycho.p2.remote.testutil,
  org.eclipse.tycho.p2.testutil,
@@ -39,3 +40,4 @@ Import-Package: javax.servlet,
 Bundle-Activator: org.eclipse.tycho.test.util.Activator
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/repositoryIdManagerFallback.xml
+Automatic-Module-Name: org.eclipse.tycho.test.utils

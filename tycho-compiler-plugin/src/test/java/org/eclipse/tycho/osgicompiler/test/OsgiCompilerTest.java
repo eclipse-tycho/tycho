@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,16 @@ package org.eclipse.tycho.osgicompiler.test;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
@@ -30,14 +34,17 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
+import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.StringContains;
 
 import copied.org.apache.maven.plugin.CompilationFailureException;
 
 public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     private static final int TARGET_1_4 = 48;
-    private static final int TARGET_1_7 = 51;
+    private static final int TARGET_1_8 = 52;
 
     protected File storage;
 
@@ -86,23 +93,21 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         List<String> cp = mojo.getClasspathElements();
         assertEquals(4, cp.size());
-        assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(0));
-        assertEquals(
-                getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p001/target/classes",
-                        "[+p001/*:?**/*]"), cp.get(1));
+        assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p001/target/classes",
+                "[+p001/*:?**/*]"), cp.get(0));
         // note that PDE sorts dependencies coming via imported-package by symbolicName_version
-        assertEquals(
-                getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p003/target/classes",
-                        "[+p003/*:?**/*]"), cp.get(2));
-        assertEquals(
-                getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p004/target/classes",
-                        "[+p004/*:?**/*]"), cp.get(3));
+        assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p003/target/classes",
+                "[+p003/*:?**/*]"), cp.get(1));
+        assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p004/target/classes",
+                "[+p004/*:?**/*]"), cp.get(2));
+        assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(3));
+
     }
 
     public void testClasspath() throws Exception {
         File basedir = getBasedir("projects/classpath");
-        List<MavenProject> projects = getSortedProjects(basedir, new File(getBasedir(),
-                "src/test/resources/projects/classpath/platform"));
+        List<MavenProject> projects = getSortedProjects(basedir,
+                new File(getBasedir(), "src/test/resources/projects/classpath/platform"));
 
         MavenProject project;
         List<String> cp;
@@ -129,9 +134,9 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals(3, cp.size());
         final String plainJarPath = "src/test/resources/projects/classpath/platform/plugins/p003_0.0.1.jar";
         final String nestedJarPath = "target/local-repo/.cache/tycho/p003_0.0.1.jar/lib/lib.jar";
-        assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(0));
-        assertEquals(getClasspathElement(new File(getBasedir()), plainJarPath, "[?**/*]"), cp.get(1));
-        assertEquals(getClasspathElement(new File(getBasedir()), nestedJarPath, "[?**/*]"), cp.get(2));
+        assertEquals(getClasspathElement(new File(getBasedir()), plainJarPath, "[?**/*]"), cp.get(0));
+        assertEquals(getClasspathElement(new File(getBasedir()), nestedJarPath, "[?**/*]"), cp.get(1));
+        assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(2));
 
         // project with a (not yet) existing nested jar that would be copied later during build 
         // (wrapper scenario with copy-pom-dependencies)
@@ -196,8 +201,8 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals(2, sourcepath.size());
         assertSameFile(new File(project.getBasedir(), "target/classes"), sourcepath.get(0).getOutputDirectory());
         assertSameFile(new File(project.getBasedir(), "src"), sourcepath.get(0).getSourcesRoot());
-        assertSameFile(new File(project.getBasedir(), "target/library.jar-classes"), sourcepath.get(1)
-                .getOutputDirectory());
+        assertSameFile(new File(project.getBasedir(), "target/library.jar-classes"),
+                sourcepath.get(1).getOutputDirectory());
         assertSameFile(new File(project.getBasedir(), "src2"), sourcepath.get(1).getSourcesRoot());
     }
 
@@ -232,21 +237,21 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertFalse(new File(project.getBasedir(), "target/classes/testresources/test.properties").exists());
     }
 
-    public void testExecutionEnvironment() throws Exception {
+    public void testSourceCompileLevel() throws Exception {
         File basedir = getBasedir("projects/executionEnvironment");
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project;
         // project with neither POM nor MANIFEST configuration => must fallback to 
-        // source/target level == 1.6
+        // source/target level == 11
         project = projects.get(1);
         getMojo(projects, project).execute();
-        assertBytecodeMajorLevel(TARGET_1_7, new File(project.getBasedir(), "target/classes/Generic.class"));
+        assertBytecodeMajorLevel(55 /* Java 11 */, new File(project.getBasedir(), "target/classes/Generic.class"));
 
         // project with multiple execution envs.
         // Minimum source and target level must be taken
         project = projects.get(2);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
-        assertEquals("OSGi/Minimum-1.0", mojo.getExecutionEnvironment());
+        assertEquals("1.3", mojo.getSourceLevel());
         try {
             mojo.execute();
             fail("compilation failure due to assert keyword expected");
@@ -259,23 +264,59 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         mojo = getMojo(projects, project);
         assertEquals("jsr14", mojo.getTargetLevel());
         assertEquals("1.5", mojo.getSourceLevel());
-        assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
         mojo.execute();
         assertBytecodeMajorLevel(TARGET_1_4, new File(project.getBasedir(), "target/classes/Generic.class"));
         // project with both explicit EE configuration in pom.xml and Bundle-RequiredExecutionEnvironment.
         // explicit configuration in the pom.xml win
         project = projects.get(4);
         mojo = getMojo(projects, project);
-        assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
+        mojo.execute();
+        assertEquals("1.3", mojo.getSourceLevel());
         // project with both explicit compiler configuration in build.properties and Bundle-RequiredExecutionEnvironment. 
         // build.properties should win. 
         project = projects.get(5);
         mojo = getMojo(projects, project);
+        mojo.execute();
         assertEquals("jsr14", mojo.getTargetLevel());
         assertEquals("1.5", mojo.getSourceLevel());
-        assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
-        mojo.execute();
         assertBytecodeMajorLevel(TARGET_1_4, new File(project.getBasedir(), "target/classes/Generic.class"));
+    }
+
+    public void testNewerEEthanBREE() throws Exception {
+        File basedir = getBasedir("projects/executionEnvironment/p006-newerEEthanBREE");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        mojo.execute();
+        assertTrue(Integer.parseInt(mojo.getExecutionEnvironment().substring("JavaSE-".length())) >= 11);
+        assertEquals("1.8", mojo.getSourceLevel());
+        assertEquals("1.8", mojo.getTargetLevel());
+        assertEquals("8", mojo.getReleaseLevel());
+        assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Noop.class"));
+    }
+
+    public void testNoBREEButEERequirement() throws Exception {
+        File basedir = getBasedir("projects/executionEnvironment/eeAsRequirement");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        StandardExecutionEnvironment[] ees = mojo.getBREE();
+        assertEquals(Set.of("JavaSE-1.8", "JavaSE/compact1-1.8"),
+                Arrays.stream(ees).map(StandardExecutionEnvironment::getProfileName).collect(Collectors.toSet()));
+    }
+
+    public void testAutomaticReleaseCompilerArgumentDeterminationDisabled() throws Exception {
+        File basedir = getBasedir(
+                "projects/executionEnvironment/p007-automaticReleaseCommpilerArgumentDeterminationDisabled");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        mojo.execute();
+        assertTrue(Integer.parseInt(mojo.getExecutionEnvironment().substring("JavaSE-".length())) >= 11);
+        assertEquals("1.8", mojo.getSourceLevel());
+        assertEquals("1.8", mojo.getTargetLevel());
+        assertNull(mojo.getReleaseLevel());
+        assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Noop.class"));
     }
 
     private void assertBytecodeMajorLevel(int majorLevel, File classFile) throws ClassFormatException, IOException {
@@ -297,7 +338,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals("A", projects.get(3).getArtifactId());
         AbstractOsgiCompilerMojo mojo = getMojo(projects, projects.get(3));
         List<String> cp = mojo.getClasspathElements();
-        assertEquals(getClasspathElement(projects.get(1).getBasedir(), "target/classes", "[?**/*]"), cp.get(2));
+        assertEquals(getClasspathElement(projects.get(1).getBasedir(), "target/classes", "[?**/*]"), cp.get(1));
 
         mojo.execute();
         assertTrue(new File(projects.get(3).getBasedir(), "target/classes/a/A.class").canRead());
@@ -350,7 +391,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             assertThat(message, containsString("System.foo();"));
         }
         // 2 warnings
-        List<String> expectedWarnings = asList("Test.java:[19",//
+        List<String> expectedWarnings = asList("Test.java:[19", //
                 "Test.java:[21");
         assertEquals(expectedWarnings.size(), warnings.size());
         for (int i = 0; i < warnings.size(); i++) {
@@ -365,6 +406,9 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+
+        setVariableValueToObject(mojo, "showWarnings", Boolean.TRUE);
+
         final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
@@ -395,6 +439,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
+        setVariableValueToObject(mojo, "showWarnings", Boolean.TRUE);
         final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
@@ -448,9 +493,13 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     }
 
     public void test367431_frameworkExtensionCompileAccessRules() throws Exception {
+        // This test assumes that the internal class com.sun.crypto.provider.SunJCE exists and its package is not exported.
+        // This is the case for all supported JDKs to date (1.8, 11, 14).
+        // Note: The bundle uses BREE 1.8 here, because apparently this kind of framework-extension does not
+        // correctly work with modular API (Java9+).
         File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
-        List<MavenProject> projects = getSortedProjects(basedir, new File(
-                "src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));
+        List<MavenProject> projects = getSortedProjects(basedir,
+                new File("src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
@@ -466,9 +515,8 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             fail();
         } catch (MojoExecutionException e) {
             // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one) 
-            assertThat(
-                    e.getMessage(),
-                    containsString("The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
+            assertThat(e.getMessage(), containsString(
+                    "The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
             assertThat(e.getMessage(), containsString("J2SE-1.2"));
             assertThat(e.getMessage(), containsString("CDC-1.0/Foundation-1.0"));
             assertThat(e.getMessage(), containsString("OSGi/Minimum-1.2"));
@@ -528,6 +576,31 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         } catch (MojoFailureException e) {
             assertThat(e.getMessage(), containsString("Compiler logging is configured by the 'log' compiler"
                     + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed."));
+        }
+    }
+
+    public void testJreCompilationProfile() throws Exception {
+        File basedir = getBasedir("projects/jreCompilationProfile");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(Collections.singletonList(project), project);
+        mojo.execute();
+        assertEquals("1.8", mojo.getSourceLevel());
+        assertEquals("1.8", mojo.getTargetLevel());
+        assertBytecodeMajorLevel(TARGET_1_8, new File(project.getBasedir(), "target/classes/Test.class"));
+    }
+
+    public void testUseJDKBREE() throws Exception {
+        File basedir = getBasedir("projects/useJDKBREE");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(Collections.singletonList(project), project);
+        try {
+            mojo.execute();
+            fail("Mojo should fail because of missing toolchains");
+        } catch (MojoExecutionException ex) {
+            assertThat(ex.getMessage(), Matchers.allOf(StringContains.containsStringIgnoringCase("toolchain"),
+                    StringContains.containsString("JavaSE-1.8")));
         }
     }
 }

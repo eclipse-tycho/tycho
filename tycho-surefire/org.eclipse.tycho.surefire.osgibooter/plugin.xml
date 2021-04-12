@@ -35,17 +35,5 @@
          </run>
       </application>
    </extension>
-   <extension
-         id="uitest32"
-         point="org.eclipse.core.runtime.applications">
-      <application
-            cardinality="singleton-global"
-            thread="main"
-            visible="true">
-         <run
-               class="org.eclipse.tycho.surefire.osgibooter.UITestApplication32">
-         </run>
-      </application>
-   </extension>
 
 </plugin>

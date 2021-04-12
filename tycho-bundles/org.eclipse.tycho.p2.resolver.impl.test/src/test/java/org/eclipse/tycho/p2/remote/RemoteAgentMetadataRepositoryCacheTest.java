@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2013 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -13,7 +15,7 @@ package org.eclipse.tycho.p2.remote;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.net.URI;
@@ -125,13 +127,13 @@ public class RemoteAgentMetadataRepositoryCacheTest {
     }
 
     private RemoteAgent newOnlineAgent() throws Exception {
-        return new RemoteAgent(new MavenContextImpl(localMavenRepository, false, logVerifier.getLogger(),
-                new Properties()));
+        return new RemoteAgent(
+                new MavenContextImpl(localMavenRepository, false, logVerifier.getLogger(), new Properties()));
     }
 
     private RemoteAgent newOfflineAgent() throws Exception {
-        return new RemoteAgent(new MavenContextImpl(localMavenRepository, true, logVerifier.getLogger(),
-                new Properties()));
+        return new RemoteAgent(
+                new MavenContextImpl(localMavenRepository, true, logVerifier.getLogger(), new Properties()));
     }
 
     private IMetadataRepository loadHttpRepository(RemoteAgent agent) throws ProvisionException {

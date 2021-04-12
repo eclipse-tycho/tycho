@@ -5,3 +5,4 @@ Bundle-SymbolicName: bundle
 Bundle-Version: 0.0.1.qualifier
 Bundle-ClassPath: simple.jar
 Export-Package: simple.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

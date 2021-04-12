@@ -1,19 +1,23 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring.facade;
 
+import java.io.File;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -57,6 +61,17 @@ public interface MirrorApplicationService {
             boolean includePacked, Map<String, String> filterProperties) throws FacadeException;
 
     /**
+     * recreates the metadata of an existing repository e.g. to account for changes in the contained
+     * artifacts to update artifact size and hashcodes
+     * 
+     * @param destination
+     *            The p2 repository that shall be written to. The location must be a directory.
+     * @throws FacadeException
+     *             if a checked exception occurs while updating
+     */
+    public void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException;
+
+    /**
      * Copies installable units from the source repositories to the destination repository. The
      * corresponding artifacts are also copied unless the mirror options specify otherwise.
      * 
@@ -78,6 +93,18 @@ public interface MirrorApplicationService {
      *             if a checked exception occurs while mirroring
      */
     void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
+            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException;
+
+    /**
+     * Modifies the artifact repository to add mapping rules to download Maven released artifacts
+     * from one of the specified maven repositories (when it's found).
+     * 
+     * @param repository
+     *            the local artifact repository to modify
+     * @param mavenRepositories
+     *            the maven repositories to consider
+     * @throws FacadeException
+     */
+    void addMavenMappingRules(File repository, URI[] mavenRepositories) throws FacadeException;
 }

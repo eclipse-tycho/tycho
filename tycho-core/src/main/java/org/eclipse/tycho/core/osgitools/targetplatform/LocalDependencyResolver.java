@@ -7,8 +7,11 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools.targetplatform;
+
+import static java.util.Optional.ofNullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +29,6 @@ import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -41,6 +43,7 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyCollector;
@@ -145,74 +148,75 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
     }
 
     private void addDependencies(MavenSession session, MavenProject project, DefaultDependencyArtifacts platform) {
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) reactorProject
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
 
-        if (configuration != null
-                && TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
-            Map<String, MavenProject> projectIds = new HashMap<>(session.getProjects().size() * 2);
-            // make a list of reactor projects
-            for (MavenProject p : session.getProjects()) {
-                String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
-                projectIds.put(key, p);
-            }
-            // handle dependencies that are in reactor
-            for (Dependency dependency : project.getDependencies()) {
-                if (Artifact.SCOPE_COMPILE.equals(dependency.getScope())) {
-                    String key = ArtifactUtils.key(dependency.getGroupId(), dependency.getArtifactId(),
-                            dependency.getVersion());
-                    if (projectIds.containsKey(key)) {
-                        MavenProject dependent = projectIds.get(key);
-                        ArtifactKey artifactKey = getArtifactKey(session, dependent);
-                        if (artifactKey != null) {
-                            platform.removeAll(artifactKey.getType(), artifactKey.getId());
-                            ReactorProject projectProxy = DefaultReactorProject.adapt(dependent);
-                            platform.addReactorArtifact(artifactKey, projectProxy, null, null);
-                            if (getLogger().isDebugEnabled()) {
-                                getLogger().debug("Add Maven project " + artifactKey);
-                            }
+        boolean considerPomDependencies = ofNullable(configuration)//
+                .map(TargetPlatformConfiguration::getPomDependencies).map(value -> value == PomDependencies.consider)//
+                .orElse(false);
+        if (!considerPomDependencies)
+            return;
+
+        Map<String, MavenProject> projectIds = new HashMap<>(session.getProjects().size() * 2);
+        // make a list of reactor projects
+        for (MavenProject p : session.getProjects()) {
+            String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
+            projectIds.put(key, p);
+        }
+        // handle dependencies that are in reactor
+        project.getDependencies().stream()//
+                .filter(d -> Artifact.SCOPE_COMPILE.equals(d.getScope()))//
+                .map(d -> ArtifactUtils.key(d.getGroupId(), d.getArtifactId(), d.getVersion()))//
+                .filter(projectIds::containsKey)//
+                .map(projectIds::get)//
+                .forEach(dependent -> {
+                    ArtifactKey artifactKey = getArtifactKey(session, dependent);
+                    if (artifactKey != null) {
+                        platform.removeAll(artifactKey.getType(), artifactKey.getId());
+                        ReactorProject projectProxy = DefaultReactorProject.adapt(dependent);
+                        platform.addReactorArtifact(artifactKey, projectProxy, null, null);
+                        if (getLogger().isDebugEnabled()) {
+                            getLogger().debug("Add Maven project " + artifactKey);
                         }
                     }
+                });
+        // handle rest of dependencies
+        ArrayList<String> scopes = new ArrayList<>();
+        scopes.add(Artifact.SCOPE_COMPILE);
+        Collection<Artifact> artifacts;
+        try {
+            artifacts = projectDependenciesResolver.resolve(project, scopes, session);
+        } catch (MultipleArtifactsNotFoundException e) {
+            Collection<Artifact> missing = new HashSet<>(e.getMissingArtifacts());
+
+            for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
+                Artifact a = it.next();
+                String key = ArtifactUtils.key(a.getGroupId(), a.getArtifactId(), a.getBaseVersion());
+                if (projectIds.containsKey(key)) {
+                    it.remove();
                 }
             }
-            // handle rest of dependencies
-            ArrayList<String> scopes = new ArrayList<>();
-            scopes.add(Artifact.SCOPE_COMPILE);
-            Collection<Artifact> artifacts;
-            try {
-                artifacts = projectDependenciesResolver.resolve(project, scopes, session);
-            } catch (MultipleArtifactsNotFoundException e) {
-                Collection<Artifact> missing = new HashSet<>(e.getMissingArtifacts());
 
-                for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
-                    Artifact a = it.next();
-                    String key = ArtifactUtils.key(a.getGroupId(), a.getArtifactId(), a.getBaseVersion());
-                    if (projectIds.containsKey(key)) {
-                        it.remove();
-                    }
-                }
-
-                if (!missing.isEmpty()) {
-                    throw new RuntimeException("Could not resolve project dependencies", e);
-                }
-
-                artifacts = e.getResolvedArtifacts();
-                artifacts.removeAll(e.getMissingArtifacts());
-            } catch (AbstractArtifactResolutionException e) {
+            if (!missing.isEmpty()) {
                 throw new RuntimeException("Could not resolve project dependencies", e);
             }
-            for (Artifact artifact : artifacts) {
-                String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(),
-                        artifact.getBaseVersion());
-                if (!projectIds.containsKey(key)) {
-                    File plugin = artifact.getFile();
-                    ArtifactKey artifactKey = getArtifactKey(session, plugin);
 
-                    if (artifactKey != null) {
-                        platform.addArtifactFile(artifactKey, plugin, null);
-                        if (getLogger().isDebugEnabled()) {
-                            getLogger().debug("Add Maven artifact " + artifactKey);
-                        }
+            artifacts = e.getResolvedArtifacts();
+            artifacts.removeAll(e.getMissingArtifacts());
+        } catch (AbstractArtifactResolutionException e) {
+            throw new RuntimeException("Could not resolve project dependencies", e);
+        }
+        for (Artifact artifact : artifacts) {
+            String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
+            if (!projectIds.containsKey(key)) {
+                File plugin = artifact.getFile();
+                ArtifactKey artifactKey = getArtifactKey(session, plugin);
+
+                if (artifactKey != null) {
+                    platform.addArtifactFile(artifactKey, plugin, null);
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger().debug("Add Maven artifact " + artifactKey);
                     }
                 }
             }
@@ -242,10 +246,11 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
     @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts targetPlatform, Logger logger) {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         // walk depencencies for consistency
-        projectType.checkForMissingDependencies(project);
+        projectType.checkForMissingDependencies(reactorProject);
 
         MavenDependencyCollector dependencyCollector = new MavenDependencyCollector(project, bundleReader, logger);
-        projectType.getDependencyWalker(project).walk(dependencyCollector);
+        projectType.getDependencyWalker(reactorProject).walk(dependencyCollector);
     }
 }

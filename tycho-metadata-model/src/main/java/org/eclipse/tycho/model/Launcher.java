@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -21,6 +23,8 @@ public class Launcher {
     public static final String ICON_LINUX = "icon";
 
     public static final String ICON_MAC = ICON_LINUX;
+
+    public static final String ICON_FREEBSD = ICON_LINUX;
 
     public static final String ICON_WINDOWS_ICO_PATH = "path";
 
@@ -64,6 +68,16 @@ public class Launcher {
         Map<String, String> linux = new HashMap<>();
         putIfNotNull(linux, ICON_LINUX, linuxDom.getAttributeValue(ICON_LINUX));
         return Collections.unmodifiableMap(linux);
+    }
+
+    public Map<String, String> getFreeBSDIcon() {
+        Element freebsdDom = dom.getChild("freebsd");
+        if (freebsdDom == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, String> freebsd = new HashMap<>(1);
+        putIfNotNull(freebsd, ICON_FREEBSD, freebsdDom.getAttributeValue(ICON_FREEBSD));
+        return Collections.unmodifiableMap(freebsd);
     }
 
     public Map<String, String> getMacosxIcon() {

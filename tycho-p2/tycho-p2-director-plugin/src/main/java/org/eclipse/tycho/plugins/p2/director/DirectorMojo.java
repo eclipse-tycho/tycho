@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
@@ -34,8 +36,9 @@ import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFa
  * </p>
  */
 // TODO 348586 should be called assemble-product
-@Mojo(name = "materialize-products", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "materialize-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class DirectorMojo extends AbstractProductMojo {
+    private static final Object LOCK = new Object();
 
     public enum InstallationSource {
         targetPlatform, repository
@@ -107,41 +110,44 @@ public final class DirectorMojo extends AbstractProductMojo {
     // TODO extract methods
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        List<Product> products = getProductConfig().getProducts();
-        if (products.isEmpty()) {
-            getLog().info("No product definitions found. Nothing to do.");
-        }
-        DirectorRuntime director = getDirectorRuntime();
-        RepositoryReferences sources = getSourceRepositories();
-        for (Product product : products) {
-            for (TargetEnvironment env : getEnvironments()) {
-                DirectorRuntime.Command command = director.newInstallCommand();
+        synchronized (LOCK) {
+            List<Product> products = getProductConfig().getProducts();
+            if (products.isEmpty()) {
+                getLog().info("No product definitions found. Nothing to do.");
+            }
+            DirectorRuntime director = getDirectorRuntime();
+            RepositoryReferences sources = getSourceRepositories();
+            for (Product product : products) {
+                for (TargetEnvironment env : getEnvironments()) {
+                    DirectorRuntime.Command command = director.newInstallCommand();
 
-                File destination = getProductMaterializeDirectory(product, env);
-                String rootFolder = product.getRootFolder(env.getOs());
-                if (rootFolder != null && rootFolder.length() > 0) {
-                    destination = new File(destination, rootFolder);
-                }
+                    File destination = getProductMaterializeDirectory(product, env);
+                    String rootFolder = product.getRootFolder(env.getOs());
+                    if (rootFolder != null && !rootFolder.isEmpty()) {
+                        destination = new File(destination, rootFolder);
+                    }
 
-                command.addMetadataSources(sources.getMetadataRepositories());
-                command.addArtifactSources(sources.getArtifactRepositories());
-                command.addUnitToInstall(product.getId());
-                for (DependencySeed seed : product.getAdditionalInstallationSeeds()) {
-                    command.addUnitToInstall(seed);
-                }
-                command.setDestination(destination);
-                command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
-                command.setEnvironment(env);
-                command.setInstallFeatures(installFeatures);
-                getLog().info(
-                        "Installing product " + product.getId() + " for environment " + env + " to "
-                                + destination.getAbsolutePath());
+                    command.setBundlePool(getProductBundlePoolDirectory(product));
+                    command.addMetadataSources(sources.getMetadataRepositories());
+                    command.addArtifactSources(sources.getArtifactRepositories());
+                    command.addUnitToInstall(product.getId());
+                    for (DependencySeed seed : product.getAdditionalInstallationSeeds()) {
+                        command.addUnitToInstall(seed);
+                    }
+                    command.setDestination(destination);
+                    command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
+                    command.setEnvironment(env);
+                    command.setInstallFeatures(installFeatures);
+                    getLog().info("Installing product " + product.getId() + " for environment " + env + " to "
+                            + destination.getAbsolutePath());
 
-                try {
-                    command.execute();
-                } catch (DirectorCommandException e) {
-                    throw new MojoFailureException("Installation of product " + product.getId() + " for environment "
-                            + env + " failed", e);
+                    try {
+                        command.execute();
+                    } catch (DirectorCommandException e) {
+                        throw new MojoFailureException(
+                                "Installation of product " + product.getId() + " for environment " + env + " failed",
+                                e);
+                    }
                 }
             }
         }
@@ -159,8 +165,8 @@ public final class DirectorMojo extends AbstractProductMojo {
                     getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
 
         default:
-            throw new MojoFailureException("Unsupported value for attribute 'directorRuntime': \"" + directorRuntime
-                    + "\"");
+            throw new MojoFailureException(
+                    "Unsupported value for attribute 'directorRuntime': \"" + directorRuntime + "\"");
         }
     }
 

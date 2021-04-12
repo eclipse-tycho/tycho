@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2019 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -11,7 +13,7 @@
 package org.eclipse.tycho.test.eeProfile;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -48,8 +51,8 @@ public class Java7ResolutionTest extends AbstractTychoIntegrationTest {
          * A p2 repository that only contains the bundle importing the package javax.xml.ws.spi.http
          * (which is new in Java 7).
          */
-        P2RepositoryTool bundleOnlyRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult,
-                "repository1"));
+        P2RepositoryTool bundleOnlyRepo = P2RepositoryTool
+                .forEclipseRepositoryModule(new File(buildResult, "repository1"));
 
         /*
          * With bug 384494, there was no matching export to the package import of the bundle in the
@@ -57,11 +60,12 @@ public class Java7ResolutionTest extends AbstractTychoIntegrationTest {
          * unable to install the bundle from the repository.
          */
         List<String> availablePackages = bundleOnlyRepo.getAllProvidedPackages();
-        assertThat(availablePackages, hasItem("javax.xml.ws.spi.http"));
+        assertThat(availablePackages, hasItem("java.nio.file"));
     }
 
     @Test
     public void testProductBuildForJava7() throws Exception {
+        Assume.assumeTrue(System.getProperty("java.specification.version").compareTo("11") < 0);
         // a p2 repository that contains a product for Java 7
         P2RepositoryTool productRepo = P2RepositoryTool
                 .forEclipseRepositoryModule(new File(buildResult, "repository2"));

@@ -11,6 +11,10 @@
 
 package org.eclipse.tycho.core.ee;
 
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+
 import org.osgi.framework.Version;
 
 public class EEVersion implements Comparable<EEVersion> {
@@ -37,21 +41,24 @@ public class EEVersion implements Comparable<EEVersion> {
         }
     }
 
-    private Version version;
-    private EEType type;
+    private static final Version JAVA8 = Version.parseVersion("1.8");
+    @Nonnull
+    private final Version version;
+    @Nonnull
+    private final EEType type;
 
-    public EEVersion(Version version, EEType type) {
+    public EEVersion(@Nonnull Version version, @Nonnull EEType type) {
         this.version = version;
         this.type = type;
     }
 
     @Override
     public int compareTo(EEVersion other) {
-        // JavaSE/compact{1..3} > JavaSE-N except when N = 1.8  54
-        final Version JAVA8 = Version.parseVersion("1.8");
-        if (type.equals(EEType.JAVA_SE) && version.equals(JAVA8) && other.type.profileName.contains("JavaSE/compact")) {
+        // JavaSE/compact{1..3} > JavaSE-N except when N >= 1.8 
+        if (type.equals(EEType.JAVA_SE) && version.compareTo(JAVA8) >= 0
+                && other.type.profileName.contains("JavaSE/compact")) {
             return 1;
-        } else if (other.type.equals(EEType.JAVA_SE) && other.version.equals(JAVA8)
+        } else if (other.type.equals(EEType.JAVA_SE) && other.version.compareTo(JAVA8) >= 0
                 && type.profileName.contains("JavaSE/compact")) {
             return -1;
         }
@@ -80,11 +87,7 @@ public class EEVersion implements Comparable<EEVersion> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
-        result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
-        return result;
+        return Objects.hash(type, version);
     }
 
 }

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2014 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -122,8 +124,7 @@ public class FeatureXmlTransformer {
         locker.lock();
         try {
             try {
-                JarFile jar = new JarFile(location);
-                try {
+                try (JarFile jar = new JarFile(location)) {
                     Enumeration<JarEntry> entries = jar.entries();
                     while (entries.hasMoreElements()) {
                         JarEntry entry = entries.nextElement();
@@ -132,8 +133,6 @@ public class FeatureXmlTransformer {
                             installSize += entrySize;
                         }
                     }
-                } finally {
-                    jar.close();
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Could not determine installation size of file " + location, e);

@@ -1,13 +1,16 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2017 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Bachmann electronics GmbH. - Bug #512326 Support product file names other than artifact id
+ *    Bachmann electronic GmbH. - Bug #512326 Support product file names other than artifact id
+ *    Bachmann electronic GmbH. - #517664 Support for updating p2iu versions
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine.tests;
 
@@ -52,5 +55,7 @@ public class PomUpdaterTest extends AbstractVersionChangeTest {
 
         assertPom(new File(basedir, "repositoryWith2ProductFiles"));
 
+        assertPom(new File(basedir, "iu"));
+        assertP2IuXml(new File(basedir, "iu"));
     }
 }

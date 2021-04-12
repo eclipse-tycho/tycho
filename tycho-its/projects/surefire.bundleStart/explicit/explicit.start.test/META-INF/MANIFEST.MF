@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Test
 Bundle-SymbolicName: explicit.start.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: system.bundle,
- org.junit4;bundle-version="4.0.0",
+ org.junit;bundle-version="4.0.0",
  explicit.start;bundle-version="1.0.0"

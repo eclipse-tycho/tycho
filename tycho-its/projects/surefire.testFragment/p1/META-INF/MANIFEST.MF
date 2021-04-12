@@ -5,3 +5,4 @@ Bundle-SymbolicName: p1;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-Activator: p1.Activator
 Require-Bundle: org.eclipse.ui, org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

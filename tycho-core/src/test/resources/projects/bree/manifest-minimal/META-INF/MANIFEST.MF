@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bundle with BREE header that doesn't specify the lowest EE first
 Bundle-SymbolicName: executionenvironment.manifest-minimal
 Bundle-Version: 1.0.0
-Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
- CDC-1.0/Foundation-1.0
+Bundle-RequiredExecutionEnvironment: OSGi/Minimum-1.0,
+ OSGi/Minimum-1.1

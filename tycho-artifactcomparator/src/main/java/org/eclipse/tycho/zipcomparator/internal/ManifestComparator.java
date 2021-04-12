@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -22,6 +24,7 @@ import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
@@ -40,6 +43,7 @@ public class ManifestComparator implements ContentsComparator {
         ignoredKeys.add(new Name("Created-By"));
         ignoredKeys.add(new Name("Build-Jdk"));
         ignoredKeys.add(new Name("Built-By"));
+        ignoredKeys.add(new Name("Build-Jdk-Spec"));
 
         // lets be friendly to bnd/maven-bundle-plugin
         ignoredKeys.add(new Name("Bnd-LastModified"));
@@ -54,7 +58,7 @@ public class ManifestComparator implements ContentsComparator {
     }
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Manifest manifest = new Manifest(baseline);

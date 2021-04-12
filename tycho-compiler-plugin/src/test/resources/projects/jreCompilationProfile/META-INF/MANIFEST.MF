@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: noBree
+Bundle-Version: 1.0.0.qualifier
+Require-Capability: osgi.ee; filter:="(| (&(osgi.ee=JavaSE)(version=1.7)) (&(osgi.ee=JavaSE/compact1)(version=1.8)) )"

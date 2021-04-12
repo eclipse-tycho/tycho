@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,14 +7,20 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - add getName() / combine directories
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -26,7 +32,20 @@ import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 
 public class DefaultReactorProject implements ReactorProject {
-    private final MavenProject project;
+
+    /**
+     * Conventional key used to store ReactorProject in MavenProject.context
+     */
+    private static final String CTX_REACTOR_PROJECT = "tycho.reactor-project";
+
+    /**
+     * Conventional key used to store dependency metadata in MavenProject.context
+     */
+    private static final String CTX_DEPENDENCY_METADATA_PREFIX = "tycho.dependency-metadata-";
+
+    public final MavenProject project;
+
+    private final Map<String, Object> context = new ConcurrentHashMap<>();
 
     public DefaultReactorProject(MavenProject project) {
         if (project == null) {
@@ -93,18 +112,10 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     @Override
-    public File getOutputDirectory() {
-        return new File(project.getBuild().getOutputDirectory());
-    }
-
-    @Override
     public BuildOutputDirectory getBuildDirectory() {
-        return new BuildOutputDirectory(project.getBuild().getDirectory());
-    }
-
-    @Override
-    public File getTestOutputDirectory() {
-        return new File(project.getBuild().getTestOutputDirectory());
+        return new BuildOutputDirectory(new File(project.getBuild().getDirectory()),
+                new File(project.getBuild().getOutputDirectory()),
+                new File(project.getBuild().getTestOutputDirectory()));
     }
 
     @Override
@@ -131,43 +142,35 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public Object getContextValue(String key) {
-        return project.getContextValue(key);
+        Object value = context.get(key);
+        return (value != null) ? value : project.getContextValue(key);
     }
 
     @Override
     public void setContextValue(String key, Object value) {
-        project.setContextValue(key, value);
+        context.put(key, value);
     }
 
     @Override
-    public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
-        project.setContextValue(getDependencyMetadataKey(primary), installableUnits);
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+        setContextValue(getDependencyMetadataKey(type), units);
     }
 
     @Override
     public Set<?> getDependencyMetadata() {
-        Set<?> primary = getDependencyMetadata(true);
-        Set<?> secondary = getDependencyMetadata(false);
-
-        if (primary == null) {
-            return secondary;
-        } else if (secondary == null) {
-            return primary;
-        }
-
-        LinkedHashSet<Object> result = new LinkedHashSet<>(primary);
-        result.addAll(secondary);
+        LinkedHashSet<Object> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataType.SEED));
+        result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
     @Override
-    public Set<?> getDependencyMetadata(boolean primary) {
-        Set<?> metadata = (Set<?>) project.getContextValue(getDependencyMetadataKey(primary));
-        return metadata;
+    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+        return Objects.requireNonNullElse((Set<?>) getContextValue(getDependencyMetadataKey(type)),
+                Collections.emptySet());
     }
 
-    private static String getDependencyMetadataKey(boolean primary) {
-        return primary ? CTX_DEPENDENCY_METADATA : CTX_SECONDARY_DEPENDENCY_METADATA;
+    private static String getDependencyMetadataKey(DependencyMetadataType type) {
+        return CTX_DEPENDENCY_METADATA_PREFIX + type.name().toLowerCase();
     }
 
     @Override
@@ -218,5 +221,10 @@ public class DefaultReactorProject implements ReactorProject {
     @Override
     public String toString() {
         return project.toString();
+    }
+
+    @Override
+    public String getName() {
+        return project.getName();
     }
 }

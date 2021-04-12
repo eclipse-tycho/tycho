@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2020 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - Bug 538144 - Support other target locations (Directory, Features, Installations)
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -37,7 +40,7 @@ public class FileRepositoryArtifactProvider extends RepositoryArtifactProvider i
         super(artifactRepositories, transferPolicy, agent);
     }
 
-    FileRepositoryArtifactProvider(RepositoryLoader repositoryLoader, ArtifactTransferPolicy transferPolicy) {
+    FileRepositoryArtifactProvider(ArtifactRepositorySupplier repositoryLoader, ArtifactTransferPolicy transferPolicy) {
         super(repositoryLoader, transferPolicy);
     }
 
@@ -71,6 +74,11 @@ public class FileRepositoryArtifactProvider extends RepositoryArtifactProvider i
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
+        return contains(artifactKey);
     }
 
 }

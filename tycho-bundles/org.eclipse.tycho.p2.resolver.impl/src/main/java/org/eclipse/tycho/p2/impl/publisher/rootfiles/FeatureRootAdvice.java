@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2017 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -29,7 +31,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 /**
  * This class handles definitions of root files in build.properties according to
- * http://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles.htm
+ * https://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles.htm
  * <br>
  */
 @SuppressWarnings("restriction")
@@ -190,7 +192,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
     }
 
     private static void ensureRootFilesConfigured(RootFilesProperties rootProperties, ConfigSpec configuration) {
-        if (rootProperties.getFileMap().keySet().size() == 0) {
+        if (rootProperties.getFileMap().keySet().isEmpty()) {
             String message;
             if (configuration.equals(ConfigSpec.GLOBAL)) {
                 message = "Cannot set permissions or symbolic links if there are no root files";

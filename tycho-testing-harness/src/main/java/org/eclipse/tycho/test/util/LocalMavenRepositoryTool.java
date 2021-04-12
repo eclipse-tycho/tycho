@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP SE.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP SE.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -17,7 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -48,7 +50,8 @@ public class LocalMavenRepositoryTool {
         }
     }
 
-    public File getArtifactFile(String groupId, String artifactId, String version, String classifier, String extension) {
+    public File getArtifactFile(String groupId, String artifactId, String version, String classifier,
+            String extension) {
         String groupPath = groupId.replace('.', '/');
         String artifactPath = groupPath + '/' + artifactId + '/' + version;
         String artifactName = artifactId + "-" + version + (classifier == null ? "" : "-" + classifier) + "."
@@ -93,8 +96,8 @@ public class LocalMavenRepositoryTool {
         filterLinesFromIndex(indexFile, toBeRemoved);
     }
 
-    private void filterLinesFromIndex(File indexFile, Set<String> toBeRemoved) throws UnsupportedEncodingException,
-            FileNotFoundException, IOException {
+    private void filterLinesFromIndex(File indexFile, Set<String> toBeRemoved)
+            throws FileNotFoundException, IOException {
         FileLocker locker = fileLockService.getFileLocker(indexFile);
         locker.lock();
         try {
@@ -110,29 +113,22 @@ public class LocalMavenRepositoryTool {
         return new File(localRepo, ".meta/p2-artifacts.properties");
     }
 
-    private Set<String> readLines(File indexFile) throws UnsupportedEncodingException, FileNotFoundException,
-            IOException {
+    private Set<String> readLines(File indexFile) throws FileNotFoundException, IOException {
         Set<String> lines = new LinkedHashSet<>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile), "UTF-8"));
-        try {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(indexFile), StandardCharsets.UTF_8))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 lines.add(line);
             }
-        } finally {
-            reader.close();
         }
         return lines;
     }
 
-    private void writeLines(File indexFile, Collection<String> lines) throws UnsupportedEncodingException,
-            FileNotFoundException, IOException {
-        PrintStream writer = new PrintStream(indexFile);
-        try {
+    private void writeLines(File indexFile, Collection<String> lines) throws FileNotFoundException, IOException {
+        try (PrintStream writer = new PrintStream(indexFile)) {
             for (String line : lines) {
                 writer.println(line);
             }
-        } finally {
-            writer.close();
         }
     }
 

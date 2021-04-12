@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann electronic GmbH - Bug 457314 - handle null as tycho version
+ *    Christoph Läubrich - Bug 569829 - TychoMavenLifecycleParticipant should respect fail-at-end flag / error output is missing
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
@@ -21,9 +22,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
@@ -32,6 +40,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -46,7 +55,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<>(Arrays.asList("tycho-maven-plugin",
             "tycho-p2-director-plugin", "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin",
             "tycho-packaging-plugin", "tycho-pomgenerator-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
-            "tycho-versions-plugin"));
+            "tycho-versions-plugin", "tycho-compiler-plugin"));
     private static final String P2_USER_AGENT_KEY = "p2.userAgent";
     private static final String P2_USER_AGENT_VALUE = "tycho/";
 
@@ -90,10 +99,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 resolver.setupProject(session, project, DefaultReactorProject.adapt(project));
             }
 
-            List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-            for (MavenProject project : projects) {
-                resolver.resolveProject(session, project, reactorProjects);
-            }
+            resolveProjects(session, projects);
         } catch (BuildFailureException e) {
             // build failure is not an internal (unexpected) error, so avoid printing a stack
             // trace by wrapping it in MavenExecutionException   
@@ -106,6 +112,76 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         validateUniqueBaseDirs(projects);
     }
 
+    private void resolveProjects(MavenSession session, List<MavenProject> projects) {
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+
+        MavenExecutionRequest request = session.getRequest();
+        boolean failFast = MavenExecutionRequest.REACTOR_FAIL_FAST.equals(request.getReactorFailureBehavior());
+        Map<MavenProject, BuildFailureException> resolutionErrors = new ConcurrentHashMap<>();
+        Consumer<MavenProject> resolveProject = project -> {
+            if (failFast && !resolutionErrors.isEmpty()) {
+                //short circuit
+                return;
+            }
+            try {
+                resolver.resolveProject(session, project, reactorProjects);
+            } catch (BuildFailureException e) {
+                resolutionErrors.put(project, e);
+                if (failFast) {
+                    throw e;
+                }
+            }
+        };
+
+        int degreeOfConcurrency = request.getDegreeOfConcurrency();
+        Predicate<MavenProject> takeWhile = Predicate.not(p -> failFast && !resolutionErrors.isEmpty());
+        if (degreeOfConcurrency > 1) {
+            ForkJoinPool executor = new ForkJoinPool(degreeOfConcurrency);
+            ForkJoinTask<?> future = executor.submit(() -> {
+                projects.parallelStream().takeWhile(takeWhile).forEach(resolveProject);
+            });
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                }
+                throw new RuntimeException("resolve dependencies failed", cause);
+            } finally {
+                executor.shutdown();
+            }
+
+        } else {
+            projects.stream().takeWhile(takeWhile).forEach(resolveProject);
+        }
+
+        reportResolutionErrors(resolutionErrors, projects, failFast);
+    }
+
+    private void reportResolutionErrors(Map<MavenProject, BuildFailureException> resolutionErrors,
+            List<MavenProject> projects, boolean failFast) {
+        if (resolutionErrors.isEmpty()) {
+            return;
+        }
+
+        if (resolutionErrors.size() == 1 || failFast) {
+            //The idea is if user want to fail-fast he would expect to get exactly one error (the first one),
+            //while if parallel execution is enabled it might report an (incomplete) list of other failures that happened due to the parallel processing.
+            throw resolutionErrors.values().iterator().next();
+        }
+
+        DependencyResolutionException exception = new DependencyResolutionException(
+                String.format("Cannot resolve dependencies of %d/%d projects, see log for details",
+                        resolutionErrors.size(), projects.size()));
+        resolutionErrors.values().forEach(exception::addSuppressed);
+        resolutionErrors.forEach((project, error) -> log.error(project.getName() + ": " + error.getMessage()));
+
+        throw exception;
+    }
+
     protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
         Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<>();
         for (MavenProject project : projects) {
@@ -116,8 +192,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                     if (version == null) {
                         continue;
                     }
-                    log.debug(TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in "
-                            + project);
+                    log.debug(
+                            TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in " + project);
                     Set<MavenProject> projectSet = versionToProjectsMap.get(version);
                     if (projectSet == null) {
                         projectSet = new LinkedHashSet<>();
@@ -150,8 +226,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         for (MavenProject project : projects) {
             File basedir = project.getBasedir();
             if (baseDirs.contains(basedir)) {
-                throw new MavenExecutionException("Multiple modules within the same basedir are not supported: "
-                        + basedir, project.getFile());
+                throw new MavenExecutionException(
+                        "Multiple modules within the same basedir are not supported: " + basedir, project.getFile());
             } else {
                 baseDirs.add(basedir);
             }

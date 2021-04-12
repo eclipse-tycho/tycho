@@ -1,21 +1,26 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
@@ -32,6 +37,8 @@ public interface P2Resolver {
 
     public void addDependency(String type, String id, String versionRange) throws IllegalArtifactReferenceException;
 
+    public void addAdditionalBundleDependency(String bundle);
+
     /**
      * Returns list ordered of resolution result, one per requested TargetEnvironment.
      * 
@@ -40,9 +47,17 @@ public interface P2Resolver {
      *            the additional dependencies are resolved.
      * 
      * @see #addDependency(String, String, String)
-     * @TODO this should return Map<TargetEnvironment,P2ResolutionResult>
      */
-    public List<P2ResolutionResult> resolveDependencies(TargetPlatform context, ReactorProject project);
+    public Map<TargetEnvironment, P2ResolutionResult> resolveTargetDependencies(TargetPlatform context,
+            ReactorProject project);
+
+    /**
+     * @deprecated use {@link #resolveTargetDependencies(TargetPlatform, ReactorProject)} instead
+     */
+    @Deprecated
+    default List<P2ResolutionResult> resolveDependencies(TargetPlatform context, ReactorProject project) {
+        return new ArrayList<>(resolveTargetDependencies(context, project).values());
+    }
 
     /**
      * @deprecated Only needed for the deprecated eclipse-update-site (see bug 342876)
@@ -51,7 +66,19 @@ public interface P2Resolver {
     @Deprecated
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project);
 
+    /**
+     * 
+     * @param context
+     * @param executionEnvironmentName
+     * @return
+     * @deprecated use
+     *             {@link #resolveMetadata(TargetPlatformConfigurationStub, ExecutionEnvironmentConfiguration)}
+     */
+    @Deprecated
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String executionEnvironmentName);
+
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentConfiguration eeConfig);
 
     public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
             String eeName);

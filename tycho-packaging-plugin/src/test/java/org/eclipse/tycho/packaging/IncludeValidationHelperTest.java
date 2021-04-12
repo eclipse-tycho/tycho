@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2012, 2018 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -11,6 +13,7 @@
 
 package org.eclipse.tycho.packaging;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -19,8 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import junit.framework.Assert;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.SilentLog;
@@ -100,7 +101,7 @@ public class IncludeValidationHelperTest {
 
             @Override
             public void info(String message, Throwable throwable) {
-                Assert.fail();
+                fail();
             }
 
             @Override
@@ -110,17 +111,17 @@ public class IncludeValidationHelperTest {
 
             @Override
             public void fatalError(String message, Throwable throwable) {
-                Assert.fail();
+                fail();
             }
 
             @Override
             public void error(String message, Throwable throwable) {
-                Assert.fail();
+                fail();
             }
 
             @Override
             public void debug(String message, Throwable throwable) {
-                Assert.fail();
+                fail();
             }
         };
 
@@ -130,8 +131,8 @@ public class IncludeValidationHelperTest {
         MavenProject project = createMockProject();
         subject.checkSourceIncludesExist(project, buildProperties, false);
 
-        Assert.assertEquals(1, warnings.size());
-        Assert.assertEquals(new File(project.getBasedir(), "build.properties").getAbsolutePath()
+        assertEquals(1, warnings.size());
+        assertEquals(new File(project.getBasedir(), "build.properties").getAbsolutePath()
                 + ": src.includes value(s) [foo3, bar3*] do not match any files.", warnings.get(0));
     }
 

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2015 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -12,22 +14,32 @@
 package org.eclipse.tycho.source;
 
 import static java.util.Arrays.asList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.osgi.framework.Constants;
 
 public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
 
@@ -85,6 +97,42 @@ public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
                 TychoVersion.getTychoVersion(), "plugin-source", null);
         setVariableValueToObject(sourceMojo, "classifier", "customclassifier");
         assertEquals("customclassifier", sourceMojo.getClassifier());
+    }
+
+    public void testReadL10nPropsWithExistingL10nFile() throws Exception {
+        readL10nPropsSetup();
+        OsgiManifest manifest = mock(OsgiManifest.class);
+        when(manifest.getValue(Constants.BUNDLE_LOCALIZATION)).thenReturn("l10n");
+        Properties properties = mojo.readL10nProps(manifest);
+        verify(mojo.getLog(), never()).warn(anyString());
+        assertNotNull(properties);
+    }
+
+    public void testReadL10nPropsShouldPrintWarningForNonExistingL10NFile() throws Exception {
+        readL10nPropsSetup();
+        OsgiManifest manifest = mock(OsgiManifest.class);
+        when(manifest.getValue(Constants.BUNDLE_LOCALIZATION)).thenReturn("nonexisting");
+        Properties properties = mojo.readL10nProps(manifest);
+        verify(mojo.getLog(), times(1)).warn(anyString());
+        assertNull(properties);
+    }
+
+    public void testReadL10nPropsShouldNotWarnIfBundleIsNotL10Ned() throws Exception {
+        readL10nPropsSetup();
+        OsgiManifest manifest = mock(OsgiManifest.class);
+        when(manifest.getValue(Constants.BUNDLE_LOCALIZATION)).thenReturn(null);
+        Properties properties = mojo.readL10nProps(manifest);
+        verify(mojo.getLog(), never()).warn(anyString());
+        assertNull(properties);
+    }
+
+    public void readL10nPropsSetup() throws Exception {
+        File basedir = getBasedir("bundleWithL10N");
+        MavenProject mavenProject = new MavenProject();
+        mavenProject.setFile(new File(basedir, "pom.xml"));
+        mojo.project = mavenProject;
+        Log log = mock(Log.class);
+        mojo.setLog(log);
     }
 
     private MavenProject createStubProjectWithSourceFolder(String packaging) {

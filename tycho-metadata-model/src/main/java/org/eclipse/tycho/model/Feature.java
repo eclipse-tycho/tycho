@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -35,7 +37,7 @@ import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
 /**
- * http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/reference/misc/
+ * https://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/reference/misc/
  * feature_manifest.html
  */
 public class Feature {
@@ -221,10 +223,8 @@ public class Feature {
     }
 
     public static void write(Feature feature, File file, String indent) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-
         Document document = feature.document;
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
@@ -234,22 +234,17 @@ public class Feature {
             } finally {
                 xw.flush();
             }
-        } finally {
-            IOUtil.close(os);
         }
     }
 
     public static Feature readJar(File file) throws IOException {
-        JarFile jar = new JarFile(file);
-        try {
+        try (JarFile jar = new JarFile(file)) {
             ZipEntry ze = jar.getEntry(FEATURE_XML);
             if (ze != null) {
                 InputStream is = jar.getInputStream(ze);
                 return read(is);
             }
             throw new IOException(file.getAbsolutePath() + " does not have " + FEATURE_XML + " entry.");
-        } finally {
-            jar.close();
         }
     }
 

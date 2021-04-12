@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: dependent
+Bundle-Version: 0.1.0.qualifier
+Require-Bundle: dependency
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

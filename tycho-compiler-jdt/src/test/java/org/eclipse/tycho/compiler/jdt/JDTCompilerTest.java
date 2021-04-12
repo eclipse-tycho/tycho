@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2011, 2020 SAP AG and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -11,9 +13,9 @@
 
 package org.eclipse.tycho.compiler.jdt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,16 +24,16 @@ import java.util.List;
 
 import org.codehaus.plexus.compiler.CompilerMessage;
 import org.codehaus.plexus.compiler.CompilerMessage.Kind;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JDTCompilerTest {
 
-    private static final String EOL = System.getProperty("line.separator");
+    private static final String EOL = System.lineSeparator();
 
     @Test
     public void testParseModernStreamErrorWithLineAndTrailingSpace() throws IOException {
-        List<CompilerMessage> messages = JDTCompiler.parseModernStream(createOutputForLines(
-                "1. ERROR in foo bar (at line 3) ", "2. ERROR in test (at line 5)"));
+        List<CompilerMessage> messages = JDTCompiler.parseModernStream(
+                createOutputForLines("1. ERROR in foo bar (at line 3) ", "2. ERROR in test (at line 5)"));
         assertEquals(2, messages.size());
         CompilerMessage message = messages.get(0);
         assertTrue(message.isError());
@@ -57,13 +59,13 @@ public class JDTCompilerTest {
     @Test
     public void testParseModernStreamIgnoreSeparatorLines() throws IOException {
         List<CompilerMessage> messages = JDTCompiler.parseModernStream(createOutputForLines(//
-                "----------",//
+                "----------", //
                 "1. ERROR in foo bar (at line 3) ", //
-                "a context line",//
-                "----------",//
-                "",//
-                "2. WARNING in test2 (at line 4)",//
-                "second context line",//
+                "a context line", //
+                "----------", //
+                "", //
+                "2. WARNING in test2 (at line 4)", //
+                "second context line", //
                 "----------"));
         assertEquals(2, messages.size());
         CompilerMessage error = messages.get(0);
@@ -111,7 +113,7 @@ public class JDTCompilerTest {
     }
 
     private static BufferedReader createOutputForLines(String... lines) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (String line : lines) {
             buf.append(line);
             buf.append("\n");

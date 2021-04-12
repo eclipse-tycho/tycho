@@ -5,15 +5,16 @@ Export-Package:
  org.eclipse.tycho.p2.resolver.facade,
  org.eclipse.tycho.p2.target.facade,
  org.eclipse.tycho.repository.registry.facade
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 2.4.0.qualifier
 Bundle-Name: Tycho p2 Resolver Maven/OSGi Shared Classes
 Bundle-ManifestVersion: 2
 Bundle-Description: Tycho integrates Maven with Eclipse and OSGi
 Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.shared
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: %providerName
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.core.shared
+Automatic-Module-Name: org.eclipse.tycho.p2.resolver.shared

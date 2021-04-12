@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -34,12 +36,14 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
@@ -49,8 +53,8 @@ public abstract class AbstractMetadataGenerator {
     private BuildPropertiesParser buildPropertiesParser;
 
     protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
-            PublisherInfo publisherInfo, OptionalResolutionAction optionalAction) {
-        for (IPublisherAdvice advice : getPublisherAdvice(artifact)) {
+            PublisherInfo publisherInfo, OptionalResolutionAction optionalAction, PublisherOptions options) {
+        for (IPublisherAdvice advice : getPublisherAdvice(artifact, options)) {
             publisherInfo.addAdvice(advice);
         }
         List<IPublisherAction> actions = getPublisherActions(artifact, environments, optionalAction);
@@ -61,7 +65,7 @@ public abstract class AbstractMetadataGenerator {
     protected abstract List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction);
 
-    protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact);
+    protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options);
 
     protected ICapabilityAdvice getExtraEntriesAdvice(IArtifactFacade artifact) {
         final IRequirement[] extraRequirements = extractExtraEntriesAsIURequirement(artifact.getLocation());
@@ -127,8 +131,8 @@ public abstract class AbstractMetadataGenerator {
 
         DependencyMetadata metadata = new DependencyMetadata();
 
-        metadata.setMetadata(true, result.getIUs(null, PublisherResult.ROOT));
-        metadata.setMetadata(false, result.getIUs(null, PublisherResult.NON_ROOT));
+        metadata.setDependencyMetadata(DependencyMetadataType.SEED, result.getIUs(null, PublisherResult.ROOT));
+        metadata.setDependencyMetadata(DependencyMetadataType.RESOLVE, result.getIUs(null, PublisherResult.NON_ROOT));
 
         IArtifactRepository artifactRepository = publisherInfo.getArtifactRepository();
         if (artifactRepository instanceof TransientArtifactRepository) {

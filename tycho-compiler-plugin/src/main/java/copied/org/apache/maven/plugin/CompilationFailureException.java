@@ -23,17 +23,17 @@ import org.codehaus.plexus.compiler.CompilerMessage;
 
 public class CompilationFailureException extends MojoFailureException {
     /**
-	 * 
-	 */
+     * 
+     */
     private static final long serialVersionUID = 6116801730028853785L;
-    private static final String LS = System.getProperty("line.separator");
+    private static final String LS = System.lineSeparator();
 
     public CompilationFailureException(List<CompilerMessage> messages) {
         super(null, "Compilation failure", longMessage(messages));
     }
 
     public static String longMessage(List<CompilerMessage> messages) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (CompilerMessage compilerMessage : messages) {
             sb.append(compilerMessage).append(LS);
         }

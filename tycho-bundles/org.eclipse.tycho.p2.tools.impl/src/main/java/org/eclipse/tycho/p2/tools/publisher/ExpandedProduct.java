@@ -1,16 +1,21 @@
 /*******************************************************************************
- * Copyright (c) 2015 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2015, 2019 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Bug 546382: Launcher Icon path is not considered correctly
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -216,7 +221,46 @@ class ExpandedProduct implements IProductDescriptor {
 
     @Override
     public String[] getIcons(String os) {
-        return defaults.getIcons(os);
+        String[] icons = defaults.getIcons(os);
+        logger.debug("Getting the following icon paths from defaults: " + Arrays.toString(icons));
+        for (int i = 0; i < icons.length; i++) {
+            icons[i] = guessRealIconPath(icons[i]);
+
+        }
+        return icons;
+    }
+
+    private String guessRealIconPath(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            try {
+                File productFolder = defaults.getLocation().getParentFile();
+                String productPath = productFolder.getCanonicalPath();
+                String iconPath = file.getCanonicalPath();
+                if (iconPath.startsWith(productPath)) {
+                    String rawPath = iconPath.substring(productPath.length());
+                    if (rawPath.startsWith("/") || rawPath.startsWith(File.separator)) {
+                        //remove the first slash (indicates the root of the workspace)
+                        rawPath = rawPath.substring(1);
+                    }
+                    File parentDirectory = productFolder.getParentFile();
+                    if (parentDirectory != null) {
+                        File guessedFile = new File(parentDirectory, rawPath);
+                        String absolutePath = guessedFile.getAbsolutePath();
+                        logger.debug("raw path is " + rawPath + ", guessed path is " + absolutePath);
+                        if (guessedFile.exists()) {
+                            return absolutePath;
+                        }
+                    }
+                }
+                logger.warn("Icon path " + path
+                        + " does not exist and can't be determined by tycho, make sure that either the icon path is relative to the product file, or denotes a folder in the parent path of the product! (current product path is "
+                        + productPath + ")");
+            } catch (IOException e) {
+                logger.warn("can't guess icon path because of I/O problem", e);
+            }
+        }
+        return path;
     }
 
     @Override
@@ -247,6 +291,11 @@ class ExpandedProduct implements IProductDescriptor {
     @Override
     public List<IRepositoryReference> getRepositoryEntries() {
         return defaults.getRepositoryEntries();
+    }
+
+    @Override
+    public String getVM(String os) {
+        return defaults.getVM(os);
     }
 
 }

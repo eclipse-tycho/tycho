@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileLock;
 import java.util.Arrays;
 
@@ -44,19 +43,19 @@ public class LockProcess {
     public static void main(String[] args) throws Exception {
         File file = new File(args[0]);
         long wait = Long.valueOf(args[1]);
-        RandomAccessFile raFile = new RandomAccessFile(file, "rw");
-        FileLock lock = raFile.getChannel().lock(0, 1, false);
-        System.out.println(LOCK_ACQUIRED_MSG);
-        Thread.sleep(wait);
-        lock.release();
-        raFile.close();
+        try (RandomAccessFile raFile = new RandomAccessFile(file, "rw")) {
+            FileLock lock = raFile.getChannel().lock(0, 1, false);
+            System.out.println(LOCK_ACQUIRED_MSG);
+            Thread.sleep(wait);
+            lock.release();
+        }
     }
 
     public void lockFileInForkedProcess() {
         copyClassFile();
         try {
-            File javaExecutable = new File(System.getProperty("java.home"), "bin/java"
-                    + (File.separatorChar == '\\' ? ".exe" : ""));
+            File javaExecutable = new File(System.getProperty("java.home"),
+                    "bin/java" + (File.separatorChar == '\\' ? ".exe" : ""));
             String[] commandLine = new String[] { javaExecutable.getAbsolutePath(), "-cp",
                     tmpClassDir.getAbsolutePath(), LockProcess.class.getName(), lockMarkerFile.getAbsolutePath(),
                     String.valueOf(waitTime) };
@@ -67,8 +66,6 @@ public class LockProcess {
             // wait until file lock is acquired
             while (!LOCK_ACQUIRED_MSG.equals(reader.readLine())) {
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -96,14 +93,14 @@ public class LockProcess {
             String classNamePath = LockProcess.class.getName().replace('.', '/') + ".class";
             File tmpClassFile = new File(tmpClassDir, classNamePath);
             tmpClassFile.getParentFile().mkdirs();
-            OutputStream out = new FileOutputStream(tmpClassFile);
-            byte[] buffer = new byte[1024];
-            int read = 0;
-            while ((read = in.read(buffer, 0, buffer.length)) != -1) {
-                out.write(buffer, 0, read);
+            try (OutputStream out = new FileOutputStream(tmpClassFile)) {
+                byte[] buffer = new byte[1024];
+                int read = 0;
+                while ((read = in.read(buffer, 0, buffer.length)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                in.close();
             }
-            in.close();
-            out.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

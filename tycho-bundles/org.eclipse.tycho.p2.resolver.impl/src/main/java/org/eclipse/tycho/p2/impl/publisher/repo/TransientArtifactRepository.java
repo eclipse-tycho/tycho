@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -41,8 +43,8 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
     public TransientArtifactRepository() {
         super(null, "TransientArtifactRepository", TransientArtifactRepository.class.getName(), "1.0.0", null, null,
                 null, newProperties());
-        super.setLocation(URI.create("memory:" + getClass().getName() + "@"
-                + Integer.toHexString(System.identityHashCode(this))));
+        super.setLocation(URI
+                .create("memory:" + getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(this))));
     }
 
     private static Map<String, String> newProperties() {
@@ -109,6 +111,16 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
         for (IArtifactDescriptor descriptor : descriptors) {
             addDescriptor(descriptor);
         }
+    }
+
+    @Override
+    public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+        addDescriptor(descriptor);
+    }
+
+    @Override
+    public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+        addDescriptors(descriptors);
     }
 
     @Override

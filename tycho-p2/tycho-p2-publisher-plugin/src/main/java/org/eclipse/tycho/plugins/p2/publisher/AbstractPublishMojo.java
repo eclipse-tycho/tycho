@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2015 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
@@ -16,12 +18,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
+    private static final Object LOCK = new Object();
 
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
@@ -31,9 +35,18 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
-        PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
-        Collection<DependencySeed> units = publishContent(publisherServiceFactory);
-        postPublishedIUs(units);
+        synchronized (LOCK) {
+            try {
+                PublisherServiceFactory publisherServiceFactory = osgiServices
+                        .getService(PublisherServiceFactory.class);
+                Collection<DependencySeed> units = publishContent(publisherServiceFactory);
+                postPublishedIUs(units);
+            } catch (Exception ex) {
+                throw new MojoFailureException(
+                        "Publisher failed. Verify your target-platform-configuration and executionEnvironment are suitable for proper resolution",
+                        ex);
+            }
+        }
     }
 
     /**
@@ -50,6 +63,6 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
      * assembly p2 repository.
      */
     private void postPublishedIUs(Collection<DependencySeed> units) {
-        TychoProjectUtils.getDependencySeeds(getProject()).addAll(units);
+        TychoProjectUtils.getDependencySeeds(getReactorProject()).addAll(units);
     }
 }

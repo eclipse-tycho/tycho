@@ -46,7 +46,7 @@
 							<id> org.eclipse.osgi </id>  <!-- extra whitespace is not needed; it is just here to make the test harder -->
 							<restrictTo>
 								<versionRange>
-									[3.4,3.5)
+									[3.12,3.13)
 								</versionRange>
 							</restrictTo>
 						</filter>

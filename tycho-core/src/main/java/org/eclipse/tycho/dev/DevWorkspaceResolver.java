@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2020 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -116,13 +115,8 @@ public class DevWorkspaceResolver implements Initializable {
 
     private Properties loadWorkspaceState(File workspaceState) {
         Properties properties = new Properties();
-        try {
-            InputStream is = new BufferedInputStream(new FileInputStream(workspaceState));
-            try {
-                properties.load(is);
-            } finally {
-                IOUtil.close(is);
-            }
+        try (InputStream is = new BufferedInputStream(new FileInputStream(workspaceState))) {
+            properties.load(is);
         } catch (IOException e) {
             // silently ignore for now
         }
@@ -158,7 +152,7 @@ public class DevWorkspaceResolver implements Initializable {
         if (descriptor == null) {
             return null;
         }
-        File location = descriptor.getLocation();
+        File location = descriptor.getLocation(true);
         return new DevBundleInfo(descriptor.getKey(), location, workspaceDeventries.get(location));
     }
 

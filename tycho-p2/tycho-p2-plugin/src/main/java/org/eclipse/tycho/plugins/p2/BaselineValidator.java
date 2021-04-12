@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -26,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -66,9 +69,9 @@ public class BaselineValidator {
     @Requirement
     private EquinoxServiceFactory equinox;
 
-    public Map<String, IP2Artifact> validateAndReplace(MavenProject project, Map<String, IP2Artifact> reactorMetadata,
-            List<Repository> baselineRepositories, BaselineMode baselineMode, BaselineReplace baselineReplace)
-            throws IOException, MojoExecutionException {
+    public Map<String, IP2Artifact> validateAndReplace(MavenProject project, MojoExecution execution,
+            Map<String, IP2Artifact> reactorMetadata, List<Repository> baselineRepositories, BaselineMode baselineMode,
+            BaselineReplace baselineReplace) throws IOException, MojoExecutionException {
 
         Map<String, IP2Artifact> result = reactorMetadata;
 
@@ -88,7 +91,7 @@ public class BaselineValidator {
                     reactorMetadata, baselineBasedir);
 
             if (baselineMetadata != null) {
-                CompoundArtifactDelta delta = getDelta(baselineService, baselineMetadata, reactorMetadata);
+                CompoundArtifactDelta delta = getDelta(baselineService, baselineMetadata, reactorMetadata, execution);
                 if (delta != null) {
                     if (System.getProperties().containsKey("tycho.debug.artifactcomparator")) {
                         File logdir = new File(project.getBuild().getDirectory(), "artifactcomparison");
@@ -103,8 +106,7 @@ public class BaselineValidator {
                     if (baselineMode == fail || (baselineMode == failCommon && !isMissingOnlyDelta(delta))) {
                         throw new MojoExecutionException(delta.getDetailedMessage());
                     } else {
-                        String message = log.isDebugEnabled() ? delta.getDetailedMessage() : delta.getMessage();
-                        log.warn(project.toString() + ": " + message);
+                        log.warn(project.toString() + ": " + delta.getDetailedMessage());
                     }
                 }
 
@@ -202,7 +204,7 @@ public class BaselineValidator {
     }
 
     private CompoundArtifactDelta getDelta(BaselineService baselineService, Map<String, IP2Artifact> baselineMetadata,
-            Map<String, IP2Artifact> generatedMetadata) throws IOException {
+            Map<String, IP2Artifact> generatedMetadata, MojoExecution execution) throws IOException {
 
         Map<String, ArtifactDelta> result = new LinkedHashMap<>();
 
@@ -237,7 +239,7 @@ public class BaselineValidator {
 
             try {
                 ArtifactDelta delta = zipComparator.getDelta(baselineArtifact.getLocation(),
-                        reactorArtifact.getLocation());
+                        reactorArtifact.getLocation(), execution);
                 if (delta != null) {
                     result.put(deltaKey, delta);
                 }
@@ -249,8 +251,10 @@ public class BaselineValidator {
             }
         }
 
-        return !result.isEmpty() ? new CompoundArtifactDelta(
-                "baseline and build artifacts have same version but different contents", result) : null;
+        return !result.isEmpty()
+                ? new CompoundArtifactDelta("baseline and build artifacts have same version but different contents",
+                        result)
+                : null;
     }
 
     private <T> T getService(Class<T> type) {
