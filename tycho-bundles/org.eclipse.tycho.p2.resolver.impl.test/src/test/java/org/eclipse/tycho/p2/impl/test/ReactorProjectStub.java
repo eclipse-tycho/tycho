@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -96,7 +97,7 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     @Override
-    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+    public Set<?> getDependencyMetadata(DependencyMetadataScope type) {
         switch (type) {
         case SEED:
             return dependencyMetadata;
@@ -109,24 +110,24 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
         this.dependencyMetadata = new LinkedHashSet<>(
-                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.SEED));
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataScope.SEED));
         this.secondaryDependencyMetadata = new LinkedHashSet<>(
-                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.RESOLVE));
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataScope.RESOLVE));
     }
 
     @Override
-    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
-        if (type == DependencyMetadataType.SEED)
+    public void setDependencyMetadata(DependencyMetadataScope type, Collection<?> units) {
+        if (type == DependencyMetadataScope.SEED)
             this.dependencyMetadata = new LinkedHashSet<>(units);
-        else if (type == DependencyMetadataType.RESOLVE)
+        else if (type == DependencyMetadataScope.RESOLVE)
             this.secondaryDependencyMetadata = new LinkedHashSet<>(units);
     }
 
     // TODO share with real implementation?
     @Override
     public Set<?> getDependencyMetadata() {
-        Set<?> primary = getDependencyMetadata(DependencyMetadataType.SEED);
-        Set<?> secondary = getDependencyMetadata(DependencyMetadataType.RESOLVE);
+        Set<?> primary = getDependencyMetadata(DependencyMetadataScope.SEED);
+        Set<?> secondary = getDependencyMetadata(DependencyMetadataScope.RESOLVE);
 
         if (primary == null) {
             return secondary;

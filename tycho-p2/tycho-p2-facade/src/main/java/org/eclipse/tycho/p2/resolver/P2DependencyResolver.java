@@ -57,8 +57,8 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.IDependencyMetadata;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -143,16 +143,16 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         List<TargetEnvironment> environments = configuration.getEnvironments();
         Map<String, IDependencyMetadata> metadataMap = getDependencyMetadata(session, project, environments,
                 OptionalResolutionAction.OPTIONAL);
-        Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
-        for (DependencyMetadataType type : DependencyMetadataType.values()) {
+        Map<DependencyMetadataScope, Set<Object>> typeMap = new TreeMap<>();
+        for (DependencyMetadataScope type : DependencyMetadataScope.values()) {
             typeMap.put(type, new LinkedHashSet<Object>());
         }
         for (IDependencyMetadata metadata : metadataMap.values()) {
-            for (Entry<DependencyMetadataType, Set<Object>> map : typeMap.entrySet()) {
+            for (Entry<DependencyMetadataScope, Set<Object>> map : typeMap.entrySet()) {
                 map.getValue().addAll(metadata.getDependencyMetadata(map.getKey()));
             }
         }
-        for (Entry<DependencyMetadataType, Set<Object>> entry : typeMap.entrySet()) {
+        for (Entry<DependencyMetadataScope, Set<Object>> entry : typeMap.entrySet()) {
             reactorProject.setDependencyMetadata(entry.getKey(), entry.getValue());
         }
     }
@@ -237,10 +237,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 .getOptionalResolutionAction();
         Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
                 optionalAction);
-        Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
+        Map<DependencyMetadataScope, Set<Object>> typeMap = new TreeMap<>();
         for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
             IDependencyMetadata value = entry.getValue();
-            for (DependencyMetadataType type : DependencyMetadataType.values()) {
+            for (DependencyMetadataScope type : DependencyMetadataScope.values()) {
                 typeMap.computeIfAbsent(type, t -> new LinkedHashSet<>()).addAll(value.getDependencyMetadata(type));
             }
         }
@@ -249,7 +249,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         ReactorProject reactorProjet = new DefaultReactorProject(project) {
             @Override
-            public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+            public Set<?> getDependencyMetadata(DependencyMetadataScope type) {
                 return typeMap.get(type);
             }
 

@@ -30,6 +30,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -112,12 +113,12 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
         }
 
         @Override
-        public Set<?> getDependencyMetadata(DependencyMetadataType type) {
-            return type == DependencyMetadataType.RESOLVE ? metadata : Collections.emptySet();
+        public Set<?> getDependencyMetadata(DependencyMetadataScope type) {
+            return type == DependencyMetadataScope.RESOLVE ? metadata : Collections.emptySet();
         }
 
         @Override
-        public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+        public void setDependencyMetadata(DependencyMetadataScope type, Collection<?> units) {
             throw new UnsupportedOperationException();
         }
     }

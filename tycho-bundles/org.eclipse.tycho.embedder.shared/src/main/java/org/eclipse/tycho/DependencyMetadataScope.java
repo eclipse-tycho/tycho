@@ -13,15 +13,13 @@
 package org.eclipse.tycho;
 
 /**
- * {@link RequiredCapability} is the abstraction
- *
+ * {@link DependencyMetadataScope} refers to the scope where a dependency and/or requirement is
+ * relevant. For example some requirements are relevant for the initial resolving of a project (this
+ * can be seen s the minimal set of dependencies required to actually work with, e.g. to validate
+ * that all prerequisites are meet), others might be relevant for compiling (e.g. classpath entries,
+ * compiler levels) and others only for test execution (e.g. additional mock-services, fragments and
+ * so on).
  */
-public interface RequiredCapability {
-
-    String getNamespace();
-
-    String getId();
-
-    String getVersionRange();
-
+public enum DependencyMetadataScope {
+    SEED, RESOLVE, COMPILE, TEST;
 }

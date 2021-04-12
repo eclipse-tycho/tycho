@@ -22,27 +22,28 @@ import java.util.stream.Collectors;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.IDependencyMetadata;
 
 public class DependencyMetadata implements IDependencyMetadata {
 
-    private Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
+    private Map<DependencyMetadataScope, Set<Object>> typeMap = new TreeMap<>();
     private Set<IArtifactDescriptor> artifacts;
 
     @Override
-    public Set<Object /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type) {
+    public Set<Object /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataScope type) {
         return typeMap.getOrDefault(type, Collections.emptySet());
     }
 
     @Override
     public Set<Object /* IInstallableUnit */> getDependencyMetadata() {
         LinkedHashSet<Object> result = new LinkedHashSet<>();
-        result.addAll(getDependencyMetadata(DependencyMetadataType.SEED));
-        result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
+        result.addAll(getDependencyMetadata(DependencyMetadataScope.SEED));
+        result.addAll(getDependencyMetadata(DependencyMetadataScope.RESOLVE));
         return result;
     }
 
-    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+    public void setDependencyMetadata(DependencyMetadataScope type, Collection<?> units) {
 
         typeMap.put(type, new LinkedHashSet<Object>(units));
     }

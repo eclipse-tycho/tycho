@@ -49,7 +49,7 @@ import org.eclipse.osgi.report.resolution.ResolutionReport.Entry;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.RequiredCapability;
 import org.eclipse.tycho.Requirements;
@@ -323,7 +323,7 @@ public class EquinoxResolver {
                     Requirements requirements = mavenProject.getRequirements();
                     if (requirements != null) {
                         requirementsMap.put(location,
-                                requirements.getRequiredCapabilities(mavenProject, DependencyMetadataType.COMPILE));
+                                requirements.getRequiredCapabilities(mavenProject, DependencyMetadataScope.COMPILE));
                     }
                 } else {
                     externalBundles.put(location, mf);

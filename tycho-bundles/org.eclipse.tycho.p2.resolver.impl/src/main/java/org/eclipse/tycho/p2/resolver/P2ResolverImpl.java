@@ -46,7 +46,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -124,7 +124,7 @@ public class P2ResolverImpl implements P2Resolver {
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         usedTargetPlatformUnits = new LinkedHashSet<>();
-        Set<?> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
+        Set<?> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataScope.SEED)
                 : Collections.emptySet();
         for (TargetEnvironment environment : environments) {
             if (isMatchingEnv(metadata, environment)) {
@@ -232,14 +232,14 @@ public class P2ResolverImpl implements P2Resolver {
         Set<IInstallableUnit> availableUnits = context.getInstallableUnits();
         List<IRequirement> requirements = new ArrayList<>(additionalRequirements);
         if (project != null) {
-            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(DependencyMetadataType.SEED));
+            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(DependencyMetadataScope.SEED));
             Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
-                    .getDependencyMetadata(DependencyMetadataType.RESOLVE);
+                    .getDependencyMetadata(DependencyMetadataScope.RESOLVE);
             if (!projectSecondaryIUs.isEmpty()) {
                 availableUnits = new LinkedHashSet<>(availableUnits);
                 availableUnits.addAll(projectSecondaryIUs);
             }
-            project.getDependencyMetadata(IRequirement.class, DependencyMetadataType.COMPILE)
+            project.getDependencyMetadata(IRequirement.class, DependencyMetadataScope.COMPILE)
                     .forEach(requirements::add);
             project.setContextValue(ReactorProject.CTX_REQUIREMENTS, new P2Requirements());
         } else {

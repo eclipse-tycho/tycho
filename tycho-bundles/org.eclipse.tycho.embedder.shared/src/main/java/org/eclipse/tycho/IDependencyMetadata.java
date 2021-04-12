@@ -19,17 +19,13 @@ import java.util.stream.Stream;
 
 public interface IDependencyMetadata {
 
-    enum DependencyMetadataType {
-        SEED, RESOLVE, COMPILE;
-    }
-
-    Set<? /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type);
+    Set<? /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataScope type);
 
     Set<? /* IInstallableUnit */> getDependencyMetadata();
 
-    void setDependencyMetadata(DependencyMetadataType type, Collection<? /* IInstallableUnit */> units);
+    void setDependencyMetadata(DependencyMetadataScope type, Collection<? /* IInstallableUnit */> units);
 
-    default <T> Stream<T> getDependencyMetadata(Class<T> type, DependencyMetadataType... types) {
+    default <T> Stream<T> getDependencyMetadata(Class<T> type, DependencyMetadataScope... types) {
         return Arrays.stream(types).flatMap(t -> getDependencyMetadata(t).stream()).filter(type::isInstance)
                 .map(type::cast);
     }

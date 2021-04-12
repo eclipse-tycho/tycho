@@ -14,10 +14,13 @@ package org.eclipse.tycho;
 
 import java.util.List;
 
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
-
+/**
+ * {@link Requirements} is the "maven-world" abstraction of P2 IRequirement(s) and is simply an
+ * accessory to data stored in {@link IDependencyMetadata}.
+ *
+ */
 public interface Requirements {
 
     List<RequiredCapability> getRequiredCapabilities(IDependencyMetadata dependencyMetadata,
-            DependencyMetadataType... types);
+            DependencyMetadataScope... types);
 }

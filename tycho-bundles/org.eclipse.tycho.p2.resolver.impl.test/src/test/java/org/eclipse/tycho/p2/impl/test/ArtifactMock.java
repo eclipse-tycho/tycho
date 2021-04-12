@@ -16,8 +16,8 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.IDependencyMetadata;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 public class ArtifactMock implements IArtifactFacade {
@@ -96,8 +96,8 @@ public class ArtifactMock implements IArtifactFacade {
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
         this.dependencyMetadata = new LinkedHashSet<>(
-                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.SEED));
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataScope.SEED));
         this.secondaryDependencyMetadata = new LinkedHashSet<>(
-                dependencyMetadata.getDependencyMetadata(DependencyMetadataType.RESOLVE));
+                dependencyMetadata.getDependencyMetadata(DependencyMetadataScope.RESOLVE));
     }
 }

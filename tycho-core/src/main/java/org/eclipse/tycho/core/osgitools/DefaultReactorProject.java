@@ -26,6 +26,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.Requirements;
@@ -158,24 +159,24 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     @Override
-    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+    public void setDependencyMetadata(DependencyMetadataScope type, Collection<?> units) {
         setContextValue(getDependencyMetadataKey(type), units);
     }
 
     @Override
     public Set<?> getDependencyMetadata() {
-        LinkedHashSet<Object> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataType.SEED));
-        result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
+        LinkedHashSet<Object> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataScope.SEED));
+        result.addAll(getDependencyMetadata(DependencyMetadataScope.RESOLVE));
         return result;
     }
 
     @Override
-    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+    public Set<?> getDependencyMetadata(DependencyMetadataScope type) {
         return Objects.requireNonNullElse((Set<?>) getContextValue(getDependencyMetadataKey(type)),
                 Collections.emptySet());
     }
 
-    private static String getDependencyMetadataKey(DependencyMetadataType type) {
+    private static String getDependencyMetadataKey(DependencyMetadataScope type) {
         return CTX_DEPENDENCY_METADATA_PREFIX + type.name().toLowerCase();
     }
 

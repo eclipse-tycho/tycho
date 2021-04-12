@@ -37,7 +37,7 @@ import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
@@ -138,8 +138,8 @@ public abstract class AbstractMetadataGenerator {
 
         DependencyMetadata metadata = new DependencyMetadata();
 
-        metadata.setDependencyMetadata(DependencyMetadataType.SEED, result.getIUs(null, PublisherResult.ROOT));
-        metadata.setDependencyMetadata(DependencyMetadataType.RESOLVE, result.getIUs(null, PublisherResult.NON_ROOT));
+        metadata.setDependencyMetadata(DependencyMetadataScope.SEED, result.getIUs(null, PublisherResult.ROOT));
+        metadata.setDependencyMetadata(DependencyMetadataScope.RESOLVE, result.getIUs(null, PublisherResult.NON_ROOT));
 
         IArtifactRepository artifactRepository = publisherInfo.getArtifactRepository();
         if (artifactRepository instanceof TransientArtifactRepository) {

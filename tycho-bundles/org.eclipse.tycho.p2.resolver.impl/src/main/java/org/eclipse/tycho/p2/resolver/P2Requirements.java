@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.tycho.DependencyMetadataScope;
 import org.eclipse.tycho.IDependencyMetadata;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.RequiredCapability;
 import org.eclipse.tycho.Requirements;
 
@@ -26,7 +26,7 @@ public class P2Requirements implements Requirements {
 
     @Override
     public List<RequiredCapability> getRequiredCapabilities(IDependencyMetadata dependencyMetadata,
-            DependencyMetadataType... types) {
+            DependencyMetadataScope... types) {
         return dependencyMetadata.getDependencyMetadata(IRequiredCapability.class, types)
                 .map(RequiredCapabilityFacade::new).collect(Collectors.toList());
     }
