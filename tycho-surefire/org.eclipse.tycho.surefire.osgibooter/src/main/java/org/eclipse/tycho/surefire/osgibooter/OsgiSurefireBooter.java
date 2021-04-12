@@ -55,6 +55,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.service.resolver.ResolverError;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 public class OsgiSurefireBooter {
     private static final String XSD = "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd";
@@ -75,6 +76,16 @@ public class OsgiSurefireBooter {
         Map<String, String> propertiesMap = new HashMap<String, String>();
         for (String key : testProps.stringPropertyNames()) {
             propertiesMap.put(key, testProps.getProperty(key));
+        }
+        if (Boolean.parseBoolean(testProps.getProperty("printBundles"))) {
+            System.out.println("====== Installed Bundles ========");
+            Bundle fwbundle = getBundle(Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
+            Bundle[] bundles = fwbundle.getBundleContext().getBundles();
+            for (Bundle bundle : bundles) {
+                System.out.println("[" + bundle.getBundleId() + "][" + bundle.getState() + "] "
+                        + bundle.getSymbolicName() + " (" + bundle.getVersion() + ")");
+            }
+            System.out.println("=================================");
         }
         PropertiesWrapper wrapper = new PropertiesWrapper(propertiesMap);
         List<String> suiteXmlFiles = wrapper.getStringList(BooterConstants.TEST_SUITE_XML_FILES);
@@ -183,10 +194,7 @@ public class OsgiSurefireBooter {
     }
 
     private static ClassLoader getBundleClassLoader(String symbolicName) throws BundleException {
-        Bundle bundle = Activator.getBundle(symbolicName);
-        if (bundle == null) {
-            throw new RuntimeException("Bundle " + symbolicName + " is not found");
-        }
+        Bundle bundle = getBundle(symbolicName);
         try {
             bundle.start();
         } catch (BundleException ex) {
@@ -205,6 +213,14 @@ public class OsgiSurefireBooter {
             throw ex;
         }
         return new BundleClassLoader(bundle);
+    }
+
+    protected static Bundle getBundle(String symbolicName) {
+        Bundle bundle = Activator.getBundle(symbolicName);
+        if (bundle == null) {
+            throw new RuntimeException("Bundle " + symbolicName + " is not found");
+        }
+        return bundle;
     }
 
     private static class BundleClassLoader extends ClassLoader {

@@ -142,6 +142,16 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private int debugPort;
 
     /**
+     * if set to a non-null value, the platform is put in debug mode. If the value is a non-empty
+     * string it is interpreted as the location of the .options file. This file indicates what debug
+     * points are available for a plug-in and whether or not they are enabled. for a list of
+     * available options see <a href=
+     * "https://git.eclipse.org/c/equinox/rt.equinox.framework.git/plain/bundles/org.eclipse.osgi/.options">https://git.eclipse.org/c/equinox/rt.equinox.framework.git/plain/bundles/org.eclipse.osgi/.options</a>
+     */
+    @Parameter(property = "osgi.debug")
+    private String debugOptions;
+
+    /**
      * List of patterns (separated by commas) used to specify the tests that should be included in
      * testing. When not specified and when the <code>test</code> parameter is not specified, the
      * default includes will be
@@ -205,10 +215,16 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private String excludedGroups;
 
     /**
-     * Enables -debug -consolelog for the test OSGi runtime
+     * Enables -consolelog for the test OSGi runtime
      */
     @Parameter(property = "tycho.showEclipseLog", defaultValue = "false")
     private boolean showEclipseLog;
+
+    /**
+     * prints all loaded bundles
+     */
+    @Parameter(property = "tycho.printBundles", defaultValue = "false")
+    private boolean printBundles;
 
     /**
      * Set this to "true" to redirect the unit test standard output to a file (found in
@@ -893,6 +909,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         wrapper.setProperty("trimStackTrace", String.valueOf(trimStackTrace));
         wrapper.setProperty("skipAfterFailureCount", String.valueOf(skipAfterFailureCount));
         wrapper.setProperty("rerunFailingTestsCount", String.valueOf(rerunFailingTestsCount));
+        wrapper.setProperty("printBundles", String.valueOf(printBundles));
         Properties mergedProviderProperties = getMergedProviderProperties();
         mergedProviderProperties.putAll(provider.getProviderSpecificProperties());
         ScanResult scanResult = scanForTests();
@@ -1133,11 +1150,16 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         for (Map.Entry<String, String> entry : getMergedSystemProperties().entrySet()) {
             cli.addVMArguments("-D" + entry.getKey() + "=" + entry.getValue());
         }
-
-        if (getLog().isDebugEnabled() || showEclipseLog) {
-            cli.addProgramArguments("-debug", "-consolelog");
+        if (debugOptions != null || getLog().isDebugEnabled()) {
+            if (debugOptions == null || debugOptions.isBlank()) {
+                cli.addProgramArguments("-debug");
+            } else {
+                cli.addProgramArguments("-debug", new File(debugOptions).getAbsolutePath());
+            }
         }
-
+        if (getLog().isDebugEnabled() || showEclipseLog) {
+            cli.addProgramArguments("-consolelog");
+        }
         addProgramArgs(cli, "-data", osgiDataDirectory.getAbsolutePath(), //
                 "-install", testRuntime.getLocation().getAbsolutePath(), //
                 "-configuration", testRuntime.getConfigurationLocation().getAbsolutePath(), //
