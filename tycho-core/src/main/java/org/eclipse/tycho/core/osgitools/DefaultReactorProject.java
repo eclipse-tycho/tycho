@@ -28,6 +28,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.Requirements;
 import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 
@@ -74,6 +75,11 @@ public class DefaultReactorProject implements ReactorProject {
             result.add(adapt(project));
         }
         return result;
+    }
+
+    @Override
+    public Requirements getRequirements() {
+        return (Requirements) getContextValue(CTX_REQUIREMENTS);
     }
 
     @Override

@@ -25,4 +25,6 @@ public interface DependencyMetadataGenerator {
      */
     public IDependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction, PublisherOptions options);
+
+    public Object createBundleRequirement(String id, String versionRange);
 }

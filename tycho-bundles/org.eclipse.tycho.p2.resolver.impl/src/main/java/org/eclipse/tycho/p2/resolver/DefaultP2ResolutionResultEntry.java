@@ -104,4 +104,21 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
         this.version = version;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("P2ResolutionResult.Entry [type=");
+        builder.append(type);
+        builder.append(", id=");
+        builder.append(id);
+        builder.append(", version=");
+        builder.append(version);
+        builder.append(", classifier=");
+        builder.append(classifier);
+        builder.append(", installableUnits=");
+        builder.append(installableUnits);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

@@ -15,6 +15,7 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +49,10 @@ import org.eclipse.osgi.report.resolution.ResolutionReport.Entry;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.RequiredCapability;
+import org.eclipse.tycho.Requirements;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
@@ -63,8 +67,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.VersionRange;
 import org.osgi.framework.hooks.resolver.ResolverHook;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
+import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.NativeNamespace;
 import org.osgi.framework.wiring.BundleCapability;
@@ -290,6 +296,7 @@ public class EquinoxResolver {
         Map<File, OsgiManifest> systemBundles = new LinkedHashMap<>();
         Map<File, OsgiManifest> externalBundles = new LinkedHashMap<>();
         Map<File, OsgiManifest> projects = new LinkedHashMap<>();
+        Map<File, List<RequiredCapability>> requirementsMap = new LinkedHashMap<>();
 
         List<ArtifactDescriptor> list = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
         for (ArtifactDescriptor artifact : list) {
@@ -313,6 +320,11 @@ public class EquinoxResolver {
                         mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", reqb));
                     }
                     projects.put(location, mf);
+                    Requirements requirements = mavenProject.getRequirements();
+                    if (requirements != null) {
+                        requirementsMap.put(location,
+                                requirements.getRequiredCapabilities(mavenProject, DependencyMetadataType.COMPILE));
+                    }
                 } else {
                     externalBundles.put(location, mf);
                 }
@@ -347,6 +359,20 @@ public class EquinoxResolver {
             // that has the same bundle symbolic name
             Map<String, String> headers = entry.getValue().getHeaders();
             ModuleRevisionBuilder builder = OSGiManifestBuilderFactory.createBuilder(headers);
+            List<RequiredCapability> cap = requirementsMap.get(entry.getKey());
+            if (cap != null) {
+                for (RequiredCapability requiredCapability : cap) {
+                    StringBuilder filter = new StringBuilder();
+                    VersionRange range = new VersionRange(requiredCapability.getVersionRange());
+                    filter.append("(&(").append(BundleNamespace.BUNDLE_NAMESPACE).append('=')
+                            .append(requiredCapability.getId()).append(')')
+                            .append(range.toFilterString(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE))
+                            .append(')');
+                    builder.addRequirement(BundleNamespace.BUNDLE_NAMESPACE,
+                            Collections.singletonMap(BundleNamespace.REQUIREMENT_FILTER_DIRECTIVE, filter.toString()),
+                            Collections.emptyMap());
+                }
+            }
             moduleContainer.install(null, entry.getKey().getAbsolutePath(), builder, entry.getKey());
         }
 

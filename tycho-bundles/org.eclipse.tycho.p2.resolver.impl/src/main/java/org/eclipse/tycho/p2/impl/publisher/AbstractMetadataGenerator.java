@@ -35,6 +35,7 @@ import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
@@ -116,6 +117,12 @@ public abstract class AbstractMetadataGenerator {
         if (m.matches())
             result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, m.group(2),
                     VersionRange.emptyRange, null, false, false));
+    }
+
+    public IRequirement createBundleRequirement(String id, String versionRange) {
+
+        return MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, id,
+                VersionRange.create(versionRange), null, false, false);
     }
 
     private DependencyMetadata publish(PublisherInfo publisherInfo, List<IPublisherAction> actions) {
