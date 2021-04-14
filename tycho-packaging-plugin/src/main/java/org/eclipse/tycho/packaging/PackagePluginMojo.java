@@ -19,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
@@ -39,7 +38,6 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -48,7 +46,6 @@ import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.packaging.sourceref.SourceReferenceComputer;
 import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
-import org.osgi.framework.Constants;
 
 /**
  * Creates a jar-based plugin and attaches it as an artifact
@@ -164,57 +161,6 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
         File pluginFile = createPluginJar();
         project.getArtifact().setFile(pluginFile);
-        File testPluginFile = createTestPluginJar(reactorProject);
-        if (testPluginFile != null) {
-            projectHelper.attachArtifact(project, "jar", ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT, testPluginFile);
-        }
-    }
-
-    private File createTestPluginJar(ReactorProject reactorProject) throws MojoExecutionException {
-        File testOutputDirectory = reactorProject.getBuildDirectory().getTestOutputDirectory();
-        if (!testOutputDirectory.isDirectory() || testOutputDirectory.list().length == 0) {
-            return null;
-        }
-
-        JarArchiver archiver = new JarArchiver();
-
-        File fragmentFile = new File(buildDirectory, finalName + "_fragment.jar");
-        if (fragmentFile.exists()) {
-            fragmentFile.delete();
-        }
-        File manifest = new File(project.getBuild().getDirectory(), "FRAGMENT_MANIFEST.MF");
-        try {
-            Manifest bundleManifest = getManifest();
-            Manifest fragmentManifest = new Manifest();
-            Attributes attributes = fragmentManifest.getMainAttributes();
-            attributes.put(Name.MANIFEST_VERSION, "1.0");
-            attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
-            attributes.putValue(Constants.BUNDLE_NAME, "Test Fragment for " + project.getGroupId() + ":"
-                    + project.getArtifactId() + ":" + project.getVersion());
-            String hostVersion = bundleManifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
-            String hostSymbolicName = bundleManifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
-            attributes.putValue(Constants.BUNDLE_VERSION, hostVersion);
-            attributes.putValue(Constants.BUNDLE_SYMBOLICNAME, hostSymbolicName + ".test");
-            attributes.putValue(Constants.FRAGMENT_HOST,
-                    hostSymbolicName + ";" + Constants.BUNDLE_VERSION_ATTRIBUTE + "=\"" + hostVersion + "\"");
-            Collection<String> additionalBundles = pdeProject.getBuildProperties().getAdditionalBundles();
-            if (!additionalBundles.isEmpty()) {
-                attributes.putValue(Constants.REQUIRE_BUNDLE, String.join(",", additionalBundles));
-            }
-            attributes.putValue(Constants.DYNAMICIMPORT_PACKAGE, "*");
-            writeManifest(manifest, fragmentManifest);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Update Manifest failed", e);
-        }
-        archiver.setManifest(manifest);
-        archiver.setDestFile(fragmentFile);
-        archiver.addDirectory(testOutputDirectory);
-        try {
-            archiver.createArchive();
-        } catch (IOException | ArchiverException e) {
-            throw new MojoExecutionException("Error assembling test JAR", e);
-        }
-        return fragmentFile;
     }
 
     private void createSubJars() throws MojoExecutionException {
