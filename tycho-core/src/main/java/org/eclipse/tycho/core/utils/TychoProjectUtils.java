@@ -105,4 +105,23 @@ public class TychoProjectUtils {
         }
         return dependencySeeds;
     }
+
+    /**
+     * Returns the {@link DependencyArtifacts} instance associated with the given project and its
+     * tests.
+     * 
+     * @param project
+     *            a Tycho project
+     * @return the resolved test dependencies of the given project; never <code>null</code>
+     * @throws IllegalStateException
+     *             if the given project does not have the resolved project dependencies stored
+     */
+    public static DependencyArtifacts getTestDependencyArtifacts(ReactorProject project) throws IllegalStateException {
+        DependencyArtifacts resolvedDependencies = (DependencyArtifacts) project
+                .getContextValue(TychoConstants.CTX_TEST_DEPENDENCY_ARTIFACTS);
+        if (resolvedDependencies == null) {
+            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
+        }
+        return resolvedDependencies;
+    }
 }

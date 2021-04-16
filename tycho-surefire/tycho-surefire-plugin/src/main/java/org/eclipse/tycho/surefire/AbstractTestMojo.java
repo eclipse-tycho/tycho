@@ -757,6 +757,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                 iusToInstall.add(extraDependency.getArtifactId() + ".feature.group");
             }
         }
+        // 4. test dependencies
+        osgiBundle.getTestDependencyArtifacts(getReactorProject()).getArtifacts().stream()
+                .map(desc -> desc.getKey().getId()).forEach(iusToInstall::add);
         return iusToInstall;
     }
 

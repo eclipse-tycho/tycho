@@ -463,7 +463,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         return classpath;
     }
 
-    private BundleProject getBundleProject() throws MojoExecutionException {
+    protected BundleProject getBundleProject() throws MojoExecutionException {
         TychoProject projectType = projectTypes.get(project.getPackaging());
         if (!(projectType instanceof BundleProject)) {
             throw new MojoExecutionException("Not a bundle project " + project.toString());
