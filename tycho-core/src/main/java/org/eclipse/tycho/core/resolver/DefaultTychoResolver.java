@@ -137,6 +137,12 @@ public class DefaultTychoResolver implements TychoResolver {
         }
 
         dr.setDependencyArtifacts(session, reactorProject, dependencyArtifacts);
+        /*
+         * TODO At the moment, we don't resolve test-specific deps, so we set it to common deps.
+         * This will be refined later with addition of support of test-specific deps from
+         * .classpath.
+         */
+        dr.setTestDependencyArtifacts(session, reactorProject, dependencyArtifacts);
 
         logger.info("Resolving class path of " + project);
         dr.resolveClassPath(session, project);

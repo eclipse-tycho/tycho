@@ -26,6 +26,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.dotClasspath.SourceFolderClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -80,6 +81,13 @@ public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
                 .filter(SourceFolderClasspathEntry.class::isInstance).map(SourceFolderClasspathEntry.class::cast)
                 .filter(e -> Boolean.parseBoolean(e.getAttributes().get("test")))
                 .map(SourceFolderClasspathEntry::getSourcePath);
+    }
+
+    @Override
+    public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
+        List<ClasspathEntry> res = super.getClasspath();
+        res.addAll(getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project)));
+        return res;
     }
 
 }

@@ -233,6 +233,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         classpath.add(new DefaultClasspathEntry(reactorProject, artifact.getKey(), projectClasspath, null));
 
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
+        // Tests
+        List<ClasspathEntry> testClasspath = classpath; // TODO: Currently, there is no specific test "scope" -dependencies, classpath- so we just set the regular
+        // deps and classpath. But in further changes, those scopes will be set according to extra dependencies
+        // eg from .classpath
+        reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH, testClasspath);
 
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES,
                 strictBootClasspathAccessRules);
@@ -532,7 +537,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private static String sn(String str) {
-        if (str != null && !"".equals(str.trim())) {
+        if (str != null && !str.isBlank()) {
             return str;
         }
         return null;
@@ -593,4 +598,20 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             sink.setProfileConfiguration(configuredProfileName, reason);
         }
     }
+
+    @Override
+    public List<ClasspathEntry> getTestClasspath(ReactorProject reactorProject) {
+        @SuppressWarnings("unchecked")
+        List<ClasspathEntry> classpath = (List<ClasspathEntry>) reactorProject
+                .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH);
+        if (classpath == null) {
+            throw new IllegalStateException();
+        }
+        return classpath;
+    }
+
+    public DependencyArtifacts getTestDependencyArtifacts(ReactorProject project) {
+        return TychoProjectUtils.getTestDependencyArtifacts(project);
+    }
+
 }

@@ -34,4 +34,6 @@ public interface BundleProject extends TychoProject {
      */
     public String getManifestValue(String key, MavenProject project);
 
+    public List<ClasspathEntry> getTestClasspath(ReactorProject adapt);
+
 }

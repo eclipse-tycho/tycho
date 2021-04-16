@@ -57,6 +57,11 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         project.setContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS, dependencyArtifacts);
     }
 
+    public void setTestDependencyArtifacts(MavenSession session, ReactorProject project,
+            DependencyArtifacts dependencyArtifacts) {
+        project.setContextValue(TychoConstants.CTX_TEST_DEPENDENCY_ARTIFACTS, dependencyArtifacts);
+    }
+
     public void setupProject(MavenSession session, MavenProject project) {
         // do nothing by default
     }
