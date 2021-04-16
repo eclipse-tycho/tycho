@@ -44,14 +44,14 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
 
     /**
      * <p>
-     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-15,
-     * JavaSE-16.
+     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-16,
+     * JavaSE-17.
      * 
      * It is advised to keep this list as small as possible and the list must include the BREE used
      * by the platform, last Java LTS and the latest Java release.
      * </p>
      */
-    @Parameter(defaultValue = "JavaSE-11, JavaSE-15, JavaSE-16")
+    @Parameter(defaultValue = "JavaSE-11, JavaSE-16, JavaSE-17")
     private String profiles;
 
     @Parameter(defaultValue = "false")
