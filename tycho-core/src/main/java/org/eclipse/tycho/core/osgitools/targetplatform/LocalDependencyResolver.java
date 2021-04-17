@@ -245,7 +245,8 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
 
     @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
-            DependencyArtifacts targetPlatform, Logger logger) {
+            DependencyArtifacts targetPlatform, DependencyArtifacts testTargetPlatform, Logger logger) {
+        // TODO testTargetPlatform is ignored for this local resolved. Is this OK?
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         // walk depencencies for consistency
         projectType.checkForMissingDependencies(reactorProject);

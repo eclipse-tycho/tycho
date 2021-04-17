@@ -40,5 +40,5 @@ public interface DependencyResolver {
             DependencyResolverConfiguration resolverConfiguration);
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
-            DependencyArtifacts resolvedDependencies, Logger logger);
+            DependencyArtifacts resolvedDependencies, DependencyArtifacts testDepedencyArtifacts, Logger logger);
 }

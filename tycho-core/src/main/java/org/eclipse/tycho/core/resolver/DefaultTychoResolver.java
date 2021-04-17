@@ -142,12 +142,13 @@ public class DefaultTychoResolver implements TychoResolver {
          * This will be refined later with addition of support of test-specific deps from
          * .classpath.
          */
-        dr.setTestDependencyArtifacts(session, reactorProject, dependencyArtifacts);
+        final DependencyArtifacts testDependencyArtifacts = dependencyArtifacts;
+        dr.setTestDependencyArtifacts(session, reactorProject, testDependencyArtifacts);
 
         logger.info("Resolving class path of " + project);
         dr.resolveClassPath(session, project);
 
-        resolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, logger);
+        resolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, testDependencyArtifacts, logger);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder();
