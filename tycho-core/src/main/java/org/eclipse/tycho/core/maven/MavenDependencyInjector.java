@@ -44,11 +44,16 @@ public final class MavenDependencyInjector {
      *            The p2-resolved dependencies of the project.
      */
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
-            BundleReader bundleReader, Logger logger) {
+            DependencyArtifacts testDependencies, BundleReader bundleReader, Logger logger) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
             generator.addDependency(artifact);
         }
+        // currently we add test as regular deps in the Maven model.
+        // TODO investigate using "test" scope? Not certain that would bring some value
+        testDependencies.getArtifacts().stream() //
+                .filter(testDep -> dependencies.getArtifact(testDep.getKey()) == null) //
+                .forEach(generator::addDependency);
     }
 
     private static final List<Dependency> NO_DEPENDENCIES = Collections.emptyList();

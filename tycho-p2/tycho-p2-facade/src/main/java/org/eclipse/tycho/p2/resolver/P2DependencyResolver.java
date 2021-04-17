@@ -449,7 +449,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
-            DependencyArtifacts dependencyArtifacts, Logger logger) {
-        MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, bundleReader, logger);
+            DependencyArtifacts dependencyArtifacts, DependencyArtifacts testDependencyArtifacts, Logger logger) {
+        MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts,
+                bundleReader, logger);
     }
 }
