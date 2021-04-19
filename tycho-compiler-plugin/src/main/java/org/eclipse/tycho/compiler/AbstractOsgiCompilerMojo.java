@@ -545,7 +545,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 getLog().warn("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
                         + "' could not be found!");
             } else {
+                // make sure that "-properties" is the first custom argument, otherwise it's not possible to override
+                // any project setting on the command line because the last argument wins.
+                List<Entry<String, String>> copy = new ArrayList<>(
+                        compilerConfiguration.getCustomCompilerArgumentsEntries());
+                compilerConfiguration.getCustomCompilerArgumentsEntries().clear();
                 compilerConfiguration.addCompilerCustomArgument("-properties", prefsFilePath);
+                compilerConfiguration.getCustomCompilerArgumentsEntries().addAll(copy);
             }
         }
         compilerConfiguration.setTargetVersion(getTargetLevel());
