@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.resolver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -29,6 +30,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
+import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
@@ -39,6 +41,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
@@ -137,13 +140,32 @@ public class DefaultTychoResolver implements TychoResolver {
         }
 
         dr.setDependencyArtifacts(session, reactorProject, dependencyArtifacts);
-        /*
-         * TODO At the moment, we don't resolve test-specific deps, so we set it to common deps.
-         * This will be refined later with addition of support of test-specific deps from
-         * .classpath.
-         */
-        final DependencyArtifacts testDependencyArtifacts = dependencyArtifacts;
-        dr.setTestDependencyArtifacts(session, reactorProject, testDependencyArtifacts);
+
+        DependencyArtifacts testDependencyArtifacts = dependencyArtifacts;
+        TychoProject tychoProjectType = projectTypes.get(project.getPackaging());
+        if (tychoProjectType instanceof BundleProject) {
+            List<Dependency> testDependencies = ((BundleProject) tychoProjectType)
+                    .getExtraTestRequirements(reactorProject);
+            if (!testDependencies.isEmpty()) {
+                logger.info("Resolving test dependencies of " + project);
+                DependencyResolverConfiguration testResolverConfiguration = new DependencyResolverConfiguration() {
+                    @Override
+                    public OptionalResolutionAction getOptionalResolutionAction() {
+                        return resolverConfiguration.getOptionalResolutionAction();
+                    }
+
+                    @Override
+                    public List<Dependency> getExtraRequirements() {
+                        ArrayList<Dependency> res = new ArrayList<>(resolverConfiguration.getExtraRequirements());
+                        res.addAll(testDependencies);
+                        return res;
+                    }
+                };
+                testDependencyArtifacts = resolver.resolveDependencies(session, project, preliminaryTargetPlatform,
+                        reactorProjects, testResolverConfiguration);
+            }
+            dr.setTestDependencyArtifacts(session, reactorProject, testDependencyArtifacts);
+        }
 
         logger.info("Resolving class path of " + project);
         dr.resolveClassPath(session, project);
