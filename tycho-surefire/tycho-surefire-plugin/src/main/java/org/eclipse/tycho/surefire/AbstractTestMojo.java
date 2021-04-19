@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -747,9 +748,10 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         // 2. test harness bundles
         iusToInstall.addAll(providerHelper.getSymbolicNames(testHarnessArtifacts));
         // 3. extra dependencies
-        for (Dependency extraDependency : TychoProjectUtils
-                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project))
-                .getDependencyResolverConfiguration().getExtraRequirements()) {
+        LinkedHashSet<Dependency> extraDependencies = new LinkedHashSet<>(TychoProjectUtils
+                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).getExtraRequirements());
+        extraDependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
+        for (Dependency extraDependency : extraDependencies) {
             String type = extraDependency.getType();
             if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(type) || ArtifactType.TYPE_INSTALLABLE_UNIT.equals(type)) {
                 iusToInstall.add(extraDependency.getArtifactId());
@@ -757,9 +759,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                 iusToInstall.add(extraDependency.getArtifactId() + ".feature.group");
             }
         }
-        // 4. test dependencies
-        osgiBundle.getTestDependencyArtifacts(getReactorProject()).getArtifacts().stream()
-                .map(desc -> desc.getKey().getId()).forEach(iusToInstall::add);
         return iusToInstall;
     }
 
@@ -863,6 +862,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         TargetPlatformConfiguration configuration = TychoProjectUtils
                 .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
         dependencies.addAll(configuration.getDependencyResolverConfiguration().getExtraRequirements());
+        dependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
         dependencies.addAll(getTestDependencies());
         return dependencies;
     }

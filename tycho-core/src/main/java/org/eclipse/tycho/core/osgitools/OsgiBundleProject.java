@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
@@ -234,9 +235,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
         // Tests
-        List<ClasspathEntry> testClasspath = classpath; // TODO: Currently, there is no specific test "scope" -dependencies, classpath- so we just set the regular
-        // deps and classpath. But in further changes, those scopes will be set according to extra dependencies
-        // eg from .classpath
+        List<ClasspathEntry> testClasspath = new ArrayList<>(classpath);
+        testClasspath.addAll(computeExtraTestClasspath(reactorProject));
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH, testClasspath);
 
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES,
@@ -245,6 +245,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 dependencyComputer.computeBootClasspathExtraAccessRules(state));
 
         addPDESourceRoots(project);
+    }
+
+    private Collection<ClasspathEntry> computeExtraTestClasspath(ReactorProject reactorProject) {
+        // TODO read .classpath and so on to resolve to extra test classpath entries
+        return Collections.emptyList();
     }
 
     protected ArtifactDescriptor getArtifact(DependencyArtifacts artifacts, File location, String id) {
@@ -612,6 +617,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     public DependencyArtifacts getTestDependencyArtifacts(ReactorProject project) {
         return TychoProjectUtils.getTestDependencyArtifacts(project);
+    }
+
+    @Override
+    public List<Dependency> getExtraTestRequirements(ReactorProject project) {
+        // TODO parse .classpath to resolve "test" scope deps in it and feed those extra dependencies
+        return Collections.emptyList();
     }
 
 }

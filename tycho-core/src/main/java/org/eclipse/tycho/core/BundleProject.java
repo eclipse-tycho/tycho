@@ -12,6 +12,7 @@ package org.eclipse.tycho.core;
 
 import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
@@ -33,6 +34,8 @@ public interface BundleProject extends TychoProject {
      * @return the String value of the specified attribute key, or null if not found.
      */
     public String getManifestValue(String key, MavenProject project);
+
+    public List<Dependency> getExtraTestRequirements(ReactorProject project);
 
     public List<ClasspathEntry> getTestClasspath(ReactorProject adapt);
 

@@ -105,6 +105,8 @@ public class P2ResolverImpl implements P2Resolver {
             ReactorProject project) {
         P2TargetPlatform targetPlatform = getTargetFromContext(context);
 
+        // Adding extra deps for testswould better be performed as part of tycho-core resolver rather
+        // than in this P2ResolverImpl
         if (project != null && PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging())) {
             addDependenciesForTests(additionalRequirements::add);
         }
