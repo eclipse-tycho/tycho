@@ -10,12 +10,15 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
+ *                          #82 Support resolving of non-project IUs in P2Resolver
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -49,6 +52,18 @@ public interface P2Resolver {
      */
     public Map<TargetEnvironment, P2ResolutionResult> resolveTargetDependencies(TargetPlatform context,
             ReactorProject project);
+
+    /**
+     * resolves the given collection of {@link ArtifactKey}s against a {@link TargetPlatform}
+     * 
+     * @param context
+     *            the target to resolve the given artifacts against
+     * @param artifacts
+     *            the artifacts to use as the seed on the resolve process
+     * @return an (unordered) Map of {@link TargetEnvironment}s to {@link P2ResolutionResult}s
+     */
+    Map<TargetEnvironment, P2ResolutionResult> resolveArtifactDependencies(TargetPlatform context,
+            Collection<? extends ArtifactKey> artifacts);
 
     /**
      * @deprecated Only needed for the deprecated eclipse-update-site (see bug 342876)
