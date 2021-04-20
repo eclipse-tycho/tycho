@@ -46,15 +46,6 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
     }
 
     @Test
-    public void testPackage() throws Exception {
-        Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
-        verifier.executeGoals(Arrays.asList("clean", "package"));
-        verifier.verifyErrorFreeLog();
-        assertTrue("test fragment not found",
-                new File(verifier.getBasedir(), "target/bundle.test-1.0.0_fragment.jar").exists());
-    }
-
-    @Test
     public void testIntegrationTest() throws Exception {
         Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
         verifier.executeGoals(Arrays.asList("clean", "integration-test"));
