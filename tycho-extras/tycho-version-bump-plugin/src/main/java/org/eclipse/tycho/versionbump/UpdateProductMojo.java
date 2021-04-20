@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2010, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Igor Fedorenko - initial API and implementation
+ *    Christoph Läubrich - replace deprecated refrence
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
@@ -26,6 +27,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.model.PluginRef;
@@ -66,7 +68,8 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
             }
         }
 
-        P2ResolutionResult result = p2.resolveMetadata(resolutionContext, executionEnvironment);
+        P2ResolutionResult result = p2.resolveMetadata(resolutionContext,
+                new ExecutionEnvironmentConfigurationStub(executionEnvironment));
 
         Map<String, String> ius = new HashMap<>();
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
