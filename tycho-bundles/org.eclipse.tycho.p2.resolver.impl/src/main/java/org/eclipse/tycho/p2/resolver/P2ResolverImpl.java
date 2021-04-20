@@ -11,6 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Rapicorp, Inc. - add support for IU type (428310)
  *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
+ *                          #82 Support resolving of non-project IUs in P2Resolver
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -116,8 +117,8 @@ public class P2ResolverImpl implements P2Resolver {
                 : Collections.emptySet();
         for (TargetEnvironment environment : environments) {
             if (isMatchingEnv(metadata, environment, logger::debug)) {
-                results.put(environment, resolveDependencies(project, new ProjectorResolutionStrategy(logger),
-                        environment, targetPlatform));
+                results.put(environment, resolveDependencies(Collections.<IInstallableUnit> emptySet(), project,
+                        new ProjectorResolutionStrategy(logger), environment, targetPlatform));
             } else {
                 logger.info(MessageFormat.format(
                         "Project {0}:{1}:{2} does not match environment {3} skipp dependecy resolution",
@@ -133,9 +134,32 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
+    public Map<TargetEnvironment, P2ResolutionResult> resolveArtifactDependencies(TargetPlatform context,
+            Collection<? extends ArtifactKey> artifacts) {
+        P2TargetPlatform targetPlatform = getTargetFromContext(context);
+        Collection<IInstallableUnit> roots = new ArrayList<>();
+        for (ArtifactKey artifactKey : artifacts) {
+            QueryableCollection queriable = new QueryableCollection(targetPlatform.getInstallableUnits());
+            VersionRange range = new VersionRange(artifactKey.getVersion());
+            IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                    artifactKey.getId(), range, null, 1 /* min */, Integer.MAX_VALUE /* max */,
+                    false /* greedy */);
+            IQueryResult<IInstallableUnit> result = queriable
+                    .query(QueryUtil.createLatestQuery(QueryUtil.createMatchQuery(requirement.getMatches())), monitor);
+            roots.addAll(result.toUnmodifiableSet());
+        }
+        Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
+        for (TargetEnvironment environment : environments) {
+            results.put(environment, resolveDependencies(roots, null, new ProjectorResolutionStrategy(logger),
+                    environment, targetPlatform));
+        }
+        return results;
+    }
+
+    @Override
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project) {
-        return resolveDependencies(project, new DependencyCollector(logger), new TargetEnvironment(null, null, null),
-                getTargetFromContext(context));
+        return resolveDependencies(Collections.<IInstallableUnit> emptySet(), project, new DependencyCollector(logger),
+                new TargetEnvironment(null, null, null), getTargetFromContext(context));
     }
 
     @Override
@@ -180,8 +204,8 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @SuppressWarnings("unchecked")
-    protected P2ResolutionResult resolveDependencies(ReactorProject project, AbstractResolutionStrategy strategy,
-            TargetEnvironment environment, P2TargetPlatform targetPlatform) {
+    protected P2ResolutionResult resolveDependencies(Collection<IInstallableUnit> rootUIs, ReactorProject project,
+            AbstractResolutionStrategy strategy, TargetEnvironment environment, P2TargetPlatform targetPlatform) {
         ResolutionDataImpl data = new ResolutionDataImpl(targetPlatform.getEEResolutionHints());
 
         Set<IInstallableUnit> availableUnits = targetPlatform.getInstallableUnits();
@@ -194,7 +218,7 @@ public class P2ResolverImpl implements P2Resolver {
                 availableUnits.addAll(projectSecondaryIUs);
             }
         } else {
-            data.setRootIUs(Collections.<IInstallableUnit> emptySet());
+            data.setRootIUs(rootUIs);
         }
         data.setAdditionalRequirements(additionalRequirements);
         data.setAvailableIUs(availableUnits);
