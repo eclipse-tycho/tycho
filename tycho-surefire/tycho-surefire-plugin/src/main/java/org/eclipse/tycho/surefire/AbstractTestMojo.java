@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -55,9 +56,11 @@ import org.apache.maven.surefire.util.DefaultScanResult;
 import org.apache.maven.surefire.util.ScanResult;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -72,6 +75,7 @@ import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
@@ -87,11 +91,17 @@ import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.surefire.provider.impl.ProviderHelper;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
@@ -445,6 +455,11 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     @Component(role = TychoProject.class, hint = "eclipse-plugin")
     private OsgiBundleProject osgiBundle;
+    @Component
+    private EquinoxServiceFactory equinox;
+
+    @Component
+    private Logger logger;
 
     /**
      * Normally tycho will automatically determine the test framework provider based on the test
@@ -846,7 +861,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             }
         }
 
-        testRuntime.addDevEntries(getTestBundleSymbolicName(), getBuildOutputDirectories());
+        testRuntime.addDevEntries(getTestBundleSymbolicName(), getDevClasspath());
 
         getReportsDirectory().mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
@@ -1239,7 +1254,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         }
     }
 
-    private String getBuildOutputDirectories() {
+    private String getDevClasspath() {
         StringBuilder sb = new StringBuilder();
         ReactorProject reactorProject = getReactorProject();
         BuildDirectory buildDirectory = reactorProject.getBuildDirectory();
@@ -1251,6 +1266,24 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                 continue;
             }
             appendCommaSeparated(sb, outputJar.getOutputDirectory().getAbsolutePath());
+        }
+        BuildProperties buildProperties = osgiBundle.getEclipsePluginProject(getReactorProject()).getBuildProperties();
+        Collection<String> additionalBundles = buildProperties.getAdditionalBundles();
+        if (additionalBundles.size() > 0) {
+            P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
+            P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
+            TargetPlatform tp = TychoProjectUtils.getTargetPlatform(DefaultReactorProject.adapt(project));
+            List<ArtifactKey> list = new ArrayList<ArtifactKey>();
+            for (String additionalBundle : additionalBundles) {
+                list.add(new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT, additionalBundle, "0.0.0"));
+                resolver.addAdditionalBundleDependency(additionalBundle);
+            }
+            Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, list).values();
+            for (P2ResolutionResult resolutionResult : result) {
+                for (Entry entry : resolutionResult.getArtifacts()) {
+                    appendCommaSeparated(sb, entry.getLocation(true).getAbsolutePath());
+                }
+            }
         }
         return sb.toString();
     }
