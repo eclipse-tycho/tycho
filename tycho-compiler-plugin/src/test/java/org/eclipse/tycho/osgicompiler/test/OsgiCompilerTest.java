@@ -56,9 +56,9 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     }
 
     private AbstractOsgiCompilerMojo getMojo(List<MavenProject> projects, MavenProject project) throws Exception {
-        AbstractOsgiCompilerMojo mojo = (AbstractOsgiCompilerMojo) lookupMojo("compile", project.getFile());
-        setVariableValueToObject(mojo, "project", project);
-        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
+        AbstractOsgiCompilerMojo mojo = (AbstractOsgiCompilerMojo) lookupConfiguredMojo(project, "compile");
+//        setVariableValueToObject(mojo, "project", project);
+//        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
 
         // tycho-compiler-jdt does not support forked compilation
 //		        setVariableValueToObject(mojo, "fork", fork? Boolean.TRUE: Boolean.FALSE);
@@ -212,6 +212,15 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCopyResources() throws Exception {
         File basedir = getBasedir("projects/resources/p001");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+        assertTrue(new File(project.getBasedir(), "target/classes/testresources/Test.class").canRead());
+        assertTrue(new File(project.getBasedir(), "target/classes/testresources/test.properties").canRead());
+    }
+
+    public void testCopyResourcesWithNestedJar() throws Exception {
+        File basedir = getBasedir("projects/resources/p004");
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();

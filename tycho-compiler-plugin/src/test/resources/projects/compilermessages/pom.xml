@@ -13,6 +13,7 @@
         <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
+          <useProjectSettings>false</useProjectSettings>
           <compilerId>jdt</compilerId>
           <showWarnings>true</showWarnings>
         </configuration>
