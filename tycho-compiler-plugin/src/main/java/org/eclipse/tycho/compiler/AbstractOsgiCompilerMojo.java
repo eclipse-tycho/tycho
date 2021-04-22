@@ -348,8 +348,11 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             this.currentExcludes = entry.getValue().stream().map(SourcepathEntry::getExcludes).filter(Objects::nonNull)
                     .flatMap(Collection::stream).distinct().collect(Collectors.toList());
             super.execute();
+            doCopyResources();
         }
-        doCopyResources();
+        this.currentOutputDirectory = null;
+        this.currentSourceRoots = null;
+        this.currentExcludes = null;
     }
 
     /**
@@ -410,7 +413,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (!copyResources) {
             return;
         }
-        for (String sourceRoot : getCompileSourceRoots()) {
+        List<String> compileSourceRoots = getCompileSourceRoots();
+        for (String sourceRoot : compileSourceRoots) {
             // StaleSourceScanner.getIncludedSources throws IllegalStateException
             // if directory doesnt't exist
             File sourceRootFile = new File(sourceRoot);
