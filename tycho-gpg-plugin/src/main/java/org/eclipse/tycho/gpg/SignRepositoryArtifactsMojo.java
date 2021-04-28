@@ -1,0 +1,155 @@
+/*******************************************************************************
+ * Copyright (c) 2021 Red Hat Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *******************************************************************************/
+package org.eclipse.tycho.gpg;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Arrays;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.gpg.AbstractGpgMojoExtension;
+import org.apache.maven.plugin.gpg.ProxySignerWithPublicKeyAccess;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.archiver.xz.XZArchiver;
+import org.codehaus.plexus.archiver.xz.XZUnArchiver;
+import org.codehaus.plexus.archiver.zip.ZipArchiver;
+import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
+import org.codehaus.plexus.util.xml.Xpp3DomWriter;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+
+/**
+ * Modifies the p2 metadata (<code>artifacts.xml</code>) to add PGP signatures for each included
+ * artifact. Signatures are added as <code>pgp.signatures</code> property on the artifact metadata,
+ * in armored form; and public keys of the signers are added as <code>pgp.publicKeys</code> property
+ * on the repository metadata, in armored form.
+ */
+@Mojo(name = "sign-p2-artifacts", requiresProject = true, defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
+
+    /**
+     * The maven project.
+     */
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    protected MavenProject project;
+
+    @Parameter(defaultValue = "${project.build.directory}/repository")
+    private File repository;
+
+    @Component(role = UnArchiver.class, hint = "xz")
+    private XZUnArchiver xzUnarchiver;
+
+    @Component(role = UnArchiver.class, hint = "zip")
+    private ZipUnArchiver zipUnArchiver;
+
+    @Component(role = Archiver.class, hint = "xz")
+    private XZArchiver xzArchiver;
+
+    @Component(role = Archiver.class, hint = "zip")
+    private ZipArchiver zipArchiver;
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        var artifactsXml = new File(repository, "artifacts.xml");
+        var artifactsXmlXz = new File(repository, "artifacts.xml.xz");
+        var artifactsJar = new File(repository, "artifacts.jar");
+        if (!artifactsXml.exists()) {
+            if (artifactsXmlXz.exists()) {
+                xzUnarchiver.setSourceFile(artifactsXmlXz);
+                xzUnarchiver.setDestFile(artifactsXml);
+                xzUnarchiver.extract();
+                artifactsXmlXz.delete();
+            }
+            if (artifactsJar.exists()) {
+                zipUnArchiver.setSourceFile(artifactsJar);
+                zipUnArchiver.setDestDirectory(repository);
+                zipUnArchiver.extract();
+                artifactsJar.delete();
+            }
+        }
+        Xpp3Dom dom = null;
+        try (var stream = new FileInputStream(artifactsXml)) {
+            dom = Xpp3DomBuilder.build(stream, StandardCharsets.UTF_8.displayName());
+        } catch (IOException | XmlPullParserException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+        ProxySignerWithPublicKeyAccess signer = newSigner(project);
+        for (var artifact : dom.getChild("artifacts").getChildren("artifact")) {
+            Xpp3Dom properties = artifact.getChild("properties");
+            if (Arrays.stream(properties.getChildren())
+                    .anyMatch(property -> IArtifactDescriptor.FORMAT.equals(property.getAttribute("name"))
+                            && IArtifactDescriptor.FORMAT_PACKED.equals(property.getAttribute("value")))) {
+                // skip packed artifacts
+                continue;
+            }
+            var file = new File(repository,
+                    "plugins/" + artifact.getAttribute("id") + '_' + artifact.getAttribute("version") + ".jar");
+            if (!file.canRead()) {
+                continue;
+            }
+            var signatureFile = signer.generateSignatureForArtifact(file);
+            String signature;
+            try {
+                signature = Files.readString(signatureFile.toPath());
+                var signatureProperty = new Xpp3Dom("property");
+                signatureProperty.setAttribute("name", "pgp.signatures");
+                signatureProperty.setAttribute("value", signature);
+                properties.addChild(signatureProperty);
+                properties.setAttribute("size",
+                        Integer.toString(Integer.parseInt(properties.getAttribute("size")) + 1));
+            } catch (IOException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+        }
+        {
+            Xpp3Dom repositoryProperties = dom.getChild("properties");
+            repositoryProperties.setAttribute("size",
+                    Integer.toString(Integer.parseInt(repositoryProperties.getAttribute("size")) + 1));
+            var signersProperty = new Xpp3Dom("property");
+            signersProperty.setAttribute("name", "pgp.publicKeys");
+            signersProperty.setAttribute("value", signer.getPublicKeys());
+            repositoryProperties.addChild(signersProperty);
+        }
+        try (var writer = new FileWriter(artifactsXml)) {
+            Xpp3DomWriter.write(writer, dom);
+        } catch (IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+        xzArchiver.setDestFile(artifactsXmlXz);
+        xzArchiver.addFile(artifactsXml, artifactsXml.getName());
+        try {
+            xzArchiver.createArchive();
+        } catch (ArchiverException | IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+        zipArchiver.setDestFile(artifactsJar);
+        zipArchiver.addFile(artifactsXml, artifactsXml.getName());
+        try {
+            zipArchiver.createArchive();
+        } catch (ArchiverException | IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+}
