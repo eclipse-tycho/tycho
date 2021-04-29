@@ -17,6 +17,9 @@
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-id,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-version
               </validate>
+              <initialize>
+                org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
+              </initialize>
               <process-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
               </process-resources>
@@ -33,7 +36,6 @@
                 org.apache.maven.plugins:maven-surefire-plugin:${surefire-plugin.version}:test
               </test>
               <package>
-                org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-plugin,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default
               </package>
