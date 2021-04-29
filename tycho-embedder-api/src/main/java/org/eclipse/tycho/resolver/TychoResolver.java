@@ -24,5 +24,4 @@ public interface TychoResolver {
 
     public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects);
 
-    public void traverse(MavenProject project, DependencyVisitor visitor);
 }
