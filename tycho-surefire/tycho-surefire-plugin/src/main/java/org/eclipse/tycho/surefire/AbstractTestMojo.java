@@ -748,15 +748,15 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         // 2. test harness bundles
         iusToInstall.addAll(providerHelper.getSymbolicNames(testHarnessArtifacts));
         // 3. extra dependencies
-        LinkedHashSet<Dependency> extraDependencies = new LinkedHashSet<>(TychoProjectUtils
+        LinkedHashSet<ArtifactKey> extraDependencies = new LinkedHashSet<>(TychoProjectUtils
                 .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).getExtraRequirements());
         extraDependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
-        for (Dependency extraDependency : extraDependencies) {
+        for (ArtifactKey extraDependency : extraDependencies) {
             String type = extraDependency.getType();
             if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(type) || ArtifactType.TYPE_INSTALLABLE_UNIT.equals(type)) {
-                iusToInstall.add(extraDependency.getArtifactId());
+                iusToInstall.add(extraDependency.getId());
             } else if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(type)) {
-                iusToInstall.add(extraDependency.getArtifactId() + ".feature.group");
+                iusToInstall.add(extraDependency.getId() + ".feature.group");
             }
         }
         return iusToInstall;
@@ -768,7 +768,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
         DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
-        final List<Dependency> extraDependencies = getExtraDependencies();
+        final List<ArtifactKey> extraDependencies = getExtraDependencies();
         List<ReactorProject> reactorProjects = getReactorProjects();
 
         final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
@@ -778,7 +778,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             }
 
             @Override
-            public List<Dependency> getExtraRequirements() {
+            public List<ArtifactKey> getExtraRequirements() {
                 return extraDependencies;
             }
         };
@@ -854,10 +854,12 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return installationFactory.createInstallation(testRuntime, work);
     }
 
-    private List<Dependency> getExtraDependencies() {
-        final List<Dependency> dependencies = new ArrayList<>();
+    private List<ArtifactKey> getExtraDependencies() {
+        final List<ArtifactKey> dependencies = new ArrayList<>();
         if (this.dependencies != null) {
-            dependencies.addAll(Arrays.asList(this.dependencies));
+            for (Dependency key : this.dependencies) {
+                dependencies.add(new DefaultArtifactKey(key.getType(), key.getArtifactId(), key.getVersion()));
+            }
         }
         TargetPlatformConfiguration configuration = TychoProjectUtils
                 .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
@@ -879,8 +881,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return key;
     }
 
-    private List<Dependency> getTestDependencies() {
-        ArrayList<Dependency> result = new ArrayList<>();
+    private List<ArtifactKey> getTestDependencies() {
+        ArrayList<ArtifactKey> result = new ArrayList<>();
 
         // see also P2ResolverImpl.addDependenciesForTests()
         result.add(newBundleDependency("org.eclipse.osgi"));
@@ -894,11 +896,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return result;
     }
 
-    protected Dependency newBundleDependency(String bundleId) {
-        Dependency ideapp = new Dependency();
-        ideapp.setArtifactId(bundleId);
-        ideapp.setType(ArtifactType.TYPE_ECLIPSE_PLUGIN);
-        return ideapp;
+    protected ArtifactKey newBundleDependency(String bundleId) {
+        return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, bundleId);
     }
 
     protected PropertiesWrapper createSurefireProperties(TestFrameworkProvider provider) throws MojoExecutionException {

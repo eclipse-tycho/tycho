@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.maven.model.Dependency;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
@@ -70,7 +70,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
 
-    private final List<Dependency> extraRequirements = new ArrayList<>();
+    private final List<ArtifactKey> extraRequirements = new ArrayList<>();
 
     private boolean includePackedArtifacts;
 
@@ -186,7 +186,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     }
 
     @Override
-    public List<Dependency> getExtraRequirements() {
+    public List<ArtifactKey> getExtraRequirements() {
         return extraRequirements;
     }
 
@@ -195,7 +195,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         return optionalAction;
     }
 
-    public void addExtraRequirement(Dependency requirement) {
+    public void addExtraRequirement(ArtifactKey requirement) {
         extraRequirements.add(requirement);
     }
 

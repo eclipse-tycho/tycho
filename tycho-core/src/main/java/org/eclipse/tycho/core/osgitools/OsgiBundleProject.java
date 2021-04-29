@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
@@ -620,7 +619,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     @Override
-    public List<Dependency> getExtraTestRequirements(ReactorProject project) {
+    public List<ArtifactKey> getExtraTestRequirements(ReactorProject project) {
         // TODO parse .classpath to resolve "test" scope deps in it and feed those extra dependencies
         return Collections.emptyList();
     }

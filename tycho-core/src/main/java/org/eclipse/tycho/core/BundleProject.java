@@ -12,8 +12,8 @@ package org.eclipse.tycho.core;
 
 import java.util.List;
 
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
@@ -35,7 +35,7 @@ public interface BundleProject extends TychoProject {
      */
     public String getManifestValue(String key, MavenProject project);
 
-    public List<Dependency> getExtraTestRequirements(ReactorProject project);
+    public List<ArtifactKey> getExtraTestRequirements(ReactorProject project);
 
     public List<ClasspathEntry> getTestClasspath(ReactorProject adapt);
 

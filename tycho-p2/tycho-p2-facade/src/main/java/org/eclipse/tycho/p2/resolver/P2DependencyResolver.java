@@ -41,7 +41,6 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -359,12 +358,12 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
 
         if (resolverConfiguration != null) {
-            for (Dependency dependency : resolverConfiguration.getExtraRequirements()) {
+            for (ArtifactKey dependency : resolverConfiguration.getExtraRequirements()) {
                 try {
-                    resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
+                    resolver.addDependency(dependency.getType(), dependency.getId(), dependency.getVersion());
                 } catch (IllegalArtifactReferenceException e) {
                     throw new BuildFailureException("Invalid extraRequirement " + dependency.getType() + ":"
-                            + dependency.getArtifactId() + ":" + dependency.getVersion() + ": " + e.getMessage(), e);
+                            + dependency.getId() + ":" + dependency.getVersion() + ": " + e.getMessage(), e);
                 }
             }
         }
