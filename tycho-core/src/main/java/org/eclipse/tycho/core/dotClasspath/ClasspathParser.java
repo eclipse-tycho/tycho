@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.dotClasspath;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
+import org.eclipse.tycho.ArtifactKey;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -92,7 +94,13 @@ public class ClasspathParser implements Disposable {
                                     new File(file.getParentFile(), output), attributes));
                         } else if ("con".equals(kind)) {
                             String path = classpathentry.getAttribute("path");
-                            list.add(new JDTContainerClasspathEntry(path, attributes));
+                            if (path.startsWith(JUnitClasspathContainerEntry.JUNIT_CONTAINER_PATH_PREFIX)) {
+                                String junit = path
+                                        .substring(JUnitClasspathContainerEntry.JUNIT_CONTAINER_PATH_PREFIX.length());
+                                list.add(new JDTJUnitContainerClasspathEntry(path, junit, attributes));
+                            } else {
+                                list.add(new JDTContainerClasspathEntry(path, attributes));
+                            }
                         }
                     }
                     entries = Collections.unmodifiableList(list);
@@ -118,7 +126,39 @@ public class ClasspathParser implements Disposable {
 
     }
 
-    private static final class JDTContainerClasspathEntry implements ContainerClasspathEntry {
+    private static class JDTJUnitContainerClasspathEntry extends JDTContainerClasspathEntry
+            implements JUnitClasspathContainerEntry {
+
+        private String junit;
+
+        public JDTJUnitContainerClasspathEntry(String path, String junit, Map<String, String> attributes) {
+            super(path, attributes);
+        }
+
+        @Override
+        public String getJUnitSegment() {
+            return junit;
+        }
+
+        @Override
+        public Collection<ArtifactKey> getArtifacts() {
+            if (JUNIT3.equals(junit)) {
+                return Arrays.asList(JUNIT3_PLUGIN);
+            } else if (JUNIT4.equals(junit)) {
+                return Arrays.asList(JUNIT4_PLUGIN, HAMCREST_CORE_PLUGIN);
+            } else if (JUNIT5.equals(junit)) {
+                return Arrays.asList(JUNIT_JUPITER_API_PLUGIN, JUNIT_JUPITER_ENGINE_PLUGIN,
+                        JUNIT_JUPITER_MIGRATIONSUPPORT_PLUGIN, JUNIT_JUPITER_PARAMS_PLUGIN,
+                        JUNIT_PLATFORM_COMMONS_PLUGIN, JUNIT_PLATFORM_ENGINE_PLUGIN, JUNIT_PLATFORM_LAUNCHER_PLUGIN,
+                        JUNIT_PLATFORM_RUNNER_PLUGIN, JUNIT_PLATFORM_SUITE_API_PLUGIN, JUNIT_VINTAGE_ENGINE_PLUGIN,
+                        JUNIT_OPENTEST4J_PLUGIN, JUNIT_APIGUARDIAN_PLUGIN, JUNIT4_PLUGIN, HAMCREST_CORE_PLUGIN);
+            }
+            return Collections.emptyList();
+        }
+
+    }
+
+    private static class JDTContainerClasspathEntry implements ClasspathContainerEntry {
 
         private String path;
         private Map<String, String> attributes;

@@ -21,11 +21,10 @@ package org.eclipse.tycho.core.dotClasspath;
  * </ul>
  * 
  */
-public interface ContainerClasspathEntry extends ProjectClasspathEntry {
+public interface ClasspathContainerEntry extends ProjectClasspathEntry {
 
     static final String JRE_CONTAINER_PATH_PREFIX = "org.eclipse.jdt.launching.JRE_CONTAINER/";
     static final String USER_LIBRARY_PATH_PREFIX = "org.eclipse.jdt.USER_LIBRARY/";
-    static final String JUNIT_CONTAINER_PATH_PREFIX = "org.eclipse.jdt.junit.JUNIT_CONTAINER/";
 
     /**
      * 
