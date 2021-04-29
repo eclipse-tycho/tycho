@@ -21,6 +21,10 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
 
     private final String version;
 
+    public DefaultArtifactKey(String type, String id) {
+        this(type, id, "0.0.0");
+    }
+
     public DefaultArtifactKey(String type, String id, String version) {
         this.id = id;
         this.type = type;

@@ -26,6 +26,7 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -144,7 +145,7 @@ public class DefaultTychoResolver implements TychoResolver {
         DependencyArtifacts testDependencyArtifacts = dependencyArtifacts;
         TychoProject tychoProjectType = projectTypes.get(project.getPackaging());
         if (tychoProjectType instanceof BundleProject) {
-            List<Dependency> testDependencies = ((BundleProject) tychoProjectType)
+            List<ArtifactKey> testDependencies = ((BundleProject) tychoProjectType)
                     .getExtraTestRequirements(reactorProject);
             if (!testDependencies.isEmpty()) {
                 logger.info("Resolving test dependencies of " + project);
@@ -155,8 +156,8 @@ public class DefaultTychoResolver implements TychoResolver {
                     }
 
                     @Override
-                    public List<Dependency> getExtraRequirements() {
-                        ArrayList<Dependency> res = new ArrayList<>(resolverConfiguration.getExtraRequirements());
+                    public List<ArtifactKey> getExtraRequirements() {
+                        ArrayList<ArtifactKey> res = new ArrayList<>(resolverConfiguration.getExtraRequirements());
                         res.addAll(testDependencies);
                         return res;
                     }

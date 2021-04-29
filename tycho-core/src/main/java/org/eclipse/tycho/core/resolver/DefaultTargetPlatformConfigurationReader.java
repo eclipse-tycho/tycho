@@ -20,7 +20,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -29,6 +28,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
@@ -220,7 +220,6 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         for (Xpp3Dom requirementDom : requirementsDom.getChildren("requirement")) {
-            Dependency d = new Dependency();
             if (requirementDom.getChild("type") == null) {
                 throw new BuildFailureException(
                         "Element <type> is missing in <extraRequirements><requirement> section.");
@@ -232,10 +231,8 @@ public class DefaultTargetPlatformConfigurationReader {
                 throw new BuildFailureException(
                         "Element <versionRange> is missing in <extraRequirements><requirement> section.");
             }
-            d.setType(requirementDom.getChild("type").getValue());
-            d.setArtifactId(requirementDom.getChild("id").getValue());
-            d.setVersion(requirementDom.getChild("versionRange").getValue());
-            result.addExtraRequirement(d);
+            result.addExtraRequirement(new DefaultArtifactKey(requirementDom.getChild("type").getValue(),
+                    requirementDom.getChild("id").getValue(), requirementDom.getChild("versionRange").getValue()));
         }
     }
 
