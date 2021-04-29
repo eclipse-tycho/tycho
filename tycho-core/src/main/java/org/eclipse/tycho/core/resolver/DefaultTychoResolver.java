@@ -29,7 +29,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
-import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
@@ -44,7 +43,6 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.resolver.DependencyVisitor;
 import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = TychoResolver.class)
@@ -179,27 +177,6 @@ public class DefaultTychoResolver implements TychoResolver {
                 sb.append("  ").append(dependency.toString());
             }
             logger.debug(sb.toString());
-        }
-    }
-
-    @Override
-    public void traverse(MavenProject project, final DependencyVisitor visitor) {
-        TychoProject tychoProject = projectTypes.get(project.getPackaging());
-        if (tychoProject != null) {
-            tychoProject.getDependencyWalker(DefaultReactorProject.adapt(project))
-                    .walk(new ArtifactDependencyVisitor() {
-                        @Override
-                        public void visitPlugin(org.eclipse.tycho.core.PluginDescription plugin) {
-                            visitor.visit(plugin);
-                        }
-
-                        @Override
-                        public boolean visitFeature(org.eclipse.tycho.core.FeatureDescription feature) {
-                            return visitor.visit(feature);
-                        }
-                    });
-        } else {
-            // TODO do something!
         }
     }
 
