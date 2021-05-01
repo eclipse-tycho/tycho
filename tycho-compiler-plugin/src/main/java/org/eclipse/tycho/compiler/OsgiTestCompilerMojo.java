@@ -85,9 +85,7 @@ public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
 
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
-        List<ClasspathEntry> res = super.getClasspath();
-        res.addAll(getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project)));
-        return res;
+        return getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project));
     }
 
 }

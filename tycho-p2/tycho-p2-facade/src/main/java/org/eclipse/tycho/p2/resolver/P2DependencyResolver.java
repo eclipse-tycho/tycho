@@ -248,6 +248,20 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             public Set<?> getDependencyMetadata(DependencyMetadataType type) {
                 return typeMap.get(type);
             }
+
+            public Object getContextValue(String key) {
+                Object value = super.getContextValue(key);
+                if (value == null) {
+                    return DefaultReactorProject.adapt(project).getContextValue(key);
+                }
+                return value;
+            }
+
+            public void setContextValue(String key, Object value) {
+                super.setContextValue(key, value);
+                DefaultReactorProject.adapt(project).setContextValue(key, value);
+            }
+
         };
         return reactorProjet;
     }

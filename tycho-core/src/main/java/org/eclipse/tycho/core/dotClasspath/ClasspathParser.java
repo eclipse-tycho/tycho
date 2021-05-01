@@ -129,10 +129,11 @@ public class ClasspathParser implements Disposable {
     private static class JDTJUnitContainerClasspathEntry extends JDTContainerClasspathEntry
             implements JUnitClasspathContainerEntry {
 
-        private String junit;
+        private final String junit;
 
         public JDTJUnitContainerClasspathEntry(String path, String junit, Map<String, String> attributes) {
             super(path, attributes);
+            this.junit = junit;
         }
 
         @Override
