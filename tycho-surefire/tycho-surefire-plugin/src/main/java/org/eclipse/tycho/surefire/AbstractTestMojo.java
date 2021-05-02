@@ -681,8 +681,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                     throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
                             + "' is unkown. Allowed values: 'default', 'p2Installed'.");
                 }
-
-                runTest(equinoxTestRuntime);
+                if (equinoxTestRuntime != null) {
+                    runTest(equinoxTestRuntime);
+                }
             }
         }
     }
@@ -711,12 +712,18 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return DefaultReactorProject.adapt(session);
     }
 
-    private EquinoxInstallation createProvisionedInstallation() throws MojoExecutionException {
+    private EquinoxInstallation createProvisionedInstallation() throws MojoExecutionException, MojoFailureException {
+        ScanResult scanResult = scanForTests();
+        if (scanResult.size() == 0) {
+            handleNoTestsFound(); //this might throw an exception...
+            //... if not we notify the caller that nothing has to be done here.
+            return null;
+        }
+        TestFrameworkProvider provider = providerHelper.selectProvider(
+                getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
+                providerHint);
         try {
-            TestFrameworkProvider provider = providerHelper.selectProvider(
-                    getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
-                    providerHint);
-            PropertiesWrapper wrapper = createSurefireProperties(provider);
+            PropertiesWrapper wrapper = createSurefireProperties(provider, scanResult);
             storeProperties(wrapper.getProperties(), surefireProperties);
 
             ProvisionedInstallationBuilder installationBuilder = provisionedInstallationBuilderFactory
@@ -766,7 +773,16 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return (BundleProject) projectTypes.get(project.getPackaging());
     }
 
-    private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
+    private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException, MojoFailureException {
+        ScanResult scanResult = scanForTests();
+        if (scanResult.size() == 0) {
+            handleNoTestsFound(); //this might throw an exception...
+            //... if not we notify the caller that nothing has to be done here.
+            return null;
+        }
+        TestFrameworkProvider provider = providerHelper.selectProvider(
+                getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
+                providerHint);
         DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
         final List<ArtifactKey> extraDependencies = getExtraDependencies();
         List<ReactorProject> reactorProjects = getReactorProjects();
@@ -802,11 +818,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                 testRuntime.addBundleStartLevel(level);
             }
         }
-
-        TestFrameworkProvider provider = providerHelper.selectProvider(
-                getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
-                providerHint);
-        PropertiesWrapper wrapper = createSurefireProperties(provider);
+        PropertiesWrapper wrapper = createSurefireProperties(provider, scanResult);
         storeProperties(wrapper.getProperties(), surefireProperties);
         for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
             // note that this project is added as directory structure rooted at project basedir.
@@ -900,7 +912,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, bundleId);
     }
 
-    protected PropertiesWrapper createSurefireProperties(TestFrameworkProvider provider) throws MojoExecutionException {
+    protected PropertiesWrapper createSurefireProperties(TestFrameworkProvider provider, ScanResult scanResult)
+            throws MojoExecutionException {
         PropertiesWrapper wrapper = new PropertiesWrapper(new HashMap<>());
         wrapper.setProperty("testpluginname", getTestBundleSymbolicName());
         wrapper.setProperty("testclassesdirectory", getTestClassesDirectory().getAbsolutePath());
@@ -914,7 +927,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         wrapper.setProperty("printBundles", String.valueOf(printBundles));
         Properties mergedProviderProperties = getMergedProviderProperties();
         mergedProviderProperties.putAll(provider.getProviderSpecificProperties());
-        ScanResult scanResult = scanForTests();
         Map<String, String> providerPropertiesAsMap = propertiesAsMap(mergedProviderProperties);
         scanResult.writeTo(providerPropertiesAsMap);
         for (Map.Entry<String, String> entry : providerPropertiesAsMap.entrySet()) {
