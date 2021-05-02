@@ -75,7 +75,7 @@ class OfflineTransport extends Transport {
             return new FileInputStream(cacheFile);
         }
         throw new FileNotFoundException(String.format(
-                "maven is currently in offline mode but cachefile %s for requested URI %s does not exits locally!",
+                "maven is currently in offline mode but cachefile %s for requested URI %s does not exist locally!",
                 cacheFile, source));
     }
 
