@@ -271,7 +271,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         logger.debug("Resolved " + entry.getId() + "::" + entry.getVersion() + "...");
                         File location = entry.getLocation(true);
                         list.add(new DefaultClasspathEntry(reactorProject, entry, Collections.singletonList(location),
-                                null));
+                                Collections.singletonList(new DefaultAccessRule("[+**/*]", false))));
                     }
                 }
             }

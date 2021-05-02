@@ -490,8 +490,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             result.append(RULE_EXCLUDE_ALL);
             result.append("]");
         } else {
-            // include everything
-            result.append("[+**/*]");
+            // include everything, not strictly necessary, but lets make this obvious
+            //result.append("[+**/*]");
         }
         return result.toString();
     }
