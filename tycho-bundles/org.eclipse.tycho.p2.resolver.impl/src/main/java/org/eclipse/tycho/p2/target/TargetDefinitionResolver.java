@@ -166,7 +166,7 @@ public final class TargetDefinitionResolver {
                     }
                 } else {
                     logger.warn("Target location path '" + path.getAbsolutePath()
-                            + "' does not exits, target resoloution might be incomplete.");
+                            + "' does not exist, target resoloution might be incomplete.");
                 }
             } else if (locationDefinition instanceof MavenGAVLocation) {
                 MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
