@@ -23,6 +23,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
+import org.apache.maven.surefire.util.ScanResult;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 
@@ -100,9 +101,9 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     }
 
     @Override
-    protected PropertiesWrapper createSurefireProperties(TestFrameworkProvider provider) throws MojoExecutionException {
-
-        PropertiesWrapper properties = super.createSurefireProperties(provider);
+    protected PropertiesWrapper createSurefireProperties(TestFrameworkProvider provider, ScanResult scanResult)
+            throws MojoExecutionException {
+        PropertiesWrapper properties = super.createSurefireProperties(provider, scanResult);
         properties.setProperty("failifnotests", String.valueOf(false));
         properties.setProperty("failsafe", summaryFile.getAbsolutePath());
         return properties;
