@@ -3,7 +3,7 @@ Bundle-Version: 2.4.0.qualifier
 Bundle-Name: Tycho p2 Tools Bundle
 Bundle-ManifestVersion: 2
 Bundle-Description: Implementation of tools for generating, copying, and using p2 repositories in Tycho
-Bundle-SymbolicName: org.eclipse.tycho.p2.tools.impl
+Bundle-SymbolicName: org.eclipse.tycho.p2.tools.impl;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.equinox.p2.director.app,
  org.eclipse.equinox.p2.core,
