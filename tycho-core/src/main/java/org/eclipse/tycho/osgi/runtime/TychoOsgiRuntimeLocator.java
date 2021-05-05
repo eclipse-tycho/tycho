@@ -95,34 +95,42 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
     private DevWorkspaceResolver workspaceState;
 
     @Override
-    public void locateRuntime(EquinoxRuntimeDescription description) throws MavenExecutionException {
+    public void locateRuntime(EquinoxRuntimeDescription description, boolean forked) throws MavenExecutionException {
         WorkspaceTychoOsgiRuntimeLocator workspaceLocator = WorkspaceTychoOsgiRuntimeLocator
                 .getResolver(this.workspaceState);
 
         MavenSession session = buildContext.getSession();
 
-        addRuntimeArtifacts(workspaceLocator, session, description);
-
-        for (String systemPackage : SYSTEM_PACKAGES_EXTRA) {
-            description.addExtraSystemPackage(systemPackage);
+        TychoOsgiRuntimeArtifacts framework = runtimeArtifacts.get(TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK);
+        if (framework != null) {
+            addRuntimeArtifacts(workspaceLocator, description, session, framework);
         }
-
+        if (forked) {
+            TychoOsgiRuntimeArtifacts shared = runtimeArtifacts.get(TychoOsgiRuntimeArtifacts.HINT_SHARED);
+            if (framework != null) {
+                addRuntimeArtifacts(workspaceLocator, description, session, shared);
+            }
+        } else {
+            for (String systemPackage : SYSTEM_PACKAGES_EXTRA) {
+                description.addExtraSystemPackage(systemPackage);
+            }
+        }
+        addAdditionalRuntimeArtifacts(workspaceLocator, session, description);
         if (workspaceLocator != null) {
             workspaceLocator.addPlatformProperties(description);
         }
     }
 
-    public void addRuntimeArtifacts(WorkspaceTychoOsgiRuntimeLocator workspaceLocator, MavenSession session,
+    public void addAdditionalRuntimeArtifacts(WorkspaceTychoOsgiRuntimeLocator workspaceLocator, MavenSession session,
             EquinoxRuntimeDescription description) throws MavenExecutionException {
-        TychoOsgiRuntimeArtifacts framework = runtimeArtifacts.get(TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK);
-        if (framework != null) {
-            addRuntimeArtifacts(workspaceLocator, description, session, framework);
-        }
-
         for (Map.Entry<String, TychoOsgiRuntimeArtifacts> entry : runtimeArtifacts.entrySet()) {
-            if (!TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK.equals(entry.getKey())) {
-                addRuntimeArtifacts(workspaceLocator, description, session, entry.getValue());
+            if (TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK.equals(entry.getKey())) {
+                continue;
             }
+            if (TychoOsgiRuntimeArtifacts.HINT_SHARED.equals(entry.getKey())) {
+                continue;
+            }
+            addRuntimeArtifacts(workspaceLocator, description, session, entry.getValue());
         }
     }
 

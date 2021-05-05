@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,11 @@ public interface EquinoxRuntimeLocator {
     }
 
     // TODO do we need more specific exception type here?
-    public void locateRuntime(EquinoxRuntimeDescription description) throws Exception;
+
+    default void locateRuntime(EquinoxRuntimeDescription description) throws Exception {
+        locateRuntime(description, false);
+    }
+
+    public void locateRuntime(EquinoxRuntimeDescription description, boolean forked) throws Exception;
 
 }

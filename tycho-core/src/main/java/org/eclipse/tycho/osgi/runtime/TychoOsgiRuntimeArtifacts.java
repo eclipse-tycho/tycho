@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,11 @@ public interface TychoOsgiRuntimeArtifacts {
     public static final String HINT_FRAMEWORK = "framework";
 
     /**
+     * tycho shared runtime artifact
+     */
+    public static final String HINT_SHARED = "shared";
+
+    /**
      * Bundle manifest attribute name, if set, bundle is not intended for use when Tycho is embedded
      * in another Equinox-based application. The only currently known use case is the Equinox secure
      * storage provider implementation used by Tycho to suppress password requests for transient
@@ -37,4 +42,13 @@ public interface TychoOsgiRuntimeArtifacts {
      * the runtime as is.
      */
     public List<Dependency> getRuntimeArtifacts();
+
+    static Dependency newDependency(String groupId, String artifactId, String version, String type) {
+        Dependency d = new Dependency();
+        d.setGroupId(groupId);
+        d.setArtifactId(artifactId);
+        d.setVersion(version);
+        d.setType(type);
+        return d;
+    }
 }

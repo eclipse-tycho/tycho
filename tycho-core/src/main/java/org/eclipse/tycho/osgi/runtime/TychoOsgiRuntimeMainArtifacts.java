@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,24 +26,15 @@ public class TychoOsgiRuntimeMainArtifacts implements TychoOsgiRuntimeArtifacts 
 
         String tychoVersion = TychoVersion.getTychoVersion();
 
-        ARTIFACTS.add(newDependency("org.eclipse.tycho", "tycho-bundles-external", tychoVersion, "zip"));
-        ARTIFACTS.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.resolver.impl", tychoVersion, "jar"));
-        ARTIFACTS.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.maven.repository", tychoVersion, "jar"));
-        ARTIFACTS.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.tools.impl", tychoVersion, "jar"));
+        ARTIFACTS.add(TychoOsgiRuntimeArtifacts.newDependency("org.eclipse.tycho", "tycho-bundles-external", tychoVersion, "zip"));
+        ARTIFACTS.add(TychoOsgiRuntimeArtifacts.newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.resolver.impl", tychoVersion, "jar"));
+        ARTIFACTS.add(TychoOsgiRuntimeArtifacts.newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.maven.repository", tychoVersion, "jar"));
+        ARTIFACTS.add(TychoOsgiRuntimeArtifacts.newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.tools.impl", tychoVersion, "jar"));
     }
 
     @Override
     public List<Dependency> getRuntimeArtifacts() {
         return ARTIFACTS;
-    }
-
-    private static Dependency newDependency(String groupId, String artifactId, String version, String type) {
-        Dependency d = new Dependency();
-        d.setGroupId(groupId);
-        d.setArtifactId(artifactId);
-        d.setVersion(version);
-        d.setType(type);
-        return d;
     }
 
 }
