@@ -115,7 +115,7 @@ public class P2ApplicationLauncher {
                     public void addBundleStartLevel(String id, int level, boolean autostart) {
                         description.addBundleStartLevel(new BundleStartLevel(id, level, autostart));
                     }
-                });
+                }, true);
 
                 EquinoxInstallation installation = installationFactory.createInstallation(description,
                         installationFolder);
