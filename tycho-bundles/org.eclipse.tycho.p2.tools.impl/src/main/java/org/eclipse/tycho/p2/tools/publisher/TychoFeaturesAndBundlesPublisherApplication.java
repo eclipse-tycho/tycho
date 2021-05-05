@@ -29,6 +29,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -40,6 +43,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -53,6 +57,27 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
     private BundleDescription[] bundles;
     private File[] advices;
     private URI categoryDefinition;
+    private String[] rules;
+
+    @Override
+    public Object run(PublisherInfo publisherInfo) throws Exception {
+        Object run = super.run(publisherInfo);
+        if (run == IApplication.EXIT_OK) {
+            if (rules != null && artifactLocation != null) {
+                String[][] newRules = new String[rules.length][];
+                for (int i = 0; i < rules.length; i++) {
+                    newRules[i] = rules[i].split(";", 2);
+                }
+
+                SimpleArtifactRepositoryFactory repoFactory = new SimpleArtifactRepositoryFactory();
+                SimpleArtifactRepository repo = (SimpleArtifactRepository) repoFactory.load(artifactLocation,
+                        IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
+                repo.setRules(newRules);
+                repo.save();
+            }
+        }
+        return run;
+    }
 
     @Override
     protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo)
@@ -76,7 +101,9 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
         if (arg.equalsIgnoreCase("-categoryDefinition")) {
             categoryDefinition = URIUtil.fromString(parameter);
         }
-
+        if (arg.equalsIgnoreCase("-rules")) {
+            rules = AbstractPublisherAction.getArrayFromString(parameter, ",");
+        }
     }
 
     @Override

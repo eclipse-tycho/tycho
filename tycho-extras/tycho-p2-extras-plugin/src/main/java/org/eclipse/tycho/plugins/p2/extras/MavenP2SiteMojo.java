@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -142,7 +141,13 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 bundles.stream().map(File::getAbsolutePath).collect(Collectors.joining(",")), //
                 "-advices", //
                 advices.stream().map(File::getAbsolutePath).collect(Collectors.joining(",")), //
-                "-categoryDefinition", category.toURI().toASCIIString());
+                "-categoryDefinition", category.toURI().toASCIIString(), //
+                "-artifactRepositoryName", //
+                project.getName(), //
+                "-metadataRepositoryName", //
+                project.getName(), //
+                "-rules", //
+                "(&(classifier=osgi.bundle));mvn:${maven.groupId}:${maven.artifactId}:${maven.version}:${maven.extension}:${maven.classifier}");
         int result = launcher.execute(timeoutInSeconds);
         for (File file : advices) {
             file.delete();
@@ -154,8 +159,10 @@ public class MavenP2SiteMojo extends AbstractMojo {
     }
 
     private void addProperty(Properties properties, String name, String value, int i) {
-        properties.setProperty("properties." + i + ".name", name);
-        properties.setProperty("properties." + i + ".value", Objects.requireNonNullElse(value, ""));
+        if (value != null && !value.isBlank()) {
+            properties.setProperty("properties." + i + ".name", name);
+            properties.setProperty("properties." + i + ".value", value);
+        }
 
     }
 
