@@ -38,7 +38,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.repository.RepositorySystem;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
@@ -76,6 +79,16 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.build.directory}/repository")
     private File destination;
+    @Component
+    private MavenProjectHelper projectHelper;
+
+    /**
+     * The output directory of the jar file
+     * 
+     * By default this is the Maven "target/" directory.
+     */
+    @Parameter(property = "project.build.directory", required = true)
+    protected File buildDirectory;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -156,6 +169,16 @@ public class MavenP2SiteMojo extends AbstractMojo {
         if (result != 0) {
             throw new MojoFailureException("P2 publisher return code was " + result);
         }
+        ZipArchiver archiver = new ZipArchiver();
+        File destFile = new File(buildDirectory, "p2-site.zip");
+        archiver.setDestFile(destFile);
+        archiver.addFileSet(new DefaultFileSet(destination));
+        try {
+            archiver.createArchive();
+        } catch (IOException e) {
+            throw new MojoExecutionException("failed to createa archive", e);
+        }
+        projectHelper.attachArtifact(project, "zip", "p2site", destFile);
     }
 
     private void addProperty(Properties properties, String name, String value, int i) {
