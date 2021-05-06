@@ -49,6 +49,46 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
+/**
+ * <p>
+ * This goals produces a "maven-p2-site" from the projects declared &lt;dependencies&gt; (and
+ * &lt;dependencyManagement&gt; if desired). A maven-p2-site is completely manageable by standard
+ * maven tools and has the following properties:
+ * <ul>
+ * <li>The artifacts are not stored in the site itself but referenced as maven-coordinates, that
+ * means you don't have to upload your artifacts to a dedicated place, everything is fetched from
+ * the maven repository</li>
+ * <li>The metadata of the page is attached to the current project with type=zip and
+ * classifier=p2site and could be deployed using standard maven techniques</li>
+ * </ul>
+ * 
+ * <b>Please note:</b> Only valid OSGi bundles are included, there is no way to automatically wrap
+ * plain jars and they are silently ignored. This is intentional, as the goal of a maven-p2-site is
+ * to use exactly the same artifact that is deployed in the maven repository.
+ * </p>
+ * <p>
+ * The produced maven-p2-site can then be consumed by Tycho or PDE targets (m2eclipse is required
+ * for this), in the following way: A tycho-repository section:
+ * 
+ * <pre>
+    &lt;repository>
+    &lt;id>my-maven-p2-site</id>
+        &lt;url>mvn:[grouId]:[artifactId]:[version]:zip:p2site</url>
+        &lt;layout>p2</layout>
+    &lt;/repository>
+ * </pre>
+ * 
+ * A target location of type software-site:
+ * 
+ * <pre>
+ *  &lt;location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+        &lt;repository location="mvn:[grouId]:[artifactId]:[version]:zip:p2site"/>
+        -- list desired units here --
+    &lt;/location>
+ * </pre>
+ * </p>
+ *
+ */
 @Mojo(name = "maven-p2-site", requiresDependencyResolution = ResolutionScope.COMPILE)
 public class MavenP2SiteMojo extends AbstractMojo {
 
@@ -58,15 +98,34 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession session;
 
-    @Parameter()
+    /**
+     * Flag whether dependencies of the projects declared &lt;dependencies&gt; (and
+     * &lt;dependencyManagement&gt; if desired) should be included. If enabled this creates the
+     * maven equivalent of a self-contained P2 site
+     */
+    @Parameter(defaultValue = "false")
     private boolean includeDependencies;
 
-    @Parameter()
+    /**
+     * Flag that controls if &lt;dependencyManagement&gt; managed dependencies should be included,
+     * this is useful if your are using a BOM and like to include all materials in the update-site
+     * regardless of if they are explicitly included in the &lt;dependencies&gt; section
+     */
+    @Parameter(defaultValue = "false")
     private boolean includeManaged;
 
     @Parameter(defaultValue = "300")
     private int timeoutInSeconds = 300;
 
+    /**
+     * Location of the category definition. If the file does not exits, a generic category
+     * definition is generated including all bundles under one category
+     */
+    @Parameter(defaultValue = "${project.basedir}/category.xml")
+    private File categoryFile;
+    /**
+     * Name for the automatically generated category
+     */
     @Parameter(defaultValue = "Bundles")
     private String categoryName;
 
@@ -108,25 +167,30 @@ public class MavenP2SiteMojo extends AbstractMojo {
         if (includeManaged) {
             resolve(project.getDependencyManagement().getDependencies(), bundles, advices, filesAdded);
         }
-        File categoryFile;
-        try {
-            categoryFile = File.createTempFile("category", ".xml");
+        String categoryURI;
+        if (categoryFile.exists()) {
+            categoryURI = categoryFile.toURI().toASCIIString();
+        } else {
+            try {
+                File categoryGenFile = File.createTempFile("category", ".xml");
 
-            try (PrintWriter writer = new PrintWriter(
-                    new OutputStreamWriter(new FileOutputStream(categoryFile), StandardCharsets.UTF_8))) {
-                writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-                writer.println("<site>");
-                writer.println("<category-def name=\"bundles\" label=\"" + categoryName + "\"/>");
-                writer.println("<iu>");
-                writer.println("<category name=\"bundles\"/>");
-                writer.println(
-                        " <query><expression type=\"match\">providedCapabilities.exists(p | p.namespace == 'osgi.bundle')</expression></query>");
-                writer.println("</iu>");
-                writer.println("</site>");
+                try (PrintWriter writer = new PrintWriter(
+                        new OutputStreamWriter(new FileOutputStream(categoryGenFile), StandardCharsets.UTF_8))) {
+                    writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                    writer.println("<site>");
+                    writer.println("<category-def name=\"bundles\" label=\"" + categoryName + "\"/>");
+                    writer.println("<iu>");
+                    writer.println("<category name=\"bundles\"/>");
+                    writer.println(
+                            " <query><expression type=\"match\">providedCapabilities.exists(p | p.namespace == 'osgi.bundle')</expression></query>");
+                    writer.println("</iu>");
+                    writer.println("</site>");
+                }
+                categoryGenFile.deleteOnExit();
+                categoryURI = categoryGenFile.toURI().toASCIIString();
+            } catch (IOException e) {
+                throw new MojoExecutionException("failed to generate category.xml", e);
             }
-            categoryFile.deleteOnExit();
-        } catch (IOException e) {
-            throw new MojoExecutionException("failed to generate category.xml", e);
         }
 
         File bundlesFile;
@@ -155,7 +219,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 bundlesFile.getAbsolutePath(), //
                 "-advicesFile", //
                 advicesFile.getAbsolutePath(), //
-                "-categoryDefinition", categoryFile.toURI().toASCIIString(), //
+                "-categoryDefinition", categoryURI, //
                 "-artifactRepositoryName", //
                 project.getName(), //
                 "-metadataRepositoryName", //
@@ -166,7 +230,6 @@ public class MavenP2SiteMojo extends AbstractMojo {
         for (File file : advices) {
             file.delete();
         }
-        categoryFile.delete();
         bundlesFile.delete();
         if (result != 0) {
             throw new MojoFailureException("P2 publisher return code was " + result);
@@ -203,16 +266,17 @@ public class MavenP2SiteMojo extends AbstractMojo {
                         File p2 = File.createTempFile("p2properties", ".inf");
                         p2.deleteOnExit();
                         Properties properties = new Properties();
-                        addProperty(properties, RepositoryLayoutHelper.PROP_GROUP_ID, resolvedArtifact.getGroupId(),
-                                cnt++);
-                        addProperty(properties, RepositoryLayoutHelper.PROP_ARTIFACT_ID,
+                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_GROUP_ID,
+                                resolvedArtifact.getGroupId(), cnt++);
+                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_ARTIFACT_ID,
                                 resolvedArtifact.getArtifactId(), cnt++);
-                        addProperty(properties, RepositoryLayoutHelper.PROP_VERSION, resolvedArtifact.getVersion(),
-                                cnt++);
-                        addProperty(properties, RepositoryLayoutHelper.PROP_CLASSIFIER,
+                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_VERSION,
+                                resolvedArtifact.getVersion(), cnt++);
+                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_EXTENSION,
+                                resolvedArtifact.getType(), cnt++);
+                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_CLASSIFIER,
                                 resolvedArtifact.getClassifier(), cnt++);
-                        addProperty(properties, RepositoryLayoutHelper.PROP_EXTENSION, resolvedArtifact.getType(),
-                                cnt++);
+                        addProvidesAndProperty(properties, "maven-scope", resolvedArtifact.getScope(), cnt++);
                         //TODO pgp.signatures --> getSignatureFile(resolvedArtifact)
                         properties.store(new FileOutputStream(p2), null);
                         advices.add(p2);
@@ -220,6 +284,22 @@ public class MavenP2SiteMojo extends AbstractMojo {
                         throw new MojoExecutionException("failed to generate p2.inf", e);
                     }
                 }
+            }
+        }
+    }
+
+    private void addProvidesAndProperty(Properties properties, String key, String value, int i) {
+        //see https://help.eclipse.org/2021-03/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_customizing_metadata.html
+        addProvides(properties, key.replace('-', '.'), value, null, i);
+        addProperty(properties, key, value, i);
+    }
+
+    private void addProvides(Properties properties, String namespace, String name, String version, int i) {
+        if (name != null && !name.isBlank()) {
+            properties.setProperty("provides." + i + ".namespace", namespace);
+            properties.setProperty("provides." + i + ".name", name);
+            if (version != null && !version.isBlank()) {
+                properties.setProperty("provides." + i + ".version", version);
             }
         }
     }
