@@ -25,6 +25,7 @@
    <plugins>
       <plugin id="biz.aQute.bndlib"/>
       <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.logging"/>
       <plugin id="org.apache.felix.gogo.command"/>
       <plugin id="org.apache.felix.gogo.runtime"/>

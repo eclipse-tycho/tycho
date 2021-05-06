@@ -19,11 +19,13 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -56,14 +58,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession session;
 
-    @Component
-    private EquinoxServiceFactory equinox;
+    @Parameter()
+    private boolean includeDependencies;
 
-    @Component
-    private Logger logger;
-
-    @Parameter(defaultValue = "compile")
-    private String dependencyScope;
+    @Parameter()
+    private boolean includeManaged;
 
     @Parameter(defaultValue = "300")
     private int timeoutInSeconds = 300;
@@ -71,14 +70,20 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "Bundles")
     private String categoryName;
 
+    @Parameter(defaultValue = "${project.build.directory}/repository")
+    private File destination;
+
+    @Component
+    private EquinoxServiceFactory equinox;
+
+    @Component
+    private Logger logger;
     @Component
     private RepositorySystem repositorySystem;
 
     @Component
     private P2ApplicationLauncher launcher;
 
-    @Parameter(defaultValue = "${project.build.directory}/repository")
-    private File destination;
     @Component
     private MavenProjectHelper projectHelper;
 
@@ -92,44 +97,23 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        logger.debug("categoryName =        " + categoryName);
+        logger.debug("includeManaged =      " + includeManaged);
+        logger.debug("includeDependencies = " + includeDependencies);
+        Set<String> filesAdded = new HashSet<>();
         List<Dependency> dependencies = project.getDependencies();
         List<File> bundles = new ArrayList<>();
         List<File> advices = new ArrayList<>();
-        for (Dependency dependency : dependencies) {
-            logger.debug("resolved " + dependency.getGroupId() + "::" + dependency.getArtifactId() + "::"
-                    + dependency.getVersion() + "::" + dependency.getClassifier());
-            Artifact artifact = repositorySystem.createArtifactWithClassifier(dependency.getGroupId(),
-                    dependency.getArtifactId(), dependency.getVersion(), dependency.getType(),
-                    dependency.getClassifier());
-            Set<Artifact> artifacts = resolveArtifact(artifact, dependencyScope);
-            for (Artifact resolvedArtifact : artifacts) {
-                bundles.add(resolvedArtifact.getFile());
-                try {
-                    int cnt = 0;
-                    File p2 = File.createTempFile("p2properties", ".inf");
-                    p2.deleteOnExit();
-                    Properties properties = new Properties();
-                    addProperty(properties, RepositoryLayoutHelper.PROP_GROUP_ID, resolvedArtifact.getGroupId(), cnt++);
-                    addProperty(properties, RepositoryLayoutHelper.PROP_ARTIFACT_ID, resolvedArtifact.getArtifactId(),
-                            cnt++);
-                    addProperty(properties, RepositoryLayoutHelper.PROP_VERSION, resolvedArtifact.getVersion(), cnt++);
-                    addProperty(properties, RepositoryLayoutHelper.PROP_CLASSIFIER, resolvedArtifact.getClassifier(),
-                            cnt++);
-                    addProperty(properties, RepositoryLayoutHelper.PROP_EXTENSION, resolvedArtifact.getType(), cnt++);
-                    //TODO pgp.signatures --> getSignatureFile(resolvedArtifact)
-                    properties.store(new FileOutputStream(p2), null);
-                    advices.add(p2);
-                } catch (IOException e) {
-                    throw new MojoExecutionException("failed to generate p2.inf", e);
-                }
-            }
+        resolve(dependencies, bundles, advices, filesAdded);
+        if (includeManaged) {
+            resolve(project.getDependencyManagement().getDependencies(), bundles, advices, filesAdded);
         }
-        File category;
+        File categoryFile;
         try {
-            category = File.createTempFile("category", ".xml");
+            categoryFile = File.createTempFile("category", ".xml");
 
             try (PrintWriter writer = new PrintWriter(
-                    new OutputStreamWriter(new FileOutputStream(category), StandardCharsets.UTF_8))) {
+                    new OutputStreamWriter(new FileOutputStream(categoryFile), StandardCharsets.UTF_8))) {
                 writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
                 writer.println("<site>");
                 writer.println("<category-def name=\"bundles\" label=\"" + categoryName + "\"/>");
@@ -140,9 +124,26 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 writer.println("</iu>");
                 writer.println("</site>");
             }
-            category.deleteOnExit();
+            categoryFile.deleteOnExit();
         } catch (IOException e) {
             throw new MojoExecutionException("failed to generate category.xml", e);
+        }
+
+        File bundlesFile;
+        try {
+            bundlesFile = File.createTempFile("bundles", ".txt");
+            FileUtils.writeLines(bundlesFile, StandardCharsets.UTF_8.name(),
+                    bundles.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+        } catch (IOException e) {
+            throw new MojoExecutionException("failed to generate bundles list", e);
+        }
+        File advicesFile;
+        try {
+            advicesFile = File.createTempFile("advices", ".txt");
+            FileUtils.writeLines(advicesFile, StandardCharsets.UTF_8.name(),
+                    advices.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
+        } catch (IOException e) {
+            throw new MojoExecutionException("failed to generate bundles list", e);
         }
 
         destination.mkdirs();
@@ -150,11 +151,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
         launcher.setApplicationName("org.eclipse.tycho.p2.tools.publisher.TychoFeaturesAndBundlesPublisher");
         launcher.addArguments("-artifactRepository", destination.toURI().toString(), //
                 "-metadataRepository", destination.toURI().toString(), //
-                "-bundles", //
-                bundles.stream().map(File::getAbsolutePath).collect(Collectors.joining(",")), //
-                "-advices", //
-                advices.stream().map(File::getAbsolutePath).collect(Collectors.joining(",")), //
-                "-categoryDefinition", category.toURI().toASCIIString(), //
+                "-bundlesFile", //
+                bundlesFile.getAbsolutePath(), //
+                "-advicesFile", //
+                advicesFile.getAbsolutePath(), //
+                "-categoryDefinition", categoryFile.toURI().toASCIIString(), //
                 "-artifactRepositoryName", //
                 project.getName(), //
                 "-metadataRepositoryName", //
@@ -165,7 +166,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
         for (File file : advices) {
             file.delete();
         }
-        category.delete();
+        categoryFile.delete();
+        bundlesFile.delete();
         if (result != 0) {
             throw new MojoFailureException("P2 publisher return code was " + result);
         }
@@ -181,6 +183,47 @@ public class MavenP2SiteMojo extends AbstractMojo {
         projectHelper.attachArtifact(project, "zip", "p2site", destFile);
     }
 
+    protected void resolve(List<Dependency> dependencies, List<File> bundles, List<File> advices,
+            Set<String> filesAdded) throws MojoExecutionException {
+        for (Dependency dependency : dependencies) {
+            logger.debug("resolving " + dependency.getGroupId() + "::" + dependency.getArtifactId() + "::"
+                    + dependency.getVersion() + "::" + dependency.getClassifier());
+            Artifact artifact = repositorySystem.createArtifactWithClassifier(dependency.getGroupId(),
+                    dependency.getArtifactId(), dependency.getVersion(), dependency.getType(),
+                    dependency.getClassifier());
+            Set<Artifact> artifacts = resolveArtifact(artifact, includeDependencies);
+            for (Artifact resolvedArtifact : artifacts) {
+                logger.debug("    resolved " + resolvedArtifact.getGroupId() + "::" + resolvedArtifact.getArtifactId()
+                        + "::" + resolvedArtifact.getVersion() + "::" + resolvedArtifact.getClassifier());
+                File file = resolvedArtifact.getFile();
+                if (filesAdded.add(file.getAbsolutePath())) {
+                    bundles.add(file);
+                    try {
+                        int cnt = 0;
+                        File p2 = File.createTempFile("p2properties", ".inf");
+                        p2.deleteOnExit();
+                        Properties properties = new Properties();
+                        addProperty(properties, RepositoryLayoutHelper.PROP_GROUP_ID, resolvedArtifact.getGroupId(),
+                                cnt++);
+                        addProperty(properties, RepositoryLayoutHelper.PROP_ARTIFACT_ID,
+                                resolvedArtifact.getArtifactId(), cnt++);
+                        addProperty(properties, RepositoryLayoutHelper.PROP_VERSION, resolvedArtifact.getVersion(),
+                                cnt++);
+                        addProperty(properties, RepositoryLayoutHelper.PROP_CLASSIFIER,
+                                resolvedArtifact.getClassifier(), cnt++);
+                        addProperty(properties, RepositoryLayoutHelper.PROP_EXTENSION, resolvedArtifact.getType(),
+                                cnt++);
+                        //TODO pgp.signatures --> getSignatureFile(resolvedArtifact)
+                        properties.store(new FileOutputStream(p2), null);
+                        advices.add(p2);
+                    } catch (IOException e) {
+                        throw new MojoExecutionException("failed to generate p2.inf", e);
+                    }
+                }
+            }
+        }
+    }
+
     private void addProperty(Properties properties, String name, String value, int i) {
         if (value != null && !value.isBlank()) {
             properties.setProperty("properties." + i + ".name", name);
@@ -189,12 +232,12 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     }
 
-    protected Set<Artifact> resolveArtifact(Artifact artifact, String scope) {
+    protected Set<Artifact> resolveArtifact(Artifact artifact, boolean resolveTransitively) {
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
         request.setOffline(session.isOffline());
         request.setLocalRepository(session.getLocalRepository());
-        request.setResolveTransitively(scope != null && !scope.isEmpty());
+        request.setResolveTransitively(resolveTransitively);
         request.setRemoteRepositories(session.getCurrentProject().getRemoteArtifactRepositories());
         ArtifactResolutionResult result = repositorySystem.resolve(request);
         return result.getArtifacts();
@@ -241,7 +284,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 return artifact.getArtifactHandler().getClassifier();
             }
         });
-        for (Artifact signature : resolveArtifact(signatureArtifact, null)) {
+        for (Artifact signature : resolveArtifact(signatureArtifact, false)) {
             return signature.getFile();
         }
         return null;

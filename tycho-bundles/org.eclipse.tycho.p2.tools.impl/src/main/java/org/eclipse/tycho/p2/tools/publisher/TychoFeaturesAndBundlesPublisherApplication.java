@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -94,15 +96,38 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
                         }
                     }).toArray(BundleDescription[]::new);
         }
+        if (arg.equalsIgnoreCase("-bundlesFile")) {
+            bundles = Arrays.stream(getArrayFromFile(parameter)).map(File::new).map(t -> {
+                try {
+                    return BundlesAction.createBundleDescription(t);
+                } catch (IOException | BundleException e) {
+                    //ignoring files that are "not bundles" they will be skipped on the later steps
+                    return null;
+                }
+            }).toArray(BundleDescription[]::new);
+        }
         if (arg.equalsIgnoreCase("-advices")) {
             advices = Arrays.stream(AbstractPublisherAction.getArrayFromString(parameter, ","))
                     .map(str -> str.isBlank() ? null : new File(str)).toArray(File[]::new);
+        }
+        if (arg.equalsIgnoreCase("-advicesFile")) {
+            advices = Arrays.stream(getArrayFromFile(parameter)).map(str -> str.isBlank() ? null : new File(str))
+                    .toArray(File[]::new);
         }
         if (arg.equalsIgnoreCase("-categoryDefinition")) {
             categoryDefinition = URIUtil.fromString(parameter);
         }
         if (arg.equalsIgnoreCase("-rules")) {
             rules = AbstractPublisherAction.getArrayFromString(parameter, ",");
+        }
+    }
+
+    private String[] getArrayFromFile(String parameter) {
+        File file = new File(parameter);
+        try {
+            return FileUtils.readLines(file, StandardCharsets.UTF_8).toArray(String[]::new);
+        } catch (IOException e) {
+            throw new RuntimeException("reading file parameter failed", e);
         }
     }
 
