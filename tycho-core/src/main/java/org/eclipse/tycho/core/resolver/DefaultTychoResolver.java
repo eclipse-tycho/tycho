@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
@@ -41,6 +42,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -140,7 +142,7 @@ public class DefaultTychoResolver implements TychoResolver {
 
         dr.setDependencyArtifacts(session, reactorProject, dependencyArtifacts);
 
-        DependencyArtifacts testDependencyArtifacts = dependencyArtifacts;
+        DependencyArtifacts testDependencyArtifacts = null;
         TychoProject tychoProjectType = projectTypes.get(project.getPackaging());
         if (tychoProjectType instanceof BundleProject) {
             List<ArtifactKey> testDependencies = ((BundleProject) tychoProjectType)
@@ -163,7 +165,8 @@ public class DefaultTychoResolver implements TychoResolver {
                 testDependencyArtifacts = resolver.resolveDependencies(session, project, preliminaryTargetPlatform,
                         reactorProjects, testResolverConfiguration);
             }
-            dr.setTestDependencyArtifacts(session, reactorProject, testDependencyArtifacts);
+            dr.setTestDependencyArtifacts(session, reactorProject,
+                    Objects.requireNonNullElse(testDependencyArtifacts, new DefaultDependencyArtifacts()));
         }
 
         logger.info("Resolving class path of " + project);

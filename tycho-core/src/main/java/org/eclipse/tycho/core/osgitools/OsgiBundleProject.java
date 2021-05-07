@@ -40,12 +40,14 @@ import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -56,6 +58,8 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.dotClasspath.ClasspathParser;
+import org.eclipse.tycho.core.dotClasspath.JUnitClasspathContainerEntry;
+import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -72,6 +76,11 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -98,6 +107,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private ToolchainManager toolchainManager;
+
+    @Requirement
+    private EquinoxServiceFactory equinox;
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment) {
@@ -233,11 +245,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         classpath.add(new DefaultClasspathEntry(reactorProject, artifact.getKey(), projectClasspath, null));
 
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
-        // Tests
-        List<ClasspathEntry> testClasspath = new ArrayList<>(classpath);
-        testClasspath.addAll(computeExtraTestClasspath(reactorProject));
-        reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH, testClasspath);
-
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES,
                 strictBootClasspathAccessRules);
         reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES,
@@ -247,8 +254,29 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private Collection<ClasspathEntry> computeExtraTestClasspath(ReactorProject reactorProject) {
-        // TODO read .classpath and so on to resolve to extra test classpath entries
-        return Collections.emptyList();
+
+        List<ClasspathEntry> list = new ArrayList<ClasspathEntry>();
+        Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(reactorProject).getClasspathEntries();
+        for (ProjectClasspathEntry cpe : entries) {
+            if (cpe instanceof JUnitClasspathContainerEntry) {
+                JUnitClasspathContainerEntry junit = (JUnitClasspathContainerEntry) cpe;
+                logger.info("Resolve JUnit " + junit.getJUnitSegment() + " classpath container...");
+                P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
+                P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
+                TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
+                Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, junit.getArtifacts())
+                        .values();
+                for (P2ResolutionResult resolutionResult : result) {
+                    for (Entry entry : resolutionResult.getArtifacts()) {
+                        logger.debug("Resolved " + entry.getId() + "::" + entry.getVersion() + "...");
+                        File location = entry.getLocation(true);
+                        list.add(new DefaultClasspathEntry(reactorProject, entry, Collections.singletonList(location),
+                                Collections.singletonList(new DefaultAccessRule("**/*", false))));
+                    }
+                }
+            }
+        }
+        return list;
     }
 
     protected ArtifactDescriptor getArtifact(DependencyArtifacts artifacts, File location, String id) {
@@ -609,7 +637,10 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ClasspathEntry> classpath = (List<ClasspathEntry>) reactorProject
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH);
         if (classpath == null) {
-            throw new IllegalStateException();
+            List<ClasspathEntry> testClasspath = new ArrayList<>(getClasspath(reactorProject));
+            testClasspath.addAll(computeExtraTestClasspath(reactorProject));
+            reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH, testClasspath);
+            return testClasspath;
         }
         return classpath;
     }
@@ -620,8 +651,14 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public List<ArtifactKey> getExtraTestRequirements(ReactorProject project) {
-        // TODO parse .classpath to resolve "test" scope deps in it and feed those extra dependencies
-        return Collections.emptyList();
+        List<ArtifactKey> list = new ArrayList<>();
+        Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(project).getClasspathEntries();
+        for (ProjectClasspathEntry cpe : entries) {
+            if (cpe instanceof JUnitClasspathContainerEntry) {
+                list.addAll(((JUnitClasspathContainerEntry) cpe).getArtifacts());
+            }
+        }
+        return list;
     }
 
 }

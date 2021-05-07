@@ -148,7 +148,12 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public void setContextValue(String key, Object value) {
-        context.put(key, value);
+        Objects.requireNonNull(key, "key can't be null");
+        if (value == null) {
+            context.remove(key);
+        } else {
+            context.put(key, value);
+        }
     }
 
     @Override

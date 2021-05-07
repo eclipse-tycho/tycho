@@ -47,13 +47,13 @@ public final class MavenDependencyInjector {
             DependencyArtifacts testDependencies, BundleReader bundleReader, Logger logger) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
-            generator.addDependency(artifact);
+            generator.addDependency(artifact, Artifact.SCOPE_COMPILE);
         }
-        // currently we add test as regular deps in the Maven model.
-        // TODO investigate using "test" scope? Not certain that would bring some value
-        testDependencies.getArtifacts().stream() //
-                .filter(testDep -> dependencies.getArtifact(testDep.getKey()) == null) //
-                .forEach(generator::addDependency);
+        if (testDependencies != null) {
+            testDependencies.getArtifacts().stream() //
+                    .filter(testDep -> dependencies.getArtifact(testDep.getKey()) == null) //
+                    .forEach(descriptor -> generator.addDependency(descriptor, Artifact.SCOPE_TEST));
+        }
     }
 
     private static final List<Dependency> NO_DEPENDENCIES = Collections.emptyList();
@@ -69,7 +69,7 @@ public final class MavenDependencyInjector {
         this.logger = logger;
     }
 
-    void addDependency(ArtifactDescriptor artifact) {
+    void addDependency(ArtifactDescriptor artifact, String scope) {
         List<Dependency> dependencyList = new ArrayList<>();
         if (artifact.getMavenProject() != null) {
             dependencyList.addAll(newProjectDependencies(artifact));

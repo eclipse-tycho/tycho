@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: junit4-in-bundle
+Bundle-SymbolicName: junit4.in.bundle
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: javax.annotation,
+ org.osgi.framework
+Export-Package: bundle.test

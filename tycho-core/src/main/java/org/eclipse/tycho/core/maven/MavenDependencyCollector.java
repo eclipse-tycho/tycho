@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.maven;
 
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -40,13 +41,13 @@ public class MavenDependencyCollector extends ArtifactDependencyVisitor {
 
     @Override
     public boolean visitFeature(FeatureDescription feature) {
-        injector.addDependency(feature);
+        injector.addDependency(feature, Artifact.SCOPE_SYSTEM);
         return true; // keep visiting
     }
 
     @Override
     public void visitPlugin(PluginDescription plugin) {
-        injector.addDependency(plugin);
+        injector.addDependency(plugin, Artifact.SCOPE_SYSTEM);
     }
 
     @Override
