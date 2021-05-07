@@ -6,6 +6,15 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 2.4.0
 
+### [Support resolving of JUnit Classpath Container](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572602) 
+It is now possible to resolve the JDT 'JUnit Classpath Container', for this do the follwoing:
+
+- add the 'JUnit Classpath Container' to the classpath of your eclipse project
+- make sure you check in the .classpath file
+- Now you can use the Junit classes without explcitly adding them to your bundle via require-bundle/import package
+
+For an example take a look at the [integration tests](https://github.com/eclipse/tycho/tree/master/tycho-its/projects/compiler.junitcontainer/junit4-in-bundle)
+
 ### [Execute unit-tests with eclipse-plugin packaging](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572420) 
 Before unit-tests are only executed for eclipse-test-plugin packaging types. Beside that it was only possible to execute them as part of **tycho-surefire** (what executes them inside an OSGi runtime) in the interation-test-phase (making them actually some kind of integration test).
 
