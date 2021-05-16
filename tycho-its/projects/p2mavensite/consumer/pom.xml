@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<parent>
-		<groupId>org.eclipse.tycho.extras.it</groupId>
+		<groupId>org.eclipse.tycho.it</groupId>
 		<artifactId>mvn-p2-site-parent</artifactId>
 		<version>1.0.0</version>
 	</parent>
@@ -11,7 +11,7 @@
 	<repositories>
 		<repository>
 			<id>testme</id>
-			<url>mvn:org.eclipse.tycho.extras.it:producer:1.0.0:zip:p2site</url>
+			<url>mvn:org.eclipse.tycho.it:producer:1.0.0:zip:p2site</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>

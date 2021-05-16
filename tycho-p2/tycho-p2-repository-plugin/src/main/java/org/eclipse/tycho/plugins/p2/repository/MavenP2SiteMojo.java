@@ -10,7 +10,7 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.plugins.p2.extras;
+package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,8 +51,8 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 /**
  * <p>
- * This goals produces a "maven-p2-site" from the projects declared &lt;dependencies&gt; (and
- * &lt;dependencyManagement&gt; if desired). A maven-p2-site is completely manageable by standard
+ * This goals produces a "p2-maven-site" from the projects declared &lt;dependencies&gt; (and
+ * &lt;dependencyManagement&gt; if desired). A p2-maven-site is completely manageable by standard
  * maven tools and has the following properties:
  * <ul>
  * <li>The artifacts are not stored in the site itself but referenced as maven-coordinates, that
@@ -63,16 +63,16 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
  * </ul>
  * 
  * <b>Please note:</b> Only valid OSGi bundles are included, there is no way to automatically wrap
- * plain jars and they are silently ignored. This is intentional, as the goal of a maven-p2-site is
+ * plain jars and they are silently ignored. This is intentional, as the goal of a p2-maven-site is
  * to use exactly the same artifact that is deployed in the maven repository.
  * </p>
  * <p>
- * The produced maven-p2-site can then be consumed by Tycho or PDE targets (m2eclipse is required
+ * The produced p2-maven-site can then be consumed by Tycho or PDE targets (m2eclipse is required
  * for this), in the following way: A tycho-repository section:
  * 
  * <pre>
     &lt;repository>
-    &lt;id>my-maven-p2-site</id>
+    &lt;id>my-p2-maven-site</id>
         &lt;url>mvn:[grouId]:[artifactId]:[version]:zip:p2site</url>
         &lt;layout>p2</layout>
     &lt;/repository>
@@ -89,7 +89,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
  * </p>
  *
  */
-@Mojo(name = "maven-p2-site", requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "assemble-p2-maven-site", requiresDependencyResolution = ResolutionScope.COMPILE)
 public class MavenP2SiteMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)

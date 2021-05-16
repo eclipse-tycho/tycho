@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
-package org.eclipse.tycho.extras.p2;
+package org.eclipse.tycho.test.p2Repository;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
@@ -15,10 +15,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.extras.its.AbstractTychoExtrasIntegrationTest;
+import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-public class MavenP2SiteTest extends AbstractTychoExtrasIntegrationTest {
+public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testProduceConsume() throws Exception {
