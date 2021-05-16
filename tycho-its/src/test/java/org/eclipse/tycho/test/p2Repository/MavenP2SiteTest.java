@@ -22,6 +22,11 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testProduceConsume() throws Exception {
+        {//parent
+            Verifier verifier = getVerifier("p2mavensite", false);
+            verifier.executeGoals(asList("install"));
+            verifier.verifyErrorFreeLog();
+        }
         { // producer
             Verifier verifier = getVerifier("p2mavensite/producer", false);
             verifier.executeGoals(asList("clean", "install"));
