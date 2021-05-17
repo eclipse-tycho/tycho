@@ -40,4 +40,11 @@ public class MavenCompilerPluginTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
     }
 
+    @Test
+    public void testLimitModules() throws Exception {
+        Verifier verifier = getVerifier("compiler.limit.modules", true);
+        verifier.executeGoal("compile");
+        verifier.verifyErrorFreeLog();
+    }
+
 }

@@ -70,6 +70,8 @@ import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.dotClasspath.JREClasspathEntry;
+import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -567,6 +569,18 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         configureJavaHome(compilerConfiguration);
         configureBootclasspathAccessRules(compilerConfiguration);
         configureCompilerLog(compilerConfiguration);
+        Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
+        for (ProjectClasspathEntry cpe : classpathEntries) {
+            if (cpe instanceof JREClasspathEntry) {
+                JREClasspathEntry jreClasspathEntry = (JREClasspathEntry) cpe;
+                if (jreClasspathEntry.isModule()) {
+                    Collection<String> modules = jreClasspathEntry.getLimitModules();
+                    if (modules.size() > 0) {
+                        compilerConfiguration.addCompilerCustomArgument("--limit-modules", String.join(",", modules));
+                    }
+                }
+            }
+        }
         return compilerConfiguration;
     }
 
