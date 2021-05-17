@@ -98,7 +98,8 @@ public class ClasspathParser implements Disposable {
                                 String junit = path
                                         .substring(JUnitClasspathContainerEntry.JUNIT_CONTAINER_PATH_PREFIX.length());
                                 list.add(new JDTJUnitContainerClasspathEntry(path, junit, attributes));
-                            } else if (path.startsWith(JREClasspathEntry.JRE_CONTAINER_PATH_PREFIX)) {
+                            } else if (path.equals(JREClasspathEntry.JRE_CONTAINER_PATH)
+                                    || path.startsWith(JREClasspathEntry.JRE_CONTAINER_PATH_STANDARDVMTYPE_PREFIX)) {
                                 list.add(new JDTJREClasspathEntry(path, attributes));
                             } else {
                                 list.add(new JDTContainerClasspathEntry(path, attributes));
@@ -148,6 +149,14 @@ public class ClasspathParser implements Disposable {
             return Collections.emptyList();
         }
 
+        @Override
+        public String getJREName() {
+            if (path.startsWith(JRE_CONTAINER_PATH_STANDARDVMTYPE_PREFIX)) {
+                return path.substring(JRE_CONTAINER_PATH_STANDARDVMTYPE_PREFIX.length());
+            }
+            return null;
+        }
+
     }
 
     private static class JDTJUnitContainerClasspathEntry extends JDTContainerClasspathEntry
@@ -185,7 +194,7 @@ public class ClasspathParser implements Disposable {
 
     private static class JDTContainerClasspathEntry implements ClasspathContainerEntry {
 
-        private final String path;
+        protected final String path;
         protected final Map<String, String> attributes;
 
         public JDTContainerClasspathEntry(String path, Map<String, String> attributes) {

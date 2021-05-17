@@ -14,7 +14,7 @@ package org.eclipse.tycho.core.dotClasspath;
  * represents a container classpath entry, this could be for example:
  * 
  * <ul>
- * <li>JRE Container (see {@link JREClasspathEntry#JRE_CONTAINER_PATH_PREFIX})</li>
+ * <li>JRE Container (see {@link JREClasspathEntry#JRE_CONTAINER_PATH})</li>
  * <li>JUnit Container (see {@link JUnitClasspathContainerEntry#JUNIT_CONTAINER_PATH_PREFIX})</li>
  * <li>User Container (see {@link #USER_LIBRARY_PATH_PREFIX})</li>
  * <li>...</li>
