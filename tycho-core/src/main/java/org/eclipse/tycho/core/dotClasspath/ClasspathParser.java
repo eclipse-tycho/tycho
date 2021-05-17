@@ -98,6 +98,8 @@ public class ClasspathParser implements Disposable {
                                 String junit = path
                                         .substring(JUnitClasspathContainerEntry.JUNIT_CONTAINER_PATH_PREFIX.length());
                                 list.add(new JDTJUnitContainerClasspathEntry(path, junit, attributes));
+                            } else if (path.startsWith(JREClasspathEntry.JRE_CONTAINER_PATH_PREFIX)) {
+                                list.add(new JDTJREClasspathEntry(path, attributes));
                             } else {
                                 list.add(new JDTContainerClasspathEntry(path, attributes));
                             }
@@ -122,6 +124,28 @@ public class ClasspathParser implements Disposable {
                 map.put(attribute.getAttribute("name"), attribute.getAttribute("value"));
             }
             return map;
+        }
+
+    }
+
+    private static final class JDTJREClasspathEntry extends JDTContainerClasspathEntry implements JREClasspathEntry {
+
+        public JDTJREClasspathEntry(String path, Map<String, String> attributes) {
+            super(path, attributes);
+        }
+
+        @Override
+        public boolean isModule() {
+            return Boolean.valueOf(attributes.get("module"));
+        }
+
+        @Override
+        public Collection<String> getLimitModules() {
+            String modules = attributes.get("limit-modules");
+            if (modules != null) {
+                return Arrays.asList(modules.split(","));
+            }
+            return Collections.emptyList();
         }
 
     }
@@ -161,8 +185,8 @@ public class ClasspathParser implements Disposable {
 
     private static class JDTContainerClasspathEntry implements ClasspathContainerEntry {
 
-        private String path;
-        private Map<String, String> attributes;
+        private final String path;
+        protected final Map<String, String> attributes;
 
         public JDTContainerClasspathEntry(String path, Map<String, String> attributes) {
             this.path = path;
