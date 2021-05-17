@@ -67,6 +67,24 @@ Alternatively, e.g. if you are only interested in modifying an integration test 
 
 ### Writing Tycho integration tests
 
+The tycho integration tests are located in the [tycho-its](https://github.com/eclipse/tycho/tree/master/tycho-its) subfolder of the repository. Creating a new integration test usually includes the follwoing steps:
+
+1. create a new folder in the the [projects](https://github.com/eclipse/tycho/tree/master/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't mind to choose an intermediate name first), usually you would like to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
+2. Check if there is already a suitable test-class avaiable or simply create your own (again the name could be improved later on if required), the usual pattern for a self-contained test-case that fails the build is: 
+```
+@Test
+public void test() throws Exception {
+    Verifier verifier = getVerifier("your-project-folder-name", false);
+    verifier.executeGoals(asList("verify"));
+    verifier.verifyErrorFreeLog();
+}
+```
+3. You might want to check for additional constraints, see the [Verifier](https://maven.apache.org/shared/maven-verifier/apidocs/index.html) for avaiable options.
+4. If you don't want to run the full integration build you can the simply go to the project directory and run `mvn clean verify -Dtycho-version=<version of tycho where you see the issue>` to see the outcome of your created test.
+
+
+#### Tips on the naming of integration tests
+
 The hardest part for writing Tycho integration tests is the naming. While names are mostly important for readability, there were also cases where the ID "feature" was used multiple times and hence a test used the build result of a different integration test.
 
 Therefore, here are a few tips for writing good integration tests:
