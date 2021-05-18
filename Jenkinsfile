@@ -4,7 +4,7 @@ pipeline {
 		buildDiscarder(logRotator(numToKeepStr:'10'))
 	}
 	agent {
-		label "migration"
+		label "centos-8"
 	}
 	tools {
 		maven 'apache-maven-latest'
