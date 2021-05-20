@@ -71,7 +71,7 @@ tycho-surefire now support to set .options files for debugging through the new d
 </plugin>
   ```
   
-## 2.2.3
+## 2.3.0
 
 ### Official Equinox Resolver used for dependency resolution (stricter and can produce errors for split packages)
 
