@@ -59,6 +59,7 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.dotClasspath.ClasspathParser;
 import org.eclipse.tycho.core.dotClasspath.JUnitClasspathContainerEntry;
+import org.eclipse.tycho.core.dotClasspath.LibraryClasspathEntry;
 import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
@@ -476,6 +477,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         getLogger().warn("Missing extra classpath entry " + entry);
                     }
                 }
+            }
+        }
+        for (ProjectClasspathEntry entry : pdeProject.getClasspathEntries()) {
+            if (entry instanceof LibraryClasspathEntry) {
+                LibraryClasspathEntry libraryClasspathEntry = (LibraryClasspathEntry) entry;
+                ArtifactKey projectKey = getArtifactKey(project);
+                classpath.add(new DefaultClasspathEntry(project, projectKey, Collections.singletonList(libraryClasspathEntry.getLibraryPath()), null));
             }
         }
     }

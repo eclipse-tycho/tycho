@@ -16,12 +16,18 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-public class CompilerJunitContainerTest extends AbstractTychoIntegrationTest {
+public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testJUnit4Container() throws Exception {
         Verifier verifier = getVerifier("compiler.junitcontainer/junit4-in-bundle", true);
         verifier.executeGoal("test");
+        verifier.verifyErrorFreeLog();
+    }
+
+    public void testLibEntry() throws Exception {
+        Verifier verifier = getVerifier("compiler.libentry/my.bundle", false);
+        verifier.executeGoal("compile");
         verifier.verifyErrorFreeLog();
     }
 }
