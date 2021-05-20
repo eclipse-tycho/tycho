@@ -11,7 +11,7 @@ Tycho is a manifest-first way to build
 with Maven.
 
 
-* 👔 Eclipe project entry: https://projects.eclipse.org/projects/technology.tycho
+* 👔 Eclipse project entry: https://projects.eclipse.org/projects/technology.tycho
 * 🗒️ Documentation (some content to be reincorporated into this repository):
       * https://www.eclipse.org/tycho/sitedocs/
       * https://wiki.eclipse.org/Tycho/

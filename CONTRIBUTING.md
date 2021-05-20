@@ -31,13 +31,13 @@ Step by step instructions:
 6. Under _Eclipse.org_ , double-click on _Tycho_ (single click is not enough!). Make sure that _Tycho_ is shown in the table on the bottom. Click _Next_.
 7. You can edit the _Installation Folder_ , but you do not have to select the _Target Platform_ here, this will be set later automatically. By choosing _Show all variables_ at the bottom of the page, you are able to change other values as well but you do not have to. Click _Next_ .
 8. Press _Finished_ on the _Confirmation_ page will start the installation process. 
-9. The installer will download the selected Eclipse version, starts Eclipse and will perform all the additional steps (cloning the git repos, etc...). When the downloaded Eclispe started, the progress bar in the status bar shows the progress of the overall setup.
+9. The installer will download the selected Eclipse version, starts Eclipse and will perform all the additional steps (cloning the git repos, etc...). When the downloaded Eclipse started, the progress bar in the status bar shows the progress of the overall setup.
 10. Once the _Executing startup task_ job is finished you should have all the Tycho and Tycho Extras projects imported into 2 working sets called _Tycho_ and _Tycho Extras_ .
 11. Some Projects might sill have errors. Select them (or all) and choose _Maven > Update Project.._ from the context menu. De-select _Clean projects_ in the shown dialog and press _OK_ to update the projects. After that, no more error should be there.  
 
 ### Manually setup
 
-Prefered and easier way is to follow the instructions above, but you could also setup your environment manually:
+Preferred and easier way is to follow the instructions above, but you could also setup your environment manually:
 
 1. Get an [Eclipse IDE](https://www.eclipse.org/downloads/eclipse-packages/) with a recent version of the [Maven integration for Eclipse (m2eclipse)](https://www.eclipse.org/m2e/) and Eclipse PDE installed. m2eclipse is included in various Eclipse packages, e.g. the _Eclipse IDE for Eclipse Committers_ package. To add m2eclipse to your existing Eclipse installation, install it from the Eclipse Marketplace.
 2. Clone this repository (via CLI or EGit)
@@ -67,10 +67,10 @@ Alternatively, e.g. if you are only interested in modifying an integration test 
 
 ### Writing Tycho integration tests
 
-The tycho integration tests are located in the [tycho-its](https://github.com/eclipse/tycho/tree/master/tycho-its) subfolder of the repository. Creating a new integration test usually includes the follwoing steps:
+The tycho integration tests are located in the [tycho-its](https://github.com/eclipse/tycho/tree/master/tycho-its) subfolder of the repository. Creating a new integration test usually includes the following steps:
 
 1. create a new folder in the the [projects](https://github.com/eclipse/tycho/tree/master/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't mind to choose an intermediate name first), usually you would like to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
-2. Check if there is already a suitable test-class avaiable or simply create your own (again the name could be improved later on if required), the usual pattern for a self-contained test-case that fails the build is: 
+2. Check if there is already a suitable test-class available or simply create your own (again the name could be improved later on if required), the usual pattern for a self-contained test-case that fails the build is:
 ```
 @Test
 public void test() throws Exception {
@@ -79,7 +79,7 @@ public void test() throws Exception {
     verifier.verifyErrorFreeLog();
 }
 ```
-3. You might want to check for additional constraints, see the [Verifier](https://maven.apache.org/shared/maven-verifier/apidocs/index.html) for avaiable options.
+3. You might want to check for additional constraints, see the [Verifier](https://maven.apache.org/shared/maven-verifier/apidocs/index.html) for available options.
 4. If you don't want to run the full integration build you can the simply go to the project directory and run `mvn clean verify -Dtycho-version=<version of tycho where you see the issue>` to see the outcome of your created test.
 
 
