@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -261,7 +261,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                 projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
                 if (!isP2GenerationEnabled()) {
                     logger.warn(
-                            "org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated feature is used in an update-site. You cann add the follwoing snippet to your pom: \n" //
+                            "org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated feature is used in an update-site. You can add the following snippet to your pom: \n" //
                                     + "            <plugin>\n"
                                     + "                <groupId>org.eclipse.tycho</groupId>\n" //
                                     + "                <artifactId>tycho-p2-plugin</artifactId>\n" //
