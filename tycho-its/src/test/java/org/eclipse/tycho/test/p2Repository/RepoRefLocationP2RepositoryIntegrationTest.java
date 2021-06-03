@@ -14,28 +14,57 @@ package org.eclipse.tycho.test.p2Repository;
 
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.pdark.decentxml.Document;
+import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLParser;
 
 public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoIntegrationTest {
 
     private static Verifier verifier;
-    private static P2RepositoryTool p2Repo;
+
+    private static class RepositoryReferenceData {
+        private String uri;
+        private String type;
+        private String enabled;
+
+        public RepositoryReferenceData(String uri, String type, String enabled) {
+            this.uri = uri;
+            this.type = type;
+            this.enabled = enabled;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            RepositoryReferenceData other = (RepositoryReferenceData) obj;
+            return Objects.equals(enabled, other.enabled) && Objects.equals(type, other.type)
+                    && Objects.equals(uri, other.uri);
+        }
+
+        @Override
+        public String toString() {
+            return "[uri=" + uri + ", type=" + type + ", enabled=" + enabled + "]";
+        }
+    }
 
     @BeforeClass
     public static void executeBuild() throws Exception {
@@ -44,7 +73,6 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
         verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
-        p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
     }
 
     @Test
@@ -57,26 +85,20 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
         assertThat(artifactXml, isFile());
         assertThat(new File(target, "category.xml"), isFile());
 
-        Map<String, Boolean> expected = new HashMap<>(2, 1.f);
-        expected.put("http://some.where", false);
-        expected.put("http://some.where.else", true);
         Document artifactsDocument = XMLParser.parse(contentXml);
         // See MetadataRepositoryIO.Writer#writeRepositoryReferences
-        artifactsDocument.getChild("repository").getChild("references").getChildren("repository").forEach(element -> {
-            String location = element.getAttributeValue("uri");
-            if (expected.containsKey(location)
-                    && expected.get(location).equals(element.getAttributeValue("options").equals("1"))) {
-                expected.remove(location);
-            } else {
-                System.out.println(location);
-                System.out.println(expected.containsKey(location));
-                System.out.println(expected.get(location));
-                System.out.println();
-                fail("Unexpected repository reference in artifact repository " + element);
-            }
-        });
-        assertEquals("Missing repository reference in artifact repository", Collections.emptyMap(), expected);
-
+        List<Element> repositories = artifactsDocument.getChild("repository").getChild("references")
+                .getChildren("repository");
+        assertThat(repositories, hasSize(4));
+        List<RepositoryReferenceData> actual = repositories.stream()
+                .map(e -> new RepositoryReferenceData(e.getAttributeValue("uri"), e.getAttributeValue("type"),
+                        e.getAttributeValue("options")))
+                .collect(Collectors.toList());
+        assertThat(actual,
+                containsInAnyOrder(new RepositoryReferenceData("http://some.where", "1", "0"),
+                        new RepositoryReferenceData("http://some.where", "0", "0"),
+                        new RepositoryReferenceData("http://some.where.else", "1", "1"),
+                        new RepositoryReferenceData("http://some.where.else", "0", "1")));
     }
 
 }
