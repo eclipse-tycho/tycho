@@ -79,6 +79,11 @@
     </content>
   </setupTask>
   <setupTask
+      xsi:type="setup:EclipseIniTask"
+      option="-Doomph.redirection.tycho="
+      value="https://raw.githubusercontent.com/eclipse/tycho/master/setup/Tycho.setup->${git.cloneTycho.location|uri}/setup/Tycho.setup"
+      vm="true"/>
+  <setupTask
       xsi:type="setup.p2:P2Task">
     <requirement
         name="org.sonatype.tycho.m2e.feature.feature.group"/>
