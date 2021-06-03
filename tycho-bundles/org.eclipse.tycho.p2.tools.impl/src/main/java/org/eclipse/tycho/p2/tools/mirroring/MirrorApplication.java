@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -65,15 +66,21 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
             throws ProvisionException {
         IMetadataRepository result = super.initializeDestination(toInit, mgr);
         List<? extends IRepositoryReference> iRepoRefs = repositoryReferences.stream()
-                .map(MirrorApplication::toSpiRepositoryReference).collect(Collectors.toList());
+                .flatMap(MirrorApplication::toSpiRepositoryReferences).collect(Collectors.toList());
         result.addReferences(iRepoRefs);
         return result;
     }
 
-    private static org.eclipse.equinox.p2.repository.spi.RepositoryReference toSpiRepositoryReference(
+    private static Stream<org.eclipse.equinox.p2.repository.spi.RepositoryReference> toSpiRepositoryReferences(
             RepositoryReference rr) {
+        return Stream.of(toSpiRepositoryReference(rr, IRepository.TYPE_METADATA),
+                toSpiRepositoryReference(rr, IRepository.TYPE_ARTIFACT));
+    }
+
+    private static org.eclipse.equinox.p2.repository.spi.RepositoryReference toSpiRepositoryReference(
+            RepositoryReference rr, int type) {
         return new org.eclipse.equinox.p2.repository.spi.RepositoryReference(URI.create(rr.getLocation()), rr.getName(),
-                IRepository.TYPE_METADATA, rr.isEnable() ? IRepository.ENABLED : IRepository.NONE);
+                type, rr.isEnable() ? IRepository.ENABLED : IRepository.NONE);
     }
 
     @Override
