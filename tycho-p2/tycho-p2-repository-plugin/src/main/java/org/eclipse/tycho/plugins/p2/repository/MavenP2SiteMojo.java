@@ -99,12 +99,10 @@ public class MavenP2SiteMojo extends AbstractMojo {
     private MavenSession session;
 
     /**
-     * Flag whether dependencies of the projects declared &lt;dependencies&gt; (and
-     * &lt;dependencyManagement&gt; if desired) should be included. If enabled this creates the
-     * maven equivalent of a self-contained P2 site
+     * Flag whether declared &lt;dependencies&gt; of the projects should be included.
      */
-    @Parameter(defaultValue = "false")
-    private boolean includeDependencies;
+    @Parameter(defaultValue = "true")
+    private boolean includeDependencies = true;
 
     /**
      * Flag that controls if &lt;dependencyManagement&gt; managed dependencies should be included,
@@ -112,14 +110,22 @@ public class MavenP2SiteMojo extends AbstractMojo {
      * regardless of if they are explicitly included in the &lt;dependencies&gt; section
      */
     @Parameter(defaultValue = "false")
-    private boolean includeManaged;
+    private boolean includeManaged = false;
 
     /**
      * Flag that controls if reactor projects should be considered, this is useful if your are
      * simply like to make an update side of all your current reactor projects
      */
     @Parameter(defaultValue = "false")
-    private boolean includeReactor;
+    private boolean includeReactor = false;
+
+    /**
+     * Flag whether dependencies of the projects declared &lt;dependencies&gt; (and
+     * &lt;dependencyManagement&gt; if desired) should be included. If enabled this creates the
+     * maven equivalent of a self-contained P2 site
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeTransitiveDependencies;
 
     @Parameter(defaultValue = "300")
     private int timeoutInSeconds = 300;
@@ -164,9 +170,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         logger.debug("categoryName =        " + categoryName);
-        logger.debug("includeManaged =      " + includeManaged);
         logger.debug("includeDependencies = " + includeDependencies);
+        logger.debug("includeManaged =      " + includeManaged);
         logger.debug("includeReactor =      " + includeReactor);
+        logger.debug("includeTransitive =   " + includeTransitiveDependencies);
+
         Set<String> filesAdded = new HashSet<>();
         List<Dependency> dependencies = project.getDependencies();
         List<File> bundles = new ArrayList<>();
@@ -283,7 +291,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
             Artifact artifact = repositorySystem.createArtifactWithClassifier(dependency.getGroupId(),
                     dependency.getArtifactId(), dependency.getVersion(), dependency.getType(),
                     dependency.getClassifier());
-            Set<Artifact> artifacts = resolveArtifact(artifact, includeDependencies);
+            Set<Artifact> artifacts = resolveArtifact(artifact, includeTransitiveDependencies);
             for (Artifact resolvedArtifact : artifacts) {
                 logger.debug("    resolved " + resolvedArtifact.getGroupId() + "::" + resolvedArtifact.getArtifactId()
                         + "::" + resolvedArtifact.getVersion() + "::" + resolvedArtifact.getClassifier());
