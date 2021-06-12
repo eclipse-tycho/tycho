@@ -21,6 +21,7 @@
 							<categoryName>Jetty Bundles</categoryName>
 							<includeManaged>true</includeManaged>
 							<includeDependencies>true</includeDependencies>
+							<includeTransitiveDependencies>true</includeTransitiveDependencies>
 						</configuration>
 						<id>maven-p2-site</id>
 						<phase>package</phase>
@@ -38,7 +39,7 @@
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-bom</artifactId>
-				<version>11.0.2</version>
+				<version>10.0.5</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

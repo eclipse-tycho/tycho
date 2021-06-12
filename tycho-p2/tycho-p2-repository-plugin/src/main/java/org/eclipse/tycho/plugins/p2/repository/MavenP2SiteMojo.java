@@ -99,12 +99,10 @@ public class MavenP2SiteMojo extends AbstractMojo {
     private MavenSession session;
 
     /**
-     * Flag whether dependencies of the projects declared &lt;dependencies&gt; (and
-     * &lt;dependencyManagement&gt; if desired) should be included. If enabled this creates the
-     * maven equivalent of a self-contained P2 site
+     * Flag whether declared &lt;dependencies&gt; of the projects should be included.
      */
-    @Parameter(defaultValue = "false")
-    private boolean includeDependencies;
+    @Parameter(defaultValue = "true")
+    private boolean includeDependencies = true;
 
     /**
      * Flag that controls if &lt;dependencyManagement&gt; managed dependencies should be included,
@@ -112,7 +110,22 @@ public class MavenP2SiteMojo extends AbstractMojo {
      * regardless of if they are explicitly included in the &lt;dependencies&gt; section
      */
     @Parameter(defaultValue = "false")
-    private boolean includeManaged;
+    private boolean includeManaged = false;
+
+    /**
+     * Flag that controls if reactor projects should be considered, this is useful if your are
+     * simply like to make an update side of all your current reactor projects
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeReactor = false;
+
+    /**
+     * Flag whether dependencies of the projects declared &lt;dependencies&gt; (and
+     * &lt;dependencyManagement&gt; if desired) should be included. If enabled this creates the
+     * maven equivalent of a self-contained P2 site
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeTransitiveDependencies;
 
     @Parameter(defaultValue = "300")
     private int timeoutInSeconds = 300;
@@ -157,15 +170,39 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         logger.debug("categoryName =        " + categoryName);
-        logger.debug("includeManaged =      " + includeManaged);
         logger.debug("includeDependencies = " + includeDependencies);
+        logger.debug("includeManaged =      " + includeManaged);
+        logger.debug("includeReactor =      " + includeReactor);
+        logger.debug("includeTransitive =   " + includeTransitiveDependencies);
+
         Set<String> filesAdded = new HashSet<>();
         List<Dependency> dependencies = project.getDependencies();
         List<File> bundles = new ArrayList<>();
         List<File> advices = new ArrayList<>();
-        resolve(dependencies, bundles, advices, filesAdded);
+        if (includeDependencies) {
+            resolve(dependencies, bundles, advices, filesAdded);
+        }
         if (includeManaged) {
             resolve(project.getDependencyManagement().getDependencies(), bundles, advices, filesAdded);
+        }
+        if (includeReactor) {
+            List<MavenProject> allProjects = session.getAllProjects();
+            for (MavenProject mavenProject : allProjects) {
+                String packaging = mavenProject.getPackaging();
+                if (packaging.equalsIgnoreCase("pom")) {
+                    continue;
+                }
+                Artifact artifact = mavenProject.getArtifact();
+                if (artifact == null) {
+                    continue;
+                }
+                File file = artifact.getFile();
+                if (file == null || !file.isFile()) {
+                    continue;
+                }
+                bundles.add(file);
+                advices.add(createMavenAdvice(artifact));
+            }
         }
         String categoryURI;
         if (categoryFile.exists()) {
@@ -254,37 +291,37 @@ public class MavenP2SiteMojo extends AbstractMojo {
             Artifact artifact = repositorySystem.createArtifactWithClassifier(dependency.getGroupId(),
                     dependency.getArtifactId(), dependency.getVersion(), dependency.getType(),
                     dependency.getClassifier());
-            Set<Artifact> artifacts = resolveArtifact(artifact, includeDependencies);
+            Set<Artifact> artifacts = resolveArtifact(artifact, includeTransitiveDependencies);
             for (Artifact resolvedArtifact : artifacts) {
                 logger.debug("    resolved " + resolvedArtifact.getGroupId() + "::" + resolvedArtifact.getArtifactId()
                         + "::" + resolvedArtifact.getVersion() + "::" + resolvedArtifact.getClassifier());
                 File file = resolvedArtifact.getFile();
                 if (filesAdded.add(file.getAbsolutePath())) {
                     bundles.add(file);
-                    try {
-                        int cnt = 0;
-                        File p2 = File.createTempFile("p2properties", ".inf");
-                        p2.deleteOnExit();
-                        Properties properties = new Properties();
-                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_GROUP_ID,
-                                resolvedArtifact.getGroupId(), cnt++);
-                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_ARTIFACT_ID,
-                                resolvedArtifact.getArtifactId(), cnt++);
-                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_VERSION,
-                                resolvedArtifact.getVersion(), cnt++);
-                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_EXTENSION,
-                                resolvedArtifact.getType(), cnt++);
-                        addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_CLASSIFIER,
-                                resolvedArtifact.getClassifier(), cnt++);
-                        addProvidesAndProperty(properties, "maven-scope", resolvedArtifact.getScope(), cnt++);
-                        //TODO pgp.signatures --> getSignatureFile(resolvedArtifact)
-                        properties.store(new FileOutputStream(p2), null);
-                        advices.add(p2);
-                    } catch (IOException e) {
-                        throw new MojoExecutionException("failed to generate p2.inf", e);
-                    }
+                    advices.add(createMavenAdvice(resolvedArtifact));
+                    //TODO pgp.signatures --> getSignatureFile(resolvedArtifact)
                 }
             }
+        }
+    }
+
+    protected File createMavenAdvice(Artifact artifact) throws MojoExecutionException {
+        try {
+            int cnt = 0;
+            File p2 = File.createTempFile("p2properties", ".inf");
+            p2.deleteOnExit();
+            Properties properties = new Properties();
+            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_GROUP_ID, artifact.getGroupId(), cnt++);
+            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_ARTIFACT_ID, artifact.getArtifactId(),
+                    cnt++);
+            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_VERSION, artifact.getVersion(), cnt++);
+            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_EXTENSION, artifact.getType(), cnt++);
+            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_CLASSIFIER, artifact.getClassifier(), cnt++);
+            addProvidesAndProperty(properties, "maven-scope", artifact.getScope(), cnt++);
+            properties.store(new FileOutputStream(p2), null);
+            return p2;
+        } catch (IOException e) {
+            throw new MojoExecutionException("failed to generate p2.inf", e);
         }
     }
 
