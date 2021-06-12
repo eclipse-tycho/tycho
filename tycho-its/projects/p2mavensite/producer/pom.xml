@@ -21,6 +21,7 @@
 							<categoryName>Jetty Bundles</categoryName>
 							<includeManaged>true</includeManaged>
 							<includeDependencies>true</includeDependencies>
+							<includeTransitiveDependencies>true</includeTransitiveDependencies>
 						</configuration>
 						<id>maven-p2-site</id>
 						<phase>package</phase>
