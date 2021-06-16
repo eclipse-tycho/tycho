@@ -25,7 +25,7 @@
 	<name>Tycho Extras Integration Tests</name>
 
 	<properties>
-		<its-maven-version>3.6.3</its-maven-version>
+		<its-maven-version>3.8.1</its-maven-version>
 		<maven-dir>${project.build.directory}/apache-maven-${its-maven-version}</maven-dir>
 	</properties>
 
