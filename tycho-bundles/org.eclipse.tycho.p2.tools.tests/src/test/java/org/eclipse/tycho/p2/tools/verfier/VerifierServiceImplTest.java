@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2019 SAP SE and others.
+ * Copyright (c) 2011, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -76,8 +76,7 @@ public class VerifierServiceImplTest {
         assertEquals(false, verify(repositories));
         assertTrue(firstErrorLine().contains("osgi.bundle"));
         assertTrue(firstErrorLine().contains("jarsigning"));
-        assertTrue(remainingErrorText().contains("dummy.class"));
-        assertTrue(remainingErrorText().contains("has been tampered"));
+        assertTrue(remainingErrorText().contains("invalid content:dummy.class"));
     }
 
     @Test

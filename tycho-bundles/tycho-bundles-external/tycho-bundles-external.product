@@ -33,6 +33,8 @@
       <plugin id="org.apache.felix.scr"/>
       <plugin id="org.apache.httpcomponents.httpclient"/>
       <plugin id="org.apache.httpcomponents.httpcore"/>
+      <plugin id="org.bouncycastle.bcprov"/>
+      <plugin id="org.bouncycastle.bcpg"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.net"/>
