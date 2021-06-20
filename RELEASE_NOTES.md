@@ -78,6 +78,10 @@ Tycho now correctly supports repository references in `category.xml`: in the pre
 
 A new mojo [](https://www.eclipse.org/tycho/sitedocs/tycho-gpg-plugin/sign-p2-artifacts-mojo.html) was added to add GPG signatures to artifacts metadata. Those GPG signatures are later expected to be used by p2 during installation to verify integrity and build trust in installed components.
 
+### [Support for "additional.bundles" directive in build.properties](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572481)
+
+Tycho now understands the `additional.bundles` directive in the `build.properties` file and properly resolves them during dependency resolution.
+
 ## 2.3.0
 
 ### Official Equinox Resolver used for dependency resolution (stricter and can produce errors for split packages)
