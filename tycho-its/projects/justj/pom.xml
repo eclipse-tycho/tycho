@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.tycho.tycho-its</groupId>
+	<artifactId>parent-justj</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<properties>
+<!-- 		<tycho-version>2.4.0-SNAPSHOT</tycho-version> -->
+<!-- 		<target-platform>https://download.eclipse.org/releases/2021-03/</target-platform> -->
+	</properties>
+	<modules>
+		<module>bundle</module>
+		<module>bundle2</module>
+		<module>feature</module>
+		<module>bundle-product</module>
+		<module>feature-product</module>
+	</modules>
+	<repositories>
+		<repository>
+			<id>platform</id>
+			<url>${target-platform}</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>justj</id>
+			<url>https://download.eclipse.org/justj/jres/11/updates/release/11.0.2</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
