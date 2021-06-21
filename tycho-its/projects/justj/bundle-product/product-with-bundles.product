@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="A product with justj" uid="product-with-justj-bundles" version="0.0.1" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <plugins>
+      <plugin id="bundle"/>
+      <plugin id="bundle2"/>
+      <plugin id="org.eclipse.justj.openjdk.hotspot.jre.full"/>
+   </plugins>
+
+
+</product>
