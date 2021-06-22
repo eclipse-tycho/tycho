@@ -53,12 +53,20 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 public class DependencyComputerTest extends AbstractTychoMojoTestCase {
+    private DependencyComputer dependencyComputer;
     private EquinoxResolver resolver;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        dependencyComputer = lookup(DependencyComputer.class);
         resolver = lookup(EquinoxResolver.class);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        dependencyComputer = null;
+        super.tearDown();
     }
 
     @Test
@@ -77,7 +85,6 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         ModuleContainer state = resolver.newResolvedState(reactorProject, null, executionEnvironment, platform);
         ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
 
-        DependencyComputer dependencyComputer = new DependencyComputer(state);
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
         Assert.assertEquals(3, dependencies.size());
         Assert.assertEquals("dep", dependencies.get(0).module.getSymbolicName());
@@ -119,7 +126,6 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         ModuleContainer state = resolver.newResolvedState(reactorProject, null, customProfile, platform);
         ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
 
-        DependencyComputer dependencyComputer = new DependencyComputer(state);
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
 
         if (dependencies.size() > 0) {
@@ -159,7 +165,6 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         ModuleContainer state = resolver.newResolvedState(DefaultReactorProject.adapt(project), null,
                 ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog()), platform);
         ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
-        DependencyComputer dependencyComputer = new DependencyComputer(state);
         return dependencyComputer.computeDependencies(bundle);
     }
 
@@ -168,7 +173,6 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
         ModuleContainer state = resolver.newResolvedState(DefaultReactorProject.adapt(project), null, null, platform);
         ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
-        DependencyComputer dependencyComputer = new DependencyComputer(state);
         return dependencyComputer.computeDependencies(bundle);
     }
 
