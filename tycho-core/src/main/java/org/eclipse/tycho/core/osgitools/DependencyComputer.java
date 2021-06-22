@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -222,16 +223,47 @@ public class DependencyComputer {
 
     private void populateFromWiring(ModuleWiring wiring, Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources,
             Map<String, Set<PackageSource>> packages, Set<String> importedPackageNames) {
+
         // first get the imported packages
         for (ModuleWire packageWire : wiring.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE)) {
             String packageName = getPackageName(packageWire.getCapability());
             importedPackageNames.add(packageName);
             addAggregatePackageSource(packageWire.getCapability(), packageName, packageWire, packages, allSources);
         }
-        // now get packages from required bundles
-        for (ModuleWire requiredWire : wiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE)) {
+
+        // now get packages from its required bundles and all accessible bundles through visibility:reexport 
+        for (ModuleWire requiredWire : getRequiredAndAllAccessibleModuleWires(wiring)) {
             getRequiredBundlePackages(requiredWire, importedPackageNames, packages, allSources);
         }
+    }
+
+    /**
+     * For a given moduleWiring, retrieve the list of all requiredModuleWires, including the
+     * moduleWires that are accessible with a visibility:reexport
+     */
+    private Collection<ModuleWire> getRequiredAndAllAccessibleModuleWires(ModuleWiring wiring) {
+        Collection<ModuleWire> requiredAndReexportedWires = new LinkedHashSet<>();
+        LinkedList<ModuleWire> toVisitWires = new LinkedList<>();
+        toVisitWires.addAll(wiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE));
+
+        while (!toVisitWires.isEmpty()) {
+            ModuleWire moduleWire = toVisitWires.removeFirst();
+            if (!requiredAndReexportedWires.contains(moduleWire)) {
+                requiredAndReexportedWires.add(moduleWire);
+                ModuleWiring providerWiring = moduleWire.getProviderWiring();
+                toVisitWires.addAll(getRequiredModuleWiresWithVisibilityReexport(providerWiring));
+            }
+        }
+
+        return requiredAndReexportedWires;
+    }
+
+    /**
+     * For a module, retrieve the list of required modules with a visibility:reexport
+     */
+    private Collection<ModuleWire> getRequiredModuleWiresWithVisibilityReexport(ModuleWiring wiring) {
+        return wiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
+                .filter(DependencyComputer::hasVisibilityReexport).collect(Collectors.toList());
     }
 
     private void addAggregatePackageSource(ModuleCapability packageCap, String packageName, ModuleWire wire,
@@ -290,14 +322,6 @@ public class DependencyComputer {
             }
         }
 
-        // now get packages from re-exported requires of the required bundle
-        for (ModuleWire providerBundleWire : providerWiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE)) {
-            String visibilityDirective = providerBundleWire.getRequirement().getDirectives()
-                    .get(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
-            if (BundleNamespace.VISIBILITY_REEXPORT.equals(visibilityDirective)) {
-                getRequiredBundlePackages(providerBundleWire, importedPackageNames, packages, allSources);
-            }
-        }
     }
 
     private static AccessRule createRule(ModuleRevision consumer, Capability export) {
@@ -413,6 +437,12 @@ public class DependencyComputer {
             return !Arrays.stream(allFriends.split(",")).map(String::trim).anyMatch(bundle.getSymbolicName()::equals);
         }
         return false;
+    }
+
+    private static boolean hasVisibilityReexport(ModuleWire moduleWire) {
+        String visibilityDirective = moduleWire.getRequirement().getDirectives()
+                .get(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
+        return BundleNamespace.VISIBILITY_REEXPORT.equals(visibilityDirective);
     }
 
 }
