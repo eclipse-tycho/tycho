@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.osgi.container.ModuleCapability;
 import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
@@ -51,6 +52,7 @@ import org.osgi.resource.Capability;
  * Note that some functionality, namely SecondaryDependencies, ExtraClasspathEntries and
  * isPatchFragment, has been removed due to time constraints.
  */
+@Component(role = DependencyComputer.class)
 public class DependencyComputer {
 
     public static class DependencyEntry {
@@ -84,8 +86,8 @@ public class DependencyComputer {
         private final Map<ModuleRevision, Set<AccessRule>> visiblePackages = new HashMap<>();
         private final ModuleRevision consumerHost;
 
-        public VisiblePackages(ModuleRevision consumerHost) {
-            this.consumerHost = consumerHost;
+        public VisiblePackages(ModuleRevision consumer) {
+            this.consumerHost = getFragmentHost(consumer).orElse(consumer);
         }
 
         public void add(ModuleCapability packageCapability) {
@@ -109,22 +111,6 @@ public class DependencyComputer {
         }
     }
 
-    private final ModuleContainer container;
-
-    /**
-     * Creates a new DependencyComputer associated to the given {@link ModuleContainer}.
-     * <p>
-     * Because this DependencyComputer caches the {@link ModuleWire ModuleWires} of a
-     * {@link ModuleWiring} but these wires may change between modules this DependencyComputer will
-     * only compute dependencies of {@link ModuleRevision ModuleRevisions} from the given container.
-     * </p>
-     * 
-     * @param container
-     */
-    public DependencyComputer(ModuleContainer container) {
-        this.container = container;
-    }
-
     /**
      * Computes and returns the List of {@link DependencyEntry dependencies} of the given
      * {@link ModuleRevision}.
@@ -142,7 +128,6 @@ public class DependencyComputer {
         if (module == null) {
             return Collections.emptyList();
         }
-        assertAssociatedModuleContainer(module.getRevisions().getModule().getContainer());
 
         VisiblePackages visiblePackages = getPackagesInternal(module);
         Set<ModuleRevision> added = new HashSet<>();
@@ -171,12 +156,13 @@ public class DependencyComputer {
         if (module == null) {
             return Collections.emptyList();
         }
-        return getRequiredBundleModuleWires(module.getWiring()).stream().map(ModuleWire::getProvider)
-                .collect(Collectors.toList());
+        return module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
+                .map(ModuleWire::getProvider).collect(Collectors.toList());
     }
 
-    private Optional<ModuleRevision> getFragmentHost(ModuleRevision bundleRevision) {
-        return getRequiredHostModuleWires(bundleRevision.getWiring()).stream().map(ModuleWire::getProvider).findAny();
+    private static Optional<ModuleRevision> getFragmentHost(ModuleRevision bundleRevision) {
+        return bundleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                .map(ModuleWire::getProvider).findAny();
     }
 
     class PackageSource {
@@ -205,7 +191,7 @@ public class DependencyComputer {
 
     private VisiblePackages getPackagesInternal(ModuleRevision module) {
         Map<String, Set<PackageSource>> sources = getPackagesInternal0(module.getWiring(), null);
-        VisiblePackages res = new VisiblePackages(getFragmentHost(module).orElse(module));
+        VisiblePackages res = new VisiblePackages(module);
         sources.values().stream() //
                 .flatMap(Set::stream) //
                 .map(p -> p.cap) //
@@ -228,7 +214,7 @@ public class DependencyComputer {
 
         Set<String> importedPackageNames = new HashSet<>();
         populateFromWiring(wiring, allSources, packages, importedPackageNames);
-        for (ModuleWire fragmentWire : getRequiredHostModuleWires(wiring)) {
+        for (ModuleWire fragmentWire : wiring.getRequiredModuleWires(HostNamespace.HOST_NAMESPACE)) {
             populateFromWiring(fragmentWire.getProviderWiring(), allSources, packages, importedPackageNames);
         }
         return packages;
@@ -237,13 +223,13 @@ public class DependencyComputer {
     private void populateFromWiring(ModuleWiring wiring, Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources,
             Map<String, Set<PackageSource>> packages, Set<String> importedPackageNames) {
         // first get the imported packages
-        for (ModuleWire packageWire : getRequiredPackageModuleWires(wiring)) {
+        for (ModuleWire packageWire : wiring.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE)) {
             String packageName = getPackageName(packageWire.getCapability());
             importedPackageNames.add(packageName);
             addAggregatePackageSource(packageWire.getCapability(), packageName, packageWire, packages, allSources);
         }
         // now get packages from required bundles
-        for (ModuleWire requiredWire : getRequiredBundleModuleWires(wiring)) {
+        for (ModuleWire requiredWire : wiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE)) {
             getRequiredBundlePackages(requiredWire, importedPackageNames, packages, allSources);
         }
     }
@@ -253,7 +239,8 @@ public class DependencyComputer {
         Set<PackageSource> packageSources = packages.computeIfAbsent(packageName, p -> new LinkedHashSet<>());
         packageSources.add(new PackageSource(packageCap, wire));
         // Tycho-specific: Case of split package with fragment, not part of `getPackages` console command but necessary for Tycho
-        for (ModuleWire fragmentWire : getProvidedHostModuleWires(packageCap.getResource().getWiring())) {
+        for (ModuleWire fragmentWire : packageCap.getResource().getWiring()
+                .getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)) {
             for (ModuleCapability fragmentExport : fragmentWire.getRequirer()
                     .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
                 if (getPackageName(fragmentExport).equals(getPackageName(packageCap))) {
@@ -287,14 +274,14 @@ public class DependencyComputer {
             declaredPackageNames.add(getPackageName(declaredPackage));
         }
         // and from attached fragments
-        for (BundleWire fragmentWire : getProvidedHostWires(providerWiring)) {
+        for (BundleWire fragmentWire : providerWiring.getProvidedWires(HostNamespace.HOST_NAMESPACE)) {
             for (BundleCapability declaredPackage : fragmentWire.getRequirer()
                     .getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
                 declaredPackageNames.add(getPackageName(declaredPackage));
             }
         }
 
-        for (ModuleWire packageWire : getRequiredPackageModuleWires(providerWiring)) {
+        for (ModuleWire packageWire : providerWiring.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE)) {
             String packageName = getPackageName(packageWire.getCapability());
             if (!importedPackageNames.contains(packageName) && declaredPackageNames.contains(packageName)) {
                 // if the package is a declared capability AND the wiring imports the package
@@ -304,7 +291,7 @@ public class DependencyComputer {
         }
 
         // now get packages from re-exported requires of the required bundle
-        for (ModuleWire providerBundleWire : getRequiredBundleModuleWires(providerWiring)) {
+        for (ModuleWire providerBundleWire : providerWiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE)) {
             String visibilityDirective = providerBundleWire.getRequirement().getDirectives()
                     .get(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
             if (BundleNamespace.VISIBILITY_REEXPORT.equals(visibilityDirective)) {
@@ -341,8 +328,8 @@ public class DependencyComputer {
             return Collections.emptyList();
         }
 
-        return getProvidedHostModuleWires(host.getWiring()).stream().map(ModuleWire::getRequirer)
-                .collect(Collectors.toList());
+        return host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                .map(ModuleWire::getRequirer).collect(Collectors.toList());
     }
 
     private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
@@ -389,7 +376,8 @@ public class DependencyComputer {
             }
 
             // add Import-Package
-            getRequiredPackageModuleWires(host.getWiring()).stream().map(ModuleWire::getProvider)
+            host.getWiring().getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE).stream()
+                    .map(ModuleWire::getProvider)
                     .forEach(provider -> addDependencyViaImportPackage(provider, added, visiblePackages, entries));
         }
     }
@@ -406,11 +394,13 @@ public class DependencyComputer {
      * 
      * [1] http://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
      */
+
     public List<AccessRule> computeBootClasspathExtraAccessRules(ModuleContainer container) {
-        assertAssociatedModuleContainer(container);
         ModuleRevision systemBundle = container.getModule(Constants.SYSTEM_BUNDLE_ID).getCurrentRevision();
-        return getProvidedHostModuleWires(systemBundle.getWiring()).stream().map(ModuleWire::getRequirer).flatMap(
-                systemFragment -> systemFragment.getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE).stream())
+        return systemBundle.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                .map(ModuleWire::getRequirer)
+                .flatMap(systemFragment -> systemFragment.getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)
+                        .stream())
                 .map(packageExport -> createRule(systemBundle, packageExport)).collect(Collectors.toList());
     }
 
@@ -420,47 +410,9 @@ public class DependencyComputer {
         }
         String allFriends = export.getDirectives().get("x-friends");
         if (allFriends != null) {
-            return Arrays.stream(allFriends.split(",")).map(String::trim).noneMatch(bundle.getSymbolicName()::equals);
+            return !Arrays.stream(allFriends.split(",")).map(String::trim).anyMatch(bundle.getSymbolicName()::equals);
         }
         return false;
     }
 
-    private void assertAssociatedModuleContainer(ModuleContainer container) {
-        if (container != this.container) {
-            throw new IllegalStateException("ModuleRevision not from the associated ModuleContainer");
-        }
-    }
-
-    // --- caching of wiries ---
-
-    private final Map<ModuleWiring, List<ModuleWire>> wiringsRequiredHostModuleWiries = new HashMap<>();
-    private final Map<ModuleWiring, List<ModuleWire>> wiringsRequiredBundleModuleWiries = new HashMap<>();
-    private final Map<ModuleWiring, List<ModuleWire>> wiringsRequiredPackageModuleWiries = new HashMap<>();
-
-    private final Map<ModuleWiring, List<ModuleWire>> wiringsProvidedHostModuleWiries = new HashMap<>();
-    private final Map<ModuleWiring, List<BundleWire>> wiringsProvidedHostWiries = new HashMap<>();
-
-    private List<ModuleWire> getRequiredHostModuleWires(ModuleWiring wiring) {
-        return wiringsRequiredHostModuleWiries.computeIfAbsent(wiring,
-                w -> w.getRequiredModuleWires(HostNamespace.HOST_NAMESPACE));
-    }
-
-    private List<ModuleWire> getRequiredBundleModuleWires(ModuleWiring wiring) {
-        return wiringsRequiredBundleModuleWiries.computeIfAbsent(wiring,
-                w -> w.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE));
-    }
-
-    private List<ModuleWire> getRequiredPackageModuleWires(ModuleWiring wiring) {
-        return wiringsRequiredPackageModuleWiries.computeIfAbsent(wiring,
-                w -> w.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE));
-    }
-
-    private List<ModuleWire> getProvidedHostModuleWires(ModuleWiring wiring) {
-        return wiringsProvidedHostModuleWiries.computeIfAbsent(wiring,
-                w -> w.getProvidedModuleWires(HostNamespace.HOST_NAMESPACE));
-    }
-
-    private List<BundleWire> getProvidedHostWires(ModuleWiring wiring) {
-        return wiringsProvidedHostWiries.computeIfAbsent(wiring, w -> w.getProvidedWires(HostNamespace.HOST_NAMESPACE));
-    }
 }
