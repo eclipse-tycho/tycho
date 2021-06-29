@@ -26,7 +26,7 @@
 						<id>maven-p2-site</id>
 						<phase>package</phase>
 						<goals>
-							<goal>assemble-p2-maven-site</goal>
+							<goal>assemble-maven-repository</goal>
 						</goals>
 					</execution>
 				</executions>
