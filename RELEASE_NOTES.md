@@ -76,11 +76,15 @@ Tycho now correctly supports repository references in `category.xml`: in the pre
 
 ### Add PGP signatures to artifacts in p2 repositories
 
-A new mojo [](https://www.eclipse.org/tycho/sitedocs/tycho-gpg-plugin/sign-p2-artifacts-mojo.html) was added to add GPG signatures to artifacts metadata. Those GPG signatures are later expected to be used by p2 during installation to verify integrity and build trust in installed components.
+A new mojo [tycho-gpg-plugin:sign-p2-artifacts-mojo](https://www.eclipse.org/tycho/sitedocs/tycho-gpg-plugin/sign-p2-artifacts-mojo.html) was added to add GPG signatures to artifacts metadata. Those GPG signatures are later expected to be used by p2 during installation to verify integrity and build trust in installed components.
 
 ### [Support for "additional.bundles" directive in build.properties](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572481)
 
 Tycho now understands the `additional.bundles` directive in the `build.properties` file and properly resolves them during dependency resolution.
+
+### Create p2 repository referencing Maven artifacts
+
+A new mojo [tycho-p2-repository-plugin:assemble-maven-repository](https://www.eclipse.org/tycho/sitedocs/tycho-p2-repository-plugin/assemble-maven-repository.html) was added to enable creation of p2 repositories directly from Maven artifact references. This removes the usual need to create a target definition and a category.xml for this task.
 
 ## 2.3.0
 

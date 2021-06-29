@@ -89,7 +89,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
  * </p>
  *
  */
-@Mojo(name = "assemble-p2-maven-site", requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "assemble-maven-repository", requiresDependencyResolution = ResolutionScope.COMPILE)
 public class MavenP2SiteMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
