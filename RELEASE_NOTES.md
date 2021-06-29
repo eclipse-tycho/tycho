@@ -16,7 +16,7 @@ It is now possible to resolve the JDT 'JUnit Classpath Container', for this do t
 For an example take a look at the [integration tests](https://github.com/eclipse/tycho/tree/master/tycho-its/projects/compiler.junitcontainer/junit4-in-bundle)
 
 ### [Execute unit-tests with eclipse-plugin packaging](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572420) 
-Before unit-tests are only executed for eclipse-test-plugin packaging types. Beside that it was only possible to execute them as part of **tycho-surefire** (what executes them inside an OSGi runtime) in the interation-test-phase (making them actually some kind of integration test).
+Before unit-tests are only executed for eclipse-test-plugin packaging types. Beside that it was only possible to execute them as part of **tycho-surefire** (what executes them inside an OSGi runtime) in the integration-test phase (making them actually some kind of integration test).
 
 From now on this restriction is no longer true and one is able to execute unit-test with **maven-surefire** as well as integration-tests with **tycho-failfast** plugin. This works the following way:
 
