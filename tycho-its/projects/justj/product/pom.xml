@@ -2,9 +2,9 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.tycho.tycho-its</groupId>
-	<artifactId>bundle</artifactId>
+	<artifactId>product-with-justj</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>eclipse-plugin</packaging>
+	<packaging>eclipse-repository</packaging>
 	<properties>
 <!-- 		<tycho-version>2.4.0-SNAPSHOT</tycho-version> -->
 <!-- 		<target-platform>https://download.eclipse.org/releases/2021-03/</target-platform> -->
@@ -28,6 +28,14 @@
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<executionEnvironment>none</executionEnvironment>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

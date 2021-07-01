@@ -16,10 +16,24 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-public class BuildJustj extends AbstractTychoIntegrationTest {
+public class JustJTest extends AbstractTychoIntegrationTest {
     @Test
     public void testJustJ() throws Exception {
-        Verifier verifier = getVerifier("justj", true);
+        Verifier verifier = getVerifier("justj/multi", true);
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
+    public void testBundleWithJustJ() throws Exception {
+        Verifier verifier = getVerifier("justj/bundle", true);
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
+    public void testProductWithJustJ() throws Exception {
+        Verifier verifier = getVerifier("justj/product", true);
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     }
