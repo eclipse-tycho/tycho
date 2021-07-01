@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.tycho.demo</groupId>
+	<artifactId>product-with-justj</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>eclipse-repository</packaging>
+	<properties>
+ 		<tycho-version>2.3.0</tycho-version>
+ 		<target-platform>https://download.eclipse.org/releases/2021-03/</target-platform>
+	</properties>
+	<repositories>
+		<repository>
+			<id>platform</id>
+			<url>${target-platform}</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>justj</id>
+			<url>https://download.eclipse.org/justj/jres/11/updates/release/11.0.2</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<!-- Prevents Tycho from injecting some mock a.jre units for system packages and EE capabilities;
+					 while we expect justj units to provide them -->
+					<executionEnvironment>none</executionEnvironment>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
