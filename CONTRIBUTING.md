@@ -4,7 +4,19 @@ Thanks for your interest in this project.
 
 ## Try SNAPSHOTs and report issues
 
-To enable SNAPSHOTs, make sure the following Maven repository is available to your build: https://repo.eclipse.org/content/repositories/tycho-snapshots/ .
+To enable SNAPSHOTs, make sure the following Maven plugin-repository is available to your build: https://repo.eclipse.org/content/repositories/tycho-snapshots/ .
+This can be accomplished by adding the following snippet to your (parent) pom.xml or settings.xml:
+```
+<pluginRepositories>
+    <pluginRepository>
+      <id>tycho-snapshots</id>
+      <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+    </pluginRepository>
+</pluginRepositories>
+```
+Make sure you have set the property for the Tycho version (e.g. `tycho-version`) to `<version-under-development>-SNAPSHOT`in the project beeing build.
+
+For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifact/target/staging/index.html).
 
 If you identify an issue, please try to reduce the case to the minimal project and steps to reproduce, and then report the bug with details to reproduce
 and the minimal reproducer project to Tycho's [issue tracker](./issues).
@@ -124,7 +136,15 @@ Tycho has Maven dependencies to Equinox and JDT, so these artifact are used from
 
 ## 🏗️ Build & Test
 
-`mvn clean install -Pits`
+From the root directory of your local Tycho git-repository clone run the following Maven commands...
+* to check if compilation and all tests succeed:
+    * `mvn clean verify -Pits`
+* to install your version of Tycho into your local Maven repository (skips all tests for faster installation):
+    * `mvn clean install -DSkipTests`
+
+In order to test your changes of Tycho locally in a project-build, install your modified Tycho locally as described above
+and use the corresponding Tycho (probably snapshot) version in the project being build.
+You can also debug that build with the steps below (from here you can jump to step 3 immediately).
 
 ## Debugging 
 
@@ -132,9 +152,11 @@ In order to debug Tycho plugins inside Eclipse:
 
 1. Get the Tycho sources in Eclipse
 2. Create/get a project that highlights the bug
-3. Run the project with `mvnDebug clean install`
-4. Go into your Eclipse, use `Debug > Remote Java Application`, select port 8000
+3. Create a Maven Run-Configuration in your Tycho Eclipse-workspace to build the project, specify goals, profiles and properties as required.
+4. Launch the Maven-configuration from your Eclipse in Debug-mode
 
+Before debugging a build, you should make sure that your local Tycho-sources correspond to the Tycho version used by the project being build.
+Otherwise the debugger may behaves unexpected.
 
 ## Commits
 
