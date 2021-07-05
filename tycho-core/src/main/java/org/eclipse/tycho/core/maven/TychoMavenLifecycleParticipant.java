@@ -234,11 +234,13 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         }
     }
 
+    private static final Set<String> CLEAN_PHASES = Set.of("pre-clean", "clean", "post-clean");
+
     private boolean disableLifecycleParticipation(MavenSession session) {
         // command line property to disable Tycho lifecycle participant
         return "maven".equals(session.getUserProperties().get("tycho.mode"))
                 || session.getUserProperties().containsKey("m2e.version")
-                || session.getGoals().equals(List.of("clean")); // disable for clean-only session
+                || CLEAN_PHASES.containsAll(session.getGoals());
     }
 
     private void configureComponents(MavenSession session) {

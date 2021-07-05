@@ -86,6 +86,11 @@ Tycho now understands the `additional.bundles` directive in the `build.propertie
 
 A new mojo [tycho-p2-repository-plugin:assemble-maven-repository](https://www.eclipse.org/tycho/sitedocs/tycho-p2-repository-plugin/assemble-maven-repository.html) was added to enable creation of p2 repositories directly from Maven artifact references. This removes the usual need to create a target definition and a category.xml for this task.
 
+### [Skip Tycho dependency-resolution for clean-only builds by default](https://github.com/eclipse/tycho/issues/166)
+
+To speed up Maven `clean`-only builds, Tycho's dependency resolution is now skipped, if the only phase specified is one from the clean lifecycle, namely `clean`,`pre-clean`,`post-clean`.
+Previously one had to specify the property `-Dtycho.mode=maven` to skip dependency resolution.
+
 ## 2.3.0
 
 ### Official Equinox Resolver used for dependency resolution (stricter and can produce errors for split packages)
