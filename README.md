@@ -13,13 +13,13 @@ with Maven.
 
 * 👔 Eclipse project entry: https://projects.eclipse.org/projects/technology.tycho
 * 🗒️ Documentation (some content to be reincorporated into this repository):
-      * https://www.eclipse.org/tycho/sitedocs/
-      * https://wiki.eclipse.org/Tycho/
+     * https://www.eclipse.org/tycho/sitedocs/
+     * https://wiki.eclipse.org/Tycho/
+* 📢 Release notes: [RELEASE_NOTES.md](./RELEASE_NOTES.md)
 * 🪲 Bug Tracker
      * New https://github.com/eclipse/tycho/issues
      * Legacy https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho
-* ⌨️ How to Contribute: [CONTRIBUTING.md](./CONTRIBUTING.md)
+* ⌨️ How to Contribute and latest snapshots: [CONTRIBUTING.md](./CONTRIBUTING.md)
 * 💬 Community mailing-lists
      * Usage assistance https://dev.eclipse.org/mailman/listinfo/tycho-user
      * Development https://dev.eclipse.org/mailman/listinfo/tycho-dev
-  
