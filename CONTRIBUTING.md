@@ -152,11 +152,19 @@ In order to debug Tycho plugins inside Eclipse:
 
 1. Get the Tycho sources in Eclipse
 2. Create/get a project that highlights the bug
-3. Create a Maven Run-Configuration in your Tycho Eclipse-workspace to build the project, specify goals, profiles and properties as required.
+
+Inside the Eclipse IDE:
+
+3. Create a Maven Run-Configuration in your Tycho Eclipse-workspace to build the project and specify goals, profiles and properties as required
 4. Launch the Maven-configuration from your Eclipse in Debug-mode
 
-Before debugging a build, you should make sure that your local Tycho-sources correspond to the Tycho version used by the project being build.
-Otherwise the debugger may behaves unexpected.
+Or on the command-line interface:
+
+3. Run the project-build using `mvnDebug` (instead of `mvn`) and specify goals, profiles and properties as required
+4. Go into your Eclipse, use `Debug > Remote Java Application`, select `port 8000` to attach the Eclipse Debugger
+
+Before debugging a build, make sure that your local Tycho-sources correspond to the Tycho version used by the project being build.
+Otherwise the debugger might show unexpected behavior.
 
 ## Commits
 
