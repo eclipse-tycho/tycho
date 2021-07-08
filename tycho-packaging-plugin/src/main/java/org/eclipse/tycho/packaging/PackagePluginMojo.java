@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Automatically translate maven-pom information to osgi Bundle-Header #177
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
@@ -20,13 +21,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.model.License;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -46,6 +51,7 @@ import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.packaging.sourceref.SourceReferenceComputer;
 import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
+import org.osgi.framework.Constants;
 
 /**
  * Creates a jar-based plugin and attaches it as an artifact
@@ -145,6 +151,16 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
      */
     @Parameter
     private SourceReferences sourceReferences = new SourceReferences();
+
+    /**
+     * Whether to derive OSGi-Headers from the maven-pom configuration, currently the following
+     * header are supported
+     * <ul>
+     * <li>{@link Constants#BUNDLE_LICENSE} is generated from maven &lt;licenses> configuration</li>
+     * </ul>
+     */
+    @Parameter(defaultValue = "true")
+    private boolean deriveHeaderFromProject = true;
 
     @Component
     private SourceReferenceComputer soureReferenceComputer;
@@ -276,11 +292,43 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
         if (attributes.getValue(Name.MANIFEST_VERSION) == null) {
             attributes.put(Name.MANIFEST_VERSION, "1.0");
         }
-
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         attributes.putValue("Bundle-Version", reactorProject.getExpandedVersion());
         soureReferenceComputer.addSourceReferenceHeader(mf, sourceReferences, project);
+        if (deriveHeaderFromProject) {
+            computeIfHeaderNotPresent(attributes, Constants.BUNDLE_LICENSE, () -> {
+                List<License> licenses = project.getLicenses();
+                return licenses.stream().map(license -> {
+                    String name = license.getName();
+                    if (name != null && !name.isBlank()) {
+                        StringBuilder licenseHeader = new StringBuilder(name);
+                        appendHeaderAttribute(licenseHeader, "link", license.getUrl());
+                        return licenseHeader;
+                    }
+                    return null;
+                }).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.joining(","));
+            });
+        }
         return mf;
+    }
+
+    private static void appendHeaderAttribute(StringBuilder header, String attribute, String value) {
+        if (value != null && !value.isBlank()) {
+            header.append(";");
+            header.append(attribute);
+            header.append("=\"");
+            header.append(value);
+            header.append("\"");
+        }
+    }
+
+    private static void computeIfHeaderNotPresent(Attributes attributes, String hv, Supplier<String> headerComputer) {
+        if (attributes.getValue(hv) == null) {
+            String header = headerComputer.get();
+            if (header != null && !header.isBlank()) {
+                attributes.putValue(hv, header);
+            }
+        }
     }
 
 }
