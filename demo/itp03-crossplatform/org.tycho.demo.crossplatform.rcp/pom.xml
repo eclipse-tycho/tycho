@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>tycho.demo</groupId>
+    <artifactId>crossplatform</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>  
+  <artifactId>org.tycho.demo.crossplatform.rcp</artifactId>
+  <!-- eclipse-application is deprecated. See http://wiki.eclipse.org/Tycho/Packaging_Types#eclipse-application -->
+  <packaging>eclipse-application</packaging>
+</project>

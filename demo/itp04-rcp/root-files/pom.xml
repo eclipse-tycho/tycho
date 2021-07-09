@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>org.tycho.demo.rootfiles</artifactId>
+  <packaging>p2-installable-unit</packaging>
+  <version>1.0.0</version>
+  
+  <parent>
+  	<groupId>example.group</groupId>
+  	<artifactId>parent</artifactId>
+  	<version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+</project>

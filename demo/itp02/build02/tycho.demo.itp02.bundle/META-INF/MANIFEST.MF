@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: bundle Plug-in
+Bundle-SymbolicName: tycho.demo.itp02.bundle
+Bundle-Version: 1.0.0.qualifier
+Import-Package: tycho.demo.itp02.pomfirst 
+Export-Package: tycho.demo.itp02.bundle

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Export-Package: tycho.demo.itp02.pomfirst;uses:="org.codehaus.plexus.u
+ til";version="1.0.0.SNAPSHOT"
+Bundle-Version: 1.0.0.SNAPSHOT
+Tool: Bnd-0.0.357
+Bundle-Name: pomfirst-bundle
+Bnd-LastModified: 1432827265000
+Created-By: 1.7.0_67 (Oracle Corporation)
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: tycho.demo.itp02.pomfirst-bundle
+Import-Package: org.codehaus.plexus.util,tycho.demo.itp02.pomfirst;ver
+ sion="1.0"
+

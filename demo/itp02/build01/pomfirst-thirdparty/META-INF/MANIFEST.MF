@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Export-Package: org.codehaus.plexus.util.reflection;version="2.0.7",or
+ g.codehaus.plexus.util.cli;version="2.0.7",org.codehaus.plexus.util.d
+ ag;version="2.0.7",org.codehaus.plexus.util.introspection;version="2.
+ 0.7",org.codehaus.plexus.util.xml.pull;version="2.0.7",org.codehaus.p
+ lexus.util.cli.shell;version="2.0.7",org.codehaus.plexus.util.io;vers
+ ion="2.0.7",org.codehaus.plexus.util.xml;version="2.0.7",org.codehaus
+ .plexus.util;version="2.0.7"
+Embed-Directory: jars
+Bundle-ClassPath: jars/plexus-utils-2.0.7.jar
+Built-By: d037913
+Tool: Bnd-0.0.357
+Bundle-Name: pomfirst-thirdparty
+Created-By: Apache Maven Bundle Plugin
+Build-Jdk: 1.7.0_67
+Bundle-Version: 1.0.0.SNAPSHOT
+Bnd-LastModified: 1432827267797
+Embed-Transitive: true
+Bundle-ManifestVersion: 2
+Embed-Dependency: plexus-utils
+Import-Package: org.codehaus.plexus.util;version="2.0",org.codehaus.pl
+ exus.util.cli;version="2.0",org.codehaus.plexus.util.cli.shell;versio
+ n="2.0",org.codehaus.plexus.util.dag;version="2.0",org.codehaus.plexu
+ s.util.introspection;version="2.0",org.codehaus.plexus.util.io;versio
+ n="2.0",org.codehaus.plexus.util.reflection;version="2.0",org.codehau
+ s.plexus.util.xml;version="2.0",org.codehaus.plexus.util.xml.pull;ver
+ sion="2.0"
+Bundle-SymbolicName: tycho.demo.itp02.pomfirst-thirdparty
+
