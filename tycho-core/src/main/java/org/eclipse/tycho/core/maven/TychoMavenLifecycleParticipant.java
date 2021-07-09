@@ -240,7 +240,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         // command line property to disable Tycho lifecycle participant
         return "maven".equals(session.getUserProperties().get("tycho.mode"))
                 || session.getUserProperties().containsKey("m2e.version")
-                || CLEAN_PHASES.containsAll(session.getGoals());
+                // disable for 'clean-only' builds. Consider that Maven can be invoked without explicit goals, if default goals are specified
+                || (!session.getGoals().isEmpty() && CLEAN_PHASES.containsAll(session.getGoals()));
     }
 
     private void configureComponents(MavenSession session) {
