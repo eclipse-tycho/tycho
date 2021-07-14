@@ -6,7 +6,7 @@ This describes the steps to perform a release of Tycho:
 - [ ] Prepare the [release notes](https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md) which should provide a quick overview of new features and bug fixes 
 - [ ] Create release record on https://projects.eclipse.org/projects/technology.tycho projects.eclipse.org , link the N&N to https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md release notes]
 - [ ] Create branch `tycho-N.M.x` (eg `tycho-2.4.x`) for upcoming release and push it to remote; this branch should remain frozen until the release, only major fixes for regressions could be merged in before release. Work can still happen regularly on the `master` branch.
-- [ ] Update versions on `master `to future release with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_ERSION>-SNAPSHOT` and push to remote 
+- [ ] Update versions on `master `to future release with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT` and push to remote 
 - [ ] Announce the intent to release and request feedback about snapshots on tycho-user@eclipse.org:
 ```
 Subject: Please test snapshots for upcoming <VERSION> release
@@ -83,5 +83,4 @@ Regards,
 ```
    - [ ] Optionally, announce on other medias (Twitter)
 - [ ] Create, push and merge patch changing the bootstrap Tycho version for Tycho build (eg https://git.eclipse.org/r/c/tycho/org.eclipse.tycho/+/174964 )
-
 
