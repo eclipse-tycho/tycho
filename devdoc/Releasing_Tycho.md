@@ -1,11 +1,36 @@
-This page describes the steps necessary to create releases of the Tycho project. 
+# Releasing Tycho
+
+This describes the steps to perform a release of Tycho:
 
 - [ ] Make sure all fixed issues and merged PRs have the correct milestone for this release
 - [ ] Prepare the [release notes](https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md) which should provide a quick overview of new features and bug fixes 
 - [ ] Create release record on https://projects.eclipse.org/projects/technology.tycho projects.eclipse.org , link the N&N to https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md release notes]
-- [ ] Update versions using `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<VERSION>` 
-- [ ] Commit version change, and create a git tag `tycho-<VERSION>` on this commit  
-- [ ] Update versions (same as above) to next `-SNAPSHOT` development version and push commit to `master` branch 
+- [ ] Create branch `tycho-N.M.x` (eg `tycho-2.4.x`) for upcoming release and push it to remote; this branch should remain frozen until the release, only major fixes for regressions could be merged in before release. Work can still happen regularly on the `master` branch.
+- [ ] Update versions on `master `to future release with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT` and push to remote 
+- [ ] Announce the intent to release and request feedback about snapshots on tycho-user@eclipse.org:
+```
+Subject: Please test snapshots for upcoming <VERSION> release
+
+We plan to release Tycho <VERSION> next week. For details of new features and bugfixes, see release notes [1].
+Please help by testing the SNAPSHOTS build. To use it, change your tycho version to <VERSION>-SNAPSHOT and add snippet [2] to your pom.
+
+We plan to promote this release in one week unless major regressions are found.
+
+Regards,
+Tycho team
+
+[1] https://github.com/eclipse/wildwebdeveloper/blob/master/RELEASE_NOTES.md
+[2]
+<pluginRepositories>
+    <pluginRepository>
+      <id>tycho-snapshots</id>
+      <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+    </pluginRepository>
+</pluginRepositories>
+```
+
+... Wait until review date (usually a week later)...
+
 - [ ] Make sure you have everything setup (GPG installed!) for deploying to the Nexus OSS repository, see https://central.sonatype.org/pages/ossrh-guide.html guide
 - [ ] Add your credentials for server `sonatype-nexus-staging` in `~/.m2/settings.xml`
 ```xml
@@ -22,44 +47,19 @@ This page describes the steps necessary to create releases of the Tycho project.
 </settings>
 </source>
 ```
-- [ ] Checkout the tag version `tycho-<VERSION>` so current commit is the tag.
+
+- [ ] Checkout branch `tycho-N.M.x`
+- [ ] Update version to remove `-SNAPSHOT` with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<VERSION>`
+- [ ] Update versions in tycho-demo folder
 - [ ] Sync to release commit and deploy to nexus staging repository: `mvn clean deploy -Prelease -DforgeReleaseId=sonatype-nexus-staging -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/`
-- [ ] In parallel of previous <tt>mvn</tt> command, prepare update [tycho-demo projects](http://git.eclipse.org/c/tycho/org.eclipse.tycho-demo.git) to the latest release and push the change as a review to Gerrit
-- [ ] When previous `mvn` command is complete, generate site docs using `mvn install site site:stage -DskipTests` and check the result from `target/staging` seems viable.
 - [ ] On https://oss.sonatype.org/#stagingRepositories , Close the staging repository, get the staging repo URL from Nexus
-- [ ] Update [release notes](https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md) to replace reference to snapshot build to reference to staging repo
-- [ ] Announce the temporary stage URL on tycho-user@eclipse.org:
-```
-Subject: please test staged tycho <VERSION>
-
-Tycho release <VERSION&> has been staged. For details of new features and bugfixes, see release notes [1].
-Please help by testing the staged build. To use it, change your tycho version to <VERSION> and add snippet [2] to your pom.
-
-We plan to promote this release in one week unless major regressions are found.
-
-Regards,
-Tycho team
-
-[1] https://github.com/eclipse/wildwebdeveloper/blob/master/RELEASE_NOTES.md
-[2]
-  <pluginRepositories>
-    <pluginRepository>
-      <id>tycho-staged</id>
-      <url><NEXUS_OSS_STAGING_URL></url
-    </pluginRepository>
-  </pluginRepositories>
-</pre>
-```
-- [ ] Prepare documentation on  the webite, using git repo https://git.eclipse.org/c/www.eclipse.org/tycho.git/ : copy the local site docs folders `target/staging/sitedocs` to the existing `sitedocs` folder and then submit as Gerrit review (don't merge yet)
-
-... Wait until review date (usually a week later)...
-
-- [ ] After ~1 week of testing, promote the stage repository on https://oss.sonatype.org/
 - [ ] Wait for artifacts to be available on Maven central.
-- [ ] Push the release tags to git: `git push origin --tags`
-- [ ] Update https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md to remove reference to staging repo
-- [ ] Merge the update to `org.eclipse.tycho-demo` and website in Gerrit
-- [ ] Announce the release
+- `git tag <TYCHO_VERSION>`
+- push tag to remote
+- Documentation
+  - [ ] Generate site docs using `mvn install site site:stage -DskipTests` and check the result from `target/staging` seems viable.
+  - [ ] Prepare documentation on the webite, using git repo https://git.eclipse.org/c/www.eclipse.org/tycho.git/ : copy the local site docs folders `target/staging/sitedocs` to the existing `sitedocs` folder and then submit as Gerrit review (don't merge yet)
+- Announce the release
    - [ ] Find out who contributed to the release:
 ```
 git log --pretty=format:%an tycho-<previousVersion>..tycho-<newVersion> | sort | uniq
@@ -83,5 +83,3 @@ Regards,
 ```
    - [ ] Optionally, announce on other medias (Twitter)
 - [ ] Create, push and merge patch changing the bootstrap Tycho version for Tycho build (eg https://git.eclipse.org/r/c/tycho/org.eclipse.tycho/+/174964 )
-
-
