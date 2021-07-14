@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 IBM Corporation and others.
+ * Copyright (c) 2006, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at 
@@ -158,10 +158,7 @@ public class PlatformPropertiesUtils {
         if (osName.equals(Constants.OS_FREEBSD))
             return Constants.WS_GTK;
         if (osName.equals(Constants.OS_MACOSX)) {
-            String arch = getArch(properties);
-            if (ARCH_X86_64.equals(arch))
-                return Constants.WS_COCOA;
-            return Constants.WS_CARBON;
+            return Constants.WS_COCOA;
         }
         if (osName.equals(Constants.OS_HPUX))
             return Constants.WS_MOTIF;
