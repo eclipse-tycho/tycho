@@ -12,7 +12,7 @@ This describes the steps to perform a release of Tycho:
 Subject: Please test snapshots for upcoming <VERSION> release
 
 We plan to release Tycho <VERSION> next week. For details of new features and bugfixes, see release notes [1].
-Please help by testing the SNAPSHOTSs build. To use it, change your tycho version to <VERSION>-SNAPSHOT and add snippet [2] to your pom.
+Please help by testing the SNAPSHOTS build. To use it, change your tycho version to <VERSION>-SNAPSHOT and add snippet [2] to your pom.
 
 We plan to promote this release in one week unless major regressions are found.
 
@@ -83,4 +83,3 @@ Regards,
 ```
    - [ ] Optionally, announce on other medias (Twitter)
 - [ ] Create, push and merge patch changing the bootstrap Tycho version for Tycho build (eg https://git.eclipse.org/r/c/tycho/org.eclipse.tycho/+/174964 )
-
