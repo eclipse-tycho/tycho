@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="eclipse Mars">
+<locations>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.rcp.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
+<repository location="http://download.eclipse.org/releases/mars/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+            <repository location="https://download.eclipse.org/tools/orbit/downloads/2019-06/"/>
+            <unit id="javax.xml.bind" version="0.0.0"/>
+            <unit id="javax.xml" version="0.0.0"/>
+        </location>
+</locations>
+</target>

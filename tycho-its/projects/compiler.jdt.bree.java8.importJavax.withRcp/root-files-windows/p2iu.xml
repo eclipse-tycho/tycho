@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+  <unit id='org.tycho.demo.rootfiles.win' version='1.0.0.qualifier' singleton='false'>
+    <properties>
+      <property name='org.eclipse.equinox.p2.name' value='Root files for my product'/>
+    </properties>
+    <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
+      <touchpointData>
+      <instructions>
+        <instruction key='install'>
+          unzip(source:@artifact, target:${installFolder});
+        </instruction>
+        <instruction key='uninstall'>
+          cleanupzip(source:@artifact, target:${installFolder});
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>

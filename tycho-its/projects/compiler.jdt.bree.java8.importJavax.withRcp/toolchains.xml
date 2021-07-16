@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF8"?>
+<toolchains>
+  <toolchain>
+     <type>jdk</type>
+     <provides>
+         <version>1.8</version>
+         <vendor>oracle</vendor>
+         <id>JavaSE-1.8</id>
+     </provides>
+     <configuration>
+        <jdkHome>/Users/guillaumedufour/.sdkman/candidates/java/8.0.282.hs-adpt</jdkHome> <!-- replaced by the absolute path to the jdk defined in the jenkinsfile at build time -->
+     </configuration>
+  </toolchain>
+</toolchains>
