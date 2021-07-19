@@ -106,6 +106,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      */
     public static final String RULE_EXCLUDE_ALL = "?**/*";
 
+    private static final Object LOCK = new Object();
+
     private static final Set<String> MATCH_ALL = Collections.singleton("**/*");
 
     private static final String PREFS_FILE_PATH = ".settings" + File.separator + "org.eclipse.jdt.core.prefs";
@@ -330,7 +332,11 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
         checkTargetLevelCompatibleWithManifestBREEs(effectiveTargetLevel, manifestBREEs);
 
-        doCompile();
+        synchronized (LOCK) {
+            // sync to workaround https://bugs.eclipse.org/bugs/show_bug.cgi?id=574450
+            // TODO remove it when default ECJ has fix
+            doCompile();
+        }
         doFinish();
     }
 
