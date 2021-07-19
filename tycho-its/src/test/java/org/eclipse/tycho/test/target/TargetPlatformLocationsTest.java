@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2021 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,13 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
     @Test
     public void testMavenLocation() throws Exception {
         Verifier verifier = getVerifier("target.maven", false, true);
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
+    public void testMavenLocationMulti() throws Exception {
+        Verifier verifier = getVerifier("target.mavenMulti", false, true);
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     }
