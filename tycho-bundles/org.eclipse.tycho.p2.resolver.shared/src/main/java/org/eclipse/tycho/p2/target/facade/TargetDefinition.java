@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP AG and others.
+ * Copyright (c) 2011, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *    Christoph Läubrich -  [Bug 538144] - support other target locations (Directory, Feature, Installations)
  *                          [Bug 568729] - Support new "Maven" Target location
  *                          [Bug 569481] - Support for maven target location includeSource="true" attribute
+ *                          [Issue 189]  - Support multiple maven-dependencies for one target location
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -80,17 +81,9 @@ public interface TargetDefinition {
 
         MissingManifestStrategy getMissingManifestStrategy();
 
-        String getGroupId();
-
-        String getArtifactId();
-
-        String getVersion();
-
-        String getArtifactType();
-
-        String getClassifier();
-
         Collection<BNDInstructions> getInstructions();
+
+        Collection<MavenDependency> getRoots();
 
         boolean includeSource();
     }
@@ -173,6 +166,19 @@ public interface TargetDefinition {
         public String getReference();
 
         public Properties getInstructions();
+    }
+
+    public interface MavenDependency {
+
+        String getGroupId();
+
+        String getArtifactId();
+
+        String getVersion();
+
+        String getArtifactType();
+
+        String getClassifier();
     }
 
 }

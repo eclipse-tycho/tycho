@@ -12,6 +12,7 @@
  *                          - [Bug 533747] - Target file is read and parsed over and over again
  *                          - [Bug 568729] - Support new "Maven" Target location
  *                          - [Bug 569481] - Support for maven target location includeSource="true" attribute
+ *                          - [Issue 189]  - Support multiple maven-dependencies for one target location
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
@@ -165,6 +166,73 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
 
         @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder("MavenDependencyRoots = ");
+            builder.append(getRoots());
+            builder.append(", IncludeDependencyScope = ");
+            builder.append(getIncludeDependencyScope());
+            builder.append(", MissingManifestStrategy = ");
+            builder.append(getMissingManifestStrategy());
+            builder.append(", IncludeSource = ");
+            builder.append(includeSource());
+            return builder.toString();
+        }
+
+        @Override
+        public Collection<BNDInstructions> getInstructions() {
+            List<BNDInstructions> list = new ArrayList<>();
+            for (Element element : dom.getChildren("instructions")) {
+                String reference = element.getAttributeValue("reference");
+                String text = element.getText();
+                Properties properties = new Properties();
+                try {
+                    properties.load(new StringReader(text));
+                } catch (IOException e) {
+                    throw new TargetDefinitionSyntaxException("parsing instructions into properties failed", e);
+                }
+                list.add(new BNDInstructions() {
+
+                    @Override
+                    public String getReference() {
+                        if (reference == null) {
+                            return "";
+                        }
+                        return reference;
+                    }
+
+                    @Override
+                    public Properties getInstructions() {
+                        return properties;
+                    }
+                });
+            }
+            return list;
+        }
+
+        @Override
+        public Collection<MavenDependency> getRoots() {
+            for (Element dependencies : dom.getChildren("dependencies")) {
+                List<MavenDependency> roots = new ArrayList<>();
+                for (Element dependency : dependencies.getChildren("dependency")) {
+                    roots.add(new MavenDependencyRoot(dependency));
+                }
+                return roots;
+            }
+            //backward compatibility for old format...
+            return Collections.singleton(new MavenDependencyRoot(dom));
+        }
+
+    }
+
+    private static final class MavenDependencyRoot implements MavenDependency {
+
+        private Element dom;
+
+        public MavenDependencyRoot(Element dom) {
+            this.dom = dom;
+        }
+
+        @Override
         public String getGroupId() {
             return getTextFromChild("groupId", null);
         }
@@ -211,43 +279,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
             builder.append(", ArtifactType = ");
             builder.append(getArtifactType());
             builder.append(", IncludeDependencyScope = ");
-            builder.append(getIncludeDependencyScope());
-            builder.append(", MissingManifestStrategy = ");
-            builder.append(getMissingManifestStrategy());
-            builder.append(", IncludeSource = ");
-            builder.append(includeSource());
             return builder.toString();
-        }
-
-        @Override
-        public Collection<BNDInstructions> getInstructions() {
-            List<BNDInstructions> list = new ArrayList<>();
-            for (Element element : dom.getChildren("instructions")) {
-                String reference = element.getAttributeValue("reference");
-                String text = element.getText();
-                Properties properties = new Properties();
-                try {
-                    properties.load(new StringReader(text));
-                } catch (IOException e) {
-                    throw new TargetDefinitionSyntaxException("parsing instructions into properties failed", e);
-                }
-                list.add(new BNDInstructions() {
-
-                    @Override
-                    public String getReference() {
-                        if (reference == null) {
-                            return "";
-                        }
-                        return reference;
-                    }
-
-                    @Override
-                    public Properties getInstructions() {
-                        return properties;
-                    }
-                });
-            }
-            return list;
         }
 
     }
