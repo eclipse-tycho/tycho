@@ -103,6 +103,22 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         File bundleLocation = mavenArtifact.getLocation();
                         BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleLocation);
                         if (bundleDescription == null) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Bundle Location:       " + bundleLocation);
+                                boolean exits = bundleLocation != null && bundleLocation.isFile();
+                                logger.debug("File exits:            " + exits);
+                                if (exits) {
+                                    try (JarFile jarFile = new JarFile(bundleLocation)) {
+                                        Enumeration<JarEntry> entries = jarFile.entries();
+                                        while (entries.hasMoreElements()) {
+                                            JarEntry jarEntry = entries.nextElement();
+                                            logger.debug("                Entry: " + jarEntry.getName());
+                                        }
+                                    } catch (Exception e) {
+                                        logger.debug("Reading as jar failed: " + e);
+                                    }
+                                }
+                            }
                             throw new TargetDefinitionResolutionException("Artifact " + mavenArtifact + " of location "
                                     + location + " is not a valid jar file");
                         } else {
