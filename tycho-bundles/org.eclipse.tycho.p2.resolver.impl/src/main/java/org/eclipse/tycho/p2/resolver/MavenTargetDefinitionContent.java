@@ -106,9 +106,9 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                             if (logger.isDebugEnabled()) {
                                 logger.debug("Bundle Location:       " + bundleLocation + " (Filesize "
                                         + (bundleLocation != null ? bundleLocation.length() : -1) + ")");
-                                boolean exits = bundleLocation != null && bundleLocation.isFile();
-                                logger.debug("File exits:            " + exits);
-                                if (exits) {
+                                boolean isFile = bundleLocation != null && bundleLocation.isFile();
+                                logger.debug("File isFile:           " + isFile);
+                                if (isFile) {
                                     try (JarFile jarFile = new JarFile(bundleLocation)) {
                                         Enumeration<JarEntry> entries = jarFile.entries();
                                         while (entries.hasMoreElements()) {
@@ -118,10 +118,6 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     } catch (Exception e) {
                                         logger.debug("Reading as jar failed: " + e);
                                     }
-                                }
-                                if (bundleLocation != null && bundleLocation.toString().contains(".m2/repository")) {
-                                    logger.debug("Delete file : " + bundleLocation);
-                                    bundleLocation.deleteOnExit();
                                 }
                             }
                             throw new TargetDefinitionResolutionException("Artifact " + mavenArtifact + " of location "
