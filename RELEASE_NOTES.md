@@ -2,12 +2,16 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-### Next release...
+## Next release...
+
+### Support for new m2e-pde features
+
+Tycho supports the new m2e-pde features regarding [multiple dependencies per target](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-adding-more-than-one-dependency-per-target-location) and specifying [extra repositories in the target](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-adding-additional-maven-repoistories-for-a-target-location).
 
 ## 2.4.0
 
 ### [Support resolving of JUnit Classpath Container](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572602) 
-It is now possible to resolve the JDT 'JUnit Classpath Container', for this do the follwoing:
+It is now possible to resolve the JDT 'JUnit Classpath Container', for this do the following:
 
 - add the 'JUnit Classpath Container' to the classpath of your eclipse project
 - make sure you check in the .classpath file

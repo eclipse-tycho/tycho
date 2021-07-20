@@ -13,6 +13,7 @@
  *                          - [Bug 568729] - Support new "Maven" Target location
  *                          - [Bug 569481] - Support for maven target location includeSource="true" attribute
  *                          - [Issue 189]  - Support multiple maven-dependencies for one target location
+ *                          - [Issue 194]  - Support additional repositories defined in the maven-target location #
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
@@ -222,6 +224,31 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return Collections.singleton(new MavenDependencyRoot(dom));
         }
 
+        @Override
+        public Collection<MavenArtifactRepositoryReference> getRepositoryReferences() {
+            for (Element dependencies : dom.getChildren("repositories")) {
+                List<MavenArtifactRepositoryReference> list = new ArrayList<MavenArtifactRepositoryReference>();
+                for (Element repository : dependencies.getChildren("repository")) {
+                    list.add(new MavenArtifactRepositoryReference() {
+
+                        @Override
+                        public String getId() {
+                            return getTextFromChild(repository, "id",
+                                    String.valueOf(System.identityHashCode(repository)));
+                        }
+
+                        @Override
+                        public String getUrl() {
+                            return getTextFromChild(repository, "url", null);
+                        }
+
+                    });
+                }
+                return list;
+            }
+            return Collections.emptyList();
+        }
+
     }
 
     private static final class MavenDependencyRoot implements MavenDependency {
@@ -234,37 +261,27 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public String getGroupId() {
-            return getTextFromChild("groupId", null);
+            return getTextFromChild(dom, "groupId", null);
         }
 
         @Override
         public String getArtifactId() {
-            return getTextFromChild("artifactId", null);
+            return getTextFromChild(dom, "artifactId", null);
         }
 
         @Override
         public String getVersion() {
-            return getTextFromChild("version", null);
+            return getTextFromChild(dom, "version", null);
         }
 
         @Override
         public String getArtifactType() {
-            return getTextFromChild("type", "jar");
+            return getTextFromChild(dom, "type", "jar");
         }
 
         @Override
         public String getClassifier() {
-            return getTextFromChild("classifier", "");
-        }
-
-        private String getTextFromChild(String childName, String defaultValue) {
-            for (Element element : dom.getChildren(childName)) {
-                return element.getNormalizedText();
-            }
-            if (defaultValue != null) {
-                return defaultValue;
-            }
-            throw new TargetDefinitionSyntaxException("Missing child element '" + childName + "'");
+            return getTextFromChild(dom, "classifier", "");
         }
 
         @Override
@@ -282,6 +299,16 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return builder.toString();
         }
 
+    }
+
+    private static String getTextFromChild(Element dom, String childName, String defaultValue) {
+        for (Element element : dom.getChildren(childName)) {
+            return element.getNormalizedText();
+        }
+        if (defaultValue != null) {
+            return defaultValue;
+        }
+        throw new TargetDefinitionSyntaxException("Missing child element '" + childName + "'");
     }
 
     public class IULocation implements TargetDefinition.InstallableUnitLocation {

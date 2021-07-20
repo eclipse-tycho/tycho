@@ -32,6 +32,13 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
     }
 
+    @Test
+    public void testMavenLocationRepositories() throws Exception {
+        Verifier verifier = getVerifier("target.mavenRepos", false, true);
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+    }
+
     public void testDirectoryLocation() throws Exception {
         Verifier verifier = getVerifier("target.directory", false, true);
         verifier.executeGoal("verify");

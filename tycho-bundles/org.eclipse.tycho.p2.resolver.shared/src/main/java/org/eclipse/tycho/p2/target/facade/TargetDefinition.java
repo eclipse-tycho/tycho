@@ -13,6 +13,7 @@
  *                          [Bug 568729] - Support new "Maven" Target location
  *                          [Bug 569481] - Support for maven target location includeSource="true" attribute
  *                          [Issue 189]  - Support multiple maven-dependencies for one target location
+ *                          [Issue 194]  - Support additional repositories defined in the maven-target location # 
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -20,6 +21,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+
+import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 
 // TODO javadoc
 public interface TargetDefinition {
@@ -84,6 +87,8 @@ public interface TargetDefinition {
         Collection<BNDInstructions> getInstructions();
 
         Collection<MavenDependency> getRoots();
+
+        Collection<MavenArtifactRepositoryReference> getRepositoryReferences();
 
         boolean includeSource();
     }

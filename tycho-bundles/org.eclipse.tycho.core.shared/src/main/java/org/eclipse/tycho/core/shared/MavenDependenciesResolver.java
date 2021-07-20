@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2021 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.shared;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 
 public interface MavenDependenciesResolver {
 
@@ -35,8 +36,15 @@ public interface MavenDependenciesResolver {
      *            the given artifact as well
      * @return
      */
+    default Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version,
+            String packaging, String classifier, String dependencyScope) {
+        return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, Collections.emptyList());
+    }
+
     Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version, String packaging,
-            String classifier, String dependencyScope);
+            String classifier, String dependencyScope,
+            Collection<MavenArtifactRepositoryReference> additionalRepositories);
 
     File getRepositoryRoot();
+
 }

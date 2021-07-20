@@ -89,7 +89,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 Collection<?> resolve = mavenDependenciesResolver.resolve(mavenDependency.getGroupId(),
                         mavenDependency.getArtifactId(), mavenDependency.getVersion(),
                         mavenDependency.getArtifactType(), mavenDependency.getClassifier(),
-                        location.getIncludeDependencyScope());
+                        location.getIncludeDependencyScope(), location.getRepositoryReferences());
 
                 Iterator<IArtifactFacade> resolvedArtifacts = resolve.stream().filter(IArtifactFacade.class::isInstance)
                         .map(IArtifactFacade.class::cast).iterator();
