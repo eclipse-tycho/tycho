@@ -67,16 +67,16 @@ git log --grep="Also-[bB]y:" tycho-<previousVersion>..tycho-<newVersion> | grep 
 ```
   - [ ] Announce the release on tycho-user@eclipse.org, tycho-dev@eclipse.org, thanking the contributors:
 ```
-Subject: Tycho <VERSION> released
+Subject: Tycho <VERSION> is released
 
 Tycho <VERSION> has been released and is available from Maven Central repository.
 
-See the release notes 
-[1] https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md#n for details of enhancements and bug fixes in this release.
-
-Thanks to 
-&lt;contributors&gt;
-who contributed patches for this release, and thanks and to everyone who helped us with testing the staged version.
+🆕 https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md#xyz
+🏷️ https://github.com/eclipse/tycho/tree/tycho-x.y.z
+👔 https://projects.eclipse.org/projects/technology.tycho/releases/x.y.z
+🙏 contributors who contributed patches for this release:
+<contributors>
+and thanks and to everyone who helped us with testing the staged version.
 
 Regards,
 
