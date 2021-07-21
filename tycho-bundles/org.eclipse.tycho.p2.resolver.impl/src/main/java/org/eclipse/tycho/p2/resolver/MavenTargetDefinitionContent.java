@@ -96,6 +96,10 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 Properties defaultProperties = WrappedArtifact.createPropertiesForPrefix("wrapped");
                 while (resolvedArtifacts.hasNext()) {
                     IArtifactFacade mavenArtifact = resolvedArtifacts.next();
+                    if (mavenDependency.isIgnored(mavenArtifact)) {
+                        logger.debug("Skipp ignored " + mavenArtifact + "...");
+                        continue;
+                    }
                     logger.debug("Resolved " + mavenArtifact + "...");
                     String symbolicName;
                     String bundleVersion;

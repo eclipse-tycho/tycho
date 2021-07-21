@@ -35,12 +35,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
+import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
@@ -137,8 +140,14 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         private Element dom;
 
+        private Set<String> globalExcludes = new HashSet<>();
+
         public MavenLocation(Element dom) {
             this.dom = dom;
+            List<Element> children = dom.getChildren("exclude");
+            for (Element element : children) {
+                globalExcludes.add(element.getNormalizedText());
+            }
         }
 
         @Override
@@ -216,12 +225,12 @@ public final class TargetDefinitionFile implements TargetDefinition {
             for (Element dependencies : dom.getChildren("dependencies")) {
                 List<MavenDependency> roots = new ArrayList<>();
                 for (Element dependency : dependencies.getChildren("dependency")) {
-                    roots.add(new MavenDependencyRoot(dependency));
+                    roots.add(new MavenDependencyRoot(dependency, this));
                 }
                 return roots;
             }
             //backward compatibility for old format...
-            return Collections.singleton(new MavenDependencyRoot(dom));
+            return Collections.singleton(new MavenDependencyRoot(dom, this));
         }
 
         @Override
@@ -254,9 +263,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private static final class MavenDependencyRoot implements MavenDependency {
 
         private Element dom;
+        private MavenLocation parent;
 
-        public MavenDependencyRoot(Element dom) {
+        public MavenDependencyRoot(Element dom, MavenLocation parent) {
             this.dom = dom;
+            this.parent = parent;
         }
 
         @Override
@@ -299,6 +310,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return builder.toString();
         }
 
+        @Override
+        public boolean isIgnored(IArtifactFacade artifact) {
+            return parent.globalExcludes.contains(getKey(artifact));
+        }
+
     }
 
     private static String getTextFromChild(Element dom, String childName, String defaultValue) {
@@ -309,6 +325,19 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return defaultValue;
         }
         throw new TargetDefinitionSyntaxException("Missing child element '" + childName + "'");
+    }
+
+    private static String getKey(IArtifactFacade artifact) {
+        if (artifact == null) {
+            return "";
+        }
+        String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
+        String classifier = artifact.getClassifier();
+        if (classifier != null && !classifier.isBlank()) {
+            key += ":" + classifier;
+        }
+        key += ":" + artifact.getVersion();
+        return key;
     }
 
     public class IULocation implements TargetDefinition.InstallableUnitLocation {

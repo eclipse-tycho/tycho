@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
+import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 // TODO javadoc
 public interface TargetDefinition {
@@ -184,6 +185,8 @@ public interface TargetDefinition {
         String getArtifactType();
 
         String getClassifier();
+
+        boolean isIgnored(IArtifactFacade artifact);
     }
 
 }
