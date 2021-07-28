@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test-mvn-updatesite-reactor-ignoreme-property
+Bundle-SymbolicName: test.mvn.updatesite.reactor.ignoreme.property
+Bundle-Version: 1.0.0
+Automatic-Module-Name: test.mvn.updatesite.reactor.ignoreme.property
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.eclipse.jetty.http

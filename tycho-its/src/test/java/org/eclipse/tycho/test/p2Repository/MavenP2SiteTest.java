@@ -10,10 +10,12 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -40,5 +42,17 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
             verifier.executeGoals(asList("clean", "verify"));
             verifier.verifyErrorFreeLog();
         }
+    }
+
+    @Test
+    public void testDeployIgnore() throws Exception {
+        Verifier verifier = getVerifier("p2mavensite.reactor", false);
+        verifier.executeGoals(asList("install"));
+        verifier.verifyErrorFreeLog();
+        String artifacts = FileUtils
+                .readFileToString(new File(verifier.getBasedir(), "site/target/repository/artifacts.xml"), "UTF-8");
+        assertTrue("artifact to deploy is missing", artifacts.contains("id='org.eclipse.tycho.it.deployme'"));
+        assertFalse("artifact is deployed but should't", artifacts.contains("id='org.eclipse.tycho.it.ignoreme'"));
+        assertFalse("artifact is deployed but should't", artifacts.contains("id='org.eclipse.tycho.it.ignoreme-property'"));
     }
 }

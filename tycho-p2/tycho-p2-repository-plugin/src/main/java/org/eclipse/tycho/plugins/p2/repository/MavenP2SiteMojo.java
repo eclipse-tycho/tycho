@@ -26,12 +26,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -45,6 +48,7 @@ import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -188,18 +192,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
         if (includeReactor) {
             List<MavenProject> allProjects = session.getAllProjects();
             for (MavenProject mavenProject : allProjects) {
-                String packaging = mavenProject.getPackaging();
-                if (packaging.equalsIgnoreCase("pom")) {
+                if (skipProject(mavenProject)) {
                     continue;
                 }
                 Artifact artifact = mavenProject.getArtifact();
-                if (artifact == null) {
-                    continue;
-                }
                 File file = artifact.getFile();
-                if (file == null || !file.isFile()) {
-                    continue;
-                }
                 bundles.add(file);
                 advices.add(createMavenAdvice(artifact));
             }
@@ -405,6 +402,99 @@ public class MavenP2SiteMojo extends AbstractMojo {
             return signature.getFile();
         }
         return null;
+    }
+
+    /**
+     *
+     * @return <code>true</code> if this project should not be packaged in the p2 site
+     */
+    protected boolean skipProject(MavenProject mavenProject) {
+        String packaging = mavenProject.getPackaging();
+        if (packaging.equalsIgnoreCase("pom")) {
+            return true;
+        }
+        Artifact artifact = mavenProject.getArtifact();
+        if (artifact == null) {
+            return true;
+        }
+        File file = artifact.getFile();
+        if (file == null || !file.isFile()) {
+            return true;
+        }
+        if (isSkippedDeploy(mavenProject)){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @return <code>true</code> if the pom configuration skip deploy for the project
+     */
+    protected boolean isSkippedDeploy(MavenProject mavenProject) {
+        String property = mavenProject.getProperties().getProperty("maven.deploy.skip");
+        if (property != null) {
+            boolean skip = BooleanUtils.toBoolean(property);
+            getLog().debug("deploy is " + (skip?"":"not") + " skipped in MavenProject "
+                    + mavenProject.getName() + " because of property 'maven.deploy.skip'");
+            return skip;
+        }
+        String pluginId = "org.apache.maven.plugins:maven-deploy-plugin";
+        property = getPluginParameter(mavenProject, pluginId, "skip");
+        if (property != null) {
+            boolean skip = BooleanUtils.toBoolean(property);
+            getLog().debug("deploy is " + (skip?"":"not") + " skipped in MavenProject "
+                    + mavenProject.getName() + " because of configuration of the plugin 'org.apache.maven.plugins:maven-deploy-plugin'");
+            return skip;
+        }
+        if (mavenProject.getParent() != null) {
+            return isSkippedDeploy(mavenProject.getParent());
+        }
+        getLog().debug("not skipping deploy of MavenProject '" + mavenProject.getName() + "'");
+        return false;
+    }
+
+    /**
+     * @param p        not null
+     * @param pluginId not null
+     * @param param    not null
+     * @return the simple parameter as String defined in the plugin configuration by <code>param</code> key
+     *         or <code>null</code> if not found.
+     * @since 2.6
+     */
+    private static String getPluginParameter(MavenProject p, String pluginId, String param) {
+        Plugin plugin = getPlugin(p, pluginId);
+        if (plugin != null) {
+            Xpp3Dom xpp3Dom = (Xpp3Dom) plugin.getConfiguration();
+            if (xpp3Dom != null && xpp3Dom.getChild(param) != null
+                    && StringUtils.isNotEmpty(xpp3Dom.getChild( param ).getValue())) {
+                return xpp3Dom.getChild(param).getValue();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param p        not null
+     * @param pluginId not null key of the plugin defined in {@link org.apache.maven.model.Build#getPluginsAsMap()}
+     *                 or in {@link org.apache.maven.model.PluginManagement#getPluginsAsMap()}
+     * @return the Maven plugin defined in <code>${project.build.plugins}</code> or in
+     *         <code>${project.build.pluginManagement}</code>, or <code>null</code> if not defined.
+     */
+    private static Plugin getPlugin(MavenProject p, String pluginId) {
+        if ((p.getBuild() == null) || (p.getBuild().getPluginsAsMap() == null)) {
+            return null;
+        }
+
+        Plugin plugin = p.getBuild().getPluginsAsMap().get(pluginId);
+
+        if ((plugin == null) && (p.getBuild().getPluginManagement() != null) &&
+                (p.getBuild().getPluginManagement().getPluginsAsMap() != null)) {
+            plugin = p.getBuild().getPluginManagement().getPluginsAsMap().get(pluginId);
+        }
+
+        return plugin;
     }
 
 }
