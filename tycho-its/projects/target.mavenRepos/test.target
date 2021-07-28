@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="extraRepository">
+	<locations>
+		<location includeDependencyScope="compile" includeSource="true" missingManifest="generate" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>edu.ucar</groupId>
+					<artifactId>cdm</artifactId>
+					<version>5.0.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+			<repositories>
+				<repository>
+					<id>unidata-all</id>
+					<url>https://artifacts.unidata.ucar.edu/repository/unidata-all/</url>
+				</repository>
+			</repositories>
+			<exclude>edu.ucar:httpservices:5.0.0</exclude>
+		</location>
+	</locations>
+</target>

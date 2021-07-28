@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2021 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,11 @@ package org.eclipse.tycho.osgi.configuration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
@@ -29,6 +31,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
+import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
@@ -46,7 +49,7 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
 
     @Override
     public Collection<?> resolve(String groupId, String artifactId, String version, String packaging, String classifier,
-            String dependencyScope) {
+            String dependencyScope, Collection<MavenArtifactRepositoryReference> additionalRepositories) {
         Artifact artifact;
         if (classifier != null && !classifier.isEmpty()) {
             artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, packaging,
@@ -61,7 +64,13 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         request.setOffline(session.isOffline());
         request.setLocalRepository(session.getLocalRepository());
         request.setResolveTransitively(dependencyScope != null && !dependencyScope.isEmpty());
-        request.setRemoteRepositories(session.getCurrentProject().getRemoteArtifactRepositories());
+        List<ArtifactRepository> repositories = new ArrayList<>(
+                session.getCurrentProject().getRemoteArtifactRepositories());
+        for (MavenArtifactRepositoryReference reference : additionalRepositories) {
+            repositories.add(
+                    repositorySystem.createArtifactRepository(reference.getId(), reference.getUrl(), null, null, null));
+        }
+        request.setRemoteRepositories(repositories);
         ArtifactResolutionResult result = repositorySystem.resolve(request);
         Set<Artifact> artifacts = result.getArtifacts();
         ArrayList<IArtifactFacade> list = new ArrayList<IArtifactFacade>();

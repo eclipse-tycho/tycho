@@ -89,13 +89,17 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 Collection<?> resolve = mavenDependenciesResolver.resolve(mavenDependency.getGroupId(),
                         mavenDependency.getArtifactId(), mavenDependency.getVersion(),
                         mavenDependency.getArtifactType(), mavenDependency.getClassifier(),
-                        location.getIncludeDependencyScope());
+                        location.getIncludeDependencyScope(), location.getRepositoryReferences());
 
                 Iterator<IArtifactFacade> resolvedArtifacts = resolve.stream().filter(IArtifactFacade.class::isInstance)
                         .map(IArtifactFacade.class::cast).iterator();
                 Properties defaultProperties = WrappedArtifact.createPropertiesForPrefix("wrapped");
                 while (resolvedArtifacts.hasNext()) {
                     IArtifactFacade mavenArtifact = resolvedArtifacts.next();
+                    if (mavenDependency.isIgnored(mavenArtifact)) {
+                        logger.debug("Skipp ignored " + mavenArtifact + "...");
+                        continue;
+                    }
                     logger.debug("Resolved " + mavenArtifact + "...");
                     String symbolicName;
                     String bundleVersion;
@@ -103,6 +107,23 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         File bundleLocation = mavenArtifact.getLocation();
                         BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleLocation);
                         if (bundleDescription == null) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Bundle Location:       " + bundleLocation + " (Filesize "
+                                        + (bundleLocation != null ? bundleLocation.length() : -1) + ")");
+                                boolean isFile = bundleLocation != null && bundleLocation.isFile();
+                                logger.debug("File isFile:           " + isFile);
+                                if (isFile) {
+                                    try (JarFile jarFile = new JarFile(bundleLocation)) {
+                                        Enumeration<JarEntry> entries = jarFile.entries();
+                                        while (entries.hasMoreElements()) {
+                                            JarEntry jarEntry = entries.nextElement();
+                                            logger.debug("                Entry: " + jarEntry.getName());
+                                        }
+                                    } catch (Exception e) {
+                                        logger.debug("Reading as jar failed: " + e);
+                                    }
+                                }
+                            }
                             throw new TargetDefinitionResolutionException("Artifact " + mavenArtifact + " of location "
                                     + location + " is not a valid jar file");
                         } else {

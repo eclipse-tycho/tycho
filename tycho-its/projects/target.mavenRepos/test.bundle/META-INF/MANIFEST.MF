@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: test.bundle
+Bundle-Version: 0.0.1.qualifier
+Require-Bundle: wrapped.edu.ucar.cdm;bundle-version="5.0.0",
+ wrapped.edu.ucar.udunits;bundle-version="5.0.0"
+Automatic-Module-Name: test.bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-11
