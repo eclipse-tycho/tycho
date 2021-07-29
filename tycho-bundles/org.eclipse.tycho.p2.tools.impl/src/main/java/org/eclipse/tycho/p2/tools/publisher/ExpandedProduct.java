@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2019 SAP SE and others.
+ * Copyright (c) 2015, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,8 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich - Bug 546382: Launcher Icon path is not considered correctly
+ *    Christoph Läubrich    - Bug 546382: Launcher Icon path is not considered correctly
+ *                          - Bug 571951 - Incorrect requirement version for configuration/plugins in publish-products migrated as issue #80
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
@@ -21,13 +22,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductContentType;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -49,6 +54,8 @@ class ExpandedProduct implements IProductDescriptor {
     private List<IInstallableUnit> expandedRootFeatures = Collections.emptyList();
 
     private final MultiLineLogger logger;
+
+    private List<IArtifactKey> expandedFeatureBundles;
 
     public ExpandedProduct(IProductDescriptor originalProduct, String buildQualifier, P2TargetPlatform targetPlatform,
             Interpolator interpolator, MavenLogger logger) {
@@ -114,12 +121,43 @@ class ExpandedProduct implements IProductDescriptor {
                     defaults.getBundles(true));
         }
         if (contentType != ProductContentType.BUNDLES) {
+            List<IVersionedId> featuresRoot = defaults.getFeatures(ROOT_FEATURES);
             expandedFeatures = resolver.resolveReferences("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
                     defaults.getFeatures(INCLUDED_FEATURES));
             expandedRootFeatures = resolver.resolveReferencesToIUs("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
-                    defaults.getFeatures(ROOT_FEATURES));
+                    featuresRoot);
         }
+        //we only report error here as the resolution below is optional!
         resolver.reportErrors(logger);
+        if (contentType != ProductContentType.BUNDLES) {
+            //now try to resolve/expand the bundles from the features so we can later find valid versions...
+            expandedFeatureBundles = Stream
+                    .concat(expandedRootFeatures.stream(), expandedFeatures.stream().flatMap(featureId -> {
+                        List<IInstallableUnit> featureUIs = resolver.resolveReferencesToIUs("feature",
+                                ArtifactType.TYPE_ECLIPSE_FEATURE, Collections.singletonList(featureId));
+                        String errors = resolver.getErrors();
+                        if (errors != null && !errors.isBlank()) {
+                            logger.warn("Bundles for feature " + featureId + " could not be expanded: " + errors);
+                        }
+
+                        return featureUIs.stream();
+
+                    })).flatMap(iu -> iu.getRequirements().stream()).flatMap(requirement -> {
+                        for (IInstallableUnit iu : targetPlatform.getInstallableUnits()) {
+                            if (requirement.isMatch(iu)) {
+                                return iu.getArtifacts().stream();
+                            }
+                        }
+                        return Stream.empty();
+                    }).filter(key -> PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier()))
+                    .collect(Collectors.toList());
+            if (logger.isDebugEnabled()) {
+                logger.debug("=== Expanded Bundles ===");
+                for (IVersionedId bundle : expandedFeatureBundles) {
+                    logger.debug(String.valueOf(bundle));
+                }
+            }
+        }
     }
 
     @Override
@@ -265,7 +303,19 @@ class ExpandedProduct implements IProductDescriptor {
 
     @Override
     public List<BundleInfo> getBundleInfos() {
-        return defaults.getBundleInfos();
+        List<BundleInfo> bundleInfos = defaults.getBundleInfos();
+        if (expandedFeatureBundles != null && getProductContentType() == ProductContentType.FEATURES) {
+            for (BundleInfo bundleInfo : bundleInfos) {
+                for (IArtifactKey key : expandedFeatureBundles) {
+                    if (key.getId().equals(bundleInfo.getSymbolicName())) {
+                        bundleInfo.setVersion(key.getVersion().toString());
+                        break;
+                    }
+                }
+            }
+
+        }
+        return bundleInfos;
     }
 
     @Override
