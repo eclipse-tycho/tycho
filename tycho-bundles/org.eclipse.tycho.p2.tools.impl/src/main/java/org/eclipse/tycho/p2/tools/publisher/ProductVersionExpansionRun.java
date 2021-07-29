@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 SAP SE and others.
+ * Copyright (c) 2015, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Bug 571951 - Incorrect requirement version for configuration/plugins in publish-products migrated to #80
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
@@ -36,7 +37,8 @@ class ProductVersionExpansionRun {
         this.productFile = productFile;
     }
 
-    public List<IVersionedId> resolveReferences(String elementName, String artifactType, List<IVersionedId> references) {
+    public List<IVersionedId> resolveReferences(String elementName, String artifactType,
+            List<IVersionedId> references) {
         final List<IVersionedId> result = new ArrayList<>();
         for (IVersionedId reference : references) {
             IInstallableUnit resolvedUnit = resolveReferenceWithErrorHandling(elementName, artifactType, reference);
@@ -79,11 +81,21 @@ class ProductVersionExpansionRun {
         return null;
     }
 
+    public String getErrors() {
+        if (errors == null) {
+            return null;
+        }
+        String str = errors.toString();
+        errors = null;
+        return str;
+    }
+
     public void reportErrors(MavenLogger logger) {
         if (errors != null) {
             logger.error(errors.toString());
-            throw new DependencyResolutionException("Cannot resolve dependencies of product " + productFile.getName()
-                    + ". See log for details.");
+            errors = null;
+            throw new DependencyResolutionException(
+                    "Cannot resolve dependencies of product " + productFile.getName() + ". See log for details.");
         }
     }
 
