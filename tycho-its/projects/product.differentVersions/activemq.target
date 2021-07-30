@@ -8,10 +8,16 @@
 			<version>5.7.0</version>
 			<type>jar</type>
 		</location>
-		<location includeDependencyScope="compile" includeSource="true" missingManifest="ignore" type="Maven">
+		<location includeDependencyScope="compile" missingManifest="ignore" type="Maven">
 			<groupId>org.apache.activemq</groupId>
 			<artifactId>activemq-core</artifactId>
 			<version>5.2.0</version>
+			<type>jar</type>
+		</location>
+		<location missingManifest="ignore" type="Maven">
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-core</artifactId>
+			<version>3.11.0</version>
 			<type>jar</type>
 		</location>
 	</locations>

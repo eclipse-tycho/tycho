@@ -17,6 +17,7 @@
 	<modules>
 		<module>feature</module>
 		<module>feature.root</module>
+		<module>feature.indirect</module>
 		<module>product</module>
 	</modules>
 

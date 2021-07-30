@@ -32,6 +32,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
     }
 
+    @Test
     public void testDirectoryLocation() throws Exception {
         Verifier verifier = getVerifier("target.directory", false, true);
         verifier.executeGoal("verify");
