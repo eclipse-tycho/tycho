@@ -473,13 +473,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 classpath.add(location.getAbsolutePath() + toString(cpe.getAccessRules()));
             }
         }
-
-        String basedir = session.getLocalRepository().getBasedir();
-        Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
-        for (ProjectClasspathEntry cpe : classpathEntries) {
-            if (cpe instanceof M2ClasspathVariable) {
-                M2ClasspathVariable cpv = (M2ClasspathVariable) cpe;
-                classpath.add(new File(basedir, cpv.getRepositoryPath()).getAbsolutePath());
+        if (session != null) {
+            String basedir = session.getLocalRepository().getBasedir();
+            Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
+            for (ProjectClasspathEntry cpe : classpathEntries) {
+                if (cpe instanceof M2ClasspathVariable) {
+                    M2ClasspathVariable cpv = (M2ClasspathVariable) cpe;
+                    classpath.add(new File(basedir, cpv.getRepositoryPath()).getAbsolutePath());
+                }
             }
         }
         return classpath;
