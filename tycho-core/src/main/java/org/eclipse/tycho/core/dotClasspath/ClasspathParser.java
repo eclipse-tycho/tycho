@@ -107,6 +107,12 @@ public class ClasspathParser implements Disposable {
                         } else if ("lib".equals(kind)) {
                             String path = classpathentry.getAttribute("path");
                             list.add(new JDTLibraryClasspathEntry(new File(file.getParentFile(), path), attributes));
+                        } else if ("var".equals(kind)) {
+                            String path = classpathentry.getAttribute("path");
+                            if (path.startsWith(M2ClasspathVariable.M2_REPO_VARIABLE_PREFIX)) {
+                                String repoPath = path.substring(M2ClasspathVariable.M2_REPO_VARIABLE_PREFIX.length());
+                                list.add(new M2E(repoPath, attributes));
+                            }
                         }
                     }
                     entries = Collections.unmodifiableList(list);
@@ -242,6 +248,28 @@ public class ClasspathParser implements Disposable {
         @Override
         public Map<String, String> getAttributes() {
             return attributes;
+        }
+
+    }
+
+    private static final class M2E implements M2ClasspathVariable {
+
+        private final String repoPath;
+        private final Map<String, String> attributes;
+
+        M2E(String repoPath, Map<String, String> attributes) {
+            this.repoPath = repoPath;
+            this.attributes = attributes;
+        }
+
+        @Override
+        public Map<String, String> getAttributes() {
+            return attributes;
+        }
+
+        @Override
+        public String getRepositoryPath() {
+            return repoPath;
         }
 
     }
