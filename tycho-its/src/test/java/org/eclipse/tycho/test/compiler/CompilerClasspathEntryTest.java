@@ -25,6 +25,13 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
     }
 
+    @Test
+    public void testJUnit4ContainerWithDependencies() throws Exception {
+        Verifier verifier = getVerifier("compiler.junitcontainer/junit4-in-bundle-with-dependencies", true);
+        verifier.executeGoal("test");
+        verifier.verifyErrorFreeLog();
+    }
+    
     public void testLibEntry() throws Exception {
         Verifier verifier = getVerifier("compiler.libentry/my.bundle", false);
         verifier.executeGoal("compile");
