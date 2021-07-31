@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Christoph Läubrich - [Issue #80] Incorrect requirement version for configuration/plugins in publish-products (gently sponsored by Compart AG)
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
@@ -101,7 +102,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 }
 
                 seeds.addAll(publisher.publishProduct(productFile,
-                        productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, flavor));
+                        productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, flavor, true));
             } catch (IOException e) {
                 throw new MojoExecutionException(
                         "I/O exception while writing product definition or copying launcher icons", e);
