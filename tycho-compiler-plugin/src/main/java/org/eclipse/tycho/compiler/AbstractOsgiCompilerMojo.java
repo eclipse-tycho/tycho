@@ -71,6 +71,7 @@ import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.dotClasspath.JREClasspathEntry;
+import org.eclipse.tycho.core.dotClasspath.M2ClasspathVariable;
 import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
@@ -470,6 +471,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         for (ClasspathEntry cpe : getClasspath()) {
             for (File location : cpe.getLocations()) {
                 classpath.add(location.getAbsolutePath() + toString(cpe.getAccessRules()));
+            }
+        }
+        if (session != null) {
+            ArtifactRepository repository = session.getLocalRepository();
+            if (repository != null) {
+                String basedir = repository.getBasedir();
+                Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
+                for (ProjectClasspathEntry cpe : classpathEntries) {
+                    if (cpe instanceof M2ClasspathVariable) {
+                        M2ClasspathVariable cpv = (M2ClasspathVariable) cpe;
+                        classpath.add(new File(basedir, cpv.getRepositoryPath()).getAbsolutePath());
+                    }
+                }
             }
         }
         return classpath;
