@@ -77,14 +77,20 @@ class RemoteRepositoryCacheManager extends CacheManager {
 
     @Override
     public File createCacheFromFile(URI remoteFile, IProgressMonitor monitor) throws ProvisionException, IOException {
+        File cacheFile = getCacheFile(remoteFile, getCacheDirectory());
         if (offline) {
-            File cacheFile = getCacheFile(remoteFile, getCacheDirectory());
             if (cacheFile != null) {
                 return cacheFile;
             }
             throw new ProvisionException(getFailureStatus(remoteFile));
         }
-        return super.createCacheFromFile(remoteFile, monitor);
+        try {
+            return super.createCacheFromFile(remoteFile, monitor);
+        } catch (IOException e) {
+            return handleCreateCacheException(cacheFile, remoteFile, e);
+        } catch (ProvisionException e) {
+            return handleCreateCacheException(cacheFile, remoteFile, e);
+        }
     }
 
     private Status getFailureStatus(URI uri) throws ProvisionException {
@@ -100,8 +106,8 @@ class RemoteRepositoryCacheManager extends CacheManager {
         return new File(dataAreaFile, Integer.toString(hashCode));
     }
 
-    private <T extends Exception> File handleCreateCacheException(File cacheFile, URI repositoryLocation, T e)
-            throws T {
+    private File handleCreateCacheException(File cacheFile, URI repositoryLocation, Exception e)
+            throws ProvisionException {
         if (cacheFile != null) {
             String message = "Failed to access p2 repository " + repositoryLocation.toASCIIString()
                     + ", use local cache.";
@@ -114,7 +120,7 @@ class RemoteRepositoryCacheManager extends CacheManager {
             // original exception has been already logged
             return cacheFile;
         }
-        throw e;
+        throw new ProvisionException(getFailureStatus(repositoryLocation));
     }
 
     @Override
