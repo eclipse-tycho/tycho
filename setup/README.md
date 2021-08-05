@@ -26,6 +26,7 @@ The Tycho.setup file is part of the Eclipse Installer Project Catalog, so the Ty
   * Find and select "Tycho" under the "Eclipse Projects" catalog. Make sure that Tycho is shown in the table on the bottom.
   * Click "Next" to get the Variables page
   * You can edit the values used by the setup process (e.g. the "Installation Folder"). If you want to choose the Install Folder and "Root install folder", you have to select "Show all variables" at the bottom of the page. Then you are also able to specify the location where Eclipse will be installed. You do not have to select the Target Platform here, this will be set later automatically.
+  * Unless you have write access to the GitHub repository, make sure you select "HTTPS read-only" in the dropdown "Tycho Github repository".
   * Click "Next"
   * Pressing "Finished" on the "Confirmation" page will start the installation process. 
   * The installer will download the selected Eclipse version, will start Eclipse and will perform all the additional steps (cloning the git repos etc.). The progress bar in the status bar shows the progress of the overall installation.
