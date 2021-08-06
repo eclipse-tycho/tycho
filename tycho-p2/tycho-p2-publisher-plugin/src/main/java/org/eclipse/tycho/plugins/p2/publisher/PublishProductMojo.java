@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Christoph Läubrich - [Issue #80] Incorrect requirement version for configuration/plugins in publish-products (gently sponsored by Compart AG)
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
@@ -72,6 +73,14 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Deprecated
     private String flavor;
 
+    /**
+     * Ignores the plugin configuration in the product, this can be necessary if different competing
+     * versions are present in the target for a configured bundle, see
+     * <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=574952">Bug 574952</a> for details
+     */
+    @Parameter(defaultValue = "false")
+    private boolean ignorePluginConfiguration;
+
     @Component(role = UnArchiver.class, hint = "zip")
     private UnArchiver deflater;
 
@@ -101,7 +110,8 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 }
 
                 seeds.addAll(publisher.publishProduct(productFile,
-                        productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, flavor));
+                        productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, flavor,
+                        ignorePluginConfiguration));
             } catch (IOException e) {
                 throw new MojoExecutionException(
                         "I/O exception while writing product definition or copying launcher icons", e);

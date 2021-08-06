@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 SAP SE and others.
+ * Copyright (c) 2010, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - [Issue #80] Incorrect requirement version for configuration/plugins in publish-products (gently sponsored by Compart AG)
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
@@ -40,6 +41,7 @@ import org.eclipse.tycho.p2.target.ArtifactTypeHelper;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
+import org.xml.sax.Attributes;
 
 /**
  * Tool for transforming product definition source files into p2 metadata and artifacts. Includes
@@ -68,10 +70,10 @@ public class PublishProductToolImpl implements PublishProductTool {
     }
 
     @Override
-    public List<DependencySeed> publishProduct(File productFile, File launcherBinaries, String flavor)
-            throws IllegalArgumentException {
+    public List<DependencySeed> publishProduct(File productFile, File launcherBinaries, String flavor,
+            boolean ignorePluginConfigurations) throws IllegalArgumentException {
 
-        IProductDescriptor originalProduct = loadProductFile(productFile);
+        IProductDescriptor originalProduct = loadProductFile(productFile, ignorePluginConfigurations);
         ExpandedProduct expandedProduct = new ExpandedProduct(originalProduct, buildQualifier, targetPlatform,
                 interpolator, logger);
 
@@ -97,9 +99,9 @@ public class PublishProductToolImpl implements PublishProductTool {
      */
     private static IPublisherAdvice[] getProductSpecificAdviceFileAdvice(File productFile,
             IProductDescriptor expandedProduct) {
-        AdviceFileAdvice advice = new AdviceFileAdvice(expandedProduct.getId(), Version.parseVersion(expandedProduct
-                .getVersion()), new Path(productFile.getParent()), new Path(
-                getProductSpecificP2InfName(productFile.getName())));
+        AdviceFileAdvice advice = new AdviceFileAdvice(expandedProduct.getId(),
+                Version.parseVersion(expandedProduct.getVersion()), new Path(productFile.getParent()),
+                new Path(getProductSpecificP2InfName(productFile.getName())));
         if (advice.containsAdvice()) {
             return new IPublisherAdvice[] { advice };
         } else {
@@ -118,16 +120,50 @@ public class PublishProductToolImpl implements PublishProductTool {
         final String productId = product.getId();
 
         // add root features as special dependency seed which are marked as "add-on" for the product
-        DependencySeed.Filter filter = (type, id) -> ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
+        DependencySeed.Filter filter = (type, id) -> ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type)
+                && productId.equals(id);
         for (IInstallableUnit featureIU : product.getRootFeatures()) {
             ArtifactKey featureArtifact = ArtifactTypeHelper.toTychoArtifact(featureIU);
             seeds.add(new DependencySeed(featureArtifact.getType(), featureArtifact.getId(), featureIU, filter));
         }
     }
 
-    private static IProductDescriptor loadProductFile(File productFile) throws IllegalArgumentException {
+    private static IProductDescriptor loadProductFile(File productFile, boolean excludeConfigurationPlugins)
+            throws IllegalArgumentException {
         try {
-            return new ProductFile(productFile.getAbsolutePath());
+            return new ProductFile(productFile.getAbsolutePath()) {
+
+                private boolean stateConfigurations;
+
+                @Override
+                public void startElement(String uri, String localName, String qName, Attributes attributes) {
+                    if (excludeConfigurationPlugins) {
+                        if ("configurations".equals(localName)) {
+                            stateConfigurations = true;
+                        }
+                        if (stateConfigurations && "plugin".equals(localName)) {
+                            //hide the plugins section to prevent a plugin dependency
+                            return;
+                        }
+                    }
+                    super.startElement(uri, localName, qName, attributes);
+                }
+
+                @Override
+                public void endElement(String uri, String localName, String qName) {
+                    if (excludeConfigurationPlugins) {
+                        if ("configurations".equals(localName)) {
+                            stateConfigurations = false;
+                        }
+                        if (stateConfigurations && "plugin".equals(localName)) {
+                            //hide the plugins section to prevent a plugin dependency
+                            return;
+                        }
+                    }
+                    super.endElement(uri, localName, qName);
+                }
+
+            };
         } catch (Exception e) {
             throw new BuildFailureException(
                     "Cannot parse product file " + productFile.getAbsolutePath() + ": " + e.getMessage(), e); //$NON-NLS-1$

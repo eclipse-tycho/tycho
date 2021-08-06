@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 SAP SE and others.
+ * Copyright (c) 2015, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - [Issue #80] Incorrect requirement version for configuration/plugins in publish-products (gently sponsored by Compart AG)
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher.facade;
 
@@ -30,6 +31,10 @@ public interface PublishProductTool {
      *            The installation flavor the product shall be published for
      * @return a handles to the published product IU
      */
-    List<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor);
+    default List<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor) {
+        return publishProduct(productDefinition, launcherBinaries, flavor, false);
+    }
 
+    List<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor,
+            boolean ignorePluginConfigurations);
 }
