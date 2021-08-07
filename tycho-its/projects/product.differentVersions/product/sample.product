@@ -3,6 +3,9 @@
 
 <product name="Sample Product" uid="com.test.sample.product" id="com.test.sample.product" application="com.test.sample.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
 
+   <configIni>
+   </configIni>
+
    <plugins>
    </plugins>
 
@@ -14,6 +17,8 @@
    <configurations>
       <plugin id="org.apache.activemq.activemq-core" autoStart="true" startLevel="3" />
       <plugin id="org.apache.activemq.activemq-jaas" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator" autoStart="true" startLevel="2" />
    </configurations>
 
 </product>

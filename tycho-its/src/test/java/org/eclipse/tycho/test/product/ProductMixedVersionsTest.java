@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
+import java.io.File;
 import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
@@ -26,5 +27,8 @@ public class ProductMixedVersionsTest extends AbstractTychoIntegrationTest {
         verifier.getSystemProperties().setProperty("platform-url", P2Repositories.ECLIPSE_LATEST.toString());
         verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
+        //check that simple configurator is there...
+        File product = new File(verifier.getBasedir(), "product/target/products/com.test.sample.product");
+        assertFileExists(product, "**/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
     }
 }
