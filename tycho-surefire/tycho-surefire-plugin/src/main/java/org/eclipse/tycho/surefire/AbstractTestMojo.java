@@ -137,7 +137,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     /**
      * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
-     * session on the specified port.
+     * session on the specified port. If further customization of JVM debug parameters is
+     * required then {@link argLine} can be used instead.
      */
     @Parameter(property = "debugPort")
     private int debugPort;
