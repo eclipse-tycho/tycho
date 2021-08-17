@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
@@ -300,8 +301,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 publicKeysFile = File.createTempFile("publicKeys", ".pgp");
                 publicKeysFile.deleteOnExit();
                 PGPPublicKeyRingCollection collection = new PGPPublicKeyRingCollection(publicKeys.values());
-                try (FileOutputStream fout = new FileOutputStream(publicKeysFile)) {
-                    collection.encode(new ArmoredOutputStream(fout));
+                try (OutputStream out = new ArmoredOutputStream(new FileOutputStream(publicKeysFile))) {
+                    collection.encode(out);
                 }
                 launcher.addArguments("-publicKeys", publicKeysFile.getAbsolutePath());
             } catch (IOException | PGPException e) {
@@ -374,11 +375,14 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     protected InputStream openStream(URL url, int retry) throws IOException {
         while (retry > 0) {
+            retry--;
             URLConnection connection = url.openConnection();
             connection.connect();
             if (connection instanceof HttpURLConnection) {
                 HttpURLConnection http = (HttpURLConnection) connection;
-                if (http.getResponseCode() == HttpURLConnection.HTTP_UNAVAILABLE) {
+                int code = http.getResponseCode();
+                if (code == HttpURLConnection.HTTP_UNAVAILABLE || code == HttpURLConnection.HTTP_CLIENT_TIMEOUT
+                        || code == HttpURLConnection.HTTP_BAD_GATEWAY) {
                     String field = http.getHeaderField("Retry-After");
                     http.disconnect();
                     long wait;
@@ -389,8 +393,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
                     }
                     try {
                         TimeUnit.SECONDS.sleep(wait);
-                        logger.debug("Server is temporary unavailable, waiting " + wait + " seconds before retry...");
-                        retry--;
+                        logger.debug("Server is temporary unavailable [code=" + code + "], waiting " + wait
+                                + " seconds before retry, " + retry + " retries left...");
                         continue;
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
