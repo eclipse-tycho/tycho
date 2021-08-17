@@ -275,6 +275,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
         Map<Long, PGPPublicKeyRing> publicKeys = new HashMap<>();
         if (includePGPSignature) {
             for (File file : signatures) {
+                if (file == null) {
+                    continue;
+                }
                 try (InputStream in = PGPUtil.getDecoderStream(new FileInputStream(file))) {
                     PGPObjectFactory pgpFact = new PGPObjectFactory(in);
                     Object o = pgpFact.nextObject();
