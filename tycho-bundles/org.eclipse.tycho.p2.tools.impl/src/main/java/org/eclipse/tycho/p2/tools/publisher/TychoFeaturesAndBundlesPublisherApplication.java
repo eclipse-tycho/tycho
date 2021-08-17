@@ -206,7 +206,6 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
             List<PGPSignatureAdvice> signaturesList = new ArrayList<>();
             for (int i = 0; i < signatures.length; i++) {
                 String signature = signatures[i];
-                System.out.println(i + ": " + signature);
                 if (signature == null) {
                     //no signature...
                     continue;

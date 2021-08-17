@@ -17,9 +17,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -193,6 +197,12 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = MAVEN_CENTRAL_KEY_SERVER)
     private String keyServerUrl = MAVEN_CENTRAL_KEY_SERVER;
 
+    @Parameter(defaultValue = "10")
+    private int keyServerRetry = 10;
+
+    @Parameter(defaultValue = "true")
+    private boolean includePGPSignature = true;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         logger.debug("categoryName =        " + categoryName);
@@ -222,9 +232,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 File file = artifact.getFile();
                 String attachedSignature = artifact.getArtifactHandler().getExtension() + SIGNATURE_EXTENSION;
                 File attachedSignatureFile = null;
-                for (Artifact attached : mavenProject.getAttachedArtifacts()) {
-                    if (attached.getType().equals(attachedSignature)) {
-                        attachedSignatureFile = attached.getFile();
+                if (includePGPSignature) {
+                    for (Artifact attached : mavenProject.getAttachedArtifacts()) {
+                        if (attached.getType().equals(attachedSignature)) {
+                            attachedSignatureFile = attached.getFile();
+                        }
                     }
                 }
                 bundles.add(file);
@@ -261,18 +273,20 @@ public class MavenP2SiteMojo extends AbstractMojo {
         File advicesFile = writeFileList(advices, "advices");
         File signaturesFile = writeFileList(signatures, "signatures");
         Map<Long, PGPPublicKeyRing> publicKeys = new HashMap<>();
-        for (File file : signatures) {
-            try (InputStream in = PGPUtil.getDecoderStream(new FileInputStream(file))) {
-                PGPObjectFactory pgpFact = new PGPObjectFactory(in);
-                Object o = pgpFact.nextObject();
-                if (o instanceof PGPSignatureList) {
-                    PGPSignatureList list = (PGPSignatureList) o;
-                    PGPSignature signature = list.get(0);
-                    long keyID = signature.getKeyID();
-                    loadPublicKey(keyID, publicKeys);
+        if (includePGPSignature) {
+            for (File file : signatures) {
+                try (InputStream in = PGPUtil.getDecoderStream(new FileInputStream(file))) {
+                    PGPObjectFactory pgpFact = new PGPObjectFactory(in);
+                    Object o = pgpFact.nextObject();
+                    if (o instanceof PGPSignatureList) {
+                        PGPSignatureList list = (PGPSignatureList) o;
+                        PGPSignature signature = list.get(0);
+                        long keyID = signature.getKeyID();
+                        loadPublicKey(keyID, publicKeys);
+                    }
+                } catch (Exception e) {
+                    logger.warn("processing signature file " + file.getAbsolutePath() + " failed!", e);
                 }
-            } catch (Exception e) {
-                logger.warn("processing signature file " + file.getAbsolutePath() + " failed!", e);
             }
         }
         File publicKeysFile = null;
@@ -341,8 +355,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
         logger.info("Fetching PGP key with id " + hexKey + "...");
         try {
             URL url = new URL(MessageFormat.format(keyServerUrl, hexKey));
-            PGPPublicKeyRingCollection publicKeyRing = new PGPPublicKeyRingCollection(
-                    PGPUtil.getDecoderStream(url.openStream()));
+            InputStream stream = openStream(url, keyServerRetry);
+            PGPPublicKeyRingCollection publicKeyRing = new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(stream));
             PGPPublicKeyRing publicKey = publicKeyRing.getPublicKeyRing(keyID);
             if (publicKey != null) {
                 publicKeys.put(keyID, publicKey);
@@ -351,6 +365,37 @@ public class MavenP2SiteMojo extends AbstractMojo {
             logger.warn("Fetching  PGP key failed: " + e, e);
         }
 
+    }
+
+    protected InputStream openStream(URL url, int retry) throws IOException {
+        while (retry > 0) {
+            URLConnection connection = url.openConnection();
+            connection.connect();
+            if (connection instanceof HttpURLConnection) {
+                HttpURLConnection http = (HttpURLConnection) connection;
+                if (http.getResponseCode() == HttpURLConnection.HTTP_UNAVAILABLE) {
+                    String field = http.getHeaderField("Retry-After");
+                    http.disconnect();
+                    long wait;
+                    if (field == null || !field.isBlank() || !Character.isDigit(field.charAt(0))) {
+                        wait = 10;
+                    } else {
+                        wait = Integer.parseInt(field);
+                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(wait);
+                        logger.debug("Server is temporary unavailable, waiting " + wait + " seconds before retry...");
+                        retry--;
+                        continue;
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new InterruptedIOException();
+                    }
+                }
+            }
+            return connection.getInputStream();
+        }
+        throw new IOException("retry count exceeded");
     }
 
     protected File writeFileList(List<File> files, String name) throws MojoExecutionException {
@@ -443,48 +488,50 @@ public class MavenP2SiteMojo extends AbstractMojo {
     }
 
     private File getSignatureFile(Artifact artifact) {
-        final Artifact signatureArtifact = repositorySystem.createArtifactWithClassifier(artifact.getGroupId(),
-                artifact.getArtifactId(), artifact.getVersion(), artifact.getType(), artifact.getClassifier());
+        if (includePGPSignature) {
+            final Artifact signatureArtifact = repositorySystem.createArtifactWithClassifier(artifact.getGroupId(),
+                    artifact.getArtifactId(), artifact.getVersion(), artifact.getType(), artifact.getClassifier());
 
-        signatureArtifact.setArtifactHandler(new ArtifactHandler() {
+            signatureArtifact.setArtifactHandler(new ArtifactHandler() {
 
-            @Override
-            public boolean isIncludesDependencies() {
-                return artifact.getArtifactHandler().isIncludesDependencies();
+                @Override
+                public boolean isIncludesDependencies() {
+                    return artifact.getArtifactHandler().isIncludesDependencies();
+                }
+
+                @Override
+                public boolean isAddedToClasspath() {
+                    return artifact.getArtifactHandler().isAddedToClasspath();
+                }
+
+                @Override
+                public String getPackaging() {
+                    return artifact.getArtifactHandler().getPackaging();
+                }
+
+                @Override
+                public String getLanguage() {
+                    return artifact.getArtifactHandler().getLanguage();
+                }
+
+                @Override
+                public String getExtension() {
+                    return artifact.getArtifactHandler().getExtension() + SIGNATURE_EXTENSION;
+                }
+
+                @Override
+                public String getDirectory() {
+                    return artifact.getArtifactHandler().getDirectory();
+                }
+
+                @Override
+                public String getClassifier() {
+                    return artifact.getArtifactHandler().getClassifier();
+                }
+            });
+            for (Artifact signature : resolveArtifact(signatureArtifact, false)) {
+                return signature.getFile();
             }
-
-            @Override
-            public boolean isAddedToClasspath() {
-                return artifact.getArtifactHandler().isAddedToClasspath();
-            }
-
-            @Override
-            public String getPackaging() {
-                return artifact.getArtifactHandler().getPackaging();
-            }
-
-            @Override
-            public String getLanguage() {
-                return artifact.getArtifactHandler().getLanguage();
-            }
-
-            @Override
-            public String getExtension() {
-                return artifact.getArtifactHandler().getExtension() + SIGNATURE_EXTENSION;
-            }
-
-            @Override
-            public String getDirectory() {
-                return artifact.getArtifactHandler().getDirectory();
-            }
-
-            @Override
-            public String getClassifier() {
-                return artifact.getArtifactHandler().getClassifier();
-            }
-        });
-        for (Artifact signature : resolveArtifact(signatureArtifact, false)) {
-            return signature.getFile();
         }
         return null;
     }
