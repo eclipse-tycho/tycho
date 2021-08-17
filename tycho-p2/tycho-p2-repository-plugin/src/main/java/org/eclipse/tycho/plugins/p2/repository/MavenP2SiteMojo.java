@@ -283,11 +283,13 @@ public class MavenP2SiteMojo extends AbstractMojo {
                     Object o = pgpFact.nextObject();
                     if (o instanceof PGPSignatureList) {
                         PGPSignatureList list = (PGPSignatureList) o;
-                        PGPSignature signature = list.get(0);
-                        long keyID = signature.getKeyID();
-                        loadPublicKey(keyID, publicKeys);
+                        for (int i = 0; i < list.size(); i++) {
+                            PGPSignature signature = list.get(i);
+                            long keyID = signature.getKeyID();
+                            loadPublicKey(keyID, publicKeys);
+                        }
                     }
-                } catch (Exception e) {
+                } catch (IOException e) {
                     logger.warn("processing signature file " + file.getAbsolutePath() + " failed!", e);
                 }
             }
