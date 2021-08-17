@@ -13,14 +13,20 @@
 package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,6 +51,14 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.repository.RepositorySystem;
+import org.bouncycastle.bcpg.ArmoredOutputStream;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPObjectFactory;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
+import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
+import org.bouncycastle.openpgp.PGPSignature;
+import org.bouncycastle.openpgp.PGPSignatureList;
+import org.bouncycastle.openpgp.PGPUtil;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
@@ -95,6 +109,11 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
  */
 @Mojo(name = "assemble-maven-repository", requiresDependencyResolution = ResolutionScope.COMPILE)
 public class MavenP2SiteMojo extends AbstractMojo {
+
+    //See GpgSigner.SIGNATURE_EXTENSION
+    private static final String SIGNATURE_EXTENSION = ".asc";
+
+    private static final String MAVEN_CENTRAL_KEY_SERVER = "http://pgp.mit.edu/pks/lookup?op=get&search={0}";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -171,6 +190,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(property = "project.build.directory", required = true)
     protected File buildDirectory;
 
+    @Parameter(defaultValue = MAVEN_CENTRAL_KEY_SERVER)
+    private String keyServerUrl = MAVEN_CENTRAL_KEY_SERVER;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         logger.debug("categoryName =        " + categoryName);
@@ -183,11 +205,12 @@ public class MavenP2SiteMojo extends AbstractMojo {
         List<Dependency> dependencies = project.getDependencies();
         List<File> bundles = new ArrayList<>();
         List<File> advices = new ArrayList<>();
+        List<File> signatures = new ArrayList<>();
         if (includeDependencies) {
-            resolve(dependencies, bundles, advices, filesAdded);
+            resolve(dependencies, bundles, advices, signatures, filesAdded);
         }
         if (includeManaged) {
-            resolve(project.getDependencyManagement().getDependencies(), bundles, advices, filesAdded);
+            resolve(project.getDependencyManagement().getDependencies(), bundles, advices, signatures, filesAdded);
         }
         if (includeReactor) {
             List<MavenProject> allProjects = session.getAllProjects();
@@ -197,8 +220,16 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 }
                 Artifact artifact = mavenProject.getArtifact();
                 File file = artifact.getFile();
+                String attachedSignature = artifact.getArtifactHandler().getExtension() + SIGNATURE_EXTENSION;
+                File attachedSignatureFile = null;
+                for (Artifact attached : mavenProject.getAttachedArtifacts()) {
+                    if (attached.getType().equals(attachedSignature)) {
+                        attachedSignatureFile = attached.getFile();
+                    }
+                }
                 bundles.add(file);
                 advices.add(createMavenAdvice(artifact));
+                signatures.add(attachedSignatureFile);
             }
         }
         String categoryURI;
@@ -207,7 +238,6 @@ public class MavenP2SiteMojo extends AbstractMojo {
         } else {
             try {
                 File categoryGenFile = File.createTempFile("category", ".xml");
-
                 try (PrintWriter writer = new PrintWriter(
                         new OutputStreamWriter(new FileOutputStream(categoryGenFile), StandardCharsets.UTF_8))) {
                     writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -227,33 +257,51 @@ public class MavenP2SiteMojo extends AbstractMojo {
             }
         }
 
-        File bundlesFile;
-        try {
-            bundlesFile = File.createTempFile("bundles", ".txt");
-            FileUtils.writeLines(bundlesFile, StandardCharsets.UTF_8.name(),
-                    bundles.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
-        } catch (IOException e) {
-            throw new MojoExecutionException("failed to generate bundles list", e);
+        File bundlesFile = writeFileList(bundles, "bundles");
+        File advicesFile = writeFileList(advices, "advices");
+        File signaturesFile = writeFileList(signatures, "signatures");
+        Map<Long, PGPPublicKeyRing> publicKeys = new HashMap<>();
+        for (File file : signatures) {
+            try (InputStream in = PGPUtil.getDecoderStream(new FileInputStream(file))) {
+                PGPObjectFactory pgpFact = new PGPObjectFactory(in);
+                Object o = pgpFact.nextObject();
+                if (o instanceof PGPSignatureList) {
+                    PGPSignatureList list = (PGPSignatureList) o;
+                    PGPSignature signature = list.get(0);
+                    long keyID = signature.getKeyID();
+                    loadPublicKey(keyID, publicKeys);
+                }
+            } catch (Exception e) {
+                logger.warn("processing signature file " + file.getAbsolutePath() + " failed!", e);
+            }
         }
-        File advicesFile;
-        try {
-            advicesFile = File.createTempFile("advices", ".txt");
-            FileUtils.writeLines(advicesFile, StandardCharsets.UTF_8.name(),
-                    advices.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
-        } catch (IOException e) {
-            throw new MojoExecutionException("failed to generate bundles list", e);
+        File publicKeysFile = null;
+        if (publicKeys.size() > 0) {
+            try {
+                publicKeysFile = File.createTempFile("publicKeys", ".pgp");
+                publicKeysFile.deleteOnExit();
+                PGPPublicKeyRingCollection collection = new PGPPublicKeyRingCollection(publicKeys.values());
+                try (FileOutputStream fout = new FileOutputStream(publicKeysFile)) {
+                    collection.encode(new ArmoredOutputStream(fout));
+                }
+                launcher.addArguments("-publicKeys", publicKeysFile.getAbsolutePath());
+            } catch (IOException | PGPException e) {
+                throw new MojoExecutionException("failed to generate public-key section", e);
+            }
         }
-
         destination.mkdirs();
         launcher.setWorkingDirectory(destination);
         launcher.setApplicationName("org.eclipse.tycho.p2.tools.publisher.TychoFeaturesAndBundlesPublisher");
         launcher.addArguments("-artifactRepository", destination.toURI().toString(), //
                 "-metadataRepository", destination.toURI().toString(), //
-                "-bundlesFile", //
+                "-bundles", //
                 bundlesFile.getAbsolutePath(), //
-                "-advicesFile", //
+                "-advices", //
                 advicesFile.getAbsolutePath(), //
-                "-categoryDefinition", categoryURI, //
+                "-signatures", //
+                signaturesFile.getAbsolutePath(), //
+                "-categoryDefinition", //
+                categoryURI, //
                 "-artifactRepositoryName", //
                 project.getName(), //
                 "-metadataRepositoryName", //
@@ -265,6 +313,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
             file.delete();
         }
         bundlesFile.delete();
+        advicesFile.delete();
+        signaturesFile.delete();
+        if (publicKeysFile != null) {
+            publicKeysFile.delete();
+        }
         if (result != 0) {
             throw new MojoFailureException("P2 publisher return code was " + result);
         }
@@ -280,7 +333,39 @@ public class MavenP2SiteMojo extends AbstractMojo {
         projectHelper.attachArtifact(project, "zip", "p2site", destFile);
     }
 
-    protected void resolve(List<Dependency> dependencies, List<File> bundles, List<File> advices,
+    private void loadPublicKey(long keyID, Map<Long, PGPPublicKeyRing> publicKeys) {
+        if (publicKeys.containsKey(keyID)) {
+            return;
+        }
+        String hexKey = "0x" + Long.toHexString(keyID).toUpperCase();
+        logger.info("Fetching PGP key with id " + hexKey + "...");
+        try {
+            URL url = new URL(MessageFormat.format(keyServerUrl, hexKey));
+            PGPPublicKeyRingCollection publicKeyRing = new PGPPublicKeyRingCollection(
+                    PGPUtil.getDecoderStream(url.openStream()));
+            PGPPublicKeyRing publicKey = publicKeyRing.getPublicKeyRing(keyID);
+            if (publicKey != null) {
+                publicKeys.put(keyID, publicKey);
+            }
+        } catch (IOException | PGPException e) {
+            logger.warn("Fetching  PGP key failed: " + e, e);
+        }
+
+    }
+
+    protected File writeFileList(List<File> files, String name) throws MojoExecutionException {
+        try {
+            File fileList = File.createTempFile(name, ".txt");
+            fileList.deleteOnExit();
+            FileUtils.writeLines(fileList, StandardCharsets.UTF_8.name(),
+                    files.stream().map(f -> f == null ? "" : f.getAbsolutePath()).collect(Collectors.toList()));
+            return fileList;
+        } catch (IOException e) {
+            throw new MojoExecutionException("failed to generate " + name + " list", e);
+        }
+    }
+
+    protected void resolve(List<Dependency> dependencies, List<File> bundles, List<File> advices, List<File> signatures,
             Set<String> filesAdded) throws MojoExecutionException {
         for (Dependency dependency : dependencies) {
             logger.debug("resolving " + dependency.getGroupId() + "::" + dependency.getArtifactId() + "::"
@@ -296,7 +381,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 if (filesAdded.add(file.getAbsolutePath())) {
                     bundles.add(file);
                     advices.add(createMavenAdvice(resolvedArtifact));
-                    //TODO pgp.signatures --> getSignatureFile(resolvedArtifact)
+                    signatures.add(getSignatureFile(artifact));
                 }
             }
         }
@@ -385,7 +470,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
             @Override
             public String getExtension() {
-                return artifact.getArtifactHandler().getExtension() + ".asc";
+                return artifact.getArtifactHandler().getExtension() + SIGNATURE_EXTENSION;
             }
 
             @Override
@@ -421,7 +506,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         if (file == null || !file.isFile()) {
             return true;
         }
-        if (isSkippedDeploy(mavenProject)){
+        if (isSkippedDeploy(mavenProject)) {
             return true;
         }
         return false;
@@ -435,16 +520,16 @@ public class MavenP2SiteMojo extends AbstractMojo {
         String property = mavenProject.getProperties().getProperty("maven.deploy.skip");
         if (property != null) {
             boolean skip = BooleanUtils.toBoolean(property);
-            getLog().debug("deploy is " + (skip?"":"not") + " skipped in MavenProject "
-                    + mavenProject.getName() + " because of property 'maven.deploy.skip'");
+            getLog().debug("deploy is " + (skip ? "" : "not") + " skipped in MavenProject " + mavenProject.getName()
+                    + " because of property 'maven.deploy.skip'");
             return skip;
         }
         String pluginId = "org.apache.maven.plugins:maven-deploy-plugin";
         property = getPluginParameter(mavenProject, pluginId, "skip");
         if (property != null) {
             boolean skip = BooleanUtils.toBoolean(property);
-            getLog().debug("deploy is " + (skip?"":"not") + " skipped in MavenProject "
-                    + mavenProject.getName() + " because of configuration of the plugin 'org.apache.maven.plugins:maven-deploy-plugin'");
+            getLog().debug("deploy is " + (skip ? "" : "not") + " skipped in MavenProject " + mavenProject.getName()
+                    + " because of configuration of the plugin 'org.apache.maven.plugins:maven-deploy-plugin'");
             return skip;
         }
         if (mavenProject.getParent() != null) {
@@ -455,11 +540,14 @@ public class MavenP2SiteMojo extends AbstractMojo {
     }
 
     /**
-     * @param p        not null
-     * @param pluginId not null
-     * @param param    not null
-     * @return the simple parameter as String defined in the plugin configuration by <code>param</code> key
-     *         or <code>null</code> if not found.
+     * @param p
+     *            not null
+     * @param pluginId
+     *            not null
+     * @param param
+     *            not null
+     * @return the simple parameter as String defined in the plugin configuration by
+     *         <code>param</code> key or <code>null</code> if not found.
      * @since 2.6
      */
     private static String getPluginParameter(MavenProject p, String pluginId, String param) {
@@ -467,7 +555,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         if (plugin != null) {
             Xpp3Dom xpp3Dom = (Xpp3Dom) plugin.getConfiguration();
             if (xpp3Dom != null && xpp3Dom.getChild(param) != null
-                    && StringUtils.isNotEmpty(xpp3Dom.getChild( param ).getValue())) {
+                    && StringUtils.isNotEmpty(xpp3Dom.getChild(param).getValue())) {
                 return xpp3Dom.getChild(param).getValue();
             }
         }
@@ -476,9 +564,12 @@ public class MavenP2SiteMojo extends AbstractMojo {
     }
 
     /**
-     * @param p        not null
-     * @param pluginId not null key of the plugin defined in {@link org.apache.maven.model.Build#getPluginsAsMap()}
-     *                 or in {@link org.apache.maven.model.PluginManagement#getPluginsAsMap()}
+     * @param p
+     *            not null
+     * @param pluginId
+     *            not null key of the plugin defined in
+     *            {@link org.apache.maven.model.Build#getPluginsAsMap()} or in
+     *            {@link org.apache.maven.model.PluginManagement#getPluginsAsMap()}
      * @return the Maven plugin defined in <code>${project.build.plugins}</code> or in
      *         <code>${project.build.pluginManagement}</code>, or <code>null</code> if not defined.
      */
@@ -489,8 +580,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
         Plugin plugin = p.getBuild().getPluginsAsMap().get(pluginId);
 
-        if ((plugin == null) && (p.getBuild().getPluginManagement() != null) &&
-                (p.getBuild().getPluginManagement().getPluginsAsMap() != null)) {
+        if ((plugin == null) && (p.getBuild().getPluginManagement() != null)
+                && (p.getBuild().getPluginManagement().getPluginsAsMap() != null)) {
             plugin = p.getBuild().getPluginManagement().getPluginsAsMap().get(pluginId);
         }
 
