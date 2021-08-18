@@ -215,6 +215,10 @@ public class MavenP2SiteMojo extends AbstractMojo {
         logger.debug("includeManaged =      " + includeManaged);
         logger.debug("includeReactor =      " + includeReactor);
         logger.debug("includeTransitive =   " + includeTransitiveDependencies);
+        if (includePGPSignature) {
+            logger.debug("keyServerUrl =        " + keyServerUrl);
+            logger.debug("keyServerRetry =      " + keyServerRetry);
+        }
 
         Set<String> filesAdded = new HashSet<>();
         List<Dependency> dependencies = project.getDependencies();
@@ -357,7 +361,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         projectHelper.attachArtifact(project, "zip", "p2site", destFile);
     }
 
-    private void loadPublicKey(long keyID, Map<Long, PGPPublicKeyRing> publicKeys) {
+    private void loadPublicKey(long keyID, Map<Long, PGPPublicKeyRing> publicKeys) throws MojoExecutionException {
         if (publicKeys.containsKey(keyID)) {
             return;
         }
@@ -385,7 +389,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
             }
             keyStream.close();
         } catch (IOException | PGPException e) {
-            logger.warn("Fetching  PGP key failed: " + e, e);
+            //pgp key is required by P2, so we must fail here...
+            throw new MojoExecutionException("Fetching  PGP key failed: " + e, e);
         }
 
     }
