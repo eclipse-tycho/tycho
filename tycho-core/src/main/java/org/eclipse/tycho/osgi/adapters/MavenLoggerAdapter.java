@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2021 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - #225 MavenLogger is missing error method that accepts an exception
  *******************************************************************************/
 package org.eclipse.tycho.osgi.adapters;
 
@@ -46,6 +47,13 @@ public class MavenLoggerAdapter implements MavenLogger {
     public void warn(String message, Throwable cause) {
         if (!isEmpty(message)) {
             logger.warn(message, cause);
+        }
+    }
+
+    @Override
+    public void error(String message, Throwable cause) {
+        if (!isEmpty(message)) {
+            logger.error(message, cause);
         }
     }
 

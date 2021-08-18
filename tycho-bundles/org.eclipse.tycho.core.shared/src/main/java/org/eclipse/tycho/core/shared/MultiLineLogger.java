@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 SAP SE and others.
+ * Copyright (c) 2013, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - #225 MavenLogger is missing error method that accepts an exception
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
@@ -29,6 +30,21 @@ public class MultiLineLogger implements MavenLogger {
         for (String messageLine : message.split("\n")) {
             delegate.error(messageLine);
         }
+    }
+
+    @Override
+    public void error(String message, Throwable cause) {
+        String[] messageLines = message.split("\n");
+
+        for (int ix = 0; ix < messageLines.length - 1; ix++) {
+            String messageLine = messageLines[ix];
+            delegate.error(messageLine);
+        }
+        if (messageLines.length > 0) {
+            String lastMessageLine = messageLines[messageLines.length - 1];
+            delegate.error(lastMessageLine, cause);
+        }
+
     }
 
     public void error(String message, String prefix) {

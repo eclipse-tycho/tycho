@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP SE and others.
+ * Copyright (c) 2011, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - #225 MavenLogger is missing error method that accepts an exception
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.verifier;
 
@@ -126,7 +127,7 @@ public class VerifierServiceImpl implements VerifierService {
         if (exception == null) {
             logger.error(indent + status.getMessage());
         } else {
-            logger.error(indent + status.getMessage() + ": " + exception.getLocalizedMessage());
+            logger.error(indent + status.getMessage() + ": " + exception.getLocalizedMessage(), exception);
         }
         for (IStatus kid : status.getChildren()) {
             logErrorStatus(kid, indent + "  ", logger);
