@@ -90,12 +90,14 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
     protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo)
             throws URISyntaxException {
         super.processParameter(arg, parameter, publisherInfo);
+
         if (arg.equalsIgnoreCase("-bundles")) {
             bundles = Arrays.stream(getArrayFromFile(parameter)).map(File::new).map(t -> {
                 try {
                     return BundlesAction.createBundleDescription(t);
                 } catch (IOException | BundleException e) {
                     //ignoring files that are "not bundles" they will be skipped on the later steps
+                    System.out.println("Ignore " + t.getName() + " as it is not a bundle!");
                     return null;
                 }
             }).toArray(BundleDescription[]::new);
@@ -147,11 +149,13 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
             for (int i = 0; i < advices.length; i++) {
                 File adviceFile = advices[i];
                 BundleDescription bundleDescription;
-                if (i >= bundles.length - 1 || (bundleDescription = bundles[i]) == null) {
+                if (i >= bundles.length || (bundleDescription = bundles[i]) == null) {
+                    System.out.println("Skip advice " + adviceFile + " iff");
                     continue;
                 }
                 String symbolicName = bundleDescription.getSymbolicName();
                 if (symbolicName == null) {
+                    System.out.println("Skip advice " + adviceFile + " not a bundle");
                     //not a bundle... no advice...
                     continue;
                 }
@@ -165,6 +169,7 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
 
                         // workaround Bug 539672
                         Map<String, String> properties = super.getInstallableUnitProperties(null);
+                        System.out.println(iu + " = " + properties);
                         if (properties != null) {
                             if (descriptor instanceof ArtifactDescriptor) {
                                 ArtifactDescriptor artifactDescriptor = (ArtifactDescriptor) descriptor;
@@ -211,7 +216,7 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
                     continue;
                 }
                 BundleDescription bundleDescription;
-                if (i >= bundles.length - 1 || (bundleDescription = bundles[i]) == null) {
+                if (i >= bundles.length || (bundleDescription = bundles[i]) == null) {
                     continue;
                 }
                 String symbolicName = bundleDescription.getSymbolicName();

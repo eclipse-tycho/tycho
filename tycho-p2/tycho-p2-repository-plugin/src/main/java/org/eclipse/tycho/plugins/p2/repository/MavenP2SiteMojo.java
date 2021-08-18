@@ -115,6 +115,8 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 @Mojo(name = "assemble-maven-repository", requiresDependencyResolution = ResolutionScope.COMPILE)
 public class MavenP2SiteMojo extends AbstractMojo {
 
+    public static final String CACHE_RELPATH = ".cache/tycho/pgpkeys";
+
     //See GpgSigner.SIGNATURE_EXTENSION
     private static final String SIGNATURE_EXTENSION = ".asc";
 
@@ -360,13 +362,26 @@ public class MavenP2SiteMojo extends AbstractMojo {
         String hexKey = "0x" + Long.toHexString(keyID).toUpperCase();
         logger.info("Fetching PGP key with id " + hexKey + "...");
         try {
-            URL url = new URL(MessageFormat.format(keyServerUrl, hexKey));
-            InputStream stream = openStream(url, keyServerRetry);
-            PGPPublicKeyRingCollection publicKeyRing = new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(stream));
+            File localRepoRoot = new File(session.getLocalRepository().getBasedir());
+            File keyCacheFile = new File(new File(localRepoRoot, CACHE_RELPATH), hexKey + ".pub");
+            InputStream keyStream;
+            if (keyCacheFile.isFile()) {
+                logger.debug("Fetching key from cache: " + keyCacheFile.getAbsolutePath());
+                keyStream = new FileInputStream(keyCacheFile);
+            } else {
+                URL url = new URL(MessageFormat.format(keyServerUrl, hexKey));
+                logger.debug("Fetching key from url: " + url);
+                InputStream urlStream = openStream(url, keyServerRetry);
+                FileUtils.copyInputStreamToFile(urlStream, keyCacheFile);
+                keyStream = new FileInputStream(keyCacheFile);
+            }
+            PGPPublicKeyRingCollection publicKeyRing = new PGPPublicKeyRingCollection(
+                    PGPUtil.getDecoderStream(keyStream));
             PGPPublicKeyRing publicKey = publicKeyRing.getPublicKeyRing(keyID);
             if (publicKey != null) {
                 publicKeys.put(keyID, publicKey);
             }
+            keyStream.close();
         } catch (IOException | PGPException e) {
             logger.warn("Fetching  PGP key failed: " + e, e);
         }
