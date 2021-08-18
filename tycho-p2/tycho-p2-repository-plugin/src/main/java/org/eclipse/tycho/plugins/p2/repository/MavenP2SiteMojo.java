@@ -115,7 +115,9 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 @Mojo(name = "assemble-maven-repository", requiresDependencyResolution = ResolutionScope.COMPILE)
 public class MavenP2SiteMojo extends AbstractMojo {
 
-    public static final String CACHE_RELPATH = ".cache/tycho/pgpkeys";
+    private static final boolean INCLUDE_PGP_DEFAULT = true;
+
+    private static final String CACHE_RELPATH = ".cache/tycho/pgpkeys";
 
     //See GpgSigner.SIGNATURE_EXTENSION
     private static final String SIGNATURE_EXTENSION = ".asc";
@@ -203,8 +205,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "10")
     private int keyServerRetry = 10;
 
-    @Parameter(defaultValue = "true")
-    private boolean includePGPSignature = true;
+    @Parameter(defaultValue = INCLUDE_PGP_DEFAULT + "")
+    private boolean includePGPSignature = INCLUDE_PGP_DEFAULT;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
