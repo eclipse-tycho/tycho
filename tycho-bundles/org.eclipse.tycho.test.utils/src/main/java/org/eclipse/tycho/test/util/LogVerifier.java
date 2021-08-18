@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - #225 MavenLogger is missing error method that accepts an exception
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
@@ -49,6 +50,11 @@ public class LogVerifier extends Verifier {
             if (WRITE_TO_CONSOLE) {
                 System.out.println("[ERROR] " + message);
             }
+        }
+
+        @Override
+        public void error(String message, Throwable cause) {
+            error(message);
         }
 
         @Override

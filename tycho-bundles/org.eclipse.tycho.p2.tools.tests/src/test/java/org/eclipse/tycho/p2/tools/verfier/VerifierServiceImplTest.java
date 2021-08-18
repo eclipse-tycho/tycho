@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - #225 MavenLogger is missing error method that accepts an exception
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.verfier;
 
@@ -107,6 +108,11 @@ public class VerifierServiceImplTest {
         @Override
         public void error(String message) {
             errors.add(message);
+        }
+
+        @Override
+        public void error(String message, Throwable cause) {
+            error(message);
         }
 
         @Override
