@@ -153,12 +153,10 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
                 File adviceFile = advices[i];
                 BundleDescription bundleDescription;
                 if (i >= bundles.length || (bundleDescription = bundles[i]) == null) {
-                    System.out.println("Skip advice " + adviceFile + " iff");
                     continue;
                 }
                 String symbolicName = bundleDescription.getSymbolicName();
                 if (symbolicName == null) {
-                    System.out.println("Skip advice " + adviceFile + " not a bundle");
                     //not a bundle... no advice...
                     continue;
                 }
@@ -172,7 +170,6 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
 
                         // workaround Bug 539672
                         Map<String, String> properties = super.getInstallableUnitProperties(null);
-                        System.out.println(iu + " = " + properties);
                         if (properties != null) {
                             if (descriptor instanceof ArtifactDescriptor) {
                                 ArtifactDescriptor artifactDescriptor = (ArtifactDescriptor) descriptor;

@@ -115,7 +115,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 @Mojo(name = "assemble-maven-repository", requiresDependencyResolution = ResolutionScope.COMPILE)
 public class MavenP2SiteMojo extends AbstractMojo {
 
-    private static final boolean INCLUDE_PGP_DEFAULT = true;
+    private static final boolean INCLUDE_PGP_DEFAULT = false;
 
     private static final String CACHE_RELPATH = ".cache/tycho/pgpkeys";
 
