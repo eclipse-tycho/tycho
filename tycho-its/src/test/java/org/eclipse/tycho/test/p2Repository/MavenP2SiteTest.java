@@ -61,4 +61,11 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
         assertFalse("artifact is deployed but should't",
                 artifacts.contains("id='org.eclipse.tycho.it.ignoreme-property'"));
     }
+
+    @Test
+    public void testPGP() throws Exception {
+        Verifier verifier = getVerifier("p2mavensite.pgp", false);
+        verifier.verifyErrorFreeLog();
+        verifyRepositoryExits(verifier, "site/");
+    }
 }
