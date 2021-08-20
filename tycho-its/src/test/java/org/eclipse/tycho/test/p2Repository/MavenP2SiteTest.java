@@ -33,9 +33,7 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
             Verifier verifier = getVerifier("p2mavensite/producer", false);
             verifier.executeGoals(asList("clean", "install"));
             verifier.verifyErrorFreeLog();
-            assertTrue(new File(verifier.getBasedir(), "target/repository/artifacts.xml").exists());
-            assertTrue(new File(verifier.getBasedir(), "target/repository/content.xml").exists());
-            assertTrue(new File(verifier.getBasedir(), "target/p2-site.zip").exists());
+            verifyRepositoryExits(verifier);
         }
         { // consumer
             Verifier verifier = getVerifier("p2mavensite/consumer", false);
@@ -44,15 +42,23 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
         }
     }
 
+    protected void verifyRepositoryExits(Verifier verifier) {
+        assertTrue(new File(verifier.getBasedir(), "target/repository/artifacts.xml").exists());
+        assertTrue(new File(verifier.getBasedir(), "target/repository/content.xml").exists());
+        assertTrue(new File(verifier.getBasedir(), "target/p2-site.zip").exists());
+    }
+
     @Test
     public void testDeployIgnore() throws Exception {
         Verifier verifier = getVerifier("p2mavensite.reactor", false);
         verifier.executeGoals(asList("install"));
         verifier.verifyErrorFreeLog();
+        verifyRepositoryExits(verifier);
         String artifacts = FileUtils
                 .readFileToString(new File(verifier.getBasedir(), "site/target/repository/artifacts.xml"), "UTF-8");
         assertTrue("artifact to deploy is missing", artifacts.contains("id='org.eclipse.tycho.it.deployme'"));
         assertFalse("artifact is deployed but should't", artifacts.contains("id='org.eclipse.tycho.it.ignoreme'"));
-        assertFalse("artifact is deployed but should't", artifacts.contains("id='org.eclipse.tycho.it.ignoreme-property'"));
+        assertFalse("artifact is deployed but should't",
+                artifacts.contains("id='org.eclipse.tycho.it.ignoreme-property'"));
     }
 }

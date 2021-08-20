@@ -109,6 +109,9 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
         if (arg.equalsIgnoreCase("-signatures")) {
             signatures = Arrays.stream(getArrayFromFile(parameter)).map(str -> str.isBlank() ? null : new File(str))
                     .map(file -> {
+                        if (file == null) {
+                            return null;
+                        }
                         try {
                             return FileUtils.readFileToString(file, StandardCharsets.US_ASCII);
                         } catch (IOException e) {

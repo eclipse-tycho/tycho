@@ -199,12 +199,23 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(property = "project.build.directory", required = true)
     protected File buildDirectory;
 
+    /**
+     * Configures the key server that is used to fetch the public keys
+     */
     @Parameter(defaultValue = MAVEN_CENTRAL_KEY_SERVER)
     private String keyServerUrl = MAVEN_CENTRAL_KEY_SERVER;
 
+    /**
+     * Key servers are sometimes busy, this configures the maximum amount of retries to fetch the
+     * public key before failing the build
+     */
     @Parameter(defaultValue = "10")
     private int keyServerRetry = 10;
 
+    /**
+     * If enabled, PGP signatures of the artifacts are embedded in the P2 site to allow for
+     * additional verifications / trust decisions
+     */
     @Parameter(defaultValue = INCLUDE_PGP_DEFAULT + "")
     private boolean includePGPSignature = INCLUDE_PGP_DEFAULT;
 
