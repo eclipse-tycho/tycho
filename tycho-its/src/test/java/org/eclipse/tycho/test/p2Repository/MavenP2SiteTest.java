@@ -43,9 +43,12 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
     }
 
     protected void verifyRepositoryExits(Verifier verifier, String subdir) {
-        assertTrue(new File(verifier.getBasedir(), subdir + "target/repository/artifacts.xml").exists());
-        assertTrue(new File(verifier.getBasedir(), subdir + "target/repository/content.xml").exists());
-        assertTrue(new File(verifier.getBasedir(), subdir + "target/p2-site.zip").exists());
+        File artifacts = new File(verifier.getBasedir(), subdir + "target/repository/artifacts.xml");
+        assertTrue(artifacts.getAbsolutePath() + " is missing", artifacts.exists());
+        File content = new File(verifier.getBasedir(), subdir + "target/repository/content.xml");
+        assertTrue(content.getAbsolutePath() + " is missing", content.exists());
+        File site = new File(verifier.getBasedir(), subdir + "target/p2-site.zip");
+        assertTrue(site.getAbsolutePath() + " is missing", site.exists());
     }
 
     @Test
