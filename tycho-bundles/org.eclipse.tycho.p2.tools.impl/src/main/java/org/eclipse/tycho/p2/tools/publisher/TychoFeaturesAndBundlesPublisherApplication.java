@@ -58,8 +58,10 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
     private static final String MAVEN_PREFIX = "maven-";
     private BundleDescription[] bundles;
     private File[] advices;
+    private String[] signatures;
     private URI categoryDefinition;
     private String[] rules;
+    private String publicKeys;
 
     @Override
     public Object run(PublisherInfo publisherInfo) throws Exception {
@@ -75,6 +77,9 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
                 SimpleArtifactRepository repo = (SimpleArtifactRepository) repoFactory.load(artifactLocation,
                         IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, null);
                 repo.setRules(newRules);
+                if (publicKeys != null) {
+                    repo.setProperty("pgp.publicKeys", publicKeys);
+                }
                 repo.save();
             }
         }
@@ -85,40 +90,48 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
     protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo)
             throws URISyntaxException {
         super.processParameter(arg, parameter, publisherInfo);
+
         if (arg.equalsIgnoreCase("-bundles")) {
-            bundles = Arrays.stream(AbstractPublisherAction.getArrayFromString(parameter, ",")).map(File::new)
-                    .map(t -> {
-                        try {
-                            return BundlesAction.createBundleDescription(t);
-                        } catch (IOException | BundleException e) {
-                            //ignoring files that are "not bundles" they will be skipped on the later steps
-                            return null;
-                        }
-                    }).toArray(BundleDescription[]::new);
-        }
-        if (arg.equalsIgnoreCase("-bundlesFile")) {
             bundles = Arrays.stream(getArrayFromFile(parameter)).map(File::new).map(t -> {
                 try {
                     return BundlesAction.createBundleDescription(t);
                 } catch (IOException | BundleException e) {
                     //ignoring files that are "not bundles" they will be skipped on the later steps
+                    System.out.println("Ignore " + t.getName() + " as it is not a bundle!");
                     return null;
                 }
             }).toArray(BundleDescription[]::new);
         }
         if (arg.equalsIgnoreCase("-advices")) {
-            advices = Arrays.stream(AbstractPublisherAction.getArrayFromString(parameter, ","))
-                    .map(str -> str.isBlank() ? null : new File(str)).toArray(File[]::new);
-        }
-        if (arg.equalsIgnoreCase("-advicesFile")) {
             advices = Arrays.stream(getArrayFromFile(parameter)).map(str -> str.isBlank() ? null : new File(str))
                     .toArray(File[]::new);
+        }
+        if (arg.equalsIgnoreCase("-signatures")) {
+            signatures = Arrays.stream(getArrayFromFile(parameter)).map(str -> str.isBlank() ? null : new File(str))
+                    .map(file -> {
+                        if (file == null) {
+                            return null;
+                        }
+                        try {
+                            return FileUtils.readFileToString(file, StandardCharsets.US_ASCII);
+                        } catch (IOException e) {
+                            // skip unreadable files...
+                            return null;
+                        }
+                    }).toArray(String[]::new);
         }
         if (arg.equalsIgnoreCase("-categoryDefinition")) {
             categoryDefinition = URIUtil.fromString(parameter);
         }
         if (arg.equalsIgnoreCase("-rules")) {
             rules = AbstractPublisherAction.getArrayFromString(parameter, ",");
+        }
+        if (arg.equalsIgnoreCase("-publicKeys")) {
+            try {
+                publicKeys = FileUtils.readFileToString(new File(parameter), StandardCharsets.US_ASCII);
+            } catch (IOException e) {
+                throw new URISyntaxException(parameter, "can't read public key file: " + e);
+            }
         }
     }
 
@@ -139,7 +152,7 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
             for (int i = 0; i < advices.length; i++) {
                 File adviceFile = advices[i];
                 BundleDescription bundleDescription;
-                if (i >= bundles.length - 1 || (bundleDescription = bundles[i]) == null) {
+                if (i >= bundles.length || (bundleDescription = bundles[i]) == null) {
                     continue;
                 }
                 String symbolicName = bundleDescription.getSymbolicName();
@@ -194,6 +207,28 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
                 result.add(new AdviceFilePublisherAction(advicesList));
             }
         }
+        if (signatures != null) {
+            List<PGPSignatureAdvice> signaturesList = new ArrayList<>();
+            for (int i = 0; i < signatures.length; i++) {
+                String signature = signatures[i];
+                if (signature == null) {
+                    //no signature...
+                    continue;
+                }
+                BundleDescription bundleDescription;
+                if (i >= bundles.length || (bundleDescription = bundles[i]) == null) {
+                    continue;
+                }
+                String symbolicName = bundleDescription.getSymbolicName();
+                if (symbolicName == null) {
+                    //not a bundle... no signature...
+                    continue;
+                }
+                signaturesList.add(new PGPSignatureAdvice(symbolicName,
+                        PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), signature));
+            }
+            result.add(new SignaturePublisherAction(signaturesList));
+        }
         if (bundles != null) {
             result.add(new BundlesAction(bundles));
         }
@@ -201,6 +236,24 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
             result.add(new CategoryXMLAction(categoryDefinition, "category"));
         }
         return result.toArray(IPublisherAction[]::new);
+    }
+
+    private static final class SignaturePublisherAction extends AbstractPublisherAction {
+
+        private List<PGPSignatureAdvice> signaturesList;
+
+        public SignaturePublisherAction(List<PGPSignatureAdvice> signaturesList) {
+            this.signaturesList = signaturesList;
+        }
+
+        @Override
+        public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
+            for (PGPSignatureAdvice signature : signaturesList) {
+                publisherInfo.addAdvice(signature);
+            }
+            return Status.OK_STATUS;
+        }
+
     }
 
     private static final class AdviceFilePublisherAction extends AbstractPublisherAction {

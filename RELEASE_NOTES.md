@@ -4,6 +4,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## Next release...
 
+### [Support for PGP Signatures in maven-p2 sites](https://github.com/eclipse/tycho/issues/203)
+
+The `assemble-maven-repository` mojo now supports embedding the PGP signature of maven artifacts to allow additional verifications and trust decisions.
+
 ### Support for new m2e-pde features
 
 Tycho supports the new m2e-pde features regarding [multiple dependencies per target](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-adding-more-than-one-dependency-per-target-location) and specifying [extra repositories in the target](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-adding-additional-maven-repoistories-for-a-target-location).
@@ -46,18 +50,18 @@ From now on this restriction is no longer true and one is able to execute unit-t
 Tycho also includes a new tycho-failsafe mojo, that is similar to the maven one:
  - it executes at the integration-test phase but do not fail the build if a test fails, instead a summary file is written
  - the outcome of the tests are checked in the verify phase (and fail the build there if neccesary)
- - this allows to hook some setup/teardown mojos (e.g. start webservers, ...) in the pre-integration-test phase and to safly tear them down in the post-integration test phase (thus the name 'failsafe' see [tycho-failsafe-faq](https://maven.apache.org/surefire/maven-failsafe-plugin/faq.html) for some more details
+ - this allows to hook some setup/teardown mojos (e.g. start webservers, ...) in the pre-integration-test phase and to safely tear them down in the post-integration test phase (thus the name 'failsafe' see [tycho-failsafe-faq](https://maven.apache.org/surefire/maven-failsafe-plugin/faq.html) for some more details
 
 Given you have the above setup you create an integration-test (executed in an OSGi runtime like traditional tycho-surefire mojo) as following:
 
 - create a new test that mathes the pattern `*IT.java` (or configure a different pattern that do not intersects with the surefire test pattern)
 - run your it with `mvn verify`
 
-:warning: If you where previously using `-Dtest=....` on the root level of your build tree it might now be neccesary to also include `-Dsurefire.failIfNoSpecifiedTests=false` as maven-surefire might otherwhise complain about 
+:warning: If you where previously using `-Dtest=....` on the root level of your build tree it might now be necessary to also include `-Dsurefire.failIfNoSpecifiedTests=false` as maven-surefire might otherwise complain about 
 
 > No tests were executed! (Set -DfailIfNoTests=false to ignore this error.)
 
-for your eclipse-plugin packaged project if they do not match anything (the error message is a bit missleading, thsi is tracked in [SUREFIRE-1910](https://issues.apache.org/jira/browse/SUREFIRE-1910)).
+for your eclipse-plugin packaged project if they do not match anything (the error message is a bit misleading, this is tracked in [SUREFIRE-1910](https://issues.apache.org/jira/browse/SUREFIRE-1910)).
 
 
 ### [Enhanced support for debug output in surefire-tests](https://github.com/eclipse/tycho/issues/52) 
@@ -88,7 +92,7 @@ Tycho now understands the `additional.bundles` directive in the `build.propertie
 
 ### Create p2 repository referencing Maven artifacts
 
-A new mojo [tycho-p2-repository-plugin:assemble-maven-repository](https://www.eclipse.org/tycho/sitedocs/tycho-p2-repository-plugin/assemble-maven-repository.html) was added to enable creation of p2 repositories directly from Maven artifact references. This removes the usual need to create a target definition and a category.xml for this task.
+A new mojo [tycho-p2-repository-plugin:assemble-maven-repository](https://www.eclipse.org/tycho/sitedocs/tycho-p2/tycho-p2-repository-plugin/assemble-maven-repository-mojo.html) was added to enable creation of p2 repositories directly from Maven artifact references. This removes the usual need to create a target definition and a category.xml for this task.
 
 ### [Skip Tycho dependency-resolution for clean-only builds by default](https://github.com/eclipse/tycho/issues/166)
 
