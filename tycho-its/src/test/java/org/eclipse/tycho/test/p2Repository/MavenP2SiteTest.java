@@ -42,15 +42,6 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
         }
     }
 
-    protected void verifyRepositoryExits(Verifier verifier, String subdir) {
-        File artifacts = new File(verifier.getBasedir(), subdir + "target/repository/artifacts.xml");
-        assertTrue(artifacts.getAbsolutePath() + " is missing", artifacts.exists());
-        File content = new File(verifier.getBasedir(), subdir + "target/repository/content.xml");
-        assertTrue(content.getAbsolutePath() + " is missing", content.exists());
-        File site = new File(verifier.getBasedir(), subdir + "target/p2-site.zip");
-        assertTrue(site.getAbsolutePath() + " is missing", site.exists());
-    }
-
     @Test
     public void testDeployIgnore() throws Exception {
         Verifier verifier = getVerifier("p2mavensite.reactor", false);
@@ -68,7 +59,17 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
     @Test
     public void testPGP() throws Exception {
         Verifier verifier = getVerifier("p2mavensite.pgp", false);
+        verifier.executeGoals(asList("clean", "install"));
         verifier.verifyErrorFreeLog();
         verifyRepositoryExits(verifier, "site/");
+    }
+
+    protected void verifyRepositoryExits(Verifier verifier, String subdir) {
+        File artifacts = new File(verifier.getBasedir(), subdir + "target/repository/artifacts.xml");
+        assertTrue(artifacts.getAbsolutePath() + " is missing", artifacts.exists());
+        File content = new File(verifier.getBasedir(), subdir + "target/repository/content.xml");
+        assertTrue(content.getAbsolutePath() + " is missing", content.exists());
+        File site = new File(verifier.getBasedir(), subdir + "target/p2-site.zip");
+        assertTrue(site.getAbsolutePath() + " is missing", site.exists());
     }
 }
