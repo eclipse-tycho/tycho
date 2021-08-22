@@ -136,7 +136,7 @@ public class DependencyComputer {
         // to avoid cycles, e.g. when a bundle imports a package it exports
         added.add(module);
 
-        List<DependencyEntry> entries = new ArrayList<>();
+        Set<DependencyEntry> entries = new LinkedHashSet<>();
         getFragmentHost(module).ifPresent(host -> addHostPlugin(host, added, visiblePackages, entries));
         getRequiredBundles(module).forEach(required -> addDependency(required, added, visiblePackages, entries));
 
@@ -150,7 +150,7 @@ public class DependencyComputer {
             addDependencyViaImportPackage(bundle, added, visiblePackages, entries);
         }
 
-        return entries;
+        return new ArrayList<>(entries);
     }
 
     private Collection<ModuleRevision> getRequiredBundles(ModuleRevision module) {
@@ -166,47 +166,18 @@ public class DependencyComputer {
                 .map(ModuleWire::getProvider).findAny();
     }
 
-    class PackageSource {
-        public final ModuleCapability cap;
-        public final ModuleWire wire;
-
-        PackageSource(ModuleCapability cap, ModuleWire wire) {
-            this.cap = cap;
-            this.wire = wire;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof PackageSource) {
-                return Objects.equals(cap, ((PackageSource) o).cap)
-                        && Objects.equals(wire.getProvider(), ((PackageSource) o).wire.getProvider());
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return cap.hashCode() ^ wire.getProvider().hashCode();
-        }
-    }
-
     private VisiblePackages getPackagesInternal(ModuleRevision module) {
-        Map<String, Set<PackageSource>> sources = getPackagesInternal0(module.getWiring(), null);
+        Map<String, Set<ModuleCapability>> sources = getPackagesInternal0(module.getWiring(), new HashMap<>());
         VisiblePackages res = new VisiblePackages(module);
-        sources.values().stream() //
-                .flatMap(Set::stream) //
-                .map(p -> p.cap) //
-                .forEach(res::add);
+        sources.values().stream().flatMap(Set::stream).forEach(res::add);
         return res;
     }
 
     // This part of resolution is copied and adapted from EquinoxCommandProvider `getPackages` implementation
-    private Map<String, Set<PackageSource>> getPackagesInternal0(ModuleWiring wiring,
-            Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources) {
-        if (allSources == null) {
-            allSources = new HashMap<>();
-        }
-        Map<String, Set<PackageSource>> packages = allSources.get(wiring);
+    private Map<String, Set<ModuleCapability>> getPackagesInternal0(ModuleWiring wiring,
+            Map<ModuleWiring, Map<String, Set<ModuleCapability>>> allSources) {
+
+        Map<String, Set<ModuleCapability>> packages = allSources.get(wiring);
         if (packages != null) {
             return packages;
         }
@@ -221,8 +192,9 @@ public class DependencyComputer {
         return packages;
     }
 
-    private void populateFromWiring(ModuleWiring wiring, Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources,
-            Map<String, Set<PackageSource>> packages, Set<String> importedPackageNames) {
+    private void populateFromWiring(ModuleWiring wiring,
+            Map<ModuleWiring, Map<String, Set<ModuleCapability>>> allSources,
+            Map<String, Set<ModuleCapability>> packages, Set<String> importedPackageNames) {
 
         // first get the imported packages
         for (ModuleWire packageWire : wiring.getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE)) {
@@ -248,13 +220,11 @@ public class DependencyComputer {
 
         while (!toVisitWires.isEmpty()) {
             ModuleWire moduleWire = toVisitWires.removeFirst();
-            if (!requiredAndReexportedWires.contains(moduleWire)) {
-                requiredAndReexportedWires.add(moduleWire);
+            if (requiredAndReexportedWires.add(moduleWire)) {
                 ModuleWiring providerWiring = moduleWire.getProviderWiring();
                 toVisitWires.addAll(getRequiredModuleWiresWithVisibilityReexport(providerWiring));
             }
         }
-
         return requiredAndReexportedWires;
     }
 
@@ -267,28 +237,31 @@ public class DependencyComputer {
     }
 
     private void addAggregatePackageSource(ModuleCapability packageCap, String packageName, ModuleWire wire,
-            Map<String, Set<PackageSource>> packages, Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources) {
-        Set<PackageSource> packageSources = packages.computeIfAbsent(packageName, p -> new LinkedHashSet<>());
-        packageSources.add(new PackageSource(packageCap, wire));
+            Map<String, Set<ModuleCapability>> packages,
+            Map<ModuleWiring, Map<String, Set<ModuleCapability>>> allSources) {
+        Set<ModuleCapability> packageSources = packages.computeIfAbsent(packageName, p -> new LinkedHashSet<>());
+        packageSources.add(packageCap);
         // Tycho-specific: Case of split package with fragment, not part of `getPackages` console command but necessary for Tycho
         for (ModuleWire fragmentWire : packageCap.getResource().getWiring()
                 .getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)) {
             for (ModuleCapability fragmentExport : fragmentWire.getRequirer()
                     .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
                 if (getPackageName(fragmentExport).equals(getPackageName(packageCap))) {
-                    packageSources.add(new PackageSource(fragmentExport, wire));
+                    packageSources.add(fragmentExport);
                 }
             }
         }
         // source may be a split package aggregate
-        Set<PackageSource> providerSource = getPackagesInternal0(wire.getProviderWiring(), allSources).get(packageName);
+        Set<ModuleCapability> providerSource = getPackagesInternal0(wire.getProviderWiring(), allSources)
+                .get(packageName);
         if (providerSource != null) {
             packageSources.addAll(providerSource);
         }
     }
 
     private void getRequiredBundlePackages(ModuleWire requiredWire, Set<String> importedPackageNames,
-            Map<String, Set<PackageSource>> packages, Map<ModuleWiring, Map<String, Set<PackageSource>>> allSources) {
+            Map<String, Set<ModuleCapability>> packages,
+            Map<ModuleWiring, Map<String, Set<ModuleCapability>>> allSources) {
         ModuleWiring providerWiring = requiredWire.getProviderWiring();
         for (ModuleCapability packageCapability : providerWiring
                 .getModuleCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
@@ -334,8 +307,8 @@ public class DependencyComputer {
         return (String) capability.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
     }
 
-    protected void addDependencyViaImportPackage(ModuleRevision module, Collection<ModuleRevision> added,
-            VisiblePackages visiblePackages, Collection<DependencyEntry> entries) {
+    private void addDependencyViaImportPackage(ModuleRevision module, Collection<ModuleRevision> added,
+            VisiblePackages visiblePackages, Set<DependencyEntry> entries) {
         if (module == null || !added.add(module)) {
             return;
         }
@@ -351,18 +324,17 @@ public class DependencyComputer {
         if (host == null /* || !isExtensibleAPI(host) */) {
             return Collections.emptyList();
         }
-
         return host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
                 .map(ModuleWire::getRequirer).collect(Collectors.toList());
     }
 
     private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
-            Collection<DependencyEntry> entries) {
+            Set<DependencyEntry> entries) {
         addDependency(desc, added, visiblePackages, entries, true);
     }
 
     private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
-            Collection<DependencyEntry> entries, boolean useInclusion) {
+            Set<DependencyEntry> entries, boolean useInclusion) {
         if (desc == null || !added.add(desc))
             return;
 
@@ -379,16 +351,14 @@ public class DependencyComputer {
     }
 
     private void addPlugin(ModuleRevision module, boolean useInclusions, VisiblePackages visiblePackages,
-            Collection<DependencyEntry> entries) {
+            Set<DependencyEntry> entries) {
         Collection<AccessRule> rules = useInclusions ? visiblePackages.getInclusions(module) : null;
         DependencyEntry entry = new DependencyEntry(module, rules);
-        if (!entries.contains(entry)) {
-            entries.add(entry);
-        }
+        entries.add(entry);
     }
 
-    private void addHostPlugin(ModuleRevision host, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
-            Collection<DependencyEntry> entries) {
+    private void addHostPlugin(ModuleRevision host, Set<ModuleRevision> added, VisiblePackages visiblePackages,
+            Set<DependencyEntry> entries) {
         if (host == null) {
             return;
         }
@@ -428,13 +398,13 @@ public class DependencyComputer {
                 .map(packageExport -> createRule(systemBundle, packageExport)).collect(Collectors.toList());
     }
 
-    public static boolean isDiscouragedAccess(BundleRevision bundle, Capability export) {
+    private static boolean isDiscouragedAccess(BundleRevision bundle, Capability export) {
         if (Boolean.parseBoolean(export.getDirectives().get("x-internal"))) {
             return true;
         }
         String allFriends = export.getDirectives().get("x-friends");
         if (allFriends != null) {
-            return !Arrays.stream(allFriends.split(",")).map(String::trim).anyMatch(bundle.getSymbolicName()::equals);
+            return Arrays.stream(allFriends.split(",")).map(String::trim).noneMatch(bundle.getSymbolicName()::equals);
         }
         return false;
     }
