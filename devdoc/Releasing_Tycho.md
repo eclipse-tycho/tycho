@@ -65,7 +65,7 @@ Tycho team
 git log --pretty=format:%an tycho-<previousVersion>..tycho-<newVersion> | sort | uniq
 git log --grep="Also-[bB]y:" tycho-<previousVersion>..tycho-<newVersion> | grep -i also-by | sed -e 's/.*Also-[bB]y:\s*\(.*\)/\1/' | sort | uniq
 ```
-  - [ ] Announce the release on tycho-user@eclipse.org, tycho-dev@eclipse.org, thanking the contributors:
+  - [ ] Announce the release on [GitHub discussions](https://github.com/eclipse/tycho/discussions) and tycho-dev@eclipse.org, thanking the contributors:
 ```
 Subject: Tycho <VERSION> is released
 
