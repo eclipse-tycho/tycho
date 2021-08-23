@@ -74,8 +74,9 @@ public class ManifestAttribute {
     }
 
     public String getValue() {
-        if (content.toString().indexOf(": ") > 0) {
-            return content.substring(content.toString().indexOf(": ") + 2).replaceAll("\n ", "");
+        int index = content.indexOf(": ");
+        if (index > 0) {
+            return content.substring(index + 2).replace("\n ", "");
         }
         return null;
     }

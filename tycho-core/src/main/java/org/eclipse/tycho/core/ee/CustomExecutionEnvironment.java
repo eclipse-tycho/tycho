@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,20 +52,20 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
         systemPackages = systemCapabilities.stream().filter(capability -> capability.getType() == Type.JAVA_PACKAGE)
                 .map(capability -> new SystemPackageEntry(capability.getName(), capability.getVersion()))
                 .collect(Collectors.toList());
-        setPropertyIfNotEmpty(Constants.FRAMEWORK_SYSTEMPACKAGES, new StringBuilder(
-                systemPackages.stream().map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(","))));
+        setPropertyIfNotEmpty(Constants.FRAMEWORK_SYSTEMPACKAGES,
+                systemPackages.stream().map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(",")));
     }
 
     private void setExecutionEnvironmentProperties(List<SystemCapability> systemCapabilities) {
-        StringBuilder executionEnvironmentProperty = new StringBuilder();
+        StringJoiner executionEnvironmentProperty = new StringJoiner(",");
         for (SystemCapability capability : systemCapabilities) {
             if (capability.getType() == Type.OSGI_EE) {
                 String environmentName = capability.getName();
                 String version = normalizeVersion(capability.getVersion());
-                append(executionEnvironmentProperty, toExecutionEnvironment(environmentName, version));
+                executionEnvironmentProperty.add(toExecutionEnvironment(environmentName, version));
             }
         }
-        setPropertyIfNotEmpty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, executionEnvironmentProperty);
+        setPropertyIfNotEmpty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, executionEnvironmentProperty.toString());
     }
 
     private static final class MultipleVersionsCapability {
@@ -113,26 +114,14 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
                 }
             }
         }
-
-        StringBuilder systemCapabilitesProperty = new StringBuilder();
-        for (MultipleVersionsCapability capability : capabilityMap.values()) {
-            append(systemCapabilitesProperty, capability.toString());
-        }
-
-        setPropertyIfNotEmpty(Constants.FRAMEWORK_SYSTEMCAPABILITIES, systemCapabilitesProperty);
+        String capabilites = capabilityMap.values().stream().map(Object::toString).collect(Collectors.joining(","));
+        setPropertyIfNotEmpty(Constants.FRAMEWORK_SYSTEMCAPABILITIES, capabilites);
     }
 
-    private void setPropertyIfNotEmpty(String key, StringBuilder value) {
+    private void setPropertyIfNotEmpty(String key, String value) {
         if (value.length() > 0) {
-            properties.setProperty(key, value.toString());
+            properties.setProperty(key, value);
         }
-    }
-
-    private static void append(StringBuilder propertyValue, final String value) {
-        if (propertyValue.length() > 0) {
-            propertyValue.append(",");
-        }
-        propertyValue.append(value);
     }
 
     private String normalizeVersion(String version) {

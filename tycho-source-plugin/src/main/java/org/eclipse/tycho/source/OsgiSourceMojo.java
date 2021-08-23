@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.jar.JarFile;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
@@ -357,7 +358,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         if (!distinctSourceRoots) {
             return ".";
         }
-        StringBuilder result = new StringBuilder();
+        StringJoiner result = new StringJoiner(",");
         for (String jarName : getBuildProperties().getJarToSourceFolderMap().keySet()) {
             String sourceRoot;
             if (".".equals(jarName)) {
@@ -365,10 +366,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             } else {
                 sourceRoot = getSourceRootTargetPath(jarName);
             }
-            if (result.length() > 0) {
-                result.append(",");
-            }
-            result.append(sourceRoot);
+            result.add(sourceRoot);
         }
         return result.toString();
     }

@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import org.eclipse.core.runtime.IPath;
 
@@ -65,7 +66,7 @@ public class RootFilesProperties {
 
     private List<Permission> permissions = new ArrayList<>();
 
-    private StringBuilder links = new StringBuilder();
+    private StringJoiner links = new StringJoiner(",");
 
     public FileToPathMap getFileMap() {
         return fileSourceToDestinationMap;
@@ -92,7 +93,7 @@ public class RootFilesProperties {
     public void addLinks(String[] linkValueSegments) {
         verifySpecifiedInPairs(linkValueSegments);
         for (String segment : linkValueSegments) {
-            addLinkSegment(segment);
+            links.add(segment);
         }
     }
 
@@ -106,15 +107,8 @@ public class RootFilesProperties {
     private static void verifySpecifiedInPairs(String[] linkValueSegments) {
         if (linkValueSegments.length % 2 != 0) {
             String message = "Links must be specified as a sequence of \"link target,link name\" pairs; the actual value \""
-                    + SegmentHelper.segmentsToString(linkValueSegments, ',') + "\" contains an odd number of segments";
+                    + String.join(",", linkValueSegments) + "\" contains an odd number of segments";
             throw new IllegalArgumentException(message);
         }
-    }
-
-    private void addLinkSegment(String segment) {
-        if (links.length() > 0) {
-            links.append(',');
-        }
-        links.append(segment);
     }
 }

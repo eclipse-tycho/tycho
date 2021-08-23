@@ -20,6 +20,7 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -129,7 +130,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
 
         System.setProperty("osgi.framework.useSystemProperties", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        final StringBuilder bundles = new StringBuilder();
+        final StringJoiner bundles = new StringJoiner(",");
 
         if (!installationLocations.isEmpty()) {
             File frameworkDir = installationLocations.get(0);
@@ -146,10 +147,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         }
 
         for (File location : bundleLocations) {
-            if (bundles.length() > 0) {
-                bundles.append(',');
-            }
-            bundles.append(getReferenceUrl(location));
+            bundles.add(getReferenceUrl(location));
         }
         platformProperties.put("osgi.bundles", bundles.toString());
 
@@ -157,15 +155,9 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         platformProperties.put("osgi.parentClassloader", "fwk");
 
         if (extraSystemPackages.size() > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (String pkg : extraSystemPackages) {
-                if (sb.length() > 0) {
-                    sb.append(',');
-                }
-                sb.append(pkg);
-            }
+            String extraPackages = String.join(",", extraSystemPackages);
             // make the system bundle export the given packages and load them from the parent class loader
-            platformProperties.put("org.osgi.framework.system.packages.extra", sb.toString());
+            platformProperties.put("org.osgi.framework.system.packages.extra", extraPackages);
         }
 
         // debug
@@ -221,24 +213,19 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         }
     }
 
-    private void addBundlesDir(StringBuilder bundles, File[] files, boolean absolute) {
+    private void addBundlesDir(StringJoiner bundles, File[] files, boolean absolute) {
         if (files != null) {
             for (File file : files) {
                 if (isFrameworkBundle(file)) {
                     continue;
                 }
-
-                if (bundles.length() > 0) {
-                    bundles.append(',');
-                }
-
                 if (absolute) {
-                    bundles.append(getReferenceUrl(file));
+                    bundles.add(getReferenceUrl(file));
                 } else {
                     String name = file.getName();
                     int verIdx = name.indexOf('_');
                     if (verIdx > 0) {
-                        bundles.append(name.substring(0, verIdx));
+                        bundles.add(name.substring(0, verIdx));
                     } else {
                         throw new EquinoxEmbedderException("File name doesn't match expected pattern: " + file);
                     }

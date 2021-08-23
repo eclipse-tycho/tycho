@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.apache.maven.artifact.Artifact;
@@ -498,19 +499,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     }
 
     private String toString(Collection<AccessRule> rules) {
-        StringBuilder result = new StringBuilder(); // include all
+        StringJoiner result = new StringJoiner(RULE_SEPARATOR, "[", "]"); // include all
         if (rules != null) {
-            result.append("[");
             for (AccessRule rule : rules) {
-                if (result.length() > 1)
-                    result.append(RULE_SEPARATOR);
-                result.append(rule.isDiscouraged() ? "~" : "+");
-                result.append(rule.getPattern());
+                result.add((rule.isDiscouraged() ? "~" : "+") + rule.getPattern());
             }
-            if (result.length() > 1)
-                result.append(RULE_SEPARATOR);
-            result.append(RULE_EXCLUDE_ALL);
-            result.append("]");
+            result.add(RULE_EXCLUDE_ALL);
         } else {
             // include everything, not strictly necessary, but lets make this obvious
             //result.append("[+**/*]");

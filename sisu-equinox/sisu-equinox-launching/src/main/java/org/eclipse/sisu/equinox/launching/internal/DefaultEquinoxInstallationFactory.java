@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.ArchiverException;
@@ -228,14 +229,11 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
     protected String toOsgiBundles(Map<ArtifactKey, File> bundles, Map<String, BundleStartLevel> startLevel,
             BundleStartLevel defaultStartLevel) throws IOException {
         log.debug("Installation OSGI bundles:");
-        StringBuilder result = new StringBuilder();
+        StringJoiner result = new StringJoiner(",");
         for (Map.Entry<ArtifactKey, File> entry : bundles.entrySet()) {
             BundleStartLevel level = startLevel.get(entry.getKey().getId());
             if (level != null && level.getLevel() == -1) {
                 continue; // system bundle
-            }
-            if (result.length() > 0) {
-                result.append(",");
             }
 
             StringBuilder line = new StringBuilder();
@@ -258,7 +256,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
                 }
             }
             log.debug("\t" + line);
-            result.append(line.toString());
+            result.add(line.toString());
         }
         return result.toString();
     }

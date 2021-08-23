@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2.impl.publisher;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IPath;
@@ -144,13 +145,10 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
     protected void addProperties(InstallableUnitDescription iud) {
         iud.setProperty(QueryUtil.PROP_TYPE_GROUP, "true");
 
-        StringBuilder includedIUs = new StringBuilder();
+        StringJoiner includedIUs = new StringJoiner(",");
         for (FeatureEntry entry : feature.getEntries()) {
             String id = getInstallableUnitId(entry);
-            if (includedIUs.length() > 0) {
-                includedIUs.append(',');
-            }
-            includedIUs.append(id);
+            includedIUs.add(id);
         }
         iud.setProperty(INCLUDED_IUS, includedIUs.toString());
     }

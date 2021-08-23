@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -175,31 +176,23 @@ public class EquinoxResolver {
             ExecutionEnvironmentUtils.applyProfileProperties(properties, ee);
         } else {
             // ignoring EE by adding all known EEs
-            StringBuilder allSystemPackages = new StringBuilder();
-            StringBuilder allSystemCapabilities = new StringBuilder();
+            StringJoiner allSystemPackages = new StringJoiner(",");
+            StringJoiner allSystemCapabilities = new StringJoiner(",");
             for (String profile : ExecutionEnvironmentUtils.getProfileNames()) {
                 StandardExecutionEnvironment executionEnvironment = ExecutionEnvironmentUtils
                         .getExecutionEnvironment(profile, toolchainManager, mavenSession, logger);
                 String currentSystemPackages = (String) executionEnvironment.getProfileProperties()
                         .get(Constants.FRAMEWORK_SYSTEMPACKAGES);
                 if (currentSystemPackages != null && !currentSystemPackages.isEmpty()) {
-                    allSystemPackages.append(currentSystemPackages);
-                    allSystemPackages.append(',');
+                    allSystemPackages.add(currentSystemPackages);
                 }
                 String currentSystemCapabilities = (String) executionEnvironment.getProfileProperties()
                         .get(Constants.FRAMEWORK_SYSTEMCAPABILITIES);
                 if (currentSystemCapabilities != null && !currentSystemCapabilities.isEmpty()) {
-                    allSystemCapabilities.append(currentSystemCapabilities);
-                    allSystemCapabilities.append(',');
+                    allSystemCapabilities.add(currentSystemCapabilities);
                 }
             }
-            if (allSystemPackages.length() > 0) {
-                allSystemPackages.deleteCharAt(allSystemPackages.length() - 1);
-            }
             properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES, allSystemPackages.toString());
-            if (allSystemCapabilities.length() > 0) {
-                allSystemCapabilities.deleteCharAt(allSystemCapabilities.length() - 1);
-            }
             properties.put(Constants.FRAMEWORK_SYSTEMCAPABILITIES, allSystemCapabilities.toString());
         }
         return properties;

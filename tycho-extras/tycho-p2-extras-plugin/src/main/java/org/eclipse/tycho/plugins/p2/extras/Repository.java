@@ -13,6 +13,8 @@
 package org.eclipse.tycho.plugins.p2.extras;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public final class Repository {
 
@@ -87,18 +89,9 @@ public final class Repository {
                 return;
             }
         }
-        throw new IllegalArgumentException("Unrecognized value for attribute 'layout': \"" + value
-                + "\". Valid values are: " + listValues(Layout.values()));
-    }
-
-    private String listValues(Enum<?>... values) {
-        StringBuilder result = new StringBuilder();
-        String separator = ", ";
-        for (Enum<?> value : values) {
-            result.append(value.toString());
-            result.append(separator);
-        }
-        return result.substring(0, result.length() - separator.length());
+        String values = Arrays.stream(Layout.values()).map(Object::toString).collect(Collectors.joining(", "));
+        throw new IllegalArgumentException(
+                "Unrecognized value for attribute 'layout': \"" + value + "\". Valid values are: " + values);
     }
 
 }
