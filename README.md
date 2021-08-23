@@ -20,6 +20,6 @@ with Maven.
      * New https://github.com/eclipse/tycho/issues
      * Legacy https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho
 * ⌨️ How to Contribute and latest snapshots: [CONTRIBUTING.md](./CONTRIBUTING.md)
-* 💬 Community mailing-lists
-     * Usage assistance https://dev.eclipse.org/mailman/listinfo/tycho-user
+* 💬 Discussion channels
+     * Usage assistance https://github.com/eclipse/tycho/discussions
      * Development https://dev.eclipse.org/mailman/listinfo/tycho-dev
