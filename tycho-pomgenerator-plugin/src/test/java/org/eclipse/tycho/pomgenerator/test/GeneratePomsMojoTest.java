@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
@@ -48,13 +49,8 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
                 "generate-poms", null);
         setVariableValueToObject(generateMojo, "baseDir", baseDir);
         if (extraDirs != null) {
-            StringBuilder sb = new StringBuilder();
-            for (File dir : extraDirs) {
-                if (sb.length() > 0)
-                    sb.append(',');
-                sb.append(dir.getAbsolutePath());
-            }
-            setVariableValueToObject(generateMojo, "extraDirs", sb.toString());
+            String dirs = Arrays.stream(extraDirs).map(File::getAbsolutePath).collect(Collectors.joining(","));
+            setVariableValueToObject(generateMojo, "extraDirs", dirs);
         }
         setVariableValueToObject(generateMojo, "executionEnvironment", "J2SE-1.5"); // the default value
         setVariableValueToObject(generateMojo, "repoURL", "https://download.eclipse.org/releases/latest/");
@@ -219,8 +215,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         Model aggmodel = readModel(baseDir, "p003/poma.xml");
         List<String> aggrmodules = aggmodel.getModules();
         assertEquals(5, aggrmodules.size());
-        assertEquals(Arrays.asList("../p001", "../p001.tests", "../p002", "../p004", "."),
-                aggrmodules);
+        assertEquals(Arrays.asList("../p001", "../p001.tests", "../p002", "../p004", "."), aggrmodules);
 
         assertEquals("eclipse-test-plugin", readModel(baseDir, "p001.tests/pom.xml").getPackaging());
         assertEquals("eclipse-test-plugin", readModel(baseDir, "p004/pom.xml").getPackaging());

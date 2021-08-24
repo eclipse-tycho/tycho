@@ -18,6 +18,8 @@ package org.eclipse.tycho.pomless;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.ModelParseException;
@@ -54,13 +56,7 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
             if (listFiles.length == 1) {
                 return listFiles[0];
             } else {
-                StringBuilder sb = new StringBuilder();
-                for (File f : listFiles) {
-                    if (sb.length() > 0) {
-                        sb.append(", ");
-                    }
-                    sb.append(f.getName());
-                }
+                String sb = Arrays.stream(listFiles).map(File::getName).collect(Collectors.joining(", "));
                 throw new IllegalArgumentException("only one " + TARGET_EXTENSION
                         + " file is allowed per target project, or target must be named like the folder (<foldername>"
                         + TARGET_EXTENSION + "), the following targets where found: " + sb);

@@ -98,14 +98,7 @@ public class Platform {
         }
 
         public void setPlugins(List<String> plugins) {
-            StringBuilder sb = new StringBuilder();
-            for (String plugin : plugins) {
-                if (sb.length() > 0) {
-                    sb.append(',');
-                }
-                sb.append(plugin);
-            }
-            setPluginsStr(sb.toString());
+            setPluginsStr(String.join(",", plugins));
         }
 
         public String getPluginsStr() {

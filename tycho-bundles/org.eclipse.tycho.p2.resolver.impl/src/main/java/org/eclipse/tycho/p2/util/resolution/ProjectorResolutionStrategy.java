@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -87,8 +88,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             logger.debug(StatusTool.collectProblems(s));
 
             Set<Explanation> explanation = projector.getExplanation(new NullProgressMonitor()); // suppress "Cannot complete the request.  Generating details."
-            throw new ResolverException(toString(explanation), newSelectionContext.toString(),
-                    StatusTool.findException(s));
+            throw new ResolverException(explanation.stream().map(Object::toString).collect(Collectors.joining("\n")),
+                    newSelectionContext.toString(), StatusTool.findException(s));
         }
         Collection<IInstallableUnit> newState = projector.extractSolution();
 
@@ -102,15 +103,6 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         }
 
         return newState;
-    }
-
-    private String toString(Set<Explanation> explanation) {
-        StringBuilder result = new StringBuilder();
-        for (Explanation explanationLine : explanation) {
-            result.append(explanationLine.toString());
-            result.append('\n');
-        }
-        return result.substring(0, result.length() - 1);
     }
 
     /*

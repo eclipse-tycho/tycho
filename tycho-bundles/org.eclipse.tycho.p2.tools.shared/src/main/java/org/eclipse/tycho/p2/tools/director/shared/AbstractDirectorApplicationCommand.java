@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -26,9 +27,9 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
  */
 public abstract class AbstractDirectorApplicationCommand implements DirectorRuntime.Command {
 
-    private StringList metadataSources = new StringList();
-    private StringList artifactSources = new StringList();
-    private StringList unitsToInstall = new StringList();
+    private StringJoiner metadataSources = new StringJoiner(",");
+    private StringJoiner artifactSources = new StringJoiner(",");
+    private StringJoiner unitsToInstall = new StringJoiner(",");
 
     private String profileName;
     private TargetEnvironment environment;
@@ -41,20 +42,20 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     @Override
     public final void addMetadataSources(Iterable<URI> metadataRepositories) {
         for (URI repositoryUrl : metadataRepositories) {
-            this.metadataSources.append(repositoryUrl);
+            this.metadataSources.add(repositoryUrl.toString());
         }
     }
 
     @Override
     public final void addArtifactSources(Iterable<URI> artifactRepositories) {
         for (URI repositoryUrl : artifactRepositories) {
-            this.artifactSources.append(repositoryUrl);
+            this.artifactSources.add(repositoryUrl.toString());
         }
     }
 
     @Override
     public final void addUnitToInstall(String id) {
-        this.unitsToInstall.append(id);
+        this.unitsToInstall.add(id);
     }
 
     @Override
@@ -67,7 +68,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         }
         // format understood by VersionedId.parse(String)
         // TODO 372780 once installing from the TP, we need to explicitly pick a version here
-        this.unitsToInstall.append(uid /* + "/" + dependency.getVersion() */);
+        this.unitsToInstall.add(uid /* + "/" + dependency.getVersion() */);
     }
 
     @Override
@@ -129,26 +130,6 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         return args.asList();
     }
 
-    private static class StringList {
-        private static final String VALUE_SEPARATOR = ",";
-
-        StringBuilder list = new StringBuilder();
-
-        void append(Object valueToAppend) {
-            list.append(VALUE_SEPARATOR);
-            list.append(valueToAppend);
-        }
-
-        @Override
-        public String toString() {
-            if (list.length() == 0) {
-                return "";
-            } else {
-                return list.substring(VALUE_SEPARATOR.length());
-            }
-        }
-    }
-
     private static class CommandLineArguments {
         List<String> arguments = new ArrayList<>();
 
@@ -161,10 +142,9 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
             arguments.add(parameterValue);
         }
 
-        void addUnlessEmpty(String parameterName, StringList list) {
-            String parameterValue = list.toString();
-            if (!parameterValue.isEmpty()) {
-                add(parameterName, parameterValue);
+        void addUnlessEmpty(String parameterName, StringJoiner parameterValue) {
+            if (parameterValue.length() > 0) {
+                add(parameterName, parameterValue.toString());
             }
         }
 

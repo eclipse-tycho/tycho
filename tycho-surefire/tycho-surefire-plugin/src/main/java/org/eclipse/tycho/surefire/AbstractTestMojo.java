@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -1255,26 +1256,19 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     }
 
     private String getBuildOutputDirectories() {
-        StringBuilder sb = new StringBuilder();
+        StringJoiner sb = new StringJoiner(",");
         ReactorProject reactorProject = getReactorProject();
         BuildDirectory buildDirectory = reactorProject.getBuildDirectory();
-        sb.append(buildDirectory.getOutputDirectory());
-        sb.append(',').append(buildDirectory.getTestOutputDirectory());
+        sb.add(buildDirectory.getOutputDirectory().toString());
+        sb.add(buildDirectory.getTestOutputDirectory().toString());
         for (BuildOutputJar outputJar : osgiBundle.getEclipsePluginProject(reactorProject).getOutputJars()) {
             if (".".equals(outputJar.getName())) {
                 // handled above
                 continue;
             }
-            appendCommaSeparated(sb, outputJar.getOutputDirectory().getAbsolutePath());
+            sb.add(outputJar.getOutputDirectory().getAbsolutePath());
         }
         return sb.toString();
-    }
-
-    private static void appendCommaSeparated(StringBuilder sb, String string) {
-        if (sb.length() > 0) {
-            sb.append(',');
-        }
-        sb.append(string);
     }
 
     private List<String> getBundlesToExplode() {

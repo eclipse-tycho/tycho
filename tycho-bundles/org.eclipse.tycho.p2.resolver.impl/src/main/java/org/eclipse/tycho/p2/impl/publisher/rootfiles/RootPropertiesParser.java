@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 import static org.eclipse.tycho.p2.impl.publisher.rootfiles.SegmentHelper.segmentEquals;
 import static org.eclipse.tycho.p2.impl.publisher.rootfiles.SegmentHelper.segmentEqualsOrIsEndSegment;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.SegmentHelper.segmentsToString;
 
 import java.io.File;
 import java.util.HashMap;
@@ -61,7 +60,7 @@ public class RootPropertiesParser {
         }
 
         String getSyntaxErrorMessage(String[] keySegments) {
-            return segmentsToString(keySegments, '.') + " is an invalid key for " + message;
+            return String.join(".", keySegments) + " is an invalid key for " + message;
         }
     }
 
@@ -141,7 +140,7 @@ public class RootPropertiesParser {
             // line has been recognized
             return;
         }
-        throw new IllegalArgumentException(segmentsToString(keySegments, '.') + " is an invalid root key");
+        throw new IllegalArgumentException(String.join(".", keySegments) + " is an invalid root key");
     }
 
     void storeRootPropertyValue(RootKeyType keyType, String parameterInKey, RootFilesProperties target) {

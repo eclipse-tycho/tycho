@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.artifacts;
 
+import java.util.StringJoiner;
+
 public final class TargetPlatformFilter {
 
     private final CapabilityPattern scopePattern;
@@ -143,30 +145,24 @@ public final class TargetPlatformFilter {
 
         @Override
         public String toString() {
-            StringBuilder result = new StringBuilder("CapabilityPattern(");
+            StringJoiner result = new StringJoiner(", ", "CapabilityPattern(", ")");
             printMembers(result);
-            result.append(")");
             return result.toString();
         }
 
-        private void printMembers(StringBuilder result) {
-            int lengthWithoutMembers = result.length();
-
+        private void printMembers(StringJoiner result) {
             if (type != null)
-                result.append("type=" + type + ", ");
+                result.add("type=" + type);
             if (id != null)
-                result.append("id=\"" + id + "\", ");
+                result.add("id=\"" + id + "\"");
             if (version != null)
-                result.append("version=\"" + version + "\", ");
+                result.add("version=\"" + version + "\"");
             if (versionRange != null)
-                result.append("versionRange=\"" + versionRange + "\", ");
-
-            // trim trailing comma
-            result.setLength(Math.max(lengthWithoutMembers, result.length() - 2));
+                result.add("versionRange=\"" + versionRange + "\"");
         }
 
         public String printMembers() {
-            StringBuilder result = new StringBuilder();
+            StringJoiner result = new StringJoiner(", ");
             printMembers(result);
             return result.toString();
         }
