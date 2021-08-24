@@ -508,6 +508,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         } else {
             // include everything, not strictly necessary, but lets make this obvious
             //result.append("[+**/*]");
+            return "";
         }
         return result.toString();
     }
