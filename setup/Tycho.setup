@@ -32,8 +32,8 @@
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.egit.ui/commit_dialog_signed_off_by"
-          value="true">
-        <description>Have egit add the signed-off-by footer to the commit message by default</description>
+          value="false">
+        <description>Signed-off-by not required anymore</description>
       </setupTask>
     </setupTask>
     <setupTask
