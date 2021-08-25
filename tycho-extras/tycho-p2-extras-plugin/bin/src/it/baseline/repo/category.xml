@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <feature url="features/feature_0.0.0.jar" id="feature" version="0.0.0"/>
-   <feature url="features/feature.source_0.0.0.jar" id="feature.source" version="0.0.0"/>
-</site>
