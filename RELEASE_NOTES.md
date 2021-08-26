@@ -4,6 +4,13 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## Next release...
 
+### Requires Maven 3.8.2
+
+Maven 3.8.2 has important bugfixes necessary for some Tycho use-cases.
+Please be aware that Maven blocks artifact resolution via http protocol by default since 3.8.1.
+You may therefore see builds failing when your target file contains URLs with http protocol.
+You can change all links to update sites on eclipse.org to use the https protocol instead.
+
 ### [Support for PGP Signatures in maven-p2 sites](https://github.com/eclipse/tycho/issues/203)
 
 The `assemble-maven-repository` mojo now supports embedding the PGP signature of maven artifacts to allow additional verifications and trust decisions.
