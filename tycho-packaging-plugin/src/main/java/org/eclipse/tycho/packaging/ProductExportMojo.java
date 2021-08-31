@@ -93,7 +93,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     /**
      * @deprecated use target-platform-configuration <environments/> element
      */
-    @Parameter
+	@Deprecated
+	@Parameter
     private TargetEnvironment[] environments;
 
     @Parameter(property = "tycho.product.createArchive", defaultValue = "true")
