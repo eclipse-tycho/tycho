@@ -433,7 +433,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private void generateConfigIni(TargetEnvironment environment, File target)
-            throws MojoExecutionException, MojoFailureException {
+			throws MojoExecutionException {
         getLog().debug("Generating config.ini");
         Properties props = new Properties();
         String id = productConfiguration.getProduct();
@@ -458,7 +458,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         }
     }
 
-    private void generateOSGiBundles(Properties props, TargetEnvironment environment) throws MojoFailureException {
+	private void generateOSGiBundles(Properties props, TargetEnvironment environment) {
         Map<String, BundleConfiguration> bundlesToStart = productConfiguration.getPluginConfiguration();
 
         if (bundlesToStart == null) {
@@ -522,7 +522,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private void copyExecutable(TargetEnvironment environment, File target)
-            throws MojoExecutionException, MojoFailureException {
+			throws MojoExecutionException {
         getLog().debug("Creating launcher");
 
         ArtifactDescriptor artifact = getDependencyArtifacts().getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
