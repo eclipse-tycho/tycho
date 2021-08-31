@@ -14,13 +14,14 @@ package org.eclipse.tycho.buildnumber.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.eclipse.tycho.packaging.PackageUpdateSiteMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Assert;
@@ -52,11 +53,15 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         siteFolder.mkdirs();
         File siteXml = new File(siteFolder, "site.xml");
         siteXml.createNewFile();
-        FileUtils.fileAppend(siteXml.getAbsolutePath(),
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><site associateSitesURL=\"associate-sites.xml\"></site>");
+        Files.write(siteXml.toPath(),
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><site associateSitesURL=\"associate-sites.xml\"></site>"
+                        .getBytes(),
+                StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         File associateSitesFile = new File(siteFolder, "associate-sites.xml");
-        FileUtils.fileAppend(associateSitesFile.getAbsolutePath(),
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"https://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>");
+        Files.write(associateSitesFile.toPath(),
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"https://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>"
+                        .getBytes(),
+                StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         new File(siteFolder, "content.xml").createNewFile();
         new File(siteFolder, "artifacts.xml").createNewFile();
 
@@ -100,10 +105,10 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         File assemblyZip = new File(targetFolder, "site_assembly.zip");
         Assert.assertTrue(assemblyZip.exists());
         List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
-        Assert.assertTrue(attachedArtifacts.size() == 1);
-        Assert.assertTrue(attachedArtifacts.get(0).getFile().equals(assemblyZip));
-        Assert.assertTrue(attachedArtifacts.get(0).getClassifier().equals("assembly"));
-        Assert.assertTrue(attachedArtifacts.get(0).getType().equals("zip"));
+        assertEquals(1, attachedArtifacts.size());
+        assertEquals(assemblyZip, attachedArtifacts.get(0).getFile());
+        assertEquals("assembly", attachedArtifacts.get(0).getClassifier());
+        assertEquals("zip", attachedArtifacts.get(0).getType());
         try (ZipFile zip = new ZipFile(assemblyZip)) {
             assertNotNull(zip.getEntry("associate-sites.xml"));
         }

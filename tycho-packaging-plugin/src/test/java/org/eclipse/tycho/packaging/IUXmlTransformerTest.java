@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Rapicorp, Inc. and others.
+ * Copyright (c) 2015, 2021 Rapicorp, Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -85,7 +85,7 @@ public class IUXmlTransformerTest {
     }
 
     private static Matcher<Element> requirement(final String id, final String version) {
-        return new TypeSafeMatcher<Element>() {
+		return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -101,7 +101,7 @@ public class IUXmlTransformerTest {
     }
 
     private static Matcher<Element> capability(final String id, final String version) {
-        return new TypeSafeMatcher<Element>() {
+		return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -117,7 +117,7 @@ public class IUXmlTransformerTest {
     }
 
     private static Matcher<Element> artifact(final String id, final String version) {
-        return new TypeSafeMatcher<Element>() {
+		return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {

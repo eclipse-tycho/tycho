@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -74,7 +74,7 @@ public class FeatureXmlTransformerTest {
     }
 
     private static Matcher<FeatureRef> feature(final String id, final String version) {
-        return new TypeSafeMatcher<FeatureRef>() {
+		return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -90,7 +90,7 @@ public class FeatureXmlTransformerTest {
     }
 
     private static Matcher<PluginRef> plugin(final String id, final String version) {
-        return new TypeSafeMatcher<PluginRef>() {
+		return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {

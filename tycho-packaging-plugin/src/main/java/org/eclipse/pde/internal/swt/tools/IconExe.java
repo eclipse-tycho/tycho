@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -108,13 +108,14 @@ public class IconExe {
 	 * @param program the Windows executable e.g c:/eclipse/eclipse.exe
 	 */	
 	static ImageData[] loadIcons(String program) throws FileNotFoundException, IOException {
-		RandomAccessFile raf = new RandomAccessFile(program, "r"); //$NON-NLS-1$
-		IconExe iconExe = new IconExe();
-		IconResInfo[] iconInfo = iconExe.getIcons(raf);
-		ImageData[] data = new ImageData[iconInfo.length];
-		for (int i = 0; i < data.length; i++) data[i] = iconInfo[i].data;
-		raf.close();
-		return data;
+		try (RandomAccessFile raf = new RandomAccessFile(program, "r")) { //$NON-NLS-1$
+			IconExe iconExe = new IconExe();
+			IconResInfo[] iconInfo = iconExe.getIcons(raf);
+			ImageData[] data = new ImageData[iconInfo.length];
+			for (int i = 0; i < data.length; i++)
+				data[i] = iconInfo[i].data;
+			return data;
+		}
 	}
 	
 	/** 
@@ -148,32 +149,33 @@ public class IconExe {
 	 * @param icons to write to the given executable
 	 * @return the number of icons from the original program that were not successfully replaced (0 if success)
 	 */	
-	static int unloadIcons(String program, ImageData[] icons) throws FileNotFoundException, IOException {
-		RandomAccessFile raf = new RandomAccessFile(program, "rw"); //$NON-NLS-1$
-		IconExe iconExe = new IconExe();
-		IconResInfo[] iconInfo = iconExe.getIcons(raf);
-		// Display an error if  no icons found in target executable.
-		if (iconInfo.length == 0) {
-		    System.err.println("Warning - no icons detected in \"" + program + "\"."); //$NON-NLS-1$ //$NON-NLS-2$
-		    raf.close();
-		    return 0;
+	static int unloadIcons(String program, ImageData[] icons) throws IOException {
+		try (RandomAccessFile raf = new RandomAccessFile(program, "rw")) { //$NON-NLS-1$
+			IconExe iconExe = new IconExe();
+			IconResInfo[] iconInfo = iconExe.getIcons(raf);
+			// Display an error if no icons found in target executable.
+			if (iconInfo.length == 0) {
+				System.err.println("Warning - no icons detected in \"" + program + "\"."); //$NON-NLS-1$ //$NON-NLS-2$
+				raf.close();
+				return 0;
+			}
+			int cnt = 0;
+			for (IconResInfo iconInfo1 : iconInfo) {
+				for (ImageData icon : icons) {
+					if (icon == null) {
+						continue;
+					}
+					if (iconInfo1.data.width == icon.width && iconInfo1.data.height == icon.height
+							&& iconInfo1.data.depth == icon.depth) {
+						raf.seek(iconInfo1.offset);
+						unloadIcon(raf, icon);
+						cnt++;
+						break;
+					}
+				}
+			}
+			return iconInfo.length - cnt;
 		}
-		int cnt = 0;
-	    for (IconResInfo iconInfo1 : iconInfo) {
-		for (ImageData icon : icons) {
-		    if (icon == null) {
-			continue;
-		    }
-		    if (iconInfo1.data.width == icon.width && iconInfo1.data.height == icon.height && iconInfo1.data.depth == icon.depth) {
-			raf.seek(iconInfo1.offset);
-			unloadIcon(raf, icon);
-			cnt++;
-			break;
-		    }
-		}
-	    }
-		raf.close();
-		return iconInfo.length - cnt;
 	}
 	
 	public static final String VERSION = "20050124"; //$NON-NLS-1$
@@ -482,12 +484,12 @@ static boolean readIconGroup(RandomAccessFile raf, int offset, int size) throws 
 static void copyFile(String src, String dst) throws FileNotFoundException, IOException {
 	File srcFile = new File(src);
 	File dstFile = new File(dst);
-	InputStream in = new BufferedInputStream(new FileInputStream(srcFile));
-	OutputStream out = new BufferedOutputStream(new FileOutputStream(dstFile));
-	int c;
-	while ((c = in.read()) != -1) out.write(c); 
-	in.close();
-	out.close();
+	try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile));
+			OutputStream out = new BufferedOutputStream(new FileOutputStream(dstFile))) {
+		int c;
+		while ((c = in.read()) != -1)
+			out.write(c);
+	}
 }
 
 /* IO utilities to parse Windows executable */
@@ -1239,18 +1241,11 @@ public ImageData[] load(InputStream stream) {
  */
 public ImageData[] load(String filename) {
 	if (filename == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	InputStream stream = null;
-	try {
-		stream = new BufferedInputStream(new FileInputStream(filename));
+	try (InputStream stream = new BufferedInputStream(new FileInputStream(filename))) {
+		;
 		return load(stream);
 	} catch (IOException e) {
 		SWT.error(SWT.ERROR_IO, e);
-	} finally {
-		try {
-			if (stream != null) stream.close();
-		} catch (IOException e) {
-			// Ignore error
-		}
 	}
 	return null;
 }

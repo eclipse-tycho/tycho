@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,14 +13,15 @@
 package org.eclipse.tycho.buildnumber.test;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.utils.io.IOUtil;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.packaging.PackageFeatureMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
@@ -44,8 +45,7 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        ZipFile zip = new ZipFile(new File(basedir, "target/feature.jar"));
-        try {
+        try (ZipFile zip = new ZipFile(new File(basedir, "target/feature.jar"))) {
             // igorf: input streams are closed by zip.close() at the end, sloppy but should work 
 
             // all bin.includes files from license features are included
@@ -69,9 +69,8 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
             assertEquals("license test property value", p.getProperty("license-test"));
 
             // when present both in 'this' and license feature, files from 'this' feature are included
-            assertEquals("file.txt contents", IOUtil.toString(zip.getInputStream(zip.getEntry("file.txt"))));
-        } finally {
-            zip.close();
+            assertEquals("file.txt contents",
+                    IOUtils.toString(zip.getInputStream(zip.getEntry("file.txt")), Charset.defaultCharset()));
         }
     }
 
@@ -91,12 +90,9 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        ZipFile zip = new ZipFile(new File(basedir, "target/featureDefault.jar"));
-        try {
+        try (ZipFile zip = new ZipFile(new File(basedir, "target/featureDefault.jar"))) {
             ZipEntry entry = zip.getEntry("META-INF/maven");
             assertNull("No 'META-INF/maven/' entry must be in the feature.jar!", entry);
-        } finally {
-            zip.close();
         }
     }
 
@@ -116,12 +112,9 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        ZipFile zip = new ZipFile(new File(basedir, "target/featureForcedToTrue.jar"));
-        try {
+        try (ZipFile zip = new ZipFile(new File(basedir, "target/featureForcedToTrue.jar"))) {
             ZipEntry entry = zip.getEntry("META-INF/maven");
             assertNotNull("There must be a 'META-INF/maven/' entry in the feature.jar!", entry);
-        } finally {
-            zip.close();
         }
     }
 }

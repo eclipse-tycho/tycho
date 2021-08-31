@@ -280,12 +280,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
     }
 
     protected Manifest getManifest() throws IOException, MojoExecutionException {
-        InputStream is = new FileInputStream(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
         Manifest mf;
-        try {
+        try (InputStream is = new FileInputStream(new File(project.getBasedir(), "META-INF/MANIFEST.MF"))) {
             mf = new Manifest(is);
-        } finally {
-            is.close();
         }
         Attributes attributes = mf.getMainAttributes();
 
