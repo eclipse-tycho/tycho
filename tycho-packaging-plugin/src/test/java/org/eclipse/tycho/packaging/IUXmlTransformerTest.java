@@ -51,7 +51,7 @@ public class IUXmlTransformerTest {
         IU iu = IU.read(new File(TestUtil.getBasedir("projects/iuXmlValueReplacement/"), "p2iu.xml"));
 
         subject.replaceSelfQualifiers(iu, "1.0.0.ABC", "ABC");
-        assertEquals(iu.getVersion(), "1.0.0.ABC");
+		assertEquals("1.0.0.ABC", iu.getVersion());
         assertThat(iu.getProvidedCapabilites(), hasItem(capability("demo.iu", "1.0.0.ABC")));
         assertThat(iu.getArtifacts(), hasItem(artifact("demo.iu", "1.0.0.ABC")));
     }
