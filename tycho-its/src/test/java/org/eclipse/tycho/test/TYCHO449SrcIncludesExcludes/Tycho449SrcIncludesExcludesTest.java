@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,22 +22,19 @@ import org.junit.Test;
 
 public class Tycho449SrcIncludesExcludesTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testDefaultSourceBundleSuffix() throws Exception {
-        Verifier verifier = getVerifier("/TYCHO449SrcIncludesExcludes", false);
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
-        JarFile sourceJar = new JarFile(new File(verifier.getBasedir(),
-                "target/TestSourceIncludesExcludes-1.0.0-SNAPSHOT-sources.jar"));
-        try {
-            Assert.assertNull(sourceJar.getEntry("resourceFolder/.hidden/toBeExcluded.txt"));
-            Assert.assertNull(sourceJar.getEntry("resourceFolder/.svn/"));
-            Assert.assertNotNull(sourceJar.getEntry("resourceFolder/test.txt"));
-            Assert.assertNotNull(sourceJar.getEntry("resource.txt"));
-            Assert.assertNotNull(sourceJar.getEntry("additionalResource.txt"));
-        } finally {
-            sourceJar.close();
-        }
-    }
+	@Test
+	public void testDefaultSourceBundleSuffix() throws Exception {
+		Verifier verifier = getVerifier("/TYCHO449SrcIncludesExcludes", false);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+		try (JarFile sourceJar = new JarFile(
+				new File(verifier.getBasedir(), "target/TestSourceIncludesExcludes-1.0.0-SNAPSHOT-sources.jar"))) {
+			Assert.assertNull(sourceJar.getEntry("resourceFolder/.hidden/toBeExcluded.txt"));
+			Assert.assertNull(sourceJar.getEntry("resourceFolder/.svn/"));
+			Assert.assertNotNull(sourceJar.getEntry("resourceFolder/test.txt"));
+			Assert.assertNotNull(sourceJar.getEntry("resource.txt"));
+			Assert.assertNotNull(sourceJar.getEntry("additionalResource.txt"));
+		}
+	}
 
 }

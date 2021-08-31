@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -39,44 +39,41 @@ import org.xml.sax.InputSource;
 
 public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testParallelExecution() throws Exception {
-        Verifier verifier = getVerifier("/surefire.junit47/parallel");
-        verifier.getSystemProperties().setProperty("parallel", "classes");
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
-        File surefireReportsDir = new File(verifier.getBasedir(), "target/surefire-reports");
-        assertTrue(surefireReportsDir.isDirectory());
-        File[] surefireXmlReports = surefireReportsDir
-                .listFiles((FilenameFilter) (dir, name) -> name.startsWith("TEST-") && name.endsWith(".xml"));
-        assertEquals(2, surefireXmlReports.length);
-        Set<String> actualTests = extractExecutedTests(surefireXmlReports);
-        Set<String> expectedTests = new HashSet<>(
-                asList("org.eclipse.tychoits.FirstTest#firstTest", "org.eclipse.tychoits.SecondTest#secondTest"));
-        assertEquals(expectedTests, actualTests);
-    }
+	@Test
+	public void testParallelExecution() throws Exception {
+		Verifier verifier = getVerifier("/surefire.junit47/parallel");
+		verifier.getSystemProperties().setProperty("parallel", "classes");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+		File surefireReportsDir = new File(verifier.getBasedir(), "target/surefire-reports");
+		assertTrue(surefireReportsDir.isDirectory());
+		File[] surefireXmlReports = surefireReportsDir
+				.listFiles((FilenameFilter) (dir, name) -> name.startsWith("TEST-") && name.endsWith(".xml"));
+		assertEquals(2, surefireXmlReports.length);
+		Set<String> actualTests = extractExecutedTests(surefireXmlReports);
+		Set<String> expectedTests = new HashSet<>(
+				asList("org.eclipse.tychoits.FirstTest#firstTest", "org.eclipse.tychoits.SecondTest#secondTest"));
+		assertEquals(expectedTests, actualTests);
+	}
 
-    private Set<String> extractExecutedTests(File[] xmlReports)
-            throws FileNotFoundException, XPathExpressionException, IOException {
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        Set<String> actualTests = new HashSet<>();
-        for (File xmlReportFile : xmlReports) {
-            FileInputStream xmlStream = new FileInputStream(xmlReportFile);
-            NodeList testCaseNodes;
-            try {
-                testCaseNodes = (NodeList) xpath.evaluate("/testsuite/testcase", new InputSource(xmlStream),
-                        XPathConstants.NODESET);
-            } finally {
-                xmlStream.close();
-            }
-            for (int i = 0; i < testCaseNodes.getLength(); i++) {
-                Element node = (Element) testCaseNodes.item(i);
-                String testClassName = node.getAttribute("classname");
-                String method = node.getAttribute("name");
-                actualTests.add(testClassName + "#" + method);
-            }
-        }
-        return actualTests;
-    }
+	private Set<String> extractExecutedTests(File[] xmlReports)
+			throws FileNotFoundException, XPathExpressionException, IOException {
+		XPath xpath = XPathFactory.newInstance().newXPath();
+		Set<String> actualTests = new HashSet<>();
+		for (File xmlReportFile : xmlReports) {
+			NodeList testCaseNodes;
+			try (FileInputStream xmlStream = new FileInputStream(xmlReportFile)) {
+				testCaseNodes = (NodeList) xpath.evaluate("/testsuite/testcase", new InputSource(xmlStream),
+						XPathConstants.NODESET);
+			}
+			for (int i = 0; i < testCaseNodes.getLength(); i++) {
+				Element node = (Element) testCaseNodes.item(i);
+				String testClassName = node.getAttribute("classname");
+				String method = node.getAttribute("name");
+				actualTests.add(testClassName + "#" + method);
+			}
+		}
+		return actualTests;
+	}
 
 }

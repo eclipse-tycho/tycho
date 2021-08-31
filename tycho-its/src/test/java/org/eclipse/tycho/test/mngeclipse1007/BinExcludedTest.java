@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,22 +22,18 @@ import org.junit.Test;
 
 public class BinExcludedTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("MNGECLIPSE1007");
+	@Test
+	public void test() throws Exception {
+		Verifier verifier = getVerifier("MNGECLIPSE1007");
 
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
 
-        ZipFile zip = new ZipFile(new File(verifier.getBasedir(), "target/MNGECLIPSE1007-1.0.0.jar"));
-
-        try {
-            Assert.assertNotNull(zip.getEntry("files/included.txt"));
-            Assert.assertNull(zip.getEntry("files/excluded.txt"));
-            Assert.assertNull(zip.getEntry("Makefile"));
-        } finally {
-            zip.close();
-        }
-    }
+		try (ZipFile zip = new ZipFile(new File(verifier.getBasedir(), "target/MNGECLIPSE1007-1.0.0.jar"))) {
+			Assert.assertNotNull(zip.getEntry("files/included.txt"));
+			Assert.assertNull(zip.getEntry("files/excluded.txt"));
+			Assert.assertNull(zip.getEntry("Makefile"));
+		}
+	}
 
 }

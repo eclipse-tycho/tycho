@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -30,52 +30,47 @@ import org.junit.Test;
 
 public class PackageNestedJarsAndDirsTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testPackageNestedJarsAndDirs() throws Exception {
-        Verifier verifier = getVerifier("/packaging.nestedJarsAndDirs", false);
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
-        File bundleJar = new File(verifier.getBasedir(), "target/nestedJarsAndDirs-1.0.0-SNAPSHOT.jar");
-        assertTrue(bundleJar.isFile());
-        JarFile jarFile = new JarFile(bundleJar);
-        try {
-            // included via additional filesets
-            assertFileEntryExists("foo.txt", jarFile);
-            assertNull(jarFile.getEntry("bar.txt"));
-            // included via bin.includes
-            assertFileEntryExists("resources/test.txt", jarFile);
-            assertFileEntryExists("org/eclipse/tycho/its/nestedJarsAndDirs/Main.class", jarFile);
-            assertFileEntryExists("internal2/org/eclipse/tycho/its/nestedJarsAndDirs/internal2/Internal2.class",
-                    jarFile);
-            String internal1Jar = "internal1.jar";
-            ZipEntry nestedJarEntry = assertFileEntryExists(internal1Jar, jarFile);
-            InputStream stream = jarFile.getInputStream(nestedJarEntry);
-            try {
-                ZipInputStream zis = new ZipInputStream(stream);
-                ZipEntry nestedEntry = null;
-                boolean found = false;
-                String internal1ClassName = "org/eclipse/tycho/its/nestedJarsAndDirs/internal1/Internal1.class";
-                while ((nestedEntry = zis.getNextEntry()) != null) {
-                    if (internal1ClassName.equals(nestedEntry.getName())) {
-                        found = true;
-                        break;
-                    }
-                }
-                assertTrue(internal1ClassName + " not found in nested jar " + internal1Jar, found);
-            } finally {
-                stream.close();
-            }
-        } finally {
-            jarFile.close();
-        }
-    }
+	@Test
+	public void testPackageNestedJarsAndDirs() throws Exception {
+		Verifier verifier = getVerifier("/packaging.nestedJarsAndDirs", false);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+		File bundleJar = new File(verifier.getBasedir(), "target/nestedJarsAndDirs-1.0.0-SNAPSHOT.jar");
+		assertTrue(bundleJar.isFile());
+		try (JarFile jarFile = new JarFile(bundleJar)) {
+			// included via additional filesets
+			assertFileEntryExists("foo.txt", jarFile);
+			assertNull(jarFile.getEntry("bar.txt"));
+			// included via bin.includes
+			assertFileEntryExists("resources/test.txt", jarFile);
+			assertFileEntryExists("org/eclipse/tycho/its/nestedJarsAndDirs/Main.class", jarFile);
+			assertFileEntryExists("internal2/org/eclipse/tycho/its/nestedJarsAndDirs/internal2/Internal2.class",
+					jarFile);
+			String internal1Jar = "internal1.jar";
+			ZipEntry nestedJarEntry = assertFileEntryExists(internal1Jar, jarFile);
 
-    private ZipEntry assertFileEntryExists(String entry, JarFile jarFile) {
-        ZipEntry jarEntry = jarFile.getEntry(entry);
-        assertNotNull("entry '" + entry + " does not exist in " + jarFile.getName(), jarEntry);
-        assertFalse("entry '" + entry + " exists in " + jarFile.getName() + " but is a directory",
-                jarEntry.isDirectory());
-        return jarEntry;
-    }
+			try (InputStream stream = jarFile.getInputStream(nestedJarEntry);
+					ZipInputStream zis = new ZipInputStream(stream)) {
+				ZipEntry nestedEntry = null;
+				boolean found = false;
+				String internal1ClassName = "org/eclipse/tycho/its/nestedJarsAndDirs/internal1/Internal1.class";
+				while ((nestedEntry = zis.getNextEntry()) != null) {
+					if (internal1ClassName.equals(nestedEntry.getName())) {
+						found = true;
+						break;
+					}
+				}
+				assertTrue(internal1ClassName + " not found in nested jar " + internal1Jar, found);
+			}
+		}
+	}
+
+	private ZipEntry assertFileEntryExists(String entry, JarFile jarFile) {
+		ZipEntry jarEntry = jarFile.getEntry(entry);
+		assertNotNull("entry '" + entry + " does not exist in " + jarFile.getName(), jarEntry);
+		assertFalse("entry '" + entry + " exists in " + jarFile.getName() + " but is a directory",
+				jarEntry.isDirectory());
+		return jarEntry;
+	}
 
 }
