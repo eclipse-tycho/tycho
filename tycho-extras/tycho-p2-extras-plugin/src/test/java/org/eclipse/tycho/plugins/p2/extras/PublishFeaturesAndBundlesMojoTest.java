@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP AG and others.
+ * Copyright (c) 2010, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,7 +29,6 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Assert;
 
@@ -45,7 +48,7 @@ public class PublishFeaturesAndBundlesMojoTest extends AbstractTychoMojoTestCase
 
         // simulate that content to be published has already been extracted to the target folder
         File sourceRepositoryDir = new File(project.getFile().getParent(), "target/sourceRepository").getAbsoluteFile();
-        generateContentToBePublished(sourceRepositoryDir);
+        generateContentToBePublished(sourceRepositoryDir.toString());
 
         File publishedContentDir = new File(project.getFile().getParent(), "target/repository with spaces")
                 .getAbsoluteFile();
@@ -94,10 +97,12 @@ public class PublishFeaturesAndBundlesMojoTest extends AbstractTychoMojoTestCase
         buildContext.setSession(session);
     }
 
-    private void generateContentToBePublished(File repositoryFolder) throws IOException {
+    private void generateContentToBePublished(String repositoryFolder) throws IOException {
         String bundleFileName = "testdata-1.0.0-SNAPSHOT.jar";
         URL source = getClassLoader().getResource(bundleFileName);
-        FileUtils.copyURLToFile(source, new File(repositoryFolder, "plugins/" + bundleFileName));
+        Path path = Paths.get(repositoryFolder, "plugins/" + bundleFileName);
+        Files.createDirectories(path);
+        Files.copy(source.openStream(), path, StandardCopyOption.REPLACE_EXISTING);
     }
 
     // use the normal local Maven repository (called by newMavenSession)
