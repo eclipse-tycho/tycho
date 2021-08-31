@@ -127,7 +127,7 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 		verifier.getSystemProperties().setProperty("p2.repo", getP2RepoUrl());
 		verifier.executeGoal("package"); // build fails
 		List<String> accessedUris = proxyServlet.getAccessedUris();
-		assertTrue("proxy was accessed although not active. Accessed URIs: " + accessedUris, accessedUris.size() == 0);
+		assertTrue("proxy was accessed although not active. Accessed URIs: " + accessedUris, accessedUris.isEmpty());
 	}
 
 	private void startHttpProxyServer(boolean useAuthentication, String user, String password) throws Exception {
