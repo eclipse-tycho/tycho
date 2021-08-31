@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,35 +24,33 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class PomDependencyOnNonTychoArtifactTest extends AbstractTychoIntegrationTest {
-    private static final String POM_DEPENDENCY_BUNDLE_ID = "com.google.gson";
-    private static final String POM_DEPENDENCY_BUNDLE_VERSION = "1.6.0";
-    private static final String POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID = "org.eclipse.jdt.compiler.apt.source";
-    private static final String POM_DEPENDENCY_CLASSIFIER_BUNDLE_VERSION = "1.0.500.v20120423-0553";
+	private static final String POM_DEPENDENCY_BUNDLE_ID = "com.google.gson";
+	private static final String POM_DEPENDENCY_BUNDLE_VERSION = "1.6.0";
+	private static final String POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID = "org.eclipse.jdt.compiler.apt.source";
+	private static final String POM_DEPENDENCY_CLASSIFIER_BUNDLE_VERSION = "1.0.500.v20120423-0553";
 
-    @Test
-    public void testP2DataGeneratedForPomDependency() throws Exception {
-        // project with a POM dependency on a bundle not built by Tycho
-        Verifier verifier = getVerifier("pomDependencyConsider.p2Data.generate", false);
+	@Test
+	public void testP2DataGeneratedForPomDependency() throws Exception {
+		// project with a POM dependency on a bundle not built by Tycho
+		Verifier verifier = getVerifier("pomDependencyConsider.p2Data.generate", false);
 
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 
-        String testProjectRoot = verifier.getBasedir();
-        P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(testProjectRoot, "repository"));
+		String testProjectRoot = verifier.getBasedir();
+		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(testProjectRoot, "repository"));
 
-        // this was bug TYCHO-570: the build passed, but the POM dependency bundle was missing
-        File expectedBundle = p2Repo.getBundleArtifact(POM_DEPENDENCY_BUNDLE_ID, POM_DEPENDENCY_BUNDLE_VERSION);
-        Assert.assertTrue(expectedBundle.isFile());
-        // bug 368596 assert that pom dependency with classifier works
-        File sourceBundle = p2Repo.getBundleArtifact(POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID,
-                POM_DEPENDENCY_CLASSIFIER_BUNDLE_VERSION);
-        Assert.assertTrue(sourceBundle.isFile());
-        JarFile jarFile = new JarFile(sourceBundle);
-        try {
-            String sourceBundleSymbolicName = jarFile.getManifest().getMainAttributes().getValue("Bundle-SymbolicName");
-            assertEquals(POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID, sourceBundleSymbolicName);
-        } finally {
-            jarFile.close();
-        }
-    }
+		// this was bug TYCHO-570: the build passed, but the POM dependency bundle was
+		// missing
+		File expectedBundle = p2Repo.getBundleArtifact(POM_DEPENDENCY_BUNDLE_ID, POM_DEPENDENCY_BUNDLE_VERSION);
+		Assert.assertTrue(expectedBundle.isFile());
+		// bug 368596 assert that pom dependency with classifier works
+		File sourceBundle = p2Repo.getBundleArtifact(POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID,
+				POM_DEPENDENCY_CLASSIFIER_BUNDLE_VERSION);
+		Assert.assertTrue(sourceBundle.isFile());
+		try (JarFile jarFile = new JarFile(sourceBundle)) {
+			String sourceBundleSymbolicName = jarFile.getManifest().getMainAttributes().getValue("Bundle-SymbolicName");
+			assertEquals(POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID, sourceBundleSymbolicName);
+		}
+	}
 }
