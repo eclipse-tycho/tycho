@@ -47,8 +47,8 @@ public class PublishFeaturesAndBundlesMojoTest extends AbstractTychoMojoTestCase
         initLegacySupport(projects, project);
 
         // simulate that content to be published has already been extracted to the target folder
-        File sourceRepositoryDir = new File(project.getFile().getParent(), "target/sourceRepository").getAbsoluteFile();
-        generateContentToBePublished(sourceRepositoryDir.toString());
+        Path sourceRepositoryDir = Paths.get(project.getFile().getParent(), "target/sourceRepository");
+        generateContentToBePublished(sourceRepositoryDir);
 
         File publishedContentDir = new File(project.getFile().getParent(), "target/repository with spaces")
                 .getAbsoluteFile();
@@ -97,10 +97,10 @@ public class PublishFeaturesAndBundlesMojoTest extends AbstractTychoMojoTestCase
         buildContext.setSession(session);
     }
 
-    private void generateContentToBePublished(String repositoryFolder) throws IOException {
+    private void generateContentToBePublished(Path repositoryFolder) throws IOException {
         String bundleFileName = "testdata-1.0.0-SNAPSHOT.jar";
         URL source = getClassLoader().getResource(bundleFileName);
-        Path path = Paths.get(repositoryFolder, "plugins/" + bundleFileName);
+        Path path = repositoryFolder.resolve("plugins/" + bundleFileName);
         Files.createDirectories(path);
         Files.copy(source.openStream(), path, StandardCopyOption.REPLACE_EXISTING);
     }
