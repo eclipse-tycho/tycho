@@ -16,7 +16,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,7 +106,7 @@ public class IconExe {
 	 * 
 	 * @param program the Windows executable e.g c:/eclipse/eclipse.exe
 	 */	
-	static ImageData[] loadIcons(String program) throws FileNotFoundException, IOException {
+	static ImageData[] loadIcons(String program) throws IOException {
 		try (RandomAccessFile raf = new RandomAccessFile(program, "r")) { //$NON-NLS-1$
 			IconExe iconExe = new IconExe();
 			IconResInfo[] iconInfo = iconExe.getIcons(raf);
@@ -156,7 +155,6 @@ public class IconExe {
 			// Display an error if no icons found in target executable.
 			if (iconInfo.length == 0) {
 				System.err.println("Warning - no icons detected in \"" + program + "\"."); //$NON-NLS-1$ //$NON-NLS-2$
-				raf.close();
 				return 0;
 			}
 			int cnt = 0;
@@ -481,7 +479,7 @@ static boolean readIconGroup(RandomAccessFile raf, int offset, int size) throws 
 	return true;
 }
 
-static void copyFile(String src, String dst) throws FileNotFoundException, IOException {
+static void copyFile(String src, String dst) throws IOException {
 	File srcFile = new File(src);
 	File dstFile = new File(dst);
 	try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile));
