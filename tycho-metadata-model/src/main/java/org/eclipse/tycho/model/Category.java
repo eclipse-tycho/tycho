@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 
 import de.pdark.decentxml.Document;
@@ -80,10 +79,8 @@ public class Category {
     }
 
     public static Category read(InputStream is) throws IOException {
-        try {
+        try (is) {
             return new Category(parser.parse(new XMLIOSource(is)));
-        } finally {
-            IOUtil.close(is);
         }
     }
 

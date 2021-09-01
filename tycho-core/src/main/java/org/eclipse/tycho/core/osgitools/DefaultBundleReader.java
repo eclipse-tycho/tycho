@@ -12,9 +12,10 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +28,6 @@ import java.util.zip.ZipFile;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
@@ -168,12 +168,8 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
             return;
         }
         outputFile.getParentFile().mkdirs();
-        FileOutputStream out = new FileOutputStream(outputFile);
-        try {
-            IOUtil.copy(in, out);
-        } finally {
-            in.close();
-            out.close();
+        try (in) {
+            Files.copy(in, outputFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
         if (timestamp > 0) {
             outputFile.setLastModified(timestamp);

@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.versions.bundle.ManifestAttribute;
 import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
 import org.eclipse.tycho.versions.pom.tests.MutablePomFileTest;
@@ -205,7 +204,7 @@ public class MutableBundleManifestTest {
     private static byte[] toByteArray(String path) throws IOException {
         byte expected[];
         try (InputStream is = MutablePomFileTest.class.getResourceAsStream(path)) {
-            expected = IOUtil.toByteArray(is);
+            expected = is.readAllBytes();
         }
         return expected;
     }

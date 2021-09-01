@@ -27,7 +27,6 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
@@ -224,7 +223,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
             URL url = new URL(source);
             try (InputStream is = url.openStream();
                     OutputStream os = new BufferedOutputStream(new FileOutputStream(destination))) {
-                IOUtil.copy(is, os);
+				is.transferTo(os);
             }
         } catch (IOException e) {
             throw new RuntimeException("Could not copy URL contents", e);
