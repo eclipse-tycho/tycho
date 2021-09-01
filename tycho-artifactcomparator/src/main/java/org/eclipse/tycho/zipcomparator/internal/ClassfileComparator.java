@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -42,8 +41,8 @@ public class ClassfileComparator implements ContentsComparator {
 
     @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
-        byte[] baselineBytes = IOUtil.toByteArray(baseline);
-        byte[] reactorBytes = IOUtil.toByteArray(reactor);
+        byte[] baselineBytes = baseline.readAllBytes();
+        byte[] reactorBytes = reactor.readAllBytes();
 
         String baselineDisassemble = null;
         String reactorDisassemble = null;

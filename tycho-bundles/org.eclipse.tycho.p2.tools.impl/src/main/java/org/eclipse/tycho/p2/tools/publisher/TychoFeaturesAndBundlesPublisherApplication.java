@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -25,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -113,7 +114,7 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
                             return null;
                         }
                         try {
-                            return FileUtils.readFileToString(file, StandardCharsets.US_ASCII);
+                            return Files.readString(file.toPath(), StandardCharsets.US_ASCII);
                         } catch (IOException e) {
                             // skip unreadable files...
                             return null;
@@ -128,7 +129,7 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
         }
         if (arg.equalsIgnoreCase("-publicKeys")) {
             try {
-                publicKeys = FileUtils.readFileToString(new File(parameter), StandardCharsets.US_ASCII);
+                publicKeys = Files.readString(Paths.get(parameter), StandardCharsets.US_ASCII);
             } catch (IOException e) {
                 throw new URISyntaxException(parameter, "can't read public key file: " + e);
             }
@@ -138,7 +139,7 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
     private String[] getArrayFromFile(String parameter) {
         File file = new File(parameter);
         try {
-            return FileUtils.readLines(file, StandardCharsets.UTF_8).toArray(String[]::new);
+            return Files.readAllLines(file.toPath(), StandardCharsets.UTF_8).toArray(String[]::new);
         } catch (IOException e) {
             throw new RuntimeException("reading file parameter failed", e);
         }

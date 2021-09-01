@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import org.codehaus.plexus.util.IOUtil;
-
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
@@ -211,10 +209,8 @@ public class Feature {
     }
 
     public static Feature read(InputStream input) throws IOException {
-        try {
+        try (input) {
             return new Feature(parser.parse(new XMLIOSource(input)));
-        } finally {
-            IOUtil.close(input);
         }
     }
 

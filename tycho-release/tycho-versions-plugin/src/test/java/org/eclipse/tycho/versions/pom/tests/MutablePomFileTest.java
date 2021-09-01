@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.junit.Assert;
 import org.junit.Test;
@@ -169,7 +168,7 @@ public class MutablePomFileTest {
     private static byte[] toByteArray(String path) throws IOException {
         byte expected[];
         try (InputStream is = MutablePomFileTest.class.getResourceAsStream(path)) {
-            expected = IOUtil.toByteArray(is);
+            expected = is.readAllBytes();
         }
         return expected;
     }
