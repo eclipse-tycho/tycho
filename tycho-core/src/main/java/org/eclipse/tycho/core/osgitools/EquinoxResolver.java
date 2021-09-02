@@ -202,6 +202,16 @@ public class EquinoxResolver {
             throws BundleException {
         ModuleContainer[] moduleContainerAccessor = new ModuleContainer[1];
         ModuleContainerAdaptor moduleContainerAdaptor = new ModuleContainerAdaptor() {
+
+            @Override
+            public String getProperty(String key) {
+                switch (key) {
+                case "equinox.resolver.revision.batch.size":
+                    return Integer.toString(1);
+                }
+                return super.getProperty(key);
+            }
+
             @Override
             public void publishModuleEvent(ModuleEvent type, Module module, Module origin) {
                 // nothing to do
