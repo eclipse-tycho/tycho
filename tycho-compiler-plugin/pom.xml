@@ -71,7 +71,7 @@
 			<classifier>tests</classifier>
 		</dependency>
 		<dependency>
-			<groupId>bcel</groupId>
+			<groupId>org.apache.bcel</groupId>
 			<artifactId>bcel</artifactId>
 			<scope>test</scope>
 		</dependency>
