@@ -19,8 +19,10 @@ import java.io.LineNumberReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -33,107 +35,108 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ProcessingInstruction;
 
 public class TocWriter {
-    private TocOptions options;
+	private TocOptions options;
 
-    private File javadocDir;
+	private File javadocDir;
 
-    private File basedir;
+	private File basedir;
 
-    private Log log;
+	private Log log;
 
-    public TocWriter() {
-    }
+	public TocWriter() {
+	}
 
-    public void setLog(final Log log) {
-        this.log = log;
-    }
+	public void setLog(final Log log) {
+		this.log = log;
+	}
 
-    public void setBasedir(final File basedir) {
-        this.basedir = basedir;
-    }
+	public void setBasedir(final File basedir) {
+		this.basedir = basedir;
+	}
 
-    public void setJavadocDir(final File javadocDir) {
-        this.javadocDir = javadocDir;
-    }
+	public void setJavadocDir(final File javadocDir) {
+		this.javadocDir = javadocDir;
+	}
 
-    public void setOptions(final TocOptions options) {
-        this.options = options;
-        if (this.options == null) {
-            this.options = new TocOptions();
-        }
-    }
+	public void setOptions(final TocOptions options) {
+		this.options = options;
+		if (this.options == null) {
+			this.options = new TocOptions();
+		}
+	}
 
-    public void writeTo(final File tocFile) throws MojoExecutionException {
-        if (tocFile == null) {
-            return;
-        }
+	public void writeTo(final File tocFile) throws MojoExecutionException {
+		if (tocFile == null) {
+			return;
+		}
 
-        try {
-            process(tocFile);
-        } catch (final Exception e) {
-            throw new MojoExecutionException("Failed to generate toc file", e);
-        }
-    }
+		try {
+			process(tocFile);
+		} catch (final Exception e) {
+			throw new MojoExecutionException("Failed to generate toc file", e);
+		}
+	}
 
-    private void process(final File tocFile) throws Exception {
+	private void process(final File tocFile)
+			throws ParserConfigurationException, DOMException, IOException, TransformerException {
 
-        tocFile.getParentFile().mkdirs();
+		tocFile.getParentFile().mkdirs();
 
-        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        final DocumentBuilder db = dbf.newDocumentBuilder();
-        final Document doc = db.newDocument();
+		final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		final DocumentBuilder db = dbf.newDocumentBuilder();
+		final Document doc = db.newDocument();
 
-        fillDocument(doc, tocFile);
+		fillDocument(doc);
 
-        final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        final Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        final DOMSource source = new DOMSource(doc);
-        final StreamResult result = new StreamResult(tocFile);
+		final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		final Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		final DOMSource source = new DOMSource(doc);
+		final StreamResult result = new StreamResult(tocFile);
 
-        transformer.transform(source, result);
-    }
+		transformer.transform(source, result);
+	}
 
-    private void fillDocument(final Document doc, final File tocFile) throws Exception {
-        final ProcessingInstruction pi = doc.createProcessingInstruction("NLS", "TYPE=\"org.eclipse.help.toc\"");
-        doc.appendChild(pi);
+	private void fillDocument(final Document doc) throws DOMException, IOException {
+		final ProcessingInstruction pi = doc.createProcessingInstruction("NLS", "TYPE=\"org.eclipse.help.toc\"");
+		doc.appendChild(pi);
 
-        final Element toc = doc.createElement("toc");
-        doc.appendChild(toc);
-        toc.setAttribute("label", this.options.getMainLabel());
+		final Element toc = doc.createElement("toc");
+		doc.appendChild(toc);
+		toc.setAttribute("label", this.options.getMainLabel());
 
-        final Element main = createTopic(doc, toc, this.options.getMainLabel(), this.options.getMainFilename());
-        final Element packages = createTopic(doc, main, "Packages", null);
-        createTopic(doc, main, "Constant Values", "constant-values.html");
-        createTopic(doc, main, "Deprecated List", "deprecated-list.html");
+		final Element main = createTopic(doc, toc, this.options.getMainLabel(), this.options.getMainFilename());
+		final Element packages = createTopic(doc, main, "Packages", null);
+		createTopic(doc, main, "Constant Values", "constant-values.html");
+		createTopic(doc, main, "Deprecated List", "deprecated-list.html");
 
-        File packageList = new File(this.javadocDir, "package-list");
-        if (!packageList.exists()) {
-            packageList = new File(this.javadocDir, "element-list");
-        }
-        try (LineNumberReader reader = new LineNumberReader(new FileReader(packageList))) {
-            String line;
+		File packageList = new File(this.javadocDir, "package-list");
+		if (!packageList.exists()) {
+			packageList = new File(this.javadocDir, "element-list");
+		}
+		try (LineNumberReader reader = new LineNumberReader(new FileReader(packageList))) {
+			String line;
 
-            while ((line = reader.readLine()) != null) {
-                createTopic(doc, packages, line, line.replace('.', '/') + "/package-summary.html");
-            }
-        }
-    }
+			while ((line = reader.readLine()) != null) {
+				createTopic(doc, packages, line, line.replace('.', '/') + "/package-summary.html");
+			}
+		}
+	}
 
-    private Element createTopic(final Document doc, final Element parent, final String label, final String fileName)
-            throws DOMException, IOException {
-        final Element topic = doc.createElement("topic");
-        parent.appendChild(topic);
-        topic.setAttribute("label", label);
-        if (fileName != null) {
-            topic.setAttribute("href", makeRelative(this.basedir, new File(this.javadocDir.toString(), fileName)));
-        }
-        return topic;
-    }
+	private Element createTopic(final Document doc, final Element parent, final String label, final String fileName)
+			throws DOMException, IOException {
+		final Element topic = doc.createElement("topic");
+		parent.appendChild(topic);
+		topic.setAttribute("label", label);
+		if (fileName != null) {
+			topic.setAttribute("href", makeRelative(this.basedir, new File(this.javadocDir.toString(), fileName)));
+		}
+		return topic;
+	}
 
-    private String makeRelative(final File base, final File file) throws IOException {
-        final String result = base.getCanonicalFile().toURI().relativize(file.getCanonicalFile().toURI()).getPath();
-        this.log.info(String.format("Make relative - base: %s, file: %s -> %s", base, file, result));
-        return result;
-    }
+	private String makeRelative(final File base, final File file) throws IOException {
+		final String result = base.getCanonicalFile().toURI().relativize(file.getCanonicalFile().toURI()).getPath();
+		this.log.info(String.format("Make relative - base: %s, file: %s -> %s", base, file, result));
+		return result;
+	}
 }

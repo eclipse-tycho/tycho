@@ -15,7 +15,6 @@ package org.eclipse.tycho.extras.custombundle;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,113 +47,110 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 @Mojo(name = "custom-bundle")
 public class CustomBundleMojo extends AbstractMojo {
 
-    /**
-     * Location of OSGi bundle, must have META-INF/MANIFEST.MF bundle manifest file.
-     */
-    @Parameter(required = true)
-    private File bundleLocation;
+	/**
+	 * Location of OSGi bundle, must have META-INF/MANIFEST.MF bundle manifest file.
+	 */
+	@Parameter(required = true)
+	private File bundleLocation;
 
-    /**
-     * Classifier of attached artifact.
-     */
-    @Parameter(required = true)
-    private String classifier;
+	/**
+	 * Classifier of attached artifact.
+	 */
+	@Parameter(required = true)
+	private String classifier;
 
-    /**
-     * File patterns to include from bundleLocation. Include everything by default.
-     */
-    @Parameter
-    private String[] includes = new String[] { "**/*.*" };
+	/**
+	 * File patterns to include from bundleLocation. Include everything by default.
+	 */
+	@Parameter
+	private String[] includes = new String[] { "**/*.*" };
 
-    /**
-     * File patterns to exclude from bundleLocation.
-     */
-    @Parameter
-    private String[] excludes;
+	/**
+	 * File patterns to exclude from bundleLocation.
+	 */
+	@Parameter
+	private String[] excludes;
 
-    /**
-     * Additional files to be included in the generated bundle.
-     */
-    @Parameter(required = true)
-    private List<DefaultFileSet> fileSets;
+	/**
+	 * Additional files to be included in the generated bundle.
+	 */
+	@Parameter(required = true)
+	private List<DefaultFileSet> fileSets;
 
-    @Parameter(property = "project")
-    private MavenProject project;
+	@Parameter(property = "project")
+	private MavenProject project;
 
-    @Parameter(property = "session", readonly = true)
-    private MavenSession session;
+	@Parameter(property = "session", readonly = true)
+	private MavenSession session;
 
-    @Parameter
-    private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
+	@Parameter
+	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
-    @Component(role = Archiver.class, hint = "jar")
-    private JarArchiver jarArchiver;
+	@Component(role = Archiver.class, hint = "jar")
+	private JarArchiver jarArchiver;
 
-    @Component
-    private MavenProjectHelper projectHelper;
+	@Component
+	private MavenProjectHelper projectHelper;
 
-    @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        File outputJarFile = getOutputJarFile();
+	@Override
+	public void execute() throws MojoExecutionException, MojoFailureException {
+		File outputJarFile = getOutputJarFile();
 
-        MavenArchiver archiver = new MavenArchiver();
-        archiver.setArchiver(jarArchiver);
-        archiver.setOutputFile(outputJarFile);
+		MavenArchiver archiver = new MavenArchiver();
+		archiver.setArchiver(jarArchiver);
+		archiver.setOutputFile(outputJarFile);
 
-        try {
-            archiver.getArchiver().setManifest(updateManifest());
+		try {
+			archiver.getArchiver().setManifest(updateManifest());
 
-            DefaultFileSet mainFileSet = new DefaultFileSet();
-            mainFileSet.setDirectory(bundleLocation);
-            mainFileSet.setIncludes(includes);
-            mainFileSet.setExcludes(excludes);
+			DefaultFileSet mainFileSet = new DefaultFileSet();
+			mainFileSet.setDirectory(bundleLocation);
+			mainFileSet.setIncludes(includes);
+			mainFileSet.setExcludes(excludes);
 
-            archiver.getArchiver().addFileSet(mainFileSet);
+			archiver.getArchiver().addFileSet(mainFileSet);
 
-            for (FileSet fileSet : fileSets) {
-                archiver.getArchiver().addFileSet(fileSet);
-            }
+			for (FileSet fileSet : fileSets) {
+				archiver.getArchiver().addFileSet(fileSet);
+			}
 
-            archiver.createArchive(session, project, archive);
+			archiver.createArchive(session, project, archive);
 
-            projectHelper.attachArtifact(project, outputJarFile, classifier);
-        } catch (Exception e) {
-            throw new MojoExecutionException("Could not create OSGi bundle", e);
-        }
-    }
+			projectHelper.attachArtifact(project, outputJarFile, classifier);
+		} catch (Exception e) {
+			throw new MojoExecutionException("Could not create OSGi bundle", e);
+		}
+	}
 
-    protected File getOutputJarFile() {
-        String filename = project.getArtifactId() + "-" + project.getVersion() + "-" + classifier + ".jar";
-        return new File(project.getBuild().getDirectory(), filename);
-    }
+	protected File getOutputJarFile() {
+		String filename = project.getArtifactId() + "-" + project.getVersion() + "-" + classifier + ".jar";
+		return new File(project.getBuild().getDirectory(), filename);
+	}
 
-    // copy&paste from PackagePluginMojo
-    private File updateManifest() throws FileNotFoundException, IOException, MojoExecutionException {
-        File mfile = new File(bundleLocation, "META-INF/MANIFEST.MF");
+	// copy&paste from PackagePluginMojo
+	private File updateManifest() throws IOException {
+		File mfile = new File(bundleLocation, "META-INF/MANIFEST.MF");
 
-        InputStream is = new FileInputStream(mfile);
-        Manifest mf;
-        try {
-            mf = new Manifest(is);
-        } finally {
-            is.close();
-        }
-        Attributes attributes = mf.getMainAttributes();
+		Manifest mf;
+		try (InputStream is = new FileInputStream(mfile)) {
+			mf = new Manifest(is);
+		}
+		Attributes attributes = mf.getMainAttributes();
 
-        if (attributes.getValue(Name.MANIFEST_VERSION) == null) {
-            attributes.put(Name.MANIFEST_VERSION, "1.0");
-        }
+		if (attributes.getValue(Name.MANIFEST_VERSION) == null) {
+			attributes.put(Name.MANIFEST_VERSION, "1.0");
+		}
 
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        attributes.putValue("Bundle-Version", reactorProject.getExpandedVersion());
+		ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+		attributes.putValue("Bundle-Version", reactorProject.getExpandedVersion());
 
-        mfile = new File(project.getBuild().getDirectory(), classifier + "-MANIFEST.MF");
-        mfile.getParentFile().mkdirs();
-        try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(mfile))) {
-            mf.write(os);
-        }
+		mfile = new File(project.getBuild().getDirectory(), classifier + "-MANIFEST.MF");
+		mfile.getParentFile().mkdirs();
+		try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(mfile))) {
+			mf.write(os);
+		}
 
-        return mfile;
-    }
+		return mfile;
+	}
 
 }
