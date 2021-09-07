@@ -13,7 +13,7 @@
 	<name>Jetty p2 Update Site for Platform build neeeds</name>
 
 	<properties>
-		<tycho-version>2.3.0-SNAPSHOT</tycho-version>
+		<tycho-version>2.5.0-SNAPSHOT</tycho-version>
 	</properties>
 
 	<pluginRepositories>
