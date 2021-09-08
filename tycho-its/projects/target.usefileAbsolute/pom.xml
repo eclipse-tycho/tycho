@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2008 Sonatype, Inc. All rights reserved. This program 
+	and the accompanying materials are made available under the terms of the 
+	Eclipse Public License 2.0 which accompanies this distribution, and is available 
+	at https://www.eclipse.org/legal/epl-2.0/ SPDX-License-Identifier: EPL-2.0 -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.plaform.releng.buildtools</groupId>
+	<artifactId>org.eclipse.platform.jetty.repository</artifactId>
+	<version>10.0.1</version>
+	<packaging>eclipse-repository</packaging>
+
+	<name>Jetty p2 Update Site for Platform build neeeds</name>
+
+	<properties>
+		<tycho-version>2.5.0-SNAPSHOT</tycho-version>
+	</properties>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>tycho-snapshots</id>
+			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<file>${project.basedir}/jetty.target</file>
+					</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<includeAllDependencies>true</includeAllDependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<!-- Eclipse SimRel requires all artifacts to be jar-signed. So we sign 
+			the (non eclipse) artifacts and update the p2 metadata accordingly -->
+		<profile>
+			<id>eclipse-sign</id>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>cbi-snapshots</id>
+					<url>https://repo.eclipse.org/content/repositories/cbi-snapshots/</url>
+				</pluginRepository>
+			</pluginRepositories>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.cbi.maven.plugins</groupId>
+						<artifactId>eclipse-jarsigner-plugin</artifactId>
+						<version>1.3.0-SNAPSHOT</version>
+						<executions>
+							<execution>
+								<id>sign</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<phase>prepare-package</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<excludeInnerJars>true</excludeInnerJars>
+							<resigningStrategy>DO_NOT_RESIGN</resigningStrategy>
+							<archiveDirectory>${project.build.directory}/repository/plugins/</archiveDirectory>
+							<processMainArtifact>false</processMainArtifact>
+							<processAttachedArtifacts>false</processAttachedArtifacts>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-p2-repository-plugin</artifactId>
+						<version>${tycho-version}</version>
+						<executions>
+							<execution>
+								<id>update</id>
+								<goals>
+									<goal>fix-artifacts-metadata</goal>
+								</goals>
+								<phase>prepare-package</phase>
+							</execution>
+							<execution>
+								<id>verify</id>
+								<goals>
+									<goal>verify-repository</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

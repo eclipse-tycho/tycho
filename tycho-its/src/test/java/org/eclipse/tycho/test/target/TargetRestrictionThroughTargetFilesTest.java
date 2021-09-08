@@ -35,6 +35,13 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
     }
 
     @Test
+    public void testWithFileAbsolute() throws Exception {
+        verifier = getVerifier("target.usefileAbsolute", false);
+        verifier.executeGoal("package");
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
     public void testVersionRestrictionWithPlanner() throws Exception {
         verifier = getVerifier("target.restriction.targetFile/testProject", false);
         TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "planner.target"),
