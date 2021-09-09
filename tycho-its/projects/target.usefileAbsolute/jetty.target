@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target>
+	<locations>
+		<location includeDependencyScope="compile" includeSource="true" missingManifest="ignore" type="Maven">
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+			<version>10.0.1</version>
+			<type>jar</type>
+		</location>
+	</locations>
+</target>
