@@ -38,7 +38,10 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -104,6 +107,23 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             // build failure is not an internal (unexpected) error, so avoid printing a stack
             // trace by wrapping it in MavenExecutionException   
             throw new MavenExecutionException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void afterSessionEnd(MavenSession session) throws MavenExecutionException {
+        if (plexus.hasComponent(EquinoxServiceFactory.class)) {
+            try {
+                EquinoxServiceFactory factory = plexus.lookup(EquinoxServiceFactory.class);
+                // do not use plexus.dispose() as this only works once and we
+                // want to reuse the factory multiple times but make sure the
+                // equinox framework is fully recreated
+                if (factory instanceof Disposable) {
+                    ((Disposable) factory).dispose();
+                }
+            } catch (ComponentLookupException e) {
+                throw new MavenExecutionException(e.getMessage(), e);
+            }
         }
     }
 
