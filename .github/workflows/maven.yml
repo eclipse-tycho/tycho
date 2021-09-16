@@ -34,4 +34,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Build with Maven
-      run: mvn -U -V -e -Pits clean install --file pom.xml --global-toolchains=toolchains-gh.xml
+      run: | 
+        cp toolchains-gh.xml ~/.m2/toolchains.xml
+        mvn -U -V -e -Pits clean install --file pom.xml --global-toolchains=toolchains-gh.xml
