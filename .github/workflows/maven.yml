@@ -36,4 +36,4 @@ jobs:
     - name: Build with Maven
       run: | 
         cp toolchains-gh.xml ~/.m2/toolchains.xml
-        mvn -U -V -e -Pits clean install --file pom.xml --global-toolchains=toolchains-gh.xml
+        mvn -U -V -e -Pits clean install --file pom.xml
