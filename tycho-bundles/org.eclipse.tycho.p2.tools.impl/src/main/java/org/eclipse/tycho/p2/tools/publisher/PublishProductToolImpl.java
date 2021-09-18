@@ -41,7 +41,6 @@ import org.eclipse.tycho.p2.target.ArtifactTypeHelper;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
-import org.xml.sax.Attributes;
 
 /**
  * Tool for transforming product definition source files into p2 metadata and artifacts. Includes
@@ -70,10 +69,10 @@ public class PublishProductToolImpl implements PublishProductTool {
     }
 
     @Override
-    public List<DependencySeed> publishProduct(File productFile, File launcherBinaries, String flavor,
-            boolean ignorePluginConfigurations) throws IllegalArgumentException {
+    public List<DependencySeed> publishProduct(File productFile, File launcherBinaries, String flavor)
+            throws IllegalArgumentException {
 
-        IProductDescriptor originalProduct = loadProductFile(productFile, ignorePluginConfigurations);
+        IProductDescriptor originalProduct = loadProductFile(productFile);
         ExpandedProduct expandedProduct = new ExpandedProduct(originalProduct, buildQualifier, targetPlatform,
                 interpolator, logger);
 
@@ -128,42 +127,9 @@ public class PublishProductToolImpl implements PublishProductTool {
         }
     }
 
-    private static IProductDescriptor loadProductFile(File productFile, boolean excludeConfigurationPlugins)
-            throws IllegalArgumentException {
+    private static IProductDescriptor loadProductFile(File productFile) throws IllegalArgumentException {
         try {
-            return new ProductFile(productFile.getAbsolutePath()) {
-
-                private boolean stateConfigurations;
-
-                @Override
-                public void startElement(String uri, String localName, String qName, Attributes attributes) {
-                    if (excludeConfigurationPlugins) {
-                        if ("configurations".equals(localName)) {
-                            stateConfigurations = true;
-                        }
-                        if (stateConfigurations && "plugin".equals(localName)) {
-                            //hide the plugins section to prevent a plugin dependency
-                            return;
-                        }
-                    }
-                    super.startElement(uri, localName, qName, attributes);
-                }
-
-                @Override
-                public void endElement(String uri, String localName, String qName) {
-                    if (excludeConfigurationPlugins) {
-                        if ("configurations".equals(localName)) {
-                            stateConfigurations = false;
-                        }
-                        if (stateConfigurations && "plugin".equals(localName)) {
-                            //hide the plugins section to prevent a plugin dependency
-                            return;
-                        }
-                    }
-                    super.endElement(uri, localName, qName);
-                }
-
-            };
+            return new ProductFile(productFile.getAbsolutePath());
         } catch (Exception e) {
             throw new BuildFailureException(
                     "Cannot parse product file " + productFile.getAbsolutePath() + ": " + e.getMessage(), e); //$NON-NLS-1$

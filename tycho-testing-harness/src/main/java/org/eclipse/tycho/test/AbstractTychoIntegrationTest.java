@@ -14,6 +14,7 @@ package org.eclipse.tycho.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.shared.utils.io.DirectoryScanner;
@@ -158,14 +159,26 @@ public abstract class AbstractTychoIntegrationTest {
         return EnvironmentUtil.getTychoVersion();
     }
 
-    protected void assertFileExists(File targetdir, String pattern) {
+    /**
+     * Check that at least one file matching the given pattern exits and returns an array of
+     * matching files
+     * 
+     * @param baseDir
+     *            the base directory to scan
+     * @param pattern
+     *            the pattern to match
+     * @return an array of matching files (will contain at least one file)
+     */
+    protected File[] assertFileExists(File baseDir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir(targetdir);
+        ds.setBasedir(baseDir);
         ds.setIncludes(pattern);
         ds.scan();
-        Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedFiles().length);
-        Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
-                new File(targetdir, ds.getIncludedFiles()[0]).canRead());
+        File[] includedFiles = Arrays.stream(ds.getIncludedFiles()).map(file -> new File(baseDir, file))
+                .toArray(File[]::new);
+        Assert.assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 1, includedFiles.length);
+        Assert.assertTrue(baseDir.getAbsolutePath() + "/" + pattern, includedFiles[0].canRead());
+        return includedFiles;
     }
 
     protected void assertDirectoryExists(File targetdir, String pattern) {
