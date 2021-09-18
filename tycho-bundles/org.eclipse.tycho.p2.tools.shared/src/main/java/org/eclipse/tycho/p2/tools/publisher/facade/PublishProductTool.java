@@ -31,10 +31,5 @@ public interface PublishProductTool {
      *            The installation flavor the product shall be published for
      * @return a handles to the published product IU
      */
-    default List<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor) {
-        return publishProduct(productDefinition, launcherBinaries, flavor, false);
-    }
-
-    List<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor,
-            boolean ignorePluginConfigurations);
+    List<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor);
 }

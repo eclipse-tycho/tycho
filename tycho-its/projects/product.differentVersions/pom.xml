@@ -42,7 +42,7 @@
 				<artifactId>tycho-p2-publisher-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<ignorePluginConfiguration>true</ignorePluginConfiguration>
+					<ignorePluginConfiguration>false</ignorePluginConfiguration>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -69,9 +69,6 @@
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-p2-repository-plugin</artifactId>
 					<version>${tycho-version}</version>
-					<configuration>
-						<includeAllDependencies>false</includeAllDependencies>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
