@@ -47,8 +47,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpg-jdk16</artifactId>
-			<version>1.46</version>
+			<artifactId>bcpg-jdk15on</artifactId>
+			<version>1.69</version>
 		</dependency>
 	</dependencies>
 

@@ -64,6 +64,8 @@ import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
+import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
@@ -299,7 +301,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                     continue;
                 }
                 try (InputStream in = PGPUtil.getDecoderStream(new FileInputStream(file))) {
-                    PGPObjectFactory pgpFact = new PGPObjectFactory(in);
+                    PGPObjectFactory pgpFact = new BcPGPObjectFactory(in);
                     Object o = pgpFact.nextObject();
                     if (o instanceof PGPSignatureList) {
                         PGPSignatureList list = (PGPSignatureList) o;
@@ -392,7 +394,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 FileUtils.copyInputStreamToFile(urlStream, keyCacheFile);
                 keyStream = new FileInputStream(keyCacheFile);
             }
-            PGPPublicKeyRingCollection publicKeyRing = new PGPPublicKeyRingCollection(
+            PGPPublicKeyRingCollection publicKeyRing = new BcPGPPublicKeyRingCollection(
                     PGPUtil.getDecoderStream(keyStream));
             PGPPublicKeyRing publicKey = publicKeyRing.getPublicKeyRing(keyID);
             if (publicKey != null) {
