@@ -12,15 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -46,7 +43,6 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.eclipse.pde.internal.swt.tools.IconExe;
@@ -633,7 +629,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                     try {
                         File sourceXPM = new File(project.getBasedir(), removeFirstSegment(icon));
                         File targetXPM = new File(launcher.getParentFile(), "icon.xpm");
-                        FileUtils.copyFile(sourceXPM, targetXPM);
+						Files.copy(sourceXPM.toPath(), targetXPM.toPath());
                     } catch (IOException e) {
                         throw new MojoExecutionException("Unable to create ico.xpm", e);
                     }
@@ -664,32 +660,17 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                         // Modify eclipse.ini
                         File iniFile = new File(osxEclipseApp + "/Contents/MacOS/eclipse.ini");
                         if (iniFile.exists() && iniFile.canWrite()) {
-                            StringBuffer buf = readFileToString(iniFile);
+							StringBuilder buf = new StringBuilder(
+									Files.readString(iniFile.toPath(), StandardCharsets.UTF_8));
                             int pos = buf.indexOf("Eclipse.icns");
                             buf.replace(pos, pos + 12, source.getName());
-                            writeStringToFile(iniFile, buf.toString());
+							Files.writeString(iniFile.toPath(), buf.toString());
                         }
                     } catch (Exception e) {
                         throw new MojoExecutionException("Unable to create macosx icon", e);
                     }
                 }
             }
-        }
-    }
-
-    private void writeStringToFile(File iniFile, String string) throws IOException {
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(iniFile))) {
-            IOUtil.copy(string, os);
-        }
-    }
-
-    private StringBuffer readFileToString(File iniFile) throws IOException {
-        try (InputStream is = new BufferedInputStream(new FileInputStream(iniFile))) {
-            StringWriter buffer = new StringWriter();
-
-            IOUtil.copy(is, buffer, "UTF-8");
-
-            return buffer.getBuffer();
         }
     }
 

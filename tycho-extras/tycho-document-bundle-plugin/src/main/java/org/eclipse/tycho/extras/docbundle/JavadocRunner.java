@@ -100,7 +100,6 @@ public class JavadocRunner {
 
         try (PrintStream ps = new PrintStream(optionsFile)) {
             ps.print(createOptionsFileContent());
-            ps.close();
 
             this.log.info("Calling: " + cli);
             final int rc = CommandLineUtils.executeCommandLine(cli, new DefaultConsumer(), new DefaultConsumer());

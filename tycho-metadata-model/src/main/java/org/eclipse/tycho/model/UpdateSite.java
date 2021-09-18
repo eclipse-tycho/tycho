@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.util.IOUtil;
-
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
@@ -105,10 +103,8 @@ public class UpdateSite {
     }
 
     public static UpdateSite read(InputStream is) throws IOException {
-        try {
+        try (is) {
             return new UpdateSite(parser.parse(new XMLIOSource(is)));
-        } finally {
-            IOUtil.close(is);
         }
     }
 

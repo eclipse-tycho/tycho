@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.util.IOUtil;
-
 import de.pdark.decentxml.Attribute;
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -51,10 +49,8 @@ public class ProductConfiguration {
     }
 
     public static ProductConfiguration read(InputStream input) throws IOException {
-        try {
+        try (input) {
             return new ProductConfiguration(parser.parse(new XMLIOSource(input)));
-        } finally {
-            IOUtil.close(input);
         }
     }
 

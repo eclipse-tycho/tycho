@@ -13,6 +13,8 @@
 package org.eclipse.tycho.core.resolver;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 
@@ -370,9 +372,10 @@ public class DefaultTargetPlatformConfigurationReader {
         }
         Xpp3Dom[] fileDomArray = targetDom.getChildren("file");
         if (fileDomArray != null && fileDomArray.length > 0) {
+            Path basedir = Paths.get(project.getBasedir().getAbsolutePath());
             for (Xpp3Dom fileDom : fileDomArray) {
                 String file = fileDom.getValue();
-                File target = new File(project.getBasedir(), file);
+                File target = basedir.resolve(file).toFile();
                 if (isTargetFile(target)) {
                     result.addTarget(target);
                     return;
