@@ -14,7 +14,6 @@ package org.eclipse.tycho.core.shared;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 
 public interface MavenDependenciesResolver {
 
@@ -34,16 +33,21 @@ public interface MavenDependenciesResolver {
      * @param dependencyScope
      *            optional dependency scope, if given it tries to resolve transitive dependencies of
      *            the given artifact as well
+     * @param additionalRepositories
+     *            additional repositories to use in the resolve process
      * @return
      */
     default Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version,
-            String packaging, String classifier, String dependencyScope) {
-        return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, Collections.emptyList());
+            String packaging, String classifier, String dependencyScope,
+            Collection<MavenArtifactRepositoryReference> additionalRepositories) {
+        return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, additionalRepositories,
+                null);
     }
 
     Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version, String packaging,
             String classifier, String dependencyScope,
-            Collection<MavenArtifactRepositoryReference> additionalRepositories);
+            Collection<MavenArtifactRepositoryReference> additionalRepositories,
+            Object/* MavenSession */ session);
 
     File getRepositoryRoot();
 

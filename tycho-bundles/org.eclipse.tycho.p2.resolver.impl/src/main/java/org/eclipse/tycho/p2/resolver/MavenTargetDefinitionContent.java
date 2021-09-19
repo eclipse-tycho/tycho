@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -181,7 +182,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                             || (sourceMode == IncludeSourceMode.honor && location.includeSource())) {
                         Collection<?> sourceArtifacts = mavenDependenciesResolver.resolve(mavenArtifact.getGroupId(),
                                 mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
-                                mavenArtifact.getPackagingType(), "sources", null);
+                                mavenArtifact.getPackagingType(), "sources", null, Collections.emptyList());
                         Iterator<IArtifactFacade> sources = sourceArtifacts.stream()
                                 .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast).iterator();
                         while (sources.hasNext()) {
