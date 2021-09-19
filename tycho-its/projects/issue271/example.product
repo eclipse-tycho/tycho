@@ -23,18 +23,9 @@
 
    <features>
       <feature id="eu.scasefp7.eclipse.core.dependencies.feature"/>
-      <feature id="org.eclipse.rcp"/>
-      <feature id="org.eclipse.equinox.p2.user.ui"/>
    </features>
 
    <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
-      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
-      <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4" />
-      <property name="org.eclipse.update.reconcile" value="false" />
    </configurations>
 
 </product>
