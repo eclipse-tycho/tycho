@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -49,7 +50,8 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
 
     @Override
     public Collection<?> resolve(String groupId, String artifactId, String version, String packaging, String classifier,
-            String dependencyScope, Collection<MavenArtifactRepositoryReference> additionalRepositories) {
+            String dependencyScope, Collection<MavenArtifactRepositoryReference> additionalRepositories,
+            Object session) {
         Artifact artifact;
         if (classifier != null && !classifier.isEmpty()) {
             artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, packaging,
@@ -60,17 +62,21 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         }
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
-        MavenSession session = context.getSession();
-        request.setOffline(session.isOffline());
-        request.setLocalRepository(session.getLocalRepository());
+        MavenSession mavenSession = getMavenSession(session);
+        request.setOffline(mavenSession.isOffline());
+        request.setLocalRepository(mavenSession.getLocalRepository());
         request.setResolveTransitively(dependencyScope != null && !dependencyScope.isEmpty());
-        List<ArtifactRepository> repositories = new ArrayList<>(
-                session.getCurrentProject().getRemoteArtifactRepositories());
-        for (MavenArtifactRepositoryReference reference : additionalRepositories) {
-            repositories.add(
-                    repositorySystem.createArtifactRepository(reference.getId(), reference.getUrl(), null, null, null));
+        if (additionalRepositories != null && additionalRepositories.size() > 0) {
+            List<ArtifactRepository> repositories = new ArrayList<>(
+                    mavenSession.getCurrentProject().getRemoteArtifactRepositories());
+            for (MavenArtifactRepositoryReference reference : additionalRepositories) {
+                repositories.add(repositorySystem.createArtifactRepository(reference.getId(), reference.getUrl(), null,
+                        null, null));
+            }
+            request.setRemoteRepositories(repositorySystem.getEffectiveRepositories(repositories));
+        } else {
+            request.setRemoteRepositories(mavenSession.getCurrentProject().getRemoteArtifactRepositories());
         }
-        request.setRemoteRepositories(repositories);
         ArtifactResolutionResult result = repositorySystem.resolve(request);
         Set<Artifact> artifacts = result.getArtifacts();
         ArrayList<IArtifactFacade> list = new ArrayList<IArtifactFacade>();
@@ -80,6 +86,17 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         return list;
     }
 
+    protected MavenSession getMavenSession(Object session) {
+        MavenSession mavenSession;
+        if (session instanceof MavenSession) {
+            mavenSession = (MavenSession) session;
+        } else {
+            mavenSession = Objects.requireNonNull(context.getSession(),
+                    "Can't acquire maven session from context, called outside maven thread context?");
+        }
+        return mavenSession;
+    }
+
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         framework.registerService(MavenDependenciesResolver.class, this);
@@ -87,8 +104,7 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
 
     @Override
     public File getRepositoryRoot() {
-
-        return new File(context.getSession().getLocalRepository().getBasedir());
+        return new File(getMavenSession(null).getLocalRepository().getBasedir());
     }
 
 }
