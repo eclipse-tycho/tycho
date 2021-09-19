@@ -13,6 +13,8 @@
 
 package org.eclipse.tycho.test.compiler;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.util.zip.ZipFile;
 
@@ -33,6 +35,7 @@ public class CompilerExclude extends AbstractTychoIntegrationTest {
 			Assert.assertNotNull(zip.getEntry("exclude/Activator.class"));
 			Assert.assertNull(zip.getEntry("exclude/filetoexlude.txt"));
 		}
+		fail("To test a failing integrationtest");
 	}
 
 }
