@@ -33,7 +33,16 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: Build with Maven
+    - name: Build Tycho
       run: | 
         cp toolchains-gh.xml ~/.m2/toolchains.xml
-        mvn -U -V -e -Pits clean install --file pom.xml
+        mvn -U -V -e clean install --file pom.xml
+    - name: Run Integration Tests
+      run: mvn -U -V -e -Pits -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml 
+    - name: Publish Integration Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      with:
+        files: |
+          'tycho-its/target/surefire-reports/*.xml'
+          
+
