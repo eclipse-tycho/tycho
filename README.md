@@ -1,6 +1,8 @@
 Eclipse Tycho
 =============
 
+[![Build Tycho](https://github.com/eclipse/tycho/actions/workflows/maven.yml/badge.svg)](https://github.com/eclipse/tycho/actions/workflows/maven.yml)
+
 Tycho is a manifest-first way to build
 
   * Eclipse plug-ins/OSGi bundles
