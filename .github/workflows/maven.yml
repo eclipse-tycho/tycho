@@ -40,9 +40,9 @@ jobs:
     - name: Run Integration Tests
       run: mvn -U -V -e -Pits -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml
     - name: Upload Test Results
-      if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Integration Test Results
+        name: test-results
+        if-no-files-found: error
         path: |
-          'tycho-its/target/surefire-reports/*.xml'
+          ${{ github.workspace }} 'tycho-its/target/surefire-reports/*.xml'
