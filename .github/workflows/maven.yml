@@ -45,4 +45,4 @@ jobs:
         name: test-results
         if-no-files-found: error
         path: |
-          ${{ github.workspace }} /tycho-its/target/surefire-reports/*.xml
+          ${{ github.workspace }}/tycho-its/target/surefire-reports/*.xml
