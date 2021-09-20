@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2010, 2011 SAP AG and others. All rights reserved. This 
+	program and the accompanying materials are made available under the terms 
+	of the Eclipse Public License v1.0 which accompanies this distribution, and 
+	is available at http://www.eclipse.org/legal/epl-v10.html Contributors: SAP 
+	AG - initial API and implementation -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-its-project</groupId>
+	<artifactId>issue271</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<packaging>eclipse-repository</packaging>
+	<name>RCP Example Product</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<repositories>
+		<repository>
+			<!-- See https://github.com/s-case/s-case-core -->
+			<id>scasefp7</id>
+			<url>mvn:eu.scasefp7.eclipse:s-case-core-update-site:1.1.0:zip</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>eclipse</id>
+			<url>http://download.eclipse.org/releases/mars/</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
