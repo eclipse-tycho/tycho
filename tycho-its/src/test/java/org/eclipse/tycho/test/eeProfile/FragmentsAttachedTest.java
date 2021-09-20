@@ -12,20 +12,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
-import org.apache.maven.it.Verifier;
+import static org.junit.Assert.fail;
+
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
 public class FragmentsAttachedTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testSWTFragmentsAttached() throws Exception {
-        Verifier verifier = getVerifier("eeProfile.resolution.fragments", false);
-
-        verifier.executeGoal("verify");
-
-        // with bug 413116, compile would fail
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void testSWTFragmentsAttached() throws Exception {
+		fail("test the failure");
+	}
 
 }
