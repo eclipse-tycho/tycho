@@ -18,7 +18,7 @@ Tycho supports the new m2e-pde features regarding [multiple dependencies per tar
 
 ### [Improved cache handling](https://github.com/eclipse/tycho/pull/211) 
 
-Previously tycho failed if the remote update-site server was not aviable even if the file is already downloaded. No it uses the local file instead and issues a warning instead.
+Previously tycho failed if the remote update-site server was not aviable even if the file is already downloaded. Now, it uses the local file instead and issues a warning instead.
 
 ### [M2_REPO classpath variable support](https://github.com/eclipse/tycho/pull/207)
 
