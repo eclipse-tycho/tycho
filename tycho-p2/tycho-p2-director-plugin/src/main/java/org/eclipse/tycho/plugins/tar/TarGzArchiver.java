@@ -78,7 +78,8 @@ public class TarGzArchiver {
                     new BufferedOutputStream(new FileOutputStream(destFile)));
             tarStream = new TarArchiveOutputStream(gzipStream, "UTF-8");
             // allow "long" file paths (> 100 chars)
-            tarStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+            tarStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+            tarStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
             for (File sourceDir : sourceDirs) {
                 for (File child : sourceDir.listFiles()) {
                     addToTarRecursively(sourceDir, child, tarStream);
