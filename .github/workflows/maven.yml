@@ -5,9 +5,13 @@ name: Build Tycho
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - 'master'
+      - 'tycho-*'
   pull_request:
-    branches: [ master ]
+    branches: 
+     - 'master'
+     - 'tycho-*'
 
 jobs:
   build:
