@@ -4,6 +4,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## Next release...
 
+### ... place your n&n item here ...
+
+## 2.5.0
+
 ### [Support for PGP Signatures in maven-p2 sites](https://github.com/eclipse/tycho/issues/203)
 
 The `assemble-maven-repository` mojo now supports embedding the PGP signature of maven artifacts to allow additional verifications and trust decisions.
@@ -11,6 +15,15 @@ The `assemble-maven-repository` mojo now supports embedding the PGP signature of
 ### Support for new m2e-pde features
 
 Tycho supports the new m2e-pde features regarding [multiple dependencies per target](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-adding-more-than-one-dependency-per-target-location) and specifying [extra repositories in the target](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-adding-additional-maven-repoistories-for-a-target-location).
+
+### [Improved cache handling](https://github.com/eclipse/tycho/pull/211) 
+
+Previously tycho failed if the remote update-site server was not aviable even if the file is already downloaded. No it uses the local file instead and issues a warning instead.
+
+### [M2_REPO classpath variable support](https://github.com/eclipse/tycho/pull/207)
+
+Tycho now supports M2_REPO variable from .classpath
+
 
 ## 2.4.0
 
@@ -98,6 +111,10 @@ A new mojo [tycho-p2-repository-plugin:assemble-maven-repository](https://www.ec
 
 To speed up Maven `clean`-only builds, Tycho's dependency resolution is now skipped, if the only phase specified is one from the clean lifecycle, namely `clean`,`pre-clean`,`post-clean`.
 Previously one had to specify the property `-Dtycho.mode=maven` to skip dependency resolution.
+
+### Automatically translate maven-license information to OSGi Bundle-Header
+
+If your pom contains license information, tycho automatically creates (if not already present) OSGi Bundle-License Header for you 
 
 ## 2.3.0
 
