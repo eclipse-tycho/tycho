@@ -2,10 +2,6 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## Next release...
-
-### ... place your n&n item here ...
-
 ## 2.5.0
 
 ### [Support for PGP Signatures in maven-p2 sites](https://github.com/eclipse/tycho/issues/203)
