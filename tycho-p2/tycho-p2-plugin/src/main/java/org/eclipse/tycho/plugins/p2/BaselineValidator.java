@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - BaselineValidator.validateAndReplace() fails with UnsupportedOperationException under Maven 3.8.2
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
@@ -20,6 +21,7 @@ import static org.eclipse.tycho.plugins.p2.BaselineReplace.none;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -145,8 +148,21 @@ public class BaselineValidator {
                             List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
                             ListIterator<Artifact> iterator = attachedArtifacts.listIterator();
                             while (iterator.hasNext()) {
-                                if (classifier.equals(iterator.next().getClassifier())) {
-                                    iterator.remove();
+                                Artifact next = iterator.next();
+                                if (classifier.equals(next.getClassifier())) {
+                                    try {
+                                        iterator.remove();
+                                    } catch (UnsupportedOperationException e) {
+                                        ArrayList<Artifact> list = new ArrayList<>(attachedArtifacts);
+                                        list.remove(next);
+                                        try {
+                                            MethodUtils.invokeMethod(project, true, "setAttachedArtifacts", list);
+                                        } catch (NoSuchMethodException | IllegalAccessException
+                                                | InvocationTargetException ignored) {
+                                            log.warn("The attached artifact " + classifier
+                                                    + " is not present in the baseline but could not be removed!");
+                                        }
+                                    }
                                     break;
                                 }
                             }
