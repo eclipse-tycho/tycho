@@ -9,6 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich -  [Bug 567782] Platform specific fragment not support in Multi-Platform POMless build
  *                          [Bug 572481] Tycho does not understand "additional.bundles" directive in build.properties
+ *                          [Issue 303] M2E-core build fails with Uses-constraint-violations
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -21,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringJoiner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -74,6 +78,25 @@ import org.osgi.framework.wiring.BundleRevision;
 
 @Component(role = EquinoxResolver.class)
 public class EquinoxResolver {
+
+    //The following properties are not supported for general usage and intended to experimental testing when developing Tycho, so use with care
+
+    /**
+     * Keep the default batch size, but allow to override this if necessary
+     */
+    private static final String BATCH_SIZE = System.getProperty("tycho.equinox.resolver.batch.size", null);
+    /**
+     * Set the batch timeout to an acceptable timeout before fallback to resolve one bundle at a
+     * time, but allow to override this if necessary
+     */
+    private static final String BATCH_TIMEOUT = System.getProperty("tycho.equinox.resolver.batch.timeout",
+            String.valueOf(TimeUnit.SECONDS.toMillis(30)));
+
+    /**
+     * Allow to adjust the default thread count used in resolver operations
+     */
+    private static final int THREAD_COUNT = Integer.getInteger("tycho.equinox.resolver.executor.threads", 1);
+
     @Requirement
     private BundleReader manifestReader;
 
@@ -88,64 +111,75 @@ public class EquinoxResolver {
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
-        Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);
-        ModuleContainer container = newState(artifacts, properties, mavenSession);
-        ResolutionReport report = container.resolve(null, false);
-        Module module = container.getModule(getNormalizedPath(project.getBasedir()));
-        if (module == null) {
-            Module systemModule = container.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
-            if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
-                module = systemModule;
-            }
-        }
-        ModuleRevision moduleRevision = module.getCurrentRevision();
-        if (report.getEntries().isEmpty()) {
-            Collection<org.eclipse.osgi.container.Module> toUninstall = null;
-            if ((moduleRevision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
-                // other fragments for the same host
-                toUninstall = moduleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE).stream()
-                        .map(ModuleWire::getProvider) //
-                        .flatMap(host -> host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream())
-                        .map(ModuleWire::getRequirer) //
-                        .filter(Predicate.not(moduleRevision::equals)) //
-                        .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
-                        .map(revision -> revision.getRevisions().getModule()) //
-                        .collect(Collectors.toSet());
-            } else {
-                // fragments for the host
-                toUninstall = moduleRevision.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
-                        .map(ModuleWire::getRequirer) //
-                        .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
-                        .map(revision -> revision.getRevisions().getModule()) //
-                        .collect(Collectors.toSet());
-            }
-            if (!toUninstall.isEmpty()) {
-                for (Module uninstall : toUninstall) {
-                    try {
-                        container.uninstall(uninstall);
-                    } catch (BundleException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(THREAD_COUNT);
+        try {
+            Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);
+            ModuleContainer container = newState(artifacts, properties, mavenSession, executorService);
+            ResolutionReport report = container.resolve(null, false);
+            Module module = container.getModule(getNormalizedPath(project.getBasedir()));
+            if (module == null) {
+                Module systemModule = container.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
+                if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
+                    module = systemModule;
                 }
-                report = container.refresh(null);
             }
-        }
-        assertResolved(report, moduleRevision);
+            ModuleRevision moduleRevision = module.getCurrentRevision();
+            if (report.getEntries().isEmpty()) {
+                Collection<org.eclipse.osgi.container.Module> toUninstall = null;
+                if ((moduleRevision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
+                    // other fragments for the same host
+                    toUninstall = moduleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE)
+                            .stream().map(ModuleWire::getProvider) //
+                            .flatMap(host -> host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)
+                                    .stream())
+                            .map(ModuleWire::getRequirer) //
+                            .filter(Predicate.not(moduleRevision::equals)) //
+                            .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
+                            .map(revision -> revision.getRevisions().getModule()) //
+                            .collect(Collectors.toSet());
+                } else {
+                    // fragments for the host
+                    toUninstall = moduleRevision.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)
+                            .stream().map(ModuleWire::getRequirer) //
+                            .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
+                            .map(revision -> revision.getRevisions().getModule()) //
+                            .collect(Collectors.toSet());
+                }
+                if (!toUninstall.isEmpty()) {
+                    for (Module uninstall : toUninstall) {
+                        try {
+                            container.uninstall(uninstall);
+                        } catch (BundleException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                    report = container.refresh(null);
+                }
+            }
+            assertResolved(report, moduleRevision);
 
-        return container;
+            return container;
+        } finally {
+            executorService.shutdownNow();
+        }
     }
 
     public ModuleContainer newResolvedState(File basedir, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
-        Properties properties = getPlatformProperties(new Properties(), mavenSession, null, ee);
-        ModuleContainer container = newState(artifacts, properties, mavenSession);
-        ResolutionReport report = container.resolve(null, false);
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(THREAD_COUNT);
+        try {
+            Properties properties = getPlatformProperties(new Properties(), mavenSession, null, ee);
+            ModuleContainer container = newState(artifacts, properties, mavenSession, executorService);
+            ResolutionReport report = container.resolve(null, false);
 
-        ModuleRevision bundleDescription = container.getModule(getNormalizedPath(basedir)).getCurrentRevision();
-        assertResolved(report, bundleDescription);
+            ModuleRevision bundleDescription = container.getModule(getNormalizedPath(basedir)).getCurrentRevision();
+            assertResolved(report, bundleDescription);
 
-        return container;
+            return container;
+        } finally {
+            executorService.shutdownNow();
+        }
     }
 
     protected Properties getPlatformProperties(ReactorProject project, MavenSession mavenSession,
@@ -198,18 +232,19 @@ public class EquinoxResolver {
         return properties;
     }
 
-    protected ModuleContainer newState(DependencyArtifacts artifacts, Properties properties, MavenSession mavenSession)
-            throws BundleException {
+    protected ModuleContainer newState(DependencyArtifacts artifacts, Properties properties, MavenSession mavenSession,
+            ScheduledExecutorService executorService) throws BundleException {
         ModuleContainer[] moduleContainerAccessor = new ModuleContainer[1];
         ModuleContainerAdaptor moduleContainerAdaptor = new ModuleContainerAdaptor() {
 
             @Override
             public String getProperty(String key) {
+                // see https://github.com/eclipse/tycho/issues/213#issuecomment-912547700 for details about what these does
                 switch (key) {
-                // Prevent from too slow resolution, see
-                // https://github.com/eclipse/tycho/issues/213#issuecomment-912547700
                 case "equinox.resolver.revision.batch.size":
-                    return Integer.toString(1);
+                    return BATCH_SIZE;
+                case "equinox.resolver.batch.timeout":
+                    return BATCH_TIMEOUT;
                 }
                 return super.getProperty(key);
             }
@@ -286,6 +321,11 @@ public class EquinoxResolver {
                         // nothing to do
                     }
                 };
+            }
+
+            @Override
+            public ScheduledExecutorService getScheduledExecutor() {
+                return executorService;
             }
         };
         ModuleDatabase moduleDatabase = new ModuleDatabase(moduleContainerAdaptor);
