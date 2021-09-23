@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,7 +57,7 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
 
     public void test_noSystemBundle() throws BundleException {
         Properties properties = subject.getPlatformProperties(new Properties(), null, null, DUMMY_EE);
-        ModuleContainer container = subject.newState(new DefaultDependencyArtifacts(), properties, null);
+        ModuleContainer container = subject.newState(new DefaultDependencyArtifacts(), properties, null, null);
         assertEquals(1, container.getModules().stream().map(Module::getCurrentRevision)
                 .map(BundleRevision::getSymbolicName).filter(Constants.SYSTEM_BUNDLE_SYMBOLICNAME::equals).count());
     }
