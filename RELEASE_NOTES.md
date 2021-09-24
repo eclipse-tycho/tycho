@@ -112,9 +112,9 @@ A new mojo [tycho-p2-repository-plugin:assemble-maven-repository](https://www.ec
 To speed up Maven `clean`-only builds, Tycho's dependency resolution is now skipped, if the only phase specified is one from the clean lifecycle, namely `clean`,`pre-clean`,`post-clean`.
 Previously one had to specify the property `-Dtycho.mode=maven` to skip dependency resolution.
 
-### Automatically translate maven-license information to OSGi Bundle-Header
+### [Automatically translate maven-license information to OSGi `Bundle-License` header](https://github.com/eclipse/tycho/issues/177)
 
-If your pom contains license information, tycho automatically creates (if not already present) OSGi Bundle-License Header for you 
+If your pom contains license information, Tycho automatically creates (if not already present) OSGi `Bundle-License` header for you. This behaviour can be controlled with [deriveHeaderFromProject](https://www.eclipse.org/tycho/sitedocs/tycho-packaging-plugin/package-plugin-mojo.html#deriveHeaderFromProject) setting.
 
 ## 2.3.0
 
