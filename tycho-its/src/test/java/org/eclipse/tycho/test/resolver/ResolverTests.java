@@ -33,7 +33,7 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 	@Test
 	public void testUsesConstraintViolations() throws Exception {
 
-		Verifier verifier = getVerifier("/usesConstraintViolations");
+		Verifier verifier = getVerifier("resolver.usesConstraintViolations");
 		verifier.executeGoal("compile");
 		verifier.verifyErrorFreeLog();
 	}
