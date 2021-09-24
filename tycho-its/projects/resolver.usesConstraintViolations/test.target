@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="test">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/releases/2021-09/"/>
+			<unit id="org.eclipse.sdk.feature.group" version="4.21.0.v20210906-0842"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/tools/orbit/downloads/2021-09/"/>
+			<unit id="org.w3c.dom.events" version="3.0.0.draft20060413_v201105210656"/>
+			<unit id="org.apache.batik.dom" version="1.14.0.v20210324-0332"/>
+		</location>
+	</locations>
+</target>
