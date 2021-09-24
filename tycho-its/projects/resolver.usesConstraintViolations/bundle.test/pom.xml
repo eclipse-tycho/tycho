@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho.its</groupId>
+		<artifactId>issue303-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>bundle.test.w3c</artifactId>
+	<packaging>eclipse-plugin</packaging>
+
+</project>

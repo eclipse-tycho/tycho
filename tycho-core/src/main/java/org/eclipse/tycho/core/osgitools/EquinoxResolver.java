@@ -42,6 +42,7 @@ import org.eclipse.osgi.container.ModuleContainerAdaptor;
 import org.eclipse.osgi.container.ModuleDatabase;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.ModuleRevisionBuilder;
+import org.eclipse.osgi.container.ModuleRevisionBuilder.GenericInfo;
 import org.eclipse.osgi.container.ModuleWire;
 import org.eclipse.osgi.container.SystemModule;
 import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
@@ -82,9 +83,17 @@ public class EquinoxResolver {
     //The following properties are not supported for general usage and intended to experimental testing when developing Tycho, so use with care
 
     /**
-     * Keep the default batch size, but allow to override this if necessary
+     * If set to true this keep the 'uses' constraints of a package, this will make it more hard for
+     * the resolver or even let him fail to compute a solution if different package providers are
+     * present
      */
-    private static final String BATCH_SIZE = System.getProperty("tycho.equinox.resolver.batch.size", null);
+    private static final boolean KEEP_USES = Boolean.getBoolean("tycho.equinox.resolver.uses");
+    /**
+     * Keep the default batch size, but allow to override this if necessary, if 'uses' constrains
+     * are kept, do not restrict the batch size as this potentially fails the resolve
+     */
+    private static final String BATCH_SIZE = System.getProperty("tycho.equinox.resolver.batch.size",
+            KEEP_USES ? null : "1");
     /**
      * Set the batch timeout to an acceptable timeout before fallback to resolve one bundle at a
      * time, but allow to override this if necessary
@@ -328,6 +337,7 @@ public class EquinoxResolver {
                 return executorService;
             }
         };
+
         ModuleDatabase moduleDatabase = new ModuleDatabase(moduleContainerAdaptor);
         ModuleContainer moduleContainer = new ModuleContainer(moduleContainerAdaptor, moduleDatabase);
         moduleContainerAccessor[0] = moduleContainer;
@@ -380,11 +390,10 @@ public class EquinoxResolver {
         ModuleRevisionBuilder systemBundleRevisionBuilder = OSGiManifestBuilderFactory.createBuilder(
                 systemBundleManifest, Constants.SYSTEM_BUNDLE_SYMBOLICNAME,
                 properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES), systemExtraCapabilities);
-
-        moduleContainer.install(null, Constants.SYSTEM_BUNDLE_LOCATION, systemBundleRevisionBuilder, systemBundleInfo);
+        install(moduleContainer, null, Constants.SYSTEM_BUNDLE_LOCATION, systemBundleRevisionBuilder, systemBundleInfo);
 
         for (Map.Entry<File, OsgiManifest> external : externalBundles.entrySet()) {
-            moduleContainer.install(null, external.getKey().getAbsolutePath(),
+            install(moduleContainer, null, external.getKey().getAbsolutePath(),
                     OSGiManifestBuilderFactory.createBuilder(external.getValue().getHeaders()), external.getKey());
         }
         for (Map.Entry<File, OsgiManifest> entry : projects.entrySet()) {
@@ -392,10 +401,20 @@ public class EquinoxResolver {
             // that has the same bundle symbolic name
             Map<String, String> headers = entry.getValue().getHeaders();
             ModuleRevisionBuilder builder = OSGiManifestBuilderFactory.createBuilder(headers);
-            moduleContainer.install(null, entry.getKey().getAbsolutePath(), builder, entry.getKey());
+            install(moduleContainer, null, entry.getKey().getAbsolutePath(), builder, entry.getKey());
         }
-
         return moduleContainer;
+    }
+
+    private static Module install(ModuleContainer moduleContainer, Module origin, String location,
+            ModuleRevisionBuilder builder, Object revisionInfo) throws BundleException {
+        if (!KEEP_USES) {
+            List<GenericInfo> capabilities = builder.getCapabilities();
+            for (GenericInfo genericInfo : capabilities) {
+                genericInfo.getDirectives().remove("uses");
+            }
+        }
+        return moduleContainer.install(origin, location, builder, revisionInfo);
     }
 
     private boolean isFrameworkImplementation(OsgiManifest mf) {
