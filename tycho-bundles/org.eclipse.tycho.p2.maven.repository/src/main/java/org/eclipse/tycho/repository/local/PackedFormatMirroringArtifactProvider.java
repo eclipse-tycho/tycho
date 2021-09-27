@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvide
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
 
+@Deprecated(forRemoval = true)
 final class PackedFormatMirroringArtifactProvider extends MirroringArtifactProvider {
 
     PackedFormatMirroringArtifactProvider(LocalArtifactRepository localArtifactRepository,
@@ -31,8 +32,8 @@ final class PackedFormatMirroringArtifactProvider extends MirroringArtifactProvi
     }
 
     @Override
-    protected boolean makeOneFormatLocallyAvailable(IArtifactKey key) throws MirroringFailedException,
-            ProvisionException, ArtifactSinkException {
+    protected boolean makeOneFormatLocallyAvailable(IArtifactKey key)
+            throws MirroringFailedException, ProvisionException, ArtifactSinkException {
 
         if (isAvailableLocally(key)) {
             return true;
@@ -61,8 +62,8 @@ final class PackedFormatMirroringArtifactProvider extends MirroringArtifactProvi
     }
 
     @Override
-    protected IStatus downloadMostSpecificNeededFormatOfArtifact(IArtifactKey key) throws ProvisionException,
-            ArtifactSinkException {
+    protected IStatus downloadMostSpecificNeededFormatOfArtifact(IArtifactKey key)
+            throws ProvisionException, ArtifactSinkException {
 
         IArtifactDescriptor[] allDescriptors = remoteProviders.getArtifactDescriptors(key);
         IArtifactDescriptor packedDescriptor = findPackedDescriptor(allDescriptors);
@@ -79,8 +80,8 @@ final class PackedFormatMirroringArtifactProvider extends MirroringArtifactProvi
         }
     }
 
-    private final IStatus downloadRawArtifact(IArtifactDescriptor descriptor) throws ProvisionException,
-            ArtifactSinkException {
+    private final IStatus downloadRawArtifact(IArtifactDescriptor descriptor)
+            throws ProvisionException, ArtifactSinkException {
         // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS
         IRawArtifactSink localSink = localArtifactRepository.newAddingRawArtifactSink(descriptor);
         return remoteProviders.getRawArtifact(localSink, monitorForDownload());

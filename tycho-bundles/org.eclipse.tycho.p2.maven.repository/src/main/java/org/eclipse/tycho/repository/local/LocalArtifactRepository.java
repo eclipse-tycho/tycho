@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -108,7 +108,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         ArtifactsIO io = new ArtifactsIO();
 
         Set<GAVArtifactDescriptor> descriptors = flattenedValues().collect(toSet());
-        Set<IArtifactDescriptor> changedDescriptors = new HashSet<IArtifactDescriptor>(descriptors);
+        Set<IArtifactDescriptor> changedDescriptors = new HashSet<>(descriptors);
         changedDescriptors.removeAll(descriptorsOnLastSave);
 
         Set<IArtifactKey> changedKeys = new HashSet<>();
@@ -143,7 +143,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
             throw new RuntimeException(e);
         }
 
-        descriptorsOnLastSave = new HashSet<IArtifactDescriptor>(descriptors);
+        descriptorsOnLastSave = new HashSet<>(descriptors);
     }
 
     private String getMetadataRelpath(GAV gav) {

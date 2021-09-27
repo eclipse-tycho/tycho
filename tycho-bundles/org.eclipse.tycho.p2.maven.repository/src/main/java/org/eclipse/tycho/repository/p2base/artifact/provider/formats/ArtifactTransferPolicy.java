@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,7 @@ public abstract class ArtifactTransferPolicy {
         return null == format.getProperty(IArtifactDescriptor.FORMAT);
     }
 
+    @Deprecated(forRemoval = true)
     public static boolean isPack200Format(IArtifactDescriptor format) {
         return IArtifactDescriptor.FORMAT_PACKED.equals(format.getProperty(IArtifactDescriptor.FORMAT));
     }

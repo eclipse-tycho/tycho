@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -50,9 +50,9 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     private final MavenLogger logger;
     private FileLocker fileLocker;
 
-    private Set<GAV> addedGavs = new HashSet<GAV>();
-    private Set<GAV> removedGavs = new HashSet<GAV>();
-    private Set<GAV> gavs = new HashSet<GAV>();
+    private Set<GAV> addedGavs = new HashSet<>();
+    private Set<GAV> removedGavs = new HashSet<>();
+    private Set<GAV> gavs = new HashSet<>();
 
     private FileBasedTychoRepositoryIndex(File indexFile, FileLockService fileLockService, MavenLogger logger) {
         super();
