@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP SE and others.
+ * Copyright (c) 2010, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -68,8 +68,8 @@ class ModuleArtifactMap {
 
         File artifactFile = artifacts.get(coordinates.getClassifier());
         if (artifactFile == null) {
-            throw new IllegalStateException("Classifier " + coordinates.getClassifier() + " is missing in "
-                    + mapFile.getAbsolutePath());
+            throw new IllegalStateException(
+                    "Classifier " + coordinates.getClassifier() + " is missing in " + mapFile.getAbsolutePath());
         }
         return artifactFile;
     }
@@ -161,13 +161,8 @@ class ModuleArtifactMap {
     }
 
     private static void writeProperties(Properties properties, File outputFile) throws IOException {
-        FileOutputStream outputStream;
-        outputStream = new FileOutputStream(outputFile);
-
-        try {
+        try (FileOutputStream outputStream = new FileOutputStream(outputFile);) {
             properties.store(outputStream, null);
-        } finally {
-            outputStream.close();
         }
     }
 }

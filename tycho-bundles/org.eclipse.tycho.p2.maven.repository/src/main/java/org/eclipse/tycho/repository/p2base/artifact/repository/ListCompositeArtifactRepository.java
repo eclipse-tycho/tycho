@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2021 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -54,7 +54,7 @@ import org.eclipse.osgi.util.NLS;
  */
 @SuppressWarnings("restriction")
 public class ListCompositeArtifactRepository extends AbstractArtifactRepository
-        implements ICompositeRepository<IArtifactKey>, IArtifactRepository, IFileArtifactRepository {
+        implements ICompositeRepository<IArtifactKey>, IFileArtifactRepository {
 
     private List<? extends IArtifactRepository> artifactRepositories;
 
@@ -111,10 +111,10 @@ public class ListCompositeArtifactRepository extends AbstractArtifactRepository
             SubMonitor subMonitor = SubMonitor.convert(monitor, artifactRepositories.size());
             Collector<IArtifactDescriptor> collector = new Collector<>();
             for (IArtifactRepository repository : artifactRepositories) {
-        collector.addAll(repository.descriptorQueryable().query(query, subMonitor.split(1)));
+                collector.addAll(repository.descriptorQueryable().query(query, subMonitor.split(1)));
             }
             return collector;
-         };
+        };
     }
 
     @Override
