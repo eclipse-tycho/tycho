@@ -52,11 +52,12 @@ Tycho team
 - [ ] Checkout branch `tycho-N.M.x`
 - [ ] Update version to remove `-SNAPSHOT` with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<VERSION>`
 - [ ] Update versions in tycho-demo folder
+- [ ] `git commit` version change
 - [ ] Sync to release commit and deploy to nexus staging repository: `mvn clean deploy -Prelease -DforgeReleaseId=sonatype-nexus-staging -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/`
 - [ ] On https://oss.sonatype.org/#stagingRepositories , Close the staging repository, get the staging repo URL from Nexus
 - [ ] Wait for artifacts to be available on Maven central.
-- `git tag <TYCHO_VERSION>`
-- push tag to remote
+- [ ] `git tag <TYCHO_VERSION>`
+- [ ] `git push eclipse HEAD:tycho-N.M.x <TYCHO_VERSION>` (push commit to branch, and tag)
 - Documentation
   - [ ] Generate site docs using `mvn install site site:stage -DskipTests` and check the result from `target/staging` seems viable.
   - [ ] Prepare documentation on the webite, using git repo https://git.eclipse.org/c/www.eclipse.org/tycho.git/ : copy the local site docs folders `target/staging/sitedocs` to the existing `sitedocs` folder and then submit as Gerrit review (don't merge yet)
