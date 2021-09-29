@@ -91,7 +91,7 @@
 		<ecjVersion>3.27.0</ecjVersion>
 
 		<!-- version of Tycho used by this build -->
-		<tychoBootstrapVersion>2.4.0</tychoBootstrapVersion>
+		<tychoBootstrapVersion>2.5.0</tychoBootstrapVersion>
 	</properties>
 
 	<dependencyManagement>
