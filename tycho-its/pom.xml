@@ -25,7 +25,7 @@
 
 	<properties>
 		<tycho-build-version>${project.version}</tycho-build-version>
-		<its-maven-version>3.8.2</its-maven-version>
+		<its-maven-version>3.8.3</its-maven-version>
 		<maven-dir>${project.build.directory}/apache-maven-${its-maven-version}</maven-dir>
 
 	</properties>
