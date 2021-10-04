@@ -141,6 +141,7 @@
 						<cloneProjectsTo>target/it</cloneProjectsTo>
 						<localRepositoryPath>target/local-repo</localRepositoryPath>
 						<postBuildHookScript>verify</postBuildHookScript>
+						<addTestClassPath>true</addTestClassPath>
 						<properties>
 							<tycho-version>${tycho-version}</tycho-version>
 							<tycho-snapshots-url>file://${session.localRepository.basedir}</tycho-snapshots-url>
