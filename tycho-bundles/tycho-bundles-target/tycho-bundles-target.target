@@ -30,9 +30,15 @@
 <unit id="org.bouncycastle.bcpg" version="1.69.0.v20210713-1924"/>
 <repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20210825222808/repository"/>
 </location>
-	<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-		<repository location="https://bndtools.jfrog.io/bndtools/update-latest"/>
-		<unit id="bndtools.main.feature.feature.group" version="0.0.0"/>
-	</location>
+<location includeSource="true" missingManifest="error" type="Maven">
+	<dependencies>
+		<dependency>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bndlib</artifactId>
+			<version>5.1.2</version>
+			<type>jar</type>
+		</dependency>
+	</dependencies>
+</location>
 </locations>
 </target>
