@@ -7,7 +7,7 @@ pipeline {
 		label "centos-8"
 	}
 	tools {
-		maven 'apache-maven-latest'
+		maven 'apache-maven-3.8.1'
 		jdk 'openjdk-jdk11-latest'
 	}
 	stages {
