@@ -4,7 +4,15 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## Next release...
 
-### ... place your n&n item here ...
+### Mirror Mojo no longer mirrors pack200 artifacts by default
+
+Default for this mojo has been flipped from true to false as pack200 artifacts are irrelevant nowadays. If you want to restore previous behaviour put the following in your mojo configuration:
+
+```
+<includePacked>true</includePacked>
+```
+
+
 
 ## 2.5.0
 
