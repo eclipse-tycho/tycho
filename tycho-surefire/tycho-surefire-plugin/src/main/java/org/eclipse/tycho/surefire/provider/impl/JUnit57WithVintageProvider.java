@@ -29,8 +29,8 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
-@Component(role = TestFrameworkProvider.class, hint = "junit57")
-public class JUnit57Provider extends AbstractJUnitProvider {
+@Component(role = TestFrameworkProvider.class, hint = "junit57withvintage")
+public class JUnit57WithVintageProvider extends AbstractJUnitProvider {
 
     private static final Version VERSION = Version.parseVersion("5.7.0");
 
@@ -51,7 +51,7 @@ public class JUnit57Provider extends AbstractJUnitProvider {
 
     @Override
     public List<Dependency> getRequiredBundles() {
-        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit57"));
+        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit57withvintage"));
     }
 
     @Override
@@ -62,6 +62,6 @@ public class JUnit57Provider extends AbstractJUnitProvider {
     @Override
     public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
         return super.isEnabled(testBundleClassPath, surefireProperties)
-                && !new JUnit47Provider().containsJunitInClasspath(testBundleClassPath);
+                && new JUnit47Provider().containsJunitInClasspath(testBundleClassPath);
     }
 }
