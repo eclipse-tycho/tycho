@@ -33,6 +33,8 @@
 		<module>org.eclipse.tycho.surefire.junit56</module>
 		<module>org.eclipse.tycho.surefire.junit57</module>
 		<module>org.eclipse.tycho.surefire.junit57withvintage</module>
+		<module>org.eclipse.tycho.surefire.junit58</module>
+		<module>org.eclipse.tycho.surefire.junit58withvintage</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 	</modules>
 	<build>
