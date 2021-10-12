@@ -4,6 +4,8 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## Next release...
 
+## 2.6.0
+
 ### Mirror Mojo no longer mirrors pack200 artifacts by default
 
 Default for this mojo has been flipped from true to false as pack200 artifacts are irrelevant nowadays. If you want to restore previous behaviour put the following in your mojo configuration:
@@ -12,6 +14,9 @@ Default for this mojo has been flipped from true to false as pack200 artifacts a
 <includePacked>true</includePacked>
 ```
 
+### Improved plain JUnit 5 suppoort
+
+Plain JUnit 5 tests now works fine without extra dependency on JUnit 4.
 
 
 ## 2.5.0

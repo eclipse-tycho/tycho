@@ -35,6 +35,10 @@ public abstract class AbstractJUnitProvider implements TestFrameworkProvider {
 
     @Override
     public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
+        return containsJunitInClasspath(testBundleClassPath);
+    }
+
+    protected boolean containsJunitInClasspath(List<ClasspathEntry> testBundleClassPath) {
         Set<String> junitBundleNames = getJUnitBundleNames();
         VersionRange range = getJUnitVersionRange();
         for (ClasspathEntry classpathEntry : testBundleClassPath) {
