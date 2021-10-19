@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 SAP AG and others.
+ * Copyright (c) 2015, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@
 package org.eclipse.tycho.source;
 
 import static java.util.Arrays.asList;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
