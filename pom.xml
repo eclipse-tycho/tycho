@@ -477,6 +477,7 @@
 		<module>tycho-p2</module>
 		<module>tycho-artifactcomparator</module>
 
+		<module>tycho-gpg-plugin</module>
 		<module>tycho-extras</module>
 	</modules>
 
