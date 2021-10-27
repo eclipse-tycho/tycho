@@ -70,7 +70,8 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
             try {
                 File destination = getAssemblyRepositoryLocation();
                 if (!destination.isDirectory()) {
-                    return;
+                    throw new MojoExecutionException(
+                            "Could not update p2 repository, directory does not exist: " + destination);
                 }
                 MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
