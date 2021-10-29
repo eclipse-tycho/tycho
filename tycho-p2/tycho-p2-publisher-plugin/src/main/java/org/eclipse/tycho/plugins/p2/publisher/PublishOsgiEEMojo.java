@@ -51,7 +51,7 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
      * by the platform, last Java LTS and the latest Java release.
      * </p>
      */
-    @Parameter(defaultValue = "JavaSE-11, JavaSE-16, JavaSE-17")
+    @Parameter(defaultValue = "JavaSE-11, JavaSE-17, JavaSE-18")
     private String profiles;
 
     @Parameter(defaultValue = "false")

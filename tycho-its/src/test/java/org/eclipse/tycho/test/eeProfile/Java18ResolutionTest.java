@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2021 IBM Corporation and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,29 +24,29 @@ import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class Java16ResolutionTest extends AbstractTychoIntegrationTest {
+public class Java18ResolutionTest extends AbstractTychoIntegrationTest {
 
     private static File buildResult;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        buildResult = new Java16ResolutionTest().runBuild();
+        buildResult = new Java18ResolutionTest().runBuild();
     }
 
     public File runBuild() throws Exception {
-        Verifier verifier = getVerifier("eeProfile.java16", false);
+        Verifier verifier = getVerifier("eeProfile.java18", false);
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         return new File(verifier.getBasedir());
     }
 
     @Test
-    public void testProductBuildForJava16() throws Exception {
-        // a p2 repository that contains a product for Java 16
+    public void testProductBuildForJava17() throws Exception {
+        // a p2 repository that contains a product for Java 18
         P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
         List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
-        // we expect java 16
-        assertThat(jreUnitVersions, hasItem("16.0.0"));
+        // we expect java 18
+        assertThat(jreUnitVersions, hasItem("18.0.0"));
     }
 
 }
