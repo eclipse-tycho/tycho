@@ -13,14 +13,17 @@
 package org.eclipse.tycho.core;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.core.ee.TargetDefinitionFile;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -54,7 +57,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private boolean implicitTargetEnvironment = true;
 
-    private final List<File> targets = new ArrayList<>();
+    private final List<URI> targets = new ArrayList<>();
     private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
     private PomDependencies pomDependencies = PomDependencies.ignore;
@@ -90,8 +93,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         return resolver;
     }
 
-    public List<File> getTargets() {
-        return Collections.unmodifiableList(targets);
+    public List<TargetDefinitionFile> getTargets() {
+        return targets.stream().map(TargetDefinitionFile::read).collect(Collectors.toList());
     }
 
     public void addEnvironment(TargetEnvironment environment) {
@@ -103,6 +106,10 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     }
 
     public void addTarget(File target) {
+        addTarget(target.toURI());
+    }
+
+    public void addTarget(URI target) {
         this.targets.add(target);
     }
 
