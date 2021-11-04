@@ -14,6 +14,7 @@ package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -80,6 +81,12 @@ public final class DirectorMojo extends AbstractProductMojo {
     private boolean installFeatures;
 
     /**
+     * Additional profile properties to set when materializing the product
+     */
+    @Parameter
+    private Map<String, String> profileProperties;
+
+    /**
      * <p>
      * Source repositories to be used in the director calls. Can be
      * <ul>
@@ -138,6 +145,7 @@ public final class DirectorMojo extends AbstractProductMojo {
                     command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
                     command.setEnvironment(env);
                     command.setInstallFeatures(installFeatures);
+                    command.setProfileProperties(profileProperties);
                     getLog().info("Installing product " + product.getId() + " for environment " + env + " to "
                             + destination.getAbsolutePath());
 
