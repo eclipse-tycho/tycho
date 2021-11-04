@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -56,6 +59,13 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
 
     @Parameter(defaultValue = "${project.build.directory}/repository")
     private File repository;
+
+    /**
+     * Configures to <code>true</code> to generate PGP signature only for artifacts that do
+     * <strong>not</strong> already contain signatures files from jarsigner.
+     */
+    @Parameter
+    private boolean skipIfJarsigned;
 
     @Component(role = UnArchiver.class, hint = "xz")
     private XZUnArchiver xzUnarchiver;
@@ -108,6 +118,9 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             if (!file.canRead()) {
                 continue;
             }
+            if (skipIfJarsigned && isJarSigned(file)) {
+                continue;
+            }
             var signatureFile = signer.generateSignatureForArtifact(file);
             String signature;
             try {
@@ -150,6 +163,21 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
         } catch (ArchiverException | IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    private boolean isJarSigned(File file) throws MojoFailureException {
+        try (JarFile jar = new JarFile(file)) {
+            Enumeration<JarEntry> entries = jar.entries();
+            while (entries.hasMoreElements()) {
+                String name = entries.nextElement().getName();
+                if (name.startsWith("META-INF/") && name.endsWith(".SF")) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            throw new MojoFailureException(e);
+        }
+        return false;
     }
 
 }
