@@ -37,7 +37,10 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * <ul>
      * <li><code>&lt;artifact></code> to define a target GAV (either local to the reactor or a
      * remote one)</li>
-     * <li><code>&lt;file></code> to define a file local to the build
+     * <li><code>&lt;file></code> to define a file local to the build</li>
+     * <li><code>&lt;uri></code> to define a (remote) URI that specifies a target, currently only
+     * URIs that can be converted to URLs are supported (e.g. file:/.... http://..., )</li>
+     * </ul>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET)
     private Xpp3Dom target;

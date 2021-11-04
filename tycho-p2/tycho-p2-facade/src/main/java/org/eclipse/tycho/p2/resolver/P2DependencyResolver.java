@@ -216,8 +216,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
 
         tpConfiguration.setEnvironments(configuration.getEnvironments());
-        for (File file : configuration.getTargets()) {
-            addTargetFileContentToTargetPlatform(file, tpConfiguration);
+        for (TargetDefinitionFile target : configuration.getTargets()) {
+            tpConfiguration.addTargetDefinition(target);
         }
 
         tpConfiguration.addFilters(configuration.getFilters());
@@ -330,12 +330,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         } catch (MalformedURLException | URISyntaxException e) {
             throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
         }
-    }
-
-    private void addTargetFileContentToTargetPlatform(File targetFile,
-            TargetPlatformConfigurationStub resolutionContext) {
-        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
-        resolutionContext.addTargetDefinition(target);
     }
 
     @Override

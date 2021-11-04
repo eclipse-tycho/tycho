@@ -13,6 +13,8 @@
 package org.eclipse.tycho.core.resolver;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -382,6 +384,18 @@ public class DefaultTargetPlatformConfigurationReader {
                 } else {
                     throw new MojoExecutionException("target definition file '" + target.getAbsolutePath()
                             + "' not found for project '" + project.getName() + "'.");
+                }
+            }
+        }
+        Xpp3Dom[] uriDomArray = targetDom.getChildren("uri");
+        if (uriDomArray != null && uriDomArray.length > 0) {
+            for (Xpp3Dom uriDom : uriDomArray) {
+                String uri = uriDom.getValue();
+                try {
+                    result.addTarget(new URI(uri));
+                } catch (URISyntaxException e) {
+                    throw new MojoExecutionException("target definition uri '" + uri
+                            + "' can not be parsed for project '" + project.getName() + "'.");
                 }
             }
         }
