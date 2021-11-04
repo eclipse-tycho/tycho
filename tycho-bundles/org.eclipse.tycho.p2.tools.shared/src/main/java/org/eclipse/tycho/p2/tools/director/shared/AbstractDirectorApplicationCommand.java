@@ -15,8 +15,11 @@ package org.eclipse.tycho.p2.tools.director.shared;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -34,6 +37,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     private String profileName;
     private TargetEnvironment environment;
     private boolean installFeatures;
+    private Map<String, String> profileProperties = Map.of();
     private boolean verifyOnly;
 
     private File destination;
@@ -101,6 +105,11 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         this.bundlePool = path;
     }
 
+    @Override
+    public void setProfileProperties(Map<String, String> profileProperties) {
+        this.profileProperties = profileProperties == null ? Map.of() : profileProperties;
+    }
+
     /**
      * Returns the command line arguments for the p2 director application (not including the
      * <code>-application</code> argument).
@@ -112,7 +121,10 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         args.addUnlessEmpty("-installIU", unitsToInstall);
         args.add("-destination", destination.getAbsolutePath());
         args.add("-profile", profileName);
-        args.add("-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures));
+        Map<String, String> props = new HashMap<>(this.profileProperties);
+        props.put("org.eclipse.update.install.features", Boolean.toString(installFeatures));
+        args.add("-profileProperties", props.entrySet().stream().map(entry -> entry.getKey() + '=' + entry.getValue())
+                .collect(Collectors.joining(",")));
         args.add("-roaming");
         if (verifyOnly) {
             args.add("-verifyOnly");
