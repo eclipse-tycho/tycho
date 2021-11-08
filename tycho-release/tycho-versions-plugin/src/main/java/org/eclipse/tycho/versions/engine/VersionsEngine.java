@@ -90,7 +90,7 @@ public class VersionsEngine {
 
         if (project == null) {
             // totally inappropriate. yuck.
-            throw new IOException("Project with artifactId=" + artifactId + " cound not be found");
+            throw new IOException("Project with artifactId=" + artifactId + " could not be found");
         }
 
         return project.getMetadata(PomFile.class);
