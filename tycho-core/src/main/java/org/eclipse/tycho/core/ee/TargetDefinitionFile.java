@@ -19,7 +19,6 @@ package org.eclipse.tycho.core.ee;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,7 +27,7 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -59,9 +58,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     private static final XMLParser PARSER = new XMLParser();
 
-    private static final Map<String, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<URI, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
 
-    private final File origin;
+    private final String origin;
     private final byte[] fileContentHash;
 
     private final Element dom;
@@ -474,14 +473,13 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    private TargetDefinitionFile(File source) throws TargetDefinitionSyntaxException {
+    private TargetDefinitionFile(URI uri) throws TargetDefinitionSyntaxException {
         try {
-            this.origin = source;
-            this.fileContentHash = computeFileContentHash(source);
-
-            try (FileInputStream input = new FileInputStream(source)) {
-                this.document = PARSER.parse(new XMLIOSource(source));
+            this.origin = uri.toASCIIString();
+            try (DigestInputStream input = new DigestInputStream(uri.toURL().openStream(), newMD5Digest())) {
+                this.document = PARSER.parse(new XMLIOSource(input));
                 this.dom = document.getRootElement();
+                this.fileContentHash = input.getMessageDigest().digest();
             }
         } catch (XMLParseException e) {
             throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(), e);
@@ -524,14 +522,18 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     @Override
     public String getOrigin() {
-        return origin.getAbsolutePath();
+        return origin;
     }
 
     public static TargetDefinitionFile read(File file) {
+        return read(file.toURI());
+    }
+
+    public static TargetDefinitionFile read(URI uri) {
         try {
-            return FILE_CACHE.computeIfAbsent(file.getAbsolutePath(), key -> new TargetDefinitionFile(file));
+            return FILE_CACHE.computeIfAbsent(uri, key -> new TargetDefinitionFile(key));
         } catch (TargetDefinitionSyntaxException e) {
-            throw new RuntimeException("Invalid syntax in target definition " + file + ": " + e.getMessage(), e);
+            throw new RuntimeException("Invalid syntax in target definition " + uri + ": " + e.getMessage(), e);
         }
     }
 
@@ -563,23 +565,6 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         TargetDefinitionFile other = (TargetDefinitionFile) obj;
         return Arrays.equals(fileContentHash, other.fileContentHash);
-    }
-
-    private static byte[] computeFileContentHash(File source) {
-        byte[] digest;
-        try {
-            digest = computeMD5Digest(source);
-        } catch (IOException e) {
-            throw new RuntimeException("I/O error while reading \"" + source + "\": " + e.getMessage(), e);
-        }
-        return digest;
-    }
-
-    private static byte[] computeMD5Digest(File in) throws IOException {
-        MessageDigest digest = newMD5Digest();
-
-        digest.update(Files.readAllBytes(in.toPath()));
-        return digest.digest();
     }
 
     private static MessageDigest newMD5Digest() {
