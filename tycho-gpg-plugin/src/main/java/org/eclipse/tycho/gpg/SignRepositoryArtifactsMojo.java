@@ -22,12 +22,12 @@ import java.util.jar.JarFile;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.gpg.AbstractGpgMojoExtension;
-import org.apache.maven.plugin.gpg.ProxySignerWithPublicKeyAccess;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.gpg.AbstractGpgMojoExtension;
+import org.apache.maven.plugins.gpg.ProxySignerWithPublicKeyAccess;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
