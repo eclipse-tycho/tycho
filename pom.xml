@@ -489,12 +489,6 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>releng</id>
-			<modules>
-				<module>tycho-releng</module>
-			</modules>
-		</profile>
-		<profile>
 			<id>coverage</id>
 			<properties>
 				<!-- Override to absolute location from command-line on CI to get a single file -->
