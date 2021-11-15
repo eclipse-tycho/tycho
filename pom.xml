@@ -78,7 +78,7 @@
 		<commonsCliVersion>1.2</commonsCliVersion>
 		<commonsCompressVersion>1.21</commonsCompressVersion>
 		<plexusVersion>2.1.0</plexusVersion>
-		<plexusUtilsVersion>3.3.0</plexusUtilsVersion>
+		<plexusUtilsVersion>3.4.1</plexusUtilsVersion>
 		<cipherVersion>2.0</cipherVersion>
 		<modelloVersion>1.4</modelloVersion>
 		<jxpathVersion>1.3</jxpathVersion>
