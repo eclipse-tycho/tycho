@@ -106,14 +106,14 @@ public class OsgiSurefireBooter {
         ClasspathConfiguration classPathConfig = new ClasspathConfiguration(false, false);
         StartupConfiguration startupConfiguration = new StartupConfiguration(provider, classPathConfig,
                 new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), forkRequested, inForkedVM);
-        // TODO dir scanning with no includes done here (done in TestMojo already) 
+        // TODO dir scanning with no includes done here (done in TestMojo already)
         // but without dirScannerParams we get an NPE accessing runOrder
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
                 Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
                 failIfNoTests, runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
-                TestListResolver.getEmptyTestListResolver());
+                TestListResolver.getEmptyTestListResolver(), rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
                 new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
@@ -123,7 +123,7 @@ public class OsgiSurefireBooter {
                 new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, null, false);
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
                 new PrintStreamLogger(startupReportConfig.getOriginalSystemOut()));
-        // API indicates we should use testClassLoader below but surefire also tries 
+        // API indicates we should use testClassLoader below but surefire also tries
         // to load surefire classes using this classloader
         RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin), reporterFactory,
                 providerConfiguration, false, startupConfiguration, true);
