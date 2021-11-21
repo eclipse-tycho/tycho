@@ -4,7 +4,7 @@ Thanks for your interest in this project.
 
 ## Try SNAPSHOTs and report issues
 
-To enable SNAPSHOTs, make sure the following Maven plugin-repository is available to your build: https://repo.eclipse.org/content/repositories/tycho-snapshots/ .
+To enable SNAPSHOTs, make sure the following Maven plugin-repository is available to your build: https://repo.eclipse.org/content/repositories/tycho-snapshots/.
 This can be accomplished by adding the following snippet to your (parent) pom.xml or settings.xml:
 ```
 <pluginRepositories>
@@ -14,7 +14,7 @@ This can be accomplished by adding the following snippet to your (parent) pom.xm
     </pluginRepository>
 </pluginRepositories>
 ```
-Make sure you have set the property for the Tycho version (e.g. `tycho-version`) to `<version-under-development>-SNAPSHOT`in the project beeing build.
+Make sure you have set the property for the Tycho version (e.g. `tycho-version`) to `<version-under-development>-SNAPSHOT`in the project being built.
 
 For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifact/target/staging/index.html).
 
@@ -45,9 +45,9 @@ Step by step instructions:
 8. Press _Finished_ on the _Confirmation_ page will start the installation process. 
 9. The installer will download the selected Eclipse version, starts Eclipse and will perform all the additional steps (cloning the git repos, etc...). When the downloaded Eclipse started, the progress bar in the status bar shows the progress of the overall setup.
 10. Once the _Executing startup task_ job is finished you should have all the Tycho and Tycho Extras projects imported into 2 working sets called _Tycho_ and _Tycho Extras_ .
-11. Some Projects might sill have errors. Select them (or all) and choose _Maven > Update Project.._ from the context menu. De-select _Clean projects_ in the shown dialog and press _OK_ to update the projects. After that, no more error should be there.  
+11. Some Projects might still have errors. Select them (or all) and choose _Maven > Update Project.._ from the context menu. De-select _Clean projects_ in the shown dialog and press _OK_ to update the projects. After that, no more error should be there.  
 
-### Manually setup
+### Manual setup
 
 Preferred and easier way is to follow the instructions above, but you could also setup your environment manually:
 
@@ -59,7 +59,7 @@ Preferred and easier way is to follow the instructions above, but you could also
 
 The result should be an Eclipse workspace without build errors. m2eclipse may take some time to download required libraries from Maven central.
 
-* If there are compile errors in the projects `org.eclipse.tycho.surefire.junit<`, `org.eclipse.tycho.surefire.junit4`,  `org.eclipse.tycho.surefire.junit47`, or `org.eclipse.tycho.surefire.osgibooter`, just select these projects and manually trigger an update via _Maven > Update project..._ from the context menu.
+* If there are compile errors in the projects `org.eclipse.tycho.surefire.junit`, `org.eclipse.tycho.surefire.junit4`,  `org.eclipse.tycho.surefire.junit47`, or `org.eclipse.tycho.surefire.osgibooter`, just select these projects and manually trigger an update via _Maven > Update project..._ from the context menu.
 
 ## Tests
 
@@ -75,7 +75,7 @@ _Background information on the Tycho integration tests_
 
 The integration tests trigger sample builds that use Tycho. These builds expect that Tycho has been installed to the local Maven repository. This is why you need to build Tycho through a `mvn install` before you can run the integration tests.
 
-Alternatively, e.g. if you are only interested in modifying an integration test and do not want to patch Tycho itself, you can configure the integration tests to download the current Tycho snapshot produced by the [http://hudson.eclipse.org/tycho/view/CI Tycho CI builds]. To do this, you need to edit the Maven settings stored in `tycho-its/settings.xml` and add the tycho-snapshots repository as described in [[Getting Tycho]]. (Advanced note: The integration tests can also be pointed to a different settings.xml with the system property `tycho.testSettings`.)
+Alternatively, e.g. if you are only interested in modifying an integration test and do not want to patch Tycho itself, you can configure the integration tests to download the current Tycho snapshot produced by the [Tycho CI builds](http://hudson.eclipse.org/tycho/view/CI). To do this, you need to edit the Maven settings stored in `tycho-its/settings.xml` and add the tycho-snapshots repository as described in [[Getting Tycho]]. (Advanced note: The integration tests can also be pointed to a different settings.xml with the system property `tycho.testSettings`.)
 
 ### Writing Tycho integration tests
 
@@ -132,7 +132,29 @@ Note: Tycho always allows references to locally built artifacts, even if they ar
 
 ### Updating the Equinox and JDT dependencies of Tycho
 
-Tycho has Maven dependencies to Equinox and JDT, so these artifact are used from  Maven  Central repository. 
+Tycho has Maven dependencies to Equinox and JDT, so these artifact are used from  Maven  Central repository.
+
+### Profiling the Tycho build
+
+To understand where the build spends most of its time, you can try the following approaches:
+
+#### Add timestamps to Maven logging
+
+You can [add a timestamp to each log line](https://blogs.itemis.com/en/in-a-nutshell-adding-timestamps-to-maven-log-output) produced by Maven. This is the most easy to apply, but you have to do the calculation of the runtime of different goals yourself.
+
+#### Add Maven profiler
+
+Download the [Maven profiler extension](https://github.com/jcgay/maven-profiler) and add it to your aggregator project. It will produce an HTML report for each goal.
+
+To install it, just add an [extensions.xml file to your project aggregator](https://github.com/jcgay/maven-profiler#maven--33x) with the Maven coordinates of the profiler. That way Maven will automatically download the profiler during the build.
+
+To use the profiler, [set the system property](https://github.com/jcgay/maven-profiler#usage).
+
+#### Yourkit YouMonitor
+
+[Yourkit YouMonitor](https://www.yourkit.com/youmonitor/) (not to be confused with Yourkit Profiler) can be used to measure the build time steps. It reports the timing for Maven mojos, Ant goals etc. You need to register it as a Java agent for your build. It allows easy comparison of multiple builds, therefore it's really nice for trying different optimizations and configurations. Be aware the free license is only available for local builds, not for CI servers.
+
+To get started with YouMonitor, you need to install and run the application. It will ask you for a repository, which is how you aggregate builds (e.g. use one repository per different project that you want to investigate). Afterwards select the [Monitoring in IDE or command line](https://www.yourkit.com/docs/youmonitor/help/ide_and_command_line.jsp) and use the button "Open Instructions". That will show you the project and machine specific argument which needs to be added to the Java command line. E.g. if you want to profile tests, you might want to add it to the [argLine configuration of Tycho Surefire](https://www.eclipse.org/tycho/sitedocs/tycho-surefire-plugin/test-mojo.html#argLine).
 
 ## 🏗️ Build & Test
 
@@ -150,29 +172,29 @@ You can also debug that build with the steps below (from here you can jump to st
 
 In order to debug Tycho plugins inside Eclipse:
 
-1. Get the Tycho sources in Eclipse
-2. Create/get a project that highlights the bug
+1. Get the Tycho sources in Eclipse.
+2. Create/get a project that highlights the bug.
 
 Inside the Eclipse IDE:
 
-3. Create a Maven Run-Configuration in your Tycho Eclipse-workspace to build the project and specify goals, profiles and properties as required
-4. Launch the Maven-configuration from your Eclipse in Debug-mode
+3. Create a Maven Run-Configuration in your Tycho Eclipse workspace to build the project and specify goals, profiles and properties as required.
+4. Launch the Maven configuration from your Eclipse in Debug mode.
 
 Or on the command-line interface:
 
-3. Run the project-build using `mvnDebug` (instead of `mvn`) and specify goals, profiles and properties as required
-4. Go into your Eclipse, use `Debug > Remote Java Application`, select `port 8000` to attach the Eclipse Debugger
+3. Run the project-build using `mvnDebug` (instead of `mvn`) and specify goals, profiles and properties as required.
+4. Go into your Eclipse, use `Debug > Remote Java Application`, select `port 8000` to attach the Eclipse Debugger.
 
-Before debugging a build, make sure that your local Tycho-sources correspond to the Tycho version used by the project being build.
+Before debugging a build, make sure that your local Tycho sources correspond to the Tycho version used by the project being build.
 Otherwise the debugger might show unexpected behavior.
 
 ## Commits
 
 ### Message Guidelines
 
-Start with `Bug: <number>` stating the bug number the change is related to; this will enable the eclipse genie bot to automatically cross-link bug and gerrit proposal
+Start with `Bug: <number>` stating the bug number the change is related to; this will enable the eclipse genie bot to automatically cross-link bug and pull request.
 
-Also in the first line, provide a clear and concise description of the change
+Also in the first line, provide a clear and concise description of the change.
 
 Add one blank line, followed by more details about the change. This could include a motivation for the change and/or reasons why things were done in the particular way they are done in the change.
 
