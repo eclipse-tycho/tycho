@@ -673,8 +673,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             return;
         }
         if (shouldRun()) {
+            EquinoxInstallation equinoxTestRuntime;
             synchronized (LOCK) {
-                EquinoxInstallation equinoxTestRuntime;
                 if ("p2Installed".equals(testRuntime)) {
                     equinoxTestRuntime = createProvisionedInstallation();
                 } else if ("default".equals(testRuntime)) {
@@ -683,9 +683,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                     throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
                             + "' is unkown. Allowed values: 'default', 'p2Installed'.");
                 }
-                if (equinoxTestRuntime != null) {
-                    runTest(equinoxTestRuntime);
-                }
+            }
+            if (equinoxTestRuntime != null) {
+                runTest(equinoxTestRuntime);
             }
         }
     }
