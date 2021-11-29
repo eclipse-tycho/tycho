@@ -8,16 +8,19 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Mirror Mojo no longer mirrors pack200 artifacts by default
 
-Default for this mojo has been flipped from true to false as pack200 artifacts are irrelevant nowadays. If you want to restore previous behaviour put the following in your mojo configuration:
+The default for this mojo has been flipped from true to false as pack200 artifacts are irrelevant nowadays. If you want to restore previous behaviour put the following into your mojo configuration:
 
 ```
 <includePacked>true</includePacked>
 ```
 
-### Improved plain JUnit 5 suppoort
+### Improved plain JUnit 5 support
 
-Plain JUnit 5 tests now works fine without extra dependency on JUnit 4.
+Plain JUnit 5 tests now work fine without an extra dependency on JUnit 4.
 
+### Parallel testing with Tycho Surefire
+
+Previously, Tycho Surefire would only execute one test plugin at the same time, even with parallel Maven builds enabled. Now Tycho Surefire runs multiple tests in parallel. If you have parallel Maven builds enabled and run SWTBot UI tests (or other tests that don't work well during parallel execution), then you may need to re-configure your build to avoid the parallel test execution.
 
 ## 2.5.0
 
