@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2.util.resolution;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,13 +47,26 @@ import org.eclipse.tycho.repository.util.StatusTool;
 @SuppressWarnings("restriction")
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
+    private final class CustomSlider extends Slicer {
+        private CustomSlider(IQueryable<IInstallableUnit> input, Map<String, String> context,
+                boolean considerMetaRequirements) {
+            super(input, context, considerMetaRequirements);
+        }
+
+        @Override
+        public IQueryable<IInstallableUnit> slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
+            return super.slice(Arrays.asList(ius).stream().filter(iu -> isApplicable(iu)).collect(Collectors.toList())
+                    .toArray(new InstallableUnit[0]), monitor);
+        }
+    }
+
     public ProjectorResolutionStrategy(MavenLogger logger) {
         super(logger);
     }
 
     @Override
     protected Slicer newSlicer(IQueryable<IInstallableUnit> availableUnits, Map<String, String> properties) {
-        return new Slicer(availableUnits, properties, false);
+        return new CustomSlider(availableUnits, properties, false);
     }
 
     @Override
@@ -80,8 +94,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
         Projector projector = new Projector(slice, newSelectionContext, new HashSet<IInstallableUnit>(), false);
         projector.encode(createUnitRequiring("tycho", seedUnits, seedRequires),
-                EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(EMPTY_IU_ARRAY) /* installedIUs */,
-                seedUnits /* newRoots */, monitor);
+                EMPTY_IU_ARRAY /* alreadyExistingRoots */,
+                new QueryableArray(EMPTY_IU_ARRAY) /* installedIUs */, seedUnits /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
             // log all transitive requirements which cannot be satisfied; this doesn't print the dependency chain from the seed to the units with missing requirements, so this is less useful than the "explanation" 
@@ -136,13 +150,14 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
         IInstallableUnit swtFragment = null;
 
-        all_ius: for (Iterator<IInstallableUnit> iter = new QueryableCollection(availableIUs).query(
-                QueryUtil.ALL_UNITS, monitor).iterator(); iter.hasNext();) {
+        all_ius: for (Iterator<IInstallableUnit> iter = new QueryableCollection(availableIUs)
+                .query(QueryUtil.ALL_UNITS, monitor).iterator(); iter.hasNext();) {
             IInstallableUnit iu = iter.next();
             if (iu.getId().startsWith("org.eclipse.swt") && isApplicable(newSelectionContext, iu.getFilter())
                     && providesJavaPackages(iu)) {
                 for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
-                    if ("osgi.fragment".equals(provided.getNamespace()) && "org.eclipse.swt".equals(provided.getName())) {
+                    if ("osgi.fragment".equals(provided.getNamespace())
+                            && "org.eclipse.swt".equals(provided.getName())) {
                         if (swtFragment == null || swtFragment.getVersion().compareTo(iu.getVersion()) < 0) {
                             swtFragment = iu;
                         }
@@ -153,8 +168,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         }
 
         if (swtFragment == null) {
-            throw new RuntimeException("Could not determine SWT implementation fragment bundle for environment "
-                    + newSelectionContext);
+            throw new RuntimeException(
+                    "Could not determine SWT implementation fragment bundle for environment " + newSelectionContext);
         }
 
         resolutionResult.add(swtFragment);
