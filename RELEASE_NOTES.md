@@ -35,12 +35,12 @@ Example:
          </dependencies>
       </location>
    </locations>
-</target> 
+</target>
 ```
 
 ### Mirror Mojo no longer mirrors pack200 artifacts by default
 
-The default for this mojo has been flipped from true to false as pack200 artifacts are irrelevant nowadays. If you want to restore previous behaviour put the following into your mojo configuration:
+The default for this mojo has been flipped from true to false as pack200 artifacts are irrelevant nowadays. If you want to restore previous behavior put the following into your mojo configuration:
 
 ```
 <includePacked>true</includePacked>
@@ -64,9 +64,9 @@ The `assemble-maven-repository` mojo now supports embedding the PGP signature of
 
 Tycho supports the new m2e-pde features regarding [multiple dependencies per target](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-adding-more-than-one-dependency-per-target-location) and specifying [extra repositories in the target](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-adding-additional-maven-repoistories-for-a-target-location).
 
-### [Improved cache handling](https://github.com/eclipse/tycho/pull/211) 
+### [Improved cache handling](https://github.com/eclipse/tycho/pull/211)
 
-Previously tycho failed if the remote update-site server was not available even if the file is already downloaded. Now, it uses the local file instead and issues a warning instead.
+Previously Tycho failed if the remote update-site server was not available even if the file is already downloaded. Now, it uses the local file instead and issues a warning instead.
 
 ### [M2_REPO classpath variable support](https://github.com/eclipse/tycho/pull/207)
 
@@ -75,7 +75,7 @@ Tycho now supports M2_REPO variable from .classpath
 
 ## 2.4.0
 
-### [Support resolving of JUnit Classpath Container](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572602) 
+### [Support resolving of JUnit Classpath Container](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572602)
 It is now possible to resolve the JDT 'JUnit Classpath Container', for this do the following:
 
 - add the 'JUnit Classpath Container' to the classpath of your eclipse project
@@ -84,14 +84,14 @@ It is now possible to resolve the JDT 'JUnit Classpath Container', for this do t
 
 For an example take a look at the [integration tests](https://github.com/eclipse/tycho/tree/master/tycho-its/projects/compiler.junitcontainer/junit4-in-bundle)
 
-### [Execute unit-tests with eclipse-plugin packaging](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572420) 
+### [Execute unit-tests with eclipse-plugin packaging](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572420)
 Before unit-tests are only executed for eclipse-test-plugin packaging types. Beside that it was only possible to execute them as part of **tycho-surefire** (what executes them inside an OSGi runtime) in the integration-test phase (making them actually some kind of integration test).
 
 From now on this restriction is no longer true and one is able to execute unit-test with **maven-surefire** as well as integration-tests with **tycho-failfast** plugin. This works the following way:
 
  - create a source-folder in your eclipse-plugin packaged project and mark them as a contains test-sources in the classpath settings:![grafik](https://user-images.githubusercontent.com/1331477/116801917-b20cb080-ab0e-11eb-8c05-1796196ccb25.png)
  - Create a unit-test inside that folder, either name it with any of the [default-pattern](https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#includes) maven-surefire plugin of or configure them explicitly.
- - Include maven-surefire plugin configuration in your pom to select the approriate test-providers
+ - Include maven-surefire plugin configuration in your pom to select the appropriate test-providers
 ```
 <plugin>
 	<groupId>org.apache.maven.plugins</groupId>
@@ -110,23 +110,23 @@ From now on this restriction is no longer true and one is able to execute unit-t
 
 Tycho also includes a new tycho-failsafe mojo, that is similar to the maven one:
  - it executes at the integration-test phase but do not fail the build if a test fails, instead a summary file is written
- - the outcome of the tests are checked in the verify phase (and fail the build there if neccesary)
+ - the outcome of the tests are checked in the verify phase (and fail the build there if necessary)
  - this allows to hook some setup/teardown mojos (e.g. start webservers, ...) in the pre-integration-test phase and to safely tear them down in the post-integration test phase (thus the name 'failsafe' see [tycho-failsafe-faq](https://maven.apache.org/surefire/maven-failsafe-plugin/faq.html) for some more details
 
 Given you have the above setup you create an integration-test (executed in an OSGi runtime like traditional tycho-surefire mojo) as following:
 
-- create a new test that mathes the pattern `*IT.java` (or configure a different pattern that do not intersects with the surefire test pattern)
+- create a new test that matches the pattern `*IT.java` (or configure a different pattern that do not intersects with the surefire test pattern)
 - run your it with `mvn verify`
 
-:warning: If you where previously using `-Dtest=....` on the root level of your build tree it might now be necessary to also include `-Dsurefire.failIfNoSpecifiedTests=false` as maven-surefire might otherwise complain about 
+:warning: If you where previously using `-Dtest=....` on the root level of your build tree it might now be necessary to also include `-Dsurefire.failIfNoSpecifiedTests=false` as maven-surefire might otherwise complain about
 
 > No tests were executed! (Set -DfailIfNoTests=false to ignore this error.)
 
 for your eclipse-plugin packaged project if they do not match anything (the error message is a bit misleading, this is tracked in [SUREFIRE-1910](https://issues.apache.org/jira/browse/SUREFIRE-1910)).
 
 
-### [Enhanced support for debug output in surefire-tests](https://github.com/eclipse/tycho/issues/52) 
-tycho-surefire now support to set .options files for debugging through the new debugOptions parameter, example: 
+### [Enhanced support for debug output in surefire-tests](https://github.com/eclipse/tycho/issues/52)
+tycho-surefire now support to set .options files for debugging through the new debugOptions parameter, example:
 
 ```
 <plugin>
@@ -162,7 +162,7 @@ Previously one had to specify the property `-Dtycho.mode=maven` to skip dependen
 
 ### [Automatically translate maven-license information to OSGi `Bundle-License` header](https://github.com/eclipse/tycho/issues/177)
 
-If your pom contains license information, Tycho automatically creates (if not already present) OSGi `Bundle-License` header for you. This behaviour can be controlled with [deriveHeaderFromProject](https://www.eclipse.org/tycho/sitedocs/tycho-packaging-plugin/package-plugin-mojo.html#deriveHeaderFromProject) setting.
+If your pom contains license information, Tycho automatically creates (if not already present) OSGi `Bundle-License` header for you. This behavior can be controlled with [deriveHeaderFromProject](https://www.eclipse.org/tycho/sitedocs/tycho-packaging-plugin/package-plugin-mojo.html#deriveHeaderFromProject) setting.
 
 ## 2.3.0
 
@@ -211,7 +211,7 @@ The [https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifac
 
 {{bug|572082}}, allow applications to use bundle pools in order to have a "cross platform" installation structure without duplicating the bundles. To activate the multi-platform package, simply add <tt><multiPlatformPackage>true</multiPlatformPackage></tt> to the product definition in the <tt>pom.xml</tt> file.
 
-  
+
 ## 2.2.0
 
 ## Support for m2e PDE Maven target locations
@@ -226,7 +226,7 @@ The [https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifac
 
 {{bug|567760}} Tycho now stops downloading p2 artifacts from remote sources too early and relies mostly on p2 metadata to compute target platform and build order without downloading the artifacts. Downloads are then instead delayed to when the artifact files are really necessary (to compute compilation build path, to generate a p2 repository...). As a result performance will be improved as less artifacts may be downloaded, and some steps like `mvn clean` or `mvn validate` can avoid downloading artifacts to process, and the most probable build failures will be reported faster.
 
-Note that this is specifically visible for <tt>eclipse-feature</tt> and <tt>eclipse-repository</tt> modules; other module types like <tt>eclipse-plugin</tt> or <tt>eclipse-test-plugin</tt> do still require to downlaod artifacts early to create the build path. Further improvements remain possible on that topic.
+Note that this is specifically visible for <tt>eclipse-feature</tt> and <tt>eclipse-repository</tt> modules; other module types like <tt>eclipse-plugin</tt> or <tt>eclipse-test-plugin</tt> do still require to download artifacts early to create the build path. Further improvements remain possible on that topic.
 
 ### Tycho Source Feature Generation moved from tycho extras to tycho core
 
@@ -288,7 +288,7 @@ For example
  output.mycodelib.jar = bin/
  bin.includes = META-INF/,\
                mycodelib.jar
- 
+
  source.mycodelib.jar = src/
  exclude.mycodelib.jar = **/*.txt
 ```

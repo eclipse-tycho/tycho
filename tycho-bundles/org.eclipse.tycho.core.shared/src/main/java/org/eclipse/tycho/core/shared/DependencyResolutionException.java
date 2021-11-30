@@ -15,9 +15,9 @@ package org.eclipse.tycho.core.shared;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class DependecyResolutionException extends Exception {
+public class DependencyResolutionException extends Exception {
 
-    public DependecyResolutionException(String reason, Collection<? extends Throwable> exceptions) {
+    public DependencyResolutionException(String reason, Collection<? extends Throwable> exceptions) {
         super(reason + exceptions.stream().map(String::valueOf).collect(Collectors.joining(", ", " [", "]")));
         for (Throwable throwable : exceptions) {
             addSuppressed(throwable);

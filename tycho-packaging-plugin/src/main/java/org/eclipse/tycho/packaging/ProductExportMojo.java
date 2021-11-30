@@ -260,16 +260,16 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     /**
      * Root files are files that must be packaged with an Eclipse install but are not features or
      * plug-ins. These files are added to the root or to a specified sub folder of the build.
-     * 
+     *
      * <pre>
      * root=
      * root.<confi>=
      * root.folder.<subfolder>=
      * root.<config>.folder.<subfolder>=
      * </pre>
-     * 
+     *
      * Not supported are the properties root.permissions and root.link.
-     * 
+     *
      * @see http
      *      ://help.eclipse.org/ganymede/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles
      *      .htm
@@ -324,7 +324,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
 
     /**
      * @param rootFileEntry
-     *            files and directories seperated by semicolons, the syntax is:
+     *            files and directories separated by semicolons, the syntax is:
      *            <ul>
      *            <li>for a relative file: file:license.html,...</li>
      *            <li>for a absolute file: absolute:file:/eclipse/about.html,...</li>
@@ -461,9 +461,9 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             bundlesToStart = new HashMap<>();
 
             // This is the wellknown set of bundles for Eclipse based application for 3.3 and 3.4 without p2
-            bundlesToStart.put("org.eclipse.equinox.common", // 
+            bundlesToStart.put("org.eclipse.equinox.common", //
                     new BundleConfiguration("org.eclipse.equinox.common", 2, true));
-            bundlesToStart.put("org.eclipse.core.runtime", // 
+            bundlesToStart.put("org.eclipse.core.runtime", //
                     new BundleConfiguration("org.eclipse.core.runtime", -1, true));
         }
 

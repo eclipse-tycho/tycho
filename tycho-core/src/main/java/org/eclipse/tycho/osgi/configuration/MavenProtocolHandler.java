@@ -30,7 +30,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.tycho.core.shared.DependecyResolutionException;
+import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
@@ -110,7 +110,7 @@ public class MavenProtocolHandler extends EquinoxLifecycleListener {
                 String type = coordinates.length > 3 ? coordinates[3] : "jar";
                 String classifier = coordinates.length > 4 ? coordinates[4] : null;
                 Collection<?> resolve = resolver.resolve(coordinates[0], coordinates[1], coordinates[2], type,
-                        classifier, null, MavenDependenciesResolver.DEEP_NO_DEPENDECIES, Collections.emptyList(),
+                        classifier, null, MavenDependenciesResolver.DEEP_NO_DEPENDENCIES, Collections.emptyList(),
                         session);
                 if (resolve.isEmpty()) {
                     throw new IOException("artifact " + Arrays.toString(coordinates)
@@ -123,7 +123,7 @@ public class MavenProtocolHandler extends EquinoxLifecycleListener {
                 artifactFacade = (IArtifactFacade) resolve.iterator().next();
             } catch (RuntimeException e) {
                 throw new IOException("internal error connecting to maven url " + url, e);
-            } catch (DependecyResolutionException e) {
+            } catch (DependencyResolutionException e) {
                 throw new IOException(e.getMessage(), e);
             }
         }

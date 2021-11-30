@@ -102,7 +102,7 @@ import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilderFac
 
 public abstract class AbstractTestMojo extends AbstractMojo {
 
-    private static String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, singles start with 1
+    private static String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, signals start with 1
             "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL", "SIGUSR1",
             "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
             "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH",
@@ -138,8 +138,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     /**
      * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
-     * session on the specified port. If further customization of JVM debug parameters is
-     * required then {@link argLine} can be used instead.
+     * session on the specified port. If further customization of JVM debug parameters is required
+     * then {@link argLine} can be used instead.
      */
     @Parameter(property = "debugPort")
     private int debugPort;

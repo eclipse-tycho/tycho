@@ -6,7 +6,7 @@ Tycho provides its own set of additional properties.
 
 ### Tycho Environment Properties
 
-This properties are set based on the platform where Tycho gets executed: 
+These properties are set based on the platform where Tycho gets executed:
 
 Name | Value
 --- | ---

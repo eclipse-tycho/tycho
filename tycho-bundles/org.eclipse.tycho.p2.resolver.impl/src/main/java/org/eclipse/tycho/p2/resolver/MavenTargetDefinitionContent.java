@@ -53,7 +53,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.shared.DependecyResolutionException;
+import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
@@ -119,11 +119,11 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     depth = MavenDependenciesResolver.DEEP_INFINITE;
                     break;
                 case DIRECT:
-                    depth = MavenDependenciesResolver.DEEP_DIRECT_CHILDS;
+                    depth = MavenDependenciesResolver.DEEP_DIRECT_CHILDREN;
                     break;
                 case NONE:
                 default:
-                    depth = MavenDependenciesResolver.DEEP_NO_DEPENDECIES;
+                    depth = MavenDependenciesResolver.DEEP_NO_DEPENDENCIES;
                     break;
                 }
                 Collection<?> resolve;
@@ -132,7 +132,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                             mavenDependency.getArtifactId(), mavenDependency.getVersion(),
                             mavenDependency.getArtifactType(), mavenDependency.getClassifier(), scope, depth,
                             location.getRepositoryReferences());
-                } catch (DependecyResolutionException e1) {
+                } catch (DependencyResolutionException e1) {
                     throw new TargetDefinitionResolutionException("MavenDependency " + mavenDependency + " of location "
                             + location + " could not be resolved", e1);
                 }
@@ -241,7 +241,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                             Collection<?> sourceArtifacts = mavenDependenciesResolver.resolve(
                                     mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
                                     mavenArtifact.getVersion(), mavenArtifact.getPackagingType(), "sources", null,
-                                    MavenDependenciesResolver.DEEP_NO_DEPENDECIES, Collections.emptyList());
+                                    MavenDependenciesResolver.DEEP_NO_DEPENDENCIES, Collections.emptyList());
                             Iterator<IArtifactFacade> sources = sourceArtifacts.stream()
                                     .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast)
                                     .iterator();
@@ -272,7 +272,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     continue;
                                 }
                             }
-                        } catch (DependecyResolutionException e) {
+                        } catch (DependencyResolutionException e) {
                             logger.warn("MavenResolver: source-artifact " + asDebugString(mavenArtifact)
                                     + ":sources can't be resolved: " + e);
                         }

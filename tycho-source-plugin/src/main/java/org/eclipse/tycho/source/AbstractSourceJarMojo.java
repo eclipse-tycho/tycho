@@ -46,7 +46,7 @@ import org.codehaus.plexus.util.FileUtils;
 
 /**
  * Base class for bundling sources into a jar archive.
- * 
+ *
  * @version $Id: AbstractSourceJarMojo.java 763422 2009-04-08 21:59:54Z pgier $
  * @since 2.0.3
  */
@@ -64,7 +64,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * List of files to include. Specified as fileset patterns which are relative to the input
      * directory whose contents is being packaged into the JAR.
-     * 
+     *
      * @since 2.1
      */
     @Parameter
@@ -73,7 +73,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * List of files to exclude. Specified as fileset patterns which are relative to the input
      * directory whose contents is being packaged into the JAR.
-     * 
+     *
      * @since 2.1
      */
     @Parameter
@@ -82,7 +82,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * Exclude commonly excluded files such as SCM configuration. These are defined in the plexus
      * FileUtils.getDefaultExcludes()
-     * 
+     *
      * @since 2.1
      */
     @Parameter(defaultValue = "true")
@@ -110,7 +110,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * The archive configuration to use. See
      * <a href="http://maven.apache.org/shared/maven-archiver/index.html">Maven Archiver
      * Reference</a>.
-     * 
+     *
      * @since 2.1
      */
     @Parameter
@@ -119,7 +119,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * Path to the default MANIFEST file to use. It will be used if
      * <code>useDefaultManifestFile</code> is set to <code>true</code>.
-     * 
+     *
      * @since 2.1
      */
     @Parameter(defaultValue = "${project.build.outputDirectory}/META-INF/MANIFEST.MF", required = true, readonly = true)
@@ -128,7 +128,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * Set this to <code>true</code> to enable the use of the <code>defaultManifestFile</code>.
      * <br/>
-     * 
+     *
      * @since 2.1
      */
     @Parameter(defaultValue = "false")
@@ -136,7 +136,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
 
     /**
      * Specifies whether or not to attach the artifact to the project
-     * 
+     *
      */
     @Parameter(property = "attach", defaultValue = "true")
     private boolean attach;
@@ -145,7 +145,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * Specifies whether or not to exclude resources from the sources-jar. This can be convenient if
      * your project includes large resources, such as images, and you don't want to include them in
      * the sources-jar.
-     * 
+     *
      * @since 2.0.4
      */
     @Parameter(property = "source.excludeResources", defaultValue = "false")
@@ -153,7 +153,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
 
     /**
      * Specifies whether or not to include the POM file in the sources-jar.
-     * 
+     *
      * @since 2.1
      */
     @Parameter(property = "source.includePom", defaultValue = "false")
@@ -188,7 +188,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * NOT SUPPORTED. Whether creating the archive should be forced. If set to true, the jar will
      * always be created. If set to false, the jar will only be created when the sources are newer
      * than the jar.
-     * 
+     *
      * @since 2.1
      */
     @Parameter(property = "source.forceCreation", defaultValue = "false")
@@ -211,7 +211,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     // ----------------------------------------------------------------------
 
     /**
-     * @return the wanted classifier, ie <code>sources</code> or <code>test-sources</code>
+     * @return the wanted classifier, i.e. <code>sources</code> or <code>test-sources</code>
      */
     protected abstract String getClassifier();
 
@@ -403,7 +403,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * Combines the includes parameter and additional includes. Defaults to
      * {@link #DEFAULT_INCLUDES} If the additionalIncludes parameter is null, it is not added to the
      * combined includes.
-     * 
+     *
      * @param additionalIncludes
      *            The includes specified in the pom resources section
      * @return The combined array of includes.
@@ -430,7 +430,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * Combines the user parameter {@link #excludes}, the default excludes from plexus FileUtils,
      * and the contents of the parameter addionalExcludes.
-     * 
+     *
      * @param additionalExcludes
      *            Additional excludes to add to the array
      * @return The combined list of excludes.
