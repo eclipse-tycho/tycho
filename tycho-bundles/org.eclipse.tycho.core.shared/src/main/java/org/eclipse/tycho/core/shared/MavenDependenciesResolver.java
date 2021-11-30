@@ -20,11 +20,11 @@ public interface MavenDependenciesResolver {
     /**
      * Only the specified artifact will be resolved
      */
-    int DEEP_NO_DEPENDECIES = 0;
+    int DEEP_NO_DEPENDENCIES = 0;
     /**
      * Only the specified artifact and its direct child dependencies will be resolved
      */
-    int DEEP_DIRECT_CHILDS = 2;
+    int DEEP_DIRECT_CHILDREN = 2;
 
     /**
      * All transitive dependencies will be resolved
@@ -33,7 +33,7 @@ public interface MavenDependenciesResolver {
 
     /**
      * Resolves the given artifact, optionally with the given dependency scope
-     * 
+     *
      * @param groupId
      *            group id of the artifact, required
      * @param artifactId
@@ -41,7 +41,7 @@ public interface MavenDependenciesResolver {
      * @param version
      *            version of the artifact, required
      * @param packaging
-     *            the packaging type, might me <code>null</code> in witch case "jar" is assumed
+     *            the packaging type, might be <code>null</code> in witch case "jar" is assumed
      * @param classifier
      *            the classifier or <code>null</code> if no classifier is desired
      * @param dependencyScope
@@ -50,11 +50,11 @@ public interface MavenDependenciesResolver {
      * @param additionalRepositories
      *            additional repositories to use in the resolve process
      * @return
-     * @throws DependecyResolutionException
+     * @throws DependencyResolutionException
      */
     default Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version,
             String packaging, String classifier, String dependencyScope, int depth,
-            Collection<MavenArtifactRepositoryReference> additionalRepositories) throws DependecyResolutionException {
+            Collection<MavenArtifactRepositoryReference> additionalRepositories) throws DependencyResolutionException {
         return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, depth,
                 additionalRepositories, null);
     }
@@ -62,14 +62,14 @@ public interface MavenDependenciesResolver {
     Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version, String packaging,
             String classifier, String dependencyScope, int depth,
             Collection<MavenArtifactRepositoryReference> additionalRepositories,
-            Object/* MavenSession */ session) throws DependecyResolutionException;
+            Object/* MavenSession */ session) throws DependencyResolutionException;
 
     File getRepositoryRoot();
 
     /**
      * This reads the given artifactFacade as a maven (pom) model and returns the list of declared
      * dependencies.
-     * 
+     *
      * @param artifactFacade
      * @return a list of dependencies for this artifactFacade
      */

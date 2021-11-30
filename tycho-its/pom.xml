@@ -196,10 +196,10 @@
 			<version>3.3.4</version>
 		</dependency>
 		<dependency>
-    <groupId>org.sonatype.sisu</groupId>
-    <artifactId>sisu-inject-plexus</artifactId>
-    <version>2.6.0</version>
-</dependency>
+			<groupId>org.sonatype.sisu</groupId>
+			<artifactId>sisu-inject-plexus</artifactId>
+			<version>2.6.0</version>
+		</dependency>
 
 		<!-- artifacts to be tested -->
 		<dependency>

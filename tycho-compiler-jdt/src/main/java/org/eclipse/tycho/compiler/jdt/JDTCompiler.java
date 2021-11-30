@@ -6,7 +6,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *    IBM Corporation - initial API and implementation
  *    Sonatype Inc. - plexus.compiler implementation
@@ -291,7 +291,7 @@ public class JDTCompiler extends AbstractCompiler {
 
     /**
      * Compile the java sources in a external process, calling an external executable, like javac.
-     * 
+     *
      * @param workingDirectory
      *            base directory where the process will be launched
      * @param executable
@@ -343,7 +343,7 @@ public class JDTCompiler extends AbstractCompiler {
     /**
      * Compile the java sources in the current JVM, without calling an external executable, using
      * <code>com.sun.tools.javac.Main</code> class
-     * 
+     *
      * @param args
      *            arguments for the compiler as they would be used in the command line javac
      * @return CompilerResult with the errors and warnings encountered.
@@ -410,7 +410,7 @@ public class JDTCompiler extends AbstractCompiler {
 
     /**
      * Parse the output from the compiler into a list of CompilerMessage objects
-     * 
+     *
      * @param input
      *            The output of the compiler
      * @return List of CompilerMessage objects
@@ -460,7 +460,7 @@ public class JDTCompiler extends AbstractCompiler {
 
     /**
      * Copy the classpath to the command line with access rules included.
-     * 
+     *
      * @param cmd
      *            the given command line
      * @param classpath
@@ -530,7 +530,7 @@ public class JDTCompiler extends AbstractCompiler {
     /**
      * check the compiler arguments. Extract from files specified using @, lines marked with
      * {@link #ADAPTER_PREFIX}. These lines specify information that needs to be interpreted by us.
-     * 
+     *
      * @param args
      *            compiler arguments to process
      */
@@ -568,7 +568,7 @@ public class JDTCompiler extends AbstractCompiler {
                                     if (custom.fileEncodings == null)
                                         custom.fileEncodings = new HashMap<>();
                                     // use File to translate the string into a
-                                    // path with the correct File.seperator
+                                    // path with the correct File.separator
                                     custom.fileEncodings.put(str, enc);
                                 } else {
                                     if (custom.dirEncodings == null)

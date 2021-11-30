@@ -68,8 +68,8 @@
 
 	<name>Tycho</name>
 	<description>Tycho integrates Maven with Eclipse and OSGi</description>
-	
- 	<properties>
+
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<min.jdk.version>11</min.jdk.version>
 
@@ -424,33 +424,33 @@
 		</pluginManagement>
 	</build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>${pluginToolsVersion}</version>
-        <configuration>
-          <requirements>
-            <maven>${maven-version}</maven>
-            <jdk>${min.jdk.version}</jdk>
-          </requirements>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.1.2</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>index</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>${pluginToolsVersion}</version>
+				<configuration>
+					<requirements>
+						<maven>${maven-version}</maven>
+						<jdk>${min.jdk.version}</jdk>
+					</requirements>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>3.1.2</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>index</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<modules>
 		<module>tycho-bundles</module>

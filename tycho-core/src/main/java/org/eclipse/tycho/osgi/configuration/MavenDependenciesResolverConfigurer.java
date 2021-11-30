@@ -46,7 +46,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
-import org.eclipse.tycho.core.shared.DependecyResolutionException;
+import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
@@ -66,7 +66,7 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
     @Override
     public Collection<?> resolve(String groupId, String artifactId, String version, String packaging, String classifier,
             String dependencyScope, int depth, Collection<MavenArtifactRepositoryReference> additionalRepositories,
-            Object session) throws DependecyResolutionException {
+            Object session) throws DependencyResolutionException {
         Artifact artifact;
         if (classifier != null && !classifier.isEmpty()) {
             artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, packaging,
@@ -110,7 +110,7 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         }
         ArtifactResolutionResult result = repositorySystem.resolve(request);
         if (result.hasExceptions()) {
-            throw new DependecyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
+            throw new DependencyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
         }
         return result.getArtifacts().stream().filter(a -> a.getFile() != null).map(MavenArtifactFacade::new)
                 .collect(Collectors.toList());

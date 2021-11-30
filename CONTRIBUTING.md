@@ -9,8 +9,8 @@ This can be accomplished by adding the following snippet to your (parent) pom.xm
 ```
 <pluginRepositories>
     <pluginRepository>
-      <id>tycho-snapshots</id>
-      <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+        <id>tycho-snapshots</id>
+        <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
     </pluginRepository>
 </pluginRepositories>
 ```
@@ -23,7 +23,7 @@ and the minimal reproducer project to Tycho's [issue tracker](./issues).
 
 ## Development environment
 
-<a href="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirect.html"><img src="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/cloneToEclipseBadge.png" alt="Clone to Eclipse IDE"/></a>  
+<a href="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirect.html"><img src="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/cloneToEclipseBadge.png" alt="Clone to Eclipse IDE"/></a>
 
 ### Prerequisites
 
@@ -35,17 +35,17 @@ If your Internet connection uses a proxy, make sure that you have the proxy conf
 
 Step by step instructions:
 
-1. Download the [Eclipse Installer](https://wiki.eclipse.org/Eclipse_Installer). 
+1. Download the [Eclipse Installer](https://wiki.eclipse.org/Eclipse_Installer).
 2. Start the installer using the `eclipse-inst` executable.
 3. On the first page (product selection), click the preference button in the top-right corner and select the _Advanced Mode_ .
 4. If you are behind a proxy, at this point you might want to double check your network settings by clicking in the _Network Proxy Settings_ at the bottom.
 5. Select _Eclipse IDE for Eclipse Committers_ . Click _Next_ .
 6. Under _Eclipse.org_ , double-click on _Tycho_ (single click is not enough!). Make sure that _Tycho_ is shown in the table on the bottom. Click _Next_.
 7. You can edit the _Installation Folder_ , but you do not have to select the _Target Platform_ here, this will be set later automatically. By choosing _Show all variables_ at the bottom of the page, you are able to change other values as well but you do not have to. (Unless you have write access to the GitHub repository, make sure you select "HTTPS read-only" in the dropdown "Tycho Github repository"). Click _Next_.
-8. Press _Finished_ on the _Confirmation_ page will start the installation process. 
+8. Press _Finished_ on the _Confirmation_ page will start the installation process.
 9. The installer will download the selected Eclipse version, starts Eclipse and will perform all the additional steps (cloning the git repos, etc...). When the downloaded Eclipse started, the progress bar in the status bar shows the progress of the overall setup.
 10. Once the _Executing startup task_ job is finished you should have all the Tycho and Tycho Extras projects imported into 2 working sets called _Tycho_ and _Tycho Extras_ .
-11. Some Projects might still have errors. Select them (or all) and choose _Maven > Update Project.._ from the context menu. De-select _Clean projects_ in the shown dialog and press _OK_ to update the projects. After that, no more error should be there.  
+11. Some Projects might still have errors. Select them (or all) and choose _Maven > Update Project.._ from the context menu. De-select _Clean projects_ in the shown dialog and press _OK_ to update the projects. After that, no more error should be there.
 
 ### Manual setup
 
@@ -107,12 +107,12 @@ Therefore, here are a few tips for writing good integration tests:
 
 ### Tycho Extras integration tests
 
-Each Tycho Extras project does have its own integration tests located in the subdirectory `it` within the project (e.g. `tycho-eclipserun-plugin/src/it`). 
+Each Tycho Extras project does have its own integration tests located in the subdirectory `it` within the project (e.g. `tycho-eclipserun-plugin/src/it`).
 To run the tests use the maven profile `its`, run `mvn integration-test -Pits` either within the Tycho Extras source folder to run all Tycho Extras integration tests or within a Tycho Extras plugin directory to run only the integration tests of that project.
 
 _Background information on the Tycho Extras integration tests_
 
-Tycho Extras and Tycho are developed and released in parallel and will use the snapshot version of Tycho from the repository `https://repo.eclipse.org/content/repositories/tycho-snapshots/`. 
+Tycho Extras and Tycho are developed and released in parallel and will use the snapshot version of Tycho from the repository `https://repo.eclipse.org/content/repositories/tycho-snapshots/`.
 If you want to run the tests with a specific version of Tycho use the `tycho-version` system property, e.g. `mvn integration-test -Pits -Dtycho-version=0.22.0`.
 To use a different Tycho snapshot repository use the system property `tycho-snapshots-url`, e.g. `mvn integration-test -Pits -Dtycho-snapshots-url=file:/path/to/repo`
 
@@ -123,7 +123,7 @@ To use a different Tycho snapshot repository use the system property `tycho-snap
 Tycho makes heavy use of p2 functionality. Therefore it may be useful to try out patches to p2 without waiting for a new p2 release, or even just the next nightly build. With the following steps it is possible to build Tycho against a locally built version of p2.
 
 1. Get the p2 sources (see [p2 project information](http://projects.eclipse.org/projects/rt.equinox.p2/developer))
-2. Make changes in the p2 sources, **(!) don't forget to increase the version of that bundle otherwhise your changes will be overwritten with the current release version (!)**
+2. Make changes in the p2 sources, **(!) don't forget to increase the version of that bundle otherwise your changes will be overwritten with the current release version (!)**
 3. Build the changed p2 bundles individually with <tt>mvn clean install -Pbuild-individual-bundles</tt> (see [Equinox/p2/Build](https://wiki.eclipse.org/Equinox/p2/Build) for more information)
 4. Build at least the Tycho module tycho-bundles-external with <tt>mvn clean install</tt> - you should see a warning that the locally built p2 bundles have been used.
 Then the locally built Tycho SNAPSHOT includes the patched p2 version.
@@ -168,7 +168,7 @@ In order to test your changes of Tycho locally in a project-build, install your 
 and use the corresponding Tycho (probably snapshot) version in the project being build.
 You can also debug that build with the steps below (from here you can jump to step 3 immediately).
 
-## Debugging 
+## Debugging
 
 In order to debug Tycho plugins inside Eclipse:
 

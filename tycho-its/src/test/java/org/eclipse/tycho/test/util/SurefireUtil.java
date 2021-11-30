@@ -68,9 +68,9 @@ public class SurefireUtil {
         assertEquals(expectedNumberOfFailedTests, extractNumericAttribute(baseDir, className, "/testsuite/@failures"));
     }
 
-    public static void assertNumberOfErrorneousTests(String baseDir, String className, int expectedNumberOfSkippedTests)
+    public static void assertNumberOfErroneousTests(String baseDir, String className, int expectedNumberOfErroneousTests)
             throws Exception {
-        assertEquals(expectedNumberOfSkippedTests, extractNumericAttribute(baseDir, className, "/testsuite/@errors"));
+        assertEquals(expectedNumberOfErroneousTests, extractNumericAttribute(baseDir, className, "/testsuite/@errors"));
     }
 
     public static void assertNumberOfSkippedTests(String baseDir, String className, int expectedNumberOfSkippedTests)
