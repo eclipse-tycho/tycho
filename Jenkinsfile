@@ -13,7 +13,7 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
-				sh 'mvn -U -V -e clean install -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
+				sh 'mvn -U -V -e clean install org.eclipse.dash:license-tool-plugin:license-check -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
 			}
 			post {
 				always {
