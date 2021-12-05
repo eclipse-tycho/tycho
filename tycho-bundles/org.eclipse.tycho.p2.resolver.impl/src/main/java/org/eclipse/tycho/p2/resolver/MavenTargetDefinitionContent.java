@@ -32,6 +32,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -87,10 +88,11 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 logger.info((reference.isEmpty() ? "default instructions" : reference) + " = " + properties);
             }
             for (MavenDependency mavenDependency : location.getRoots()) {
+                boolean isPom = "pom".equalsIgnoreCase(mavenDependency.getArtifactType());
                 Collection<?> resolve = mavenDependenciesResolver.resolve(mavenDependency.getGroupId(),
                         mavenDependency.getArtifactId(), mavenDependency.getVersion(),
                         mavenDependency.getArtifactType(), mavenDependency.getClassifier(),
-                        location.getIncludeDependencyScope(), location.getRepositoryReferences());
+                        location.getIncludeDependencyScope(), isPom, location.getRepositoryReferences());
 
                 Iterator<IArtifactFacade> resolvedArtifacts = resolve.stream().filter(IArtifactFacade.class::isInstance)
                         .map(IArtifactFacade.class::cast).iterator();
@@ -98,7 +100,16 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 while (resolvedArtifacts.hasNext()) {
                     IArtifactFacade mavenArtifact = resolvedArtifacts.next();
                     if (mavenDependency.isIgnored(mavenArtifact)) {
-                        logger.debug("Skipp ignored " + mavenArtifact + "...");
+                        logger.debug("Skip ignored " + mavenArtifact + "...");
+                        continue;
+                    }
+                    if ("pom".equalsIgnoreCase(mavenArtifact.getPackagingType())) {
+                        logger.debug("Skip pom artifact " + mavenArtifact + "...");
+                        continue;
+                    }
+                    String fileName = mavenArtifact.getLocation().getName();
+                    if (!"jar".equalsIgnoreCase(FilenameUtils.getExtension(fileName))) {
+                        logger.info("Skip non-jar artifact ... (" + fileName + ")");
                         continue;
                     }
                     logger.debug("Resolved " + mavenArtifact + "...");
@@ -182,7 +193,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                             || (sourceMode == IncludeSourceMode.honor && location.includeSource())) {
                         Collection<?> sourceArtifacts = mavenDependenciesResolver.resolve(mavenArtifact.getGroupId(),
                                 mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
-                                mavenArtifact.getPackagingType(), "sources", null, Collections.emptyList());
+                                mavenArtifact.getPackagingType(), "sources", null, false, Collections.emptyList());
                         Iterator<IArtifactFacade> sources = sourceArtifacts.stream()
                                 .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast).iterator();
                         while (sources.hasNext()) {
