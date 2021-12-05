@@ -6,6 +6,30 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 2.6.0
 
+### Support for pom dependencies in maven target locations
+Tycho now supports [pom dependencies inside mave-target locations](https://github.com/eclipse/tycho/issues/331).
+
+Example:
+
+```
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="with-pom-dependency">
+   <locations>
+      <location includeSource="true" missingManifest="generate" type="Maven">
+         <dependencies>
+            <dependency>
+               <groupId>com.sun.xml.ws</groupId>
+               <artifactId>jaxws-ri</artifactId>
+               <version>3.0.2</version>
+               <type>pom</type>
+            </dependency>
+         </dependencies>
+      </location>
+   </locations>
+</target> 
+```
+
 ### Mirror Mojo no longer mirrors pack200 artifacts by default
 
 The default for this mojo has been flipped from true to false as pack200 artifacts are irrelevant nowadays. If you want to restore previous behaviour put the following into your mojo configuration:
