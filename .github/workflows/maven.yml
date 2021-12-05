@@ -42,7 +42,7 @@ jobs:
         cp toolchains-gh.xml ~/.m2/toolchains.xml
         mvn -U -V -e clean install --file pom.xml
     - name: Run Integration Tests
-      run: mvn -U -V -e -Pits -T 1C -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml
+      run: mvn -U -V -e -Pits -Ditest-forkcount=1C -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml
     - name: Upload Test Results
       uses: actions/upload-artifact@v2
       with:
