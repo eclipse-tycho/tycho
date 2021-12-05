@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="test">
+<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="http://download.eclipse.org/releases/2020-06"/>
+			<unit id="org.eclipse.sdk.feature.group" version="4.16.0.v20200604-0951"/>
+		</location>
+	<location includeSource="true" missingManifest="generate" type="Maven">
+		<dependencies>
+			<dependency>
+				<groupId>com.sun.xml.ws</groupId>
+				<artifactId>jaxws-ri</artifactId>
+				<version>3.0.2</version>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</location>
+</locations>
+</target>

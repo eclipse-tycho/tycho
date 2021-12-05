@@ -38,14 +38,14 @@ public interface MavenDependenciesResolver {
      * @return
      */
     default Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version,
-            String packaging, String classifier, String dependencyScope,
+            String packaging, String classifier, String dependencyScope, boolean resolveTransitive,
             Collection<MavenArtifactRepositoryReference> additionalRepositories) {
-        return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, additionalRepositories,
-                null);
+        return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, resolveTransitive,
+                additionalRepositories, null);
     }
 
     Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version, String packaging,
-            String classifier, String dependencyScope,
+            String classifier, String dependencyScope, boolean resolveTransitive,
             Collection<MavenArtifactRepositoryReference> additionalRepositories,
             Object/* MavenSession */ session);
 

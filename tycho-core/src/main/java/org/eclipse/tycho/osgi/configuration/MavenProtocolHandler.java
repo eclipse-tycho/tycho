@@ -109,10 +109,10 @@ public class MavenProtocolHandler extends EquinoxLifecycleListener {
                 String type = coordinates.length > 3 ? coordinates[3] : "jar";
                 String classifier = coordinates.length > 4 ? coordinates[4] : null;
                 Collection<?> resolve = resolver.resolve(coordinates[0], coordinates[1], coordinates[2], type,
-                        classifier, null, Collections.emptyList(), session);
+                        classifier, null, false, Collections.emptyList(), session);
                 if (resolve.isEmpty()) {
                     throw new IOException("artifact " + Arrays.toString(coordinates)
-                            + " could not be downloaded from any of the available repositories");
+                            + " could not be retrieved from any of the available repositories");
                 }
                 if (resolve.size() > 1) {
                     throw new IOException(
