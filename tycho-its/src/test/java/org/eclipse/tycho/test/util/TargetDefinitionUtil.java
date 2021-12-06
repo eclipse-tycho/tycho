@@ -18,10 +18,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
-import org.eclipse.tycho.core.ee.TargetDefinitionFile;
-import org.eclipse.tycho.core.ee.TargetDefinitionFile.IULocation;
-import org.eclipse.tycho.core.ee.TargetDefinitionFile.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile.IULocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile.Repository;
 
 public class TargetDefinitionUtil {
 
