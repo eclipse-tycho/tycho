@@ -34,4 +34,4 @@ jobs:
           ${{ runner.os }}-maven-
     - name: License check
       run: | 
-        mvn -U -V -e org.eclipse.dash:license-tool-plugin:license-check --file pom.xml
+        mvn -U -V -e -B -ntp org.eclipse.dash:license-tool-plugin:license-check --file pom.xml
