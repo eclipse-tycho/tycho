@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.repository</artifactId>
-			<version>2.5.200</version>
+			<version>2.5.300</version>
 		</dependency>
 	</dependencies>
 
