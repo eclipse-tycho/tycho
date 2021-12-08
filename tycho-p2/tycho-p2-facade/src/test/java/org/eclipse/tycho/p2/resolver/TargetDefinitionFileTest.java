@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
-import org.eclipse.tycho.core.ee.TargetDefinitionFile;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.DirectoryLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.FeaturesLocation;
@@ -32,6 +31,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.ProfileLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.junit.jupiter.api.Test;
 

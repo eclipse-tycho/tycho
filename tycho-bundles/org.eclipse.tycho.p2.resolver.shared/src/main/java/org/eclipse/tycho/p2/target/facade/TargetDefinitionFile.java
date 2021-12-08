@@ -13,18 +13,17 @@
  *                          - [Bug 568729] - Support new "Maven" Target location
  *                          - [Bug 569481] - Support for maven target location includeSource="true" attribute
  *                          - [Issue 189]  - Support multiple maven-dependencies for one target location
- *                          - [Issue 194]  - Support additional repositories defined in the maven-target location #
+ *                          - [Issue 194]  - Support additional repositories defined in the maven-target location
+ *                          - [Issue 401]  - Support nested targets
  *******************************************************************************/
-package org.eclipse.tycho.core.ee;
+package org.eclipse.tycho.p2.target.facade;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.DigestInputStream;
@@ -40,23 +39,28 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
-
-import de.pdark.decentxml.Attribute;
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParseException;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public final class TargetDefinitionFile implements TargetDefinition {
-
-    private static final XMLParser PARSER = new XMLParser();
 
     private static final Map<URI, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
 
@@ -135,6 +139,27 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     }
 
+    public class TargetRef implements TargetDefinition.TargetReferenceLocation {
+
+        private String uri;
+        private URI resolvedUri;
+
+        public TargetRef(String uri) {
+            this.uri = uri;
+        }
+
+        @Override
+        public String getTypeDescription() {
+            return "Target";
+        }
+
+        @Override
+        public String getUri() {
+            return uri;
+        }
+
+    }
+
     public class MavenLocation implements TargetDefinition.MavenGAVLocation {
 
         private Element dom;
@@ -143,9 +168,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         public MavenLocation(Element dom) {
             this.dom = dom;
-            List<Element> children = dom.getChildren("exclude");
+            List<Element> children = getChildren(dom, "exclude");
             for (Element element : children) {
-                globalExcludes.add(element.getNormalizedText());
+                globalExcludes.add(element.getTextContent());
             }
         }
 
@@ -156,12 +181,12 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public String getIncludeDependencyScope() {
-            return dom.getAttributeValue("includeDependencyScope");
+            return dom.getAttribute("includeDependencyScope");
         }
 
         @Override
         public MissingManifestStrategy getMissingManifestStrategy() {
-            String attributeValue = dom.getAttributeValue("missingManifest");
+            String attributeValue = dom.getAttribute("missingManifest");
             if ("generate".equalsIgnoreCase(attributeValue)) {
                 return MissingManifestStrategy.GENERATE;
             } else if ("ignore".equals(attributeValue)) {
@@ -172,7 +197,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public boolean includeSource() {
-            return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
+            return Boolean.parseBoolean(dom.getAttribute("includeSource"));
         }
 
         @Override
@@ -191,9 +216,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
         @Override
         public Collection<BNDInstructions> getInstructions() {
             List<BNDInstructions> list = new ArrayList<>();
-            for (Element element : dom.getChildren("instructions")) {
-                String reference = element.getAttributeValue("reference");
-                String text = element.getText();
+            for (Element element : getChildren(dom, "instructions")) {
+                String reference = element.getAttribute("reference");
+                String text = element.getTextContent();
                 Properties properties = new Properties();
                 try {
                     properties.load(new StringReader(text));
@@ -221,9 +246,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public Collection<MavenDependency> getRoots() {
-            for (Element dependencies : dom.getChildren("dependencies")) {
+            for (Element dependencies : getChildren(dom, "dependencies")) {
                 List<MavenDependency> roots = new ArrayList<>();
-                for (Element dependency : dependencies.getChildren("dependency")) {
+                for (Element dependency : getChildren(dependencies, "dependency")) {
                     roots.add(new MavenDependencyRoot(dependency, this));
                 }
                 return roots;
@@ -234,9 +259,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public Collection<MavenArtifactRepositoryReference> getRepositoryReferences() {
-            for (Element dependencies : dom.getChildren("repositories")) {
+            for (Element dependencies : getChildren(dom, "repositories")) {
                 List<MavenArtifactRepositoryReference> list = new ArrayList<MavenArtifactRepositoryReference>();
-                for (Element repository : dependencies.getChildren("repository")) {
+                for (Element repository : getChildren(dependencies, "repository")) {
                     list.add(new MavenArtifactRepositoryReference() {
 
                         @Override
@@ -317,13 +342,31 @@ public final class TargetDefinitionFile implements TargetDefinition {
     }
 
     private static String getTextFromChild(Element dom, String childName, String defaultValue) {
-        for (Element element : dom.getChildren(childName)) {
-            return element.getNormalizedText();
+        for (Element element : getChildren(dom, childName)) {
+            return element.getTextContent();
         }
         if (defaultValue != null) {
             return defaultValue;
         }
         throw new TargetDefinitionSyntaxException("Missing child element '" + childName + "'");
+    }
+
+    private static List<Element> getChildren(Element element, String tagName) {
+        NodeList list = element.getChildNodes();
+
+        int length = list.getLength();
+        List<Node> nodes = IntStream.range(0, length).mapToObj(item -> list.item(item)).collect(Collectors.toList());
+        return nodes.stream().filter(Element.class::isInstance).map(Element.class::cast).filter(e -> {
+            return e.getNodeName().equals(tagName);
+        }).collect(Collectors.toList());
+    }
+
+    private static Element getChild(Element element, String tagName) {
+        List<Element> list = getChildren(element, tagName);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
     }
 
     private static String getKey(IArtifactFacade artifact) {
@@ -349,7 +392,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
         @Override
         public List<? extends TargetDefinition.Unit> getUnits() {
             ArrayList<Unit> units = new ArrayList<>();
-            for (Element unitDom : dom.getChildren("unit")) {
+            for (Element unitDom : getChildren(dom, "unit")) {
                 units.add(new Unit(unitDom));
             }
             return Collections.unmodifiableList(units);
@@ -361,7 +404,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
 
         public List<Repository> getRepositoryImpls() {
-            final List<Element> repositoryNodes = dom.getChildren("repository");
+            final List<Element> repositoryNodes = getChildren(dom, "repository");
 
             final List<Repository> repositories = new ArrayList<>(repositoryNodes.size());
             for (Element node : repositoryNodes) {
@@ -372,16 +415,16 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public String getTypeDescription() {
-            return dom.getAttributeValue("type");
+            return dom.getAttribute("type");
         }
 
         @Override
         public IncludeMode getIncludeMode() {
-            String attributeValue = dom.getAttributeValue("includeMode");
-            if ("slicer".equals(attributeValue)) {
-                return IncludeMode.SLICER;
-            } else if ("planner".equals(attributeValue) || attributeValue == null) {
+            Attr attributeValue = dom.getAttributeNode("includeMode");
+            if (attributeValue == null || "planner".equals(attributeValue.getTextContent())) {
                 return IncludeMode.PLANNER;
+            } else if ("slicer".equals(attributeValue.getTextContent())) {
+                return IncludeMode.SLICER;
             }
             throw new TargetDefinitionSyntaxException(
                     "Invalid value for attribute 'includeMode': " + attributeValue + "");
@@ -389,12 +432,12 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public boolean includeAllEnvironments() {
-            return Boolean.parseBoolean(dom.getAttributeValue("includeAllPlatforms"));
+            return Boolean.parseBoolean(dom.getAttribute("includeAllPlatforms"));
         }
 
         @Override
         public boolean includeSource() {
-            return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
+            return Boolean.parseBoolean(dom.getAttribute("includeSource"));
         }
     }
 
@@ -421,13 +464,13 @@ public final class TargetDefinitionFile implements TargetDefinition {
         @Override
         public String getId() {
             // this is Maven specific, used to match credentials and mirrors
-            return dom.getAttributeValue("id");
+            return dom.getAttribute("id");
         }
 
         @Override
         public URI getLocation() {
             try {
-                return new URI(dom.getAttributeValue("location"));
+                return new URI(dom.getAttribute("location"));
             } catch (URISyntaxException e) {
                 // this should be checked earlier (but is currently ugly to do)
                 throw new RuntimeException(e);
@@ -454,12 +497,12 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public String getId() {
-            return dom.getAttributeValue("id");
+            return dom.getAttribute("id");
         }
 
         @Override
         public String getVersion() {
-            return dom.getAttributeValue("version");
+            return dom.getAttribute("version");
         }
 
         /**
@@ -477,12 +520,17 @@ public final class TargetDefinitionFile implements TargetDefinition {
         try {
             this.origin = uri.toASCIIString();
             try (DigestInputStream input = new DigestInputStream(uri.toURL().openStream(), newMD5Digest())) {
-                this.document = PARSER.parse(new XMLIOSource(input));
-                this.dom = document.getRootElement();
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                this.document = builder.parse(input);
+                this.dom = document.getDocumentElement();
                 this.fileContentHash = input.getMessageDigest().digest();
+            } catch (ParserConfigurationException e) {
+                throw new TargetDefinitionSyntaxException("No valid XML parser: " + e.getMessage(), e);
+            } catch (SAXException e) {
+                throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(),
+                        e);
             }
-        } catch (XMLParseException e) {
-            throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new TargetDefinitionSyntaxException(
                     "I/O error while reading target definition file: " + e.getMessage(), e);
@@ -492,21 +540,23 @@ public final class TargetDefinitionFile implements TargetDefinition {
     @Override
     public List<? extends TargetDefinition.Location> getLocations() {
         ArrayList<TargetDefinition.Location> locations = new ArrayList<>();
-        Element locationsDom = dom.getChild("locations");
+        Element locationsDom = getChild(dom, "locations");
         if (locationsDom != null) {
-            for (Element locationDom : locationsDom.getChildren("location")) {
-                String type = locationDom.getAttributeValue("type");
+            for (Element locationDom : getChildren(locationsDom, "location")) {
+                String type = locationDom.getAttribute("type");
                 if ("InstallableUnit".equals(type)) {
                     locations.add(new IULocation(locationDom));
                 } else if ("Directory".equals(type)) {
-                    locations.add(new DirectoryTargetLocation(locationDom.getAttributeValue("path")));
+                    locations.add(new DirectoryTargetLocation(locationDom.getAttribute("path")));
                 } else if ("Profile".equals(type)) {
-                    locations.add(new ProfileTargetPlatformLocation(locationDom.getAttributeValue("path")));
+                    locations.add(new ProfileTargetPlatformLocation(locationDom.getAttribute("path")));
                 } else if ("Feature".equals(type)) {
-                    locations.add(new FeatureTargetPlatformLocation(locationDom.getAttributeValue("path"),
-                            locationDom.getAttributeValue("id"), locationDom.getAttributeValue("version")));
+                    locations.add(new FeatureTargetPlatformLocation(locationDom.getAttribute("path"),
+                            locationDom.getAttribute("id"), locationDom.getAttribute("version")));
                 } else if ("Maven".equals(type)) {
                     locations.add(new MavenLocation(locationDom));
+                } else if ("Target".equals(type)) {
+                    locations.add(new TargetRef(locationDom.getAttribute("uri")));
                 } else {
                     locations.add(new OtherLocation(type));
                 }
@@ -517,7 +567,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     @Override
     public boolean hasIncludedBundles() {
-        return dom.getChild("includeBundles") != null;
+        return getChild(dom, "includeBundles") != null;
     }
 
     @Override
@@ -538,15 +588,15 @@ public final class TargetDefinitionFile implements TargetDefinition {
     }
 
     public static void write(TargetDefinitionFile target, File file) throws IOException {
-        Document document = target.document;
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
-            Writer w = new OutputStreamWriter(os, enc);
-            XMLWriter xw = new XMLWriter(w);
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
             try {
-                document.toXML(xw);
-            } finally {
-                xw.flush();
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(target.document);
+                StreamResult result = new StreamResult(new FileOutputStream(file));
+                transformer.transform(source, result);
+            } catch (TransformerException e) {
+                throw new IOException(e);
             }
         }
     }
@@ -577,9 +627,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     @Override
     public String getTargetEE() {
-        Element targetJRE = dom.getChild("targetJRE");
+        Element targetJRE = getChild(dom, "targetJRE");
         if (targetJRE != null) {
-            Attribute path = targetJRE.getAttribute("path");
+            Attr path = targetJRE.getAttributeNode("path");
             if (path != null) {
                 String pathValue = path.getValue();
                 return pathValue.substring(pathValue.lastIndexOf('/') + 1);

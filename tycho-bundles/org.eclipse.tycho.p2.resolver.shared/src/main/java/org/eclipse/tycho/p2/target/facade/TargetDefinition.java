@@ -13,7 +13,8 @@
  *                          [Bug 568729] - Support new "Maven" Target location
  *                          [Bug 569481] - Support for maven target location includeSource="true" attribute
  *                          [Issue 189]  - Support multiple maven-dependencies for one target location
- *                          [Issue 194]  - Support additional repositories defined in the maven-target location # 
+ *                          [Issue 194]  - Support additional repositories defined in the maven-target location
+ *                          [Issue 401]  - Support nested targets
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -92,6 +93,10 @@ public interface TargetDefinition {
         Collection<MavenArtifactRepositoryReference> getRepositoryReferences();
 
         boolean includeSource();
+    }
+
+    public interface TargetReferenceLocation extends Location {
+        String getUri();
     }
 
     /**

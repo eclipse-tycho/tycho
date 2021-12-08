@@ -20,6 +20,7 @@ package org.eclipse.tycho.p2.target;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,6 +61,8 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.PathLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.ProfileLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.TargetReferenceLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
@@ -148,10 +151,18 @@ public final class TargetDefinitionResolver {
                 installableUnitResolver.addLocation((InstallableUnitLocation) locationDefinition, locationUnits);
             } else if (locationDefinition instanceof PathLocation) {
                 PathLocation pathLocation = (PathLocation) locationDefinition;
-                File path = resolvePath(pathLocation.getPath(), definition);
-                if (path.exists()) {
+
+                String resolvePath = resolvePath(pathLocation.getPath(), definition);
+                File fileLocation;
+                try {
+                    fileLocation = new File(resolvePath).getCanonicalFile();
+                } catch (IOException e) {
+                    throw new ResolverException("I/O Error while resolving path " + resolvePath, e);
+                }
+                if (fileLocation.exists()) {
                     FileTargetDefinitionContent fileRepositoryRolver = fileRepositories.computeIfAbsent(
-                            path.getAbsolutePath(), key -> new FileTargetDefinitionContent(provisioningAgent, path));
+                            fileLocation.getAbsolutePath(),
+                            key -> new FileTargetDefinitionContent(provisioningAgent, fileLocation));
                     if (pathLocation instanceof DirectoryLocation || pathLocation instanceof ProfileLocation) {
                         unitResultSet.addAll(
                                 fileRepositoryRolver.query(QueryUtil.ALL_UNITS, new LoggingProgressMonitor(logger)));
@@ -165,8 +176,8 @@ public final class TargetDefinitionResolver {
                                 new LoggingProgressMonitor(logger)));
                     }
                 } else {
-                    logger.warn("Target location path '" + path.getAbsolutePath()
-                            + "' does not exist, target resoloution might be incomplete.");
+                    logger.warn("Target location path '" + fileLocation.getAbsolutePath()
+                            + "' does not exist, target resolution might be incomplete.");
                 }
             } else if (locationDefinition instanceof MavenGAVLocation) {
                 MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
@@ -182,6 +193,22 @@ public final class TargetDefinitionResolver {
                         logger.debug("\t" + iu);
                     }
                 }
+            } else if (locationDefinition instanceof TargetReferenceLocation) {
+                TargetReferenceLocation referenceLocation = (TargetReferenceLocation) locationDefinition;
+                logger.info("Resolving " + referenceLocation.getUri());
+                String resolvePath = resolvePath(referenceLocation.getUri(), definition);
+                URI resolvedUri;
+                try {
+                    resolvedUri = new URI(resolvePath);
+                } catch (URISyntaxException e) {
+                    throw new ResolverException("Invalid URI " + resolvePath + ": " + e.getMessage(), e);
+                }
+                logger.info("Reading target " + resolvedUri + "...");
+                TargetDefinitionContent content = resolveContentWithExceptions(TargetDefinitionFile.read(resolvedUri),
+                        provisioningAgent);
+                IQueryResult<IInstallableUnit> result = content.query(QueryUtil.ALL_UNITS,
+                        new LoggingProgressMonitor(logger));
+                unitResultSet.addAll(result);
             } else {
                 logger.warn("Target location type '" + locationDefinition.getTypeDescription() + "' is not supported");
             }
@@ -247,7 +274,7 @@ public final class TargetDefinitionResolver {
         };
     }
 
-    protected File resolvePath(String path, TargetDefinition definition) throws ResolverException {
+    protected String resolvePath(String path, TargetDefinition definition) {
         path = resolvePattern(path, SYSTEM_PROPERTY_PATTERN,
                 key -> mavenContext.getSessionProperties().getProperty(key, ""));
         path = resolvePattern(path, ENV_VAR_PATTERN, key -> {
@@ -255,30 +282,35 @@ public final class TargetDefinitionResolver {
             return env == null ? "" : env;
         });
         path = resolvePattern(path, PROJECT_LOC_PATTERN, this::findProjectLocation);
-        try {
-            return new File(path).getCanonicalFile();
-        } catch (IOException e) {
-            throw new ResolverException("I/O Error while resolve path " + path, e);
-        }
+        return path;
     }
 
     private String findProjectLocation(String projectName) {
+        if (projectName.startsWith("/")) {
+            projectName = projectName.substring(1);
+        }
+        logger.debug("Find project location for project " + projectName);
         for (ReactorProject project : mavenContext.getProjects()) {
-            if (project.getName().equals(projectName)) {
+            String name = project.getName();
+            logger.debug("check reactor project name: " + name);
+            if (name.equals(projectName)) {
                 return project.getBasedir().getAbsolutePath();
             }
         }
         for (ReactorProject project : mavenContext.getProjects()) {
-            if (project.getArtifactId().equals(projectName)) {
+            String artifactId = project.getArtifactId();
+            logger.debug("check reactor project artifact id: " + artifactId);
+            if (artifactId.equals(projectName)) {
                 return project.getBasedir().getAbsolutePath();
             }
         }
         for (ReactorProject project : mavenContext.getProjects()) {
-            if (project.getBasedir().getName().equals(projectName)) {
+            String name = project.getBasedir().getName();
+            logger.debug("check reactor project base directory: " + name);
+            if (name.equals(projectName)) {
                 return project.getBasedir().getAbsolutePath();
             }
         }
-
         //if we can't resolve this, we will return the original one as this might be intentional to not include the project in the build
         String defaultValue = "${project_loc:" + projectName + "}";
         logger.warn("Can't resolve " + defaultValue + " target resoloution might be incomplete");

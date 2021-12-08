@@ -16,5 +16,6 @@ Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.resolver.shared,
- org.eclipse.tycho.core.shared
+ org.eclipse.tycho.core.shared,
+ org.w3c.dom
 Automatic-Module-Name: org.eclipse.tycho.p2.resolver.shared
