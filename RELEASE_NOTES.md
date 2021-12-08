@@ -4,7 +4,12 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## Next release...
 
-## 2.6.0
+## 2.6.0 (under development)
+
+### Support for nested targets
+Tycho now supports [nested target locations](https://github.com/eclipse/tycho/issues/401).
+
+An example could be found [here](https://github.com/eclipse/tycho/tree/master/tycho-its/projects/target.references/target.refs).
 
 ### Support for pom dependencies in maven target locations
 Tycho now supports [pom dependencies inside mave-target locations](https://github.com/eclipse/tycho/issues/331).
