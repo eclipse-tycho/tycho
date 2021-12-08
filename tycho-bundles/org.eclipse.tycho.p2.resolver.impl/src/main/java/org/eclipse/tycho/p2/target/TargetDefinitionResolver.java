@@ -157,7 +157,7 @@ public final class TargetDefinitionResolver {
                 try {
                     fileLocation = new File(resolvePath).getCanonicalFile();
                 } catch (IOException e) {
-                    throw new ResolverException("I/O Error while resolve path " + resolvePath, e);
+                    throw new ResolverException("I/O Error while resolving path " + resolvePath, e);
                 }
                 if (fileLocation.exists()) {
                     FileTargetDefinitionContent fileRepositoryRolver = fileRepositories.computeIfAbsent(
@@ -177,7 +177,7 @@ public final class TargetDefinitionResolver {
                     }
                 } else {
                     logger.warn("Target location path '" + fileLocation.getAbsolutePath()
-                            + "' does not exist, target resoloution might be incomplete.");
+                            + "' does not exist, target resolution might be incomplete.");
                 }
             } else if (locationDefinition instanceof MavenGAVLocation) {
                 MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
