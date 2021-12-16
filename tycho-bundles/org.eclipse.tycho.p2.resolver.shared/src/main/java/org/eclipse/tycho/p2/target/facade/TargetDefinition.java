@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.w3c.dom.Element;
 
 // TODO javadoc
 public interface TargetDefinition {
@@ -93,6 +94,9 @@ public interface TargetDefinition {
         Collection<MavenArtifactRepositoryReference> getRepositoryReferences();
 
         boolean includeSource();
+
+        Element getFeatureTemplate();
+
     }
 
     public interface TargetReferenceLocation extends Location {

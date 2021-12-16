@@ -16,13 +16,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
@@ -32,21 +35,35 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.publisher.eclipse.Feature;
+import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.shared.DependecyResolutionException;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenModelFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionContent;
@@ -59,9 +76,12 @@ import org.eclipse.tycho.p2.target.repository.FileArtifactRepository;
 import org.eclipse.tycho.p2.target.repository.SupplierMetadataRepository;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 @SuppressWarnings("restriction")
 public class MavenTargetDefinitionContent implements TargetDefinitionContent {
+    private static final String POM_PACKAGING_TYPE = "pom";
     public static final String ECLIPSE_SOURCE_BUNDLE_HEADER = "Eclipse-SourceBundle";
     private final Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<IArtifactDescriptor, IInstallableUnit>();
     private SupplierMetadataRepository metadataRepository;
@@ -70,14 +90,22 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     public MavenTargetDefinitionContent(MavenGAVLocation location, MavenDependenciesResolver mavenDependenciesResolver,
             IncludeSourceMode sourceMode, IProvisioningAgent agent, MavenLogger logger) {
         File repositoryRoot = mavenDependenciesResolver.getRepositoryRoot();
+        boolean includeSource = sourceMode == IncludeSourceMode.force
+                || (sourceMode == IncludeSourceMode.honor && location.includeSource());
         metadataRepository = new SupplierMetadataRepository(agent, () -> repositoryContent.values().iterator());
         metadataRepository.setLocation(repositoryRoot.toURI());
         metadataRepository.setName(repositoryRoot.getName());
-        artifactRepository = new FileArtifactRepository(agent, () -> repositoryContent.keySet().iterator());
+        artifactRepository = new FileArtifactRepository(agent,
+                () -> repositoryContent.keySet().stream().filter(descriptor -> {
+                    if (descriptor instanceof IUArtifactDescriptor) {
+                        return false;
+                    }
+                    return true;
+                }).iterator());
         artifactRepository.setName(repositoryRoot.getName());
         artifactRepository.setLocation(repositoryRoot.toURI());
         Collection<BNDInstructions> instructions = location.getInstructions();
-
+        List<Feature> features = new ArrayList<>();
         if (mavenDependenciesResolver != null) {
             logger.info("Resolving " + location + "...");
             Map<String, Properties> instructionsMap = new HashMap<>();
@@ -87,23 +115,48 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 instructionsMap.put(reference, properties);
                 logger.info((reference.isEmpty() ? "default instructions" : reference) + " = " + properties);
             }
+            List<IInstallableUnit> locationBundles = new ArrayList<>();
+            List<IInstallableUnit> locationSourceBundles = new ArrayList<>();
             for (MavenDependency mavenDependency : location.getRoots()) {
-                boolean isPom = "pom".equalsIgnoreCase(mavenDependency.getArtifactType());
-                Collection<?> resolve = mavenDependenciesResolver.resolve(mavenDependency.getGroupId(),
-                        mavenDependency.getArtifactId(), mavenDependency.getVersion(),
-                        mavenDependency.getArtifactType(), mavenDependency.getClassifier(),
-                        location.getIncludeDependencyScope(), isPom, location.getRepositoryReferences());
+                boolean isPom = POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType());
+                int depth;
+                String scope = location.getIncludeDependencyScope();
+                if (isPom) {
+                    if (scope == null || scope.isBlank()) {
+                        depth = MavenDependenciesResolver.DEEP_DIRECT_CHILDS;
+                    } else {
+                        depth = MavenDependenciesResolver.DEEP_INFINITE;
+                    }
+                } else {
+                    if (scope == null || scope.isBlank()) {
+                        depth = MavenDependenciesResolver.DEEP_NO_DEPENDECIES;
+                    } else {
+                        depth = MavenDependenciesResolver.DEEP_INFINITE;
+                    }
+                }
+                Collection<?> resolve;
+                try {
+                    resolve = mavenDependenciesResolver.resolve(mavenDependency.getGroupId(),
+                            mavenDependency.getArtifactId(), mavenDependency.getVersion(),
+                            mavenDependency.getArtifactType(), mavenDependency.getClassifier(), scope, depth,
+                            location.getRepositoryReferences());
+                } catch (DependecyResolutionException e1) {
+                    throw new TargetDefinitionResolutionException("MavenDependency " + mavenDependency + " of location "
+                            + location + " could not be resolved", e1);
+                }
 
                 Iterator<IArtifactFacade> resolvedArtifacts = resolve.stream().filter(IArtifactFacade.class::isInstance)
                         .map(IArtifactFacade.class::cast).iterator();
                 Properties defaultProperties = WrappedArtifact.createPropertiesForPrefix("wrapped");
+                List<IInstallableUnit> bundles = new ArrayList<>();
+                List<IInstallableUnit> sourceBundles = new ArrayList<>();
                 while (resolvedArtifacts.hasNext()) {
                     IArtifactFacade mavenArtifact = resolvedArtifacts.next();
                     if (mavenDependency.isIgnored(mavenArtifact)) {
                         logger.debug("Skip ignored " + mavenArtifact + "...");
                         continue;
                     }
-                    if ("pom".equalsIgnoreCase(mavenArtifact.getPackagingType())) {
+                    if (POM_PACKAGING_TYPE.equalsIgnoreCase(mavenArtifact.getPackagingType())) {
                         logger.debug("Skip pom artifact " + mavenArtifact + "...");
                         continue;
                     }
@@ -170,7 +223,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                         + wrappedArtifact.getWrappedBsn());
                                 logger.info(wrappedArtifact.getReferenceHint());
                                 if (logger.isDebugEnabled()) {
-                                    logger.debug("The follwoing manifest was generated for this artifact:\r\n"
+                                    logger.debug("The following manifest was generated for this artifact:\r\n"
                                             + wrappedArtifact.getGeneratedManifest());
                                 }
                                 unit = publish(BundlesAction.createBundleDescription(tempFile), tempFile);
@@ -179,6 +232,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                             } else {
                                 unit = publish(bundleDescription, bundleLocation);
                             }
+                            bundles.add(unit);
                             if (logger.isDebugEnabled()) {
                                 logger.debug("MavenResolver: artifact " + asDebugString(mavenArtifact) + " at location "
                                         + bundleLocation + " resolves installable unit "
@@ -189,43 +243,86 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
                                 + " of location " + location + " could not be read", e);
                     }
-                    if (sourceMode == IncludeSourceMode.force
-                            || (sourceMode == IncludeSourceMode.honor && location.includeSource())) {
-                        Collection<?> sourceArtifacts = mavenDependenciesResolver.resolve(mavenArtifact.getGroupId(),
-                                mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
-                                mavenArtifact.getPackagingType(), "sources", null, false, Collections.emptyList());
-                        Iterator<IArtifactFacade> sources = sourceArtifacts.stream()
-                                .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast).iterator();
-                        while (sources.hasNext()) {
-                            IArtifactFacade sourceArtifact = sources.next();
-                            File sourceFile = sourceArtifact.getLocation();
-                            try {
-                                Manifest manifest;
-                                try (JarFile jar = new JarFile(sourceFile)) {
-                                    manifest = Objects.requireNonNullElseGet(jar.getManifest(), Manifest::new);
+
+                    if (includeSource) {
+                        try {
+                            Collection<?> sourceArtifacts = mavenDependenciesResolver.resolve(
+                                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
+                                    mavenArtifact.getVersion(), mavenArtifact.getPackagingType(), "sources", null,
+                                    MavenDependenciesResolver.DEEP_NO_DEPENDECIES, Collections.emptyList());
+                            Iterator<IArtifactFacade> sources = sourceArtifacts.stream()
+                                    .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast)
+                                    .iterator();
+                            while (sources.hasNext()) {
+                                IArtifactFacade sourceArtifact = sources.next();
+                                File sourceFile = sourceArtifact.getLocation();
+                                try {
+                                    Manifest manifest;
+                                    try (JarFile jar = new JarFile(sourceFile)) {
+                                        manifest = Objects.requireNonNullElseGet(jar.getManifest(), Manifest::new);
+                                    }
+                                    IInstallableUnit unit;
+                                    if (isValidSourceManifest(manifest)) {
+                                        unit = publish(BundlesAction.createBundleDescription(sourceFile), sourceFile);
+                                    } else {
+                                        unit = generateSourceBundle(symbolicName, bundleVersion, manifest, sourceFile);
+                                    }
+                                    sourceBundles.add(unit);
+                                    if (unit != null && logger.isDebugEnabled()) {
+                                        logger.debug("MavenResolver: source-artifact " + asDebugString(sourceArtifact)
+                                                + ":sources at location " + sourceFile + " resolves installable unit "
+                                                + new VersionedId(unit.getId(), unit.getVersion()));
+                                    }
+                                } catch (IOException | BundleException e) {
+                                    logger.warn("MavenResolver: source-artifact " + asDebugString(sourceArtifact)
+                                            + ":sources at location " + sourceFile
+                                            + " can't be converted to a source bundle: " + e);
+                                    continue;
                                 }
-                                IInstallableUnit unit;
-                                if (isValidSourceManifest(manifest)) {
-                                    unit = publish(BundlesAction.createBundleDescription(sourceFile), sourceFile);
-                                } else {
-                                    unit = generateSourceBundle(symbolicName, bundleVersion, manifest, sourceFile);
-                                }
-                                if (unit != null && logger.isDebugEnabled()) {
-                                    logger.debug("MavenResolver: source-artifact " + asDebugString(sourceArtifact)
-                                            + ":sources at location " + sourceFile + " resolves installable unit "
-                                            + new VersionedId(unit.getId(), unit.getVersion()));
-                                }
-                            } catch (IOException | BundleException e) {
-                                logger.warn("MavenResolver: source-artifact " + asDebugString(sourceArtifact)
-                                        + ":sources at location " + sourceFile
-                                        + " can't be converted to a source bundle: " + e);
-                                continue;
                             }
+                        } catch (DependecyResolutionException e) {
+                            logger.warn("MavenResolver: source-artifact " + asDebugString(mavenArtifact)
+                                    + ":sources can't be resolved: " + e);
                         }
                     }
                 }
-            }
+                if (isPom) {
+                    Optional<File> pomFacade = resolve.stream().filter(IArtifactFacade.class::isInstance)
+                            .map(IArtifactFacade.class::cast).filter(facade -> facade.getDependencyTrail().size() == 1)
+                            .filter(facade -> facade.getArtifactId().equals(mavenDependency.getArtifactId())
+                                    && facade.getGroupId().equals(mavenDependency.getGroupId())
+                                    && facade.getVersion().equals(mavenDependency.getVersion())
+                                    && facade.getPackagingType().equals(POM_PACKAGING_TYPE))
+                            .map(facade -> facade.getLocation()).filter(Objects::nonNull).findFirst();
 
+                    if (pomFacade.isPresent()) {
+                        try {
+                            MavenModelFacade model = mavenDependenciesResolver.loadModel(pomFacade.get());
+                            features.add(FeatureGenerator.generatePomFeature(model, bundles, false));
+                            if (includeSource) {
+                                features.add(FeatureGenerator.generatePomFeature(model, sourceBundles, true));
+                            }
+                        } catch (IOException | ParserConfigurationException | TransformerException | SAXException e) {
+                            throw new TargetDefinitionResolutionException("non readable pom file");
+                        }
+                    }
+                }
+                locationBundles.addAll(bundles);
+                locationSourceBundles.addAll(sourceBundles);
+            }
+            Element featureTemplate = location.getFeatureTemplate();
+            if (featureTemplate != null) {
+                try {
+                    features.add(FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationBundles, false));
+                    if (includeSource) {
+                        features.add(
+                                FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationBundles, true));
+                    }
+                } catch (IOException | ParserConfigurationException | TransformerException | SAXException e) {
+                    throw new TargetDefinitionResolutionException("feature generation failed!", e);
+                }
+            }
+            publishFeatures(features, logger);
         }
     }
 
@@ -273,6 +370,55 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         return iu;
     }
 
+    private void publishFeatures(List<Feature> features, MavenLogger logger) {
+        if (features.isEmpty()) {
+            return;
+        }
+        PublisherInfo publisherInfo = new PublisherInfo();
+        publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
+        Map<IInstallableUnit, Feature> featureMap = new HashMap<>();
+        FeaturesAction action = new FeaturesAction(features.toArray(Feature[]::new)) {
+            @Override
+            protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU,
+                    IPublisherInfo publisherInfo) {
+                //so not call super as we don't wan't to copy anything --> Bug in P2 with IPublisherInfo.A_INDEX option
+            }
+
+            @Override
+            protected IInstallableUnit generateFeatureJarIU(Feature feature, IPublisherInfo publisherInfo) {
+                IInstallableUnit iu = super.generateFeatureJarIU(feature, publisherInfo);
+                featureMap.put(iu, feature);
+                return iu;
+            }
+        };
+        PublisherResult results = new PublisherResult();
+        action.perform(publisherInfo, results, null);
+        IQueryResult<IInstallableUnit> result = results.query(QueryUtil.ALL_UNITS, null);
+        for (IInstallableUnit unit : result) {
+            logger.debug("Publishing installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
+            Collection<IArtifactKey> artifacts = unit.getArtifacts();
+            if (artifacts.isEmpty()) {
+                repositoryContent.put(new IUArtifactDescriptor(unit), unit);
+            } else {
+                Feature publishedFeature = featureMap.get(unit);
+                if (publishedFeature == null) {
+                    //any other item
+                    for (IArtifactKey key : artifacts) {
+                        repositoryContent.put(new ArtifactDescriptor(key), unit);
+                    }
+                } else {
+                    //The actual published feature...
+                    for (IArtifactKey key : artifacts) {
+                        IArtifactDescriptor fileDescriptor = FileArtifactRepository
+                                .forFile(new File(publishedFeature.getLocation()), key);
+                        repositoryContent.put(fileDescriptor, unit);
+                    }
+                }
+            }
+
+        }
+    }
+
     private String asDebugString(IArtifactFacade mavenArtifact) {
         return new GAV(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion())
                 .toString();
@@ -306,6 +452,45 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             return manifest.getMainAttributes().getValue(ECLIPSE_SOURCE_BUNDLE_HEADER) != null;
         }
         return false;
+    }
+
+    private static final class IUArtifactDescriptor implements IArtifactDescriptor {
+
+        private IInstallableUnit iu;
+        private ArtifactKey artifactKey;
+
+        public IUArtifactDescriptor(IInstallableUnit iu) {
+            this.iu = iu;
+        }
+
+        @Override
+        public IArtifactKey getArtifactKey() {
+            if (artifactKey == null) {
+                artifactKey = new ArtifactKey(PublisherHelper.IU_NAMESPACE, iu.getId(), iu.getVersion());
+            }
+            return artifactKey;
+        }
+
+        @Override
+        public String getProperty(String key) {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public IProcessingStepDescriptor[] getProcessingSteps() {
+            return new IProcessingStepDescriptor[0];
+        }
+
+        @Override
+        public IArtifactRepository getRepository() {
+            return null;
+        }
+
     }
 
 }

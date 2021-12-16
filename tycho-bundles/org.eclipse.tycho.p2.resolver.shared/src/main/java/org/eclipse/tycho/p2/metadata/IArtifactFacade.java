@@ -14,6 +14,8 @@
 package org.eclipse.tycho.p2.metadata;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Facade which provides an interface for common properties of a maven {@see Artifact} or
@@ -38,4 +40,8 @@ public interface IArtifactFacade {
     public String getVersion();
 
     public String getPackagingType();
+
+    default List<String> getDependencyTrail() {
+        return Collections.emptyList();
+    }
 }
