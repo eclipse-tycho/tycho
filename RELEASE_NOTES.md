@@ -6,6 +6,9 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 2.6.0 (under development)
 
+### Support for generation of a feature from a maven target-location template
+Tycho now support the m2e feature to [generate a feature from a maven target location](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-generation-of-a-feature-from-a-location).
+
 ### Support for nested targets
 Tycho now supports [nested target locations](https://github.com/eclipse/tycho/issues/401).
 
