@@ -287,6 +287,29 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return getChild(dom, "feature");
         }
 
+        @Override
+        public DependencyDepth getIncludeDependencyDepth() {
+            if (dom.getAttributeNode("includeDependencyDepth") == null) {
+                //backward compat
+                String scope = getIncludeDependencyScope();
+                if (scope == null || scope.isBlank()) {
+                    return DependencyDepth.NONE;
+                } else {
+                    return DependencyDepth.INFINITE;
+                }
+            }
+            String attribute = dom.getAttribute("includeDependencyDepth");
+            if ("NONE".equalsIgnoreCase(attribute)) {
+                return DependencyDepth.NONE;
+            } else if ("DIRECT".equalsIgnoreCase(attribute)) {
+                return DependencyDepth.DIRECT;
+            } else if ("INFINITE".equalsIgnoreCase(attribute)) {
+                return DependencyDepth.INFINITE;
+            }
+            //safe default
+            return DependencyDepth.NONE;
+        }
+
     }
 
     private static final class MavenDependencyRoot implements MavenDependency {
