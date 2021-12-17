@@ -83,7 +83,13 @@ public interface TargetDefinition {
             IGNORE, ERROR, GENERATE;
         }
 
+        enum DependencyDepth {
+            NONE, DIRECT, INFINITE;
+        }
+
         String getIncludeDependencyScope();
+
+        DependencyDepth getIncludeDependencyDepth();
 
         MissingManifestStrategy getMissingManifestStrategy();
 

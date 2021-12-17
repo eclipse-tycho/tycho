@@ -63,6 +63,7 @@ import org.eclipse.tycho.p2.target.TargetDefinitionContent;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.BNDInstructions;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenDependency;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation.DependencyDepth;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation.MissingManifestStrategy;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.repository.FileArtifactRepository;
@@ -106,21 +107,24 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             List<IInstallableUnit> locationBundles = new ArrayList<>();
             List<IInstallableUnit> locationSourceBundles = new ArrayList<>();
             for (MavenDependency mavenDependency : location.getRoots()) {
-                boolean isPom = POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType());
                 int depth;
                 String scope = location.getIncludeDependencyScope();
-                if (isPom) {
-                    if (scope == null || scope.isBlank()) {
-                        depth = MavenDependenciesResolver.DEEP_DIRECT_CHILDS;
-                    } else {
-                        depth = MavenDependenciesResolver.DEEP_INFINITE;
-                    }
-                } else {
-                    if (scope == null || scope.isBlank()) {
-                        depth = MavenDependenciesResolver.DEEP_NO_DEPENDECIES;
-                    } else {
-                        depth = MavenDependenciesResolver.DEEP_INFINITE;
-                    }
+                DependencyDepth dependencyDepth = location.getIncludeDependencyDepth();
+                if (dependencyDepth == DependencyDepth.NONE
+                        && POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType())) {
+                    dependencyDepth = DependencyDepth.DIRECT;
+                }
+                switch (dependencyDepth) {
+                case INFINITE:
+                    depth = MavenDependenciesResolver.DEEP_INFINITE;
+                    break;
+                case DIRECT:
+                    depth = MavenDependenciesResolver.DEEP_DIRECT_CHILDS;
+                    break;
+                case NONE:
+                default:
+                    depth = MavenDependenciesResolver.DEEP_NO_DEPENDECIES;
+                    break;
                 }
                 Collection<?> resolve;
                 try {
@@ -274,7 +278,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         }
                     }
                 }
-                if (isPom) {
+                if (POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType())) {
                     Optional<File> pomFacade = resolve.stream().filter(IArtifactFacade.class::isInstance)
                             .map(IArtifactFacade.class::cast).filter(facade -> facade.getDependencyTrail().size() == 1)
                             .filter(facade -> facade.getArtifactId().equals(mavenDependency.getArtifactId())
