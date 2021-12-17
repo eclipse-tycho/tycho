@@ -94,7 +94,7 @@ public class FeaturePublisher {
     }
 
     public static boolean isMetadataOnly(IArtifactDescriptor descriptor) {
-        return descriptor instanceof IArtifactDescriptor;
+        return descriptor instanceof IUArtifactDescriptor;
     }
 
     private static final class IUArtifactDescriptor implements IArtifactDescriptor {
