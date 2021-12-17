@@ -13,9 +13,23 @@
 package org.eclipse.tycho.core.shared;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 
 public interface MavenDependenciesResolver {
+    /**
+     * Only the specified artifact will be resolved
+     */
+    int DEEP_NO_DEPENDECIES = 0;
+    /**
+     * Only the specified artifact and its direct child dependencies will be resolved
+     */
+    int DEEP_DIRECT_CHILDS = 2;
+
+    /**
+     * All transitive dependencies will be resolved
+     */
+    int DEEP_INFINITE = Integer.MAX_VALUE;
 
     /**
      * Resolves the given artifact, optionally with the given dependency scope
@@ -36,19 +50,29 @@ public interface MavenDependenciesResolver {
      * @param additionalRepositories
      *            additional repositories to use in the resolve process
      * @return
+     * @throws DependecyResolutionException
      */
     default Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version,
-            String packaging, String classifier, String dependencyScope, boolean resolveTransitive,
-            Collection<MavenArtifactRepositoryReference> additionalRepositories) {
-        return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, resolveTransitive,
+            String packaging, String classifier, String dependencyScope, int depth,
+            Collection<MavenArtifactRepositoryReference> additionalRepositories) throws DependecyResolutionException {
+        return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, depth,
                 additionalRepositories, null);
     }
 
     Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version, String packaging,
-            String classifier, String dependencyScope, boolean resolveTransitive,
+            String classifier, String dependencyScope, int depth,
             Collection<MavenArtifactRepositoryReference> additionalRepositories,
-            Object/* MavenSession */ session);
+            Object/* MavenSession */ session) throws DependecyResolutionException;
 
     File getRepositoryRoot();
+
+    /**
+     * This reads the given artifactFacade as a maven (pom) model and returns the list of declared
+     * dependencies.
+     * 
+     * @param artifactFacade
+     * @return a list of dependencies for this artifactFacade
+     */
+    MavenModelFacade loadModel(File modelFile) throws IOException;
 
 }

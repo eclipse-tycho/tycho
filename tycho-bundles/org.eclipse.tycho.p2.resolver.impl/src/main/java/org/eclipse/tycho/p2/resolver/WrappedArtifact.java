@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2021 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -182,6 +182,10 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
 
     public static Version createOSGiVersionFromArtifact(IArtifactFacade mavenArtifact) {
         String version = mavenArtifact.getVersion();
+        return createOSGiVersionFromMaven(version);
+    }
+
+    protected static Version createOSGiVersionFromMaven(String version) {
         try {
             int index = version.indexOf('-');
             if (index > -1) {

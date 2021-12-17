@@ -63,6 +63,9 @@ public class FeatureXmlTransformer {
             pluginRef.setVersion(plugin.getVersion());
 
             File location = targetPlatform.getArtifactLocation(plugin);
+			if (location == null) {
+				throw new MojoFailureException("location is missing for plugin " + plugin);
+			}
             setDownloadAndInstallSize(pluginRef, location);
         }
 

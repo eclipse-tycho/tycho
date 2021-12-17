@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target includeMode="feature" name="issue-242">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="http://download.eclipse.org/releases/2020-06"/>
+			<unit id="org.eclipse.pde.feature.group" version="3.14.400.v20200604-0540"/>
+		</location>
+		<location includeDependencyScope="compile" includeSource="true" missingManifest="generate" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>com.sun.xml.ws</groupId>
+					<artifactId>jaxws-ri</artifactId>
+					<version>3.0.2</version>
+					<type>pom</type>
+				</dependency>
+			</dependencies>
+		</location>
+		<location includeSource="true" missingManifest="generate" type="Maven">
+
+			<feature id="org.apache.commons.io.feature" label="Apache Commons IO" provider-name="Apache" version="1.0.0.qualifier">
+
+</feature>
+			<dependencies>
+				<dependency>
+					<groupId>commons-io</groupId>
+					<artifactId>commons-io</artifactId>
+					<version>2.11.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</location>
+	</locations>
+</target>

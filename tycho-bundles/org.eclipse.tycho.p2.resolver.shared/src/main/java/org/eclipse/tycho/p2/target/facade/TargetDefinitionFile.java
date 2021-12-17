@@ -282,6 +282,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return Collections.emptyList();
         }
 
+        @Override
+        public Element getFeatureTemplate() {
+            return getChild(dom, "feature");
+        }
+
     }
 
     private static final class MavenDependencyRoot implements MavenDependency {
