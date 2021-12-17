@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Predicate;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.JarEntry;
@@ -39,25 +40,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.DependecyResolutionException;
@@ -95,13 +88,8 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         metadataRepository = new SupplierMetadataRepository(agent, () -> repositoryContent.values().iterator());
         metadataRepository.setLocation(repositoryRoot.toURI());
         metadataRepository.setName(repositoryRoot.getName());
-        artifactRepository = new FileArtifactRepository(agent,
-                () -> repositoryContent.keySet().stream().filter(descriptor -> {
-                    if (descriptor instanceof IUArtifactDescriptor) {
-                        return false;
-                    }
-                    return true;
-                }).iterator());
+        artifactRepository = new FileArtifactRepository(agent, () -> repositoryContent.keySet().stream()
+                .filter(Predicate.not(FeaturePublisher::isMetadataOnly)).iterator());
         artifactRepository.setName(repositoryRoot.getName());
         artifactRepository.setLocation(repositoryRoot.toURI());
         Collection<BNDInstructions> instructions = location.getInstructions();
@@ -298,9 +286,9 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     if (pomFacade.isPresent()) {
                         try {
                             MavenModelFacade model = mavenDependenciesResolver.loadModel(pomFacade.get());
-                            features.add(FeatureGenerator.generatePomFeature(model, bundles, false));
+                            features.add(FeatureGenerator.generatePomFeature(model, bundles, false, logger));
                             if (includeSource) {
-                                features.add(FeatureGenerator.generatePomFeature(model, sourceBundles, true));
+                                features.add(FeatureGenerator.generatePomFeature(model, sourceBundles, true, logger));
                             }
                         } catch (IOException | ParserConfigurationException | TransformerException | SAXException e) {
                             throw new TargetDefinitionResolutionException("non readable pom file");
@@ -313,16 +301,17 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             Element featureTemplate = location.getFeatureTemplate();
             if (featureTemplate != null) {
                 try {
-                    features.add(FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationBundles, false));
+                    features.add(FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationBundles, false,
+                            logger));
                     if (includeSource) {
-                        features.add(
-                                FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationBundles, true));
+                        features.add(FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationBundles, true,
+                                logger));
                     }
                 } catch (IOException | ParserConfigurationException | TransformerException | SAXException e) {
                     throw new TargetDefinitionResolutionException("feature generation failed!", e);
                 }
             }
-            publishFeatures(features, logger);
+            FeaturePublisher.publishFeatures(features, repositoryContent::put, logger);
         }
     }
 
@@ -370,55 +359,6 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         return iu;
     }
 
-    private void publishFeatures(List<Feature> features, MavenLogger logger) {
-        if (features.isEmpty()) {
-            return;
-        }
-        PublisherInfo publisherInfo = new PublisherInfo();
-        publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-        Map<IInstallableUnit, Feature> featureMap = new HashMap<>();
-        FeaturesAction action = new FeaturesAction(features.toArray(Feature[]::new)) {
-            @Override
-            protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU,
-                    IPublisherInfo publisherInfo) {
-                //so not call super as we don't wan't to copy anything --> Bug in P2 with IPublisherInfo.A_INDEX option
-            }
-
-            @Override
-            protected IInstallableUnit generateFeatureJarIU(Feature feature, IPublisherInfo publisherInfo) {
-                IInstallableUnit iu = super.generateFeatureJarIU(feature, publisherInfo);
-                featureMap.put(iu, feature);
-                return iu;
-            }
-        };
-        PublisherResult results = new PublisherResult();
-        action.perform(publisherInfo, results, null);
-        IQueryResult<IInstallableUnit> result = results.query(QueryUtil.ALL_UNITS, null);
-        for (IInstallableUnit unit : result) {
-            logger.debug("Publishing installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
-            Collection<IArtifactKey> artifacts = unit.getArtifacts();
-            if (artifacts.isEmpty()) {
-                repositoryContent.put(new IUArtifactDescriptor(unit), unit);
-            } else {
-                Feature publishedFeature = featureMap.get(unit);
-                if (publishedFeature == null) {
-                    //any other item
-                    for (IArtifactKey key : artifacts) {
-                        repositoryContent.put(new ArtifactDescriptor(key), unit);
-                    }
-                } else {
-                    //The actual published feature...
-                    for (IArtifactKey key : artifacts) {
-                        IArtifactDescriptor fileDescriptor = FileArtifactRepository
-                                .forFile(new File(publishedFeature.getLocation()), key);
-                        repositoryContent.put(fileDescriptor, unit);
-                    }
-                }
-            }
-
-        }
-    }
-
     private String asDebugString(IArtifactFacade mavenArtifact) {
         return new GAV(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion())
                 .toString();
@@ -452,45 +392,6 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             return manifest.getMainAttributes().getValue(ECLIPSE_SOURCE_BUNDLE_HEADER) != null;
         }
         return false;
-    }
-
-    private static final class IUArtifactDescriptor implements IArtifactDescriptor {
-
-        private IInstallableUnit iu;
-        private ArtifactKey artifactKey;
-
-        public IUArtifactDescriptor(IInstallableUnit iu) {
-            this.iu = iu;
-        }
-
-        @Override
-        public IArtifactKey getArtifactKey() {
-            if (artifactKey == null) {
-                artifactKey = new ArtifactKey(PublisherHelper.IU_NAMESPACE, iu.getId(), iu.getVersion());
-            }
-            return artifactKey;
-        }
-
-        @Override
-        public String getProperty(String key) {
-            return null;
-        }
-
-        @Override
-        public Map<String, String> getProperties() {
-            return Collections.emptyMap();
-        }
-
-        @Override
-        public IProcessingStepDescriptor[] getProcessingSteps() {
-            return new IProcessingStepDescriptor[0];
-        }
-
-        @Override
-        public IArtifactRepository getRepository() {
-            return null;
-        }
-
     }
 
 }

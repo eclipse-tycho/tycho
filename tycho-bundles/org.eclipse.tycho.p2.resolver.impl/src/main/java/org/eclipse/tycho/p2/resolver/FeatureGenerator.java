@@ -49,6 +49,7 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 import org.eclipse.tycho.core.shared.MavenModelFacade.MavenLicense;
 import org.w3c.dom.Document;
@@ -70,7 +71,7 @@ public class FeatureGenerator {
     private static final String ATTR_NAME = "name";
 
     public static Feature createFeatureFromTemplate(Element featureTemplate, List<IInstallableUnit> bundles,
-            boolean isSourceFeature)
+            boolean isSourceFeature, MavenLogger logger)
             throws IOException, ParserConfigurationException, TransformerException, SAXException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = dbf.newDocumentBuilder();
@@ -78,12 +79,12 @@ public class FeatureGenerator {
         doc.setXmlStandalone(true);
         Element featureElement = (Element) doc.importNode(featureTemplate, true);
         doc.appendChild(featureElement);
-        return createFeature(featureElement, bundles, isSourceFeature, doc);
+        return createFeature(featureElement, bundles, isSourceFeature, doc, logger);
     }
 
     private static Feature createFeature(Element featureElement, List<IInstallableUnit> bundles,
-            boolean isSourceFeature, Document doc) throws IOException, TransformerException, FileNotFoundException,
-            StreamCorruptedException, SAXException, MalformedURLException {
+            boolean isSourceFeature, Document doc, MavenLogger logger) throws IOException, TransformerException,
+            FileNotFoundException, StreamCorruptedException, SAXException, MalformedURLException {
         if (isSourceFeature) {
             featureElement.setAttribute(ATTR_ID, featureElement.getAttribute(ATTR_ID) + ".source");
             String nameAttribute = featureElement.getAttribute(ATTR_NAME);
@@ -114,13 +115,14 @@ public class FeatureGenerator {
             stream.putNextEntry(new ZipEntry(FEATURE_XML_ENTRY));
             OutputStreamWriter writer = new OutputStreamWriter(stream);
             prettyPrintXml(doc, writer);
-            StringWriter stringWriter = new StringWriter();
-            prettyPrintXml(doc, stringWriter);
-            System.out.println(stringWriter);
             writer.flush();
             stream.closeEntry();
         }
-
+        if (logger != null && logger.isDebugEnabled()) {
+            StringWriter stringWriter = new StringWriter();
+            prettyPrintXml(doc, stringWriter);
+            logger.debug(stringWriter.toString());
+        }
         try (JarFile jar = new JarFile(tempFile)) {
             JarEntry entry = jar.getJarEntry(FEATURE_XML_ENTRY);
             if (entry == null) {
@@ -134,7 +136,7 @@ public class FeatureGenerator {
     }
 
     public static Feature generatePomFeature(MavenModelFacade model, List<IInstallableUnit> bundles,
-            boolean isSourceFeature)
+            boolean isSourceFeature, MavenLogger logger)
             throws IOException, ParserConfigurationException, TransformerException, SAXException {
         String id = model.getGroupId() + "." + model.getArtifactId() + "." + model.getPackaging();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -180,7 +182,7 @@ public class FeatureGenerator {
             }
             featureElement.appendChild(licenseElement);
         }
-        return createFeature(featureElement, bundles, isSourceFeature, doc);
+        return createFeature(featureElement, bundles, isSourceFeature, doc, logger);
     }
 
     private static boolean isPresent(String label) {
