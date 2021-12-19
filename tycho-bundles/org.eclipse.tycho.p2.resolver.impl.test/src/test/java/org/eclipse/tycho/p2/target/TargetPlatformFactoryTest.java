@@ -24,8 +24,10 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,8 +38,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -51,8 +56,10 @@ import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TargetDefinitionStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
@@ -83,9 +90,13 @@ public class TargetPlatformFactoryTest {
 
     private PomDependencyCollectorImpl pomDependencyCollector;
 
+    private Path localM2Repo;
+
     @Before
     public void setUpSubjectAndContext() throws Exception {
-        subject = new TestResolverFactory(logVerifier.getLogger()).getTargetPlatformFactoryImpl();
+        TestResolverFactory testResolverFactory = new TestResolverFactory(logVerifier.getLogger());
+        subject = testResolverFactory.getTargetPlatformFactoryImpl();
+        localM2Repo = testResolverFactory.mavenContext.getLocalRepositoryRoot().getAbsoluteFile().toPath();
 
         tpConfig = new TargetPlatformConfigurationStub();
         tpConfig.setEnvironments(Collections.singletonList(new TargetEnvironment(null, null, null))); // dummy value for target file resolution
@@ -285,15 +296,29 @@ public class TargetPlatformFactoryTest {
         subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, pomDependencyCollector);
     }
 
+    @Test
+    public void testMavenArtifactsInTargetDefinitionResolveToMavenPath() throws Exception {
+        File targetDefinition = new File(
+                FileLocator.toFileURL(getClass().getResource("/resources/targetresolver/mavenDep.target")).getFile());
+        tpConfig.getTargetDefinitions().add(TargetDefinitionFile.read(targetDefinition));
+        P2TargetPlatform targetPlatform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, List.of(),
+                pomDependencyCollector);
+        Path p2ArtifactPath = targetPlatform
+                .getArtifactLocation(
+                        new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, "org.apache.commons.logging", "1.2.0"))
+                .toPath();
+        assertTrue(p2ArtifactPath.startsWith(localM2Repo));
+    }
+
     private static TargetDefinition plannerTargetDefinition(TestRepositories repository, IVersionedId unit) {
         TargetDefinition.Location location = new TargetDefinitionResolverIncludeModeTest.PlannerLocationStub(repository,
                 unit);
-        return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
+        return new TargetDefinitionStub(Collections.singletonList(location));
     }
 
     private static TargetDefinition targetDefinition(TestRepositories repository, IVersionedId unit) {
         TargetDefinition.Location location = new TargetDefinitionResolverTest.LocationStub(repository, unit);
-        return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
+        return new TargetDefinitionStub(Collections.singletonList(location));
     }
 
     private ReactorProject createReactorProject(String artifactId, String primaryUnitId, String secondaryUnitId) {

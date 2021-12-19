@@ -12,6 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
+import static org.junit.Assert.assertFalse;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Ignore;
@@ -24,6 +29,16 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("target.maven", false, true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testMavenArtifactHaveMavenRepoPath() throws Exception {
+		Verifier verifier = getVerifier("target.maven", false, true);
+		verifier.addCliOption("-DoutputAbsoluteArtifactFilename=true");
+		verifier.executeGoal("dependency:list");
+		verifier.verifyErrorFreeLog();
+		assertFalse("Location for Maven deps should not resolve to cache",
+				Files.readString(Path.of(verifier.getBasedir(), verifier.getLogFileName())).contains("p2/osgi"));
 	}
 
 	@Test

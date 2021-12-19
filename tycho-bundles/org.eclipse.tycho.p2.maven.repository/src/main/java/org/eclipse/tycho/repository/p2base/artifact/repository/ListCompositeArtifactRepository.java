@@ -56,7 +56,7 @@ import org.eclipse.osgi.util.NLS;
 public class ListCompositeArtifactRepository extends AbstractArtifactRepository
         implements ICompositeRepository<IArtifactKey>, IFileArtifactRepository {
 
-    private List<? extends IArtifactRepository> artifactRepositories;
+    public final List<IArtifactRepository> artifactRepositories;
 
     public ListCompositeArtifactRepository(IProvisioningAgent agent,
             List<? extends IArtifactRepository> artifactRepositories) {
@@ -66,7 +66,7 @@ public class ListCompositeArtifactRepository extends AbstractArtifactRepository
         } catch (URISyntaxException e) {
             throw new AssertionError("should never happen", e);
         }
-        this.artifactRepositories = artifactRepositories;
+        this.artifactRepositories = List.copyOf(artifactRepositories);
     }
 
     @Override
