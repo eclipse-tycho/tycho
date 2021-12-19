@@ -14,17 +14,31 @@
 package org.eclipse.tycho.p2.target;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.shared.DependencyResolutionException;
+import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenModelFacade;
+import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
+import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
@@ -36,7 +50,7 @@ import org.eclipse.tycho.test.util.NoopFileLockService;
 
 public class TestResolverFactory implements P2ResolverFactory {
 
-    private MavenContext mavenContext;
+    public final MavenContext mavenContext;
     private TargetDefinitionResolverService targetDefinitionResolverService;
     private LocalMetadataRepository localMetadataRepo;
     private LocalArtifactRepository localArtifactRepo;
@@ -47,6 +61,39 @@ public class TestResolverFactory implements P2ResolverFactory {
 
         targetDefinitionResolverService = new TargetDefinitionResolverService();
         targetDefinitionResolverService.setMavenContext(mavenContext);
+        targetDefinitionResolverService.setMavenDependenciesResolver(new MavenDependenciesResolver() {
+
+            @Override
+            public Collection<?> resolve(String groupId, String artifactId, String version, String packaging,
+                    String classifier, String dependencyScope, int depth,
+                    Collection<MavenArtifactRepositoryReference> additionalRepositories, Object session)
+                    throws DependencyResolutionException {
+                GAV gav = new GAV(groupId, artifactId, version);
+                String relativePath = RepositoryLayoutHelper.getRelativePath(gav, null, "jar");
+                // This is supposed to mimic Maven repo returning an artifact
+                File file = new File(getLocalRepositoryLocation(), relativePath);
+                try {
+                    file.getParentFile().mkdirs();
+                    Files.copy(Path.of(FileLocator
+                            .toFileURL(
+                                    getClass().getResource("/resources/targetresolver/stubMavenRepo/" + relativePath))
+                            .getFile()), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    throw new DependencyResolutionException(e.getMessage(), List.of(e));
+                }
+                return List.of(new ArtifactMock(file, groupId, artifactId, version, "jar"));
+            }
+
+            @Override
+            public MavenModelFacade loadModel(File modelFile) throws IOException {
+                return null;
+            }
+
+            @Override
+            public File getRepositoryRoot() {
+                return mavenContext.getLocalRepositoryRoot();
+            }
+        });
 
         File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
         LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);

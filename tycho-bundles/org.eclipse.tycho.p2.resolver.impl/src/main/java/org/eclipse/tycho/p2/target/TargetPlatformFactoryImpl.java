@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -59,6 +60,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
+import org.eclipse.tycho.p2.target.repository.FileArtifactRepository;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
@@ -66,7 +68,9 @@ import org.eclipse.tycho.repository.local.MirroringArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
+import org.eclipse.tycho.repository.p2base.artifact.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.repository.LazyArtifactRepository;
+import org.eclipse.tycho.repository.p2base.artifact.repository.ListCompositeArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
@@ -307,28 +311,70 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
     }
 
+    private static final class SortedRepositories {
+
+        private SortedRepositories(List<FileArtifactRepository> local, List<IArtifactRepository> remote) {
+            this.remoteRepositories = remote;
+            this.localRepositories = local;
+        }
+
+        /**
+         * Sorts the input repositories to separate the "local" ones that do not require
+         * mirroring/caching (for example ArtifactRepositories mapping a local Maven artifacts) and
+         * the remote ones that typically will require fetch/cache. The repositories are "expanded"
+         * or "flattened": {@link ListCompositeArtifactRepository} are not kept as it, but are
+         * considered as a list of artifact repositories to sort.
+         * 
+         * @param repositories
+         * @return remote vs local repositories
+         */
+        public static SortedRepositories sort(List<IArtifactRepository> repositories) {
+            List<IArtifactRepository> remote = new ArrayList<>();
+            List<FileArtifactRepository> local = new ArrayList<>();
+            for (IArtifactRepository repo : repositories) {
+                if (repo instanceof ListCompositeArtifactRepository) {
+                    SortedRepositories children = SortedRepositories
+                            .sort(((ListCompositeArtifactRepository) repo).artifactRepositories);
+                    remote.addAll(children.remoteRepositories);
+                    local.addAll(children.localRepositories);
+                } else if (repo instanceof FileArtifactRepository) {
+                    local.add((FileArtifactRepository) repo);
+                } else {
+                    remote.add(repo);
+                }
+            }
+            return new SortedRepositories(local, remote);
+        }
+
+        public final List<IArtifactRepository> remoteRepositories;
+        public final List<FileArtifactRepository> localRepositories;
+
+    }
+
     /**
      * Provider for all target platform artifacts from outside the reactor.
      */
     private IRawArtifactFileProvider createExternalArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
             List<TargetDefinitionContent> targetDefinitionsContent,
             IRawArtifactFileProvider pomDependencyArtifactRepository, boolean includePackedArtifacts) {
-
+        SortedRepositories repos = SortedRepositories.sort(targetDefinitionsContent.stream()
+                .map(TargetDefinitionContent::getArtifactRepository).collect(Collectors.toList()));
         RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
-                targetDefinitionsContent);
-        MirroringArtifactProvider remoteArtifactCache = MirroringArtifactProvider
+                repos.remoteRepositories);
+        MirroringArtifactProvider remoteArtifactProviderWithCache = MirroringArtifactProvider
                 .createInstance(localArtifactRepository, remoteArtifactProvider, includePackedArtifacts, logger);
 
-        IRawArtifactFileProvider jointArtifactsProvider = new CompositeArtifactProvider(pomDependencyArtifactRepository,
-                remoteArtifactCache);
-        return jointArtifactsProvider;
+        return new CompositeArtifactProvider(pomDependencyArtifactRepository, //
+                new FileRepositoryArtifactProvider(repos.localRepositories,
+                        ArtifactTransferPolicies.forLocalArtifacts()), //
+                remoteArtifactProviderWithCache);
     }
 
     /**
      * Provider for the target platform artifacts not yet available in the local Maven repository.
      */
     private RepositoryArtifactProvider createRemoteArtifactProvider(Set<MavenRepositoryLocation> mavenRepositories,
-            List<TargetDefinitionContent> targetDefinitionsContent) {
+            List<IArtifactRepository> repos) {
         List<IArtifactRepository> artifactRepositories = new ArrayList<>();
 
         for (MavenRepositoryLocation location : mavenRepositories) {
@@ -338,9 +384,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
         }
 
-        for (TargetDefinitionContent content : targetDefinitionsContent) {
-            artifactRepositories.add(content.getArtifactRepository());
-        }
+        artifactRepositories.addAll(repos);
         return new RepositoryArtifactProvider(artifactRepositories, ArtifactTransferPolicies.forRemoteArtifacts());
     }
 

@@ -30,7 +30,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTra
  */
 public class FileRepositoryArtifactProvider extends RepositoryArtifactProvider implements IRawArtifactFileProvider {
 
-    public FileRepositoryArtifactProvider(List<IFileArtifactRepository> repositories,
+    public FileRepositoryArtifactProvider(List<? extends IFileArtifactRepository> repositories,
             ArtifactTransferPolicy transferPolicy) {
         super(repositories, transferPolicy);
     }
