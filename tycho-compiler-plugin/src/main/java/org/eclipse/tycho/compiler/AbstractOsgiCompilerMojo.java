@@ -69,7 +69,6 @@ import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.BundleProject;
-import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.dotClasspath.JREClasspathEntry;
 import org.eclipse.tycho.core.dotClasspath.M2ClasspathVariable;
@@ -662,10 +661,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
     }
 
-    @SuppressWarnings("unchecked")
     private List<AccessRule> getStrictBootClasspathAccessRules() throws MojoExecutionException {
-        return (List<AccessRule>) DefaultReactorProject.adapt(project)
-                .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES);
+        return ((OsgiBundleProject) getBundleProject()).getBundleClassPath(DefaultReactorProject.adapt(project))
+                .getStrictBootClasspathAccessRules();
     }
 
     private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,15 +24,8 @@ public interface TychoConstants {
      */
     static final String CTX_TEST_DEPENDENCY_ARTIFACTS = CTX_BASENAME + "/testDependencyArtifacts";
     static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_BASENAME + "/eclipsePluginProject";
-    static final String CTX_ECLIPSE_PLUGIN_CLASSPATH = CTX_BASENAME + "/eclipsePluginClasspath";
-    /**
-     * Stores test-specific classpath (usually derived from .classpath)
-     */
     static final String CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH = CTX_BASENAME + "/eclipsePluginTestClasspath";
-    static final String CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES = CTX_BASENAME
-            + "/eclipsePluginStrictBootclasspathAccessRules";
-    static final String CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES = CTX_BASENAME
-            + "/eclipsePluginBootclasspathExtraAccessRules";
+
     static final String CTX_MERGED_PROPERTIES = CTX_BASENAME + "/mergedProperties";
     static final String CTX_TARGET_PLATFORM_CONFIGURATION = CTX_BASENAME + "/targetPlatformConfiguration";
     static final String CTX_EXECUTION_ENVIRONMENT_CONFIGURATION = CTX_BASENAME + "/executionEnvironmentConfiguration";
