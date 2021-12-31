@@ -29,7 +29,7 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
  * This mojo could be added to a build if validation of the classpath is desired before the
  * compile-phase.
  */
-@Mojo(name = "validate-classpath", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
+@Mojo(name = "validate-classpath", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class ValidateClassPathMojo extends AbstractMojo {
 
     @Parameter(property = "project", readonly = true)
