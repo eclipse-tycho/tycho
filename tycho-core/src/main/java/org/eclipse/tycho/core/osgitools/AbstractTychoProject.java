@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #460 - Delay classpath resolution to the compile phase 
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -71,10 +72,6 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
      */
     @Deprecated
     public void checkForMissingDependencies(ReactorProject project) {
-    }
-
-    public void resolveClassPath(MavenSession session, MavenProject project) {
-        // do nothing by default
     }
 
     protected TargetEnvironment[] getEnvironments(ReactorProject project, TargetEnvironment environment) {
