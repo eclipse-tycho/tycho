@@ -43,7 +43,6 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TargetPlatformConfiguration.PomDependencies;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyCollector;
@@ -52,6 +51,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
+import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.model.Feature;
 
 /**
