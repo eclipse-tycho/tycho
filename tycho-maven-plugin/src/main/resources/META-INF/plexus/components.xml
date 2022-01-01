@@ -18,7 +18,8 @@
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-version
               </validate>
               <initialize>
-                org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform
+                org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
+                org.eclipse.tycho:tycho-compiler-plugin:${project.version}:validate-classpath
               </initialize>
               <process-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
@@ -90,7 +91,8 @@
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-version
               </validate>
               <initialize>
-                org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform
+                org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
+                org.eclipse.tycho:tycho-compiler-plugin:${project.version}:validate-classpath
               </initialize>
               <process-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
