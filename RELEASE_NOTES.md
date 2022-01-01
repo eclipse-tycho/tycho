@@ -8,7 +8,9 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### delayed classpath computation
 Previously the classpath of a project was computed in the maven-setup phase, this [has several restrictions](https://github.com/eclipse/tycho/issues/460).
-Tycho now delays the classpath computation to a later stage (`compile` phase), if you require an earlier resoloution (e.g. with current `xtend-maven-plugin`) you can force classpath to an earlier stage:
+Tycho now delays the classpath computation to a later stage (`initialize` phase).
+
+If you want to perform the classpath validation in the `validate` phase of your build you can force classpath computation with the follwoing snippet:
 
 ```
 <plugin>
@@ -28,6 +30,7 @@ Tycho now delays the classpath computation to a later stage (`compile` phase), i
 	</executions>
 </plugin>
 ```
+
 ### Support for generation of a feature from a maven target-location template
 Tycho now support the m2e feature to [generate a feature from a maven target location](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-generation-of-a-feature-from-a-location).
 
