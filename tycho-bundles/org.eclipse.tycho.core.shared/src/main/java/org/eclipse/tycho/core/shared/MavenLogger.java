@@ -31,6 +31,8 @@ public interface MavenLogger {
 
     public void debug(String message);
 
+    public void debug(String message, Throwable cause);
+
     public boolean isDebugEnabled();
 
     public boolean isExtendedDebugEnabled();

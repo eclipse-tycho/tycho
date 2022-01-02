@@ -73,6 +73,11 @@ public class LogVerifier extends Verifier {
         }
 
         @Override
+        public void debug(String message, Throwable cause) {
+            debug(message);
+        }
+
+        @Override
         public void info(String message) {
             infos.append(message);
             infos.append('\n');
