@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP SE and others.
+ * Copyright (c) 2011, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -23,8 +24,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -41,6 +47,8 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     private final MavenLogger logger;
 
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<>();
+
+    private Map<IArtifactFacade, IArtifactDescriptor> descriptorMap = new HashMap<>();
     private ReactorProject project;
 
     public PomDependencyCollectorImpl(MavenContext mavenContext, ReactorProject project) {
@@ -64,6 +72,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact, allowGenerateOSGiBundle);
         if (bundleIU != null) {
             addMavenArtifact(bundleIU.getArtifact(), Collections.singleton(bundleIU.getUnit()));
+            descriptorMap.put(bundleIU.getArtifact(), bundleIU.getDescriptor());
         }
     }
 
@@ -110,12 +119,25 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         return new LinkedHashSet<>(getMavenInstallableUnits().keySet());
     }
 
-    Map<IInstallableUnit, IArtifactFacade> getMavenInstallableUnits() {
+    @Override
+    public Map<IInstallableUnit, IArtifactFacade> getMavenInstallableUnits() {
         return mavenInstallableUnits;
     }
 
     IRawArtifactFileProvider getArtifactRepoOfPublishedBundles() {
         return bundlesPublisher.getArtifactRepoOfPublishedBundles();
+    }
+
+    @Override
+    public ArtifactKey getArtifactKey(IArtifactFacade facade) {
+        IArtifactDescriptor artifactDescriptor = descriptorMap.get(facade);
+        if (artifactDescriptor == null) {
+            return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, facade.getArtifactId(),
+                    facade.getVersion());
+        }
+        IArtifactKey artifactKey = artifactDescriptor.getArtifactKey();
+        return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, artifactKey.getId(),
+                artifactKey.getVersion().toString());
     }
 
 }
