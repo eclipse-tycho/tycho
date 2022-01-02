@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - #462 - Delay Pom considered items to the final Target Platform calculation  
  *******************************************************************************/
 package org.eclipse.tycho.p2.util.resolution;
 
@@ -16,19 +17,25 @@ import static org.eclipse.tycho.p2.util.resolution.ResolverDebugUtils.toDebugStr
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.director.Slicer;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.repository.p2base.metadata.QueryableCollection;
@@ -43,6 +50,11 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
 
     protected final IQueryable<IInstallableUnit> slice(Map<String, String> properties, IProgressMonitor monitor)
             throws ResolverException {
+        return slice(properties, Collections.emptyList(), monitor);
+    }
+
+    protected final IQueryable<IInstallableUnit> slice(Map<String, String> properties,
+            List<IInstallableUnit> additionalUnits, IProgressMonitor monitor) throws ResolverException {
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Properties: " + properties.toString());
@@ -62,6 +74,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         Set<IInstallableUnit> availableIUs = new LinkedHashSet<>(data.getAvailableIUs());
         availableIUs.addAll(data.getEEResolutionHints().getTemporaryAdditions());
         availableIUs.addAll(data.getEEResolutionHints().getMandatoryUnits());
+        availableIUs.addAll(additionalUnits);
 
         Set<IInstallableUnit> seedIUs = new LinkedHashSet<>(data.getRootIUs());
         if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
@@ -112,6 +125,31 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         }
 
         result.addRequirements(requirements);
+        return MetadataFactory.createInstallableUnit(result);
+    }
+
+    protected IInstallableUnit createUnitProviding(String name, Collection<IRequirement> requirements) {
+
+        InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
+        String time = Long.toString(System.currentTimeMillis());
+        result.setId(name + "-" + time);
+        result.setVersion(Version.createOSGi(0, 0, 0, time));
+        for (IRequirement requirement : requirements) {
+            if (requirement instanceof IRequiredCapability) {
+                try {
+                    IRequiredCapability capability = (IRequiredCapability) requirement;
+                    String namespace = capability.getNamespace();
+                    IMatchExpression<IInstallableUnit> matches = capability.getMatches();
+                    String extractName = RequiredCapability.extractName(matches);
+                    Version version = RequiredCapability.extractRange(matches).getMinimum();
+                    IProvidedCapability providedCapability = MetadataFactory.createProvidedCapability(namespace,
+                            extractName, version);
+                    result.addProvidedCapabilities(Collections.singleton(providedCapability));
+                } catch (RuntimeException e) {
+                    logger.debug("can't convert requirement " + requirement + " to capability: " + e.toString(), e);
+                }
+            }
+        }
         return MetadataFactory.createInstallableUnit(result);
     }
 

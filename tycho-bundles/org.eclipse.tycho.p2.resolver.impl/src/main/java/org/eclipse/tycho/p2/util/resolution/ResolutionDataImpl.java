@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,9 +9,11 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
 package org.eclipse.tycho.p2.util.resolution;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,6 +36,8 @@ public class ResolutionDataImpl implements ResolutionData {
     private Collection<IInstallableUnit> rootIUs;
     private List<IRequirement> additionalRequirements;
     private Map<String, String> additionalFilterProperties;
+    private Collection<IRequirement> missing = new ArrayList<>();
+    private boolean failOnMissing = true;
 
     public ResolutionDataImpl(ExecutionEnvironmentResolutionHints eeResolutionHints) {
         this.eeResolutionHints = eeResolutionHints;
@@ -112,6 +116,29 @@ public class ResolutionDataImpl implements ResolutionData {
 
     public void setAdditionalFilterProperties(Map<String, String> additionalFilterProperties) {
         this.additionalFilterProperties = additionalFilterProperties;
+    }
+
+    @Override
+    public boolean failOnMissingRequirements() {
+        return failOnMissing;
+    }
+
+    public void setFailOnMissing(boolean failOnMissing) {
+        this.failOnMissing = failOnMissing;
+    }
+
+    @Override
+    public void addMissingRequirement(IRequirement requirement) {
+        missing.add(requirement);
+    }
+
+    @Override
+    public Collection<IRequirement> getMissingRequirements() {
+        return Collections.unmodifiableCollection(missing);
+    }
+
+    public void clearMissingRequirements() {
+        missing.clear();
     }
 
 }

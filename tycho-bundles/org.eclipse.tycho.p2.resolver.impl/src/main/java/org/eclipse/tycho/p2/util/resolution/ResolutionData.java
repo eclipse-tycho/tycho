@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
 package org.eclipse.tycho.p2.util.resolution;
 
@@ -30,4 +31,14 @@ public interface ResolutionData {
     ExecutionEnvironmentResolutionHints getEEResolutionHints();
 
     Map<String, String> getAdditionalFilterProperties();
+
+    /**
+     * @return <code>true</code> if the resolve operation should fail if there are missing
+     *         requirements
+     */
+    boolean failOnMissingRequirements();
+
+    void addMissingRequirement(IRequirement requirement);
+
+    Collection<IRequirement> getMissingRequirements();
 }
