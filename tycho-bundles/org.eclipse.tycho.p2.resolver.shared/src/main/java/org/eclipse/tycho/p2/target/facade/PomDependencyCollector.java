@@ -10,9 +10,13 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
+import java.util.Map;
+
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 /**
@@ -25,5 +29,9 @@ public interface PomDependencyCollector {
     public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle);
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
+
+    Map<?/* IInstallableUnit */, IArtifactFacade> getMavenInstallableUnits();
+
+    ArtifactKey getArtifactKey(IArtifactFacade facade);
 
 }
