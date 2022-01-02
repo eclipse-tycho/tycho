@@ -89,6 +89,19 @@ public class MultiLineLogger implements MavenLogger {
     }
 
     @Override
+    public void debug(String message, Throwable cause) {
+        String[] messageLines = message.split("\n");
+        for (int ix = 0; ix < messageLines.length - 1; ix++) {
+            String messageLine = messageLines[ix];
+            delegate.debug(messageLine);
+        }
+        if (messageLines.length > 0) {
+            String lastMessageLine = messageLines[messageLines.length - 1];
+            delegate.error(lastMessageLine, cause);
+        }
+    }
+
+    @Override
     public boolean isDebugEnabled() {
         return delegate.isDebugEnabled();
     }
