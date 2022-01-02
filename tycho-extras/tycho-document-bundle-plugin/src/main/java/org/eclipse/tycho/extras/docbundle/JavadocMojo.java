@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2019 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2013, 2021 IBH SYSTEMS GmbH and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Michael Keppler - #471 use JAVA_HOME for Javadoc executable
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
@@ -39,7 +40,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 /**
- * Create the javadoc based API reference for this bundle <br/>
+ * Create the javadoc based API reference for this bundle. <br/>
  * This mojo creates the javadoc documentation by calling the javadoc
  * application from the command line. In addition it creates a ready to include
  * toc-xml file for the Eclipse Help system. <br/>
@@ -47,14 +48,27 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  * dependency that this project has. As dependency you can specify any other
  * maven project, for example the feature project that references you other
  * bundles. Included features will be added to the list.
- * 
+ * <p>
+ * The javadoc executable path is determined in this order:
+ * <ul>
+ * <li><tt>executable</tt> argument of the <tt>javadocOptions</tt> configuration
+ * element, if available</li>
+ * <li>active Maven toolchain</li>
+ * <li><tt>java.home</tt> system property</li>
+ * <li><tt>JAVA_HOME</tt> environment setting</li>
+ * <li>if none of the above can be used, the javadoc executable is invoked
+ * without an explicit path and relies on the operating system PATH
+ * variable</li>
+ * </ul>
+ * </p>
+ *
  * @since 0.20.0
  */
 @Mojo(name = "javadoc", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false)
 public class JavadocMojo extends AbstractMojo {
 	/**
 	 * The directory where the javadoc content will be generated
-	 * 
+	 *
 	 */
 	@Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/reference/api", required = true)
 	private File outputDirectory;
@@ -114,12 +128,14 @@ public class JavadocMojo extends AbstractMojo {
 	 * <li><tt>includes</tt>/<tt>excludes</tt>, the list of names of packages to be
 	 * included in or excluded from JavaDoc processing; use '<tt>*</tt>' character
 	 * as wildcard</li>
+	 * <li><tt>executable</tt>, the javadoc executable path to be used (see mojo
+	 * description for the default path calculation)</li>
 	 * </ul>
 	 * Example configuration:
-	 * 
+	 *
 	 * <pre>
 	 * {@code
-	 * <configuration&gt;
+	 * <configuration>
 	 *    <javadocOptions>
 	 *       <ignoreError>false</ignoreError>
 	 *       <encoding>UTF-8</encoding>
@@ -158,7 +174,7 @@ public class JavadocMojo extends AbstractMojo {
 	 * "overview-summary.html")
 	 * </ul>
 	 * Example configuration:
-	 * 
+	 *
 	 * <pre>
 	 * &lt;configuration&gt;
 	 *    &lt;tocOptions&gt;
