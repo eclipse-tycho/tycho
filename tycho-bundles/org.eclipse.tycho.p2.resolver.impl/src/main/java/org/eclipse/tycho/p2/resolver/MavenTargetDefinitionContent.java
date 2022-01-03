@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2022 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -57,6 +57,7 @@ import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
+import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionContent;
@@ -218,11 +219,14 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     logger.debug("The following manifest was generated for this artifact:\r\n"
                                             + wrappedArtifact.getGeneratedManifest());
                                 }
-                                unit = publish(BundlesAction.createBundleDescription(tempFile), tempFile);
+                                unit = publish(BundlesAction.createBundleDescription(tempFile), tempFile,
+                                        /*
+                                         * do not propagate maven artifacts info for wrapped bundles
+                                         */ null);
                                 symbolicName = wrappedArtifact.getWrappedBsn();
                                 bundleVersion = wrappedArtifact.getWrappedVersion();
                             } else {
-                                unit = publish(bundleDescription, bundleLocation);
+                                unit = publish(bundleDescription, bundleLocation, mavenArtifact);
                             }
                             bundles.add(unit);
                             if (logger.isDebugEnabled()) {
@@ -255,9 +259,11 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     }
                                     IInstallableUnit unit;
                                     if (isValidSourceManifest(manifest)) {
-                                        unit = publish(BundlesAction.createBundleDescription(sourceFile), sourceFile);
+                                        unit = publish(BundlesAction.createBundleDescription(sourceFile), sourceFile,
+                                                sourceArtifact);
                                     } else {
-                                        unit = generateSourceBundle(symbolicName, bundleVersion, manifest, sourceFile);
+                                        unit = generateSourceBundle(symbolicName, bundleVersion, manifest, sourceFile,
+                                                sourceArtifact);
                                     }
                                     sourceBundles.add(unit);
                                     if (unit != null && logger.isDebugEnabled()) {
@@ -320,7 +326,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     }
 
     private IInstallableUnit generateSourceBundle(String symbolicName, String bundleVersion, Manifest manifest,
-            File sourceFile) throws IOException, BundleException {
+            File sourceFile, IArtifactFacade sourceArtifact) throws IOException, BundleException {
 
         File tempFile = File.createTempFile("tycho_wrapped_source", ".jar");
         tempFile.deleteOnExit();
@@ -349,14 +355,21 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 }
             }
         }
-        return publish(BundlesAction.createBundleDescription(tempFile), tempFile);
+        return publish(BundlesAction.createBundleDescription(tempFile), tempFile, sourceArtifact);
 
     }
 
-    private IInstallableUnit publish(BundleDescription bundleDescription, File bundleLocation) {
+    private IInstallableUnit publish(BundleDescription bundleDescription, File bundleLocation,
+            IArtifactFacade mavenArtifact) {
         IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
                 bundleDescription.getVersion().toString());
         PublisherInfo publisherInfo = new PublisherInfo();
+        if (mavenArtifact != null) {
+            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact.getGroupId(),
+                    mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), mavenArtifact.getClassifier(),
+                    mavenArtifact.getPackagingType());
+            publisherInfo.addAdvice(advice);
+        }
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
         IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, key, publisherInfo);
         repositoryContent.put(FileArtifactRepository.forFile(bundleLocation, key), iu);
