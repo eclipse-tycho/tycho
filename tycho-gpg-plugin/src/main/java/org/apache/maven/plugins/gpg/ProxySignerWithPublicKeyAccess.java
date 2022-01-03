@@ -41,31 +41,31 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
         cmd.setExecutable("gpg" + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : ""));
 //        }
 
-        if (args != null) {
-            for (String arg : args) {
+        if (delegate.args != null) {
+            for (String arg : delegate.args) {
                 cmd.createArg().setValue(arg);
             }
         }
 
-        if (homeDir != null) {
+        if (delegate.homeDir != null) {
             cmd.createArg().setValue("--homedir");
-            cmd.createArg().setFile(homeDir);
+            cmd.createArg().setFile(delegate.homeDir);
         }
 
         cmd.createArg().setValue("--export");
         cmd.createArg().setValue("--armor");
 
-        if (!defaultKeyring) {
+        if (!delegate.defaultKeyring) {
             cmd.createArg().setValue("--no-default-keyring");
         }
 
-        if (StringUtils.isNotEmpty(publicKeyring)) {
+        if (StringUtils.isNotEmpty(delegate.publicKeyring)) {
             cmd.createArg().setValue("--keyring");
-            cmd.createArg().setValue(publicKeyring);
+            cmd.createArg().setValue(delegate.publicKeyring);
         }
 
-        if (keyname != null) {
-            cmd.createArg().setValue(keyname);
+        if (delegate.keyname != null) {
+            cmd.createArg().setValue(delegate.keyname);
         }
 
         // ----------------------------------------------------------------------------
