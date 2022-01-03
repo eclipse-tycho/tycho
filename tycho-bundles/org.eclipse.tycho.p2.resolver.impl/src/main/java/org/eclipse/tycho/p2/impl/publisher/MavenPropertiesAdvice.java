@@ -41,6 +41,14 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
         }
     }
 
+    public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier,
+            String extension) {
+        this(groupId, artifactId, version, classifier);
+        if (extension != null && !extension.isEmpty()) {
+            properties.put(RepositoryLayoutHelper.PROP_EXTENSION, extension);
+        }
+    }
+
     @Override
     public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
         // workaround Bug 539672
