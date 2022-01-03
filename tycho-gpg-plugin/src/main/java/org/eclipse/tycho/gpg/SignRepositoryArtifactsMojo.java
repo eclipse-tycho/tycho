@@ -67,6 +67,12 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     @Parameter
     private boolean skipIfJarsigned;
 
+    @Parameter(defaultValue = "true")
+    private boolean addPublicKeyToRepo;
+
+    @Parameter(defaultValue = "true")
+    private boolean addPublicKeysToArtifacts;
+
     @Component(role = UnArchiver.class, hint = "xz")
     private XZUnArchiver xzUnarchiver;
 
@@ -105,6 +111,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             throw new MojoExecutionException(e.getMessage(), e);
         }
         ProxySignerWithPublicKeyAccess signer = newSigner(project);
+        String armoredPublicKey = signer.getPublicKeys();
         for (var artifact : dom.getChild("artifacts").getChildren("artifact")) {
             Xpp3Dom properties = artifact.getChild("properties");
             if (Arrays.stream(properties.getChildren())
@@ -131,17 +138,25 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                 properties.addChild(signatureProperty);
                 properties.setAttribute("size",
                         Integer.toString(Integer.parseInt(properties.getAttribute("size")) + 1));
+                if (addPublicKeysToArtifacts) {
+                    var publicKeyProperty = new Xpp3Dom("property");
+                    publicKeyProperty.setAttribute("name", "pgp.publicKeys");
+                    publicKeyProperty.setAttribute("value", armoredPublicKey);
+                    properties.addChild(publicKeyProperty);
+                    properties.setAttribute("size",
+                            Integer.toString(Integer.parseInt(properties.getAttribute("size")) + 1));
+                }
             } catch (IOException e) {
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         }
-        {
+        if (addPublicKeyToRepo) {
             Xpp3Dom repositoryProperties = dom.getChild("properties");
             repositoryProperties.setAttribute("size",
                     Integer.toString(Integer.parseInt(repositoryProperties.getAttribute("size")) + 1));
             var signersProperty = new Xpp3Dom("property");
             signersProperty.setAttribute("name", "pgp.publicKeys");
-            signersProperty.setAttribute("value", signer.getPublicKeys());
+            signersProperty.setAttribute("value", armoredPublicKey);
             repositoryProperties.addChild(signersProperty);
         }
         try (var writer = new FileWriter(artifactsXml)) {
