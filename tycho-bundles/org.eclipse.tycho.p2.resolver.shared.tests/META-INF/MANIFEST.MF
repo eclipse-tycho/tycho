@@ -6,7 +6,6 @@ Bundle-Version: 2.6.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.eclipse.tycho.p2.resolver.shared
 Bundle-Vendor: Eclipse Tycho
-Require-Bundle: org.mockito
 Import-Package: org.junit,
  org.junit.jupiter.api;version:="[5.6.0,6.0.0)"
 Automatic-Module-Name: org.eclipse.tycho.p2.resolver.shared.tests
