@@ -7,12 +7,14 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.eclipse.tycho.p2.tools.impl
 Require-Bundle: org.junit;bundle-version="[4.8.1,5.0.0)",
  org.hamcrest.core,
- org.eclipse.tycho.p2.resolver.impl,
- org.mockito
+ org.eclipse.tycho.p2.resolver.impl
 Bundle-Vendor: %providerName
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.p2.testutil,
  org.eclipse.tycho.repository.module,
  org.eclipse.tycho.repository.p2base.metadata,
- org.eclipse.tycho.test.util
+ org.eclipse.tycho.test.util,
+ org.mockito,
+ org.mockito.stubbing,
+ org.mockito.invocation
 Automatic-Module-Name: org.eclipse.tycho.p2.tools.tests

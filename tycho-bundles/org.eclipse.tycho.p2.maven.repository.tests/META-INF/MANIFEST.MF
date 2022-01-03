@@ -8,11 +8,13 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.eclipse.tycho.p2.maven.repository
 Require-Bundle: org.junit,
  org.hamcrest.core,
- org.eclipse.equinox.p2.publisher,
- org.mockito
+ org.eclipse.equinox.p2.publisher
 Import-Package: org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.repository.local.testutil,
  org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.testutil,
- org.eclipse.tycho.test.util
+ org.eclipse.tycho.test.util,
+ org.mockito,
+ org.mockito.stubbing,
+ org.mockito.hamcrest
 Automatic-Module-Name: org.eclipse.tycho.p2.maven.repository.tests
