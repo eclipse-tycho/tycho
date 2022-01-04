@@ -15,13 +15,11 @@
  *                          - [Issue 189]  - Support multiple maven-dependencies for one target location
  *                          - [Issue 194]  - Support additional repositories defined in the maven-target location
  *                          - [Issue 401]  - Support nested targets
- *                          - [Issue 502]  - TargetDefinitionUtil / UpdateTargetMojo should not be allowed to modify the internal state of the target
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,7 +29,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -51,6 +49,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation.DependencyDepth;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation.MissingManifestStrategy;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -61,13 +61,16 @@ import org.xml.sax.SAXException;
 public final class TargetDefinitionFile implements TargetDefinition {
 
     private static final Map<URI, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
-
+    //just for information purpose
     private final String origin;
 
-    private final Element dom;
-    private final Document document;
+    private List<? extends Location> locations;
 
-    private abstract class AbstractPathLocation implements TargetDefinition.PathLocation {
+    private boolean hasIncludeBundles;
+
+    private String targetEE;
+
+    private static abstract class AbstractPathLocation implements TargetDefinition.PathLocation {
         private String path;
 
         public AbstractPathLocation(String path) {
@@ -80,7 +83,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    public class DirectoryTargetLocation extends AbstractPathLocation implements TargetDefinition.DirectoryLocation {
+    private static class DirectoryTargetLocation extends AbstractPathLocation
+            implements TargetDefinition.DirectoryLocation {
 
         public DirectoryTargetLocation(String path) {
             super(path);
@@ -93,7 +97,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     }
 
-    public class ProfileTargetPlatformLocation extends AbstractPathLocation
+    private static class ProfileTargetPlatformLocation extends AbstractPathLocation
             implements TargetDefinition.ProfileLocation {
 
         public ProfileTargetPlatformLocation(String path) {
@@ -107,7 +111,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     }
 
-    public class FeatureTargetPlatformLocation extends AbstractPathLocation
+    private static class FeatureTargetPlatformLocation extends AbstractPathLocation
             implements TargetDefinition.FeaturesLocation {
 
         private final String feature;
@@ -136,7 +140,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     }
 
-    public class TargetRef implements TargetDefinition.TargetReferenceLocation {
+    private static class TargetRef implements TargetDefinition.TargetReferenceLocation {
 
         private String uri;
         private URI resolvedUri;
@@ -157,44 +161,46 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     }
 
-    public class MavenLocation implements TargetDefinition.MavenGAVLocation {
+    private static class MavenLocation implements TargetDefinition.MavenGAVLocation {
 
-        private Element dom;
+        private final Set<String> globalExcludes;
+        private final String includeDependencyScope;
+        private final MissingManifestStrategy manifestStrategy;
+        private final boolean includeSource;
+        private final Collection<BNDInstructions> instructions;
+        private final Collection<MavenDependency> roots;
+        private final DependencyDepth dependencyDepth;
+        private final Collection<MavenArtifactRepositoryReference> repositoryReferences;
+        private final Element featureTemplate;
 
-        private Set<String> globalExcludes = new HashSet<>();
-
-        public MavenLocation(Element dom) {
-            this.dom = dom;
-            List<Element> children = getChildren(dom, "exclude");
-            for (Element element : children) {
-                globalExcludes.add(element.getTextContent());
-            }
-        }
-
-        @Override
-        public String getTypeDescription() {
-            return "Maven";
+        public MavenLocation(Collection<MavenDependency> roots, String includeDependencyScope,
+                MissingManifestStrategy manifestStrategy, Set<String> globalExcludes, boolean includeSource,
+                Collection<BNDInstructions> instructions, DependencyDepth dependencyDepth,
+                Collection<MavenArtifactRepositoryReference> repositoryReferences, Element featureTemplate) {
+            this.roots = roots;
+            this.includeDependencyScope = includeDependencyScope;
+            this.manifestStrategy = manifestStrategy;
+            this.globalExcludes = globalExcludes;
+            this.includeSource = includeSource;
+            this.instructions = instructions;
+            this.dependencyDepth = dependencyDepth;
+            this.repositoryReferences = repositoryReferences;
+            this.featureTemplate = featureTemplate == null ? null : (Element) featureTemplate.cloneNode(true);
         }
 
         @Override
         public String getIncludeDependencyScope() {
-            return dom.getAttribute("includeDependencyScope");
+            return includeDependencyScope;
         }
 
         @Override
         public MissingManifestStrategy getMissingManifestStrategy() {
-            String attributeValue = dom.getAttribute("missingManifest");
-            if ("generate".equalsIgnoreCase(attributeValue)) {
-                return MissingManifestStrategy.GENERATE;
-            } else if ("ignore".equals(attributeValue)) {
-                return MissingManifestStrategy.IGNORE;
-            }
-            return MissingManifestStrategy.ERROR;
+            return manifestStrategy;
         }
 
         @Override
         public boolean includeSource() {
-            return Boolean.parseBoolean(dom.getAttribute("includeSource"));
+            return includeSource;
         }
 
         @Override
@@ -212,136 +218,73 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public Collection<BNDInstructions> getInstructions() {
-            List<BNDInstructions> list = new ArrayList<>();
-            for (Element element : getChildren(dom, "instructions")) {
-                String reference = element.getAttribute("reference");
-                String text = element.getTextContent();
-                Properties properties = new Properties();
-                try {
-                    properties.load(new StringReader(text));
-                } catch (IOException e) {
-                    throw new TargetDefinitionSyntaxException("parsing instructions into properties failed", e);
-                }
-                list.add(new BNDInstructions() {
-
-                    @Override
-                    public String getReference() {
-                        if (reference == null) {
-                            return "";
-                        }
-                        return reference;
-                    }
-
-                    @Override
-                    public Properties getInstructions() {
-                        return properties;
-                    }
-                });
-            }
-            return list;
+            return instructions;
         }
 
         @Override
         public Collection<MavenDependency> getRoots() {
-            for (Element dependencies : getChildren(dom, "dependencies")) {
-                List<MavenDependency> roots = new ArrayList<>();
-                for (Element dependency : getChildren(dependencies, "dependency")) {
-                    roots.add(new MavenDependencyRoot(dependency, this));
-                }
-                return roots;
-            }
-            //backward compatibility for old format...
-            return Collections.singleton(new MavenDependencyRoot(dom, this));
+            return roots;
         }
 
         @Override
         public Collection<MavenArtifactRepositoryReference> getRepositoryReferences() {
-            for (Element dependencies : getChildren(dom, "repositories")) {
-                List<MavenArtifactRepositoryReference> list = new ArrayList<MavenArtifactRepositoryReference>();
-                for (Element repository : getChildren(dependencies, "repository")) {
-                    list.add(new MavenArtifactRepositoryReference() {
-
-                        @Override
-                        public String getId() {
-                            return getTextFromChild(repository, "id",
-                                    String.valueOf(System.identityHashCode(repository)));
-                        }
-
-                        @Override
-                        public String getUrl() {
-                            return getTextFromChild(repository, "url", null);
-                        }
-
-                    });
-                }
-                return list;
-            }
-            return Collections.emptyList();
+            return repositoryReferences;
         }
 
         @Override
         public Element getFeatureTemplate() {
-            return getChild(dom, "feature");
+            return featureTemplate;
         }
 
         @Override
         public DependencyDepth getIncludeDependencyDepth() {
-            if (dom.getAttributeNode("includeDependencyDepth") == null) {
-                //backward compat
-                String scope = getIncludeDependencyScope();
-                if (scope == null || scope.isBlank()) {
-                    return DependencyDepth.NONE;
-                } else {
-                    return DependencyDepth.INFINITE;
-                }
-            }
-            String attribute = dom.getAttribute("includeDependencyDepth");
-            if ("NONE".equalsIgnoreCase(attribute)) {
-                return DependencyDepth.NONE;
-            } else if ("DIRECT".equalsIgnoreCase(attribute)) {
-                return DependencyDepth.DIRECT;
-            } else if ("INFINITE".equalsIgnoreCase(attribute)) {
-                return DependencyDepth.INFINITE;
-            }
-            //safe default
-            return DependencyDepth.NONE;
+            return dependencyDepth;
         }
 
     }
 
     private static final class MavenDependencyRoot implements MavenDependency {
 
-        private Element dom;
-        private MavenLocation parent;
+        private final Set<String> globalExcludes;
+        private final String groupId;
+        private final String artifactId;
+        private final String version;
+        private final String classifier;
+        private final String type;
 
-        public MavenDependencyRoot(Element dom, MavenLocation parent) {
-            this.dom = dom;
-            this.parent = parent;
+        public MavenDependencyRoot(String groupId, String artifactId, String version, String classifier, String type,
+                Set<String> globalExcludes) {
+            this.groupId = groupId;
+            this.artifactId = artifactId;
+            this.version = version;
+            this.classifier = classifier;
+            this.type = type;
+            this.globalExcludes = globalExcludes;
         }
 
         @Override
         public String getGroupId() {
-            return getTextFromChild(dom, "groupId", null);
+            return groupId;
         }
 
         @Override
         public String getArtifactId() {
-            return getTextFromChild(dom, "artifactId", null);
+            return artifactId;
         }
 
         @Override
         public String getVersion() {
-            return getTextFromChild(dom, "version", null);
+            return version;
         }
 
         @Override
         public String getArtifactType() {
-            return getTextFromChild(dom, "type", "jar");
+            return type;
         }
 
         @Override
         public String getClassifier() {
-            return getTextFromChild(dom, "classifier", "");
+            return classifier;
         }
 
         @Override
@@ -361,7 +304,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public boolean isIgnored(IArtifactFacade artifact) {
-            return parent.globalExcludes.contains(getKey(artifact));
+            return globalExcludes.contains(getKey(artifact));
         }
 
     }
@@ -407,69 +350,53 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return key;
     }
 
-    public class IULocation implements TargetDefinition.InstallableUnitLocation {
-        private final Element dom;
+    private static class IULocation implements TargetDefinition.InstallableUnitLocation {
 
-        public IULocation(Element dom) {
-            this.dom = dom;
+        private final List<Unit> units;
+        private final List<Repository> repositories;
+        private final IncludeMode includeMode;
+        private final boolean includeAllEnvironments;
+        private final boolean includeSource;
+
+        IULocation(List<Unit> units, List<Repository> repositories, IncludeMode includeMode,
+                boolean includeAllEnvironments, boolean includeSource) {
+            this.units = units;
+            this.repositories = repositories;
+            this.includeMode = includeMode;
+            this.includeAllEnvironments = includeAllEnvironments;
+            this.includeSource = includeSource;
         }
 
         @Override
         public List<? extends TargetDefinition.Unit> getUnits() {
-            ArrayList<Unit> units = new ArrayList<>();
-            for (Element unitDom : getChildren(dom, "unit")) {
-                units.add(new Unit(unitDom));
-            }
-            return Collections.unmodifiableList(units);
+            return units;
         }
 
         @Override
         public List<? extends TargetDefinition.Repository> getRepositories() {
-            return getRepositoryImpls();
-        }
-
-        public List<Repository> getRepositoryImpls() {
-            final List<Element> repositoryNodes = getChildren(dom, "repository");
-
-            final List<Repository> repositories = new ArrayList<>(repositoryNodes.size());
-            for (Element node : repositoryNodes) {
-                repositories.add(new Repository(node));
-            }
             return repositories;
         }
 
         @Override
-        public String getTypeDescription() {
-            return dom.getAttribute("type");
-        }
-
-        @Override
         public IncludeMode getIncludeMode() {
-            Attr attributeValue = dom.getAttributeNode("includeMode");
-            if (attributeValue == null || "planner".equals(attributeValue.getTextContent())) {
-                return IncludeMode.PLANNER;
-            } else if ("slicer".equals(attributeValue.getTextContent())) {
-                return IncludeMode.SLICER;
-            }
-            throw new TargetDefinitionSyntaxException(
-                    "Invalid value for attribute 'includeMode': " + attributeValue + "");
+            return includeMode;
         }
 
         @Override
         public boolean includeAllEnvironments() {
-            return Boolean.parseBoolean(dom.getAttribute("includeAllPlatforms"));
+            return includeAllEnvironments;
         }
 
         @Override
         public boolean includeSource() {
-            return Boolean.parseBoolean(dom.getAttribute("includeSource"));
+            return includeSource;
         }
     }
 
-    public static class OtherLocation implements Location {
+    private static class OtherLocation implements Location {
         private final String description;
 
-        public OtherLocation(String description) {
+        OtherLocation(String description) {
             this.description = description;
         }
 
@@ -479,162 +406,57 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    public static final class Repository implements TargetDefinition.Repository {
-        private final Element dom;
+    private static final class Repository implements TargetDefinition.Repository {
 
-        public Repository(Element dom) {
-            this.dom = dom;
+        private final String id;
+        private final URI uri;
+
+        Repository(String id, URI uri) {
+            this.id = id;
+            this.uri = uri;
         }
 
         @Override
         public String getId() {
             // this is Maven specific, used to match credentials and mirrors
-            return dom.getAttribute("id");
+            return id;
         }
 
         @Override
         public URI getLocation() {
-            try {
-                return new URI(dom.getAttribute("location"));
-            } catch (URISyntaxException e) {
-                // this should be checked earlier (but is currently ugly to do)
-                throw new RuntimeException(e);
-            }
+            return uri;
         }
 
-        /**
-         * @deprecated Not for productive use. Breaks the
-         *             {@link TargetDefinitionFile#equals(Object)} and
-         *             {@link TargetDefinitionFile#hashCode()} implementations.
-         */
-        @Deprecated
-        public void setLocation(String location) {
-            dom.setAttribute("location", location);
-        }
     }
 
-    public static class Unit implements TargetDefinition.Unit {
-        private final Element dom;
+    private static class Unit implements TargetDefinition.Unit {
 
-        public Unit(Element dom) {
-            this.dom = dom;
+        private String id;
+        private String version;
+
+        Unit(String id, String version) {
+            this.id = id;
+            this.version = version;
         }
 
         @Override
         public String getId() {
-            return dom.getAttribute("id");
+            return id;
         }
 
         @Override
         public String getVersion() {
-            return dom.getAttribute("version");
+            return version;
         }
 
-        /**
-         * @deprecated Not for productive use. Breaks the
-         *             {@link TargetDefinitionFile#equals(Object)} and
-         *             {@link TargetDefinitionFile#hashCode()} implementations.
-         */
-        @Deprecated
-        public void setVersion(String version) {
-            dom.setAttribute("version", version);
-        }
     }
 
     private TargetDefinitionFile(Document document, String origin) throws TargetDefinitionSyntaxException {
         this.origin = origin;
-        this.document = document;
-        this.dom = document.getDocumentElement();
-    }
-
-    @Override
-    public List<? extends TargetDefinition.Location> getLocations() {
-        ArrayList<TargetDefinition.Location> locations = new ArrayList<>();
-        Element locationsDom = getChild(dom, "locations");
-        if (locationsDom != null) {
-            for (Element locationDom : getChildren(locationsDom, "location")) {
-                String type = locationDom.getAttribute("type");
-                if ("InstallableUnit".equals(type)) {
-                    locations.add(new IULocation(locationDom));
-                } else if ("Directory".equals(type)) {
-                    locations.add(new DirectoryTargetLocation(locationDom.getAttribute("path")));
-                } else if ("Profile".equals(type)) {
-                    locations.add(new ProfileTargetPlatformLocation(locationDom.getAttribute("path")));
-                } else if ("Feature".equals(type)) {
-                    locations.add(new FeatureTargetPlatformLocation(locationDom.getAttribute("path"),
-                            locationDom.getAttribute("id"), locationDom.getAttribute("version")));
-                } else if ("Maven".equals(type)) {
-                    locations.add(new MavenLocation(locationDom));
-                } else if ("Target".equals(type)) {
-                    locations.add(new TargetRef(locationDom.getAttribute("uri")));
-                } else {
-                    locations.add(new OtherLocation(type));
-                }
-            }
-        }
-        return Collections.unmodifiableList(locations);
-    }
-
-    @Override
-    public boolean hasIncludedBundles() {
-        return getChild(dom, "includeBundles") != null;
-    }
-
-    @Override
-    public String getOrigin() {
-        return origin;
-    }
-
-    public static TargetDefinitionFile read(File file) {
-        return read(file.toURI());
-    }
-
-    public static TargetDefinitionFile read(URI uri) {
-        try {
-            return FILE_CACHE.computeIfAbsent(uri, key -> {
-
-                try (InputStream input = uri.toURL().openStream()) {
-                    return parse(parseDocument(input), uri.toASCIIString());
-                } catch (ParserConfigurationException | SAXException | IOException e) {
-                    throw new TargetDefinitionSyntaxException(
-                            "Error while reading target definition file: " + e.getMessage(), e);
-                }
-            });
-        } catch (TargetDefinitionSyntaxException e) {
-            throw new RuntimeException("Invalid syntax in target definition " + uri + ": " + e.getMessage(), e);
-        }
-    }
-
-    public static void write(TargetDefinitionFile target, File file) throws IOException {
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            try {
-                Transformer transformer = transformerFactory.newTransformer();
-                DOMSource source = new DOMSource(target.document);
-                StreamResult result = new StreamResult(new FileOutputStream(file));
-                transformer.transform(source, result);
-            } catch (TransformerException e) {
-                throw new IOException(e);
-            }
-        }
-    }
-
-    @Override
-    public String getTargetEE() {
-        Element targetJRE = getChild(dom, "targetJRE");
-        if (targetJRE != null) {
-            Attr path = targetJRE.getAttributeNode("path");
-            if (path != null) {
-                String pathValue = path.getValue();
-                return pathValue.substring(pathValue.lastIndexOf('/') + 1);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return "TargetDefinitionFile[" + origin + "]";
+        Element dom = document.getDocumentElement();
+        locations = parseLocations(dom);
+        hasIncludeBundles = getChild(dom, "includeBundles") != null;
+        targetEE = parseTargetEE(dom);
     }
 
     public static Document parseDocument(InputStream input)
@@ -659,8 +481,252 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    public static TargetDefinitionFile parse(Document target, String origin) {
-        return new TargetDefinitionFile(target, origin);
+    @Override
+    public List<? extends TargetDefinition.Location> getLocations() {
+        return locations;
+    }
+
+    @Override
+    public boolean hasIncludedBundles() {
+        return hasIncludeBundles;
+    }
+
+    @Override
+    public String getOrigin() {
+        return origin;
+    }
+
+    public static TargetDefinitionFile read(File file) {
+        return read(file.toURI());
+    }
+
+    public static TargetDefinitionFile read(URI uri) {
+        try {
+            return FILE_CACHE.computeIfAbsent(uri, key -> {
+                try {
+                    try (InputStream input = uri.toURL().openStream()) {
+                        return parse(parseDocument(input), uri.toASCIIString());
+                    } catch (ParserConfigurationException e) {
+                        throw new TargetDefinitionSyntaxException("No valid XML parser: " + e.getMessage(), e);
+                    } catch (SAXException e) {
+                        throw new TargetDefinitionSyntaxException(
+                                "Target definition is not well-formed XML: " + e.getMessage(), e);
+                    }
+                } catch (IOException e) {
+                    throw new TargetDefinitionSyntaxException(
+                            "I/O error while reading target definition file: " + e.getMessage(), e);
+                }
+
+            });
+        } catch (TargetDefinitionSyntaxException e) {
+            throw new RuntimeException("Invalid syntax in target definition " + uri + ": " + e.getMessage(), e);
+        }
+    }
+
+    public static TargetDefinitionFile parse(Document document, String origin) {
+        return new TargetDefinitionFile(document, origin);
+    }
+
+    @Override
+    public String getTargetEE() {
+        return targetEE;
+    }
+
+    @Override
+    public String toString() {
+        return "TargetDefinitionFile[" + origin + "]";
+    }
+
+    private static List<? extends TargetDefinition.Location> parseLocations(Element dom) {
+        ArrayList<TargetDefinition.Location> locations = new ArrayList<>();
+        Element locationsDom = getChild(dom, "locations");
+        if (locationsDom != null) {
+            for (Element locationDom : getChildren(locationsDom, "location")) {
+                String type = locationDom.getAttribute("type");
+                if (InstallableUnitLocation.TYPE.equals(type)) {
+                    locations.add(parseIULocation(locationDom));
+                } else if ("Directory".equals(type)) {
+                    locations.add(new DirectoryTargetLocation(locationDom.getAttribute("path")));
+                } else if ("Profile".equals(type)) {
+                    locations.add(new ProfileTargetPlatformLocation(locationDom.getAttribute("path")));
+                } else if ("Feature".equals(type)) {
+                    locations.add(new FeatureTargetPlatformLocation(locationDom.getAttribute("path"),
+                            locationDom.getAttribute("id"), locationDom.getAttribute("version")));
+                } else if (MavenGAVLocation.TYPE.equals(type)) {
+                    locations.add(parseMavenLocation(locationDom));
+                } else if ("Target".equals(type)) {
+                    locations.add(new TargetRef(locationDom.getAttribute("uri")));
+                } else {
+                    locations.add(new OtherLocation(type));
+                }
+            }
+        }
+        return Collections.unmodifiableList(locations);
+    }
+
+    private static MavenLocation parseMavenLocation(Element dom) {
+        Set<String> globalExcludes = new LinkedHashSet<>();
+        for (Element element : getChildren(dom, "exclude")) {
+            globalExcludes.add(element.getTextContent());
+        }
+        String scope = dom.getAttribute("includeDependencyScope");
+        Element featureTemplate = getChild(dom, "feature");
+        return new MavenLocation(parseRoots(dom, globalExcludes), scope, parseManifestStrategy(dom), globalExcludes,
+                Boolean.parseBoolean(dom.getAttribute("includeSource")), parseInstructions(dom),
+                parseDependencyDepth(dom, scope), parseRepositoryReferences(dom), featureTemplate);
+    }
+
+    private static IULocation parseIULocation(Element dom) {
+        List<Unit> units = new ArrayList<>();
+        for (Element unitDom : getChildren(dom, "unit")) {
+            String id = unitDom.getAttribute("id");
+            String version = unitDom.getAttribute("version");
+            units.add(new Unit(id, version));
+        }
+        final List<Repository> repositories = new ArrayList<>();
+        for (Element node : getChildren(dom, "repository")) {
+            String id = node.getAttribute("id");
+            URI uri;
+            try {
+                uri = new URI(node.getAttribute("location"));
+            } catch (URISyntaxException e) {
+                throw new TargetDefinitionSyntaxException("invalid URI", e);
+            }
+            repositories.add(new Repository(id, uri));
+        }
+        return new IULocation(Collections.unmodifiableList(units), Collections.unmodifiableList(repositories),
+                parseIncludeMode(dom), Boolean.parseBoolean(dom.getAttribute("includeAllPlatforms")),
+                Boolean.parseBoolean(dom.getAttribute("includeSource")));
+    }
+
+    private static String parseTargetEE(Element dom) {
+        Element targetJRE = getChild(dom, "targetJRE");
+        if (targetJRE != null) {
+            Attr path = targetJRE.getAttributeNode("path");
+            if (path != null) {
+                String pathValue = path.getValue();
+                return pathValue.substring(pathValue.lastIndexOf('/') + 1);
+            }
+        }
+        return null;
+    }
+
+    private static IncludeMode parseIncludeMode(Element dom) {
+        Attr attributeValue = dom.getAttributeNode("includeMode");
+        if (attributeValue == null || "planner".equals(attributeValue.getTextContent())) {
+            return IncludeMode.PLANNER;
+        } else if ("slicer".equals(attributeValue.getTextContent())) {
+            return IncludeMode.SLICER;
+        }
+        throw new TargetDefinitionSyntaxException("Invalid value for attribute 'includeMode': " + attributeValue + "");
+    }
+
+    private static MissingManifestStrategy parseManifestStrategy(Element dom) {
+        String attributeValue = dom.getAttribute("missingManifest");
+        if ("generate".equalsIgnoreCase(attributeValue)) {
+            return MissingManifestStrategy.GENERATE;
+        } else if ("ignore".equals(attributeValue)) {
+            return MissingManifestStrategy.IGNORE;
+        }
+        return MissingManifestStrategy.ERROR;
+    }
+
+    private static Collection<BNDInstructions> parseInstructions(Element dom) {
+        List<BNDInstructions> list = new ArrayList<>();
+        for (Element element : getChildren(dom, "instructions")) {
+            String reference = element.getAttribute("reference");
+            String text = element.getTextContent();
+            Properties properties = new Properties();
+            try {
+                properties.load(new StringReader(text));
+            } catch (IOException e) {
+                throw new TargetDefinitionSyntaxException("parsing instructions into properties failed", e);
+            }
+            list.add(new BNDInstructions() {
+
+                @Override
+                public String getReference() {
+                    if (reference == null) {
+                        return "";
+                    }
+                    return reference;
+                }
+
+                @Override
+                public Properties getInstructions() {
+                    return properties;
+                }
+            });
+        }
+        return Collections.unmodifiableCollection(list);
+    }
+
+    private static Collection<MavenDependency> parseRoots(Element dom, Set<String> globalExcludes) {
+        for (Element dependencies : getChildren(dom, "dependencies")) {
+            List<MavenDependency> roots = new ArrayList<>();
+            for (Element dependency : getChildren(dependencies, "dependency")) {
+                roots.add(parseDependecyRoot(dependency, globalExcludes));
+            }
+            return Collections.unmodifiableCollection(roots);
+        }
+        //backward compatibility for old format...
+        return Collections.singleton(parseDependecyRoot(dom, globalExcludes));
+    }
+
+    private static MavenDependencyRoot parseDependecyRoot(Element dom, Set<String> globalExcludes) {
+        return new MavenDependencyRoot(//
+                getTextFromChild(dom, "groupId", null), //
+                getTextFromChild(dom, "artifactId", null), //
+                getTextFromChild(dom, "version", null), //
+                getTextFromChild(dom, "classifier", ""), //
+                getTextFromChild(dom, "type", "jar"), //
+                globalExcludes);
+    }
+
+    private static DependencyDepth parseDependencyDepth(Element dom, String scope) {
+        if (dom.getAttributeNode("includeDependencyDepth") == null) {
+            //backward compat
+            if (scope == null || scope.isBlank()) {
+                return DependencyDepth.NONE;
+            } else {
+                return DependencyDepth.INFINITE;
+            }
+        }
+        String attribute = dom.getAttribute("includeDependencyDepth");
+        if ("NONE".equalsIgnoreCase(attribute)) {
+            return DependencyDepth.NONE;
+        } else if ("DIRECT".equalsIgnoreCase(attribute)) {
+            return DependencyDepth.DIRECT;
+        } else if ("INFINITE".equalsIgnoreCase(attribute)) {
+            return DependencyDepth.INFINITE;
+        }
+        //safe default
+        return DependencyDepth.NONE;
+    }
+
+    private static Collection<MavenArtifactRepositoryReference> parseRepositoryReferences(Element dom) {
+        for (Element dependencies : getChildren(dom, "repositories")) {
+            List<MavenArtifactRepositoryReference> list = new ArrayList<>();
+            for (Element repository : getChildren(dependencies, "repository")) {
+                String id = getTextFromChild(repository, "id", String.valueOf(System.identityHashCode(repository)));
+                String url = getTextFromChild(repository, "url", null);
+                list.add(new MavenArtifactRepositoryReference() {
+
+                    @Override
+                    public String getId() {
+                        return id;
+                    }
+
+                    @Override
+                    public String getUrl() {
+                        return url;
+                    }
+
+                });
+            }
+            return Collections.unmodifiableCollection(list);
+        }
+        return Collections.emptyList();
     }
 
 }
