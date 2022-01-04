@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2020 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,14 +12,15 @@
  *    Christoph Läubrich    - [Bug 538144] - Support other target locations (Directory, Features, Installations)
  *                          - [Bug 533747] - Target file is read and parsed over and over again
  *                          - [Bug 568729] - Support new "Maven" Target location
+ *                          - [Issue #496] - ResolutionArguments#hashcode is not stable 
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -40,11 +41,9 @@ public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
 
-    private Map<ResolutionArguments, CompletableFuture<TargetDefinitionContent>> resolutionCache = new ConcurrentHashMap<>();
+    private ConcurrentMap<ResolutionArguments, CompletableFuture<TargetDefinitionContent>> resolutionCache = new ConcurrentHashMap<>();
 
     private MavenContext mavenContext;
-
-    private IProvisioningAgent provisioningAgent;
 
     private final AtomicReference<MavenDependenciesResolver> dependenciesResolver = new AtomicReference<>();
 
@@ -55,10 +54,8 @@ public class TargetDefinitionResolverService {
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
             List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs,
             IncludeSourceMode includeSourceMode, IProvisioningAgent agent) {
-        this.provisioningAgent = agent;
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, includeSourceMode,
                 agent);
-
         CompletableFuture<TargetDefinitionContent> future = resolutionCache.computeIfAbsent(arguments,
                 this::resolveFromArguments);
 
@@ -78,15 +75,15 @@ public class TargetDefinitionResolverService {
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
     private CompletableFuture<TargetDefinitionContent> resolveFromArguments(ResolutionArguments arguments) {
+        mavenContext.getLogger().info("Resolving " + arguments + "...");
         if (mavenContext.getLogger().isDebugEnabled()) {
             debugCacheMiss(arguments);
-            mavenContext.getLogger().debug("Resolving target definition content...");
         }
 
         TargetDefinitionResolver resolver = new TargetDefinitionResolver(arguments.environments, arguments.jreIUs,
                 arguments.includeSourceMode, mavenContext, dependenciesResolver.get());
         try {
-            return CompletableFuture.completedFuture(resolver.resolveContent(arguments.definition, provisioningAgent));
+            return CompletableFuture.completedFuture(resolver.resolveContent(arguments.definition, arguments.agent));
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         }
@@ -183,6 +180,13 @@ public class TargetDefinitionResolverService {
             addIfNonEqual(result, "remote p2 repository options", agent, other.agent);
             addIfNonEqual(result, "include source mode", includeSourceMode, other.includeSourceMode);
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "target definition " + definition.getOrigin() + " for environments=" + environments
+                    + ", include source mode=" + includeSourceMode + ", execution environment=" + jreIUs
+                    + ", remote p2 repository options=" + agent;
         }
 
     }
