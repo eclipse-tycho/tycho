@@ -2,9 +2,7 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## Next release...
-
-## 2.6.0 (under development)
+## 2.6.0
 
 ### Support for generation of a feature from a maven target-location template
 Tycho now support the m2e feature to [generate a feature from a maven target location](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-generation-of-a-feature-from-a-location).
