@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - add to string for easier debugging
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.ee;
 
@@ -178,6 +179,15 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
             return Stream.of(singleVersion).map(Version::parseVersion);
         }
         return Stream.empty();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("StandardEEResolutionHints [executionEnvironment=");
+        builder.append(executionEnvironment);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
