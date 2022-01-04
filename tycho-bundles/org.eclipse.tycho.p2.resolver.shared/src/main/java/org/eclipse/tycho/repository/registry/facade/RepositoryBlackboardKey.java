@@ -19,6 +19,12 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * The key represent a URL to access an in-memory ArtifactRepositoryBlackboard which contains the
+ * Target Platform for the given project. Those repositories are created and stored by
+ * TargetPlatformFactoryImpl and can then be later consumed by application like p2 director via
+ * their URL.
+ */
 public class RepositoryBlackboardKey {
 
     // TODO p2 bug 347319 prevents using a special scheme, that will ensure that only our p2 repository factory load the blackboard key URIs

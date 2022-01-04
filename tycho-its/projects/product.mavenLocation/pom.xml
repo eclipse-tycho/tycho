@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.eclipse.tycho.its</groupId>
+	<artifactId>p2director-with-Maven-deps</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-repository</packaging>
+
+	<properties>
+		<tycho-version>2.7.0-SNAPSHOT</tycho-version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-publisher-plugin</artifactId>
+				<version>${tycho-version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<file>activemq.target</file>
+					</target>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-p2-repository-plugin</artifactId>
+					<version>${tycho-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-p2-director-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<executions>
+						<execution>
+							<id>materialize-products</id>
+							<goals>
+								<goal>materialize-products</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>archive-products</id>
+							<phase>integration-test</phase>
+							<goals>
+								<goal>archive-products</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	
+</project>
+

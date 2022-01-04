@@ -159,14 +159,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         PomDependencyCollectorImpl pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
 
-        // TODO 372780 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
-        IRawArtifactFileProvider pomDependencyArtifactRepo = pomDependenciesContent.getArtifactRepoOfPublishedBundles();
-        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey
-                .forResolutionContextArtifacts(pomDependenciesContent.getProjectLocation());
-        ArtifactRepositoryBlackboard.putRepository(blackboardKey, new ProviderOnlyArtifactRepository(
-                pomDependencyArtifactRepo, Activator.getProvisioningAgent(), blackboardKey.toURI()));
-        logger.debug("Registered artifact repository " + blackboardKey);
-
         Set<MavenRepositoryLocation> completeRepositories = tpConfiguration.getP2Repositories();
         registerRepositoryIDs(completeRepositories);
 
@@ -186,17 +178,25 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         applyConfiguredFilter(filter, reactorProjectUIs.keySet());
         applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints());
 
+        IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(completeRepositories,
+                targetFileContent, pomDependenciesContent.getArtifactRepoOfPublishedBundles(),
+                tpConfiguration.getIncludePackedArtifacts());
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs, //
                 externalUIs, //
                 pomDependenciesContent.getMavenInstallableUnits(), //
                 eeResolutionHandler.getResolutionHints(), //
                 filter, //
                 localMetadataRepository, //
-                createExternalArtifactProvider(completeRepositories, targetFileContent, pomDependencyArtifactRepo,
-                        tpConfiguration.getIncludePackedArtifacts()), //
+                externalArtifactFileProvider, //
                 localArtifactRepository, //
                 includeLocalMavenRepo, //
                 logger);
+
+        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey
+                .forResolutionContextArtifacts(pomDependenciesContent.getProjectLocation());
+        ArtifactRepositoryBlackboard.putRepository(blackboardKey, new ProviderOnlyArtifactRepository(
+                externalArtifactFileProvider, Activator.getProvisioningAgent(), blackboardKey.toURI()));
+        logger.debug("Registered artifact repository " + blackboardKey);
 
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 

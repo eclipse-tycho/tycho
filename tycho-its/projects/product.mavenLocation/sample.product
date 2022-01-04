@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Sample Product" uid="com.test.sample.product" id="com.test.sample.product" application="com.test.sample.application" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false">
+
+   <configIni use="">
+   </configIni>
+
+   <plugins>
+     <plugin id="org.apache.commons.math3"/>
+   </plugins>
+
+</product>
