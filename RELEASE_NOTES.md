@@ -2,9 +2,9 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## Next release...
+## 2.7.0 (under development)
 
-## 2.6.0 (under development)
+## 2.6.0
 
 ### delayed classpath computation
 Previously the classpath of a project was computed in the maven-setup phase, this [has several restrictions](https://github.com/eclipse/tycho/issues/460).
