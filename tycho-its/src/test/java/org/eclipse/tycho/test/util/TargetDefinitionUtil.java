@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP SE and others.
+ * Copyright (c) 2011, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,60 +9,78 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich - adjust to changed API
+ *    Christoph Läubrich - Christoph Läubrich - Issue #502 - TargetDefinitionUtil / UpdateTargetMojo should not be allowed to modify the internal state of the target
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
+import java.net.URISyntaxException;
 
-import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile.IULocation;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile.Repository;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class TargetDefinitionUtil {
 
-    /**
-     * Resolves relative URLs in the given target definition file, with the specified resource as
-     * base URL.
-     * 
-     * @param targetDefinitionFile
-     *            The target definition file in which relative URLs shall be replaced.
-     * @param base
-     * @throws IOException
-     */
-    public static void makeURLsAbsolute(File targetDefinitionFile, File relocationBasedir) throws IOException {
-        TargetDefinitionFile platform = TargetDefinitionFile.read(targetDefinitionFile);
-        List<? extends TargetDefinition.Location> locations = platform.getLocations();
-        for (TargetDefinition.Location location : locations) {
-            List<Repository> repositories = ((IULocation) location).getRepositoryImpls();
-            for (Repository repository : repositories) {
-                makeRepositoryElementAbsolute(repository, relocationBasedir);
-            }
-        }
-        TargetDefinitionFile.write(platform, targetDefinitionFile);
-    }
+	/**
+	 * Resolves relative URLs in the given target definition file, with the
+	 * specified resource as base URL.
+	 * 
+	 * @param targetDefinitionFile The target definition file in which relative URLs
+	 *                             shall be replaced.
+	 * @param base
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
+	public static void makeURLsAbsolute(File targetDefinitionFile, File relocationBasedir)
+			throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
+		Document platform;
+		try (FileInputStream input = new FileInputStream(targetDefinitionFile)) {
+			platform = TargetDefinitionFile.parseDocument(input);
+			// example <repository location="..."/>
+			NodeList repositories = platform.getElementsByTagName("repository");
+			for (int i = 0; i < repositories.getLength(); i++) {
+				Element repository = (Element) repositories.item(i);
+				URI repositoryURL = new URI(repository.getAttribute("location"));
+				repository.setAttribute("location", relocationBasedir.toURI().resolve(repositoryURL).toString());
+			}
+		}
+		try (FileOutputStream output = new FileOutputStream(targetDefinitionFile)) {
+			TargetDefinitionFile.writeDocument(platform, output);
+		}
+	}
 
-    private static void makeRepositoryElementAbsolute(Repository repositoryElement, File fileLocation) {
-        URI repositoryURL = repositoryElement.getLocation();
-        URI absoluteRepositoryURL = fileLocation.toURI().resolve(repositoryURL);
-        repositoryElement.setLocation(absoluteRepositoryURL.toString());
-    }
-
-    /**
-     * Overwrites all repository URLs in the target file.
-     */
-    public static void setRepositoryURLs(File targetDefinitionFile, String url) throws IOException {
-        TargetDefinitionFile platform = TargetDefinitionFile.read(targetDefinitionFile);
-        for (TargetDefinition.Location location : platform.getLocations()) {
-            for (Repository repository : ((IULocation) location).getRepositoryImpls()) {
-                repository.setLocation(url);
-            }
-        }
-        TargetDefinitionFile.write(platform, targetDefinitionFile);
-    }
+	/**
+	 * Overwrites all repository URLs in the target file.
+	 * 
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
+	public static void setRepositoryURLs(File targetDefinitionFile, String url)
+			throws IOException, ParserConfigurationException, SAXException {
+		Document platform;
+		try (FileInputStream input = new FileInputStream(targetDefinitionFile)) {
+			platform = TargetDefinitionFile.parseDocument(input);
+			// example <repository location="..."/>
+			NodeList repositories = platform.getElementsByTagName("repository");
+			for (int i = 0; i < repositories.getLength(); i++) {
+				Element repository = (Element) repositories.item(i);
+				repository.setAttribute("location", url);
+			}
+		}
+		try (FileOutputStream output = new FileOutputStream(targetDefinitionFile)) {
+			TargetDefinitionFile.writeDocument(platform, output);
+		}
+	}
 
 }

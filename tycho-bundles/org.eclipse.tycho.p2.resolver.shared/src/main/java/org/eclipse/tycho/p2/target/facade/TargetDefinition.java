@@ -65,6 +65,9 @@ public interface TargetDefinition {
     }
 
     public interface InstallableUnitLocation extends Location {
+
+        public static String TYPE = "InstallableUnit";
+
         public List<? extends Repository> getRepositories();
 
         public List<? extends Unit> getUnits();
@@ -75,9 +78,16 @@ public interface TargetDefinition {
 
         public boolean includeSource();
 
+        @Override
+        public default String getTypeDescription() {
+            return InstallableUnitLocation.TYPE;
+        }
+
     }
 
     public interface MavenGAVLocation extends Location {
+
+        public static final String TYPE = "Maven";
 
         enum MissingManifestStrategy {
             IGNORE, ERROR, GENERATE;
@@ -102,6 +112,11 @@ public interface TargetDefinition {
         boolean includeSource();
 
         Element getFeatureTemplate();
+
+        @Override
+        public default String getTypeDescription() {
+            return TYPE;
+        }
 
     }
 
