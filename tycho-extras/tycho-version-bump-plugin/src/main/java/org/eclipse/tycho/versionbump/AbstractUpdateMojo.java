@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2010, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,12 +9,11 @@
  *
  * Contributors:
  *    Igor Fedorenko - initial API and implementation
+ *    Christoph Läubrich - Issue #502 - TargetDefinitionUtil / UpdateTargetMojo should not be allowed to modify the internal state of the target 
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -54,7 +53,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
 
     protected abstract File getFileToBeUpdated();
 
-    protected abstract void doUpdate() throws IOException, URISyntaxException;
+    protected abstract void doUpdate() throws Exception;
 
     private void createResolver() {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);

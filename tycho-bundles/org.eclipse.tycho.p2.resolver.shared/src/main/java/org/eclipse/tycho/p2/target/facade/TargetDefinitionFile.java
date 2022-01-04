@@ -15,6 +15,7 @@
  *                          - [Issue 189]  - Support multiple maven-dependencies for one target location
  *                          - [Issue 194]  - Support additional repositories defined in the maven-target location
  *                          - [Issue 401]  - Support nested targets
+ *                          - [Issue 502]  - TargetDefinitionUtil / UpdateTargetMojo should not be allowed to modify the internal state of the target
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -22,15 +23,12 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -65,7 +63,6 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private static final Map<URI, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
 
     private final String origin;
-    private final byte[] fileContentHash;
 
     private final Element dom;
     private final Document document;
@@ -544,25 +541,10 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    private TargetDefinitionFile(URI uri) throws TargetDefinitionSyntaxException {
-        try {
-            this.origin = uri.toASCIIString();
-            try (DigestInputStream input = new DigestInputStream(uri.toURL().openStream(), newMD5Digest())) {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                this.document = builder.parse(input);
-                this.dom = document.getDocumentElement();
-                this.fileContentHash = input.getMessageDigest().digest();
-            } catch (ParserConfigurationException e) {
-                throw new TargetDefinitionSyntaxException("No valid XML parser: " + e.getMessage(), e);
-            } catch (SAXException e) {
-                throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(),
-                        e);
-            }
-        } catch (IOException e) {
-            throw new TargetDefinitionSyntaxException(
-                    "I/O error while reading target definition file: " + e.getMessage(), e);
-        }
+    private TargetDefinitionFile(Document document, String origin) throws TargetDefinitionSyntaxException {
+        this.origin = origin;
+        this.document = document;
+        this.dom = document.getDocumentElement();
     }
 
     @Override
@@ -609,7 +591,15 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     public static TargetDefinitionFile read(URI uri) {
         try {
-            return FILE_CACHE.computeIfAbsent(uri, key -> new TargetDefinitionFile(key));
+            return FILE_CACHE.computeIfAbsent(uri, key -> {
+
+                try (InputStream input = uri.toURL().openStream()) {
+                    return parse(parseDocument(input), uri.toASCIIString());
+                } catch (ParserConfigurationException | SAXException | IOException e) {
+                    throw new TargetDefinitionSyntaxException(
+                            "Error while reading target definition file: " + e.getMessage(), e);
+                }
+            });
         } catch (TargetDefinitionSyntaxException e) {
             throw new RuntimeException("Invalid syntax in target definition " + uri + ": " + e.getMessage(), e);
         }
@@ -630,30 +620,6 @@ public final class TargetDefinitionFile implements TargetDefinition {
     }
 
     @Override
-    public int hashCode() {
-        return Arrays.hashCode(fileContentHash);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!(obj instanceof TargetDefinitionFile))
-            return false;
-
-        TargetDefinitionFile other = (TargetDefinitionFile) obj;
-        return Arrays.equals(fileContentHash, other.fileContentHash);
-    }
-
-    private static MessageDigest newMD5Digest() {
-        try {
-            return MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public String getTargetEE() {
         Element targetJRE = getChild(dom, "targetJRE");
         if (targetJRE != null) {
@@ -669,6 +635,32 @@ public final class TargetDefinitionFile implements TargetDefinition {
     @Override
     public String toString() {
         return "TargetDefinitionFile[" + origin + "]";
+    }
+
+    public static Document parseDocument(InputStream input)
+            throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(input);
+        return document;
+    }
+
+    public static void writeDocument(Document document, OutputStream outputStream) throws IOException {
+        try (OutputStream os = new BufferedOutputStream(outputStream)) {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            try {
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(document);
+                StreamResult result = new StreamResult(os);
+                transformer.transform(source, result);
+            } catch (TransformerException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
+    public static TargetDefinitionFile parse(Document target, String origin) {
+        return new TargetDefinitionFile(target, origin);
     }
 
 }
