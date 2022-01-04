@@ -8,26 +8,26 @@ This describes the steps to perform a release of Tycho:
 - [ ] Create release record on https://projects.eclipse.org/projects/technology.tycho projects.eclipse.org, link the N&N to https://github.com/eclipse/tycho/blob/[branch-name]/RELEASE_NOTES.md release notes]
 - [ ] Update the Jenkinsfile on the `tycho-N.M.x` and adjust the `stage('Deploy Snapshot')` to reference the new branch in the when conditional.
 - [ ] Update versions on `master `to future release with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT` and push to remote
-- [ ] Announce the intent to release and request feedback about snapshots on tycho-user@eclipse.org and [GitHub discussions](https://github.com/eclipse/tycho/discussions):
+- [ ] Announce the intent to release and request feedback about snapshots on the [GitHub discussions](https://github.com/eclipse/tycho/discussions):
 ```
-Subject: Please test snapshots for upcoming <VERSION> release
+Subject: Tycho <VERSION> release
 
-We plan to release Tycho <VERSION> next week. For details of new features and bugfixes, see release notes [1].
-Please help by testing the SNAPSHOTS build. To use it, change your Tycho version to <VERSION>-SNAPSHOT and add snippet [2] to your pom.
+We plan to release Tycho <VERSION> next week. For details of new features and bugfixes, see [release notes](https://github.com/eclipse/tycho/blob/tycho-x.y.z/RELEASE_NOTES.md).
+Please help by testing the SNAPSHOTS build. To use it, change your tycho version to <VERSION>-SNAPSHOT and add the following snippet to your pom.
+
+```
+<pluginRepositories>
+    <pluginRepository>
+      <id>tycho-snapshots</id>
+      <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+    </pluginRepository>
+</pluginRepositories>
+```
 
 We plan to promote this release in one week unless major regressions are found.
 
 Regards,
 Tycho team
-
-[1] https://github.com/eclipse/wildwebdeveloper/blob/master/RELEASE_NOTES.md
-[2]
-<pluginRepositories>
-    <pluginRepository>
-        <id>tycho-snapshots</id>
-        <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
-    </pluginRepository>
-</pluginRepositories>
 ```
 
 ... Wait until review date (usually a week later)...
