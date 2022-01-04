@@ -333,11 +333,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
         checkTargetLevelCompatibleWithManifestBREEs(effectiveTargetLevel, manifestBREEs);
 
-        synchronized (LOCK) {
-            // sync to workaround https://bugs.eclipse.org/bugs/show_bug.cgi?id=574450
-            // TODO remove it when default ECJ has fix
-            doCompile();
-        }
+        doCompile();
         doFinish();
     }
 
