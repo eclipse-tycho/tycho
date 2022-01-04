@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -70,14 +70,10 @@ public abstract class AbstractTychoIntegrationTest {
 
     protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings,
             boolean ignoreLocalArtifacts) throws Exception {
-        /*
-         * Test JVM can be started in debug mode by passing the following env to execute(...)
-         * methods.
-         * 
-         * java.util.Map<String, String> env = new java.util.HashMap<String, String>();
-         * env.put("MAVEN_OPTS",
-         * "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000");
-         */
+        //Test JVM can be started in debug mode by passing the following property to the maven run:
+        //-Dtycho.mvnDebug -> will start with port 8000
+        //-Dtycho.mvnDebug=12345 -> will start with port 12345
+        //-Dtycho.mvnDebug==-<any custom options>
 
         // oddly enough, Verifier uses this system property to locate maven install
         System.setProperty("maven.home", getMavenHome());
@@ -85,6 +81,27 @@ public abstract class AbstractTychoIntegrationTest {
         File testDir = getBasedir(test);
 
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
+        String debug = System.getProperty("tycho.mvnDebug");
+        if (debug != null) {
+            System.out.println("Preparing to execute Maven in debug mode");
+            String mvnOpts;
+            if (debug.startsWith("-")) {
+                //use as is...
+                mvnOpts = debug;
+                System.out.println("Using custom debug-opts: " + mvnOpts);
+            } else {
+                int port;
+                try {
+                    port = Integer.parseInt(debug);
+                } catch (RuntimeException e) {
+                    port = 8000;
+                }
+                mvnOpts = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + port;
+                System.out.println("Listening for transport dt_socket at address: " + port);
+            }
+            verifier.getEnvironmentVariables().put("MAVEN_OPTS", mvnOpts);
+            System.out.flush();
+        }
         verifier.getCliOptions().add("-Dmaven.home=" + getMavenHome());
         verifier.getCliOptions().add("-Dtycho-version=" + getTychoVersion());
         // bug 447397: use temp dir in target/ folder to make sure we don't leave garbage behind
