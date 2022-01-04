@@ -6,11 +6,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 2.6.0
 
-### delayed classpath computation
+### Delayed classpath computation
 Previously the classpath of a project was computed in the maven-setup phase, this [has several restrictions](https://github.com/eclipse/tycho/issues/460).
 Tycho now delays the classpath computation to a later stage (`initialize` phase).
 
-If you want to perform the classpath validation in the `validate` phase of your build you can force classpath computation with the follwoing snippet:
+If you want to perform the classpath validation in the `validate` phase of your build you can force classpath computation with the following snippet:
 
 ```
 <plugin>
@@ -40,7 +40,7 @@ Tycho now supports [nested target locations](https://github.com/eclipse/tycho/is
 An example could be found [here](https://github.com/eclipse/tycho/tree/master/tycho-its/projects/target.references/target.refs).
 
 ### Support for pom dependencies in maven target locations
-Tycho now supports [pom dependencies inside mave-target locations](https://github.com/eclipse/tycho/issues/331).
+Tycho now supports [pom dependencies inside maven target locations](https://github.com/eclipse/tycho/issues/331).
 
 Example:
 
@@ -77,7 +77,11 @@ Plain JUnit 5 tests now work fine without an extra dependency on JUnit 4.
 
 ### Parallel testing with Tycho Surefire
 
-Previously, Tycho Surefire would only execute one test plugin at the same time, even with parallel Maven builds enabled. Now Tycho Surefire runs multiple tests in parallel. If you have parallel Maven builds enabled and run SWTBot UI tests (or other tests that don't work well during parallel execution), then you may need to re-configure your build to avoid the parallel test execution.
+Previously, Tycho Surefire would only execute one test plugin at the same time, even with parallel Maven builds enabled. Now Tycho Surefire [runs multiple tests in parallel](https://github.com/eclipse/tycho/issues/342). If you have parallel Maven builds enabled and run SWTBot UI tests (or other tests that don't work well during parallel execution), then you may need to re-configure your build to avoid the parallel test execution.
+
+### Javadoc generation can use JAVA_HOME
+
+The [Tycho Extras document-bundle-plugin](https://www.eclipse.org/tycho/sitedocs/tycho-extras/tycho-document-bundle-plugin/plugin-info.html) now supports looking up the javadoc executable in the [path defined by the JAVA_HOME environment variable](https://github.com/eclipse/tycho/issues/471), in addition to other supported locations.
 
 ## 2.5.0
 
