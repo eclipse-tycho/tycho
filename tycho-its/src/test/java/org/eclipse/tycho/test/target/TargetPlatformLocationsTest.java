@@ -42,6 +42,16 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testMavenArtifactHaveMavenDepsCoordinates() throws Exception {
+		Verifier verifier = getVerifier("target.maven", false, true);
+		verifier.executeGoal("dependency:list");
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("commons-lang:commons-lang:jar:2.4:system"); // this is a weak assert, should
+																				// be
+		// improved
+	}
+
+	@Test
 	public void testMavenLocationMulti() throws Exception {
 		Verifier verifier = getVerifier("target.mavenMulti", false, true);
 		verifier.executeGoal("verify");
