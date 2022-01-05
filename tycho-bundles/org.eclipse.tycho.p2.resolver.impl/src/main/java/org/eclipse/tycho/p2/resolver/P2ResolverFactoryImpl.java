@@ -10,18 +10,25 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
+ *                         Issue #443 - Use regular Maven coordinates -when possible- for dependencies 
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
+import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
@@ -102,5 +109,47 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     public void setTargetDefinitionResolverService(TargetDefinitionResolverService targetDefinitionResolverService) {
         this.targetDefinitionResolverService = targetDefinitionResolverService;
+    }
+
+    @Override
+    public MavenDependencyDescriptor resolveDependencyDescriptor(ArtifactDescriptor artifactDescriptor) {
+        return artifactDescriptor.getInstallableUnits().stream().filter(IInstallableUnit.class::isInstance)
+                .map(IInstallableUnit.class::cast).map(iu -> {
+                    Map<String, String> properties = iu.getProperties();
+                    String groupId = properties.get(RepositoryLayoutHelper.PROP_GROUP_ID);
+                    String artifactId = properties.get(RepositoryLayoutHelper.PROP_ARTIFACT_ID);
+                    String version = properties.get(RepositoryLayoutHelper.PROP_VERSION);
+                    if (groupId == null || artifactId == null || version == null) {
+                        //these properties are required!
+                        return null;
+                    }
+                    return new MavenDependencyDescriptor() {
+
+                        @Override
+                        public String getVersion() {
+                            return version;
+                        }
+
+                        @Override
+                        public String getType() {
+                            return properties.get(RepositoryLayoutHelper.PROP_EXTENSION);
+                        }
+
+                        @Override
+                        public String getGroupId() {
+                            return groupId;
+                        }
+
+                        @Override
+                        public String getClassifier() {
+                            return properties.get(RepositoryLayoutHelper.PROP_CLASSIFIER);
+                        }
+
+                        @Override
+                        public String getArtifactId() {
+                            return artifactId;
+                        }
+                    };
+                }).filter(Objects::nonNull).findFirst().orElse(null);
     }
 }

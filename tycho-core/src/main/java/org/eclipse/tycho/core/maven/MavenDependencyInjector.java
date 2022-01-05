@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - inject nested class path elements into maven model (TYCHO-483)
+ *    Christoph Läubrich - Issue #443 - Use regular Maven coordinates -when possible- for dependencies 
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
@@ -15,6 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -24,6 +26,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -44,8 +47,10 @@ public final class MavenDependencyInjector {
      *            The p2-resolved dependencies of the project.
      */
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
-            DependencyArtifacts testDependencies, BundleReader bundleReader, Logger logger) {
-        MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, logger);
+            DependencyArtifacts testDependencies, BundleReader bundleReader,
+            Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger) {
+        MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
+                logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
             generator.addDependency(artifact, Artifact.SCOPE_COMPILE);
         }
@@ -63,9 +68,13 @@ public final class MavenDependencyInjector {
 
     private final MavenProject project;
 
-    MavenDependencyInjector(MavenProject project, BundleReader bundleReader, Logger logger) {
+    private Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping;
+
+    MavenDependencyInjector(MavenProject project, BundleReader bundleReader,
+            Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger) {
         this.project = project;
         this.bundleReader = bundleReader;
+        this.descriptorMapping = descriptorMapping;
         this.logger = logger;
     }
 
@@ -98,13 +107,12 @@ public final class MavenDependencyInjector {
         if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
             for (String classpathElement : getClasspathElements(location)) {
                 if (".".equals(classpathElement)) {
-                    result.add(createSystemScopeDependency(artifact.getKey(), location));
+                    result.add(createSystemScopeDependency(artifact, location));
                 } else {
                     File nestedJarOrDir = bundleReader.getEntry(location, classpathElement);
                     if (nestedJarOrDir != null) {
                         if (nestedJarOrDir.isFile()) {
-                            Dependency nestedJarDependency = createSystemScopeDependency(artifact.getKey(),
-                                    nestedJarOrDir);
+                            Dependency nestedJarDependency = createSystemScopeDependency(artifact, nestedJarOrDir);
                             nestedJarDependency.setClassifier(classpathElement);
                             result.add(nestedJarDependency);
                         } else if (nestedJarOrDir.isDirectory()) {
@@ -117,7 +125,7 @@ public final class MavenDependencyInjector {
                 }
             }
         } else {
-            result.add(createSystemScopeDependency(artifact.getKey(), location));
+            result.add(createSystemScopeDependency(artifact, location));
         }
         return result;
     }
@@ -126,17 +134,34 @@ public final class MavenDependencyInjector {
         return bundleReader.loadManifest(bundleLocation).getBundleClasspath();
     }
 
-    private Dependency createSystemScopeDependency(ArtifactKey artifactKey, File location) {
-        return createSystemScopeDependency(artifactKey, P2_GROUPID_PREFIX + artifactKey.getType(), location);
+    private Dependency createSystemScopeDependency(ArtifactDescriptor descriptor, File location) {
+        ArtifactKey artifactKey = descriptor.getKey();
+        return createSystemScopeDependency(descriptor, P2_GROUPID_PREFIX + artifactKey.getType(), location);
     }
 
-    private Dependency createSystemScopeDependency(ArtifactKey artifactKey, String groupId, File location) {
+    private Dependency createSystemScopeDependency(ArtifactDescriptor descriptor, String groupId, File location) {
         Dependency dependency = new Dependency();
-        dependency.setGroupId(groupId);
-        dependency.setArtifactId(artifactKey.getId());
-        dependency.setVersion(artifactKey.getVersion());
-        dependency.setScope(Artifact.SCOPE_SYSTEM);
-        dependency.setSystemPath(location.getAbsolutePath());
+        MavenDependencyDescriptor dependencyDescriptor = descriptorMapping == null ? null
+                : descriptorMapping.apply(descriptor);
+        if (dependencyDescriptor != null) {
+            dependency.setGroupId(dependencyDescriptor.getGroupId());
+            dependency.setArtifactId(dependencyDescriptor.getArtifactId());
+            dependency.setVersion(dependencyDescriptor.getVersion());
+            dependency.setClassifier(dependency.getClassifier());
+            String type = dependencyDescriptor.getType();
+            if (type != null && !type.isBlank()) {
+                dependency.setType(type);
+            }
+            dependency.setScope(Artifact.SCOPE_SYSTEM);
+            dependency.setSystemPath(location.getAbsolutePath());
+        } else {
+            ArtifactKey artifactKey = descriptor.getKey();
+            dependency.setGroupId(groupId);
+            dependency.setArtifactId(artifactKey.getId());
+            dependency.setVersion(artifactKey.getVersion());
+            dependency.setScope(Artifact.SCOPE_SYSTEM);
+            dependency.setSystemPath(location.getAbsolutePath());
+        }
         return dependency;
     }
 
@@ -158,7 +183,7 @@ public final class MavenDependencyInjector {
                     // we can only add a system scope dependency for an existing (checked-in) jar file
                     // otherwise maven will throw a DependencyResolutionException
                     if (jar.isFile()) {
-                        Dependency systemScopeDependency = createSystemScopeDependency(artifact.getKey(),
+                        Dependency systemScopeDependency = createSystemScopeDependency(artifact,
                                 artifact.getMavenProject().getGroupId(), jar);
                         systemScopeDependency.setClassifier(classpathElement);
                         result.add(systemScopeDependency);

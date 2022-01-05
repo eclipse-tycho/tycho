@@ -24,6 +24,8 @@ import java.util.Properties;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
@@ -150,5 +152,10 @@ public class TestResolverFactory implements P2ResolverFactory {
     @Override
     public P2Resolver createResolver(MavenLogger logger) {
         return new P2ResolverImpl(getTargetPlatformFactoryImpl(), mavenContext.getLogger());
+    }
+
+    @Override
+    public MavenDependencyDescriptor resolveDependencyDescriptor(ArtifactDescriptor artifactDescriptor) {
+        return null;
     }
 }
