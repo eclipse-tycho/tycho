@@ -24,7 +24,7 @@ import org.eclipse.tycho.core.shared.BuildFailureException;
 
 public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
     // Most likely best to always be the latest known supported EE
-    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-11";
+    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-17";
 
     private static final int PRIMARY = 0;
     private static final int SECONDARY = 1;
