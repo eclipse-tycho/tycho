@@ -10,6 +10,6 @@
 
   <version>0.0.1-SNAPSHOT</version>
   <artifactId>site</artifactId>
-  <packaging>eclipse-update-site</packaging>
+  <packaging>eclipse-repository</packaging>
   
 </project>

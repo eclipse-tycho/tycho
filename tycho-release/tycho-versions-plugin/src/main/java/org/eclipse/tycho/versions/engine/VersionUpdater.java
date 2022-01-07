@@ -74,7 +74,6 @@ public abstract class VersionUpdater {
             ProductConfiguration product = ProductConfiguration.read(productFile);
             return product.getVersion();
         };
-        updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, productVersionAdapter);
         updaters.put(PackagingType.TYPE_ECLIPSE_REPOSITORY, productVersionAdapter);
         updaters.put(PackagingType.TYPE_P2_IU, (project, logger) -> {
             IU iu = IU.loadIU(project.getBasedir());

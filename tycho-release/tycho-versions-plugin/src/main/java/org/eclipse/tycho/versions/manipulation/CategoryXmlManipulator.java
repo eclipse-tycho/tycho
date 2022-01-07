@@ -14,8 +14,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import static org.eclipse.tycho.versions.manipulation.SiteXmlManipulator.rewriteFeatureUrl;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -28,6 +26,7 @@ import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
+import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
 
@@ -124,6 +123,13 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
     @Override
     public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         // this manipulator does not add any restrictions on version changes allowed for eclipse-repository projects
+        return null;
+    }
+
+    private static String rewriteFeatureUrl(String url, VersionChange change) {
+        if (url != null) {
+            return url.replaceAll("\\Q" + change.getVersion() + "\\E", change.getNewVersion());
+        }
         return null;
     }
 }

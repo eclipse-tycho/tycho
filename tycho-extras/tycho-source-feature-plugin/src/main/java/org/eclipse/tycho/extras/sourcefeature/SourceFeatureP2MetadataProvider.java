@@ -85,7 +85,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
                  * dependencies of other reactor projects that include the source feature. To solve
                  * this for eclipse-repository project, repository project dependencies are
                  * recalculated during repository packaging. Other 'aggregating' project types, like
-                 * eclipse-update-site and eclipse-feature with deployableFeature=true, will not be
+                 * eclipse-repository and eclipse-feature with deployableFeature=true, will not be
                  * compatible with source features until
                  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=353889 is implemented.
                  */

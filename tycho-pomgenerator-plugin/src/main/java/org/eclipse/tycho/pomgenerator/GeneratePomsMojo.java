@@ -129,7 +129,7 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     /**
      * Maven version to be used in the generated pom.xml files (applies to parent pom and
-     * eclipse-repository/eclipse-update-site only).
+     * eclipse-repository only).
      */
     @Parameter(property = "version", defaultValue = "0.0.1-SNAPSHOT")
     private String version;
@@ -267,10 +267,7 @@ public class GeneratePomsMojo extends AbstractMojo {
                 }
                 for (File rootProject : rootProjects) {
                     getLog().info("Resolving root project " + toString(rootProject));
-                    if (isUpdateSiteProject(rootProject)) {
-                        projects.addAll(getSiteFeaturesAndPlugins(rootProject));
-                        projects.add(rootProject);
-                    } else if (isFeatureProject(rootProject)) {
+                    if (isFeatureProject(rootProject)) {
                         projects.addAll(getFeatureFeaturesAndPlugins(rootProject));
                         projects.add(rootProject);
                     } else if (isPluginProject(rootProject)) {
@@ -342,8 +339,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private boolean isProjectDir(File dir) {
-        return isPluginProject(dir) || isFeatureProject(dir) || isUpdateSiteProject(dir)
-                || isEclipseRepositoryProject(dir);
+        return isPluginProject(dir) || isFeatureProject(dir) || isEclipseRepositoryProject(dir);
     }
 
     private void reorderModules(Model parent, File basedir, File testSuiteLocation) throws MojoExecutionException {
@@ -456,21 +452,11 @@ public class GeneratePomsMojo extends AbstractMojo {
         } else if (isEclipseRepositoryProject(basedir)) {
             getLog().debug("Found eclipse-repository PDE project " + toString(basedir));
             generateEclipseRepositoryPom(parent, basedir);
-        } else if (isUpdateSiteProject(basedir)) {
-            getLog().debug("Found update site PDE project " + toString(basedir));
-            getLog().warn("Old style update site found for " + toString(basedir)
-                    + ". It is recommended you rename your site.xml to category.xml "
-                    + "and use packaging type eclipse-repository instead.");
-            generateUpdateSitePom(parent, basedir);
         } else {
             getLog().debug("Not a PDE project " + toString(basedir));
             return false;
         }
         return true;
-    }
-
-    private boolean isUpdateSiteProject(File dir) {
-        return new File(dir, "site.xml").canRead();
     }
 
     private boolean isEclipseRepositoryProject(File dir) {

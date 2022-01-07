@@ -22,16 +22,11 @@ public final class PackagingType {
     public static final String TYPE_ECLIPSE_PLUGIN = ArtifactType.TYPE_ECLIPSE_PLUGIN;
     public static final String TYPE_ECLIPSE_TEST_PLUGIN = "eclipse-test-plugin";
     public static final String TYPE_ECLIPSE_FEATURE = ArtifactType.TYPE_ECLIPSE_FEATURE;
-    @Deprecated
-    public static final String TYPE_ECLIPSE_UPDATE_SITE = "eclipse-update-site";
-    @Deprecated
-    public static final String TYPE_ECLIPSE_APPLICATION = "eclipse-application";
     public static final String TYPE_ECLIPSE_REPOSITORY = "eclipse-repository";
     public static final String TYPE_ECLIPSE_TARGET_DEFINITION = "eclipse-target-definition";
     public static final String TYPE_P2_IU = ArtifactType.TYPE_INSTALLABLE_UNIT;
 
     public static final Set<String> TYCHO_PACKAGING_TYPES = Set.of(PackagingType.TYPE_ECLIPSE_PLUGIN,
-            TYPE_ECLIPSE_TEST_PLUGIN, TYPE_ECLIPSE_FEATURE, TYPE_ECLIPSE_REPOSITORY, TYPE_ECLIPSE_TARGET_DEFINITION,
-            TYPE_ECLIPSE_UPDATE_SITE, TYPE_ECLIPSE_APPLICATION);
+            TYPE_ECLIPSE_TEST_PLUGIN, TYPE_ECLIPSE_FEATURE, TYPE_ECLIPSE_REPOSITORY, TYPE_ECLIPSE_TARGET_DEFINITION);
 
 }

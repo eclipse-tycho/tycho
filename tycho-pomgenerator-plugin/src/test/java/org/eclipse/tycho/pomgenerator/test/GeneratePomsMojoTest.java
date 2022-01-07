@@ -104,7 +104,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals("group-p003", model.getGroupId());
         assertEquals("p003", model.getArtifactId());
         assertEquals("1.0.0", model.getVersion());
-        assertEquals("eclipse-update-site", model.getPackaging());
+        assertEquals("eclipse-repository", model.getPackaging());
     }
 
     public void testRepository() throws Exception {
