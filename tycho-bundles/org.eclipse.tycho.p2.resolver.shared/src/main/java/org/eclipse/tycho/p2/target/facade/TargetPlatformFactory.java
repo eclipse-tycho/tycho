@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -22,7 +23,9 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 public interface TargetPlatformFactory {
 
     public TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
-            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
-            PomDependencyCollector pomDependencies);
+            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects);
+
+    public TargetPlatform createTargetPlatformWithUpdatedReactorContent(TargetPlatform baseTargetPlatform,
+            List<?/* PublishingRepository */> upstreamProjectResults, PomDependencyCollector pomDependencies);
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,6 +53,7 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 
 /**
  * Creates target platform based on local Eclipse installation.
@@ -253,5 +254,10 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
 
         MavenDependencyCollector dependencyCollector = new MavenDependencyCollector(project, bundleReader, logger);
         projectType.getDependencyWalker(reactorProject).walk(dependencyCollector);
+    }
+
+    @Override
+    public PomDependencyCollector resolvePomDependencies(MavenSession session, MavenProject project) {
+        return null;
     }
 }

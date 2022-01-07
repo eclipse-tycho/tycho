@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho;
+
+import java.util.Set;
 
 /**
  * Tycho's packaging types.
@@ -27,5 +29,9 @@ public final class PackagingType {
     public static final String TYPE_ECLIPSE_REPOSITORY = "eclipse-repository";
     public static final String TYPE_ECLIPSE_TARGET_DEFINITION = "eclipse-target-definition";
     public static final String TYPE_P2_IU = ArtifactType.TYPE_INSTALLABLE_UNIT;
+
+    public static final Set<String> TYCHO_PACKAGING_TYPES = Set.of(PackagingType.TYPE_ECLIPSE_PLUGIN,
+            TYPE_ECLIPSE_TEST_PLUGIN, TYPE_ECLIPSE_FEATURE, TYPE_ECLIPSE_REPOSITORY, TYPE_ECLIPSE_TARGET_DEFINITION,
+            TYPE_ECLIPSE_UPDATE_SITE, TYPE_ECLIPSE_APPLICATION);
 
 }

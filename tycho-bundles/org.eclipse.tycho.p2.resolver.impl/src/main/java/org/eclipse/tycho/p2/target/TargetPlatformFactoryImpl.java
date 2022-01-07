@@ -19,6 +19,7 @@ package org.eclipse.tycho.p2.target;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,6 +55,8 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.maven.repository.Activator;
+import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
@@ -126,10 +130,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
     @Override
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
-            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
-            PomDependencyCollector pomDependencies) {
+            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects) {
         return createTargetPlatform(tpConfiguration, ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration),
-                reactorProjects, pomDependencies);
+                reactorProjects);
     }
 
     /**
@@ -153,15 +156,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      *      ExecutionEnvironmentConfiguration, List, PomDependencyCollector)
      */
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
-            ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects,
-            PomDependencyCollector pomDependencies) {
-        if (pomDependencies == null) {
-            pomDependencies = new PomDependencyCollectorImpl(mavenContext, null);
-        }
+            ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects) {
+
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());
-
-        PomDependencyCollectorImpl pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
 
         Set<MavenRepositoryLocation> completeRepositories = tpConfiguration.getP2Repositories();
         registerRepositoryIDs(completeRepositories);
@@ -169,7 +167,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         // collect & process metadata
         boolean includeLocalMavenRepo = shouldIncludeLocallyInstalledUnits(tpConfiguration);
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
-                targetFileContent, pomDependenciesContent, includeLocalMavenRepo);
+                targetFileContent, includeLocalMavenRepo);
 
         Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
                 reactorProjects);
@@ -183,11 +181,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints());
 
         IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(completeRepositories,
-                targetFileContent, pomDependenciesContent.getArtifactRepoOfPublishedBundles(),
-                tpConfiguration.getIncludePackedArtifacts());
+                targetFileContent, tpConfiguration.getIncludePackedArtifacts());
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs, //
                 externalUIs, //
-                pomDependenciesContent.getMavenInstallableUnits(), //
                 eeResolutionHandler.getResolutionHints(), //
                 filter, //
                 localMetadataRepository, //
@@ -195,12 +191,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 localArtifactRepository, //
                 includeLocalMavenRepo, //
                 logger);
-
-        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey
-                .forResolutionContextArtifacts(pomDependenciesContent.getProjectLocation());
-        ArtifactRepositoryBlackboard.putRepository(blackboardKey, new ProviderOnlyArtifactRepository(
-                externalArtifactFileProvider, Activator.getProvisioningAgent(), blackboardKey.toURI()));
-        logger.debug("Registered artifact repository " + blackboardKey);
 
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
@@ -264,7 +254,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      */
     private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
             Set<MavenRepositoryLocation> completeRepositories, List<TargetDefinitionContent> targetDefinitionsContent,
-            PomDependencyCollectorImpl pomDependenciesContent, boolean includeLocalMavenRepo) {
+            boolean includeLocalMavenRepo) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
 
         for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
@@ -284,8 +274,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.ALL_UNITS, monitor);
             result.addAll(matches.toUnmodifiableSet());
         }
-
-        result.addAll(pomDependenciesContent.gatherMavenInstallableUnits());
 
         if (includeLocalMavenRepo && logger.isDebugEnabled()) {
             IQueryResult<IInstallableUnit> locallyInstalledIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS,
@@ -355,8 +343,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      * Provider for all target platform artifacts from outside the reactor.
      */
     private IRawArtifactFileProvider createExternalArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
-            List<TargetDefinitionContent> targetDefinitionsContent,
-            IRawArtifactFileProvider pomDependencyArtifactRepository, boolean includePackedArtifacts) {
+            List<TargetDefinitionContent> targetDefinitionsContent, boolean includePackedArtifacts) {
         SortedRepositories repos = SortedRepositories.sort(targetDefinitionsContent.stream()
                 .map(TargetDefinitionContent::getArtifactRepository).collect(Collectors.toList()));
         RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
@@ -364,7 +351,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         MirroringArtifactProvider remoteArtifactProviderWithCache = MirroringArtifactProvider
                 .createInstance(localArtifactRepository, remoteArtifactProvider, includePackedArtifacts, logger);
 
-        return new CompositeArtifactProvider(pomDependencyArtifactRepository, //
+        return new CompositeArtifactProvider(
                 new FileRepositoryArtifactProvider(repos.localRepositories,
                         ArtifactTransferPolicies.forLocalArtifacts()), //
                 remoteArtifactProviderWithCache);
@@ -470,52 +457,89 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public P2TargetPlatform createTargetPlatformWithUpdatedReactorContent(TargetPlatform baseTargetPlatform,
-            List<PublishingRepository> upstreamProjectResults) {
+            List<?> upstreamProjectResults, PomDependencyCollector pomDependencies) {
+        PomDependencyCollectorImpl pomDependenciesContent;
+        if (pomDependencies instanceof PomDependencyCollectorImpl) {
+            pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
+        } else {
+            logger.debug("Using empty PomDependencyCollector instead of given = " + pomDependencies);
+            pomDependenciesContent = new PomDependencyCollectorImpl(mavenContext, null);
+        }
         return createTargetPlatformWithUpdatedReactorUnits(baseTargetPlatform,
-                extractProjectResultIUs(upstreamProjectResults), getProjectArtifactProviders(upstreamProjectResults));
+                extractProjectResultIUs((List<PublishingRepository>) upstreamProjectResults),
+                getProjectArtifactProviders((List<PublishingRepository>) upstreamProjectResults),
+                pomDependenciesContent);
     }
 
     P2TargetPlatform createTargetPlatformWithUpdatedReactorUnits(TargetPlatform baseTargetPlatform,
             Map<IInstallableUnit, ReactorProjectIdentities> reactorUnits,
-            List<IRawArtifactFileProvider> reactorArtifacts) {
+            List<IRawArtifactFileProvider> reactorArtifacts, PomDependencyCollector pomDependencyCollector) {
         if (!(baseTargetPlatform instanceof PreliminaryTargetPlatformImpl)) {
             throw new IllegalArgumentException(
                     "Base target platform must be an instance of PreliminaryTargetPlatformImpl; was: "
                             + baseTargetPlatform);
         }
+        if (!(pomDependencyCollector instanceof PomDependencyCollectorImpl)) {
+            throw new IllegalArgumentException(
+                    "PomDependencyCollector must be an instance of PomDependencyCollectorImpl; was: "
+                            + pomDependencyCollector);
+        }
         return createTargetPlatformWithUpdatedReactorUnits((PreliminaryTargetPlatformImpl) baseTargetPlatform,
-                reactorUnits, reactorArtifacts);
+                reactorUnits, reactorArtifacts, (PomDependencyCollectorImpl) pomDependencyCollector);
     }
 
     P2TargetPlatform createTargetPlatformWithUpdatedReactorUnits(PreliminaryTargetPlatformImpl preliminaryTP,
             Map<IInstallableUnit, ReactorProjectIdentities> reactorUnitsMap,
-            List<IRawArtifactFileProvider> reactorArtifacts) {
-
+            List<IRawArtifactFileProvider> reactorArtifacts, PomDependencyCollectorImpl pomDependencyCollector) {
         LinkedHashSet<IInstallableUnit> allUnits = preliminaryTP.getExternalUnits();
-
+        TargetPlatformFilterEvaluator configuredFilters = preliminaryTP.getFilter();
         // external units are already filtered, only reactor units need to be filtered again
         if (reactorUnitsMap != null) {
-            Collection<IInstallableUnit> reactorUnits = new LinkedList<>(reactorUnitsMap.keySet());
-
-            TargetPlatformFilterEvaluator configuredFilters = preliminaryTP.getFilter();
-            if (configuredFilters != null) {
-                configuredFilters.filterUnits(reactorUnits);
-            }
-            allUnits.addAll(reactorUnits);
+            allUnits.addAll(filterUnits(configuredFilters, reactorUnitsMap.keySet()));
+        } else {
+            reactorUnitsMap = new LinkedHashMap<>();
         }
 
+        IRawArtifactFileProvider pomDependencyArtifactRepo = pomDependencyCollector.getArtifactRepoOfPublishedBundles();
         IRawArtifactFileProvider jointArtifacts = createJointArtifactProvider(reactorArtifacts,
-                preliminaryTP.getExternalArtifacts());
-
+                preliminaryTP.getExternalArtifacts(), pomDependencyArtifactRepo);
+        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey
+                .forResolutionContextArtifacts(pomDependencyCollector.getProjectLocation());
+        ArtifactRepositoryBlackboard.putRepository(blackboardKey, new ProviderOnlyArtifactRepository(jointArtifacts,
+                Activator.getProvisioningAgent(), blackboardKey.toURI()));
+        logger.debug("Registered artifact repository " + blackboardKey);
+        allUnits.addAll(filterUnits(configuredFilters, pomDependencyCollector.gatherMavenInstallableUnits()));
+        Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = pomDependencyCollector
+                .getMavenInstallableUnits();
+        for (Entry<IInstallableUnit, IArtifactFacade> entry : mavenInstallableUnits.entrySet()) {
+            IArtifactFacade value = entry.getValue();
+            if (value instanceof ReactorProjectFacade) {
+                ReactorProjectFacade projectFacade = (ReactorProjectFacade) value;
+                reactorUnitsMap.put(entry.getKey(), projectFacade.getReactorProject().getIdentities());
+            }
+        }
         return new FinalTargetPlatformImpl(allUnits, preliminaryTP.getEEResolutionHints(), jointArtifacts,
-                localArtifactRepository, preliminaryTP.getOriginalMavenArtifactMap(), reactorUnitsMap);
+                localArtifactRepository, mavenInstallableUnits, reactorUnitsMap);
+    }
+
+    protected Collection<? extends IInstallableUnit> filterUnits(TargetPlatformFilterEvaluator configuredFilters,
+            Collection<? extends IInstallableUnit> units) {
+        if (units.isEmpty() || configuredFilters == null) {
+            return units;
+        }
+        List<IInstallableUnit> filteredUnits = new LinkedList<>(units);
+        configuredFilters.filterUnits(filteredUnits);
+        return filteredUnits;
     }
 
     private CompositeArtifactProvider createJointArtifactProvider(List<IRawArtifactFileProvider> reactorArtifacts,
-            IRawArtifactFileProvider externalArtifacts) {
+            IRawArtifactFileProvider externalArtifacts, IRawArtifactFileProvider pomDependencyArtifactRepo) {
         // prefer artifacts from the reactor
-        return new CompositeArtifactProvider(reactorArtifacts, Collections.singletonList(externalArtifacts));
+        return new CompositeArtifactProvider(reactorArtifacts,
+                Arrays.asList(externalArtifacts, pomDependencyArtifactRepo));
     }
 
     private static Map<IInstallableUnit, ReactorProjectIdentities> extractProjectResultIUs(

@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tycho Bundle
+Bundle-SymbolicName: tycho.bundle
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: tycho.bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: felix.bundle.exported

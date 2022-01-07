@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP SE and others.
+ * Copyright (c) 2008, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -109,11 +109,11 @@ public class TargetPlatformFactoryTest {
     public void testFinalTargetPlatformNotContainsPreliminaryReactorIU() throws Exception {
         List<ReactorProject> preliminaryReactor = Arrays.asList(createReactorProject("artifactId", "reactor.id", null));
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                preliminaryReactor, pomDependencyCollector);
+                preliminaryReactor);
 
         // final TP without any reactor content
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
 
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("reactor.id"))));
     }
@@ -121,11 +121,10 @@ public class TargetPlatformFactoryTest {
     @Test
     public void testFinalTargetPlatformContainsExternalRepoIU() throws Exception {
         tpConfig.addP2Repository(ResourceUtil.resourceFile("repositories/launchers").toURI());
-        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
-                pomDependencyCollector);
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
 
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("org.eclipse.equinox.launcher")));
     }
@@ -133,11 +132,10 @@ public class TargetPlatformFactoryTest {
     @Test
     public void testFinalTargetPlatformContainsTargetFileIU() {
         tpConfig.addTargetDefinition(targetDefinition(TestRepositories.V1_AND_V2, MAIN_BUNDLE));
-        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
-                pomDependencyCollector);
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
 
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
 
         assertThat(finalTP.getInstallableUnits(),
                 hasItem(unit(MAIN_BUNDLE.getId(), MAIN_BUNDLE.getVersion().toString())));
@@ -147,11 +145,10 @@ public class TargetPlatformFactoryTest {
     public void testFinalTargetPlatformContainsPomDependencyIU() throws Exception {
         pomDependencyCollector.addArtifactWithExistingMetadata(PomDependencyCollectorTest.artifactWithClassifier(null),
                 PomDependencyCollectorTest.existingMetadata());
-        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
-                pomDependencyCollector);
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
 
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("test.unit")));
     }
@@ -159,24 +156,22 @@ public class TargetPlatformFactoryTest {
     @Test
     public void testFinalTargetPlatformContainsExecutionEnvironmentIU() throws Exception {
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, ExecutionEnvironmentTestUtils
-                .standardEEResolutionHintProvider(new ExecutionEnvironmentStub("J2SE-1.4")), null,
-                pomDependencyCollector);
+                .standardEEResolutionHintProvider(new ExecutionEnvironmentStub("J2SE-1.4")), null);
 
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unit("a.jre.j2se", "1.4.0")));
     }
 
     @Test
     public void testFinalTargetPlatformContainsFinalReactorIU() throws Exception {
-        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
-                pomDependencyCollector);
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
 
         Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections
                 .singletonMap(InstallableUnitUtil.createIU("bundle", "1.2.0"), DUMMY_PROJECT);
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unit("bundle", "1.2.0")));
     }
@@ -191,7 +186,7 @@ public class TargetPlatformFactoryTest {
 
         ReactorProject reactorProject = createReactorProject("artifactId", "test.feature.feature.group", "iu.p2.inf");
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                Collections.singletonList(reactorProject), pomDependencyCollector);
+                Collections.singletonList(reactorProject));
 
         assertThat(preliminaryTP.getInstallableUnits(), hasItem(unitWithId("test.feature.feature.group")));
         assertThat(preliminaryTP.getInstallableUnits(), not(hasItem(unitWithId("iu.p2.inf"))));
@@ -202,14 +197,13 @@ public class TargetPlatformFactoryTest {
         TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(
                 CapabilityPattern.patternWithoutVersion(CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
         tpConfig.addFilters(Arrays.asList(filter));
-        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
-                pomDependencyCollector);
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
 
         Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = new HashMap<>();
         finalUnits.put(InstallableUnitUtil.createIU("test.feature.feature.group"), DUMMY_PROJECT);
         finalUnits.put(InstallableUnitUtil.createIU("iu.p2.inf"), DUMMY_PROJECT);
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("test.feature.feature.group")));
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("iu.p2.inf"))));
@@ -224,12 +218,11 @@ public class TargetPlatformFactoryTest {
                 CapabilityPattern.patternWithoutVersion(CapabilityType.P2_INSTALLABLE_UNIT, "test.unit"));
         tpConfig.addFilters(Arrays.asList(filter));
 
-        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
-                pomDependencyCollector);
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
         assertThat(preliminaryTP.getInstallableUnits(), not(hasItem(unitWithId("test.unit"))));
 
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("test.unit"))));
     }
 
@@ -241,7 +234,7 @@ public class TargetPlatformFactoryTest {
         // reactor artifact produces a unit with same ID
         ReactorProject reactorProject = createReactorProject("artifactId", "trt.bundle/1.5.5.qualifier", null);
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                Collections.singletonList(reactorProject), pomDependencyCollector);
+                Collections.singletonList(reactorProject));
 
         assertThat(preliminaryTP.getInstallableUnits(), hasItem(unit("trt.bundle", "1.5.5.qualifier")));
         assertThat(preliminaryTP.getInstallableUnits(), not(hasItem(unit("trt.bundle", "1.0.0.201108051343"))));
@@ -249,7 +242,7 @@ public class TargetPlatformFactoryTest {
         Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections.singletonMap(
                 InstallableUnitUtil.createIU("trt.bundle", "1.5.5.20140216"), reactorProject.getIdentities());
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits,
-                REACTOR_ARTIFACTS);
+                REACTOR_ARTIFACTS, pomDependencyCollector);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unit("trt.bundle", "1.5.5.20140216")));
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unit("trt.bundle", "1.0.0.201108051343"))));
@@ -264,12 +257,10 @@ public class TargetPlatformFactoryTest {
                 new GAV("test", "foo", "1.0.0"));
         subject = factory.getTargetPlatformFactoryImpl();
         Collection<IInstallableUnit> iusIncludingLocalRepo = subject
-                .createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencyCollector)
-                .getInstallableUnits();
+                .createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null).getInstallableUnits();
         tpConfig.setForceIgnoreLocalArtifacts(true);
         Collection<IInstallableUnit> iusWithoutLocalRepo = subject
-                .createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencyCollector)
-                .getInstallableUnits();
+                .createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null).getInstallableUnits();
         Set<IInstallableUnit> retainedIUs = new HashSet<>(iusIncludingLocalRepo);
         retainedIUs.removeAll(iusWithoutLocalRepo);
         assertEquals(1, retainedIUs.size());
@@ -280,8 +271,7 @@ public class TargetPlatformFactoryTest {
     public void testMultipleIndependentlyResolvedTargetFiles() throws Exception {
         tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1));
         tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2));
-        P2TargetPlatform tp = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
-                pomDependencyCollector);
+        P2TargetPlatform tp = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
         // platforms must have been resolved in two planner calls because otherwise the singleton bundles would have collided
 
         assertThat(tp.getInstallableUnits(), hasItem(unitWithIdAndVersion(REFERENCED_BUNDLE_V1)));
@@ -293,7 +283,7 @@ public class TargetPlatformFactoryTest {
         List<ReactorProject> reactorProjects = new ArrayList<>();
         reactorProjects.add(createReactorProject("project1", "unit.a", "unit.b"));
         reactorProjects.add(createReactorProject("project2", "unit.b", null));
-        subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, pomDependencyCollector);
+        subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects);
     }
 
     @Test
@@ -301,8 +291,7 @@ public class TargetPlatformFactoryTest {
         File targetDefinition = new File(
                 FileLocator.toFileURL(getClass().getResource("/resources/targetresolver/mavenDep.target")).getFile());
         tpConfig.getTargetDefinitions().add(TargetDefinitionFile.read(targetDefinition));
-        P2TargetPlatform targetPlatform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, List.of(),
-                pomDependencyCollector);
+        P2TargetPlatform targetPlatform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, List.of());
         Path p2ArtifactPath = targetPlatform
                 .getArtifactLocation(
                         new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, "org.apache.commons.logging", "1.2.0"))

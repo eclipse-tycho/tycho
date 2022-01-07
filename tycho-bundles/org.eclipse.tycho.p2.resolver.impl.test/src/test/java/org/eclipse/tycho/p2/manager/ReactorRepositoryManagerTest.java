@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2020 SAP SE and others.
+ * Copyright (c) 2013, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -84,12 +84,12 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
         tpConfig.addP2Repository(
                 new MavenRepositoryLocation(null, ResourceUtil.resourceFile("repositories/launchers").toURI()));
         subject.computePreliminaryTargetPlatform(currentProject, tpConfig,
-                new ExecutionEnvironmentConfigurationStub("JavaSE-1.7"), null, pomDependencyCollector);
+                new ExecutionEnvironmentConfigurationStub("JavaSE-1.7"), null);
 
         ReactorProjectIdentities upstreamProject = new ReactorProjectIdentitiesStub(
                 ResourceUtil.resourceFile("projectresult"));
 
-        subject.computeFinalTargetPlatform(currentProject, Arrays.asList(upstreamProject));
+        subject.computeFinalTargetPlatform(currentProject, Arrays.asList(upstreamProject), pomDependencyCollector);
 
         P2TargetPlatform finalTP = (P2TargetPlatform) currentProject
                 .getContextValue("org.eclipse.tycho.core.TychoConstants/targetPlatform");
