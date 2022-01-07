@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>site</artifactId>
-  <packaging>eclipse-update-site</packaging>
+  <packaging>eclipse-repository</packaging>
 
   <build>
     <plugins>

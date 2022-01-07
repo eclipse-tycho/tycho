@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?metadataRepository version='1.1.0'?>
-<repository name='Unnamed - org.eclipse.tycho.its:tycho338.site:eclipse-update-site:0.0.1-SNAPSHOT' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+<repository name='Unnamed - org.eclipse.tycho.its:tycho338.site:eclipse-repository:0.0.1-SNAPSHOT' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
   <properties size='2'>
     <property name='p2.timestamp' value='1266449202921'/>
     <property name='p2.compressed' value='false'/>

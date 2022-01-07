@@ -29,7 +29,6 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryParser;
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
-import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
@@ -39,7 +38,6 @@ import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
@@ -63,7 +61,6 @@ import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
     private static final String[] SUPPORTED_TYPES = { PackagingType.TYPE_ECLIPSE_PLUGIN,
             PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, PackagingType.TYPE_ECLIPSE_FEATURE,
-            PackagingType.TYPE_ECLIPSE_UPDATE_SITE, PackagingType.TYPE_ECLIPSE_APPLICATION,
             PackagingType.TYPE_ECLIPSE_REPOSITORY };
 
     /**
@@ -231,24 +228,6 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 actions.add(new FeatureDependenciesAction(feature));
             } else {
                 actions.add(new FeaturesAction(new Feature[] { feature }));
-            }
-        } else if (PackagingType.TYPE_ECLIPSE_APPLICATION.equals(packaging)) {
-            String product = new File(location, artifact.getArtifactId() + ".product").getAbsolutePath();
-            try {
-                IProductDescriptor productDescriptor = new ProductFile2(product);
-                if (dependenciesOnly) {
-                    actions.add(new ProductDependenciesAction(productDescriptor));
-                } else {
-                    actions.add(new ProductAction(product, productDescriptor, null, null));
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else if (PackagingType.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)) {
-            if (dependenciesOnly) {
-                actions.add(new SiteDependenciesAction(location, artifact.getArtifactId(), artifact.getVersion()));
-            } else {
-                actions.add(new SiteXMLAction(location.toURI(), null));
             }
         } else if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
             for (File productFile : getProductFiles(location)) {

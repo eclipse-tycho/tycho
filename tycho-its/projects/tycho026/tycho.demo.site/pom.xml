@@ -9,5 +9,5 @@
   <groupId>tycho.demo</groupId>
   <artifactId>tycho.demo.site</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>eclipse-update-site</packaging>
+  <packaging>eclipse-repository</packaging>
 </project>

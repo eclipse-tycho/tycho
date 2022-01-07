@@ -69,11 +69,6 @@ public interface P2Resolver {
     Map<TargetEnvironment, P2ResolutionResult> resolveArtifactDependencies(TargetPlatform context,
             Collection<? extends ArtifactKey> artifacts);
 
-    /**
-     * @deprecated Only needed for the deprecated eclipse-update-site (see bug 342876)
-     */
-    // TODO 403481 replace the "conflicting dependency aggregation" feature of eclipse-update-site 
-    @Deprecated
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project);
 
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration,

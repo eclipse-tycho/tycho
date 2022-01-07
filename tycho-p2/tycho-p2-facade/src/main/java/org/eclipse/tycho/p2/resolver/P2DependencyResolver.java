@@ -449,7 +449,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     private boolean isAllowConflictingDependencies(MavenProject project, TargetPlatformConfiguration configuration) {
         String packaging = project.getPackaging();
 
-        if (PackagingType.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)
+        if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)
                 || PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Boolean allow = configuration.getAllowConflictingDependencies();
             if (allow != null) {
