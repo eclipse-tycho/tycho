@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,8 @@
  *    Sonatype Inc. - initial API and implementation
  *    Rapicorp, Inc. - add support for IU type (428310)
  *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
- *                          #82 Support resolving of non-project IUs in P2Resolver
+ *                       - Issue #82  - Support resolving of non-project IUs in P2Resolver
+ *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -58,6 +59,7 @@ import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
+import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -93,6 +95,8 @@ public class P2ResolverImpl implements P2Resolver {
     private TargetPlatformFactoryImpl targetPlatformFactory;
 
     private Set<IInstallableUnit> usedTargetPlatformUnits;
+
+    private PomDependencies pomDependencies = PomDependencies.ignore;
 
     public P2ResolverImpl(TargetPlatformFactoryImpl targetPlatformFactory, MavenLogger logger) {
         this.targetPlatformFactory = targetPlatformFactory;
@@ -167,8 +171,7 @@ public class P2ResolverImpl implements P2Resolver {
     @Override
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfig) {
-        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration, eeConfig, null,
-                null);
+        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration, eeConfig, null);
 
         ResolutionDataImpl data = new ResolutionDataImpl(contextImpl.getEEResolutionHints());
         data.setAvailableIUs(contextImpl.getInstallableUnits());
@@ -196,7 +199,7 @@ public class P2ResolverImpl implements P2Resolver {
     public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
             String eeName) {
         P2TargetPlatform targetPlatform = targetPlatformFactory.createTargetPlatform(tpConfiguration,
-                new ExecutionEnvironmentConfigurationStub(eeName), null, null);
+                new ExecutionEnvironmentConfigurationStub(eeName), null);
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
         for (IInstallableUnit iu : targetPlatform.getInstallableUnits()) {
@@ -229,7 +232,18 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setData(data);
         Collection<IInstallableUnit> newState;
         try {
+            data.setFailOnMissing(pomDependencies == PomDependencies.ignore);
             newState = strategy.resolve(environment, monitor);
+            if (pomDependencies != PomDependencies.ignore) {
+                Collection<IRequirement> missingRequirements = data.getMissingRequirements();
+                if (missingRequirements.size() > 0) {
+                    logger.info(
+                            "The following requirements are not satisfied yet and must be provided through pom dependencies:");
+                    for (IRequirement requirement : missingRequirements) {
+                        logger.info("   - " + requirement);
+                    }
+                }
+            }
         } catch (ResolverException e) {
             logger.info(e.getSelectionContext());
             logger.error("Cannot resolve project dependencies:");
@@ -522,6 +536,11 @@ public class P2ResolverImpl implements P2Resolver {
         requirementsConsumer.accept(optionalGreedyRequirementTo("org.eclipse.equinox.launcher"));
         requirementsConsumer.accept(optionalGreedyRequirementTo("org.eclipse.core.runtime"));
         requirementsConsumer.accept(optionalGreedyRequirementTo("org.eclipse.ui.ide.application"));
+    }
+
+    @Override
+    public void setPomDependencies(PomDependencies pomDependencies) {
+        this.pomDependencies = pomDependencies;
     }
 
 }

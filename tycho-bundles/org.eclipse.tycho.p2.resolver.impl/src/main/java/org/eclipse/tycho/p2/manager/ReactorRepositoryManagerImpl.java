@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 SAP SE and others.
+ * Copyright (c) 2012, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.p2.manager;
 
@@ -26,9 +27,7 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.target.PreliminaryTargetPlatformImpl;
-import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
@@ -81,26 +80,25 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     @Override
     public TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
             TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
-            List<ReactorProject> reactorProjects, PomDependencyCollector pomDependencies) {
+            List<ReactorProject> reactorProjects) {
+        //
         // at this point, there is only incomplete ("dependency-only") metadata for the reactor projects
-        TargetPlatform result = tpFactory.createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects,
-                pomDependencies);
+        TargetPlatform result = tpFactory.createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects);
         project.setContextValue(PRELIMINARY_TARGET_PLATFORM_KEY, result);
         return result;
     }
 
     @Override
     public void computeFinalTargetPlatform(ReactorProject project,
-            List<? extends ReactorProjectIdentities> upstreamProjects) {
+            List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector) {
         PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
         if (preliminaryTargetPlatform == null) {
             // project doesn't seem to use resolver=p2
             return;
         }
-
         List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
-        P2TargetPlatform result = ((TargetPlatformFactoryImpl) tpFactory)
-                .createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform, upstreamProjectResults);
+        TargetPlatform result = tpFactory.createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
+                upstreamProjectResults, pomDependencyCollector);
 
         project.setContextValue(FINAL_TARGET_PLATFORM_KEY, result);
     }

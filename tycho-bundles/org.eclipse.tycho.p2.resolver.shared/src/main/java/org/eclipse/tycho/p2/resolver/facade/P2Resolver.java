@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
- *                          #82 Support resolving of non-project IUs in P2Resolver
+ *                       - Issue #82 - Support resolving of non-project IUs in P2Resolver
+ *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
@@ -23,6 +24,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
@@ -40,6 +42,8 @@ public interface P2Resolver {
     public void addDependency(String type, String id, String versionRange) throws IllegalArtifactReferenceException;
 
     public void addAdditionalBundleDependency(String bundle);
+
+    void setPomDependencies(PomDependencies pomDependencies);
 
     /**
      * Returns list ordered of resolution result, one per requested TargetEnvironment.

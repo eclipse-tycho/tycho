@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,7 +28,6 @@ import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
@@ -61,7 +59,7 @@ public class PomDependencyCollectorTest {
 
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
-        Collection<IInstallableUnit> units = getTargetPlatformUnits();
+        Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
         assertThat(units, hasItem(unitWithId("test.unit.source")));
         assertThat(units.size(), is(1));
     }
@@ -73,7 +71,7 @@ public class PomDependencyCollectorTest {
 
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
-        Collection<IInstallableUnit> units = getTargetPlatformUnits();
+        Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
         assertThat(units, hasItem(unitWithId("test.unit")));
         assertThat(units.size(), is(1));
     }
@@ -85,7 +83,7 @@ public class PomDependencyCollectorTest {
 
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
-        Collection<IInstallableUnit> units = getTargetPlatformUnits();
+        Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
         assertThat(units.size(), is(0));
     }
 
@@ -100,10 +98,4 @@ public class PomDependencyCollectorTest {
                 "groupId", "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, "p2metadata");
     }
 
-    private Collection<IInstallableUnit> getTargetPlatformUnits() {
-        TestResolverFactory resolverFactory = new TestResolverFactory(logVerifier.getLogger());
-        P2TargetPlatform platform = resolverFactory.getTargetPlatformFactoryImpl()
-                .createTargetPlatform(new TargetPlatformConfigurationStub(), NOOP_EE_RESOLUTION_HANDLER, null, subject);
-        return platform.getInstallableUnits();
-    }
 }
