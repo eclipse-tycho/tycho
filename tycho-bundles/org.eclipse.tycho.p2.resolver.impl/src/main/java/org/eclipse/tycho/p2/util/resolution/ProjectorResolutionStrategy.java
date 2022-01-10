@@ -122,7 +122,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             }
             // log all transitive requirements which cannot be satisfied; this doesn't print the dependency chain from the seed to the units with missing requirements, so this is less useful than the "explanation" 
             logger.debug(StatusTool.collectProblems(s));
-
+            explainProblems(explanation, MavenLogger::error);
             throw new ResolverException(explanation.stream().map(Object::toString).collect(Collectors.joining("\n")),
                     newSelectionContext.toString(), StatusTool.findException(s));
         }
