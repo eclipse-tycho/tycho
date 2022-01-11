@@ -41,7 +41,7 @@ public class PublishFeaturesAndBundlesMojoTest extends AbstractTychoMojoTestCase
 
     public void testPublisher() throws Exception {
         File basedir = getBasedir("publisher/testProject");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
 
         initLegacySupport(projects, project);

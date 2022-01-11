@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,11 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - #486 - Remove org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver  
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
@@ -25,7 +25,6 @@ import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 @Component(role = DefaultDependencyResolverFactory.class)
@@ -43,42 +42,25 @@ public class DefaultDependencyResolverFactory {
         Properties properties = (Properties) reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
 
-        String property = properties.getProperty("tycho.targetPlatform");
-        DependencyResolver resolver;
-        if (property != null) {
-            logger.warn("-Dtycho.targetPlatform is deprecated and WILL be removed in the next Tycho version.");
-
-            File location = new File(property);
-            if (!location.exists() || !location.isDirectory()) {
-                throw new RuntimeException("Invalid target platform location: " + property);
-            }
-
+        if (properties.getProperty("tycho.targetPlatform") != null) {
+            throw new RuntimeException("-Dtycho.targetPlatform was deprecated and IS REMOVED in this tycho version.");
+        }
+        if (properties.getProperty("tycho.test.targetPlatform") != null) {
             try {
-                resolver = container.lookup(DependencyResolver.class, LocalDependencyResolver.ROLE_HINT);
+                @SuppressWarnings("deprecation")
+                String hint = org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver.ROLE_HINT;
+                return container.lookup(DependencyResolver.class, hint);
             } catch (ComponentLookupException e) {
                 throw new RuntimeException("Could not instantiate required component", e);
             }
-
-            try {
-                ((LocalDependencyResolver) resolver).setLocation(new File(property));
-            } catch (IOException e) {
-                throw new RuntimeException("Could not create target platform", e);
-            }
-
-            return resolver;
         }
-
-        String resolverRole = configuration.getTargetPlatformResolver();
-        if (resolverRole == null) {
-            resolverRole = DEFAULT_RESOLVER_HINT;
-        }
-
+        String resolverRole = Objects.requireNonNullElse(configuration.getTargetPlatformResolver(),
+                DEFAULT_RESOLVER_HINT);
         try {
-            resolver = container.lookup(DependencyResolver.class, resolverRole);
+            return container.lookup(DependencyResolver.class, resolverRole);
         } catch (ComponentLookupException e) {
-            throw new RuntimeException("Could not instantiate required component", e);
+            throw new RuntimeException(
+                    "Could not instantiate requested DependencyResolver component with role = " + resolverRole, e);
         }
-
-        return resolver;
     }
 }

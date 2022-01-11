@@ -150,7 +150,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     public void testStableQualifier() throws Exception {
         File basedir = getBasedir("projects/stablebuildqualifier/basic");
 
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+		List<MavenProject> projects = getSortedProjects(basedir);
         MavenSession session = newMavenSession(projects.get(0), projects);
 
         executeMojo(session, getProject(projects, "bundle01"));
@@ -174,7 +174,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     public void testUnparsableIncludedArtifactQualifier() throws Exception {
         File basedir = getBasedir("projects/stablebuildqualifier/unpasablequalifier");
 
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+		List<MavenProject> projects = getSortedProjects(basedir);
         MavenSession session = newMavenSession(projects.get(0), projects);
 
         executeMojo(session, getProject(projects, "bundle"));
