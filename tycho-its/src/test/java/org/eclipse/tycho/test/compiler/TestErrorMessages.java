@@ -17,7 +17,6 @@ import static org.junit.Assert.fail;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -60,7 +59,6 @@ public class TestErrorMessages extends AbstractTychoIntegrationTest {
 	 * @throws Exception
 	 */
 	@Test
-	@Ignore("This currently fails with an strange error in validate-classpath we should improve this")
 	public void testMissingBREEWithJustJProfile() throws Exception {
 		Verifier verifier = getVerifier("compiler.messages/missing-bree", false);
 		verifier.addCliOption("-Pjustj");
@@ -68,8 +66,7 @@ public class TestErrorMessages extends AbstractTychoIntegrationTest {
 			verifier.executeGoal("compile");
 			fail();
 		} catch (VerificationException e) {
-			verifier.verifyTextInLog("java17.bundle 1.0.0 requires Execution Environment that matches");
-			verifier.verifyTextInLog("but the current resolution context uses");
+			verifier.verifyTextInLog("Unresolved requirement: Require-Capability: osgi.ee; filter:=");
 		}
 	}
 }
