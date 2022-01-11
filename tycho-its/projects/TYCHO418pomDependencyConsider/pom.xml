@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.targetPlatform>${java.io.tmpdir}</tycho.targetPlatform>
+		<tycho.version>2.7.0-SNAPSHOT</tycho.version>
 	</properties>
 
 	<modules>
@@ -38,7 +38,6 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<resolver>local</resolver>
 					<pomDependencies>consider</pomDependencies>
 				</configuration>
 			</plugin>

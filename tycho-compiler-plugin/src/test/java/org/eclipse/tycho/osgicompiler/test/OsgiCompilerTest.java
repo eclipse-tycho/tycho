@@ -67,7 +67,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testAccessRestrictionCompilationError() throws Exception {
         File basedir = getBasedir("projects/accessrules");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         try {
             for (MavenProject project : projects) {
@@ -83,7 +83,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testAccessRulesClasspath() throws Exception {
         File basedir = getBasedir("projects/accessrules");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         getMojo(projects, projects.get(1)).execute();
         getMojo(projects, projects.get(2)).execute();
@@ -157,7 +157,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test_multisourceP001_viaMojoConfiguration() throws Exception {
         File basedir = getBasedir("projects/multisource/p001");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
@@ -168,7 +168,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test_multisourceP002_viaBuildProperties() throws Exception {
         File basedir = getBasedir("projects/multisource/p002");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
@@ -179,7 +179,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test_multipleOutputJars() throws Exception {
         File basedir = getBasedir("projects/multijar");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
@@ -193,7 +193,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test_multipleOutputJars_getSourcepath() throws Exception {
         File basedir = getBasedir("projects/multijar");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
 
@@ -212,7 +212,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCopyResources() throws Exception {
         File basedir = getBasedir("projects/resources/p001");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
         assertTrue(new File(project.getBasedir(), "target/classes/testresources/Test.class").canRead());
@@ -221,7 +221,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCopyResourcesWithNestedJar() throws Exception {
         File basedir = getBasedir("projects/resources/p004");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
         assertTrue(new File(project.getBasedir(), "target/classes/testresources/Test.class").canRead());
@@ -230,7 +230,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testExcludeCopyResources() throws Exception {
         File basedir = getBasedir("projects/resources/p002");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
         assertTrue(new File(project.getBasedir(), "target/classes/testresources/Test.class").canRead());
@@ -239,7 +239,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCopyResourcesWithResourceCopyingSetToOff() throws Exception {
         File basedir = getBasedir("projects/resources/p003");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
         assertTrue(new File(project.getBasedir(), "target/classes/testresources/Test.class").exists());
@@ -248,7 +248,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testSourceCompileLevel() throws Exception {
         File basedir = getBasedir("projects/executionEnvironment");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project;
         // project with neither POM nor MANIFEST configuration => must fallback to 
         // source/target level == 11
@@ -293,7 +293,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testNewerEEthanBREE() throws Exception {
         File basedir = getBasedir("projects/executionEnvironment/p006-newerEEthanBREE");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         mojo.execute();
@@ -306,7 +306,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testNoBREEButEERequirement() throws Exception {
         File basedir = getBasedir("projects/executionEnvironment/eeAsRequirement");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         StandardExecutionEnvironment[] ees = mojo.getBREE();
@@ -317,7 +317,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     public void testAutomaticReleaseCompilerArgumentDeterminationDisabled() throws Exception {
         File basedir = getBasedir(
                 "projects/executionEnvironment/p007-automaticReleaseCommpilerArgumentDeterminationDisabled");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         mojo.execute();
@@ -336,7 +336,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test_TYCHO0400indirectDependencies() throws Exception {
         File basedir = getBasedir("projects/indirectDependencies");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         assertEquals("C", projects.get(1).getArtifactId());
         getMojo(projects, projects.get(1)).execute();
@@ -355,7 +355,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test_embeddedNonClasspath() throws Exception {
         File basedir = getBasedir("projects/embedednonclasspath");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
@@ -369,7 +369,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test_bootclasspathAccessRules() throws Exception {
         File basedir = getBasedir("projects/bootclasspath-accessrules");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
@@ -377,7 +377,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testWarningAndErrorMessages() throws Exception {
         File basedir = getBasedir("projects/compilermessages");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         final List<CharSequence> warnings = new ArrayList<>();
@@ -412,7 +412,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCompilerArgs() throws Exception {
         File basedir = getBasedir("projects/compiler-args");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
 
@@ -444,7 +444,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         // the code in the project does use boxing and the settings file 
         // turns on warning for auto boxing so we expect here a warning
         File basedir = getBasedir("projects/projectSettings/p001");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
@@ -464,7 +464,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testUseProjectSettingsSetToFalse() throws Exception {
         File basedir = getBasedir("projects/projectSettings/p001");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.FALSE);
@@ -483,7 +483,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testUseProjectSettingsSetToTrueWithMissingPrefsFile() throws Exception {
         File basedir = getBasedir("projects/projectSettings/p002");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
@@ -516,7 +516,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testBreeCompilerTargetCompatibilityIsChecked() throws Exception {
         File basedir = getBasedir("projects/bree-target-compatibility");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
         try {
@@ -535,7 +535,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test386210_compilerConfigurationCrosstalk() throws Exception {
         File basedir = getBasedir("projects/crosstalk");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         getMojo(projects, projects.get(1)).execute();
         getMojo(projects, projects.get(2)).execute();
@@ -543,7 +543,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCompilerLogWithMultiJarInSingleDirectory() throws Exception {
         File basedir = getBasedir("projects/logs/multiJarSingleDir");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         lookupConfiguredMojo(project, "compile").execute();
         assertTrue(new File(basedir, "target/log-dir/@dot.log").canRead());
@@ -552,7 +552,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCompilerLogWithMultiJarInSubDirectory() throws Exception {
         File basedir = getBasedir("projects/logs/multiJarMultiDir");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         lookupConfiguredMojo(project, "compile").execute();
         assertTrue(new File(basedir, "target/log-dir/@dot.log").canRead());
@@ -561,7 +561,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCompilerLogWithSingleJar() throws Exception {
         File basedir = getBasedir("projects/logs/singleJar");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         lookupConfiguredMojo(project, "compile").execute();
         assertTrue(new File(basedir, "target/log-dir/@dot.xml").canRead());
@@ -569,7 +569,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCompilerLogWithCustomComilerArgs() throws Exception {
         File basedir = getBasedir("projects/logs/customCompilerArgs");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         lookupConfiguredMojo(project, "compile").execute();
         assertTrue(new File(basedir, "target/@dot.xml").canRead());
@@ -577,7 +577,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testCompilerLogWithCustomComilerArgsAndLog() throws Exception {
         File basedir = getBasedir("projects/logs/customCompilerArgsAndLog");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         try {
             lookupConfiguredMojo(project, "compile").execute();
@@ -590,7 +590,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testJreCompilationProfile() throws Exception {
         File basedir = getBasedir("projects/jreCompilationProfile");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(Collections.singletonList(project), project);
         mojo.execute();
@@ -601,7 +601,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testUseJDKBREE() throws Exception {
         File basedir = getBasedir("projects/useJDKBREE");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(Collections.singletonList(project), project);
         try {

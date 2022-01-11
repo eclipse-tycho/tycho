@@ -127,7 +127,7 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
     }
 
     private PackagePluginMojo execMaven(File basedir) throws Exception {
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+		List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         MavenSession session = newMavenSession(project, projects);
 

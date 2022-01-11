@@ -14,7 +14,6 @@ package org.eclipse.tycho.core.osgitools.targetplatform;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
@@ -40,18 +40,21 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyCollector;
+import org.eclipse.tycho.core.osgitools.AbstractArtifactBasedProject;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 
@@ -59,6 +62,7 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
  * Creates target platform based on local Eclipse installation.
  */
 @Component(role = DependencyResolver.class, hint = LocalDependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
+@Deprecated
 public class LocalDependencyResolver extends AbstractLogEnabled implements DependencyResolver {
 
     public static final String ROLE_HINT = "local";
@@ -118,6 +122,19 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        Properties properties = (Properties) reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        if (properties != null) {
+            String property = properties.getProperty("tycho.test.targetPlatform");
+            if (property != null) {
+                File location = new File(property);
+                if (!location.exists() || !location.isDirectory()) {
+                    throw new RuntimeException("Invalid target platform location: " + property);
+                }
+                setLocation(new File(property));
+            }
+        }
+
         DefaultDependencyArtifacts platform = new DefaultDependencyArtifacts(DefaultReactorProject.adapt(project));
 
         for (File site : layout.getSites()) {
@@ -240,7 +257,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
         return key;
     }
 
-    public void setLocation(File location) throws IOException {
+    public void setLocation(File location) {
         layout.setLocation(location.getAbsoluteFile());
     }
 
@@ -250,7 +267,15 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
         // TODO testTargetPlatform is ignored for this local resolved. Is this OK?
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         // walk depencencies for consistency
-        projectType.checkForMissingDependencies(reactorProject);
+        if (projectType instanceof AbstractArtifactBasedProject) {
+
+            TargetPlatformConfiguration configuration = TychoProjectUtils
+                    .getTargetPlatformConfiguration(reactorProject);
+
+            // this throws exceptions when dependencies are missing
+            projectType.getDependencyWalker(reactorProject).walk(new ArtifactDependencyVisitor() {
+            });
+        }
 
         MavenDependencyCollector dependencyCollector = new MavenDependencyCollector(project, bundleReader, logger);
         projectType.getDependencyWalker(reactorProject).walk(dependencyCollector);

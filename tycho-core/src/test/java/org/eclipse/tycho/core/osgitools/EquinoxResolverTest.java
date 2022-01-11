@@ -125,7 +125,7 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         Properties properties = new Properties();
         properties.put("tycho-version", TychoVersion.getTychoVersion());
 
-        List<MavenProject> projects = getSortedProjects(basedir, properties, null);
+        List<MavenProject> projects = getSortedProjects(basedir, properties);
         assertEquals(1, projects.size());
 
         return projects.get(0);

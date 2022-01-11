@@ -11,11 +11,8 @@
 package org.eclipse.tycho.core.osgitools;
 
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 public abstract class AbstractArtifactBasedProject extends AbstractTychoProject {
     // this is stricter than Artifact.SNAPSHOT_VERSION
@@ -32,16 +29,8 @@ public abstract class AbstractArtifactBasedProject extends AbstractTychoProject 
         return newDependencyWalker(project, environment);
     }
 
-    protected abstract ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment);
-
-    @Override
-    public void checkForMissingDependencies(ReactorProject project) {
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-
-        // this throws exceptions when dependencies are missing
-        getDependencyWalker(project).walk(new ArtifactDependencyVisitor() {
-        });
-    }
+    protected abstract ArtifactDependencyWalker newDependencyWalker(ReactorProject project,
+            TargetEnvironment environment);
 
     protected String getOsgiVersion(ReactorProject project) {
         String version = project.getVersion();
