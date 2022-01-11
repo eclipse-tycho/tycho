@@ -17,10 +17,6 @@
 			</dependencies>
 		</location>
 		<location includeSource="true" missingManifest="generate" type="Maven">
-
-			<feature id="org.apache.commons.io.feature" label="Apache Commons IO" provider-name="Apache" version="1.0.0.qualifier">
-
-</feature>
 			<dependencies>
 				<dependency>
 					<groupId>commons-io</groupId>

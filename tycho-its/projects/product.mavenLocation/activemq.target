@@ -2,11 +2,15 @@
 <?pde version="3.8"?>
 <target name="activemq">
 	<locations>
-		<location includeDependencyScope="compile" includeSource="false" missingManifest="ignore" type="Maven">
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math3</artifactId>
-			<version>3.2</version>
-			<type>jar</type>
+		<location includeDependencyScope="compile" missingManifest="ignore" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-math3</artifactId>
+					<version>3.2</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
 		</location>
 	</locations>
 </target>

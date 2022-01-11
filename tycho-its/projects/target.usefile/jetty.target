@@ -3,10 +3,14 @@
 <target>
 	<locations>
 		<location includeDependencyScope="compile" includeSource="true" missingManifest="ignore" type="Maven">
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlet</artifactId>
-			<version>10.0.1</version>
-			<type>jar</type>
+			<dependencies>
+				<dependency>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-servlet</artifactId>
+					<version>10.0.1</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
 		</location>
 	</locations>
 </target>

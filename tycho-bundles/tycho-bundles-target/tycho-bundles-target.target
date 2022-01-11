@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="324">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="Target platform for Tycho's bundles" sequenceNumber="324">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
@@ -30,15 +32,15 @@
 <unit id="org.bouncycastle.bcpg" version="1.69.0.v20210713-1924"/>
 <repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20211122181901/repository"/>
 </location>
-<location includeSource="true" missingManifest="error" type="Maven">
-	<dependencies>
-		<dependency>
-			<groupId>biz.aQute.bnd</groupId>
-			<artifactId>biz.aQute.bndlib</artifactId>
-			<version>5.1.2</version>
-			<type>jar</type>
-		</dependency>
-	</dependencies>
-</location>
+	<location includeSource="true" missingManifest="error" type="Maven">
+		<dependencies>
+			<dependency>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>biz.aQute.bndlib</artifactId>
+				<version>5.1.2</version>
+				<type>jar</type>
+			</dependency>
+		</dependencies>
+	</location>
 </locations>
 </target>

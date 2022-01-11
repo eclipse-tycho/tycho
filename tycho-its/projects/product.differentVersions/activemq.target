@@ -3,22 +3,34 @@
 <target name="activemq">
 	<locations>
 		<location includeDependencyScope="compile" includeSource="true" missingManifest="ignore" type="Maven">
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-core</artifactId>
-			<version>5.7.0</version>
-			<type>jar</type>
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.activemq</groupId>
+					<artifactId>activemq-core</artifactId>
+					<version>5.7.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
 		</location>
 		<location includeDependencyScope="compile" missingManifest="ignore" type="Maven">
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-core</artifactId>
-			<version>5.2.0</version>
-			<type>jar</type>
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.activemq</groupId>
+					<artifactId>activemq-core</artifactId>
+					<version>5.2.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
 		</location>
 		<location missingManifest="ignore" type="Maven">
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-core</artifactId>
-			<version>3.11.0</version>
-			<type>jar</type>
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.camel</groupId>
+					<artifactId>camel-core</artifactId>
+					<version>3.11.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
 		</location>
 	</locations>
 </target>
