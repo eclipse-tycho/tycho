@@ -36,6 +36,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -75,6 +76,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     private ReactorProject projectToResolve;
     private P2ResolutionResult result;
+    private static final String LATEST_PLATFORM = "https://download.eclipse.org/eclipse/updates/latest/";
 
     @Before
     public void initDefaultResolver() throws Exception {
@@ -244,7 +246,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testBundleUsesSWT() throws Exception {
-        tpConfig.addP2Repository(resourceFile("repositories/e361").toURI());
+        tpConfig.addP2Repository(new URI(LATEST_PLATFORM));
 
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
         projectToResolve = createReactorProject(resourceFile("resolver/bundleUsesSWT"), TYPE_ECLIPSE_PLUGIN,
