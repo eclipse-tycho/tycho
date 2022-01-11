@@ -24,7 +24,8 @@ import org.eclipse.tycho.core.shared.BuildFailureException;
 
 public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
     // Most likely best to always be the latest known supported EE
-    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-" + Integer.toString(Runtime.version().feature());
+    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-"
+            + Integer.toString(Runtime.version().feature());
 
     private static final int PRIMARY = 0;
     private static final int SECONDARY = 1;
@@ -128,7 +129,8 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException {
         if (isCustomProfile()) {
             if (customExecutionEnvironment == null) {
-                throw new IllegalStateException("Full specification of custom profile is not (yet) determined");
+                throw new IllegalStateException(
+                        "Full specification of custom profile '" + getProfileName() + "' is not (yet) determined");
             }
             return customExecutionEnvironment;
         }

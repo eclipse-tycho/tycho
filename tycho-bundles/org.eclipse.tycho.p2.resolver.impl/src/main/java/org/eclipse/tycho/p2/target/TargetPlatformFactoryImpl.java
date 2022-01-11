@@ -131,8 +131,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     @Override
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects) {
-        return createTargetPlatform(tpConfiguration, ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration),
-                reactorProjects);
+        return createTargetPlatform(tpConfiguration,
+                ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration, logger), reactorProjects);
     }
 
     /**

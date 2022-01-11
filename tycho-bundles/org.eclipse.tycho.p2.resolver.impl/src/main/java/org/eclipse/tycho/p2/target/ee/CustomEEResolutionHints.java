@@ -65,11 +65,7 @@ public final class CustomEEResolutionHints implements ExecutionEnvironmentResolu
 
     @Override
     public boolean isNonApplicableEEUnit(IInstallableUnit iu) {
-        return isJreUnit(iu.getId()) && !isEESpecificationUnit(iu);
-    }
-
-    private boolean isJreUnit(String id) {
-        return id.startsWith("a.jre") || id.startsWith("config.a.jre");
+        return ExecutionEnvironmentResolutionHints.isJreUnit(iu) && !isEESpecificationUnit(iu);
     }
 
     @Override
