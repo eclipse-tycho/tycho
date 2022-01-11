@@ -66,7 +66,8 @@ public class TestErrorMessages extends AbstractTychoIntegrationTest {
 			verifier.executeGoal("compile");
 			fail();
 		} catch (VerificationException e) {
-			verifier.verifyTextInLog("Unresolved requirement: Require-Capability: osgi.ee; filter:=");
+			verifier.verifyTextInLog(
+					"The following Execution Environments are currently known but are ignored by configuration");
 		}
 	}
 }

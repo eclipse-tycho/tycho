@@ -17,23 +17,26 @@ import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 public abstract class ExecutionEnvironmentResolutionHandler {
 
-    public static ExecutionEnvironmentResolutionHandler adapt(ExecutionEnvironmentConfiguration eeConfiguration) {
+    public static ExecutionEnvironmentResolutionHandler adapt(ExecutionEnvironmentConfiguration eeConfiguration,
+            MavenLogger logger) {
         if (eeConfiguration.ignoreExecutionEnvironment()) {
-            return new StandardEEResolutionHandler(NoExecutionEnvironmentResolutionHints.INSTANCE, eeConfiguration);
+            return new StandardEEResolutionHandler(NoExecutionEnvironmentResolutionHints.INSTANCE, eeConfiguration,
+                    logger);
         }
         if (eeConfiguration.isIgnoredByResolver()) {
             return new StandardEEResolutionHandler(new AllKnownEEsResolutionHints(eeConfiguration.getAllKnownEEs()),
-                    eeConfiguration);
+                    eeConfiguration, logger);
         } else if (eeConfiguration.isCustomProfile()) {
             // TODO consider whether custom and standard EE couldn't build their "hints" the same way
             return new CustomEEResolutionHandler(eeConfiguration);
         } else {
             return new StandardEEResolutionHandler(
-                    new StandardEEResolutionHints(eeConfiguration.getFullSpecification()), eeConfiguration);
+                    new StandardEEResolutionHints(eeConfiguration.getFullSpecification()), eeConfiguration, logger);
         }
     }
 
