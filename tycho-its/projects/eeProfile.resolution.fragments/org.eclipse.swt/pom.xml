@@ -13,5 +13,21 @@
 	<artifactId>org.eclipse.swt</artifactId>
 	<version>3.102.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
+	 <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+                <configuration>
+                    <dependency-resolution>
+                        <optionalDependencies>ignore</optionalDependencies>
+                        <profileProperties>
+                            <org.eclipse.swt.buildtime>true</org.eclipse.swt.buildtime>
+                        </profileProperties>
+                    </dependency-resolution>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
