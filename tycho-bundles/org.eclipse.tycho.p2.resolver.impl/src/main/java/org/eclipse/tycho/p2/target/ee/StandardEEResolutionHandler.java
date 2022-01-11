@@ -21,9 +21,9 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -51,8 +51,9 @@ class StandardEEResolutionHandler extends ExecutionEnvironmentResolutionHandler 
             logger.info("The following Execution Environments are currently known but are ignored by configuration:");
             Map<String, Collection<String>> map = targetPlatformContent.stream()//
                     .filter(ExecutionEnvironmentResolutionHints::isJreUnit)//
-                    .map(StandardEEResolutionHandler::getEE).collect(Collectors.groupingBy(entry -> entry.getValue(),
-                            TreeMap::new, Collectors.mapping(Entry::getKey, Collectors.toCollection(TreeSet::new))));
+                    .flatMap(StandardEEResolutionHandler::getEE)
+                    .collect(Collectors.groupingBy(entry -> entry.getValue(), TreeMap::new,
+                            Collectors.mapping(Entry::getKey, Collectors.toCollection(TreeSet::new))));
             map.entrySet().forEach(entry -> {
                 logger.info(
                         "    " + entry.getKey() + " -> " + entry.getValue().stream().collect(Collectors.joining(", ")));
@@ -62,17 +63,12 @@ class StandardEEResolutionHandler extends ExecutionEnvironmentResolutionHandler 
         // standard EEs are fully specified - no need to read anything from the target platform
     }
 
-    private static Entry<String, String> getEE(IInstallableUnit specificationUnit) {
-        for (IProvidedCapability capability : specificationUnit.getProvidedCapabilities()) {
-            String namespace = capability.getNamespace();
-            String name = capability.getName();
-            String version = capability.getVersion().toString();
+    private static Stream<Entry<String, String>> getEE(IInstallableUnit specificationUnit) {
 
-            if (JREAction.NAMESPACE_OSGI_EE.equals(namespace)) {
-                return new SimpleEntry<>(name, version);
-            }
-        }
-        return new SimpleEntry<>(specificationUnit.getId(), specificationUnit.getVersion().toString());
+        return specificationUnit.getProvidedCapabilities().stream()
+                .filter(capability -> JREAction.NAMESPACE_OSGI_EE.equals(capability.getNamespace())).map(capability -> {
+                    return new SimpleEntry<>(capability.getName(), capability.getVersion().toString());
+                });
     }
 
 }
