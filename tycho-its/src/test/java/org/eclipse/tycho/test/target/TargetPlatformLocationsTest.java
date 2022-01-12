@@ -14,11 +14,19 @@ package org.eclipse.tycho.test.target;
 
 import static org.junit.Assert.assertFalse;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -66,10 +74,38 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 	}
 
+	@Test
 	public void testDirectoryLocation() throws Exception {
 		Verifier verifier = getVerifier("target.directory", false, true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testTargetPlatformArtifactCaching() throws Exception {
+		Verifier verifier = getVerifier("target.artifact.caching", false, true);
+		verifier.getCliOptions().add("-Dtycho.localArtifacts=default");
+
+		File annotBundleManifestFile = new File(verifier.getBasedir(),
+				"target.test/plugins/osgi.annotation.bundle_0.0.1/META-INF/MANIFEST.MF");
+		DefaultBundleReader reader = new DefaultBundleReader();
+		OsgiManifest annotBundleManifest = reader.loadManifest(annotBundleManifestFile);
+		Assert.assertEquals("org.osgi.annotation.versioning", annotBundleManifest.getValue("Export-Package"));
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+
+		List<String> out = Files.lines(annotBundleManifestFile.toPath())
+				.filter(line -> !line.contains("Export-Package")).collect(Collectors.toList());
+		Files.write(annotBundleManifestFile.toPath(), out, StandardOpenOption.WRITE,
+				StandardOpenOption.TRUNCATE_EXISTING);
+
+		try {
+			verifier.executeGoal("verify");
+			Assert.fail("Reference to the restricted package did not fail the build");
+		} catch (VerificationException expected) {
+			verifier.verifyTextInLog(
+					"Access restriction: The type 'Version' is not API (restriction on classpath entry");
+		}
 	}
 
 	@Test
