@@ -81,7 +81,7 @@ Regards,
 ```
 - [ ] close the staging repository on https://oss.sonatype.org/#stagingRepositories 
 - [ ] Wait for artifacts to be available on Maven central.
-- [ ] `git push eclipse HEAD:tycho-N.M.x tycho-<TYCHO_VERSION>` (push commit to branch, and tag)
+- [ ] push tag `git push origin tycho-<TYCHO_VERSION>`
 - Documentation
   - [ ] Generate site docs using `mvn install site site:stage -DskipTests` and check the result from `target/staging` seems viable.
   - [ ] Prepare documentation on the webite, using git repo https://git.eclipse.org/c/www.eclipse.org/tycho.git/ : copy the local site docs folders `target/staging/sitedocs` to the existing `sitedocs` folder and then submit as Gerrit review (don't merge yet)
