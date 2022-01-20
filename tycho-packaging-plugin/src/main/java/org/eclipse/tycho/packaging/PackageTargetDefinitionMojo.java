@@ -31,7 +31,7 @@ import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
  * Registers all target definition files in the basedir of a project as maven artifact.
  * 
  */
-@Mojo(name = "package-target-definition", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "package-target-definition", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class PackageTargetDefinitionMojo extends AbstractMojo {
 
     @Parameter(property = "project", required = true, readonly = true)
