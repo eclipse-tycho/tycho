@@ -32,6 +32,7 @@ Tycho team
 
 ... Wait until review date (usually a week later)...
 
+- [ ] make sure all tags are fetched with `git fetch -t`
 - [ ] Make sure you have everything setup (GPG installed!) for deploying to the Nexus OSS repository, see https://central.sonatype.org/pages/ossrh-guide.html guide
 - [ ] Add your credentials for server `sonatype-nexus-staging` in `~/.m2/settings.xml`
 ```xml
