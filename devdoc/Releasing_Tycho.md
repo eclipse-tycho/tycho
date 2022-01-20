@@ -79,7 +79,7 @@ and thanks and to everyone who helped us with testing the staged version.
 Regards,
 
 ```
-- [ ] On https://oss.sonatype.org/#stagingRepositories , Close the staging repository, get the staging repo URL from Nexus
+- [ ] close the staging repository on https://oss.sonatype.org/#stagingRepositories 
 - [ ] Wait for artifacts to be available on Maven central.
 - [ ] `git push eclipse HEAD:tycho-N.M.x tycho-<TYCHO_VERSION>` (push commit to branch, and tag)
 - Documentation
