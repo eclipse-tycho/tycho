@@ -86,6 +86,7 @@ Regards,
 
 ```
 - [ ] close the staging repository on https://oss.sonatype.org/#stagingRepositories 
+- [ ] Wait until all checks are done (this takes some time, see Activity tab). If all checks have passed, release the repository.
 - [ ] Wait for artifacts to be available on Maven central.
 - [ ] push tag `git push origin tycho-<TYCHO_VERSION>`
 - Documentation
