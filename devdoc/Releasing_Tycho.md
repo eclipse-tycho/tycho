@@ -54,7 +54,13 @@ Tycho team
 - [ ] Update version to remove `-SNAPSHOT` with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<VERSION>`
 - [ ] Update versions in tycho-demo folder
 - [ ] `git add * && git commit` version change
-- [ ] Sync to release commit and deploy to nexus staging repository: `mvn clean deploy -Prelease -DforgeReleaseId=sonatype-nexus-staging -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DskipTests`
+- [ ] Deploy to nexus staging repository (check that the correct pgp key is used and published to the key-servers eg. https://keys.openpgp.org/): 
+```
+mvn clean deploy -Prelease -DskipTests -Dsource=8 -DjdetectJavaApiLink=false \
+     -DforgeReleaseId=sonatype-nexus-staging \
+     -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
+     -Dgpg.keyname=<your e-mail of pgpg key>
+```
 - In the meantime...
     - [ ] `git tag tycho-<TYCHO_VERSION>`
     - [ ] Find out who contributed to the release:
