@@ -85,6 +85,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
+        System.out.println("TychoMavenLifecycleParticipant.afterProjectsRead()");
         try {
             if (disableLifecycleParticipation(session)) {
                 return;
@@ -111,7 +112,14 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     }
 
     @Override
+    public void afterSessionStart(MavenSession session) throws MavenExecutionException {
+        System.out.println("TychoMavenLifecycleParticipant.afterSessionStart()");
+        super.afterSessionStart(session);
+    }
+
+    @Override
     public void afterSessionEnd(MavenSession session) throws MavenExecutionException {
+        System.out.println("TychoMavenLifecycleParticipant.afterSessionEnd()");
         if (plexus.hasComponent(EquinoxServiceFactory.class)) {
             try {
                 EquinoxServiceFactory factory = plexus.lookup(EquinoxServiceFactory.class);
