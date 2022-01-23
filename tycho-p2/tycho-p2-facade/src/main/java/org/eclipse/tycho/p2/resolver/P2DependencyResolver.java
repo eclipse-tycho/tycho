@@ -57,6 +57,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
@@ -85,8 +86,6 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.shared.BuildFailureException;
-import org.eclipse.tycho.core.shared.BuildProperties;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -116,9 +115,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Requirement
     private RepositorySystem repositorySystem;
-
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
 
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
@@ -416,7 +412,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             }
         }
 
-        BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+        BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
         Collection<String> additionalBundles = buildProperties.getAdditionalBundles();
         for (String additionalBundle : additionalBundles) {
             resolver.addAdditionalBundleDependency(additionalBundle);

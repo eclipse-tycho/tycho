@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
-import org.eclipse.tycho.core.shared.BuildProperties;
 
 public class EclipsePluginProjectImpl implements EclipsePluginProject {
 

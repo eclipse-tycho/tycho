@@ -11,7 +11,7 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.core.shared;
+package org.eclipse.tycho;
 
 import java.io.File;
 
@@ -19,9 +19,13 @@ public interface BuildPropertiesParser {
 
     public static final String BUILD_PROPERTIES = "build.properties";
 
+    default BuildProperties parse(ReactorProject project) {
+        return parse(project.getBasedir(), project.getInterpolator());
+    }
+
     /**
      * Parse the file "build.properties" in baseDir. If the file does not exist or cannot be read,
      * an "empty" {@link BuildProperties} will be returned.
      */
-    public BuildProperties parse(File baseDir);
+    BuildProperties parse(File baseDir, Interpolator interpolator);
 }

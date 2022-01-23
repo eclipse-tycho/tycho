@@ -21,7 +21,7 @@ import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
 import org.codehaus.plexus.interpolation.SingleResponseValueSource;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
-import org.eclipse.tycho.core.shared.Interpolator;
+import org.eclipse.tycho.Interpolator;
 
 /**
  * Class thats interpolates string values like ${project.artifactId}. It is using the

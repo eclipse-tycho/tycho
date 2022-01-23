@@ -37,11 +37,10 @@ import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.shared.BuildProperties;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 
@@ -107,9 +106,6 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     @Component
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    @Component
-    private BuildPropertiesParser buildPropertiesParser;
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
@@ -129,7 +125,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
                 throw new MojoExecutionException("Error updating feature.xml", e);
             }
 
-            BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+			BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
             checkBinIncludesExist(buildProperties);
 
             File featureProperties = getFeatureProperties(licenseFeature, buildProperties);

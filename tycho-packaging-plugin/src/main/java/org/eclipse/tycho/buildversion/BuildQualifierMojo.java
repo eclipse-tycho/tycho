@@ -31,7 +31,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.VersioningHelper;
 import org.osgi.framework.Version;
 
@@ -121,9 +121,6 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-    @Component
-    protected BuildPropertiesParser buildPropertiesParser;
-
     @Component(role = BuildTimestampProvider.class)
     protected Map<String, BuildTimestampProvider> timestampProviders;
 
@@ -160,7 +157,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         String qualifier = forceContextQualifier;
 
         if (qualifier == null) {
-            qualifier = buildPropertiesParser.parse(baseDir).getForceContextQualifier();
+			qualifier = DefaultReactorProject.adapt(project).getBuildProperties().getForceContextQualifier();
         }
 
         if (qualifier == null) {

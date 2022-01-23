@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,16 +9,20 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - add getName() / combine directories
+ *    Christoph Läubrich - add getName() / combine directories / getter for Interpolator
  *******************************************************************************/
 package org.eclipse.tycho;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  * A Tycho project in the reactor.
  */
 public interface ReactorProject extends IDependencyMetadata {
+
+    static final String CTX_INTERPOLATOR = "tycho.project.interpolator";
+    static final String CTX_BUILDPROPERTIESPARSER = "tycho.project.buildpropertiesparser";
 
     /**
      * Conventional sources jar Maven artifact classifier.
@@ -66,6 +70,23 @@ public interface ReactorProject extends IDependencyMetadata {
     public String getExpandedVersion();
 
     // misc
+    /**
+     * 
+     * @return the Interpolator for this project that could be used to resolve maven variable
+     *         references
+     */
+    default Interpolator getInterpolator() {
+        return Objects.requireNonNull((Interpolator) getContextValue(CTX_INTERPOLATOR),
+                "No Interpolator found, has the TychoMavenLifecycleParticipant not run?");
+    }
+
+    default BuildProperties getBuildProperties() {
+        BuildPropertiesParser parser = Objects.requireNonNull(
+                (BuildPropertiesParser) getContextValue(CTX_BUILDPROPERTIESPARSER),
+                "No BuildPropertiesParser found, has the TychoMavenLifecycleParticipant not run?");
+        //we must always ask the parser here, it is expected that the parser caches the properties if the have not changed in the meanwhile
+        return parser.parse(this);
+    }
 
     /**
      * human-readable id used in error messages

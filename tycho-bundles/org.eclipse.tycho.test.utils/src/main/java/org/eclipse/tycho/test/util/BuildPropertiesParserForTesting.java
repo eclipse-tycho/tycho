@@ -19,14 +19,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 
 public class BuildPropertiesParserForTesting implements BuildPropertiesParser {
 
     @Override
-    public BuildProperties parse(File baseDir) {
+    public BuildProperties parse(File baseDir, Interpolator interpolator) {
         Properties props = new Properties();
         readBuildProperties(baseDir, props);
 

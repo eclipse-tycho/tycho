@@ -28,6 +28,8 @@ import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.eclipse.tycho.BuildProperties;
+
 public class BuildPropertiesImpl implements BuildProperties {
 
     private String javacSource;

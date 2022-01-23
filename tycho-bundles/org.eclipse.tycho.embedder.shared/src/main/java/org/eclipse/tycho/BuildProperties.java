@@ -12,7 +12,7 @@
  *     Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *******************************************************************************/
 
-package org.eclipse.tycho.core.shared;
+package org.eclipse.tycho;
 
 import java.util.Collection;
 import java.util.List;

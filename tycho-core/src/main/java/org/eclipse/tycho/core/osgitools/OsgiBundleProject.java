@@ -73,7 +73,6 @@ import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
@@ -99,9 +98,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private BundleReader bundleReader;
-
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
 
     @Requirement
     private ClasspathParser classpathParser;
@@ -351,8 +347,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
             try {
-                pdeProject = new EclipsePluginProjectImpl(otherProject,
-                        buildPropertiesParser.parse(otherProject.getBasedir()),
+                pdeProject = new EclipsePluginProjectImpl(otherProject, otherProject.getBuildProperties(),
                         classpathParser.parse(otherProject.getBasedir()));
                 if (otherProject instanceof DefaultReactorProject) {
                     populateProperties(((DefaultReactorProject) otherProject).project.getProperties(), pdeProject);

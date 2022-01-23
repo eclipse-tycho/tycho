@@ -24,7 +24,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
-import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.BuildProperties;
 
 @Component(role = IncludeValidationHelper.class)
 public class IncludeValidationHelper {
