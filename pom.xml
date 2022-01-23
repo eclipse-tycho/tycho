@@ -493,6 +493,7 @@
 
 		<module>tycho-gpg-plugin</module>
 		<module>tycho-extras</module>
+		<module>tycho-build</module>
 	</modules>
 
 	<profiles>
