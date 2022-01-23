@@ -48,14 +48,13 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.shared.BuildProperties;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.packaging.IncludeValidationHelper;
 import org.osgi.framework.Version;
 
@@ -161,9 +160,6 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private Map<String, TychoProject> projectTypes;
 
     @Component
-    BuildPropertiesParser buildPropertiesParser;
-
-    @Component
     private IncludeValidationHelper includeValidationHelper;
 
     @Component
@@ -172,7 +168,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     /** {@inheritDoc} */
     @Override
     protected List<Resource> getSources(MavenProject p) throws MojoExecutionException {
-        return getSources(project, requireSourceRoots, buildPropertiesParser.parse(p.getBasedir()));
+        return getSources(project, requireSourceRoots, DefaultReactorProject.adapt(project).getBuildProperties());
     }
 
     protected List<Resource> getSources(MavenProject p, boolean requireSourceRoots, BuildProperties buildProperties)
@@ -204,7 +200,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         if (excludeResources) {
             return Collections.emptyList();
         }
-        BuildProperties buildProperties = buildPropertiesParser.parse(p.getBasedir());
+        BuildProperties buildProperties = DefaultReactorProject.adapt(p).getBuildProperties();
         List<String> srcIncludesList = buildProperties.getSourceIncludes();
         List<Resource> resources = new ArrayList<>();
         if (!srcIncludesList.isEmpty()) {
@@ -359,7 +355,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             return ".";
         }
         StringJoiner result = new StringJoiner(",");
-        for (String jarName : getBuildProperties().getJarToSourceFolderMap().keySet()) {
+        for (String jarName : DefaultReactorProject.adapt(project).getBuildProperties().getJarToSourceFolderMap()
+                .keySet()) {
             String sourceRoot;
             if (".".equals(jarName)) {
                 sourceRoot = ".";
@@ -390,10 +387,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     @Override
     protected boolean isRelevantProject(MavenProject project) {
-        return isRelevantProjectImpl(project, buildPropertiesParser);
+        return isRelevant(project);
     }
 
-    protected static boolean isRelevantProjectImpl(MavenProject project, BuildPropertiesParser buildPropertiesParser) {
+    public static boolean isRelevant(MavenProject project) {
         String packaging = project.getPackaging();
         boolean relevant = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
                 || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
@@ -420,7 +417,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
                 if (hasAdditionalFilesets) {
                     return true;
                 }
-                BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+                BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
                 if (buildProperties.getJarToSourceFolderMap().size() > 0
                         || buildProperties.getSourceIncludes().size() > 0) {
                     return true;
@@ -452,7 +449,4 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         return child;
     }
 
-    private BuildProperties getBuildProperties() {
-        return buildPropertiesParser.parse(project.getBasedir());
-    }
 }

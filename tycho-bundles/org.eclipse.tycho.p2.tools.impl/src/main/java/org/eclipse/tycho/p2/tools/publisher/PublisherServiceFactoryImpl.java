@@ -14,8 +14,8 @@ package org.eclipse.tycho.p2.tools.publisher;
 
 import java.util.List;
 
+import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;

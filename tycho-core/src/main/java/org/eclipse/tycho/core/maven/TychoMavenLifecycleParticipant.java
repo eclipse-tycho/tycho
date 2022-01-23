@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann electronic GmbH - Bug 457314 - handle null as tycho version
- *    Christoph Läubrich - Bug 569829 - TychoMavenLifecycleParticipant should respect fail-at-end flag / error output is missing
+ *    Christoph Läubrich    - Bug 569829 - TychoMavenLifecycleParticipant should respect fail-at-end flag / error output is missing
+ *                          - Issue 557 - BuildPropertiesParser should use reactor project instead of basedir
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
@@ -42,6 +43,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -74,6 +76,9 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     private Logger log;
 
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
+
     public TychoMavenLifecycleParticipant() {
         // needed for plexus
     }
@@ -99,7 +104,11 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             configureComponents(session);
 
             for (MavenProject project : projects) {
-                resolver.setupProject(session, project, DefaultReactorProject.adapt(project));
+                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+                reactorProject.setContextValue(ReactorProject.CTX_INTERPOLATOR,
+                        new TychoInterpolator(session, project));
+                reactorProject.setContextValue(ReactorProject.CTX_BUILDPROPERTIESPARSER, buildPropertiesParser);
+                resolver.setupProject(session, project, reactorProject);
             }
 
             resolveProjects(session, projects);

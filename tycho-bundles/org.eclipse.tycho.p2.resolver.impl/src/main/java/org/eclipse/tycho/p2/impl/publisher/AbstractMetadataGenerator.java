@@ -36,10 +36,11 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
-import org.eclipse.tycho.core.shared.BuildProperties;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -67,8 +68,9 @@ public abstract class AbstractMetadataGenerator {
 
     protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options);
 
-    protected ICapabilityAdvice getExtraEntriesAdvice(IArtifactFacade artifact) {
-        final IRequirement[] extraRequirements = extractExtraEntriesAsIURequirement(artifact.getLocation());
+    protected ICapabilityAdvice getExtraEntriesAdvice(IArtifactFacade artifact, Interpolator interpolator) {
+        final IRequirement[] extraRequirements = extractExtraEntriesAsIURequirement(artifact.getLocation(),
+                interpolator);
         return new ICapabilityAdvice() {
             @Override
             public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
@@ -92,8 +94,8 @@ public abstract class AbstractMetadataGenerator {
         };
     }
 
-    private IRequirement[] extractExtraEntriesAsIURequirement(File location) {
-        BuildProperties buildProps = buildPropertiesParser.parse(location);
+    private IRequirement[] extractExtraEntriesAsIURequirement(File location, Interpolator interpolator) {
+        BuildProperties buildProps = buildPropertiesParser.parse(location, interpolator);
         ArrayList<IRequirement> result = new ArrayList<>();
         for (Entry<String, List<String>> entry : buildProps.getJarToExtraClasspathMap().entrySet()) {
             createRequirementFromExtraClasspathProperty(result, entry.getValue());

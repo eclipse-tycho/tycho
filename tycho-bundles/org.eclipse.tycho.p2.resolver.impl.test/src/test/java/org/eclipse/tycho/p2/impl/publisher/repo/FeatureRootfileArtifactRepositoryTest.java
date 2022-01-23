@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;

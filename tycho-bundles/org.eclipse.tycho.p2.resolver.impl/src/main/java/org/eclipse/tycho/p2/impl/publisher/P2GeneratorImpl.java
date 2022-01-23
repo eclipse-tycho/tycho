@@ -43,6 +43,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -56,6 +57,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
+import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 @SuppressWarnings("restriction")
@@ -85,6 +87,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         Map<String, IP2Artifact> result = new LinkedHashMap<>();
 
         for (IArtifactFacade artifact : artifacts) {
+
             PublisherInfo publisherInfo = new PublisherInfo();
 
             DependencyMetadata metadata;
@@ -355,10 +358,16 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     @Override
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options) {
+        Interpolator interpolator;
+        if (artifact instanceof ReactorProjectFacade) {
+            interpolator = ((ReactorProjectFacade) artifact).getReactorProject().getInterpolator();
+        } else {
+            interpolator = null;
+        }
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
         advice.add(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
                 artifact.getClassifier()));
-        advice.add(getExtraEntriesAdvice(artifact));
+        advice.add(getExtraEntriesAdvice(artifact, interpolator));
 
         if (options.generateDownloadStatsProperty) {
             advice.add(new DownloadStatsAdvice());
