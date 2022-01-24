@@ -193,12 +193,6 @@
 
 	<profiles>
 		<profile>
-			<id>its</id>
-			<modules>
-				<module>tycho-extras-its</module>
-			</modules>
-		</profile>
-		<profile>
     		<id>pack200</id>
     		<activation>
         		<jdk>(,13]</jdk>
