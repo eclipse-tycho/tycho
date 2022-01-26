@@ -19,6 +19,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -38,7 +39,7 @@ import org.apache.maven.project.MavenProject;
  * to manually add and maintain them.
  *
  */
-@Mojo(name = "generate-dependency-poms", threadSafe = true)
+@Mojo(name = "generate-dependency-poms", threadSafe = true, defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class GenerateDependencyPomsMojo extends AbstractGeneratePomsMojo {
     private static final Object LOCK = new Object();
 
