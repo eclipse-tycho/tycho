@@ -15,6 +15,7 @@
 package org.eclipse.tycho.p2.target;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -25,7 +26,6 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
@@ -53,12 +53,12 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     private final boolean includeLocalRepo;
 
     public PreliminaryTargetPlatformImpl(Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
-            Collection<IInstallableUnit> externalIUs, Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
-            ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
-            LocalMetadataRepository localMetadataRepository, IRawArtifactFileProvider externalArtifacts,
-            LocalArtifactRepository localArtifactRepository, boolean includeLocalRepo, MavenLogger logger) {
+            Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment,
+            TargetPlatformFilterEvaluator filter, LocalMetadataRepository localMetadataRepository,
+            IRawArtifactFileProvider externalArtifacts, LocalArtifactRepository localArtifactRepository,
+            boolean includeLocalRepo, MavenLogger logger) {
         super(collectAllInstallableUnits(reactorProjectIUs, externalIUs, executionEnvironment), executionEnvironment,
-                externalArtifacts, localArtifactRepository, reactorProjectIUs, mavenArtifactIUs);
+                externalArtifacts, localArtifactRepository, reactorProjectIUs, new HashMap<>());
         this.externalIUs = externalIUs;
         this.filter = filter;
         this.localMetadataRepository = localMetadataRepository;

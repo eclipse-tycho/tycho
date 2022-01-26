@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -67,14 +64,6 @@ public class BuildPropertiesParserImplTest {
     public void testReadPropertiesWithNonExistingFile() {
         Properties properties = BuildPropertiesParserImpl.readProperties(new File("MISSING_FILE"));
         Assert.assertEquals(0, properties.size());
-    }
-
-    @Test
-    public void testInterpolateWithABaseDirThatsNotPartOfTheSessionsProjects() {
-        Properties props = new Properties();
-        props.put("key", "value");
-        parser.interpolate(props, new File("/bathToSomeProjectThatsNotPartOfTheSessionProjects"));
-        verify(logger, times(1)).warn(anyString());
     }
 
     @Test

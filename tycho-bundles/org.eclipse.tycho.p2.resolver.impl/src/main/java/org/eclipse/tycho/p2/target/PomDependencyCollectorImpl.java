@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 SAP SE and others.
+ * Copyright (c) 2011, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,30 +17,46 @@ package org.eclipse.tycho.p2.target;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2.target.repository.FileArtifactRepository;
+import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
+import org.eclipse.tycho.repository.p2base.artifact.repository.FileRepositoryArtifactProvider;
+import org.osgi.framework.BundleException;
 
+@SuppressWarnings("restriction")
 public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     private final TargetPlatformBundlePublisher bundlesPublisher;
@@ -50,6 +66,9 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     private Map<IArtifactFacade, IArtifactDescriptor> descriptorMap = new HashMap<>();
     private ReactorProject project;
+    private IProvisioningAgent agent;
+    private final List<IArtifactDescriptor> fileDescriptors = new ArrayList<>();
+    private FileRepositoryArtifactProvider fileRepositoryArtifactProvider;
 
     public PomDependencyCollectorImpl(MavenContext mavenContext, ReactorProject project) {
         this.project = project;
@@ -58,6 +77,13 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
         this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, project,
                 mavenContext.getLogger());
+        try {
+            agent = Activator.createProvisioningAgent(project == null ? null : project.getBasedir().toURI());
+        } catch (ProvisionException e) {
+        }
+        fileRepositoryArtifactProvider = new FileRepositoryArtifactProvider(
+                Collections.singletonList(new FileArtifactRepository(agent, () -> fileDescriptors.iterator())),
+                ArtifactTransferPolicies.forLocalArtifacts());
     }
 
     public File getProjectLocation() {
@@ -69,10 +95,42 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     @Override
     public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle) {
-        MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact, allowGenerateOSGiBundle);
-        if (bundleIU != null) {
-            addMavenArtifact(bundleIU.getArtifact(), Collections.singleton(bundleIU.getUnit()));
-            descriptorMap.put(bundleIU.getArtifact(), bundleIU.getDescriptor());
+        if (artifact instanceof ReactorProjectFacade) {
+            ReactorProjectFacade projectFacade = (ReactorProjectFacade) artifact;
+            ReactorProject reactorProject = projectFacade.getReactorProject();
+            String packaging = reactorProject.getPackaging();
+            if ("bundle".equalsIgnoreCase(packaging) || "jar".equalsIgnoreCase(packaging)) {
+                File artifactFile = reactorProject.getArtifact();
+                if (artifactFile != null) {
+                    try {
+                        BundleDescription bundleDescription = BundlesAction.createBundleDescription(artifactFile);
+                        if (bundleDescription != null && bundleDescription.getSymbolicName() != null) {
+                            IArtifactKey key = BundlesAction.createBundleArtifactKey(
+                                    bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+                            PublisherInfo publisherInfo = new PublisherInfo();
+                            publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
+                            IArtifactDescriptor descriptor = FileArtifactRepository.forFile(artifactFile, key);
+                            fileDescriptors.add(descriptor);
+                            IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, key, publisherInfo);
+                            mavenInstallableUnits.put(iu, projectFacade);
+                            descriptorMap.put(projectFacade, descriptor);
+                        } else {
+                            if (allowGenerateOSGiBundle) {
+                                logger.warn("Referenced reactor project " + projectFacade
+                                        + " has no valid OSGi metadata and allowGenerateOSGiBundle=true is not applicable for reactor projects, consider adding felix- or bnd-maven-plugin to this project to generate appropriate OSGi headers in the first place.");
+                            }
+                        }
+                    } catch (IOException | BundleException e) {
+                        logger.warn("Referenced reactor project " + projectFacade + " could not be read!", e);
+                    }
+                }
+            }
+        } else {
+            MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact, allowGenerateOSGiBundle);
+            if (bundleIU != null) {
+                addMavenArtifact(bundleIU.getArtifact(), Collections.singleton(bundleIU.getUnit()));
+                descriptorMap.put(bundleIU.getArtifact(), bundleIU.getDescriptor());
+            }
         }
     }
 
@@ -125,7 +183,8 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     }
 
     IRawArtifactFileProvider getArtifactRepoOfPublishedBundles() {
-        return bundlesPublisher.getArtifactRepoOfPublishedBundles();
+        return new CompositeArtifactProvider(bundlesPublisher.getArtifactRepoOfPublishedBundles(),
+                fileRepositoryArtifactProvider);
     }
 
     @Override

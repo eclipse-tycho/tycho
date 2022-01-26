@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 SAP SE and others.
+ * Copyright (c) 2012, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.repository.registry.facade;
 
@@ -37,7 +38,7 @@ public interface ReactorRepositoryManagerFacade {
      */
     TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
             TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
-            List<ReactorProject> reactorProjects, PomDependencyCollector pomDependencies);
+            List<ReactorProject> reactorProjects);
 
     /**
      * Computes the (immutable) target platform with final p2 metadata and attaches it to the given
@@ -49,7 +50,8 @@ public interface ReactorRepositoryManagerFacade {
      *            Other projects in the reactor which have already been built and may be referenced
      *            by the given project.
      */
-    void computeFinalTargetPlatform(ReactorProject project, List<? extends ReactorProjectIdentities> upstreamProjects);
+    void computeFinalTargetPlatform(ReactorProject project, List<? extends ReactorProjectIdentities> upstreamProjects,
+            PomDependencyCollector pomDependencyCollector);
 
     /**
      * Returns the target platform with final p2 metadata for the given project.

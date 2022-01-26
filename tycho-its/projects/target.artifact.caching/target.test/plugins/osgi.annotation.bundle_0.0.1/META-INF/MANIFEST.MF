@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: osgi.annotation.bundle
+Bundle-Version: 0.0.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.osgi.annotation.versioning
+Bundle-ClassPath: lib/osgi.annotation-7.0.0.jar

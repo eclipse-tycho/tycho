@@ -62,7 +62,6 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.Bundle;
@@ -108,9 +107,6 @@ public class EquinoxResolver {
 
     @Requirement
     private BundleReader manifestReader;
-
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
 
     @Requirement
     private Logger logger;
@@ -355,8 +351,7 @@ public class EquinoxResolver {
             } else {
                 ReactorProject mavenProject = artifact.getMavenProject();
                 if (mavenProject != null) {
-                    Collection<String> additionalBundles = buildPropertiesParser.parse(mavenProject.getBasedir())
-                            .getAdditionalBundles();
+                    Collection<String> additionalBundles = mavenProject.getBuildProperties().getAdditionalBundles();
                     if (additionalBundles.size() > 0) {
                         List<String> reqb = new ArrayList<>();
                         String value = mf.getValue(Constants.REQUIRE_BUNDLE);

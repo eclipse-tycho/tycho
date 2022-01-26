@@ -37,8 +37,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -610,7 +608,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
     protected boolean isSkippedDeploy(MavenProject mavenProject) {
         String property = mavenProject.getProperties().getProperty("maven.deploy.skip");
         if (property != null) {
-            boolean skip = BooleanUtils.toBoolean(property);
+            boolean skip = Boolean.parseBoolean(property);
             getLog().debug("deploy is " + (skip ? "" : "not") + " skipped in MavenProject " + mavenProject.getName()
                     + " because of property 'maven.deploy.skip'");
             return skip;
@@ -618,7 +616,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         String pluginId = "org.apache.maven.plugins:maven-deploy-plugin";
         property = getPluginParameter(mavenProject, pluginId, "skip");
         if (property != null) {
-            boolean skip = BooleanUtils.toBoolean(property);
+            boolean skip = Boolean.parseBoolean(property);
             getLog().debug("deploy is " + (skip ? "" : "not") + " skipped in MavenProject " + mavenProject.getName()
                     + " because of configuration of the plugin 'org.apache.maven.plugins:maven-deploy-plugin'");
             return skip;
@@ -645,8 +643,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
         Plugin plugin = getPlugin(p, pluginId);
         if (plugin != null) {
             Xpp3Dom xpp3Dom = (Xpp3Dom) plugin.getConfiguration();
-            if (xpp3Dom != null && xpp3Dom.getChild(param) != null
-                    && StringUtils.isNotEmpty(xpp3Dom.getChild(param).getValue())) {
+            if (xpp3Dom != null && xpp3Dom.getChild(param) != null && xpp3Dom.getChild(param).getValue() != null
+                    && !xpp3Dom.getChild(param).getValue().isEmpty()) {
                 return xpp3Dom.getChild(param).getValue();
             }
         }

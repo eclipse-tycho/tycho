@@ -45,12 +45,11 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.shared.BuildProperties;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
@@ -207,9 +206,6 @@ public class SourceFeatureMojo extends AbstractMojo {
     private LicenseFeatureHelper licenseFeatureHelper;
 
     @Component
-    private BuildPropertiesParser buildPropertiesParser;
-
-    @Component
     private EquinoxServiceFactory equinox;
 
     @Component
@@ -241,7 +237,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                     archiver.getArchiver().addFileSet(templateFileSet);
                 }
 
-                BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+                BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
                 archiver.getArchiver().addFileSet(getManuallyIncludedFiles(project.getBasedir(), buildProperties));
 
                 archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);

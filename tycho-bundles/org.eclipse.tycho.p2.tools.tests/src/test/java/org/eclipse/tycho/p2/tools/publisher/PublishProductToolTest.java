@@ -48,10 +48,10 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.BuildFailureException;
-import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.FinalTargetPlatformImpl;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;

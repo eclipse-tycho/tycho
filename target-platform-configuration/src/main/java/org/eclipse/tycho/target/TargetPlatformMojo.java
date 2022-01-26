@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013, 2021 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
@@ -19,7 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -30,9 +33,12 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
 @Mojo(name = "target-platform", threadSafe = true)
@@ -49,13 +55,24 @@ public class TargetPlatformMojo extends AbstractMojo {
     @Component
     private Logger logger;
 
+    @Component
+    private LegacySupport legacySupport;
+
+    @Component
+    private DefaultDependencyResolverFactory dependencyResolverLocator;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
             ReactorRepositoryManagerFacade repositoryManager = osgiServices
                     .getService(ReactorRepositoryManagerFacade.class);
             List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects();
-            repositoryManager.computeFinalTargetPlatform(DefaultReactorProject.adapt(project), upstreamProjects);
+            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+            MavenSession session = legacySupport.getSession();
+            DependencyResolver dependencyResolver = dependencyResolverLocator.lookupDependencyResolver(project);
+            PomDependencyCollector pomDependenciesCollector = dependencyResolver.resolvePomDependencies(session,
+                    project);
+            repositoryManager.computeFinalTargetPlatform(reactorProject, upstreamProjects, pomDependenciesCollector);
         }
     }
 

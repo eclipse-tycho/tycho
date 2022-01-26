@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
@@ -19,6 +20,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 
 /**
  * Resolves project dependencies against the content of the target platform.
@@ -26,6 +28,8 @@ import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 public interface DependencyResolver {
 
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject);
+
+    PomDependencyCollector resolvePomDependencies(MavenSession session, MavenProject project);
 
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects);

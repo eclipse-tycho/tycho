@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.BuildProperties;
 
 public class RootPropertiesParser {
     static class ParsingResult {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - #519 - Provide better feedback to the user about the cause of a failed resolution
  *******************************************************************************/
 package org.eclipse.tycho.p2.util.resolution;
 
@@ -18,12 +19,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.Explanation.MissingIU;
+import org.eclipse.equinox.internal.p2.metadata.RequiredPropertiesMatch;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.expression.IFilterExpression;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
+@SuppressWarnings("restriction")
 public abstract class AbstractResolutionStrategy {
     protected static final IInstallableUnit[] EMPTY_IU_ARRAY = new IInstallableUnit[0];
 
@@ -72,6 +81,27 @@ public abstract class AbstractResolutionStrategy {
             if (overwrittenValue != null) {
                 logger.warn("Overriding profile property '" + entry.getKey() + "' with value '" + entry.getValue()
                         + "' (was '" + overwrittenValue + "')");
+            }
+        }
+    }
+
+    protected void explainProblems(Set<Explanation> explanation, BiConsumer<MavenLogger, String> logLevel) {
+        for (Explanation exp : explanation) {
+            if (exp instanceof MissingIU) {
+                MissingIU missingIU = (MissingIU) exp;
+                IRequirement requirement = missingIU.req;
+                if (requirement instanceof RequiredPropertiesMatch) {
+                    RequiredPropertiesMatch requiredPropertiesMatch = (RequiredPropertiesMatch) requirement;
+                    IMatchExpression<IInstallableUnit> matches = requiredPropertiesMatch.getMatches();
+                    String namespace = RequiredPropertiesMatch.extractNamespace(matches);
+                    if ("osgi.ee".equals(namespace)) {
+                        IFilterExpression expression = RequiredPropertiesMatch.extractPropertiesMatch(matches);
+                        ExecutionEnvironmentResolutionHints hints = data.getEEResolutionHints();
+                        Collection<IInstallableUnit> mandatoryUnits = hints.getMandatoryUnits();
+                        logLevel.accept(logger, missingIU.iu + " requires Execution Environment that matches "
+                                + expression + " but the current resolution context uses " + mandatoryUnits);
+                    }
+                }
             }
         }
     }

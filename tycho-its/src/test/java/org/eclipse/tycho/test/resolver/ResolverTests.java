@@ -38,4 +38,19 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 	}
 
+	/**
+	 * This test case test a combination of plain maven build artifacts (using
+	 * felix-bundle-plugin) and tycho eclipse-plugin build artifact.
+	 * 
+	 * @throws Exception if anything goes wrong
+	 */
+	@Test
+	public void testMixedReactor() throws Exception {
+
+		Verifier verifier = getVerifier("mixed.reactor", false);
+		// FIXME see Issue #479 // verifier.executeGoal("compile");
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+	}
+
 }

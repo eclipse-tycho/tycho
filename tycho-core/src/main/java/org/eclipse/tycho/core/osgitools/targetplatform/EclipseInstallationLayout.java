@@ -39,10 +39,11 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
  * http://mea-bloga.blogspot.com/2008/04/new-target-platform-preference.html
  * 
  * @author igor
- * 
+ * @deprecated only required for {@link LocalDependencyResolver}
  */
 
 @Component(role = EclipseInstallationLayout.class, instantiationStrategy = "per-lookup")
+@Deprecated
 public class EclipseInstallationLayout extends AbstractLogEnabled {
 
     private static final class FEATURE_FILTER implements FileFilter {

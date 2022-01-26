@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,14 +18,13 @@ import org.junit.Test;
 
 public class FragmentsAttachedTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testSWTFragmentsAttached() throws Exception {
-        Verifier verifier = getVerifier("eeProfile.resolution.fragments", false);
+	@Test
+	public void testSWTFragmentsAttached() throws Exception {
+		Verifier verifier = getVerifier("eeProfile.resolution.fragments", false);
 
-        verifier.executeGoal("verify");
+		verifier.executeGoal("verify");
 
-        // with bug 413116, compile would fail
-        verifier.verifyErrorFreeLog();
-    }
+		verifier.verifyErrorFreeLog();
+	}
 
 }

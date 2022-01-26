@@ -65,4 +65,9 @@ public interface ExecutionEnvironmentResolutionHints {
 
     @Override
     public int hashCode();
+
+    static boolean isJreUnit(IInstallableUnit unit) {
+        String id = unit.getId();
+        return id.startsWith("a.jre") || id.startsWith("config.a.jre");
+    }
 }

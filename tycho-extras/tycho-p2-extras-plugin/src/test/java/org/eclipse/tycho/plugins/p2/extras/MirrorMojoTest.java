@@ -42,7 +42,7 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         File basedir = getBasedir("mirroring/testProject");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
         initLegacySupport(projects, project);
         mirrorDestinationDir = new File(project.getFile().getParent(), "target/repository").getCanonicalFile();

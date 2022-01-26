@@ -73,7 +73,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testExportPackage() throws Exception {
         File basedir = getBasedir("projects/exportpackage");
 
-        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
+        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir));
 
         MavenProject project = basedirMap.get(new File(basedir, "bundle"));
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
@@ -109,7 +109,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testWiringToPackageFromCustomProfile() throws Exception {
         File basedir = getBasedir("projects/customProfile");
 
-        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
+        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir));
 
         MavenProject project = basedirMap.get(new File(basedir, "bundle"));
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
@@ -179,7 +179,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testAccessRules() throws Exception {
         File basedir = getBasedir("projects/accessrules");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(4);
         assertEquals("p002", project.getName());
         List<DependencyEntry> dependencies = computeDependencies(project);
@@ -192,7 +192,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testReexportAccessRules() throws Exception {
         File basedir = getBasedir("projects/reexport");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(4);
         assertEquals("p002", project.getName());
         List<DependencyEntry> dependencies = computeDependencies(project);
@@ -206,7 +206,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragments() throws Exception {
         File basedir = getBasedir("projects/eeProfile.resolution.fragments");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject jface = projects.get(3);
         assertEquals("org.eclipse.jface.databinding", jface.getArtifactId());
         Collection<DependencyEntry> deps = computeDependenciesIgnoringEE(jface);
@@ -221,7 +221,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragmentsImportClassProvidedByFragmentFromPackageExportedByHost() throws Exception {
         File basedir = getBasedir("projects/fragment-import-class-provided-by-fragment-from-package-exported-by-host");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject bundle2 = projects.get(2);
         assertEquals("bundle2", bundle2.getArtifactId());
         Collection<DependencyEntry> deps = computeDependenciesIgnoringEE(bundle2);
@@ -235,7 +235,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragmentSplitPackage() throws Exception {
         File basedir = getBasedir("projects/fragment-split-package");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject bundleTest = projects.get(3);
         assertEquals("bundle.tests", bundleTest.getArtifactId());
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
@@ -256,7 +256,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragmentSplitPackageMandatory() throws Exception {
         File basedir = getBasedir("projects/fragment-split-mandatory");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject bundleTest = projects.get(3);
         assertEquals("bundle.tests", bundleTest.getArtifactId());
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
@@ -277,7 +277,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testImportVsRequire() throws Exception {
         File basedir = getBasedir("projects/importVsRequire");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject bundleTest = projects.get(2);
         assertEquals("A", bundleTest.getArtifactId());
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
@@ -293,7 +293,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testDeepReexportBundle() throws Exception {
         File basedir = getBasedir("projects/deepReexport");
-        List<MavenProject> projects = getSortedProjects(basedir, null);
+        List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject bundleTest = projects.get(4);
         assertEquals("D", bundleTest.getArtifactId());
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);

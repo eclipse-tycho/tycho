@@ -24,10 +24,12 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
+import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.shared.BuildProperties;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 
 /**
  * This class handles definitions of root files in build.properties according to
@@ -55,11 +57,17 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
      */
     public static IFeatureRootAdvice createRootFileAdvice(IArtifactFacade featureArtifact,
             BuildPropertiesParser buildPropertiesParser) {
+        Interpolator interpolator;
+        if (featureArtifact instanceof ReactorProjectFacade) {
+            interpolator = ((ReactorProjectFacade) featureArtifact).getReactorProject().getInterpolator();
+        } else {
+            interpolator = null;
+        }
         File projectDir = getProjectBaseDir(featureArtifact);
 
         if (projectDir != null) {
-            FeatureRootAdvice result = new FeatureRootAdvice(buildPropertiesParser.parse(projectDir), projectDir,
-                    featureArtifact.getArtifactId());
+            FeatureRootAdvice result = new FeatureRootAdvice(buildPropertiesParser.parse(projectDir, interpolator),
+                    projectDir, featureArtifact.getArtifactId());
             if (result.hasRootFiles()) {
                 return result;
             }

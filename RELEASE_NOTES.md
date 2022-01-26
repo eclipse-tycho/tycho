@@ -4,6 +4,48 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 2.7.0 (under development)
 
+### Tycho-Pomless will become a tycho-core extension
+
+Tycho pomless has started as a small experiment in tycho-extras. Over time it has grown to a fully-fledged solution to build pde-based artifacts with less effort and nearly zero additional configuration.
+
+Neverless, the name "pomless" was always a bit misleading, as actually we have reduced the number required poms to one 'main-pom' it is still not pomless and actually allows poms to be used where suitable.
+Because of this, an to not limit the usage to "pomless" with this version a new core-extension is available name 'tycho-build', that effectively does what tycho-extras-pomless does but in the context of 'core' and is open to further improvements 
+(maybe some time offering an option to not needing a pom at all).
+
+All that needs to be done is replace the old 
+```
+<extension>
+	<groupId>org.eclipse.tycho.extras</groupId>
+	<artifactId>tycho-pomless</artifactId>
+	<version>2.7.0</version>
+</extension>
+```
+
+with
+
+```
+<extension>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-build</artifactId>
+	<version>2.7.0</version>
+</extension>
+```
+
+### Mixed reactor build support
+
+previously Tycho has resolved pom considered depdencies as part of the inital maven setup (before the actual build starts). This has lead to the fact that it was not possible to mix projects that e.g. dynamically generate a manifest.
+
+This was [now changed](https://github.com/eclipse/tycho/issues/462) and Tycho can now build mixed project setups see this integration test as an example:
+https://github.com/eclipse/tycho/tree/master/tycho-its/projects/mixed.reactor
+
+This slightly changes some of the behaviour of previous pomDependecies=consider:
+
+- dependecies of pom considered items has to be always been declared on the maven level (either by the project using it or the dependecy declaring it)
+- pom considered items do not participate in the build-order computation as of the previous statement already ensure this
+- if enabled, builds might fail later as projects are allowed to have incomplete requirements up until the `intilize` phase.
+
+There is one restriction for such mixed setups see: https://github.com/eclipse/tycho/issues/479
+
 ## 2.6.0
 
 ### Delayed classpath computation

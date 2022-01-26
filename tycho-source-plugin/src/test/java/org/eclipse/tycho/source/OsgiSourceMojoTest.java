@@ -33,10 +33,13 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.osgi.framework.Constants;
@@ -48,9 +51,7 @@ public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        BuildPropertiesParser parser = lookup(BuildPropertiesParser.class);
         mojo = new OsgiSourceMojo();
-        mojo.buildPropertiesParser = parser;
     }
 
     public void testIsRelevantProjectPackagingType() throws Exception {
@@ -135,20 +136,22 @@ public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
         mojo.setLog(log);
     }
 
-    private MavenProject createStubProjectWithSourceFolder(String packaging) {
+    private MavenProject createStubProjectWithSourceFolder(String packaging) throws ComponentLookupException {
         return createStubProject(packaging, "srcFolder", true);
     }
 
-    private MavenProject createStubProjectWithSourceFolder(boolean sourcePluginEnabled) {
+    private MavenProject createStubProjectWithSourceFolder(boolean sourcePluginEnabled)
+            throws ComponentLookupException {
         return createStubProject("eclipse-plugin", "srcFolder", sourcePluginEnabled);
     }
 
-    private MavenProject createStubProject(String packaging, String testResourceFolder, boolean enableSourePlugin) {
+    private MavenProject createStubProject(String packaging, String testResourceFolder, boolean enableSourePlugin)
+            throws ComponentLookupException {
         return createStubProject(packaging, testResourceFolder, enableSourePlugin, false);
     }
 
     private MavenProject createStubProject(String packaging, String testResourceFolder, boolean enableSourePlugin,
-            boolean requireSourceRoots) {
+            boolean requireSourceRoots) throws ComponentLookupException {
         MavenProject stubProject = new MavenProject();
         stubProject.setPackaging(packaging);
         if (enableSourePlugin) {
@@ -169,6 +172,15 @@ public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
             tychoSourcePlugin.setExecutions(asList(execution));
             build.setPlugins(asList(tychoSourcePlugin));
         }
+        ReactorProject project = DefaultReactorProject.adapt(stubProject);
+        project.setContextValue(ReactorProject.CTX_BUILDPROPERTIESPARSER, lookup(BuildPropertiesParser.class));
+        project.setContextValue(ReactorProject.CTX_INTERPOLATOR, new Interpolator() {
+
+            @Override
+            public String interpolate(String input) {
+                return input;
+            }
+        });
         stubProject.setFile(new File("src/test/resources/sourceMojo/" + testResourceFolder + "/pom.xml"));
         return stubProject;
     }

@@ -30,11 +30,11 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.AbstractScanner;
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.shared.BuildProperties;
 
 public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
 

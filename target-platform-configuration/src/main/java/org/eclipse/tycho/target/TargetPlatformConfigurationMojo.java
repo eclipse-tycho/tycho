@@ -74,8 +74,8 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     private boolean allowConflictingDependences;
 
     /**
-     * Force an execution environment for dependency resolution. If unset, the first
-     * <code>targetJRE</code> available in {@link #target} is used.
+     * Force an execution environment for dependency resolution. If unset, use the default JRE 
+     * of your computer.
      * <p>
      * Set to <code>none</code> to force the resolution to happen <b>without</b> any execution
      * environment, typically when the module is supposed to use system packages coming from some

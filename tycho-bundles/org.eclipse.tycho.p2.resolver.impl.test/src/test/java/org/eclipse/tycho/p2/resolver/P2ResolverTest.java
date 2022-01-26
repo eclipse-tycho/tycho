@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -75,6 +76,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     private ReactorProject projectToResolve;
     private P2ResolutionResult result;
+    private static final String LATEST_PLATFORM = "https://download.eclipse.org/eclipse/updates/latest/";
 
     @Before
     public void initDefaultResolver() throws Exception {
@@ -190,7 +192,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         sb.setDependencyMetadata(metadata);
         reactorProjects.add(sb);
 
-        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
+        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(false), projectToResolve));
 
         assertEquals(3, result.getArtifacts().size());
         List<P2ResolutionResult.Entry> entries = new ArrayList<>(result.getArtifacts());
@@ -214,7 +216,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         addContextProject(resourceFile("resolver/bundle01"), TYPE_ECLIPSE_PLUGIN);
 
-        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
+        P2TargetPlatform targetPlatform = getTargetPlatform();
+        Map<TargetEnvironment, P2ResolutionResult> map = impl.resolveTargetDependencies(targetPlatform,
+                projectToResolve);
+        result = singleEnv(map);
 
         assertEquals(3, result.getArtifacts().size()); // the product, bundle01, and the one dependency of bundle01
         assertEquals(4, result.getNonReactorUnits().size()); // + a.jre
@@ -241,7 +246,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testBundleUsesSWT() throws Exception {
-        tpConfig.addP2Repository(resourceFile("repositories/e361").toURI());
+        tpConfig.addP2Repository(new URI(LATEST_PLATFORM));
 
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
         projectToResolve = createReactorProject(resourceFile("resolver/bundleUsesSWT"), TYPE_ECLIPSE_PLUGIN,
@@ -277,7 +282,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         projectToResolve = createReactorProject(swtFragment, TYPE_ECLIPSE_PLUGIN,
                 "org.eclipse.tycho.p2.impl.resolver.test.swtFragment");
 
-        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
+        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(false), projectToResolve));
 
         assertEquals(2, result.getArtifacts().size());
         assertEquals(0, result.getNonReactorUnits().size());
@@ -313,7 +318,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         projectToResolve = createReactorProject(resourceFile("reactor-vs-external/feature01"), TYPE_ECLIPSE_FEATURE,
                 "org.sonatype.tycho.p2.impl.resolver.test.feature01");
 
-        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
+        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(false), projectToResolve));
 
         assertEquals(2, result.getArtifacts().size());
         assertEquals(1, result.getNonReactorUnits().size()); // a.jre
@@ -506,11 +511,26 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     private P2TargetPlatform getTargetPlatform() {
-        return tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, pomDependencies);
+        return getTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+    }
+
+    private P2TargetPlatform getTargetPlatform(boolean finalTarget) {
+        return getTargetPlatform(NOOP_EE_RESOLUTION_HANDLER, finalTarget);
     }
 
     private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
-        return tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorProjects, pomDependencies);
+        return getTargetPlatform(eeResolutionHandler, true);
+    }
+
+    private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler,
+            boolean finalTarget) {
+        P2TargetPlatform preliminaryTP = tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorProjects);
+        if (finalTarget) {
+            return tpFactory.createTargetPlatformWithUpdatedReactorContent(preliminaryTP, Collections.emptyList(),
+                    pomDependencies);
+        } else {
+            return preliminaryTP;
+        }
     }
 
     private static P2ResolutionResult singleEnv(Map<TargetEnvironment, P2ResolutionResult> map) {

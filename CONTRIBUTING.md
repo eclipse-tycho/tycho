@@ -19,7 +19,7 @@ Make sure you have set the property for the Tycho version (e.g. `tycho-version`)
 For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifact/target/staging/index.html).
 
 If you identify an issue, please try to reduce the case to the minimal project and steps to reproduce, and then report the bug with details to reproduce
-and the minimal reproducer project to Tycho's [issue tracker](./issues).
+and the minimal reproducer project to Tycho's [issue tracker](https://github.com/eclipse/tycho/issues).
 
 ## Development environment
 
@@ -211,6 +211,19 @@ As GitHub pull request.
 ## Contact
 
 Contact the project developers via the project's "dev" list: https://dev.eclipse.org/mailman/listinfo/tycho-dev
+
+## Increasing versions
+
+The micro version will only be used for critical bug-fix releases, in most other cases we will have increased the current minor version already so nothing has to be done.
+
+The follwoing list contains changes that only can happen between major version updates:
+
+- changing the java version to run the build
+- requiring a new minimum maven version (e.g. once we require maven 4)
+- requiring to change their pom.xml in a non trivial way (e.g. beside
+changing some configuration value in an existing mojo)
+
+If you require such a change, please note that in the issue and we will assign the next major release to it, those changes would not be merged until the next major release keep your changes small and local as it possible take some time and you probably have to catch up with minor changes in the meantime.
 
 ## 👔 Process and Legal
 

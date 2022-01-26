@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.shared;
+package org.eclipse.tycho;
 
 public interface Interpolator {
 

@@ -15,7 +15,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.tycho.core.shared.BuildPropertiesParser;
+import org.eclipse.tycho.BuildPropertiesParser;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "BuildPropertiesReaderConfigurator")
 public class BuildPropertiesParserConfigurator extends EquinoxLifecycleListener {

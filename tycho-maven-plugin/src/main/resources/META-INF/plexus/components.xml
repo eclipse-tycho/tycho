@@ -210,6 +210,9 @@
               <validate>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier
               </validate>
+              <initialize>
+             	org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform
+              </initialize>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:update-site,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:update-site-p2-metadata,
@@ -257,6 +260,9 @@
               <validate>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier
               </validate>
+              <initialize>
+             	org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform
+              </initialize>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:product-export
               </package>

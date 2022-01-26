@@ -32,6 +32,7 @@ Tycho team
 
 ... Wait until review date (usually a week later)...
 
+- [ ] make sure all tags are fetched with `git fetch -t`
 - [ ] Make sure you have everything setup (GPG installed!) for deploying to the Nexus OSS repository, see https://central.sonatype.org/pages/ossrh-guide.html guide
 - [ ] Add your credentials for server `sonatype-nexus-staging` in `~/.m2/settings.xml`
 ```xml
@@ -53,7 +54,13 @@ Tycho team
 - [ ] Update version to remove `-SNAPSHOT` with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<VERSION>`
 - [ ] Update versions in tycho-demo folder
 - [ ] `git add * && git commit` version change
-- [ ] Sync to release commit and deploy to nexus staging repository: `mvn clean deploy -Prelease -DforgeReleaseId=sonatype-nexus-staging -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DskipTests`
+- [ ] Deploy to nexus staging repository (check that the correct pgp key is used and published to the key-servers eg. https://keys.openpgp.org/): 
+```
+mvn clean deploy -Prelease -DskipTests -Dsource=8 -DjdetectJavaApiLink=false \
+     -DforgeReleaseId=sonatype-nexus-staging \
+     -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
+     -Dgpg.keyname=<your e-mail of pgpg key>
+```
 - In the meantime...
     - [ ] `git tag tycho-<TYCHO_VERSION>`
     - [ ] Find out who contributed to the release:
@@ -78,9 +85,10 @@ and thanks and to everyone who helped us with testing the staged version.
 Regards,
 
 ```
-- [ ] On https://oss.sonatype.org/#stagingRepositories , Close the staging repository, get the staging repo URL from Nexus
+- [ ] close the staging repository on https://oss.sonatype.org/#stagingRepositories 
+- [ ] Wait until all checks are done (this takes some time, see Activity tab). If all checks have passed, release the repository.
 - [ ] Wait for artifacts to be available on Maven central.
-- [ ] `git push eclipse HEAD:tycho-N.M.x tycho-<TYCHO_VERSION>` (push commit to branch, and tag)
+- [ ] push tag `git push origin tycho-<TYCHO_VERSION>`
 - Documentation
   - [ ] Generate site docs using `mvn install site site:stage -DskipTests` and check the result from `target/staging` seems viable.
   - [ ] Prepare documentation on the webite, using git repo https://git.eclipse.org/c/www.eclipse.org/tycho.git/ : copy the local site docs folders `target/staging/sitedocs` to the existing `sitedocs` folder and then submit as Gerrit review (don't merge yet)

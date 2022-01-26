@@ -118,13 +118,19 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     }
 
     protected List<MavenProject> getSortedProjects(File basedir) throws Exception {
-        return getSortedProjects(basedir, null);
+        return getSortedProjects(basedir, null, null);
     }
 
+    @Deprecated
     protected List<MavenProject> getSortedProjects(File basedir, File platform) throws Exception {
         return getSortedProjects(basedir, null, platform);
     }
 
+    protected List<MavenProject> getSortedProjects(File basedir, Properties userProperties) throws Exception {
+        return getSortedProjects(basedir, userProperties, null);
+    }
+
+    @Deprecated
     protected List<MavenProject> getSortedProjects(File basedir, Properties userProperties, File platform)
             throws Exception {
         File pom = new File(basedir, "pom.xml");
@@ -132,7 +138,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         request.getProjectBuildingRequest().setProcessPlugins(false);
         request.setLocalRepository(getLocalRepository());
         if (platform != null) {
-            request.getUserProperties().put("tycho.targetPlatform", platform.getAbsolutePath());
+            request.getUserProperties().put("tycho.test.targetPlatform", platform.getAbsolutePath());
         }
         if (userProperties != null) {
             request.getUserProperties().putAll(userProperties);
