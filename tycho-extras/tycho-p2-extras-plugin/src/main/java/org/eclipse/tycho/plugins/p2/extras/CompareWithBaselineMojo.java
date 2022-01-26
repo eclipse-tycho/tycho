@@ -169,6 +169,8 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                             reactorFile = reactorProject.getArtifact("sources");
                         } else if (id.endsWith("source.feature.jar")) {
                             reactorFile = reactorProject.getArtifact("sources-feature");
+                        } else if (id.endsWith("_root")) {
+                            reactorFile = reactorProject.getArtifact("root");
                         } else {
                             reactorFile = reactorProject.getArtifact();
                         }
