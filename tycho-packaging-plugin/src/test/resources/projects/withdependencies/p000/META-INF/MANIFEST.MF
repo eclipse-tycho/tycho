@@ -1,0 +1,4 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: p000
+Bundle-Version: 0.0.1.qualifier
+Bundle-Name: p000
