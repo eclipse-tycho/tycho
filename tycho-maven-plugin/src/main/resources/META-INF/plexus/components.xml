@@ -36,9 +36,6 @@
               <test>
                 org.apache.maven.plugins:maven-surefire-plugin:${surefire-plugin.version}:test
               </test>
-              <prepare-package>
-                org.eclipse.tycho:tycho-pomgenerator-plugin:${project.version}:generate-dependency-poms
-              </prepare-package>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-plugin,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default
@@ -106,9 +103,6 @@
               <process-test-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:testResources
               </process-test-resources>
-              <prepare-package>
-                org.eclipse.tycho:tycho-pomgenerator-plugin:${project.version}:generate-dependency-poms
-              </prepare-package>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-plugin,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default
@@ -167,7 +161,6 @@
               <generate-resources>
               </generate-resources>
               <prepare-package>
-                org.eclipse.tycho:tycho-pomgenerator-plugin:${project.version}:generate-dependency-poms
               </prepare-package>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-feature,
