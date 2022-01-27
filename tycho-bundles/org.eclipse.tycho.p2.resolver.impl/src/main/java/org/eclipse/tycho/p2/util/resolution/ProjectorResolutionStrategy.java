@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.Explanation.IUToInstall;
 import org.eclipse.equinox.internal.p2.director.Explanation.MissingIU;
 import org.eclipse.equinox.internal.p2.director.Projector;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
@@ -102,7 +103,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                     List<IRequirement> missingRequirements = computeRequirements(explanation);
                     if (missingRequirements.size() > 0) {
                         if (logger.isExtendedDebugEnabled()) {
-                            logger.debug("At iteration " + iteration + " the following requirements are not yet satisfied:");
+                            logger.debug(
+                                    "At iteration " + iteration + " the following requirements are not yet satisfied:");
                             for (IRequirement requirement : missingRequirements) {
                                 logger.debug("> " + requirement);
                             }
@@ -144,13 +146,25 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         throw new ResolverException("Maximum iterations reached", new TimeoutException());
     }
 
-    protected List<IRequirement> computeRequirements(Set<Explanation> explanation) {
+    private List<IRequirement> computeRequirements(Set<Explanation> explanation) {
         List<IRequirement> missingRequirements = new ArrayList<>();
+        Set<IInstallableUnit> incompleteUnits = new HashSet<>();
         for (Explanation exp : explanation) {
-            if (exp instanceof MissingIU) {
+            if (exp instanceof IUToInstall) {
+                IUToInstall iuToInstall = (IUToInstall) exp;
+                incompleteUnits.add(iuToInstall.iu);
+            } else if (exp instanceof MissingIU) {
                 MissingIU missingIU = (MissingIU) exp;
-                logger.debug("Recording missing requirement for IU " + missingIU.iu + ": " + missingIU.req);
-                data.addMissingRequirement(missingIU.req);
+                incompleteUnits.add(missingIU.iu);
+                for (IInstallableUnit incomplete : incompleteUnits) {
+                    if (missingIU.req.isMatch(incomplete)) {
+                        if (logger.isExtendedDebugEnabled()) {
+                            logger.debug(
+                                    "IU " + missingIU.iu + " depends on incomplete IU " + incomplete + " -> break");
+                        }
+                        return missingRequirements;
+                    }
+                }
                 missingRequirements.add(missingIU.req);
             } else {
                 if (logger.isExtendedDebugEnabled()) {
@@ -159,6 +173,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                 }
             }
         }
+        missingRequirements.forEach(data::addMissingRequirement);
         return missingRequirements;
     }
 
