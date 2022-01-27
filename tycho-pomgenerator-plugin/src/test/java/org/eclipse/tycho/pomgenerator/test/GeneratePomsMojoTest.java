@@ -13,6 +13,8 @@
 package org.eclipse.tycho.pomgenerator.test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,19 +23,30 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.Mojo;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
+import org.eclipse.tycho.core.utils.TychoVersion;
+import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
-public class GeneratePomsMojoTest extends AbstractPomMojoTest {
+public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
-    static final String GOAL = "generate-poms";
+    MavenXpp3Reader modelReader = new MavenXpp3Reader();
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
 
     private void generate(File baseDir, Map<String, Object> params) throws Exception {
         generate(baseDir, null, params);
     }
 
     private void generate(File baseDir, File[] extraDirs, Map<String, Object> params) throws Exception {
-        Mojo generateMojo = lookupMojo(GROUP_ID, ARTIFACT_ID, VERSION, GOAL, null);
+        Mojo generateMojo = lookupMojo("org.eclipse.tycho", "tycho-pomgenerator-plugin", TychoVersion.getTychoVersion(),
+                "generate-poms", null);
         setVariableValueToObject(generateMojo, "baseDir", baseDir);
         if (extraDirs != null) {
             String dirs = Arrays.stream(extraDirs).map(File::getAbsolutePath).collect(Collectors.joining(","));
@@ -176,6 +189,16 @@ public class GeneratePomsMojoTest extends AbstractPomMojoTest {
         assertEquals(4, aggrmodules.size());
         // pick up fragments only when they are explicitly referenced from a feature
         assertFalse(aggrmodules.contains("../p004"));
+    }
+
+    private Model readModel(File baseDir, String name) throws IOException, XmlPullParserException {
+        File pom = new File(baseDir, name);
+        FileInputStream is = new FileInputStream(pom);
+        try {
+            return modelReader.read(ReaderFactory.newXmlReader(is));
+        } finally {
+            is.close();
+        }
     }
 
     public void testTests() throws Exception {

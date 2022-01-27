@@ -15,7 +15,12 @@ package org.eclipse.tycho.pomgenerator;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,6 +39,9 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Repository;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -41,6 +49,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
@@ -75,7 +84,7 @@ import org.osgi.framework.wiring.BundleRevision;
  * 
  */
 @Mojo(name = "generate-poms", requiresProject = false, threadSafe = true)
-public class GeneratePomsMojo extends AbstractGeneratePomsMojo {
+public class GeneratePomsMojo extends AbstractMojo {
     private static final Object LOCK = new Object();
 
     private static final class DirectoryFilter implements FileFilter {
@@ -158,6 +167,16 @@ public class GeneratePomsMojo extends AbstractGeneratePomsMojo {
     private String repoID;
 
     /**
+     * Location of directory with template pom.xml file. pom.xml templates will be looked at this
+     * directory first, default templates will be used if template directory and the template itself
+     * does not exist.
+     * 
+     * See src/main/resources/templates for the list of supported template files.
+     */
+    @Parameter(property = "templatesDir", defaultValue = "${basedir}/pom-templates")
+    private File templatesDir;
+
+    /**
      * Comma separated list of root project folders. If specified, generated pom.xml files will only
      * include root projects and projects directly and indirectly referenced by the root projects.
      */
@@ -176,6 +195,9 @@ public class GeneratePomsMojo extends AbstractGeneratePomsMojo {
 
     @Component(role = DependencyComputer.class)
     private DependencyComputer dependencyComputer;
+
+    MavenXpp3Reader modelReader = new MavenXpp3Reader();
+    MavenXpp3Writer modelWriter = new MavenXpp3Writer();
 
     private Map<File, Model> updateSites = new LinkedHashMap<>();
 
@@ -738,6 +760,49 @@ public class GeneratePomsMojo extends AbstractGeneratePomsMojo {
                     + Artifact.SNAPSHOT_VERSION;
         } else {
             return osgiVersion;
+        }
+    }
+
+    private void writePom(File dir, Model model) throws MojoExecutionException {
+        writePom(dir, "pom.xml", model);
+    }
+
+    private void writePom(File dir, String filename, Model model) throws MojoExecutionException {
+        try {
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(new File(dir, filename)),
+                    StandardCharsets.UTF_8)) {
+                modelWriter.write(writer, model);
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Can't write pom.xml", e);
+        }
+    }
+
+    private Model readPomTemplate(String name) throws MojoExecutionException {
+        try {
+            XmlStreamReader reader;
+
+            File file = new File(templatesDir, name);
+            if (file.canRead()) {
+                // check custom templates dir first
+                reader = ReaderFactory.newXmlReader(file);
+            } else {
+                // fall back to internal templates 
+                ClassLoader cl = GeneratePomsMojo.class.getClassLoader();
+                InputStream is = cl.getResourceAsStream("templates/" + name);
+                reader = is != null ? ReaderFactory.newXmlReader(is) : null;
+            }
+            if (reader != null) {
+                try {
+                    return modelReader.read(reader);
+                } finally {
+                    reader.close();
+                }
+            } else {
+                throw new MojoExecutionException("pom.xml template cannot be found " + name);
+            }
+        } catch (XmlPullParserException | IOException e) {
+            throw new MojoExecutionException("Can't read pom.xml template " + name, e);
         }
     }
 
