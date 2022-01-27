@@ -205,14 +205,22 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
      */
     protected List<IRequirement> computeMissingRequirements(Set<Explanation> explanation) {
         List<IRequirement> missingRequirements = new ArrayList<>();
-        Set<IInstallableUnit> incompleteUnits = new HashSet<>();
+        //We collect here all units that are available but maybe incomplete due to an missing requirement.
+        //This is important as otherwise we could generate false missing requirements as they might just be chained 
+        // Here is an example:
+        // a) Bundle require an EE or package what is missing
+        // b) Feature requires the Bundle
+        // c) Updatesite requires feature
+        // When resolving the Updatesite, it now seem to miss the Bundle *and* the Feature because the feature itself
+        // is incomplete but actually on only the EE or package is missing.
+        Collection<IInstallableUnit> availableIUs = new HashSet<>(data.getAvailableIUs());
         for (Explanation exp : explanation) {
             if (exp instanceof IUToInstall) {
                 IUToInstall iuToInstall = (IUToInstall) exp;
-                incompleteUnits.add(iuToInstall.iu);
+                availableIUs.add(iuToInstall.iu);
             } else if (exp instanceof MissingIU) {
                 MissingIU missingIU = (MissingIU) exp;
-                incompleteUnits.add(missingIU.iu);
+                availableIUs.add(missingIU.iu);
                 if (isEERequirement(missingIU.req)) {
                     if (data.getEEResolutionHints() instanceof NoExecutionEnvironmentResolutionHints) {
                         //if NoEE is specified this is acceptable and should be recorded
@@ -220,11 +228,11 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                     }
                     continue;
                 }
-                for (IInstallableUnit incomplete : incompleteUnits) {
-                    if (missingIU.req.isMatch(incomplete)) {
+                for (IInstallableUnit available : availableIUs) {
+                    if (missingIU.req.isMatch(available)) {
                         if (logger.isExtendedDebugEnabled()) {
-                            logger.debug("IU " + missingIU.iu + " requires an incomplete IU " + incomplete
-                                    + " -> break [1]");
+                            logger.debug("IU " + missingIU.iu + " requires an available or incomplete IU " + available
+                                    + " ...");
                         }
                         return missingRequirements;
                     }
@@ -236,12 +244,12 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                 missingRequirements.add(missingIU.req);
             } else if (exp instanceof HardRequirement) {
                 HardRequirement hardRequirement = (HardRequirement) exp;
-                incompleteUnits.add(hardRequirement.iu);
-                for (IInstallableUnit incomplete : incompleteUnits) {
-                    if (hardRequirement.req.isMatch(incomplete)) {
+                availableIUs.add(hardRequirement.iu);
+                for (IInstallableUnit available : availableIUs) {
+                    if (hardRequirement.req.isMatch(available)) {
                         if (logger.isExtendedDebugEnabled()) {
-                            logger.debug("IU " + hardRequirement.iu + " requires an incomplete IU " + incomplete
-                                    + " -> break [2]");
+                            logger.debug("IU " + hardRequirement.iu + " has requirement on available or incomplete IU "
+                                    + available + " ...");
                         }
                         return missingRequirements;
                     }
