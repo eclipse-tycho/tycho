@@ -18,16 +18,23 @@ import static org.eclipse.tycho.p2.util.resolution.ResolverDebugUtils.toDebugStr
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.Explanation.IUToInstall;
+import org.eclipse.equinox.internal.p2.director.Explanation.MissingIU;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredPropertiesMatch;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -35,9 +42,13 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.target.ee.NoExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.repository.p2base.metadata.QueryableCollection;
 import org.eclipse.tycho.repository.util.StatusTool;
 
@@ -132,7 +143,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
 
         InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
         String time = Long.toString(System.currentTimeMillis());
-        result.setId(name + "-" + time);
+        result.setId(name + "-" + UUID.randomUUID());
         result.setVersion(Version.createOSGi(0, 0, 0, time));
         for (IRequirement requirement : requirements) {
             if (requirement instanceof IRequiredCapability) {
@@ -148,9 +159,104 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                 } catch (RuntimeException e) {
                     logger.debug("can't convert requirement " + requirement + " to capability: " + e.toString(), e);
                 }
+            } else if (requirement instanceof RequiredPropertiesMatch) {
+                try {
+                    if (isEERequirement(requirement)) {
+                        RequiredPropertiesMatch propertiesMatch = (RequiredPropertiesMatch) requirement;
+                        IMatchExpression<IInstallableUnit> matches = propertiesMatch.getMatches();
+                        Map<String, Object> properties = new HashMap<>();
+                        Object p = matches.getParameters()[1];
+                        if (p instanceof IExpression) {
+                            IExpression expression = (IExpression) p;
+                            IExpression operand = ExpressionUtil.getOperand(expression);
+                            IExpression[] operands = ExpressionUtil.getOperands(operand);
+                            for (IExpression eq : operands) {
+                                IExpression lhs = ExpressionUtil.getLHS(eq);
+                                IExpression rhs = ExpressionUtil.getRHS(eq);
+                                Object value = ExpressionUtil.getValue(rhs);
+                                String key = ExpressionUtil.getName(lhs);
+                                if (IProvidedCapability.PROPERTY_VERSION.equals(key)) {
+                                    properties.put(key, Version.create(value.toString()));
+                                } else {
+                                    properties.put(key, value.toString());
+                                }
+                            }
+                        }
+                        IProvidedCapability providedCapability = MetadataFactory.createProvidedCapability(
+                                RequiredPropertiesMatch.extractNamespace(matches), properties);
+                        result.addProvidedCapabilities(Collections.singleton(providedCapability));
+                    }
+                } catch (RuntimeException e) {
+                    logger.debug("can't convert requirement " + requirement + " to capability: " + e.toString(), e);
+                }
             }
         }
         return MetadataFactory.createInstallableUnit(result);
+    }
+
+    /**
+     * Computes a list of current missing requirements. The list only contains requirements up to
+     * the point where it is known that this is a 'root' that means a requirement that prevents
+     * computation of a complete solution.
+     * 
+     * @param explanation
+     * @return
+     */
+    protected List<IRequirement> computeMissingRequirements(Set<Explanation> explanation) {
+        List<IRequirement> missingRequirements = new ArrayList<>();
+        Set<IInstallableUnit> incompleteUnits = new HashSet<>();
+        for (Explanation exp : explanation) {
+            if (exp instanceof IUToInstall) {
+                IUToInstall iuToInstall = (IUToInstall) exp;
+                incompleteUnits.add(iuToInstall.iu);
+            } else if (exp instanceof MissingIU) {
+                MissingIU missingIU = (MissingIU) exp;
+                incompleteUnits.add(missingIU.iu);
+                if (isEERequirement(missingIU.req)) {
+                    if (data.getEEResolutionHints() instanceof NoExecutionEnvironmentResolutionHints) {
+                        //if NoEE is specified this is acceptable and should be recorded
+                        missingRequirements.add(missingIU.req);
+                    }
+                    continue;
+                }
+                for (IInstallableUnit incomplete : incompleteUnits) {
+                    if (missingIU.req.isMatch(incomplete)) {
+                        if (logger.isExtendedDebugEnabled()) {
+                            logger.debug(
+                                    "IU " + missingIU.iu + " requires an incomplete IU " + incomplete + " -> break");
+                        }
+                        return missingRequirements;
+                    }
+                }
+                if (data.failOnMissingRequirements()) {
+                    //we should not accept those...
+                    continue;
+                }
+                missingRequirements.add(missingIU.req);
+            } else {
+                if (logger.isExtendedDebugEnabled()) {
+                    logger.debug("Ignoring Explanation of type " + exp.getClass()
+                            + " in computation of missing requirements: " + exp);
+                }
+            }
+        }
+        missingRequirements.forEach(data::addMissingRequirement);
+        return missingRequirements;
+    }
+
+    /**
+     * Check if this is an EE environment requirement
+     * 
+     * @param requirement
+     * @return
+     */
+    protected static boolean isEERequirement(IRequirement requirement) {
+        if (requirement instanceof RequiredPropertiesMatch) {
+            RequiredPropertiesMatch propertiesMatch = (RequiredPropertiesMatch) requirement;
+            String namespace = RequiredPropertiesMatch.extractNamespace(propertiesMatch.getMatches());
+            return JREAction.NAMESPACE_OSGI_EE.equals(namespace);
+        }
+        return false;
     }
 
     private static IRequirement createStrictRequirementTo(IInstallableUnit unit) {
