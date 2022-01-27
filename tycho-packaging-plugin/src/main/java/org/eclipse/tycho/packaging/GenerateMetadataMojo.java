@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -50,6 +51,29 @@ public class GenerateMetadataMojo extends AbstractTychoPackagingMojo {
     private boolean forceGenerate;
 
     /**
+     * The <a href="http://maven.apache.org/shared/maven-archiver/">maven archiver</a> to use. One
+     * of the archiver properties is the <code>addMavenDescriptor</code> flag, which indicates
+     * whether the generated archive will contain the pom.xml and pom.properties file. If no archive
+     * configuration is specified, the default value is <code>false</code>. If the maven descriptor
+     * should be added to the artifact, use the following configuration:
+     * 
+     * <pre>
+     * &lt;plugin&gt;
+     *   &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+     *   &lt;artifactId&gt;tycho-packaging-plugin&lt;/artifactId&gt;
+     *   &lt;version&gt;${tycho-version}&lt;/version&gt;
+     *   &lt;configuration&gt;
+     *     &lt;archive&gt;
+     *       &lt;addMavenDescriptor&gt;true&lt;/addMavenDescriptor&gt;
+     *     &lt;/archive&gt;
+     *   &lt;/configuration&gt;
+     * &lt;/plugin&gt;
+     * </pre>
+     */
+    @Parameter
+    private MavenArchiveConfiguration archive;
+
+    /**
      * Path to the template file, relative to the current project.
      */
     private File template;
@@ -64,6 +88,11 @@ public class GenerateMetadataMojo extends AbstractTychoPackagingMojo {
      */
     @Override
     public void execute() throws MojoExecutionException {
+        if (!archive.isAddMavenDescriptor()) {
+            getLog().debug("addMavenDescriptor is set to 'false'. Metadata generation is disabled.");
+            return;
+        }
+
         synchronized (LOCK) {
             switch (project.getPackaging()) {
             case TYPE_ECLIPSE_PLUGIN:
