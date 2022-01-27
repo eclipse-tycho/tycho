@@ -156,7 +156,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
                     archive.setAddMavenDescriptor(false);
                 }
 				MavenProject mavenProject = project;
-				if (archive.isAddMavenDescriptor()) {
+                if (archive.isAddMavenDescriptor() && !hasProperty(GENERATE_METADATA)) {
 					mavenProject = updatePom(finalName);
 				}
 				archiver.createArchive(session, mavenProject, archive);

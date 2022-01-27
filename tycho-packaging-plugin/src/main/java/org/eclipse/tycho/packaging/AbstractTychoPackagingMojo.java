@@ -46,6 +46,12 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
 
+    /**
+     * If this property is set (with an arbitrary value) in the current project,
+     * then it indicates that the generate-metadata goal has been executed.
+     */
+    protected static final String GENERATE_METADATA = "tycho.packaging.generateMetadata";
+
 	/**
 	 * The output directory of the jar file
 	 * 
@@ -179,5 +185,17 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
 		mavenProject.setFile(pomFile);
 		return mavenProject;
 	}
+
+    /**
+     * Checks whether a specific property has been set in the current reactor
+     * project. Properties are used e.g. to indicate that the
+     * {@code generate-metadata} goal has been executed.
+     * 
+     * @param key A unique property key. May not be {@code null}.
+     * @return {@code true}, in case a property with this key exists.
+     */
+    protected boolean hasProperty(String key) {
+        return project.getProperties().containsKey(key);
+    }
 
 }

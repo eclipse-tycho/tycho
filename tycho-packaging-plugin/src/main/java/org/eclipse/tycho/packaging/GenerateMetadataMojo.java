@@ -112,6 +112,11 @@ public class GenerateMetadataMojo extends AbstractTychoPackagingMojo {
                         copy = generatePom();
                     }
 
+                    if(project.getProperties().contains(GENERATE_METADATA)) {
+                        throw new MojoExecutionException("generate-goal has been execute more than once.");
+                    }
+                    
+                    project.getProperties().put(GENERATE_METADATA, true);
                     project.setPomFile(copy.getFile());
                 } catch (IOException | TemplateException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
