@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -47,7 +48,16 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
     @Override
     protected Slicer newSlicer(IQueryable<IInstallableUnit> availableUnits, Map<String, String> properties) {
-        return new Slicer(availableUnits, properties, false);
+        Predicate<IInstallableUnit> acceptor = data.getIInstallableUnitAcceptor();
+        return new Slicer(availableUnits, properties, false) {
+            @Override
+            protected boolean isApplicable(IInstallableUnit iu) {
+                if (acceptor != null) {
+                    return acceptor.test(iu);
+                }
+                return super.isApplicable(iu);
+            }
+        };
     }
 
     @Override

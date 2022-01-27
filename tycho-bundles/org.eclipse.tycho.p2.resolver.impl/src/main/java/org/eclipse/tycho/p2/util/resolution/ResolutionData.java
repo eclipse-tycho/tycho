@@ -16,6 +16,7 @@ package org.eclipse.tycho.p2.util.resolution;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -41,4 +42,10 @@ public interface ResolutionData {
     void addMissingRequirement(IRequirement requirement);
 
     Collection<IRequirement> getMissingRequirements();
+
+    /**
+     * 
+     * @return a predicate that us used to check if a given unit should be accepted by the slicer
+     */
+    Predicate<IInstallableUnit> getIInstallableUnitAcceptor();
 }
