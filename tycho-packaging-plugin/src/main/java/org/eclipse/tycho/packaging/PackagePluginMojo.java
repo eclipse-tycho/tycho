@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - Automatically translate maven-pom information to osgi Bundle-Header #177
+ *    Christoph Läubrich 	- Issue #177 - Automatically translate maven-pom information to osgi Bundle-Header
+ *    						- Issue #572 - Insert dynamic dependencies into the jar included pom 
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
@@ -36,6 +37,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
@@ -58,14 +60,6 @@ import org.osgi.framework.Constants;
  */
 @Mojo(name = "package-plugin", threadSafe = true)
 public class PackagePluginMojo extends AbstractTychoPackagingMojo {
-
-    /**
-     * The output directory of the jar file
-     * 
-     * By default this is the Maven "target/" directory.
-     */
-    @Parameter(property = "project.build.directory", required = true)
-    protected File buildDirectory;
 
     protected EclipsePluginProject pdeProject;
 
@@ -244,9 +238,10 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             }
             // 3. handle nested jars and included resources
             checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
-            archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
+			MavenProject mavenProject = project;
+			archiver.getArchiver().addFileSet(getFileSet(mavenProject.getBasedir(), binIncludesList, binExcludesList));
 
-            File manifest = new File(project.getBuild().getDirectory(), "MANIFEST.MF");
+			File manifest = new File(mavenProject.getBuild().getDirectory(), "MANIFEST.MF");
             updateManifest(manifest);
             archive.setManifestFile(manifest);
 
@@ -257,7 +252,10 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                 getLog().warn("ignoring unsupported archive forced = false parameter.");
                 archive.setForced(true);
             }
-            archiver.createArchive(session, project, archive);
+			if (archive.isAddMavenDescriptor()) {
+				mavenProject = updatePom(finalName);
+			}
+			archiver.createArchive(session, mavenProject, archive);
             return pluginFile;
         } catch (IOException | ArchiverException | ManifestException | DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error assembling JAR", e);
