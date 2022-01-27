@@ -89,7 +89,7 @@ public class GenerateMetadataMojo extends AbstractTychoPackagingMojo {
     @Override
     public void execute() throws MojoExecutionException {
         if (!archive.isAddMavenDescriptor()) {
-            getLog().debug("addMavenDescriptor is set to 'false'. Metadata generation is disabled.");
+            getLog().debug("addMavenDescriptor is set to 'false'. Metadata generation is disabled");
             return;
         }
 
@@ -175,7 +175,7 @@ public class GenerateMetadataMojo extends AbstractTychoPackagingMojo {
         // Generate pom.xml
         Template ftl = cfg.getTemplate(template.getName());
         try (Writer out = new FileWriter(pom)) {
-            getLog().info("Execute template" + ftl.getName());
+            getLog().info("Execute template " + ftl.getName());
             ftl.process(args, out);
         }
 
