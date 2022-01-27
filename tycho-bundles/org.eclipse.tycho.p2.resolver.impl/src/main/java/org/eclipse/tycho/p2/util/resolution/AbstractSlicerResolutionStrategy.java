@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.Explanation.HardRequirement;
 import org.eclipse.equinox.internal.p2.director.Explanation.IUToInstall;
 import org.eclipse.equinox.internal.p2.director.Explanation.MissingIU;
 import org.eclipse.equinox.internal.p2.director.Slicer;
@@ -222,17 +223,30 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                 for (IInstallableUnit incomplete : incompleteUnits) {
                     if (missingIU.req.isMatch(incomplete)) {
                         if (logger.isExtendedDebugEnabled()) {
-                            logger.debug(
-                                    "IU " + missingIU.iu + " requires an incomplete IU " + incomplete + " -> break");
+                            logger.debug("IU " + missingIU.iu + " requires an incomplete IU " + incomplete
+                                    + " -> break [1]");
                         }
                         return missingRequirements;
                     }
                 }
                 if (data.failOnMissingRequirements()) {
-                    //we should not accept those...
+                    //we should not record those...
                     continue;
                 }
                 missingRequirements.add(missingIU.req);
+            } else if (exp instanceof HardRequirement) {
+                HardRequirement hardRequirement = (HardRequirement) exp;
+                incompleteUnits.add(hardRequirement.iu);
+                for (IInstallableUnit incomplete : incompleteUnits) {
+                    if (hardRequirement.req.isMatch(incomplete)) {
+                        if (logger.isExtendedDebugEnabled()) {
+                            logger.debug("IU " + hardRequirement.iu + " requires an incomplete IU " + incomplete
+                                    + " -> break [2]");
+                        }
+                        return missingRequirements;
+                    }
+                }
+                missingRequirements.add(hardRequirement.req);
             } else {
                 if (logger.isExtendedDebugEnabled()) {
                     logger.debug("Ignoring Explanation of type " + exp.getClass()
