@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.License;
@@ -26,6 +27,7 @@ public class GenerateMetadataMojoTest extends AbstractTychoMojoTestCase {
 
 	MavenXpp3Reader modelReader = new MavenXpp3Reader();
 
+    MavenArchiveConfiguration archive;
     Dependency d000;
     Dependency d001;
     Dependency d002;
@@ -47,9 +49,12 @@ public class GenerateMetadataMojoTest extends AbstractTychoMojoTestCase {
         buildDir = new File(baseDir, "target");
         template = new File("src/test/resources/templates/pom.ftl");
         projects = getSortedProjects(baseDir);
-        project = projects.get(0);
 
+        project = projects.get(0);
         project.setDependencies(List.of(d000, d001, d002));
+
+        archive = new MavenArchiveConfiguration();
+        archive.setAddMavenDescriptor(true);
     }
 
     private void generate(MavenProject project, boolean forceGenerate) throws Exception {
@@ -57,6 +62,7 @@ public class GenerateMetadataMojoTest extends AbstractTychoMojoTestCase {
 
         MavenSession session = newMavenSession(project);
         
+        setVariableValueToObject(generateMojo, "archive", archive);
         setVariableValueToObject(generateMojo, "project", session.getCurrentProject());
         setVariableValueToObject(generateMojo, "session", session);
         setVariableValueToObject(generateMojo, "finalName", "out");

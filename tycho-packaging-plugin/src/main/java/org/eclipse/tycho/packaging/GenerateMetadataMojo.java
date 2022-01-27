@@ -88,12 +88,12 @@ public class GenerateMetadataMojo extends AbstractTychoPackagingMojo {
      */
     @Override
     public void execute() throws MojoExecutionException {
-        if (!archive.isAddMavenDescriptor()) {
-            getLog().debug("addMavenDescriptor is set to 'false'. Metadata generation is disabled");
-            return;
-        }
-
         synchronized (LOCK) {
+            if (!archive.isAddMavenDescriptor()) {
+                getLog().debug("addMavenDescriptor is set to 'false'. Metadata generation is disabled");
+                return;
+            }
+
             switch (project.getPackaging()) {
             case TYPE_ECLIPSE_PLUGIN:
             case TYPE_ECLIPSE_TEST_PLUGIN:
