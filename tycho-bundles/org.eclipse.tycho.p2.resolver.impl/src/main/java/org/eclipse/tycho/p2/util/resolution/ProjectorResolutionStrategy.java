@@ -75,7 +75,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
     @Override
     public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor)
             throws ResolverException {
-        List<IInstallableUnit> additionalUnits = new ArrayList<>();
+        List<IInstallableUnit> generatedUnits = new ArrayList<>();
         Map<String, String> selectionContext = SimplePlanner.createSelectionContext(properties);
 
         Set<IInstallableUnit> seedUnits = new LinkedHashSet<>(data.getRootIUs());
@@ -88,9 +88,9 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         seedUnits.addAll(data.getEEResolutionHints().getMandatoryUnits());
         seedRequires.addAll(data.getEEResolutionHints().getMandatoryRequires());
 
-        int cnt = 0;
+        int iteration = 0;
         do {
-            Projector projector = new Projector(slice(properties, additionalUnits, monitor), selectionContext,
+            Projector projector = new Projector(slice(properties, generatedUnits, monitor), selectionContext,
                     new HashSet<IInstallableUnit>(), false);
             projector.encode(createUnitRequiring("tycho", seedUnits, seedRequires),
                     EMPTY_IU_ARRAY /* alreadyExistingRoots */,
@@ -99,28 +99,26 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             if (s.getSeverity() == IStatus.ERROR) {
                 Set<Explanation> explanation = projector.getExplanation(new NullProgressMonitor()); // suppress "Cannot complete the request.  Generating details."
                 if (!data.failOnMissingRequirements()) {
-                    List<IRequirement> missingRequirements = new ArrayList<>();
-                    for (Explanation exp : explanation) {
-                        if (exp instanceof MissingIU) {
-                            MissingIU missingIU = (MissingIU) exp;
-                            logger.debug("Recording missing requirement for IU " + missingIU.iu + ": " + missingIU.req);
-                            data.addMissingRequirement(missingIU.req);
-                            missingRequirements.add(missingIU.req);
-                        } else {
-                            if (logger.isExtendedDebugEnabled()) {
-                                logger.debug("Ignoring Explanation of type " + exp.getClass()
-                                        + " in computation of missing requirements: " + exp);
+                    List<IRequirement> missingRequirements = computeRequirements(explanation);
+                    if (missingRequirements.size() > 0) {
+                        if (logger.isExtendedDebugEnabled()) {
+                            logger.debug("At iteration " + iteration + " the following requirements are not yet satisfied:");
+                            for (IRequirement requirement : missingRequirements) {
+                                logger.debug("> " + requirement);
                             }
                         }
-                    }
-                    if (missingRequirements.size() > 0) {
                         //only start a new resolve if we have collected additional requirements...
                         IInstallableUnit providing = createUnitProviding("tycho.unresolved.requirements",
                                 missingRequirements);
-                        if (providing.getProvidedCapabilities().size() > 0) {
+                        int newCapabilities = providing.getProvidedCapabilities().size();
+                        if (newCapabilities > 0) {
                             //... and we could provide additional capabilities
-                            additionalUnits.add(providing);
-                            cnt++;
+                            if (logger.isExtendedDebugEnabled()) {
+                                logger.debug(newCapabilities
+                                        + " new capabilities where created, starting next iteration...");
+                            }
+                            generatedUnits.add(providing);
+                            iteration++;
                             continue;
                         }
                     }
@@ -136,14 +134,32 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
             // remove fake IUs from resolved state
             newState.removeAll(data.getEEResolutionHints().getTemporaryAdditions());
-            newState.removeAll(additionalUnits); //remove the tycho generated IUs if any
+            newState.removeAll(generatedUnits); //remove the tycho generated IUs if any
 
             if (logger.isExtendedDebugEnabled()) {
                 logger.debug("Resolved IUs:\n" + ResolverDebugUtils.toDebugString(newState, false));
             }
             return newState;
-        } while (cnt < MAX_ITERATIONS);
+        } while (iteration < MAX_ITERATIONS);
         throw new ResolverException("Maximum iterations reached", new TimeoutException());
+    }
+
+    protected List<IRequirement> computeRequirements(Set<Explanation> explanation) {
+        List<IRequirement> missingRequirements = new ArrayList<>();
+        for (Explanation exp : explanation) {
+            if (exp instanceof MissingIU) {
+                MissingIU missingIU = (MissingIU) exp;
+                logger.debug("Recording missing requirement for IU " + missingIU.iu + ": " + missingIU.req);
+                data.addMissingRequirement(missingIU.req);
+                missingRequirements.add(missingIU.req);
+            } else {
+                if (logger.isExtendedDebugEnabled()) {
+                    logger.debug("Ignoring Explanation of type " + exp.getClass()
+                            + " in computation of missing requirements: " + exp);
+                }
+            }
+        }
+        return missingRequirements;
     }
 
 }
