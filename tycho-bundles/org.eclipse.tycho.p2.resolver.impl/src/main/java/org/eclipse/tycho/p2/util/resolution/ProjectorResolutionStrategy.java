@@ -46,7 +46,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
      * incomplete solution
      */
     private static final int MAX_ITERATIONS = Integer
-            .getInteger("tycho.internal.ProjectorResolutionStrategy.maxIterations", 100);
+            .getInteger("tycho.internal.ProjectorResolutionStrategy.maxIterations", 1000);
 
     public ProjectorResolutionStrategy(MavenLogger logger) {
         super(logger);

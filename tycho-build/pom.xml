@@ -31,6 +31,84 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.core.shared</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
+			<version>2.7.0-SNAPSHOT</version>
+		</dependency>
+		<!--
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+-->
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.core</artifactId>
+			<version>2.6.100</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+			<version>3.17.100</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.publisher</artifactId>
+			<version>1.6.200</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.director</artifactId>
+			<version>2.5.100</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.engine</artifactId>
+			<version>2.7.200</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.metadata</artifactId>
+			<version>2.6.100</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.repository</artifactId>
+			<version>2.5.300</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
+			<version>1.2.500</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.eclipse.sisu</groupId>
+			<artifactId>org.eclipse.sisu.plexus</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-model</artifactId>
 			<scope>provided</scope>
@@ -46,5 +124,24 @@
 			<artifactId>maven-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+
+
 	</dependencies>
 </project>
