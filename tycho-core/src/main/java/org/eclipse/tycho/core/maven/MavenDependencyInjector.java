@@ -8,7 +8,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - inject nested class path elements into maven model (TYCHO-483)
- *    Christoph Läubrich - Issue #443 - Use regular Maven coordinates -when possible- for dependencies 
+ *    Christoph Läubrich    - Issue #443 - Use regular Maven coordinates -when possible- for dependencies 
+ *                          - Issue #581 - Use the correct scope when injecting dependencies into the maven model 
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
@@ -16,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.maven.artifact.Artifact;
@@ -79,11 +81,13 @@ public final class MavenDependencyInjector {
     }
 
     void addDependency(ArtifactDescriptor artifact, String scope) {
-        List<Dependency> dependencyList = new ArrayList<>();
+        List<Dependency> dependencyList;
         if (artifact.getMavenProject() != null) {
-            dependencyList.addAll(newProjectDependencies(artifact));
+            dependencyList = collectProjectDependencies(artifact, scope);
         } else if (requiresExternalDependencies()) {
-            dependencyList.addAll(newExternalDependencies(artifact));
+            dependencyList = collectExternalDependencies(artifact, scope);
+        } else {
+            return;
         }
         Model model = project.getModel();
         for (Dependency dependency : dependencyList) {
@@ -96,23 +100,34 @@ public final class MavenDependencyInjector {
                 || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging());
     }
 
-    private List<Dependency> newExternalDependencies(ArtifactDescriptor artifact) {
+    private List<Dependency> collectExternalDependencies(ArtifactDescriptor artifact, String scope) {
         File location = artifact.getLocation(true);
-        if (location == null || !location.isFile() || !location.canRead()) {
-            logger.debug("Dependency at location " + location
-                    + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
-            return NO_DEPENDENCIES;
-        }
-        List<Dependency> result = new ArrayList<>();
         if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
+            if (location == null || !location.isFile() || !location.canRead()) {
+                if (location != null && location.isDirectory()) {
+                    logger.warn("Exploded plugin at location " + location
+                            + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins.");
+                    return Collections.emptyList();
+                } else {
+                    Dependency p2Dependency = createP2Dependency(artifact, location, scope);
+                    if (p2Dependency == null) {
+                        logger.warn(artifact
+                                + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins.");
+                        return Collections.emptyList();
+                    }
+                    return Collections.singletonList(p2Dependency);
+                }
+            }
+            List<Dependency> result = new ArrayList<>();
             for (String classpathElement : getClasspathElements(location)) {
                 if (".".equals(classpathElement)) {
-                    result.add(createSystemScopeDependency(artifact, location));
+                    result.add(createP2Dependency(artifact, location, scope));
                 } else {
                     File nestedJarOrDir = bundleReader.getEntry(location, classpathElement);
                     if (nestedJarOrDir != null) {
                         if (nestedJarOrDir.isFile()) {
-                            Dependency nestedJarDependency = createSystemScopeDependency(artifact, nestedJarOrDir);
+                            Dependency nestedJarDependency = createP2Dependency(artifact, nestedJarOrDir,
+                                    Artifact.SCOPE_SYSTEM);
                             nestedJarDependency.setClassifier(classpathElement);
                             result.add(nestedJarDependency);
                         } else if (nestedJarOrDir.isDirectory()) {
@@ -124,23 +139,25 @@ public final class MavenDependencyInjector {
                     }
                 }
             }
+            return result;
         } else {
-            result.add(createSystemScopeDependency(artifact, location));
+            return Collections.singletonList(createP2Dependency(artifact, location, scope));
         }
-        return result;
     }
 
     private String[] getClasspathElements(File bundleLocation) {
         return bundleReader.loadManifest(bundleLocation).getBundleClasspath();
     }
 
-    private Dependency createSystemScopeDependency(ArtifactDescriptor descriptor, File location) {
+    private Dependency createP2Dependency(ArtifactDescriptor descriptor, File location, String scope) {
         ArtifactKey artifactKey = descriptor.getKey();
-        return createSystemScopeDependency(descriptor, P2_GROUPID_PREFIX + artifactKey.getType(), location);
+        return createScopedDependency(descriptor, P2_GROUPID_PREFIX + artifactKey.getType().replace('-', '.'), location,
+                scope);
     }
 
-    private Dependency createSystemScopeDependency(ArtifactDescriptor descriptor, String groupId, File location) {
-        Dependency dependency = new Dependency();
+    private Dependency createScopedDependency(ArtifactDescriptor descriptor, String groupId, File location,
+            String scope) {
+        Dependency dependency = new ArtifactDescriptorDependency(descriptor);
         MavenDependencyDescriptor dependencyDescriptor = descriptorMapping == null ? null
                 : descriptorMapping.apply(descriptor);
         if (dependencyDescriptor != null) {
@@ -151,28 +168,41 @@ public final class MavenDependencyInjector {
             String type = dependencyDescriptor.getType();
             if (type != null && !type.isBlank()) {
                 dependency.setType(type);
+            } else {
+                dependency.setType(descriptor.getKey().getType());
             }
+            // TODO currently we still need this to be system scoped as otherwise maven tries to resolve them
+            // and we are currently not able to intercept this see https://github.com/eclipse/tycho/issues/585
+            //
+            // We might be able to mitigate this for dependencies explicitly marked as being available from maven
+            // see https://github.com/eclipse/tycho/issues/574
+            //
             dependency.setScope(Artifact.SCOPE_SYSTEM);
-            dependency.setSystemPath(location.getAbsolutePath());
         } else {
             ArtifactKey artifactKey = descriptor.getKey();
             dependency.setGroupId(groupId);
             dependency.setArtifactId(artifactKey.getId());
             dependency.setVersion(artifactKey.getVersion());
             dependency.setScope(Artifact.SCOPE_SYSTEM);
+            dependency.setType(artifactKey.getType());
+        }
+        if (Artifact.SCOPE_SYSTEM.equals(dependency.getScope())) {
+            if (location == null || !location.isFile()) {
+                return null;
+            }
             dependency.setSystemPath(location.getAbsolutePath());
         }
         return dependency;
     }
 
-    private List<Dependency> newProjectDependencies(ArtifactDescriptor artifact) {
+    private List<Dependency> collectProjectDependencies(ArtifactDescriptor artifact, String scope) {
         ReactorProject dependentMavenProjectProxy = artifact.getMavenProject();
         List<Dependency> result = new ArrayList<>();
         if (!artifact.getMavenProject().sameProject(project)) {
-            result.add(createProvidedScopeDependency(dependentMavenProjectProxy));
+            result.add(createProjectDependency(artifact, dependentMavenProjectProxy, scope));
         }
-        // TODO treat eclipse-test-plugins in the same way?
-        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(dependentMavenProjectProxy.getPackaging())) {
+        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(dependentMavenProjectProxy.getPackaging())
+                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(dependentMavenProjectProxy.getPackaging())) {
             for (String classpathElement : getClasspathElements(dependentMavenProjectProxy.getBasedir())) {
                 if (".".equals(classpathElement)) {
                     // covered by provided-scope dependency above
@@ -183,8 +213,8 @@ public final class MavenDependencyInjector {
                     // we can only add a system scope dependency for an existing (checked-in) jar file
                     // otherwise maven will throw a DependencyResolutionException
                     if (jar.isFile()) {
-                        Dependency systemScopeDependency = createSystemScopeDependency(artifact,
-                                artifact.getMavenProject().getGroupId(), jar);
+                        Dependency systemScopeDependency = createScopedDependency(artifact,
+                                artifact.getMavenProject().getGroupId(), jar, Artifact.SCOPE_SYSTEM);
                         systemScopeDependency.setClassifier(classpathElement);
                         result.add(systemScopeDependency);
                     } else {
@@ -198,13 +228,72 @@ public final class MavenDependencyInjector {
         return result;
     }
 
-    private Dependency createProvidedScopeDependency(ReactorProject dependentReactorProject) {
-        Dependency dependency = new Dependency();
+    private Dependency createProjectDependency(ArtifactDescriptor artifact, ReactorProject dependentReactorProject,
+            String scope) {
+        Dependency dependency = new ArtifactDescriptorDependency(artifact);
         dependency.setArtifactId(dependentReactorProject.getArtifactId());
         dependency.setGroupId(dependentReactorProject.getGroupId());
         dependency.setVersion(dependentReactorProject.getVersion());
         dependency.setType(dependentReactorProject.getPackaging());
-        dependency.setScope(Artifact.SCOPE_PROVIDED);
+        dependency.setScope(scope);
         return dependency;
     }
+
+    private static final class ArtifactDescriptorDependency extends Dependency implements ArtifactDescriptor {
+
+        private static final long serialVersionUID = 1L;
+        private ArtifactDescriptor descriptor;
+
+        public ArtifactDescriptorDependency(ArtifactDescriptor descriptor) {
+            this.descriptor = descriptor;
+        }
+
+        @Override
+        public String toString() {
+            return "ArtifactDescriptorDependency {descriptor=" + getDescriptor() + ", groupId=" + getGroupId()
+                    + ", artifactId=" + getArtifactId() + ", version=" + getVersion() + ", type=" + getType() + "}";
+        }
+
+        public ArtifactDescriptor getDescriptor() {
+            return descriptor;
+        }
+
+        @Override
+        public ArtifactKey getKey() {
+            return getDescriptor().getKey();
+        }
+
+        @Override
+        public File getLocation(boolean fetch) {
+            return getDescriptor().getLocation(fetch);
+        }
+
+        @Override
+        public ReactorProject getMavenProject() {
+            return getDescriptor().getMavenProject();
+        }
+
+        @Override
+        public Set<Object> getInstallableUnits() {
+            return getDescriptor().getInstallableUnits();
+        }
+
+        @Override
+        public Dependency clone() {
+
+            ArtifactDescriptorDependency copy = new ArtifactDescriptorDependency(descriptor);
+            copy.setArtifactId(getArtifactId());
+            copy.setClassifier(getClassifier());
+            copy.setExclusions(new ArrayList<>(getExclusions()));
+            copy.setGroupId(getGroupId());
+            copy.setOptional(isOptional());
+            copy.setScope(getScope());
+            copy.setSystemPath(getSystemPath());
+            copy.setType(getType());
+            copy.setVersion(getVersion());
+            return copy;
+        }
+
+    }
+
 }

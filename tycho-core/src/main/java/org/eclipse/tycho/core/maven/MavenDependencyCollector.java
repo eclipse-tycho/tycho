@@ -16,6 +16,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
@@ -47,7 +48,12 @@ public class MavenDependencyCollector extends ArtifactDependencyVisitor {
 
     @Override
     public void visitPlugin(PluginDescription plugin) {
-        injector.addDependency(plugin, Artifact.SCOPE_SYSTEM);
+        ReactorProject mavenProject = plugin.getMavenProject();
+        if (mavenProject == null) {
+            injector.addDependency(plugin, Artifact.SCOPE_SYSTEM);
+        } else {
+            injector.addDependency(plugin, Artifact.SCOPE_COMPILE);
+        }
     }
 
     @Override
