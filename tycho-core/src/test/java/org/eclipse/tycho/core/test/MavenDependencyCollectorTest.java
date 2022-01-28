@@ -35,6 +35,7 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
     public void testNestedJars() throws Exception {
         File targetPlatform = getBasedir("targetplatforms/nestedJar");
         List<MavenProject> projects = getSortedProjects(getBasedir("projects/mavendeps"), targetPlatform);
+        String expectedType = "eclipse-plugin";
         {
             // 1. project with dependency to external bundle with nested jar
             MavenProject project = projects.get(1);
@@ -42,10 +43,9 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
             final String nestedJarPath = "target/local-repo/.cache/tycho/nested_1.0.0.jar/lib/lib.jar";
             List<Dependency> mavenDependencies = project.getModel().getDependencies();
             Assert.assertEquals(2, mavenDependencies.size());
-            final String expectedGroupId = "p2.eclipse-plugin";
+            final String expectedGroupId = "p2.eclipse.plugin";
             final String expectedArtifactId = "nested";
             final String expectedVersion = "1.0.0";
-            final String expectedType = "jar";
             final String expectedScope = Artifact.SCOPE_SYSTEM;
             // assert that dependencies to both plain jar and nested jar are injected back into maven model
             assertDependenciesContains(mavenDependencies, expectedGroupId, expectedArtifactId, expectedVersion, null,
@@ -58,8 +58,9 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
             MavenProject project = projects.get(2);
             List<Dependency> mavenDependencies = project.getModel().getDependencies();
             assertEquals(1, mavenDependencies.size());
-            assertDependenciesContains(mavenDependencies, "mavenDependencies", "p002", "1.0.0", "lib/lib.jar", "jar",
-                    Artifact.SCOPE_SYSTEM, new File(getBasedir("projects/mavendeps"), "p002/lib/lib.jar"));
+            assertDependenciesContains(mavenDependencies, "mavenDependencies", "p002", "1.0.0", "lib/lib.jar",
+                    expectedType, Artifact.SCOPE_SYSTEM,
+                    new File(getBasedir("projects/mavendeps"), "p002/lib/lib.jar"));
         }
         {
             // 3. project with dependency to bundle with nested jar within the same reactor
@@ -74,10 +75,10 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
             final String expectedArtifactId = "p002";
             final String expectedVersion = "1.0.0";
             assertDependenciesContains(mavenDependencies, expectedGroupId, expectedArtifactId, expectedVersion, null,
-                    "eclipse-plugin", Artifact.SCOPE_PROVIDED, null);
+                    "eclipse-plugin", Artifact.SCOPE_COMPILE, null);
             assertDependenciesContains(mavenDependencies, expectedGroupId, expectedArtifactId, expectedVersion,
-                    "lib/lib.jar", "jar", Artifact.SCOPE_SYSTEM, new File(getBasedir("projects/mavendeps"),
-                            "p002/lib/lib.jar"));
+                    "lib/lib.jar", expectedType, Artifact.SCOPE_SYSTEM,
+                    new File(getBasedir("projects/mavendeps"), "p002/lib/lib.jar"));
         }
     }
 
@@ -133,8 +134,17 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
                 }
             }
         }
-        fail("Expected dependency [" + groupId + ":" + artifactId + ":" + version + ":" + classifier + ":" + type + ":"
-                + scope + ":" + systemLocation + "] not found in actual dependencies: "
+        Dependency dependency = new Dependency();
+        dependency.setArtifactId(artifactId);
+        dependency.setGroupId(groupId);
+        dependency.setClassifier(classifier);
+        dependency.setVersion(version);
+        dependency.setType(type);
+        dependency.setScope(scope);
+        if (systemLocation != null) {
+            dependency.setSystemPath(systemLocation.getCanonicalPath());
+        }
+        fail("Expected dependency \r\n" + toDebugString(dependency) + " not found in actual dependencies: \r\n"
                 + toDebugString(mavenDependencies));
     }
 
@@ -142,6 +152,7 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
         StringBuilder sb = new StringBuilder();
         for (Dependency dependency : mavenDependencies) {
             sb.append(toDebugString(dependency));
+            sb.append("\r\n");
         }
         return sb.toString();
     }
