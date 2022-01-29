@@ -14,7 +14,10 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
@@ -23,6 +26,9 @@ import org.eclipse.aether.repository.WorkspaceRepository;
 public class TychoWorkspaceReader implements WorkspaceReader {
 
     private WorkspaceRepository repository;
+
+    @Requirement
+    private LegacySupport legacySupport;
 
     public TychoWorkspaceReader() {
         System.out.println("Hello from TychoWorkspaceReader!");
@@ -40,7 +46,8 @@ public class TychoWorkspaceReader implements WorkspaceReader {
         if ("pom".equals(artifact.getExtension())) {
             return null;
         }
-        System.out.println("TychoWorkspaceReader: findArtifact(" + artifact + ")");
+        MavenProject currentProject = legacySupport.getSession().getCurrentProject();
+        System.out.println("TychoWorkspaceReader: findArtifact(" + artifact + ") " + currentProject);
         return null;
     }
 
