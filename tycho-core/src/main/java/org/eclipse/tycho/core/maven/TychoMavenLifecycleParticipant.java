@@ -153,7 +153,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 return;
             }
             try {
-                resolver.resolveProject(session, project, reactorProjects);
+                MavenSession clone = session.clone();
+                resolver.resolveProject(clone, project, reactorProjects);
             } catch (BuildFailureException e) {
                 resolutionErrors.put(project, e);
                 if (failFast) {
