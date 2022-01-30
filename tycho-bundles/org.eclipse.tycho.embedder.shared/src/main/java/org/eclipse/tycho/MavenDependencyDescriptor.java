@@ -42,4 +42,10 @@ public interface MavenDependencyDescriptor {
      * @return the version of the dependency
      */
     String getVersion();
+
+    /**
+     * 
+     * @return the id of the repository this artifact is located in
+     */
+    String getRepository();
 }

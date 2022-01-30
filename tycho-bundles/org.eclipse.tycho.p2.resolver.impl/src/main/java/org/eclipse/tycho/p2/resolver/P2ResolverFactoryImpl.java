@@ -149,6 +149,11 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
                         public String getArtifactId() {
                             return artifactId;
                         }
+
+                        @Override
+                        public String getRepository() {
+                            return properties.get(RepositoryLayoutHelper.PROP_REPOSITORY);
+                        }
                     };
                 }).filter(Objects::nonNull).findFirst().orElse(null);
     }

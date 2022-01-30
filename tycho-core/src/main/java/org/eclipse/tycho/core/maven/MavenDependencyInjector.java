@@ -63,8 +63,6 @@ public final class MavenDependencyInjector {
         }
     }
 
-    private static final List<Dependency> NO_DEPENDENCIES = Collections.emptyList();
-
     private final BundleReader bundleReader;
     private final Logger logger;
 
@@ -160,7 +158,7 @@ public final class MavenDependencyInjector {
         Dependency dependency = new ArtifactDescriptorDependency(descriptor);
         MavenDependencyDescriptor dependencyDescriptor = descriptorMapping == null ? null
                 : descriptorMapping.apply(descriptor);
-        if (dependencyDescriptor != null) {
+        if (dependencyDescriptor != null && isValidMavenDescriptor(dependencyDescriptor)) {
             dependency.setGroupId(dependencyDescriptor.getGroupId());
             dependency.setArtifactId(dependencyDescriptor.getArtifactId());
             dependency.setVersion(dependencyDescriptor.getVersion());
@@ -171,13 +169,7 @@ public final class MavenDependencyInjector {
             } else {
                 dependency.setType(descriptor.getKey().getType());
             }
-            // TODO currently we still need this to be system scoped as otherwise maven tries to resolve them
-            // and we are currently not able to intercept this see https://github.com/eclipse/tycho/issues/585
-            //
-            // We might be able to mitigate this for dependencies explicitly marked as being available from maven
-            // see https://github.com/eclipse/tycho/issues/574
-            //
-            dependency.setScope(Artifact.SCOPE_SYSTEM);
+            dependency.setScope(scope);
         } else {
             ArtifactKey artifactKey = descriptor.getKey();
             dependency.setGroupId(groupId);
@@ -193,6 +185,25 @@ public final class MavenDependencyInjector {
             dependency.setSystemPath(location.getAbsolutePath());
         }
         return dependency;
+    }
+
+    private boolean isValidMavenDescriptor(MavenDependencyDescriptor dependencyDescriptor) {
+        //TODO we should make this configurable maybe on the tycho plugin level e.g.
+        //        <plugin>
+        //            <groupId>org.eclipse.tycho</groupId>
+        //            <artifactId>tycho-maven-plugin</artifactId>
+        //            <version>${tycho-version}</version>
+        //            <extensions>true</extensions>
+        //            <configuration>
+        //              <mavenDescriptorRepositories>
+        //                  <repository>central</repository>
+        //                  <repository>!eclipse-snapshots</repository> 
+        //                  <repository>....</repository> 
+        //              </mavenDescriptorRepositories>       
+        //            </configuration>
+        //        </plugin>
+        String repository = dependencyDescriptor.getRepository();
+        return repository != null && !repository.isBlank();
     }
 
     private List<Dependency> collectProjectDependencies(ArtifactDescriptor artifact, String scope) {

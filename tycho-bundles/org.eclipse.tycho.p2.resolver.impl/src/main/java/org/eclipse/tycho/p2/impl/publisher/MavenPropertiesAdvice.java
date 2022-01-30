@@ -21,12 +21,18 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 @SuppressWarnings("restriction")
 public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     private final Map<String, String> properties = new LinkedHashMap<>();
+
+    public MavenPropertiesAdvice(IArtifactFacade artifactFacade) {
+        this(artifactFacade.getGroupId(), artifactFacade.getArtifactId(), artifactFacade.getVersion(),
+                artifactFacade.getClassifier(), artifactFacade.getPackagingType(), artifactFacade.getRepository());
+    }
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version) {
         properties.put(RepositoryLayoutHelper.PROP_GROUP_ID, groupId);
@@ -46,6 +52,14 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
         this(groupId, artifactId, version, classifier);
         if (extension != null && !extension.isEmpty()) {
             properties.put(RepositoryLayoutHelper.PROP_EXTENSION, extension);
+        }
+    }
+
+    public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier, String extension,
+            String repository) {
+        this(groupId, artifactId, version, classifier, extension);
+        if (repository != null && !repository.isEmpty()) {
+            properties.put(RepositoryLayoutHelper.PROP_REPOSITORY, repository);
         }
     }
 

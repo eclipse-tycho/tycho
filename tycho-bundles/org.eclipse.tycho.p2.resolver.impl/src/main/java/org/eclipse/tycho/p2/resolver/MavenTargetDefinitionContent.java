@@ -365,9 +365,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 bundleDescription.getVersion().toString());
         PublisherInfo publisherInfo = new PublisherInfo();
         if (mavenArtifact != null) {
-            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact.getGroupId(),
-                    mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), mavenArtifact.getClassifier(),
-                    mavenArtifact.getPackagingType());
+            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact);
             publisherInfo.addAdvice(advice);
         }
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -172,6 +173,10 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
 		for (Dependency dep : list) {
 			Dependency copy = dep.clone();
 			copy.setSystemPath(null);
+			if (dep.getGroupId().startsWith("p2.eclipse.") && Artifact.SCOPE_SYSTEM.equals(dep.getScope())) {
+				copy.setOptional(true);
+				copy.setScope(Artifact.SCOPE_PROVIDED);
+			}
 			dependencies.add(copy);
 		}
 		modelWriter.write(pomFile, null, projectModel);

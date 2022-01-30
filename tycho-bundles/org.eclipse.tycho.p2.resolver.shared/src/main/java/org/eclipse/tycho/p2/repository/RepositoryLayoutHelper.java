@@ -16,6 +16,9 @@ package org.eclipse.tycho.p2.repository;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.PackagingType;
+
 public class RepositoryLayoutHelper {
     public static final String PROP_GROUP_ID = "maven-groupId";
 
@@ -24,6 +27,8 @@ public class RepositoryLayoutHelper {
     public static final String PROP_VERSION = "maven-version";
 
     public static final String PROP_CLASSIFIER = "maven-classifier";
+
+    public static final String PROP_REPOSITORY = "maven-repository";
 
     public static final String PROP_EXTENSION = "maven-extension";
 
@@ -89,6 +94,41 @@ public class RepositoryLayoutHelper {
         if (classifier != null && !classifier.isEmpty()) {
             sb.append('-').append(classifier);
         }
+        if (extension != null) {
+            //Workaround for #593
+            switch (extension) {
+            // dup of ArtifactType.TYPE_ECLIPSE_PLUGIN case PackagingType.TYPE_ECLIPSE_PLUGIN:
+            case ArtifactType.TYPE_ECLIPSE_PLUGIN:
+            case ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT:
+            // dup of ArtifactType.TYPE_ECLIPSE_FEATURE case PackagingType.TYPE_ECLIPSE_FEATURE:
+            case ArtifactType.TYPE_ECLIPSE_FEATURE:
+            case PackagingType.TYPE_ECLIPSE_TEST_PLUGIN:
+            case "ejb":
+            case "ejb-client":
+            case "test-jar":
+            case "javadoc":
+            case "java-source":
+            case "maven-plugin":
+                extension = "jar";
+                break;
+            case PackagingType.TYPE_ECLIPSE_UPDATE_SITE:
+            case PackagingType.TYPE_ECLIPSE_REPOSITORY:
+            case PackagingType.TYPE_ECLIPSE_APPLICATION:
+            case ArtifactType.TYPE_ECLIPSE_PRODUCT:
+                extension = "zip";
+                break;
+            // dup of ArtifactType.TYPE_INSTALLABLE_UNIT case PackagingType.TYPE_P2_IU:
+            case ArtifactType.TYPE_INSTALLABLE_UNIT:
+                extension = "xml";
+                break;
+            case PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION:
+                extension = "target";
+                break;
+            default:
+                break;
+            }
+        }
+
         sb.append('.').append(extension != null ? extension : DEFAULT_EXTERNSION);
 
         return sb.toString();
@@ -121,10 +161,16 @@ public class RepositoryLayoutHelper {
 
     // TODO it would be useful to have a GAV+C+T class
     public static String getClassifier(Map<?, ?> properties) {
+        if (properties == null) {
+            return null;
+        }
         return (String) properties.get(PROP_CLASSIFIER);
     }
 
     public static String getExtension(Map<?, ?> properties) {
+        if (properties == null) {
+            return null;
+        }
         String explicitExtension = (String) properties.get(PROP_EXTENSION);
         return explicitExtension == null ? DEFAULT_EXTERNSION : explicitExtension;
     }
