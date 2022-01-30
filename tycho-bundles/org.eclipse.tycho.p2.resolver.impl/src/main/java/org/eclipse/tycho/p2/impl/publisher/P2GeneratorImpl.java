@@ -365,8 +365,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             interpolator = null;
         }
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
-        advice.add(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
-                artifact.getClassifier()));
+        advice.add(new MavenPropertiesAdvice(artifact));
         advice.add(getExtraEntriesAdvice(artifact, interpolator));
 
         if (options.generateDownloadStatsProperty) {

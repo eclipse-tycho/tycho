@@ -212,9 +212,7 @@ public class TargetPlatformBundlePublisher {
         }
 
         private void enableUnitAnnotationWithGAV() {
-            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(publishedArtifact.getGroupId(),
-                    publishedArtifact.getArtifactId(), publishedArtifact.getVersion(),
-                    publishedArtifact.getClassifier());
+            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(publishedArtifact);
             publisherInfo.addAdvice(advice);
         }
 

@@ -44,4 +44,13 @@ public interface IArtifactFacade {
     default List<String> getDependencyTrail() {
         return Collections.emptyList();
     }
+
+    /**
+     * 
+     * @return the id of the (remote) repository this artifact is located or <code>null</code> if
+     *         unknown.
+     */
+    default String getRepository() {
+        return null;
+    }
 }

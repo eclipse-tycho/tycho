@@ -22,6 +22,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -92,7 +93,7 @@ public class PomDependencyProcessor {
                 if (logger.isDebugEnabled()) {
                     logger.debug("P2resolver.addMavenArtifact " + artifact.toString());
                 }
-                result.addMavenArtifact(new ArtifactFacade(artifact), allowGenerateOSGiBundle);
+                result.addMavenArtifact(new MavenArtifactFacade(artifact), allowGenerateOSGiBundle);
             } else {
                 failDueToPartialP2Data(artifact, p2Data);
             }

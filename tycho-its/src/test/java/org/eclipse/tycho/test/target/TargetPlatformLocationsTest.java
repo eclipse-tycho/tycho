@@ -54,7 +54,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("target.maven", false, true);
 		verifier.executeGoal("dependency:list");
 		verifier.verifyErrorFreeLog();
-		verifier.verifyTextInLog("commons-lang:commons-lang:jar:2.4:system"); // this is a weak assert, should
+		verifier.verifyTextInLog("commons-lang:commons-lang:jar:2.4:compile"); // this is a weak assert, should
 																				// be
 		// improved
 	}
