@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Christoph Läubrich and others.
+ * Copyright (c) 2022 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -27,11 +27,13 @@ public class PGPSignatureAdvice extends AbstractAdvice implements IPropertyAdvic
     private final String id;
     private final Version version;
     private final String signature;
+    private String publicKeys;
 
-    public PGPSignatureAdvice(String id, Version version, String signature) {
+    public PGPSignatureAdvice(String id, Version version, String signature, String publicKeys) {
         this.id = id;
         this.version = version;
         this.signature = signature;
+        this.publicKeys = publicKeys;
     }
 
     @Override
@@ -61,6 +63,9 @@ public class PGPSignatureAdvice extends AbstractAdvice implements IPropertyAdvic
         if (descriptor instanceof ArtifactDescriptor) {
             ArtifactDescriptor artifactDescriptor = (ArtifactDescriptor) descriptor;
             artifactDescriptor.setProperty("pgp.signatures", signature);
+            if (publicKeys != null) {
+                artifactDescriptor.setProperty("pgp.publicKeys", publicKeys);
+            }
         }
         return null;
     }
