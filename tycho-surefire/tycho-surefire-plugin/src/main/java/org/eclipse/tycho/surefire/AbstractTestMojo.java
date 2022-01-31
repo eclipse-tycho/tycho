@@ -1144,7 +1144,10 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         if (tc != null) {
             getLog().info("Toolchain in tycho-surefire-plugin: " + tc);
             executable = tc.findTool("java");
-        }
+        } else {
+            executable = "java"; //Better than nothing
+            getLog().info("Could not find the Toolchain, trying java from PATH instead");
+	}
         cli.setJvmExecutable(executable);
 
         cli.setWorkingDirectory(project.getBasedir());
