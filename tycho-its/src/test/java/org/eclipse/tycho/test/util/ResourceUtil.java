@@ -20,41 +20,40 @@ import java.net.URI;
  */
 public class ResourceUtil {
 
-    public enum P2Repositories {
-        ECLIPSE_342("e342"), ECLIPSE_352("e352"), ECLIPSE_OXYGEN(
-                "https:////download.eclipse.org/releases/oxygen/"), ECLIPSE_LATEST(
-                        "https:////download.eclipse.org/releases/2020-12/");
+	public enum P2Repositories {
+		ECLIPSE_342("e342"), ECLIPSE_352("e352"), ECLIPSE_OXYGEN("https:////download.eclipse.org/releases/oxygen/"),
+		ECLIPSE_LATEST("https:////download.eclipse.org/releases/2021-12/");
 
-        private final String path;
+		private final String path;
 
-        P2Repositories(String path) {
-            this.path = path;
-        }
+		P2Repositories(String path) {
+			this.path = path;
+		}
 
-        public URI getResolvedLocation() throws IllegalStateException {
-            if (path.startsWith("https:") || path.startsWith("http:")) {
-                return URI.create(path);
-            }
-            return resolveTestResource("repositories/" + path).toURI();
-        }
+		public URI getResolvedLocation() throws IllegalStateException {
+			if (path.startsWith("https:") || path.startsWith("http:")) {
+				return URI.create(path);
+			}
+			return resolveTestResource("repositories/" + path).toURI();
+		}
 
-        @Override
-        public String toString() {
-            return getResolvedLocation().toString();
-        }
-    }
+		@Override
+		public String toString() {
+			return getResolvedLocation().toString();
+		}
+	}
 
-    public static File resolveTestResource(String pathRelativeToProjectRoot) throws IllegalStateException {
-        File resolvedFile = new File(pathRelativeToProjectRoot).getAbsoluteFile();
+	public static File resolveTestResource(String pathRelativeToProjectRoot) throws IllegalStateException {
+		File resolvedFile = new File(pathRelativeToProjectRoot).getAbsoluteFile();
 
-        if (!resolvedFile.canRead()) {
-            throw new IllegalStateException(
-                    "Test resource \"" + pathRelativeToProjectRoot + "\" is not available; " + workingDirMessage());
-        }
-        return resolvedFile;
-    }
+		if (!resolvedFile.canRead()) {
+			throw new IllegalStateException(
+					"Test resource \"" + pathRelativeToProjectRoot + "\" is not available; " + workingDirMessage());
+		}
+		return resolvedFile;
+	}
 
-    private static String workingDirMessage() {
-        return "(working directory is \"" + new File(".").getAbsolutePath() + "\")";
-    }
+	private static String workingDirMessage() {
+		return "(working directory is \"" + new File(".").getAbsolutePath() + "\")";
+	}
 }

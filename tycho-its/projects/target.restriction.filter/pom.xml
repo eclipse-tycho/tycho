@@ -39,6 +39,7 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<executionEnvironment>JavaSE-11</executionEnvironment>
 					<filters>
 						<filter>
 							<!-- make sure that a 3.4.x version of bundle org.eclipse.osgi is used -->
@@ -46,7 +47,7 @@
 							<id> org.eclipse.osgi </id>  <!-- extra whitespace is not needed; it is just here to make the test harder -->
 							<restrictTo>
 								<versionRange>
-									[3.12,3.13)
+									[3.16,3.17)
 								</versionRange>
 							</restrictTo>
 						</filter>
