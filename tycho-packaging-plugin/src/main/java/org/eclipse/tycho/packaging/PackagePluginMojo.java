@@ -252,9 +252,6 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                 getLog().warn("ignoring unsupported archive forced = false parameter.");
                 archive.setForced(true);
             }
-			if (archive.isAddMavenDescriptor()) {
-				mavenProject = updatePom(finalName);
-			}
 			archiver.createArchive(session, mavenProject, archive);
             return pluginFile;
         } catch (IOException | ArchiverException | ManifestException | DependencyResolutionRequiredException e) {

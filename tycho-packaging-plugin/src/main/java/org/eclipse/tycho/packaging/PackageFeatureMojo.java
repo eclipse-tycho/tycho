@@ -156,9 +156,6 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
                     archive.setAddMavenDescriptor(false);
                 }
 				MavenProject mavenProject = project;
-				if (archive.isAddMavenDescriptor()) {
-					mavenProject = updatePom(finalName);
-				}
 				archiver.createArchive(session, mavenProject, archive);
             } catch (Exception e) {
                 throw new MojoExecutionException("Error creating feature package", e);

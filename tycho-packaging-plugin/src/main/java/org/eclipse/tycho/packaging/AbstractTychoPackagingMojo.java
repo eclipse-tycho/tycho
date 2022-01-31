@@ -14,21 +14,13 @@
 package org.eclipse.tycho.packaging;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.ModelReader;
-import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -90,12 +82,6 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     @Component
     private IncludeValidationHelper includeValidationHelper;
 
-	@Component(role = ModelWriter.class)
-	protected ModelWriter modelWriter;
-
-	@Component(role = ModelReader.class)
-	protected ModelReader modelReader;
-
     /**
      * @return a {@link FileSet} with the given includes and excludes and the configured default
      *         excludes. An empty list of includes leads to an empty file set.
@@ -148,41 +134,5 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
             throws MojoExecutionException {
         includeValidationHelper.checkBinIncludesExist(project, buildProperties, strictBinIncludes, ignoredIncludes);
     }
-
-	/**
-	 * Updates the pom file with the dependencies from the model writing it to the
-	 * output directory under [finalName].jar
-	 * 
-	 * @param finalName
-	 * @return the maven project with updated pom location
-	 * @throws IOException
-	 */
-	protected MavenProject updatePom(String finalName) throws IOException {
-		getLog().debug("Generate pom descriptor with updated dependencies...");
-		Model projectModel = modelReader.read(project.getFile(), null);
-		File pomFile;
-		if (buildDirectory == null) {
-			// this should only happen in unit-tests ...
-			pomFile = new File(project.getBasedir(), finalName + ".pom");
-		} else {
-			pomFile = new File(buildDirectory, finalName + ".pom");
-		}
-		List<Dependency> dependencies = projectModel.getDependencies();
-		dependencies.clear();
-		List<Dependency> list = Objects.requireNonNullElse(project.getDependencies(), Collections.emptyList());
-		for (Dependency dep : list) {
-			Dependency copy = dep.clone();
-			copy.setSystemPath(null);
-			if (dep.getGroupId().startsWith("p2.eclipse.") && Artifact.SCOPE_SYSTEM.equals(dep.getScope())) {
-				copy.setOptional(true);
-				copy.setScope(Artifact.SCOPE_PROVIDED);
-			}
-			dependencies.add(copy);
-		}
-		modelWriter.write(pomFile, null, projectModel);
-		MavenProject mavenProject = project.clone(); // don't alter the original project!
-		mavenProject.setFile(pomFile);
-		return mavenProject;
-	}
 
 }
