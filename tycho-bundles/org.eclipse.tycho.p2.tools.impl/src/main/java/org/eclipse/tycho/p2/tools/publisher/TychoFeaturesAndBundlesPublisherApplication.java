@@ -226,7 +226,7 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
                     continue;
                 }
                 signaturesList.add(new PGPSignatureAdvice(symbolicName,
-                        PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), signature));
+                        PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), signature, publicKeys));
             }
             result.add(new SignaturePublisherAction(signaturesList));
         }
