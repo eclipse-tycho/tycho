@@ -4,7 +4,8 @@ Bundle-Name: trf.testbundle
 Bundle-SymbolicName: trf.testbundle;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Require-Bundle: org.eclipse.osgi,
+ org.eclipse.equinox.common,
  org.junit
 Bundle-Activator: test.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11

@@ -6,7 +6,7 @@
      <category name="Test Category" />
    </iu>
    <iu>
-     <query><expression type="match">id ~= /javax.annotat*/</expression></query>
+     <query><expression type="match">id == "javax.annotation"</expression></query>
      <category name="Test Category" />
    </iu>
    <category-def label="Test Category Label" name="Test Category">
