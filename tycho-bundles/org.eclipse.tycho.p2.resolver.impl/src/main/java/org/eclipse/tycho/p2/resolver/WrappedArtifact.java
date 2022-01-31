@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2022 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -186,6 +186,9 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
     }
 
     protected static Version createOSGiVersionFromMaven(String version) {
+        if (version == null) {
+            return Version.emptyVersion;
+        }
         try {
             int index = version.indexOf('-');
             if (index > -1) {
