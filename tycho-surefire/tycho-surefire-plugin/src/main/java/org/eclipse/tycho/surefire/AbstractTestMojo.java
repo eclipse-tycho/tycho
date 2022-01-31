@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -1139,15 +1139,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             throws MalformedURLException, MojoExecutionException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(testRuntime);
 
-        String executable = null;
-        Toolchain tc = getToolchain();
-        if (tc != null) {
-            getLog().info("Toolchain in tycho-surefire-plugin: " + tc);
-            executable = tc.findTool("java");
-        } else {
-            executable = "java"; //Better than nothing
-            getLog().info("Could not find the Toolchain, trying java from PATH instead");
-	}
+        String executable = getJavaExecutable();
         cli.setJvmExecutable(executable);
 
         cli.setWorkingDirectory(project.getBasedir());
@@ -1201,6 +1193,24 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             cli.addVMArguments("-ea");
         }
         return cli;
+    }
+
+    protected String getJavaExecutable() throws MojoExecutionException {
+        Toolchain tc = getToolchain();
+        if (tc != null) {
+            getLog().info("Toolchain in tycho-surefire-plugin: " + tc);
+            return tc.findTool("java");
+        }
+        String javaHome = System.getenv("JAVA_HOME");
+        if (javaHome != null && !javaHome.isBlank()) {
+            File file = new File(javaHome, "bin/java");
+            if (file.exists()) {
+                getLog().info("Could not find the Toolchain, using java from JAVA_HOME instead");
+                return file.getAbsolutePath();
+            }
+        }
+        getLog().info("Could not find the Toolchain nor JAVA_HOME, trying java from PATH instead");
+        return "java";
     }
 
     private Map<String, String> getMergedSystemProperties() {
