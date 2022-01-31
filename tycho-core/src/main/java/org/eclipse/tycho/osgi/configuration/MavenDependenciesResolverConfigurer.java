@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2022 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.repository.RepositorySystem;
@@ -188,7 +189,14 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
 
             @Override
             public String getGroupId() {
-                return model.getGroupId();
+                String groupId = model.getGroupId();
+                if (groupId == null || groupId.isBlank()) {
+                    Parent parent = model.getParent();
+                    if (parent != null) {
+                        return parent.getGroupId();
+                    }
+                }
+                return groupId;
             }
 
             @Override
@@ -198,7 +206,14 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
 
             @Override
             public String getVersion() {
-                return model.getVersion();
+                String version = model.getVersion();
+                if (version == null || version.isBlank()) {
+                    Parent parent = model.getParent();
+                    if (parent != null) {
+                        return parent.getVersion();
+                    }
+                }
+                return version;
             }
 
             @Override
