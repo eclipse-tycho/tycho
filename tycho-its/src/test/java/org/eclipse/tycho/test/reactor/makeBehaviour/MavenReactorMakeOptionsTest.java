@@ -28,8 +28,12 @@ import org.junit.Test;
  * Test project dependencies:
  *
  * <pre>
- * feature2 -> feature1,bundle2
- * feature1 -> bundle1
+ *            bundle1a <-- bundle1b
+ *            |
+ *            |
+ *  bundle1  <-- feature1 <-- feature2
+ *                            |
+ *                 bundle2 <--|
  * </pre>
  *
  */
@@ -48,6 +52,8 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.assertFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
+		verifier.assertFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
 		verifier.assertFilePresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
 		verifier.assertFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
 		verifier.assertFilePresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
@@ -61,19 +67,38 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.assertFileNotPresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
+		verifier.assertFileNotPresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
 		verifier.assertFileNotPresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
 		verifier.assertFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
 		verifier.assertFileNotPresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
 	}
 
 	@Test
-	public void testAlsoMakeDependents() throws Exception {
-		// REACTOR_MAKE_DOWNSTREAM
-		verifier.addCliOption("-amd");
-		verifier.addCliOption("-pl bundle1,bundle2");
+	public void testAlsoMakeWithIndirectDependencies() throws Exception {
+		// REACTOR_MAKE_UPSTREAM
+		verifier.addCliOption("-am");
+		verifier.addCliOption("-pl bundle1b");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.assertFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
+		verifier.assertFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
+		verifier.assertFileNotPresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
+		verifier.assertFileNotPresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
+		verifier.assertFileNotPresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
+	}
+
+	@Test
+	public void testAlsoMakeDependentsNeedsToPickUpDependenciesOfDependents() throws Exception {
+		// REACTOR_MAKE_DOWNSTREAM
+		verifier.addCliOption("-amd");
+		verifier.addCliOption("-pl bundle1");
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.assertFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
+		verifier.assertFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
 		verifier.assertFilePresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
 		verifier.assertFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
 		verifier.assertFilePresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
@@ -102,21 +127,6 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		} catch (VerificationException e) {
 			verifier.verifyTextInLog(
 					"Missing requirement: feature1.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle1 0.0.0' but it could not be found");
-		}
-	}
-
-	@Test
-	public void testDownstreamFailsIfMissingDownstreamDependency() throws Exception {
-		// Downstream brings in feature2 but this requires bundle2 which is unrelated
-		// to specified projects
-		try {
-			verifier.addCliOption("-amd");
-			verifier.addCliOption("-pl bundle1,feature1");
-			verifier.executeGoals(List.of("clean", "verify"));
-			fail("Build should fail due to missing reactor dependency");
-		} catch (VerificationException e) {
-			verifier.verifyTextInLog(
-					"Missing requirement: feature2.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle2 0.0.0' but it could not be found");
 		}
 	}
 

@@ -11,6 +11,8 @@
     <module>feature1</module>
     <module>feature2</module>
     <module>bundle1</module>
+    <module>bundle1a</module>
+    <module>bundle1b</module>
     <module>bundle2</module>
   </modules>
 

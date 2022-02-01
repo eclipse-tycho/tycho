@@ -220,9 +220,9 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 								.distinct()//
 								.peek(project -> loggerAdapter.debug(" + add downstream project '" + project.getName()
 										+ "' of project '" + projectRequest.mavenProject.getName() + "'..."))//
-								// make behaviors are both false here as projectDependenciesMap includes transitive already
+								// request dependencies of dependants, otherwise, -amd would not be able to produce a satisfiable build graph
 								.forEach(
-										project -> queue.add(new ProjectRequest(project, false, false, projectRequest)));
+										project -> queue.add(new ProjectRequest(project, false, true, projectRequest)));
 					}
 				}
 			}
