@@ -195,19 +195,20 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			while (!queue.isEmpty()) {
 				ProjectRequest projectRequest = queue.poll();
 				if (selectedProjects.add(projectRequest.mavenProject)) {
-					if (projectRequest.requestDownstream) {
+					if (projectRequest.requestUpstream) {
 						Collection<IInstallableUnit> depends = projectDependenciesMap
 								.getOrDefault(projectRequest.mavenProject, Collections.emptyList());
 						depends.stream()//
 								.map(iuProjectMap::get)//
 								.filter(Objects::nonNull)//
 								.distinct()//
-								.peek(project -> loggerAdapter.debug(" + add downstream project '" + project.getName()
+								.peek(project -> loggerAdapter.debug(" + add upstream project '" + project.getName()
 										+ "' of project '" + projectRequest.mavenProject.getName() + "'..."))//
+								// make behaviors are both false here as projectDependenciesMap includes transitive already
 								.forEach(
-										project -> queue.add(new ProjectRequest(project, true, false, projectRequest)));
+										project -> queue.add(new ProjectRequest(project, false, false, projectRequest)));
 					}
-					if (projectRequest.requestUpstream) {
+					if (projectRequest.requestDownstream) {
 						projectDependenciesMap.entrySet().stream()//
 								.filter(entry -> {
 									return entry.getValue().stream()//
@@ -217,10 +218,11 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 								})//
 								.map(Entry::getKey)//
 								.distinct()//
-								.peek(project -> loggerAdapter.debug(" + add upstream project '" + project.getName()
+								.peek(project -> loggerAdapter.debug(" + add downstream project '" + project.getName()
 										+ "' of project '" + projectRequest.mavenProject.getName() + "'..."))//
+								// make behaviors are both false here as projectDependenciesMap includes transitive already
 								.forEach(
-										project -> queue.add(new ProjectRequest(project, true, false, projectRequest)));
+										project -> queue.add(new ProjectRequest(project, false, false, projectRequest)));
 					}
 				}
 			}
@@ -360,6 +362,12 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 		boolean matches(MavenProject mavenproject) {
 			return this.mavenProject == mavenproject;
+		}
+
+		@Override
+		public String toString() {
+			return "ProjectRequest [mavenProject=" + mavenProject + ", parent=" + parent + ", requestDownstream="
+					+ requestDownstream + ", requestUpstream=" + requestUpstream + "]";
 		}
 	}
 
