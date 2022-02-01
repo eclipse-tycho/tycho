@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="feature2"
+      version="1.0.0.qualifier">
+
+   <includes
+         id="feature1"
+         version="0.0.0"/>
+
+   <plugin
+         id="bundle2"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
