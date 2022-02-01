@@ -29,7 +29,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
@@ -61,7 +61,7 @@ public class CustomEEResolutionHandlerTest {
         tpFactory = new TestResolverFactory(logVerifier.getLogger()).getTargetPlatformFactory();
         tpConfig = new TargetPlatformConfigurationStub();
         pomDependencyCollector = new PomDependencyCollectorImpl(
-                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()),
+                new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger()),
                 new ReactorProjectStub(tempManager.newFolder(), "test"));
     }
 

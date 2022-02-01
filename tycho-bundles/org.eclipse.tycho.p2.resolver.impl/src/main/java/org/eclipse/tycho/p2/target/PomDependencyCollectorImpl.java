@@ -74,9 +74,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         this.project = project;
         this.logger = mavenContext.getLogger();
 
-        File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
-        this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, project,
-                mavenContext.getLogger());
+        this.bundlesPublisher = new TargetPlatformBundlePublisher(project, mavenContext);
         try {
             agent = Activator.createProvisioningAgent(project == null ? null : project.getBasedir().toURI());
         } catch (ProvisionException e) {

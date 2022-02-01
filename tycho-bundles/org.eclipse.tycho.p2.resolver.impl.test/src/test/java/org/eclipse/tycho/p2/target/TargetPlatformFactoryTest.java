@@ -50,7 +50,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
@@ -101,7 +101,7 @@ public class TargetPlatformFactoryTest {
         tpConfig = new TargetPlatformConfigurationStub();
         tpConfig.setEnvironments(Collections.singletonList(new TargetEnvironment(null, null, null))); // dummy value for target file resolution
         pomDependencyCollector = new PomDependencyCollectorImpl(
-                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()),
+                new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger()),
                 new ReactorProjectStub(tempManager.newFolder(), "test"));
     }
 

@@ -31,6 +31,7 @@ import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 @SuppressWarnings("restriction")
 public class ArtifactsIO {
@@ -62,7 +63,7 @@ public class ArtifactsIO {
             try {
                 // TODO: currently not caching the parser since we make no assumptions
                 // or restrictions on concurrent parsing
-                getParser();
+                XMLReader xmlReader = getParser().getXMLReader();
                 ArtifactsHandler artifactsHandler = new ArtifactsHandler();
                 xmlReader.setContentHandler(new RepositoryDocHandler(ARTIFACTS_ELEMENT, artifactsHandler));
                 xmlReader.parse(new InputSource(stream));

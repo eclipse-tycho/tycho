@@ -30,10 +30,10 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
@@ -99,7 +99,7 @@ public class TestResolverFactory implements P2ResolverFactory {
 
         File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
         LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
-        LocalRepositoryReader localRepositoryReader = new LocalRepositoryReader(localMavenRepoRoot);
+        LocalRepositoryReader localRepositoryReader = new LocalRepositoryReader(mavenContext);
         localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(), localRepoIndices.getMetadataIndex(),
                 localRepositoryReader);
         localArtifactRepo = new LocalArtifactRepository(localRepoIndices, localRepositoryReader);
@@ -110,7 +110,7 @@ public class TestResolverFactory implements P2ResolverFactory {
     }
 
     private MavenContext createMavenContext(boolean offline, MavenLogger logger) {
-        return new MavenContextImpl(getLocalRepositoryLocation(), offline, logger, new Properties());
+        return new MockMavenContext(getLocalRepositoryLocation(), offline, logger, new Properties());
     }
 
     // TODO use TemporaryLocalMavenRepository
@@ -128,7 +128,7 @@ public class TestResolverFactory implements P2ResolverFactory {
     @Override
     public PomDependencyCollectorImpl newPomDependencyCollector(ReactorProject project) {
         return new PomDependencyCollectorImpl(
-                new MavenContextImpl(mavenContext.getLocalRepositoryRoot(), mavenContext.getLogger()), project);
+                new MockMavenContext(mavenContext.getLocalRepositoryRoot(), mavenContext.getLogger()), project);
     }
 
     public PomDependencyCollectorImpl newPomDependencyCollector() {

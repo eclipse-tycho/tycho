@@ -53,7 +53,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
             LocalRepositoryP2Indices localRepoIndices) {
         if (localMetadataRepository == null) {
             File localMavenRepoRoot = context.getLocalRepositoryRoot();
-            RepositoryReader contentLocator = new LocalRepositoryReader(localMavenRepoRoot);
+            RepositoryReader contentLocator = new LocalRepositoryReader(context);
             localMetadataRepository = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
                     localRepoIndices.getMetadataIndex(), contentLocator);
 
@@ -64,7 +64,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private static synchronized LocalArtifactRepository getLocalArtifactRepository(MavenContext mavenContext,
             LocalRepositoryP2Indices localRepoIndices) {
         if (localArtifactRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(mavenContext.getLocalRepositoryRoot());
+            RepositoryReader contentLocator = new LocalRepositoryReader(mavenContext);
             localArtifactRepository = new LocalArtifactRepository(localRepoIndices, contentLocator);
         }
         return localArtifactRepository;

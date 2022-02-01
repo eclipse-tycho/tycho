@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.junit.Test;
@@ -182,8 +183,13 @@ public class GAVArtifactDescriptorTest {
                 OTHER_EXTENSION);
         subject = new GAVArtifactDescriptor(createP2Descriptor(), coordinates);
 
-        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(),
-                is("mvn/group/mvn.id/4.3.0-SNAPSHOT/mvn.id-4.3.0-SNAPSHOT-mvn.classifier.mvn.fileextension"));
+        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(new MavenContextImpl(null, false, null, null) {
+
+            @Override
+            public String getExtension(String artifactType) {
+                return artifactType;
+            }
+        }), is("mvn/group/mvn.id/4.3.0-SNAPSHOT/mvn.id-4.3.0-SNAPSHOT-mvn.classifier.mvn.fileextension"));
     }
 
     @Test
@@ -192,8 +198,13 @@ public class GAVArtifactDescriptorTest {
                 DEFAULT_EXTENSION);
         subject = new GAVArtifactDescriptor(createP2Descriptor(), coordinates);
 
-        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(),
-                is("mvn/group/mvn.id/4.3.0-SNAPSHOT/mvn.id-4.3.0-SNAPSHOT.jar"));
+        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(new MavenContextImpl(null, false, null, null) {
+
+            @Override
+            public String getExtension(String artifactType) {
+                return "jar";
+            }
+        }), is("mvn/group/mvn.id/4.3.0-SNAPSHOT/mvn.id-4.3.0-SNAPSHOT.jar"));
     }
 
     private static ArtifactDescriptor createP2Descriptor() {

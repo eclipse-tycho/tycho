@@ -37,7 +37,7 @@ import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -88,7 +88,7 @@ public class MirrorApplicationServiceTest {
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         subject = new MirrorApplicationServiceImpl();
-        MavenContext mavenContext = new MavenContextImpl(null, logVerifier.getLogger());
+        MavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
         subject.setMavenContext(mavenContext);
     }
 

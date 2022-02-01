@@ -13,18 +13,28 @@
 package org.eclipse.tycho.p2.repository;
 
 import java.io.File;
+import java.util.Objects;
+
+import org.eclipse.tycho.core.shared.MavenContext;
 
 public class LocalRepositoryReader implements RepositoryReader {
 
-    private final File localMavenRepositoryRoot;
+    private MavenContext mavenContext;
 
-    public LocalRepositoryReader(File localMavenRepositoryRoot) {
-        this.localMavenRepositoryRoot = localMavenRepositoryRoot;
+    public LocalRepositoryReader(MavenContext mavenContext) {
+        Objects.requireNonNull(mavenContext);
+        this.mavenContext = mavenContext;
     }
 
     @Override
-    public File getLocalArtifactLocation(GAV gav, String classifier, String extension) {
-        return new File(localMavenRepositoryRoot, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
+    public File getLocalArtifactLocation(GAV gav, String classifier, String type) {
+        return new File(mavenContext.getLocalRepositoryRoot(),
+                RepositoryLayoutHelper.getRelativePath(gav, classifier, type, mavenContext));
+    }
+
+    @Override
+    public MavenContext getMavenContext() {
+        return mavenContext;
     }
 
 }

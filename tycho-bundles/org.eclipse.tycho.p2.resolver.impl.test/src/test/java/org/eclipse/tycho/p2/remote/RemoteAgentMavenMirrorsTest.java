@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.remote.testutil.MavenRepositorySettingsStub;
 import org.eclipse.tycho.test.util.HttpServer;
@@ -53,7 +53,7 @@ public class RemoteAgentMavenMirrorsTest {
     @Before
     public void initSubject() throws Exception {
         File localRepository = tempManager.newFolder("localRepo");
-        MavenContext mavenContext = new MavenContextImpl(localRepository, OFFLINE, logVerifier.getLogger(),
+        MavenContext mavenContext = new MockMavenContext(localRepository, OFFLINE, logVerifier.getLogger(),
                 new Properties());
 
         mavenRepositorySettings = new MavenRepositorySettingsStub();

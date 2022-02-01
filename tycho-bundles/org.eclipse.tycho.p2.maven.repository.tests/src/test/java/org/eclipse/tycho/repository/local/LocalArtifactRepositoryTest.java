@@ -40,6 +40,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
@@ -70,7 +71,7 @@ public class LocalArtifactRepositoryTest {
 
     private TychoRepositoryIndex createArtifactsIndex(File location) {
         return FileBasedTychoRepositoryIndex.createArtifactsIndex(location, new NoopFileLockService(),
-                mock(MavenLogger.class));
+                new MockMavenContext(location, mock(MavenLogger.class)));
     }
 
     @Test

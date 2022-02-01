@@ -15,6 +15,8 @@ import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
@@ -39,6 +41,9 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
     @Requirement
     private LegacySupport context;
 
+    @Requirement
+    private ArtifactHandlerManager artifactHandlerManager;
+
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
@@ -46,7 +51,18 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
         MavenLoggerAdapter mavenLogger = new MavenLoggerAdapter(logger, false);
         Properties globalProps = getGlobalProperties(session);
         MavenContextImpl mavenContext = new MavenContextImpl(localRepoRoot, session.isOffline(), mavenLogger,
-                globalProps);
+                globalProps) {
+
+            @Override
+            public String getExtension(String artifactType) {
+                if (artifactType == null) {
+                    return "jar";
+                }
+                ArtifactHandler handler = artifactHandlerManager.getArtifactHandler(artifactType);
+                return handler.getExtension();
+            }
+
+        };
         for (MavenProject project : session.getProjects()) {
             mavenContext.addProject(DefaultReactorProject.adapt(project));
         }

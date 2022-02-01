@@ -459,5 +459,35 @@
     </component>
 
 
+    <component>
+      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+      <role-hint>p2-artifacts</role-hint>
+      <implementation>
+        org.apache.maven.artifact.handler.DefaultArtifactHandler
+      </implementation>
+      <configuration>
+        <extension>xml</extension>
+        <type>p2-artifacts</type>
+        <language>P2</language>
+        <addedToClasspath>false</addedToClasspath>
+        <includesDependencies>false</includesDependencies>
+      </configuration>
+    </component>
+    
+     <component>
+      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+      <role-hint>p2-metadata</role-hint>
+      <implementation>
+        org.apache.maven.artifact.handler.DefaultArtifactHandler
+      </implementation>
+      <configuration>
+        <extension>xml</extension>
+        <type>p2-metadata</type>
+        <language>P2</language>
+        <addedToClasspath>false</addedToClasspath>
+        <includesDependencies>false</includesDependencies>
+      </configuration>
+    </component>
+
   </components>
 </component-set>

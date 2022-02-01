@@ -840,13 +840,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             }
             testRuntime.addBundle(artifact);
         }
-        for (Artifact artifact : project.getAttachedArtifacts()) {
-            if (ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT.equals(artifact.getClassifier())) {
-                DefaultArtifactKey key = new DefaultArtifactKey(artifact.getClassifier(), artifact.getId(),
-                        artifact.getVersion());
-                testRuntime.addBundle(key, artifact.getFile());
-            }
-        }
 
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {

@@ -50,4 +50,13 @@ public interface MavenContext {
      */
     public Collection<ReactorProject> getProjects();
 
+    /**
+     * Returns the assigned extension for a given artifact type
+     * 
+     * @param artifactType
+     *            type of the artifact
+     * @return the extension for the given type
+     */
+    public String getExtension(String artifactType);
+
 }

@@ -15,6 +15,8 @@ package org.eclipse.tycho.p2.repository;
 import java.io.IOException;
 import java.util.Set;
 
+import org.eclipse.tycho.core.shared.MavenContext;
+
 public interface TychoRepositoryIndex {
 
     /**
@@ -50,5 +52,7 @@ public interface TychoRepositoryIndex {
      * @throws IOException
      */
     void save() throws IOException;
+
+    MavenContext getMavenContext();
 
 }

@@ -31,6 +31,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -53,12 +54,12 @@ public class LocalMetadataRepositoryTest {
 
     protected IMetadataRepository loadRepository(File location) throws ProvisionException {
         return new LocalMetadataRepository(location.toURI(), createMetadataIndex(location),
-                new LocalRepositoryReader(location));
+                new LocalRepositoryReader(new MockMavenContext(location, mock(MavenLogger.class))));
     }
 
     private TychoRepositoryIndex createMetadataIndex(File location) {
         return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService(),
-                mock(MavenLogger.class));
+                new MockMavenContext(location, mock(MavenLogger.class)));
     }
 
     private LocalMetadataRepository createRepository(File location) throws ProvisionException {

@@ -8,7 +8,8 @@ Fragment-Host: org.eclipse.tycho.p2.resolver.impl
 Require-Bundle: org.junit,
  org.hamcrest.core,
  org.apache.commons.io,
- org.eclipse.equinox.p2.transport.ecf
+ org.eclipse.equinox.p2.transport.ecf,
+ biz.aQute.bndlib
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
 Import-Package: org.eclipse.tycho.p2.remote.testutil,

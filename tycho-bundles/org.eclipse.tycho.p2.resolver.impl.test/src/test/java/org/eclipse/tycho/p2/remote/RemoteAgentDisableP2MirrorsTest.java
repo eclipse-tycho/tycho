@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class RemoteAgentDisableP2MirrorsTest {
 
     private IProvisioningAgent createRemoteAgent(boolean disableMirrors) throws Exception {
         File localRepo = tempManager.newFolder("localRepo");
-        return new RemoteAgent(new MavenContextImpl(localRepo, logVerifier.getLogger()), disableMirrors);
+        return new RemoteAgent(new MockMavenContext(localRepo, logVerifier.getLogger()), disableMirrors);
     }
 
     private static IArtifactRepository loadRepository(IProvisioningAgent agent, URI location)

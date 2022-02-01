@@ -12,13 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
+import org.eclipse.tycho.core.shared.MavenContext;
+
 /**
  * Coordinates (groupId, artifactId, version, classifier, extension) of an artifact in the local
  * Maven repository.
  */
 public final class MavenRepositoryCoordinates {
 
-    public static final String DEFAULT_EXTENSION = RepositoryLayoutHelper.DEFAULT_EXTERNSION;
+    public static final String DEFAULT_EXTERNSION = "jar";
 
     private final GAV gav;
     private final String classifier;
@@ -27,7 +29,7 @@ public final class MavenRepositoryCoordinates {
     public MavenRepositoryCoordinates(GAV gav, String classifier, String extension) {
         this.gav = gav; // TODO check for null?
         this.classifier = classifier;
-        this.extension = DEFAULT_EXTENSION.equals(extension) ? null : extension;
+        this.extension = DEFAULT_EXTERNSION.equals(extension) ? null : extension;
     }
 
     public MavenRepositoryCoordinates(String groupId, String artifactId, String version, String classifier,
@@ -67,7 +69,7 @@ public final class MavenRepositoryCoordinates {
 
     public String getExtensionOrDefault() {
         if (extension == null)
-            return DEFAULT_EXTENSION;
+            return DEFAULT_EXTERNSION;
         else
             return extension;
     }
@@ -75,8 +77,10 @@ public final class MavenRepositoryCoordinates {
     /**
      * Returns the local Maven repository path corresponding to the these coordinates.
      */
-    public String getLocalRepositoryPath() {
-        return RepositoryLayoutHelper.getRelativePath(getGav(), getClassifier(), getExtension());
+    public String getLocalRepositoryPath(MavenContext mavenContext) {
+        //FIXME this is actually the type!!
+        String type = getExtension();
+        return RepositoryLayoutHelper.getRelativePath(getGav(), getClassifier(), type, mavenContext);
     }
 
     @Override

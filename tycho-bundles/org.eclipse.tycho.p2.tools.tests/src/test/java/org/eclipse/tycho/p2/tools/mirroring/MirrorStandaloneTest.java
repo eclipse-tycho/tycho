@@ -25,7 +25,7 @@ import java.util.Collections;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -55,7 +55,7 @@ public class MirrorStandaloneTest {
     public void initTestContext() throws Exception {
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
         subject = new MirrorApplicationServiceImpl();
-        MavenContext mavenContext = new MavenContextImpl(null, logVerifier.getLogger());
+        MavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
         subject.setMavenContext(mavenContext);
         targetFolder = new BuildOutputDirectory(tempFolder.getRoot());
     }

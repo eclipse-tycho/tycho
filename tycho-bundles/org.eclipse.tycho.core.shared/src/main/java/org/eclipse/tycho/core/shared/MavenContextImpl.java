@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import org.eclipse.tycho.ReactorProject;
 
-public class MavenContextImpl implements MavenContext {
+public abstract class MavenContextImpl implements MavenContext {
 
     private File localRepositoryRoot;
     private MavenLogger mavenLogger;
