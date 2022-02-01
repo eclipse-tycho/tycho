@@ -25,6 +25,7 @@ import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
@@ -48,7 +49,7 @@ public class PomDependencyCollectorTest {
 
     @Before
     public void setUpSubject() throws Exception {
-        MavenContextImpl mavenContext = new MavenContextImpl(new File("dummy"), logVerifier.getLogger());
+        MavenContextImpl mavenContext = new MockMavenContext(new File("dummy"), logVerifier.getLogger());
         subject = new PomDependencyCollectorImpl(mavenContext, new ReactorProjectStub(tempManager.newFolder(), "test"));
     }
 

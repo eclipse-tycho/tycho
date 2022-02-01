@@ -15,6 +15,8 @@ package org.eclipse.tycho.p2.repository;
 
 import java.io.File;
 
+import org.eclipse.tycho.core.shared.MavenContext;
+
 /**
  * Interface to obtain artifacts from GAV-indexed repositories.
  */
@@ -26,6 +28,8 @@ public interface RepositoryReader {
      * 
      * @return the local location of the artifact; never <code>null</code>
      */
-    File getLocalArtifactLocation(GAV gav, String classifier, String extension);
+    File getLocalArtifactLocation(GAV gav, String classifier, String type);
+
+    MavenContext getMavenContext();
 
 }

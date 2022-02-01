@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
@@ -50,12 +51,14 @@ public class TargetPlatformBundlePublisher {
 
     private final MavenLogger logger;
     private final MavenBundlesArtifactRepository publishedArtifacts;
-    private ReactorProject project;
+    private final ReactorProject project;
+    private final MavenContext mavenContext;
 
-    public TargetPlatformBundlePublisher(File localMavenRepositoryRoot, ReactorProject project, MavenLogger logger) {
+    public TargetPlatformBundlePublisher(ReactorProject project, MavenContext mavenContext) {
         this.project = project;
-        this.publishedArtifacts = new MavenBundlesArtifactRepository(localMavenRepositoryRoot);
-        this.logger = logger;
+        this.mavenContext = mavenContext;
+        this.publishedArtifacts = new MavenBundlesArtifactRepository(mavenContext);
+        this.logger = mavenContext.getLogger();
     }
 
     /**
@@ -87,8 +90,8 @@ public class TargetPlatformBundlePublisher {
             // this should have been ensured by the caller
             throw new IllegalArgumentException("Not an artifact file: " + mavenArtifact.getLocation());
         }
-        PublisherRun publisherRun = new PublisherRun(mavenArtifact, project, publishedArtifacts.getBaseDir(), logger,
-                wrapIfNessesary);
+        PublisherRun publisherRun = new PublisherRun(mavenArtifact, project, publishedArtifacts.getBaseDir(),
+                mavenContext, wrapIfNessesary);
         IStatus status = publisherRun.execute();
         if (!status.isOK()) {
             /**
@@ -135,12 +138,15 @@ public class TargetPlatformBundlePublisher {
 
         private boolean wrapIfNessesary;
 
-        PublisherRun(IArtifactFacade artifact, ReactorProject project, File basedir, MavenLogger logger,
+        private MavenContext mavenContext;
+
+        PublisherRun(IArtifactFacade artifact, ReactorProject project, File basedir, MavenContext mavenContext,
                 boolean wrapIfNessesary) {
             this.mavenArtifact = artifact;
             this.project = project;
             this.basedir = basedir;
-            this.logger = logger;
+            this.mavenContext = mavenContext;
+            this.logger = mavenContext.getLogger();
             this.wrapIfNessesary = wrapIfNessesary;
         }
 
@@ -159,7 +165,8 @@ public class TargetPlatformBundlePublisher {
                                     mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
                                     mavenArtifact.getVersion(),
                                     WrappedArtifact.createClassifierFromArtifact(mavenArtifact), null);
-                            File wrappedFile = new File(basedir, repositoryCoordinates.getLocalRepositoryPath());
+                            File wrappedFile = new File(basedir,
+                                    repositoryCoordinates.getLocalRepositoryPath(mavenContext));
                             WrappedArtifact wrappedArtifact = WrappedArtifact.createWrappedArtifact(mavenArtifact,
                                     project.getGroupId(), wrappedFile);
                             publishedArtifact = wrappedArtifact;

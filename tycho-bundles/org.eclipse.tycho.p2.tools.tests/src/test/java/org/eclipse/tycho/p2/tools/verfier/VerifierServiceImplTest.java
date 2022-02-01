@@ -23,8 +23,8 @@ import java.util.Locale;
 
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.verifier.VerifierServiceImpl;
@@ -45,7 +45,7 @@ public class VerifierServiceImplTest {
     public void setup() {
         subject = new VerifierServiceImpl();
         logger = new ErrorStoreMemoryLog();
-        MavenContext mavenContext = new MavenContextImpl(null, logger);
+        MavenContext mavenContext = new MockMavenContext(null, logger);
         subject.setMavenContext(mavenContext);
     }
 

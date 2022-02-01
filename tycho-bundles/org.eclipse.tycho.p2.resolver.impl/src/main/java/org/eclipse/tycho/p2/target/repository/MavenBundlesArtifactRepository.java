@@ -21,6 +21,7 @@ import java.io.File;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.repository.local.GAVArtifactDescriptor;
@@ -49,8 +50,11 @@ import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositor
  */
 public final class MavenBundlesArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtifactDescriptor> {
 
-    public MavenBundlesArtifactRepository(File localMavenRepositoryRoot) {
-        super(null, localMavenRepositoryRoot.toURI(), ArtifactTransferPolicies.forLocalArtifacts());
+    private MavenContext mavenContext;
+
+    public MavenBundlesArtifactRepository(MavenContext mavenContext) {
+        super(null, mavenContext.getLocalRepositoryRoot().toURI(), ArtifactTransferPolicies.forLocalArtifacts());
+        this.mavenContext = mavenContext;
     }
 
     public void addPublishedArtifact(IArtifactDescriptor baseDescriptor, IArtifactFacade mavenArtifact) {
@@ -62,7 +66,7 @@ public final class MavenBundlesArtifactRepository extends ArtifactRepositoryBase
                 repositoryCoordinates);
 
         File requiredArtifactLocation = new File(getBaseDir(),
-                descriptorForRepository.getMavenCoordinates().getLocalRepositoryPath());
+                descriptorForRepository.getMavenCoordinates().getLocalRepositoryPath(mavenContext));
         File actualArtifactLocation = mavenArtifact.getLocation();
         if (!equivalentPaths(requiredArtifactLocation, actualArtifactLocation)) {
             throw new AssertionFailedException(
@@ -102,7 +106,8 @@ public final class MavenBundlesArtifactRepository extends ArtifactRepositoryBase
 
     @Override
     protected File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor) {
-        String relativePath = toInternalDescriptor(descriptor).getMavenCoordinates().getLocalRepositoryPath();
+        String relativePath = toInternalDescriptor(descriptor).getMavenCoordinates()
+                .getLocalRepositoryPath(mavenContext);
         return new File(getBaseDir(), relativePath);
     }
 

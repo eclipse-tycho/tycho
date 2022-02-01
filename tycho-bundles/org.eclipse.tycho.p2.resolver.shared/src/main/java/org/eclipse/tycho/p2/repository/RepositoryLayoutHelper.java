@@ -14,12 +14,14 @@
 package org.eclipse.tycho.p2.repository;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
-import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.core.shared.MavenContext;
 
 public class RepositoryLayoutHelper {
+    private static final String JAR_EXTENSION = "jar";
+
     public static final String PROP_GROUP_ID = "maven-groupId";
 
     public static final String PROP_ARTIFACT_ID = "maven-artifactId";
@@ -69,17 +71,52 @@ public class RepositoryLayoutHelper {
      */
     public static final String KEY_ARTIFACT_ATTACHED = "artifact.attached.";
 
-    public static final String DEFAULT_EXTERNSION = "jar";
-
     public static final String PACK200_CLASSIFIER = "pack200";
     public static final String PACK200_EXTENSION = "jar.pack.gz";
 
+    public static String getRelativePath(GAV gav, String classifier, String type, MavenContext mavenContext) {
+        return getRelativePath(gav.getGroupId(), gav.getArtifactId(), gav.getVersion(), classifier, type, mavenContext);
+    }
+
     public static String getRelativePath(GAV gav, String classifier, String extension) {
+        if (extension == null) {
+            extension = JAR_EXTENSION;
+        }
         return getRelativePath(gav.getGroupId(), gav.getArtifactId(), gav.getVersion(), classifier, extension);
     }
 
     public static String getRelativePath(String groupId, String artifactId, String version, String classifier,
+            String type, MavenContext mavenContext) {
+        //we need to handle some legacy cases here where type == extension was used
+        String extension;
+        if (type == null) {
+            extension = JAR_EXTENSION;
+        } else if (RepositoryLayoutHelper.CLASSIFIER_P2_METADATA.equals(classifier)) {
+            extension = EXTENSION_P2_METADATA;
+        } else if (RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS.equals(classifier)) {
+            extension = EXTENSION_P2_ARTIFACTS;
+        } else if (PACK200_CLASSIFIER.equals(classifier)) {
+            extension = PACK200_EXTENSION;
+        } else {
+            switch (type) {
+            case JAR_EXTENSION:
+            case "zip":
+            case "target":
+            case PACK200_EXTENSION:
+            case "xml":
+                extension = type;
+                break;
+            default:
+                extension = mavenContext.getExtension(type);
+            }
+        }
+        return getRelativePath(groupId, artifactId, version, classifier, extension);
+    }
+
+    public static String getRelativePath(String groupId, String artifactId, String version, String classifier,
             String extension) {
+        Objects.requireNonNull(extension);
+
         StringBuilder sb = new StringBuilder();
 
         // basedir
@@ -94,42 +131,8 @@ public class RepositoryLayoutHelper {
         if (classifier != null && !classifier.isEmpty()) {
             sb.append('-').append(classifier);
         }
-        if (extension != null) {
-            //Workaround for #593
-            switch (extension) {
-            // dup of ArtifactType.TYPE_ECLIPSE_PLUGIN case PackagingType.TYPE_ECLIPSE_PLUGIN:
-            case ArtifactType.TYPE_ECLIPSE_PLUGIN:
-            case ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT:
-            // dup of ArtifactType.TYPE_ECLIPSE_FEATURE case PackagingType.TYPE_ECLIPSE_FEATURE:
-            case ArtifactType.TYPE_ECLIPSE_FEATURE:
-            case PackagingType.TYPE_ECLIPSE_TEST_PLUGIN:
-            case "ejb":
-            case "ejb-client":
-            case "test-jar":
-            case "javadoc":
-            case "java-source":
-            case "maven-plugin":
-                extension = "jar";
-                break;
-            case PackagingType.TYPE_ECLIPSE_UPDATE_SITE:
-            case PackagingType.TYPE_ECLIPSE_REPOSITORY:
-            case PackagingType.TYPE_ECLIPSE_APPLICATION:
-            case ArtifactType.TYPE_ECLIPSE_PRODUCT:
-                extension = "zip";
-                break;
-            // dup of ArtifactType.TYPE_INSTALLABLE_UNIT case PackagingType.TYPE_P2_IU:
-            case ArtifactType.TYPE_INSTALLABLE_UNIT:
-                extension = "xml";
-                break;
-            case PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION:
-                extension = "target";
-                break;
-            default:
-                break;
-            }
-        }
 
-        sb.append('.').append(extension != null ? extension : DEFAULT_EXTERNSION);
+        sb.append('.').append(extension);
 
         return sb.toString();
     }
@@ -172,6 +175,6 @@ public class RepositoryLayoutHelper {
             return null;
         }
         String explicitExtension = (String) properties.get(PROP_EXTENSION);
-        return explicitExtension == null ? DEFAULT_EXTERNSION : explicitExtension;
+        return explicitExtension == null ? JAR_EXTENSION : explicitExtension;
     }
 }

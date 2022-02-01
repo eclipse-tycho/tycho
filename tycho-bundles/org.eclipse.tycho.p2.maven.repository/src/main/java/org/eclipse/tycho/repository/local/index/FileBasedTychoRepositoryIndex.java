@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
@@ -53,12 +54,14 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     private Set<GAV> addedGavs = new HashSet<>();
     private Set<GAV> removedGavs = new HashSet<>();
     private Set<GAV> gavs = new HashSet<>();
+    private MavenContext mavenContext;
 
-    private FileBasedTychoRepositoryIndex(File indexFile, FileLockService fileLockService, MavenLogger logger) {
+    private FileBasedTychoRepositoryIndex(File indexFile, FileLockService fileLockService, MavenContext mavenContext) {
         super();
         this.indexFile = indexFile;
+        this.mavenContext = mavenContext;
         this.fileLocker = fileLockService.getFileLocker(indexFile);
-        this.logger = logger;
+        this.logger = mavenContext.getLogger();
         if (indexFile.isFile()) {
             lock();
             try {
@@ -77,6 +80,11 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
 
     private void unlock() {
         fileLocker.release();
+    }
+
+    @Override
+    public MavenContext getMavenContext() {
+        return mavenContext;
     }
 
     @Override
@@ -169,13 +177,13 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     }
 
     public static TychoRepositoryIndex createMetadataIndex(File basedir, FileLockService fileLockService,
-            MavenLogger logger) {
-        return new FileBasedTychoRepositoryIndex(new File(basedir, METADATA_INDEX_RELPATH), fileLockService, logger);
+            MavenContext context) {
+        return new FileBasedTychoRepositoryIndex(new File(basedir, METADATA_INDEX_RELPATH), fileLockService, context);
     }
 
     public static TychoRepositoryIndex createArtifactsIndex(File basedir, FileLockService fileLockService,
-            MavenLogger logger) {
-        return new FileBasedTychoRepositoryIndex(new File(basedir, ARTIFACTS_INDEX_RELPATH), fileLockService, logger);
+            MavenContext context) {
+        return new FileBasedTychoRepositoryIndex(new File(basedir, ARTIFACTS_INDEX_RELPATH), fileLockService, context);
     }
 
 }

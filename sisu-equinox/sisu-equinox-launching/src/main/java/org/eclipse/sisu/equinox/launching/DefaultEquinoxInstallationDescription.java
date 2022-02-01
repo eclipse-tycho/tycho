@@ -84,7 +84,7 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
     @Override
     public List<ArtifactDescriptor> getBundles() {
         return bundles.getArtifacts(key -> ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(key.getType())
-                || ArtifactType.TYPE_ECLIPSE_TEST_FRAGMENT.equals(key.getType()));
+                || ArtifactType.TYPE_ECLIPSE_TEST_PLUGIN.equals(key.getType()));
     }
 
     @Override

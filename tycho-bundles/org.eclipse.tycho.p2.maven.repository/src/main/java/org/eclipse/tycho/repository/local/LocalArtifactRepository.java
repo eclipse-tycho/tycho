@@ -31,6 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -59,7 +60,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     }
 
     public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices) {
-        this(agent, localRepoIndices, new LocalRepositoryReader(localRepoIndices.getBasedir()));
+        this(agent, localRepoIndices, new LocalRepositoryReader(localRepoIndices.getMavenContext()));
     }
 
     public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices,
@@ -77,14 +78,13 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         for (final GAV gav : index.getProjectGAVs()) {
             try {
                 File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
-                        RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+                        RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, ArtifactType.TYPE_P2_ARTIFACTS);
                 if (!localArtifactFileLocation.exists()) {
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     index.removeGav(gav);
                 } else {
-                    try (InputStream is = new FileInputStream(
-                            contentLocator.getLocalArtifactLocation(gav, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                                    RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS))) {
+                    try (InputStream is = new FileInputStream(contentLocator.getLocalArtifactLocation(gav,
+                            RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, ArtifactType.TYPE_P2_ARTIFACTS))) {
                         final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
                         for (IArtifactDescriptor descriptor : gavDescriptors) {
                             internalAddDescriptor(descriptor);
@@ -148,7 +148,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
 
     private String getMetadataRelpath(GAV gav) {
         String relpath = RepositoryLayoutHelper.getRelativePath(gav, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+                ArtifactType.TYPE_P2_ARTIFACTS, localRepoIndices.getMavenContext());
         return relpath;
     }
 
@@ -164,7 +164,8 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
 
     @Override
     protected File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor) {
-        String relativePath = toInternalDescriptor(descriptor).getMavenCoordinates().getLocalRepositoryPath();
+        String relativePath = toInternalDescriptor(descriptor).getMavenCoordinates()
+                .getLocalRepositoryPath(localRepoIndices.getMavenContext());
         return new File(getBasedir(), relativePath);
     }
 

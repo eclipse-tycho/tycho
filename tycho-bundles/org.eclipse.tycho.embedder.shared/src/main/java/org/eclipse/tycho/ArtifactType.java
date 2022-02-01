@@ -20,14 +20,11 @@ package org.eclipse.tycho;
 public final class ArtifactType {
 
     public static final String TYPE_ECLIPSE_PLUGIN = "eclipse-plugin";
-    /**
-     * This ArtifactType is for the generated test fragment (tests from an eclipse-plugin module).
-     * It should also be used as the <b>classifier</b> to attach and get this test fragment on a
-     * given MavenProject.
-     */
-    public static final String TYPE_ECLIPSE_TEST_FRAGMENT = "eclipse-test-fragment";
+    public static final String TYPE_ECLIPSE_TEST_PLUGIN = "eclipse-test-plugin";
     public static final String TYPE_ECLIPSE_FEATURE = "eclipse-feature";
     public static final String TYPE_ECLIPSE_PRODUCT = "eclipse-product";
     public static final String TYPE_INSTALLABLE_UNIT = "p2-installable-unit";
+    public static final String TYPE_P2_ARTIFACTS = "p2-artifacts";
+    public static final String TYPE_P2_METADATA = "p2-metadata";
 
 }

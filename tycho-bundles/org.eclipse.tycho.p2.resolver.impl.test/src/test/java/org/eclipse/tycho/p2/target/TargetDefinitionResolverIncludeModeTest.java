@@ -27,7 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -57,7 +57,7 @@ public class TargetDefinitionResolverIncludeModeTest {
     public void initSubject() throws Exception {
         subject = new TargetDefinitionResolver(defaultEnvironments(),
                 ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
-                new MavenContextImpl(tempManager.newFolder("localRepo"), logVerifier.getLogger()), null);
+                new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger()), null);
     }
 
     @Test

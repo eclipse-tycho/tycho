@@ -31,6 +31,7 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -72,7 +73,7 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
         for (GAV gav : metadataIndex.getProjectGAVs()) {
             try {
                 File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
-                        RepositoryLayoutHelper.CLASSIFIER_P2_METADATA, RepositoryLayoutHelper.EXTENSION_P2_METADATA);
+                        RepositoryLayoutHelper.CLASSIFIER_P2_METADATA, ArtifactType.TYPE_P2_METADATA);
                 if (!localArtifactFileLocation.exists()) {
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     metadataIndex.removeGav(gav);

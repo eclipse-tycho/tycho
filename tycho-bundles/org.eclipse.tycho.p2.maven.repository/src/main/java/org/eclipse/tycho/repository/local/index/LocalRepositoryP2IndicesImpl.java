@@ -32,13 +32,22 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
     private boolean initialized = false;
     private TychoRepositoryIndex artifactsIndex;
     private TychoRepositoryIndex metadataIndex;
+    private MavenContext mavenContext;
 
     // constructor for DS
     public LocalRepositoryP2IndicesImpl() {
     }
 
+    // test constructor
+    public LocalRepositoryP2IndicesImpl(MavenContext mavenContext, FileLockService fileLockService) {
+        this.localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
+        this.mavenContext = mavenContext;
+        this.fileLockService = fileLockService;
+    }
+
     // injected by DS runtime
     public void setMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
         this.localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
         this.logger = mavenContext.getLogger();
     }
@@ -48,20 +57,14 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
         this.fileLockService = fileLockService;
     }
 
-    // test constructor
-    public LocalRepositoryP2IndicesImpl(File localRepositoryRoot, FileLockService fileLockService) {
-        this.localRepositoryRoot = localRepositoryRoot;
-        this.fileLockService = fileLockService;
-    }
-
     private void checkInitialized() {
         if (initialized) {
             return;
         }
         this.artifactsIndex = FileBasedTychoRepositoryIndex.createArtifactsIndex(localRepositoryRoot, fileLockService,
-                logger);
+                mavenContext);
         this.metadataIndex = FileBasedTychoRepositoryIndex.createMetadataIndex(localRepositoryRoot, fileLockService,
-                logger);
+                mavenContext);
         initialized = true;
     }
 
@@ -80,6 +83,11 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
     @Override
     public File getBasedir() {
         return localRepositoryRoot;
+    }
+
+    @Override
+    public MavenContext getMavenContext() {
+        return mavenContext;
     }
 
 }

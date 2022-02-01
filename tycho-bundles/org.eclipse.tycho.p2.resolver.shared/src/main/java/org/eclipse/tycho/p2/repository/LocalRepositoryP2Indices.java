@@ -15,6 +15,8 @@ package org.eclipse.tycho.p2.repository;
 
 import java.io.File;
 
+import org.eclipse.tycho.core.shared.MavenContext;
+
 /**
  * This service provides access to the tycho p2 index files of the local maven repository.
  */
@@ -25,5 +27,7 @@ public interface LocalRepositoryP2Indices {
     public TychoRepositoryIndex getMetadataIndex();
 
     public File getBasedir();
+
+    MavenContext getMavenContext();
 
 }

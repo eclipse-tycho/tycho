@@ -28,12 +28,14 @@ import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -68,8 +70,10 @@ public class TargetPlatformBundlePublisherTest {
     public void initSubject() throws IOException {
 
         localRepositoryRoot = tempFolder.getRoot();
-        subject = new TargetPlatformBundlePublisher(localRepositoryRoot,
-                new ReactorProjectStub(tempFolder.newFolder(), "test"), logVerifier.getLogger());
+        MockMavenContext mavenContext = new MockMavenContext(localRepositoryRoot, false, logVerifier.getLogger(),
+                new Properties());
+        subject = new TargetPlatformBundlePublisher(new ReactorProjectStub(tempFolder.newFolder(), "test"),
+                mavenContext);
     }
 
     @Test
@@ -119,7 +123,8 @@ public class TargetPlatformBundlePublisherTest {
                 containsString("is not a bundle and was automatically wrapped with bundle-symbolic name"));
         File jarFile = resourceFile("platformbuilder/pom-dependencies/non-bundle.jar");
         IArtifactFacade jarArtifact = new ArtifactMock(jarFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
-        assertNotNull(subject.attemptToPublishBundle(jarArtifact, true));
+        MavenBundleInfo publishBundle = subject.attemptToPublishBundle(jarArtifact, true);
+        assertNotNull(publishBundle);
     }
 
     @Test

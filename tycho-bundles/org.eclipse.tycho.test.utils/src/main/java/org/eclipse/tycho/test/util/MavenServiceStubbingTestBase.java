@@ -49,7 +49,14 @@ public class MavenServiceStubbingTestBase {
     }
 
     private MavenContext createMavenContext() throws Exception {
-        MavenContext mavenContext = new MavenContextImpl(temporaryFolder.newFolder("target"), logVerifier.getLogger());
+        MavenContext mavenContext = new MavenContextImpl(temporaryFolder.newFolder("target"), logVerifier.getLogger()) {
+
+            @Override
+            public String getExtension(String artifactType) {
+                return artifactType;
+            }
+
+        };
         return mavenContext;
     }
 

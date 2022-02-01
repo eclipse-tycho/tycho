@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class RemoteAgentCompositeLoadingTest {
     @Before
     public void initSubject() throws Exception {
         File localRepo = tempManager.newFolder("localRepo");
-        subject = new RemoteAgent(new MavenContextImpl(localRepo, logVerifier.getLogger()));
+        subject = new RemoteAgent(new MockMavenContext(localRepo, logVerifier.getLogger()));
     }
 
     @Test
