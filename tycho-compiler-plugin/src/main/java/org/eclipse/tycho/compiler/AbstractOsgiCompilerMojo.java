@@ -583,7 +583,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 JREClasspathEntry jreClasspathEntry = (JREClasspathEntry) cpe;
                 if (jreClasspathEntry.isModule()) {
                     Collection<String> modules = jreClasspathEntry.getLimitModules();
-                    if (modules.size() > 0) {
+                    if (!modules.isEmpty()) {
                         compilerConfiguration.addCompilerCustomArgument("--limit-modules", String.join(",", modules));
                     }
                 }
