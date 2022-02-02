@@ -27,6 +27,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolver;
@@ -36,7 +37,6 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.metadata.MetadataSerializable;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
@@ -137,7 +137,7 @@ public class RepositoryReferenceTool {
                     if (otherProject == null) {
                         continue; // can't really happen
                     }
-                    File artifactXml = otherProject.getArtifact(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
+                    File artifactXml = otherProject.getArtifact(TychoConstants.CLASSIFIER_P2_ARTIFACTS);
                     if (artifactXml != null && artifactXml.isFile()) {
                         sources.addArtifactRepository(artifactXml.getParentFile());
                     }

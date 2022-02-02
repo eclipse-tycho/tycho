@@ -35,7 +35,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 import org.osgi.framework.Constants;
@@ -63,8 +63,8 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		assertUpdateSiteContainsSourceJar(verifier);
 		File bundleTargetDir = new File(verifier.getBasedir(), "helloworld/target/");
-		checkP2ArtifactsXml(new File(bundleTargetDir, RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS));
-		checkP2ContentXml(new File(bundleTargetDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA));
+		checkP2ArtifactsXml(new File(bundleTargetDir, TychoConstants.FILE_NAME_P2_ARTIFACTS));
+		checkP2ContentXml(new File(bundleTargetDir, TychoConstants.FILE_NAME_P2_METADATA));
 	}
 
 	private void checkP2ContentXml(File p2Content) throws Exception {

@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 

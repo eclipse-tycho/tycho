@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
@@ -80,17 +81,17 @@ public class LocalMetadataRepositoryTest {
         iud.setId("test");
         iud.setVersion(Version.parseVersion("1.0.0"));
 
-        iud.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, "group");
-        iud.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, "artifact");
-        iud.setProperty(RepositoryLayoutHelper.PROP_VERSION, "version");
+        iud.setProperty(TychoConstants.PROP_GROUP_ID, "group");
+        iud.setProperty(TychoConstants.PROP_ARTIFACT_ID, "artifact");
+        iud.setProperty(TychoConstants.PROP_VERSION, "version");
 
         InstallableUnitDescription iud2 = new MetadataFactory.InstallableUnitDescription();
         iud2.setId("test2");
         iud2.setVersion(Version.parseVersion("1.0.0"));
 
-        iud2.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, "group");
-        iud2.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, "artifact2");
-        iud2.setProperty(RepositoryLayoutHelper.PROP_VERSION, "version");
+        iud2.setProperty(TychoConstants.PROP_GROUP_ID, "group");
+        iud2.setProperty(TychoConstants.PROP_ARTIFACT_ID, "artifact2");
+        iud2.setProperty(TychoConstants.PROP_VERSION, "version");
 
         IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
         IInstallableUnit iu2 = MetadataFactory.createInstallableUnit(iud2);
@@ -118,9 +119,9 @@ public class LocalMetadataRepositoryTest {
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         iud.setId("test");
         iud.setVersion(Version.parseVersion("1.0.0"));
-        iud.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, "group");
-        iud.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, "artifact");
-        iud.setProperty(RepositoryLayoutHelper.PROP_VERSION, "version");
+        iud.setProperty(TychoConstants.PROP_GROUP_ID, "group");
+        iud.setProperty(TychoConstants.PROP_ARTIFACT_ID, "artifact");
+        iud.setProperty(TychoConstants.PROP_VERSION, "version");
         IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
         repository.addInstallableUnits(Arrays.asList(iu));
         repository = (LocalMetadataRepository) loadRepository(location);

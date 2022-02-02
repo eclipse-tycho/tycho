@@ -21,9 +21,9 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 

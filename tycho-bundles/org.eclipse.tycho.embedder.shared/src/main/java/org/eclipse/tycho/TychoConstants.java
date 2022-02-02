@@ -8,9 +8,12 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core;
+package org.eclipse.tycho;
 
 public interface TychoConstants {
+
+    static final String P2_GROUPID_PREFIX = "p2.";
+
     static final String CONFIG_INI_PATH = "configuration/config.ini";
     static final String BUNDLES_INFO_PATH = "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info";
     static final String PLATFORM_XML_PATH = "configuration/org.eclipse.update/platform.xml";
@@ -32,4 +35,59 @@ public interface TychoConstants {
 
     static final String CTX_DEPENDENCY_WALKER = CTX_BASENAME + "/dependencyWalker";
     static final String CTX_DEPENDENCY_SEEDS = CTX_BASENAME + "/dependencySeeds";
+
+    public String JAR_EXTENSION = "jar";
+
+    String PROP_GROUP_ID = "maven-groupId";
+
+    String PROP_ARTIFACT_ID = "maven-artifactId";
+
+    String PROP_VERSION = "maven-version";
+
+    String PROP_CLASSIFIER = "maven-classifier";
+
+    String PROP_REPOSITORY = "maven-repository";
+
+    String PROP_EXTENSION = "maven-extension";
+
+    String CLASSIFIER_P2_METADATA = "p2metadata";
+
+    String EXTENSION_P2_METADATA = "xml";
+
+    /**
+     * Name of the file where the module p2 metadata is stored in the target directory. The name
+     * needs to be known so that the target folder can be read as p2 metadata repository.
+     */
+    String FILE_NAME_P2_METADATA = "p2content.xml";
+
+    String CLASSIFIER_P2_ARTIFACTS = "p2artifacts";
+
+    String EXTENSION_P2_ARTIFACTS = "xml";
+
+    /**
+     * Name of the file that contains the p2 artifact index. This file is one of the files needed to
+     * read the target folder as p2 artifact repository. The location is relative to the build
+     * target directory root.
+     */
+    String FILE_NAME_P2_ARTIFACTS = "p2artifacts.xml";
+
+    /**
+     * Name of the file that stores the location of the Maven artifact in the target folder. This
+     * file is one of the files needed to read the target folder as p2 artifact repository.
+     */
+    String FILE_NAME_LOCAL_ARTIFACTS = "local-artifacts.properties";
+
+    /**
+     * Key for the main artifact location in {@value FILE_NAME_LOCAL_ARTIFACTS} files.
+     */
+    String KEY_ARTIFACT_MAIN = "artifact.main";
+
+    /**
+     * Key prefix for attached artifact locations in {@value FILE_NAME_LOCAL_ARTIFACTS} files.
+     */
+    String KEY_ARTIFACT_ATTACHED = "artifact.attached.";
+
+    String PACK200_CLASSIFIER = "pack200";
+
+    String PACK200_EXTENSION = "jar.pack.gz";
 }

@@ -41,7 +41,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 

@@ -26,7 +26,7 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.java.DefaultJavaToolChain;
 import org.codehaus.plexus.util.ReflectionUtils;
-import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;

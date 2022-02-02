@@ -32,6 +32,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -78,13 +79,13 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         for (final GAV gav : index.getProjectGAVs()) {
             try {
                 File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
-                        RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, ArtifactType.TYPE_P2_ARTIFACTS);
+                        TychoConstants.CLASSIFIER_P2_ARTIFACTS, ArtifactType.TYPE_P2_ARTIFACTS);
                 if (!localArtifactFileLocation.exists()) {
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     index.removeGav(gav);
                 } else {
                     try (InputStream is = new FileInputStream(contentLocator.getLocalArtifactLocation(gav,
-                            RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, ArtifactType.TYPE_P2_ARTIFACTS))) {
+                            TychoConstants.CLASSIFIER_P2_ARTIFACTS, ArtifactType.TYPE_P2_ARTIFACTS))) {
                         final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
                         for (IArtifactDescriptor descriptor : gavDescriptors) {
                             internalAddDescriptor(descriptor);
@@ -147,7 +148,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     }
 
     private String getMetadataRelpath(GAV gav) {
-        String relpath = RepositoryLayoutHelper.getRelativePath(gav, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
+        String relpath = RepositoryLayoutHelper.getRelativePath(gav, TychoConstants.CLASSIFIER_P2_ARTIFACTS,
                 ArtifactType.TYPE_P2_ARTIFACTS, localRepoIndices.getMavenContext());
         return relpath;
     }

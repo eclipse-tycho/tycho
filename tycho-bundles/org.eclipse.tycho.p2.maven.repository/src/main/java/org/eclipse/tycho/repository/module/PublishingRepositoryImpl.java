@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
@@ -85,7 +85,7 @@ public class PublishingRepositoryImpl implements PublishingRepository {
         Map<String, File> artifactLocations = artifactRepository.getArtifactsMap().getLocalArtifactLocations();
 
         // add storage files of the repositories themselves
-        artifactLocations.put(RepositoryLayoutHelper.CLASSIFIER_P2_METADATA, metadataRepository.getPersistenceFile());
+        artifactLocations.put(TychoConstants.CLASSIFIER_P2_METADATA, metadataRepository.getPersistenceFile());
         // TODO the artifacts.xml entry is already in the map - maybe it should only be added here
 
         return artifactLocations;

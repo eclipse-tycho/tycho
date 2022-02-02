@@ -36,9 +36,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 @SuppressWarnings("restriction")
 public class AuthoredIUAction extends AbstractPublisherAction implements IPublisherAction {
@@ -73,7 +73,7 @@ public class AuthoredIUAction extends AbstractPublisherAction implements IPublis
                                 null);
                         processArtifactPropertiesAdvice(iu, ad, info);
                         ad.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
-                        ad.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, "zip");
+                        ad.setProperty(TychoConstants.PROP_EXTENSION, "zip");
                         repo.addDescriptor(ad);
                         artifactReferenced = true;
                     }

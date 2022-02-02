@@ -39,9 +39,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MockMavenContext;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
@@ -123,9 +123,9 @@ public class LocalArtifactRepositoryTest {
         ArtifactDescriptor desc = new ArtifactDescriptor(key);
 
         if (maven) {
-            desc.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, "group");
-            desc.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, key.getId());
-            desc.setProperty(RepositoryLayoutHelper.PROP_VERSION, key.getVersion().toString());
+            desc.setProperty(TychoConstants.PROP_GROUP_ID, "group");
+            desc.setProperty(TychoConstants.PROP_ARTIFACT_ID, key.getId());
+            desc.setProperty(TychoConstants.PROP_VERSION, key.getVersion().toString());
         }
 
         return desc;
@@ -154,17 +154,17 @@ public class LocalArtifactRepositoryTest {
                         "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"),
                 repo.internalGetArtifactStorageLocation(desc));
 
-        desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, "classifier.value");
+        desc.setProperty(TychoConstants.PROP_CLASSIFIER, "classifier.value");
         assertEquals(new File(mvnRepo.getLocalRepositoryRoot(),
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.jar"),
                 repo.internalGetArtifactStorageLocation(desc));
 
-        desc.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, "zip");
+        desc.setProperty(TychoConstants.PROP_EXTENSION, "zip");
         assertEquals(new File(mvnRepo.getLocalRepositoryRoot(),
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.zip"),
                 repo.internalGetArtifactStorageLocation(desc));
 
-        desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, null);
+        desc.setProperty(TychoConstants.PROP_CLASSIFIER, null);
         assertEquals(
                 new File(mvnRepo.getLocalRepositoryRoot(),
                         "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.zip"),

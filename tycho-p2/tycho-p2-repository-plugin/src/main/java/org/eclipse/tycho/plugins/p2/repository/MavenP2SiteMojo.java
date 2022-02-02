@@ -70,7 +70,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.TychoConstants;
 
 /**
  * <p>
@@ -480,12 +480,12 @@ public class MavenP2SiteMojo extends AbstractMojo {
             File p2 = File.createTempFile("p2properties", ".inf");
             p2.deleteOnExit();
             Properties properties = new Properties();
-            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_GROUP_ID, artifact.getGroupId(), cnt++);
-            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_ARTIFACT_ID, artifact.getArtifactId(),
+            addProvidesAndProperty(properties, TychoConstants.PROP_GROUP_ID, artifact.getGroupId(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_ARTIFACT_ID, artifact.getArtifactId(),
                     cnt++);
-            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_VERSION, artifact.getVersion(), cnt++);
-            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_EXTENSION, artifact.getType(), cnt++);
-            addProvidesAndProperty(properties, RepositoryLayoutHelper.PROP_CLASSIFIER, artifact.getClassifier(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_VERSION, artifact.getVersion(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_EXTENSION, artifact.getType(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_CLASSIFIER, artifact.getClassifier(), cnt++);
             addProvidesAndProperty(properties, "maven-scope", artifact.getScope(), cnt++);
             properties.store(new FileOutputStream(p2), null);
             return p2;

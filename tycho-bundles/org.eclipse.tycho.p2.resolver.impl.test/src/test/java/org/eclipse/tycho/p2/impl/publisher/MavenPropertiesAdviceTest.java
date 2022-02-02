@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Map;
 
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.junit.Test;
 
 public class MavenPropertiesAdviceTest {
@@ -25,19 +25,19 @@ public class MavenPropertiesAdviceTest {
     @Test
     public void testIUPropertiesNullClassifier() {
         Map<String, String> iuProperties = createIUProperties(null);
-        assertNull(iuProperties.get(RepositoryLayoutHelper.PROP_CLASSIFIER));
+        assertNull(iuProperties.get(TychoConstants.PROP_CLASSIFIER));
     }
 
     @Test
     public void testIUPropertiesEmptyClassifier() {
         Map<String, String> iuProperties = createIUProperties("");
-        assertNull(iuProperties.get(RepositoryLayoutHelper.PROP_CLASSIFIER));
+        assertNull(iuProperties.get(TychoConstants.PROP_CLASSIFIER));
     }
 
     @Test
     public void testIUPropertiesNonEmptyClassifier() {
         Map<String, String> iuProperties = createIUProperties("sources");
-        assertEquals("sources", iuProperties.get(RepositoryLayoutHelper.PROP_CLASSIFIER));
+        assertEquals("sources", iuProperties.get(TychoConstants.PROP_CLASSIFIER));
     }
 
     private Map<String, String> createIUProperties(String classifier) {

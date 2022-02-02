@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.module;
 
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_ATTACHED;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_MAIN;
 import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
@@ -29,15 +27,15 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 
 /**
  * {@link RepositoryReader} that reads the artifact file locations from the
  * "local-artifacts.properties" file.
  * 
- * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
+ * @see TychoConstants#FILE_NAME_LOCAL_ARTIFACTS
  */
 class ModuleArtifactMap {
 
@@ -59,7 +57,7 @@ class ModuleArtifactMap {
 
     private ModuleArtifactMap(File repositoryRoot) {
         // TODO constant FILE_NAME_LOCAL_ARTIFACTS should only be needed here 
-        this.mapFile = new File(repositoryRoot, RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS);
+        this.mapFile = new File(repositoryRoot, TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
         this.automaticArtifactFolder = new File(repositoryRoot, "extraArtifacts");
     }
 
@@ -110,10 +108,10 @@ class ModuleArtifactMap {
 
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 String key = (String) entry.getKey();
-                if (RepositoryLayoutHelper.KEY_ARTIFACT_MAIN.equals(key)) {
+                if (TychoConstants.KEY_ARTIFACT_MAIN.equals(key)) {
                     artifacts.put(null, localArtifactEntryToFile(entry));
-                } else if (key.startsWith(RepositoryLayoutHelper.KEY_ARTIFACT_ATTACHED)) {
-                    String classifier = key.substring(RepositoryLayoutHelper.KEY_ARTIFACT_ATTACHED.length());
+                } else if (key.startsWith(TychoConstants.KEY_ARTIFACT_ATTACHED)) {
+                    String classifier = key.substring(TychoConstants.KEY_ARTIFACT_ATTACHED.length());
                     artifacts.put(classifier, localArtifactEntryToFile(entry));
                 }
             }
@@ -143,9 +141,9 @@ class ModuleArtifactMap {
 
         for (Entry<String, File> entry : artifacts.entrySet()) {
             if (entry.getKey() == null) {
-                outputProperties.put(KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
             } else {
-                outputProperties.put(KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath());
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath());
             }
         }
 
