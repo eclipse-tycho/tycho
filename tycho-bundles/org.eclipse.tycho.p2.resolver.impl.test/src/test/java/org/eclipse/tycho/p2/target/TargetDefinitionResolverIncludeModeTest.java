@@ -22,8 +22,10 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.defaultEn
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitionWith;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdList;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdsOf;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -70,12 +72,22 @@ public class TargetDefinitionResolverIncludeModeTest {
     }
 
     @Test(expected = ResolverException.class)
-    public void testUnsatisfiedDependencyWithPlanner() throws Exception {
+    public void testUnsatisfiedDependencyWithPlannerFails() throws Exception {
         // ignore logged errors
         logVerifier.expectError(any(String.class));
 
         TargetDefinition definition = definitionWith(
                 new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
+        subject.resolveContentWithExceptions(definition, p2Context.getAgent());
+    }
+
+    @Test(expected = ResolverException.class)
+    public void testUnsatisfiedInclusionWithPlannerFails() throws Exception {
+        // ignore logged errors
+        logVerifier.expectError(any(String.class));
+
+        TargetDefinition definition = definitionWith(
+                new PlannerLocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE));
         subject.resolveContentWithExceptions(definition, p2Context.getAgent());
     }
 
@@ -90,13 +102,20 @@ public class TargetDefinitionResolverIncludeModeTest {
 
     @Test
     public void testUnsatisfiedDependencyWithSlicerIsOk() throws Exception {
+        // TODO this missing dependency is not logged because Slicer is created
+        // in SlicerResolutionStrategy with configuration to only consider strict dependencies
+        // so it does not consider this dependency at all
+        // expectWarningMissingDependency(MAIN_BUNDLE, REFERENCED_BUNDLE_V1);
+        expectNoErrors();
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
         TargetDefinitionContent units = subject.resolveContent(definition, p2Context.getAgent());
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(MAIN_BUNDLE)));
     }
 
-    @Test(expected = ResolverException.class)
-    public void testUnsatisfiedInclusionWithSlicerFails() throws Exception {
+    @Test
+    public void testUnsatisfiedInclusionWithSlicerIsOk() throws Exception {
+        expectWarningMissingDependency(TARGET_FEATURE, REFERENCED_BUNDLE_V1);
+        expectNoErrors();
         TargetDefinition definition = definitionWith(
                 new SlicerLocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE));
         subject.resolveContentWithExceptions(definition, p2Context.getAgent());
@@ -107,6 +126,16 @@ public class TargetDefinitionResolverIncludeModeTest {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.V1, MAIN_BUNDLE),
                 new PlannerLocationStub(TestRepositories.V2));
         subject.resolveContentWithExceptions(definition, p2Context.getAgent());
+    }
+
+    private void expectWarningMissingDependency(IVersionedId from, IVersionedId to) {
+        var msgFrom = "from " + from.getId() + " " + from.getVersion();
+        var msgTo = "to org.eclipse.equinox.p2.iu; " + to.getId() + " [" + to.getVersion();
+        logVerifier.expectWarning(allOf(containsString(msgFrom), containsString(msgTo)));
+    }
+
+    private void expectNoErrors() {
+        logVerifier.expectError("");
     }
 
     static class PlannerLocationStub extends LocationStub implements InstallableUnitLocation {

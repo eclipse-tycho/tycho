@@ -66,7 +66,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
     @Override
     protected boolean isSlicerError(MultiStatus slicerStatus) {
-        return slicerStatus.matches(IStatus.WARNING | IStatus.ERROR | IStatus.CANCEL);
+        return slicerStatus.matches(IStatus.ERROR | IStatus.CANCEL);
     }
 
     @Override

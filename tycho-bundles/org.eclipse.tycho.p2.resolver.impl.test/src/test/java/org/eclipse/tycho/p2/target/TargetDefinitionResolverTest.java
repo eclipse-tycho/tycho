@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -149,11 +148,13 @@ public class TargetDefinitionResolverTest {
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
     }
 
-    @Test(expected = BuildFailureException.class)
+    @Test
     public void testResolveDependenciesAcrossLocations() throws Exception {
-        logVerifier.expectError(containsString("Cannot resolve target definition"));
+        // TODO currently slicer treats every location as isolated so it warns about dependencies not being available here
+        // but this behavior is confusing because the dependencies actually are available and planner would not warn
+        // logVerifier.expectNoWarnings();
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE),
-                new LocationStub(TestRepositories.V1_AND_V2));
+                new LocationStub(TestRepositories.V1_AND_V2, MAIN_BUNDLE, REFERENCED_BUNDLE_V1));
         TargetDefinitionContent units = subject.resolveContent(definition, p2Context.getAgent());
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));

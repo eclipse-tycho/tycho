@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: project
+Bundle-Version: 1.0.0
+Automatic-Module-Name: bundle3
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: bundle2
