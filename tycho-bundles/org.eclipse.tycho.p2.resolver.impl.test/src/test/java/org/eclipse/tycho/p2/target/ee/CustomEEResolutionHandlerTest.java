@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2020 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,12 +29,8 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
-import org.eclipse.tycho.core.shared.MockMavenContext;
-import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
-import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.target.TestResolverFactory;
-import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.test.util.LogVerifier;
@@ -54,15 +50,10 @@ public class CustomEEResolutionHandlerTest {
     @Rule
     public final TemporaryFolder tempManager = new TemporaryFolder();
 
-    private PomDependencyCollector pomDependencyCollector;
-
     @Before
     public void setUpContext() throws Exception {
         tpFactory = new TestResolverFactory(logVerifier.getLogger()).getTargetPlatformFactory();
         tpConfig = new TargetPlatformConfigurationStub();
-        pomDependencyCollector = new PomDependencyCollectorImpl(
-                new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger()),
-                new ReactorProjectStub(tempManager.newFolder(), "test"));
     }
 
     @Test
