@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -66,8 +67,8 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = ".tycho-pom.xml", required = true)
 	protected String tychoPomFilename;
 
-	@Parameter(defaultValue = "false")
-	protected boolean skipPomGeneration = false;
+	@Parameter
+	protected Boolean skipPomGeneration;
 
 	/**
 	 * Indicate if the generated tycho POM should become the new project.
@@ -75,9 +76,16 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "true")
 	protected boolean updatePomFile = true;
 
+	@Parameter
+	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		if (skipPomGeneration) {
+		if (skipPomGeneration == null) {
+			if (!archive.isAddMavenDescriptor()) {
+				return;
+			}
+		} else if (skipPomGeneration) {
 			return;
 		}
 		if (outputDirectory == null) {
