@@ -63,7 +63,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	/**
 	 * The filename of the tycho generated POM file.
 	 */
-	@Parameter(defaultValue = ".tycho-pom.xml", required = true)
+	@Parameter(defaultValue = ".tycho-consumer-pom.xml", required = true)
 	protected String tychoPomFilename;
 
 	@Parameter(defaultValue = "false")
