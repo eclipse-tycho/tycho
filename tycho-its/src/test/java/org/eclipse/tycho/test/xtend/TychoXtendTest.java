@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Sonatype Inc. and others.
+ * Copyright (c) 2021, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,22 +12,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.xtend;
 
-import java.io.File;
-
-import org.junit.Assert;
+import static java.util.Arrays.asList;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
-
 public class TychoXtendTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void projectA() throws Exception {
-        Verifier verifier = getVerifier("tycho.xtend");
-        verifier.executeGoals(asList("clean", "install"));
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void projectA() throws Exception {
+		Verifier verifier = getVerifier("tycho.xtend");
+		verifier.executeGoals(asList("clean", "install"));
+		verifier.verifyErrorFreeLog();
+	}
 }
