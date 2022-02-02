@@ -461,8 +461,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
             throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(input);
-        return document;
+        return builder.parse(input);
     }
 
     public static void writeDocument(Document document, OutputStream outputStream) throws IOException {
