@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde?>
+<target name="p2Repository.slicerDependencies" sequenceNumber="1">
+    <locations>
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+            <repository id="repoB" location="url"/>
+
+            <unit id="bundle2" version="1.0.0"/>
+            <unit id="feature2.feature.group" version="1.0.0"/>
+        </location>
+    </locations>
+</target>

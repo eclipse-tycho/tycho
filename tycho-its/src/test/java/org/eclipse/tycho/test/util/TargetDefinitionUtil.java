@@ -33,7 +33,7 @@ public class TargetDefinitionUtil {
 	/**
 	 * Resolves relative URLs in the given target definition file, with the
 	 * specified resource as base URL.
-	 * 
+	 *
 	 * @param targetDefinitionFile The target definition file in which relative URLs
 	 *                             shall be replaced.
 	 * @param base
@@ -62,7 +62,7 @@ public class TargetDefinitionUtil {
 
 	/**
 	 * Overwrites all repository URLs in the target file.
-	 * 
+	 *
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 */
@@ -76,6 +76,33 @@ public class TargetDefinitionUtil {
 			for (int i = 0; i < repositories.getLength(); i++) {
 				Element repository = (Element) repositories.item(i);
 				repository.setAttribute("location", url);
+			}
+		}
+		try (FileOutputStream output = new FileOutputStream(targetDefinitionFile)) {
+			TargetDefinitionFile.writeDocument(platform, output);
+		}
+	}
+
+	/**
+	 * Overwrites all repository URL for repository with matching id in the target
+	 * file.
+	 *
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
+	public static void setRepositoryURLs(File targetDefinitionFile, String repositoryId, String url)
+			throws IOException, ParserConfigurationException, SAXException {
+		Document platform;
+		try (FileInputStream input = new FileInputStream(targetDefinitionFile)) {
+			platform = TargetDefinitionFile.parseDocument(input);
+			// example <repository location="..."/>
+			NodeList repositories = platform.getElementsByTagName("repository");
+			for (int i = 0; i < repositories.getLength(); i++) {
+				Element repository = (Element) repositories.item(i);
+				var id = repository.getAttribute("id");
+				if (id != null && id.equals(repositoryId)) {
+					repository.setAttribute("location", url);
+				}
 			}
 		}
 		try (FileOutputStream output = new FileOutputStream(targetDefinitionFile)) {

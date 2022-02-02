@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='tycho-its/repositories/target.dependenciesAcrossLocations/repoB/ - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1643973601350'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='2'>
+    <artifact classifier='osgi.bundle' id='bundle2' version='1.0.0'>
+      <properties size='5'>
+        <property name='artifact.size' value='430'/>
+        <property name='download.size' value='430'/>
+        <property name='download.md5' value='624fc98c0c31d8ce35e2ad07e5b96e3e'/>
+        <property name='download.checksum.md5' value='624fc98c0c31d8ce35e2ad07e5b96e3e'/>
+        <property name='download.checksum.sha-256' value='539466806e1eb979ef3daae1908520adb1942ce74ca8e9c732b0a4382388b645'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='feature2' version='1.0.0'>
+      <properties size='6'>
+        <property name='artifact.size' value='784'/>
+        <property name='download.size' value='784'/>
+        <property name='download.md5' value='d2ef7f7432d29084a8531a342df6c497'/>
+        <property name='download.checksum.md5' value='d2ef7f7432d29084a8531a342df6c497'/>
+        <property name='download.checksum.sha-256' value='4f9b9b1c0845568967e425bcd237c129c3ca55fae104facc7998ec371a22b2d6'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>
