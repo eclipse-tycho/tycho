@@ -45,6 +45,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
@@ -58,7 +59,6 @@ import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 @SuppressWarnings("restriction")
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
@@ -160,18 +160,18 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                     throw new IllegalArgumentException(
                             "Could not find packed artifact " + packed + " at " + packedLocation);
                 }
-                if (result.containsKey(RepositoryLayoutHelper.PACK200_CLASSIFIER)) {
+                if (result.containsKey(TychoConstants.PACK200_CLASSIFIER)) {
                     throw new IllegalArgumentException();
                 }
                 // workaround for bug 412497
                 Map<String, String> additionalProperties = new HashMap<>(5);
-                additionalProperties.put(RepositoryLayoutHelper.PROP_GROUP_ID, artifact.getGroupId());
-                additionalProperties.put(RepositoryLayoutHelper.PROP_ARTIFACT_ID, artifact.getArtifactId());
-                additionalProperties.put(RepositoryLayoutHelper.PROP_VERSION, artifact.getVersion());
-                additionalProperties.put(RepositoryLayoutHelper.PROP_CLASSIFIER,
-                        RepositoryLayoutHelper.PACK200_CLASSIFIER);
-                additionalProperties.put(RepositoryLayoutHelper.PROP_EXTENSION,
-                        RepositoryLayoutHelper.PACK200_EXTENSION);
+                additionalProperties.put(TychoConstants.PROP_GROUP_ID, artifact.getGroupId());
+                additionalProperties.put(TychoConstants.PROP_ARTIFACT_ID, artifact.getArtifactId());
+                additionalProperties.put(TychoConstants.PROP_VERSION, artifact.getVersion());
+                additionalProperties.put(TychoConstants.PROP_CLASSIFIER,
+                        TychoConstants.PACK200_CLASSIFIER);
+                additionalProperties.put(TychoConstants.PROP_EXTENSION,
+                        TychoConstants.PACK200_EXTENSION);
                 // workaround bug 539696
                 if (options.generateDownloadStatsProperty) {
                     Optional<IArtifactDescriptor> canonicalDescriptor = metadata.getArtifactDescriptors().stream()
@@ -184,7 +184,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 }
 
                 ((ArtifactDescriptor) packed).addProperties(additionalProperties);
-                result.put(RepositoryLayoutHelper.PACK200_CLASSIFIER,
+                result.put(TychoConstants.PACK200_CLASSIFIER,
                         new P2Artifact(packedLocation, Collections.<IInstallableUnit> emptySet(), packed));
             }
         }
@@ -203,7 +203,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     private IArtifactDescriptor getCanonicalArtifact(String classifier, Set<IArtifactDescriptor> artifactDescriptors) {
         for (IArtifactDescriptor descriptor : artifactDescriptors) {
-            String _classifier = descriptor.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+            String _classifier = descriptor.getProperty(TychoConstants.PROP_CLASSIFIER);
             if (eq(classifier, _classifier) && descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
                 return descriptor;
             }

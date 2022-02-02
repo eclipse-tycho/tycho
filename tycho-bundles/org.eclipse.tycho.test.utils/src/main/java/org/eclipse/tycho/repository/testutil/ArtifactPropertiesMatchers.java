@@ -14,7 +14,7 @@ package org.eclipse.tycho.repository.testutil;
 
 import java.util.Map;
 
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -37,10 +37,10 @@ public class ArtifactPropertiesMatchers {
 
             @Override
             public boolean matchesSafely(Map<String, String> map) {
-                String actualGroupId = map.get(RepositoryLayoutHelper.PROP_GROUP_ID);
-                String actualArtifactId = map.get(RepositoryLayoutHelper.PROP_ARTIFACT_ID);
-                String actualVersion = map.get(RepositoryLayoutHelper.PROP_VERSION);
-                String actualClassifier = map.get(RepositoryLayoutHelper.PROP_CLASSIFIER);
+                String actualGroupId = map.get(TychoConstants.PROP_GROUP_ID);
+                String actualArtifactId = map.get(TychoConstants.PROP_ARTIFACT_ID);
+                String actualVersion = map.get(TychoConstants.PROP_VERSION);
+                String actualClassifier = map.get(TychoConstants.PROP_CLASSIFIER);
                 return isEqual(groupId, actualGroupId) && isEqual(artifactId, actualArtifactId)
                         && isEqual(version, actualVersion) && isEqual(classifier, actualClassifier);
             }

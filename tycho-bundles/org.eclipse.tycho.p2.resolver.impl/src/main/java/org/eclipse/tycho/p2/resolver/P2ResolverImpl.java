@@ -54,6 +54,7 @@ import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -65,7 +66,6 @@ import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.AuthoredIUAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.ArtifactTypeHelper;
@@ -411,7 +411,7 @@ public class P2ResolverImpl implements P2Resolver {
             IInstallableUnit iu) {
         String id = iu.getId();
         String version = iu.getVersion().toString();
-        String mavenClassifier = iu.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+        String mavenClassifier = iu.getProperty(TychoConstants.PROP_CLASSIFIER);
         File location = mavenArtifact.getLocation();
 
         addMavenArtifact(result, iu, id, version, mavenClassifier, location);
@@ -467,7 +467,7 @@ public class P2ResolverImpl implements P2Resolver {
             IInstallableUnit iu) {
         String id = iu.getId();
         String version = iu.getVersion().toString();
-        String mavenClassifier = iu.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+        String mavenClassifier = iu.getProperty(TychoConstants.PROP_CLASSIFIER);
         File location = project.getBasedir();
 
         addMavenArtifact(result, iu, id, version, mavenClassifier, location);

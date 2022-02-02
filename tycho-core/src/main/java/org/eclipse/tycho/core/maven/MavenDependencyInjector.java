@@ -31,13 +31,11 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 
 public final class MavenDependencyInjector {
-
-    /* see RepositoryLayoutHelper#getP2Gav */
-    private static final String P2_GROUPID_PREFIX = "p2.";
 
     /**
      * Injects the dependencies of a project (as determined by the p2 dependency resolver) back into
@@ -149,8 +147,8 @@ public final class MavenDependencyInjector {
 
     private Dependency createP2Dependency(ArtifactDescriptor descriptor, File location, String scope) {
         ArtifactKey artifactKey = descriptor.getKey();
-        return createScopedDependency(descriptor, P2_GROUPID_PREFIX + artifactKey.getType().replace('-', '.'), location,
-                scope);
+        return createScopedDependency(descriptor,
+                TychoConstants.P2_GROUPID_PREFIX + artifactKey.getType().replace('-', '.'), location, scope);
     }
 
     private Dependency createScopedDependency(ArtifactDescriptor descriptor, String groupId, File location,

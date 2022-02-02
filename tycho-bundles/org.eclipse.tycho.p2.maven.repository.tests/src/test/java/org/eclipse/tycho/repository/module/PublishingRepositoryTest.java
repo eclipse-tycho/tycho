@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAndExtension;
@@ -107,10 +107,10 @@ public class PublishingRepositoryTest {
         IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(AttachedTestArtifact.key);
         assertThat(descriptors.length, is(1));
         Map<String, String> props = descriptors[0].getProperties();
-        assertThat(props.get(RepositoryLayoutHelper.PROP_GROUP_ID), is(project.getGroupId()));
-        assertThat(props.get(RepositoryLayoutHelper.PROP_ARTIFACT_ID), is(project.getArtifactId()));
-        assertThat(props.get(RepositoryLayoutHelper.PROP_VERSION), is(project.getVersion()));
-        assertThat(props.get(RepositoryLayoutHelper.PROP_CLASSIFIER), is(AttachedTestArtifact.classifier));
+        assertThat(props.get(TychoConstants.PROP_GROUP_ID), is(project.getGroupId()));
+        assertThat(props.get(TychoConstants.PROP_ARTIFACT_ID), is(project.getArtifactId()));
+        assertThat(props.get(TychoConstants.PROP_VERSION), is(project.getVersion()));
+        assertThat(props.get(TychoConstants.PROP_CLASSIFIER), is(AttachedTestArtifact.classifier));
     }
 
     private static void insertTestArtifact(PublishingRepository publishingRepo) throws ProvisionException, IOException {

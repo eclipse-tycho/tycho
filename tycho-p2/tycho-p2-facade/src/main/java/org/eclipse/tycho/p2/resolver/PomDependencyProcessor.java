@@ -22,12 +22,12 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
@@ -102,10 +102,10 @@ public class PomDependencyProcessor {
     }
 
     private void failDueToPartialP2Data(Artifact artifact, P2DataArtifacts p2Data) {
-        String p2MetadataFileName = RepositoryLayoutHelper.CLASSIFIER_P2_METADATA + "."
-                + RepositoryLayoutHelper.EXTENSION_P2_METADATA;
-        String p2ArtifactsFileName = RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS + "."
-                + RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS;
+        String p2MetadataFileName = TychoConstants.CLASSIFIER_P2_METADATA + "."
+                + TychoConstants.EXTENSION_P2_METADATA;
+        String p2ArtifactsFileName = TychoConstants.CLASSIFIER_P2_ARTIFACTS + "."
+                + TychoConstants.EXTENSION_P2_ARTIFACTS;
         String artifactGAV = artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
         String message = "Only one of the p2 data artifacts " + p2MetadataFileName + "/" + p2ArtifactsFileName
                 + " of the POM dependency " + artifactGAV + " could be resolved";
@@ -118,10 +118,10 @@ public class PomDependencyProcessor {
         final ResolvableArtifact p2ArtifactsXml;
 
         P2DataArtifacts(Artifact mainArtifact) {
-            p2MetadataXml = getAttachedArtifactFor(mainArtifact, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA,
-                    RepositoryLayoutHelper.EXTENSION_P2_METADATA);
-            p2ArtifactsXml = getAttachedArtifactFor(mainArtifact, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                    RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+            p2MetadataXml = getAttachedArtifactFor(mainArtifact, TychoConstants.CLASSIFIER_P2_METADATA,
+                    TychoConstants.EXTENSION_P2_METADATA);
+            p2ArtifactsXml = getAttachedArtifactFor(mainArtifact, TychoConstants.CLASSIFIER_P2_ARTIFACTS,
+                    TychoConstants.EXTENSION_P2_ARTIFACTS);
         }
 
         private ResolvableArtifact getAttachedArtifactFor(Artifact mainArtifact, String classifier, String extension) {

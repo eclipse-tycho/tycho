@@ -40,6 +40,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
@@ -47,7 +48,6 @@ import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.repository.FileArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProvider;
@@ -150,7 +150,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     public void addMavenArtifact(IArtifactFacade artifact, Set<IInstallableUnit> units) {
         for (IInstallableUnit unit : units) {
-            String classifier = unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+            String classifier = unit.getProperty(TychoConstants.PROP_CLASSIFIER);
             if (Objects.equals(classifier, artifact.getClassifier())) {
                 mavenInstallableUnits.put(unit, artifact);
                 if (logger.isDebugEnabled()) {

@@ -32,16 +32,16 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.maven.repository.AbstractMetadataRepository2;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 /**
  * A p2 metadata repository implementation which is persisted in a <tt>p2content.xml</tt>. The
  * <tt>p2content.xml</tt> is the file that is deployed to Maven repositories alongside with the
  * built Tycho artifact.
  * 
- * @see RepositoryLayoutHelper#FILE_NAME_P2_METADATA
+ * @see TychoConstants#FILE_NAME_P2_METADATA
  */
 class ModuleMetadataRepository extends AbstractMetadataRepository2 {
 
@@ -156,6 +156,6 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
     }
 
     private static File getStorageFile(File repositoryDir) {
-        return new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA);
+        return new File(repositoryDir, TychoConstants.FILE_NAME_P2_METADATA);
     }
 }

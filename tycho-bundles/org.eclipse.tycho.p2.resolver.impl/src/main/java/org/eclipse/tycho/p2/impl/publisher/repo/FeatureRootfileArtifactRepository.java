@@ -33,11 +33,11 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.P2Artifact;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 @SuppressWarnings("restriction")
 public class FeatureRootfileArtifactRepository extends TransientArtifactRepository {
@@ -97,8 +97,8 @@ public class FeatureRootfileArtifactRepository extends TransientArtifactReposito
 
             String mavenArtifactClassifier = getRootFileArtifactClassifier(simpleArtifactDescriptor.getArtifactKey()
                     .getId());
-            simpleArtifactDescriptor.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, mavenArtifactClassifier);
-            simpleArtifactDescriptor.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, ROOTFILE_EXTENSION);
+            simpleArtifactDescriptor.setProperty(TychoConstants.PROP_CLASSIFIER, mavenArtifactClassifier);
+            simpleArtifactDescriptor.setProperty(TychoConstants.PROP_EXTENSION, ROOTFILE_EXTENSION);
 
             target = new BufferedOutputStream(new FileOutputStream(outputFile));
 

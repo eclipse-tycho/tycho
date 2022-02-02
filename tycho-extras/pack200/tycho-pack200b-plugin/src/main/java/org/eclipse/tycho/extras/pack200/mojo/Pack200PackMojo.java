@@ -27,8 +27,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.extras.pack200.Pack200Archiver;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 /**
  * Performs pack200 pack.
@@ -85,8 +85,8 @@ public class Pack200PackMojo extends AbstractMojo {
         try {
             File packFile = new File(buildDirectory, jarFile.getName() + ".pack.gz");
             if (pack200.pack(pluginArtifacts, jarFile, packFile, fork)) {
-                projectHelper.attachArtifact(project, RepositoryLayoutHelper.PACK200_EXTENSION,
-                        RepositoryLayoutHelper.PACK200_CLASSIFIER, packFile);
+                projectHelper.attachArtifact(project, TychoConstants.PACK200_EXTENSION,
+                        TychoConstants.PACK200_CLASSIFIER, packFile);
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Could not pack200 pack jar file " + jarFile.getAbsolutePath(), e);

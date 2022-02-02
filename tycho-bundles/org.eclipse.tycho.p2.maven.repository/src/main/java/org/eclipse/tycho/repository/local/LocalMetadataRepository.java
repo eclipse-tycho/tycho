@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.maven.repository.AbstractMavenMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
@@ -93,7 +94,7 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
                     mavenContext = metadataIndex.getMavenContext();
                 }
                 String relpath = RepositoryLayoutHelper.getRelativePath(gav,
-                        RepositoryLayoutHelper.CLASSIFIER_P2_METADATA, ArtifactType.TYPE_P2_METADATA, mavenContext);
+                        TychoConstants.CLASSIFIER_P2_METADATA, ArtifactType.TYPE_P2_METADATA, mavenContext);
 
                 File file = new File(basedir, relpath);
                 file.getParentFile().mkdirs();

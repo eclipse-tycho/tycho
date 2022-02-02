@@ -33,11 +33,11 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
@@ -94,11 +94,11 @@ public class TargetPlatformMojo extends AbstractMojo {
             }
 
             // check for target platform relevant build results (registered by either p2-metadata-default or attach-artifacts)
-            File metadataXml = getAttachedArtifact(reactorProject, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA);
+            File metadataXml = getAttachedArtifact(reactorProject, TychoConstants.CLASSIFIER_P2_METADATA);
             if (metadataXml == null) {
                 continue;
             }
-            File artifactXml = getAttachedArtifact(reactorProject, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
+            File artifactXml = getAttachedArtifact(reactorProject, TychoConstants.CLASSIFIER_P2_ARTIFACTS);
 
             // found a Tycho project -> include in target platform
             logger.debug("Adding reactor project: " + reactorProject.toString());
@@ -133,11 +133,11 @@ public class TargetPlatformMojo extends AbstractMojo {
 
     private static void verifyIndexFileLocations(ReactorProject project, File metadataXml, File artifactXml)
             throws MojoExecutionException {
-        verifyArtifactLocationInTargetFolder(project, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA,
-                RepositoryLayoutHelper.FILE_NAME_P2_METADATA, metadataXml);
-        verifyArtifactLocationInTargetFolder(project, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS, artifactXml);
-        verifyFilePresenceInTargetFolder(project, RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS);
+        verifyArtifactLocationInTargetFolder(project, TychoConstants.CLASSIFIER_P2_METADATA,
+                TychoConstants.FILE_NAME_P2_METADATA, metadataXml);
+        verifyArtifactLocationInTargetFolder(project, TychoConstants.CLASSIFIER_P2_ARTIFACTS,
+                TychoConstants.FILE_NAME_P2_ARTIFACTS, artifactXml);
+        verifyFilePresenceInTargetFolder(project, TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
     }
 
     private static void verifyArtifactLocationInTargetFolder(ReactorProject project, String artifactClassifier,

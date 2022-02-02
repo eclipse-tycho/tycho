@@ -21,8 +21,8 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 @SuppressWarnings("restriction")
 public class MavenPropertiesAdvice implements IPropertyAdvice {
@@ -35,15 +35,15 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
     }
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version) {
-        properties.put(RepositoryLayoutHelper.PROP_GROUP_ID, groupId);
-        properties.put(RepositoryLayoutHelper.PROP_ARTIFACT_ID, artifactId);
-        properties.put(RepositoryLayoutHelper.PROP_VERSION, version);
+        properties.put(TychoConstants.PROP_GROUP_ID, groupId);
+        properties.put(TychoConstants.PROP_ARTIFACT_ID, artifactId);
+        properties.put(TychoConstants.PROP_VERSION, version);
     }
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier) {
         this(groupId, artifactId, version);
         if (classifier != null && !classifier.isEmpty()) {
-            properties.put(RepositoryLayoutHelper.PROP_CLASSIFIER, classifier);
+            properties.put(TychoConstants.PROP_CLASSIFIER, classifier);
         }
     }
 
@@ -51,7 +51,7 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
             String extension) {
         this(groupId, artifactId, version, classifier);
         if (extension != null && !extension.isEmpty()) {
-            properties.put(RepositoryLayoutHelper.PROP_EXTENSION, extension);
+            properties.put(TychoConstants.PROP_EXTENSION, extension);
         }
     }
 
@@ -59,7 +59,7 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
             String repository) {
         this(groupId, artifactId, version, classifier, extension);
         if (repository != null && !repository.isEmpty()) {
-            properties.put(RepositoryLayoutHelper.PROP_REPOSITORY, repository);
+            properties.put(TychoConstants.PROP_REPOSITORY, repository);
         }
     }
 

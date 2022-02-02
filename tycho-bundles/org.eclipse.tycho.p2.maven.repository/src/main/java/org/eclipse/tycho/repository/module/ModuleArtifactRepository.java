@@ -34,10 +34,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.module.ModuleArtifactRepository.ModuleArtifactDescriptor;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
@@ -60,8 +60,8 @@ import org.eclipse.tycho.repository.util.GAVArtifactDescriptorBase;
  * directory.)</li>
  * </ul>
  * 
- * @see RepositoryLayoutHelper#FILE_NAME_P2_ARTIFACTS
- * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
+ * @see TychoConstants#FILE_NAME_P2_ARTIFACTS
+ * @see TychoConstants#FILE_NAME_LOCAL_ARTIFACTS
  */
 class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifactDescriptor> {
     /**
@@ -83,8 +83,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
     // BEGIN construction
 
     static boolean canAttemptRead(File repositoryDir) {
-        File requiredP2ArtifactsFile = new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS);
-        File requiredLocalArtifactsFile = new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS);
+        File requiredP2ArtifactsFile = new File(repositoryDir, TychoConstants.FILE_NAME_P2_ARTIFACTS);
+        File requiredLocalArtifactsFile = new File(repositoryDir, TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
         return requiredP2ArtifactsFile.isFile() && requiredLocalArtifactsFile.isFile();
     }
 
@@ -111,8 +111,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         ModuleArtifactMap artifactLocationMap = ModuleArtifactMap.createInstance(repositoryDir);
 
         // add p2artifacts.xml in standard location
-        artifactLocationMap.add(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS));
+        artifactLocationMap.add(TychoConstants.CLASSIFIER_P2_ARTIFACTS,
+                new File(repositoryDir, TychoConstants.FILE_NAME_P2_ARTIFACTS));
         return artifactLocationMap;
     }
 
@@ -121,7 +121,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         this.artifactsMap = artifactsMap;
 
         this.p2DataFile = artifactsMap.getLocalArtifactLocation(new MavenRepositoryCoordinates(DUMMY_GAV,
-                RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS));
+                TychoConstants.CLASSIFIER_P2_ARTIFACTS, TychoConstants.EXTENSION_P2_ARTIFACTS));
     }
 
     // TODO the GAV should not be mutable; it should be encoded in the location URI

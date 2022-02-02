@@ -47,7 +47,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;

@@ -12,16 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.CLASSIFIER_P2_METADATA;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.EXTENSION_P2_METADATA;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.FILE_NAME_P2_ARTIFACTS;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.FILE_NAME_P2_METADATA;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_ATTACHED;
-import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_MAIN;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,6 +40,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -187,11 +178,11 @@ public class P2MetadataMojo extends AbstractMojo {
                         baselineRepositories, baselineMode, baselineReplace);
             }
 
-            File contentsXml = new File(targetDir, FILE_NAME_P2_METADATA);
-            File artifactsXml = new File(targetDir, FILE_NAME_P2_ARTIFACTS);
+            File contentsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_METADATA);
+            File artifactsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_ARTIFACTS);
             p2generator.persistMetadata(generatedMetadata, contentsXml, artifactsXml);
-            projectHelper.attachArtifact(project, EXTENSION_P2_METADATA, CLASSIFIER_P2_METADATA, contentsXml);
-            projectHelper.attachArtifact(project, EXTENSION_P2_ARTIFACTS, CLASSIFIER_P2_ARTIFACTS, artifactsXml);
+            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA, TychoConstants.CLASSIFIER_P2_METADATA, contentsXml);
+            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS, TychoConstants.CLASSIFIER_P2_ARTIFACTS, artifactsXml);
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
@@ -216,7 +207,7 @@ public class P2MetadataMojo extends AbstractMojo {
             throw new MojoExecutionException("Could not generate P2 metadata", e);
         }
 
-        File localArtifactsFile = new File(project.getBuild().getDirectory(), FILE_NAME_LOCAL_ARTIFACTS);
+        File localArtifactsFile = new File(project.getBuild().getDirectory(), TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
         writeArtifactLocations(localArtifactsFile, getAllProjectArtifacts(project));
     }
 
@@ -260,9 +251,9 @@ public class P2MetadataMojo extends AbstractMojo {
 
         for (Entry<String, File> entry : artifactLocations.entrySet()) {
             if (entry.getKey() == null) {
-                outputProperties.put(KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
             } else {
-                outputProperties.put(KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath());
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath());
             }
         }
 
