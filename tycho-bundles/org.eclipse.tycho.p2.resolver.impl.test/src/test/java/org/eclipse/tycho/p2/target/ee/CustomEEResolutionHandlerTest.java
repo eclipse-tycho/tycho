@@ -37,7 +37,6 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 public class CustomEEResolutionHandlerTest {
 
@@ -46,9 +45,6 @@ public class CustomEEResolutionHandlerTest {
 
     private TargetPlatformFactory tpFactory;
     private TargetPlatformConfigurationStub tpConfig;
-
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
 
     @Before
     public void setUpContext() throws Exception {
