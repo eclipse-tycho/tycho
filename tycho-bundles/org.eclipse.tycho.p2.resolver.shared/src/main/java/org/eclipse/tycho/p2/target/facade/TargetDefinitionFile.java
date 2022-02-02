@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,7 +70,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     private String targetEE;
 
-    private static abstract class AbstractPathLocation implements TargetDefinition.PathLocation {
+    private abstract static class AbstractPathLocation implements TargetDefinition.PathLocation {
         private String path;
 
         public AbstractPathLocation(String path) {
@@ -143,7 +143,6 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private static class TargetRef implements TargetDefinition.TargetReferenceLocation {
 
         private String uri;
-        private URI resolvedUri;
 
         public TargetRef(String uri) {
             this.uri = uri;
@@ -323,10 +322,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
         NodeList list = element.getChildNodes();
 
         int length = list.getLength();
-        List<Node> nodes = IntStream.range(0, length).mapToObj(item -> list.item(item)).collect(Collectors.toList());
-        return nodes.stream().filter(Element.class::isInstance).map(Element.class::cast).filter(e -> {
-            return e.getNodeName().equals(tagName);
-        }).collect(Collectors.toList());
+        List<Node> nodes = IntStream.range(0, length).mapToObj(list::item).collect(Collectors.toList());
+        return nodes.stream().filter(Element.class::isInstance).map(Element.class::cast)
+                .filter(e -> e.getNodeName().equals(tagName)).collect(Collectors.toList());
     }
 
     private static Element getChild(Element element, String tagName) {
