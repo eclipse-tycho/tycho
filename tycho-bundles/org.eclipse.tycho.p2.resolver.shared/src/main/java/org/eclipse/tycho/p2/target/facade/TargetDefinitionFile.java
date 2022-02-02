@@ -261,6 +261,19 @@ public final class TargetDefinitionFile implements TargetDefinition {
             this.globalExcludes = globalExcludes;
         }
 
+        private static String getKey(IArtifactFacade artifact) {
+            if (artifact == null) {
+                return "";
+            }
+            String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
+            String classifier = artifact.getClassifier();
+            if (classifier != null && !classifier.isBlank()) {
+                key += ":" + classifier;
+            }
+            key += ":" + artifact.getVersion();
+            return key;
+        }
+
         @Override
         public String getGroupId() {
             return groupId;
@@ -333,19 +346,6 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return null;
         }
         return list.get(0);
-    }
-
-    private static String getKey(IArtifactFacade artifact) {
-        if (artifact == null) {
-            return "";
-        }
-        String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
-        String classifier = artifact.getClassifier();
-        if (classifier != null && !classifier.isBlank()) {
-            key += ":" + classifier;
-        }
-        key += ":" + artifact.getVersion();
-        return key;
     }
 
     private static class IULocation implements TargetDefinition.InstallableUnitLocation {
