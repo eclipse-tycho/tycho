@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #626 - Classpath computation must take fragments into account 
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -16,15 +17,19 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.target.ArtifactTypeHelper;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 
 public class DefaultP2ResolutionResult implements P2ResolutionResult {
@@ -36,7 +41,33 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
      * Set of installable unit in the target platform of the module that do not come from the local
      * reactor.
      */
-    private final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<>();
+    private final Set<IInstallableUnit> nonReactorUnits = new LinkedHashSet<>();
+    private P2TargetPlatform resolutionContext;
+    private List<Entry> fragments;
+
+    public DefaultP2ResolutionResult(Collection<IInstallableUnit> dependencyFragments,
+            P2TargetPlatform resolutionContext) {
+        this.resolutionContext = resolutionContext;
+        fragments = dependencyFragments.stream().map(iu -> {
+            DefaultArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_BUNDLE_FRAGMENT, iu.getId(),
+                    iu.getVersion().toString());
+            final DefaultP2ResolutionResultEntry entry;
+            if (resolutionContext.isFileAlreadyAvailable(artifactKey)) {
+                entry = new DefaultP2ResolutionResultEntry(artifactKey.getType(), artifactKey.getId(),
+                        artifactKey.getVersion(), null, resolutionContext.getArtifactLocation(artifactKey));
+            } else {
+                entry = new DefaultP2ResolutionResultEntry(artifactKey.getType(), artifactKey.getId(),
+                        artifactKey.getVersion(), null, () -> {
+                            File res = resolutionContext
+                                    .getLocalArtifactFile(ArtifactTypeHelper.toP2ArtifactKey(artifactKey));
+                            resolutionContext.saveLocalMavenRepository(); // store just downloaded artifacts in local Maven repo index
+                            return res;
+                        });
+            }
+            entry.addInstallableUnit(iu);
+            return entry;
+        }).collect(Collectors.toList());
+    }
 
     @Override
     public Collection<Entry> getArtifacts() {
@@ -44,7 +75,7 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
     }
 
     public void addArtifact(ArtifactKey artifactKey, String classifier, IInstallableUnit installableUnit,
-            IArtifactKey p2ArtifactKey, P2TargetPlatform resolutionContext) {
+            IArtifactKey p2ArtifactKey) {
         if (resolutionContext.isFileAlreadyAvailable(artifactKey)) {
             addResolvedArtifact(Optional.of(artifactKey), classifier, installableUnit,
                     resolutionContext.getArtifactLocation(artifactKey));
@@ -140,5 +171,10 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
     @Override
     public Set<?> getNonReactorUnits() {
         return nonReactorUnits;
+    }
+
+    @Override
+    public Collection<Entry> getDependencyFragments() {
+        return fragments;
     }
 }

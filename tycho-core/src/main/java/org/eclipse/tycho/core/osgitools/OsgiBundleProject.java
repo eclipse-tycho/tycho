@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *    Christoph Läubrich -  [Bug 572416] Tycho does not understand "additional.bundles" directive in build.properties
  *                          [Bug 572416] Compile all source folders contained in .classpath
  *                          [Issue #460] Delay classpath resolution to the compile phase 
+ *                          [Issue #626] Classpath computation must take fragments into account 
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -496,6 +497,15 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 ArtifactKey projectKey = getArtifactKey(project);
                 classpath.add(new DefaultClasspathEntry(project, projectKey,
                         Collections.singletonList(libraryClasspathEntry.getLibraryPath()), null));
+            }
+        }
+        //Fragments are like embedded depdnecies...
+        for (ArtifactDescriptor fragment : artifacts.getFragments()) {
+            ArtifactKey projectKey = getArtifactKey(project);
+            File location = fragment.getLocation(true);
+            if (location != null) {
+                classpath
+                        .add(new DefaultClasspathEntry(project, projectKey, Collections.singletonList(location), null));
             }
         }
     }

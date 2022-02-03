@@ -13,6 +13,7 @@
  *                          - [Bug 567098] pomDependencies=consider should wrap non-osgi jars
  *                          - [Bug 572481] Tycho does not understand "additional.bundles" directive in build.properties
  *                          - [Issue #462] Delay Pom considered items to the final Target Platform calculation 
+ *                          - [Issue #626] Classpath computation must take fragments into account 
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -479,6 +480,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             } else {
                 platform.addArtifactFile(key, () -> entry.getLocation(true), entry.getInstallableUnits());
             }
+        }
+        for (P2ResolutionResult.Entry entry : result.getDependencyFragments()) {
+            ArtifactKey key = new DefaultArtifactKey(entry.getType(), entry.getId(), entry.getVersion());
+            platform.addFragment(key, () -> entry.getLocation(true), entry.getInstallableUnits());
         }
         return platform;
     }

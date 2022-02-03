@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JGit with Fragment
+Bundle-SymbolicName: compiler.fragments
+Bundle-Version: 1.0.0
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.jgit;bundle-version="5.13.0",
+ com.jcraft.jsch;bundle-version="0.1.55"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy

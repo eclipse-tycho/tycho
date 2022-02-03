@@ -72,4 +72,9 @@ public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
     public Set<?> getNonReactorUnits() {
         return Collections.emptySet();
     }
+
+    @Override
+    public Collection<Entry> getDependencyFragments() {
+        return Collections.emptyList();
+    }
 }
