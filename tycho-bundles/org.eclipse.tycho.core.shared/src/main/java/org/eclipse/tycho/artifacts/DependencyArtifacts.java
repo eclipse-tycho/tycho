@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #626 - Classpath computation must take fragments into account 
  *******************************************************************************/
 package org.eclipse.tycho.artifacts;
 
@@ -43,6 +44,12 @@ public interface DependencyArtifacts {
      * Returns all artifacts.
      */
     public List<ArtifactDescriptor> getArtifacts();
+
+    /**
+     * 
+     * @return additional fragments that might be attached to the artifacts
+     */
+    Collection<ArtifactDescriptor> getFragments();
 
     /**
      * Returns all artifacts of the given type.

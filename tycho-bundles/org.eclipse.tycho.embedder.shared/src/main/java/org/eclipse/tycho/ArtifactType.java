@@ -20,6 +20,7 @@ package org.eclipse.tycho;
 public final class ArtifactType {
 
     public static final String TYPE_ECLIPSE_PLUGIN = "eclipse-plugin";
+    public static final String TYPE_BUNDLE_FRAGMENT = "bundle-fragment";
     public static final String TYPE_ECLIPSE_TEST_PLUGIN = "eclipse-test-plugin";
     public static final String TYPE_ECLIPSE_FEATURE = "eclipse-feature";
     public static final String TYPE_ECLIPSE_PRODUCT = "eclipse-product";

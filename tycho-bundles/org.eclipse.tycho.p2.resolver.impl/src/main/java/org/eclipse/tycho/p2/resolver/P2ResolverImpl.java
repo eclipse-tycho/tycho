@@ -13,6 +13,7 @@
  *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *                       - Issue #82  - Support resolving of non-project IUs in P2Resolver
  *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
+ *                       - Issue #626 - Classpath computation must take fragments into account 
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -34,6 +35,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -94,8 +96,6 @@ public class P2ResolverImpl implements P2Resolver {
 
     private TargetPlatformFactoryImpl targetPlatformFactory;
 
-    private Set<IInstallableUnit> usedTargetPlatformUnits;
-
     private PomDependencies pomDependencies = PomDependencies.ignore;
 
     public P2ResolverImpl(TargetPlatformFactoryImpl targetPlatformFactory, MavenLogger logger) {
@@ -118,24 +118,22 @@ public class P2ResolverImpl implements P2Resolver {
 
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
-        usedTargetPlatformUnits = new LinkedHashSet<>();
+        Set<IInstallableUnit> usedTargetPlatformUnits = new LinkedHashSet<>();
         Set<?> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
                 : Collections.emptySet();
         for (TargetEnvironment environment : environments) {
             if (isMatchingEnv(metadata, environment, logger::debug)) {
                 results.put(environment, resolveDependencies(Collections.<IInstallableUnit> emptySet(), project,
-                        new ProjectorResolutionStrategy(logger), environment, targetPlatform));
+                        new ProjectorResolutionStrategy(logger), environment, targetPlatform, usedTargetPlatformUnits));
             } else {
                 logger.info(MessageFormat.format(
-                        "Project {0}:{1}:{2} does not match environment {3} skipp dependecy resolution",
+                        "Project {0}:{1}:{2} does not match environment {3} skip dependency resolution",
                         project.getGroupId(), project.getArtifactId(), project.getVersion(),
                         environment.toFilterExpression()));
             }
         }
 
         targetPlatform.reportUsedLocalIUs(usedTargetPlatformUnits);
-        usedTargetPlatformUnits = null;
-
         return results;
     }
 
@@ -157,7 +155,7 @@ public class P2ResolverImpl implements P2Resolver {
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         for (TargetEnvironment environment : environments) {
             results.put(environment, resolveDependencies(roots, null, new ProjectorResolutionStrategy(logger),
-                    environment, targetPlatform));
+                    environment, targetPlatform, null));
         }
         return results;
     }
@@ -165,7 +163,7 @@ public class P2ResolverImpl implements P2Resolver {
     @Override
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project) {
         return resolveDependencies(Collections.<IInstallableUnit> emptySet(), project, new DependencyCollector(logger),
-                new TargetEnvironment(null, null, null), getTargetFromContext(context));
+                new TargetEnvironment(null, null, null), getTargetFromContext(context), null);
     }
 
     @Override
@@ -210,7 +208,8 @@ public class P2ResolverImpl implements P2Resolver {
 
     @SuppressWarnings("unchecked")
     protected P2ResolutionResult resolveDependencies(Collection<IInstallableUnit> rootUIs, ReactorProject project,
-            AbstractResolutionStrategy strategy, TargetEnvironment environment, P2TargetPlatform targetPlatform) {
+            AbstractResolutionStrategy strategy, TargetEnvironment environment, P2TargetPlatform targetPlatform,
+            Set<IInstallableUnit> usedTargetPlatformUnits) {
         ResolutionDataImpl data = new ResolutionDataImpl(targetPlatform.getEEResolutionHints());
 
         Set<IInstallableUnit> availableUnits = targetPlatform.getInstallableUnits();
@@ -256,16 +255,46 @@ public class P2ResolverImpl implements P2Resolver {
         if (usedTargetPlatformUnits != null) {
             usedTargetPlatformUnits.addAll(newState);
         }
+        Set<IInstallableUnit> dependencyFragments = new HashSet<>();
+        for (IInstallableUnit iu : availableUnits) {
+            for (IProvidedCapability capability : iu.getProvidedCapabilities()) {
+                String nameSpace = capability.getNamespace();
+                if (BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(nameSpace)) {
+                    String fragmentName = capability.getName();
+                    IRequiredCapability fragmentHost = findFragmentHostRequirement(iu, fragmentName);
+                    if (fragmentHost != null) {
+                        for (IInstallableUnit resolved : newState) {
+                            if (fragmentHost.isMatch(resolved)) {
+                                dependencyFragments.add(iu);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 
-        return toResolutionResult(newState, project, targetPlatform);
+        }
+        return toResolutionResult(newState, dependencyFragments, project, targetPlatform);
     }
 
-    private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState, ReactorProject project,
-            P2TargetPlatform targetPlatform) {
-        Set<IInstallableUnit> currentProjectUnits = getProjectUnits(project);
-        DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
+    private static IRequiredCapability findFragmentHostRequirement(IInstallableUnit unit, String fragmentName) {
+        for (IRequirement requirement : unit.getRequirements()) {
+            if (requirement instanceof IRequiredCapability) {
+                IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
+                if (fragmentName.equals(requiredCapability.getName())) {
+                    return requiredCapability;
+                }
+            }
+        }
+        return null;
+    }
 
-        for (IInstallableUnit iu : newState) {
+    private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> resolvedUnits,
+            Collection<IInstallableUnit> dependencyFragments, ReactorProject project, P2TargetPlatform targetPlatform) {
+        Set<IInstallableUnit> currentProjectUnits = getProjectUnits(project);
+        DefaultP2ResolutionResult result = new DefaultP2ResolutionResult(dependencyFragments, targetPlatform);
+
+        for (IInstallableUnit iu : resolvedUnits) {
             addUnit(result, iu, project, targetPlatform, currentProjectUnits);
         }
         // remove entries for which there were only "additional" IUs, but none with a recognized type
@@ -275,7 +304,7 @@ public class P2ResolverImpl implements P2Resolver {
         targetPlatform.saveLocalMavenRepository();
 
         // TODO 372780 remove; no longer needed when aggregation uses frozen target platform as source
-        collectNonReactorIUs(result, newState, targetPlatform, currentProjectUnits);
+        collectNonReactorIUs(result, resolvedUnits, targetPlatform, currentProjectUnits);
         return result;
     }
 
@@ -355,7 +384,7 @@ public class P2ResolverImpl implements P2Resolver {
 
         Set<IInstallableUnit> newState = result.toUnmodifiableSet();
 
-        return toResolutionResult(newState, null, targetPlatform);
+        return toResolutionResult(newState, Collections.emptyList(), null, targetPlatform);
     }
 
     private static P2TargetPlatform getTargetFromContext(TargetPlatform context) {
@@ -481,16 +510,16 @@ public class P2ResolverImpl implements P2Resolver {
 
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
             ArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version);
-            result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey, context);
+            result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
                 ArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, version);
-                result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey, context);
+                result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey);
             }
         } else {
             ArtifactKey key = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT, id, version);
-            result.addArtifact(key, mavenClassifier, iu, p2ArtifactKey, context);
+            result.addArtifact(key, mavenClassifier, iu, p2ArtifactKey);
         }
 
         // ignore other/unknown artifacts, like binary blobs for now.

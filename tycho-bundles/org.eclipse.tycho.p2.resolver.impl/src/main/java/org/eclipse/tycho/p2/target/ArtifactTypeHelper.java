@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import static org.eclipse.tycho.ArtifactType.TYPE_BUNDLE_FRAGMENT;
 import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_FEATURE;
 import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_PLUGIN;
 
@@ -86,8 +87,8 @@ public class ArtifactTypeHelper {
     }
 
     private static IRequirement createBundleRequirement(String id, VersionRange versionRange) {
-        return MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, id, versionRange, null,
-                false, true); // optional=false, multiple=true
+        return MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, id, versionRange, null, false,
+                true); // optional=false, multiple=true
     }
 
     private static IRequirement createFeatureRequirement(String id, VersionRange versionRange) {
@@ -119,7 +120,7 @@ public class ArtifactTypeHelper {
     // p2 artifacts
 
     public static IArtifactKey toP2ArtifactKey(org.eclipse.tycho.ArtifactKey artifact) {
-        if (TYPE_ECLIPSE_PLUGIN.equals(artifact.getType())) {
+        if (TYPE_ECLIPSE_PLUGIN.equals(artifact.getType()) || TYPE_BUNDLE_FRAGMENT.equals(artifact.getType())) {
             return createP2ArtifactKey(PublisherHelper.OSGI_BUNDLE_CLASSIFIER, artifact);
 
         } else if (TYPE_ECLIPSE_FEATURE.equals(artifact.getType())) {

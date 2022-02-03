@@ -40,4 +40,10 @@ public interface P2ResolutionResult {
     public Collection<Entry> getArtifacts();
 
     public Set<?> getNonReactorUnits();
+
+    /**
+     * 
+     * @return a list of fragments that belong to the resolved state of this result
+     */
+    Collection<Entry> getDependencyFragments();
 }

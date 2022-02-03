@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Christoph Läubrich - Bug 567782 - Platform specific fragment not support in Multi-Platform POMless build
+ *    Christoph Läubrich    - Bug 567782 - Platform specific fragment not support in Multi-Platform POMless build
+ *                          - Issue #626 - Classpath computation must take fragments into account 
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools.targetplatform;
 
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
@@ -57,5 +59,11 @@ public class MultiEnvironmentDependencyArtifacts extends DefaultDependencyArtifa
 
     public Collection<TargetEnvironment> getPlatforms() {
         return Collections.unmodifiableCollection(platforms.keySet());
+    }
+
+    @Override
+    public Collection<ArtifactDescriptor> getFragments() {
+        return platforms.values().stream().map(DependencyArtifacts::getFragments).flatMap(Collection::stream).distinct()
+                .collect(Collectors.toList());
     }
 }
