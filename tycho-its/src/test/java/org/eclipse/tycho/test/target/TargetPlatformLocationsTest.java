@@ -40,6 +40,13 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testMavenLocationScopes() throws Exception {
+		Verifier verifier = getVerifier("target.maven-scopes", false, true);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
 	public void testMavenArtifactHaveMavenRepoPath() throws Exception {
 		Verifier verifier = getVerifier("target.maven", false, true);
 		verifier.addCliOption("-DoutputAbsoluteArtifactFilename=true");

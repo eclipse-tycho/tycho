@@ -109,7 +109,6 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             List<IInstallableUnit> locationSourceBundles = new ArrayList<>();
             for (MavenDependency mavenDependency : location.getRoots()) {
                 int depth;
-                String scope = location.getIncludeDependencyScope();
                 DependencyDepth dependencyDepth = location.getIncludeDependencyDepth();
                 if (dependencyDepth == DependencyDepth.NONE
                         && POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType())) {
@@ -131,8 +130,8 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 try {
                     resolve = mavenDependenciesResolver.resolve(mavenDependency.getGroupId(),
                             mavenDependency.getArtifactId(), mavenDependency.getVersion(),
-                            mavenDependency.getArtifactType(), mavenDependency.getClassifier(), scope, depth,
-                            location.getRepositoryReferences());
+                            mavenDependency.getArtifactType(), mavenDependency.getClassifier(),
+                            location.getIncludeDependencyScopes(), depth, location.getRepositoryReferences());
                 } catch (DependencyResolutionException e1) {
                     throw new TargetDefinitionResolutionException("MavenDependency " + mavenDependency + " of location "
                             + location + " could not be resolved", e1);

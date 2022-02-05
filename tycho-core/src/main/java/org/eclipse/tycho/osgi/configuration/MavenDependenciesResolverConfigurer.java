@@ -13,10 +13,6 @@
 package org.eclipse.tycho.osgi.configuration;
 
 import static org.apache.maven.artifact.Artifact.SCOPE_COMPILE;
-import static org.apache.maven.artifact.Artifact.SCOPE_PROVIDED;
-import static org.apache.maven.artifact.Artifact.SCOPE_RUNTIME;
-import static org.apache.maven.artifact.Artifact.SCOPE_SYSTEM;
-import static org.apache.maven.artifact.Artifact.SCOPE_TEST;
 
 import java.io.File;
 import java.io.FileReader;
@@ -66,7 +62,7 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
 
     @Override
     public Collection<?> resolve(String groupId, String artifactId, String version, String packaging, String classifier,
-            String dependencyScope, int depth, Collection<MavenArtifactRepositoryReference> additionalRepositories,
+            Collection<String> scopes, int depth, Collection<MavenArtifactRepositoryReference> additionalRepositories,
             Object session) throws DependencyResolutionException {
         Artifact artifact;
         if (classifier != null && !classifier.isEmpty()) {
@@ -87,11 +83,11 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
             public boolean include(Artifact a) {
                 List<String> trail = a.getDependencyTrail();
                 if (logger.isDebugEnabled()) {
-                    logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, dependencyScope)
-                            + "][" + a + "][" + trail.stream().collect(Collectors.joining(" >> ")) + "]");
+                    logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, scopes) + "][" + a
+                            + "][" + trail.stream().collect(Collectors.joining(" >> ")) + "]");
                 }
                 if (trail.size() <= depth) {
-                    return isValidScope(a, dependencyScope);
+                    return isValidScope(a, scopes);
                 }
                 return false;
             }
@@ -117,24 +113,20 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
                 .collect(Collectors.toList());
     }
 
-    protected boolean isValidScope(Artifact artifact, String desiredScope) {
+    protected boolean isValidScope(Artifact artifact, Collection<String> scopes) {
         String artifactScope = artifact.getScope();
         if (artifactScope == null || artifactScope.isBlank()) {
             return true;
         }
         //compile is the default scope if not specified see
         // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#dependency-scope
-        if (desiredScope == null || desiredScope.isBlank() || SCOPE_COMPILE.equalsIgnoreCase(desiredScope)) {
+        if (scopes == null || scopes.isEmpty()) {
             return SCOPE_COMPILE.equalsIgnoreCase(artifactScope);
         }
-        if (SCOPE_PROVIDED.equalsIgnoreCase(desiredScope)) {
-            return SCOPE_PROVIDED.equalsIgnoreCase(artifactScope) || SCOPE_COMPILE.equalsIgnoreCase(artifactScope)
-                    || SCOPE_SYSTEM.equalsIgnoreCase(artifactScope) || SCOPE_RUNTIME.equalsIgnoreCase(artifactScope);
-        }
-        if (SCOPE_TEST.equalsIgnoreCase(desiredScope)) {
-            return SCOPE_TEST.equalsIgnoreCase(artifactScope) || SCOPE_COMPILE.equalsIgnoreCase(artifactScope)
-                    || SCOPE_PROVIDED.equalsIgnoreCase(artifactScope) || SCOPE_SYSTEM.equalsIgnoreCase(artifactScope)
-                    || SCOPE_RUNTIME.equalsIgnoreCase(artifactScope);
+        for (String scope : scopes) {
+            if (artifactScope.equals(scope)) {
+                return true;
+            }
         }
         //invalid scope type
         return false;

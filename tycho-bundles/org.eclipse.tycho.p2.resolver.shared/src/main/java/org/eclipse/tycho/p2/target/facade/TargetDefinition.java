@@ -97,7 +97,7 @@ public interface TargetDefinition {
             NONE, DIRECT, INFINITE;
         }
 
-        String getIncludeDependencyScope();
+        Collection<String> getIncludeDependencyScopes();
 
         DependencyDepth getIncludeDependencyDepth();
 

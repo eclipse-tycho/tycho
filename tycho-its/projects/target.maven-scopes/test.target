@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="test">
+	<locations>
+		<location includeDependencyDepth="infinite" includeDependencyScopes="compile,runtime" includeSource="false" label="org.mockito [compile+runtime]" missingManifest="error" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>org.mockito</groupId>
+					<artifactId>mockito-core</artifactId>
+					<version>4.1.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</location>
+	</locations>
+</target>
