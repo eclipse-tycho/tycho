@@ -44,7 +44,7 @@ public interface MavenDependenciesResolver {
      *            the packaging type, might be <code>null</code> in witch case "jar" is assumed
      * @param classifier
      *            the classifier or <code>null</code> if no classifier is desired
-     * @param dependencyScope
+     * @param collection
      *            optional dependency scope, if given it tries to resolve transitive dependencies of
      *            the given artifact as well
      * @param additionalRepositories
@@ -53,14 +53,14 @@ public interface MavenDependenciesResolver {
      * @throws DependencyResolutionException
      */
     default Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version,
-            String packaging, String classifier, String dependencyScope, int depth,
+            String packaging, String classifier, Collection<String> scopes, int depth,
             Collection<MavenArtifactRepositoryReference> additionalRepositories) throws DependencyResolutionException {
-        return resolve(groupId, artifactId, version, packaging, classifier, dependencyScope, depth,
-                additionalRepositories, null);
+        return resolve(groupId, artifactId, version, packaging, classifier, scopes, depth, additionalRepositories,
+                null);
     }
 
     Collection<? /* IArtifactFacade */> resolve(String groupId, String artifactId, String version, String packaging,
-            String classifier, String dependencyScope, int depth,
+            String classifier, Collection<String> scopes, int depth,
             Collection<MavenArtifactRepositoryReference> additionalRepositories,
             Object/* MavenSession */ session) throws DependencyResolutionException;
 

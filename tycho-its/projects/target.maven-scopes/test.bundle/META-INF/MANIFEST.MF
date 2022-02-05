@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: test.bundle
+Bundle-Version: 0.0.1.qualifier
+Automatic-Module-Name: test.bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: net.bytebuddy.byte-buddy;bundle-version="1.12.1",
+ net.bytebuddy.byte-buddy-agent;bundle-version="1.12.1",
+ org.mockito.mockito-core;bundle-version="4.1.0",
+ org.objenesis;bundle-version="3.2.0"

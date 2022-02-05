@@ -67,7 +67,7 @@ public class TestResolverFactory implements P2ResolverFactory {
 
             @Override
             public Collection<?> resolve(String groupId, String artifactId, String version, String packaging,
-                    String classifier, String dependencyScope, int depth,
+                    String classifier, Collection<String> dependencyScopes, int depth,
                     Collection<MavenArtifactRepositoryReference> additionalRepositories, Object session)
                     throws DependencyResolutionException {
                 GAV gav = new GAV(groupId, artifactId, version);
