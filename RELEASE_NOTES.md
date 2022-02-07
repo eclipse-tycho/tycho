@@ -31,6 +31,14 @@ with
 </extension>
 ```
 
+### Tycho-specific Maven GraphBuilder to support `--also-make` (`-am`) and `--also-make-dependents` (`-amd`)
+
+The `tycho-build` extension (see above) was updated with a [custom `org.apache.maven.graph.GraphBuilder` implementation](https://github.com/eclipse/tycho/pull/577).
+
+Without this, the Maven options `--also-make` (`-am`) and `--also-make-dependents` (`-amd`) were not supported in a Tycho-based build, since only pom-dependencies were considered by Maven.
+
+Using the custom `GraphBuilder` Tycho is able to perform P2 dependency resolution early-on and supply Maven with an updated set of projects required for the build.
+
 ### Mixed reactor build support
 
 previously Tycho has resolved pom considered depdencies as part of the inital maven setup (before the actual build starts). This has lead to the fact that it was not possible to mix projects that e.g. dynamically generate a manifest.
