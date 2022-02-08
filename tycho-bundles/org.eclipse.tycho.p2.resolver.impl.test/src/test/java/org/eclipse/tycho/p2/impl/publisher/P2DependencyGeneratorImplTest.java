@@ -28,11 +28,14 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")
@@ -43,10 +46,13 @@ public class P2DependencyGeneratorImplTest {
     private P2GeneratorImpl subject;
     private List<IInstallableUnit> units;
     private List<IArtifactDescriptor> artifacts;
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     @Before
     public void resetTestSubjectAndResultFields() {
         subject = new P2GeneratorImpl(true);
+        subject.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
         subject.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
     }
 

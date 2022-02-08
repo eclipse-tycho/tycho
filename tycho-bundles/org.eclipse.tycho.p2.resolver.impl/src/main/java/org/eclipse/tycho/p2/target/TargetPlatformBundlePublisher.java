@@ -219,7 +219,7 @@ public class TargetPlatformBundlePublisher {
         }
 
         private void enableUnitAnnotationWithGAV() {
-            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(publishedArtifact);
+            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(publishedArtifact, mavenContext);
             publisherInfo.addAdvice(advice);
         }
 

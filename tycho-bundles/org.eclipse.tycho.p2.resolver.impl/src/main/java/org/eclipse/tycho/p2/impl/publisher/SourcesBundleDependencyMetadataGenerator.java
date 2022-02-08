@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -37,6 +38,8 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     private static final String SUFFIX_QUALIFIER = ".qualifier";
 
     private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
+
+    private MavenContext mavenContext;
 
     @Override
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
@@ -83,8 +86,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options) {
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
 
-        advice.add(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
-                "sources"));
+        advice.add(new MavenPropertiesAdvice(artifact, "sources", mavenContext));
 
         if (options.generateDownloadStatsProperty) {
             advice.add(new DownloadStatsAdvice());
@@ -105,6 +107,10 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
 
     public long createId(String sourceBundleSymbolicName, String version) {
         return sourceBundleSymbolicName.hashCode() | (((long) version.hashCode()) << 32);
+    }
+
+    public void setMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
     }
 
 }

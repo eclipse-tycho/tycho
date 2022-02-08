@@ -50,6 +50,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
@@ -187,9 +188,11 @@ public class P2ResolverTest extends P2ResolverTestBase {
         reactorProjects.add(createReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId));
 
         ReactorProjectStub sb = new ReactorProjectStub(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN);
-        DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator()
-                .generateMetadata(new ArtifactMock(sb, "source"), getEnvironments(), null, new PublisherOptions());
-        sb.setDependencyMetadata(metadata);
+        SourcesBundleDependencyMetadataGenerator metadata = new SourcesBundleDependencyMetadataGenerator();
+        metadata.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
+        DependencyMetadata generateMetadata = metadata.generateMetadata(new ArtifactMock(sb, "source"),
+                getEnvironments(), null, new PublisherOptions());
+        sb.setDependencyMetadata(generateMetadata);
         reactorProjects.add(sb);
 
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(false), projectToResolve));

@@ -42,7 +42,7 @@ public class MavenPropertiesAdviceTest {
 
     private Map<String, String> createIUProperties(String classifier) {
         MavenPropertiesAdvice mavenPropertiesAdvice = new MavenPropertiesAdvice("groupId", "artifactId", "1.0.0",
-                classifier);
+                classifier, null, null, null);
         Map<String, String> iuProperties = mavenPropertiesAdvice.getInstallableUnitProperties(null);
         return iuProperties;
     }

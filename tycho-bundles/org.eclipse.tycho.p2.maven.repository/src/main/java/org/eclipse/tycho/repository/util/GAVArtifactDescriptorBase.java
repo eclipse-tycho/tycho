@@ -59,7 +59,9 @@ public class GAVArtifactDescriptorBase extends ArtifactDescriptor {
         properties.put(TychoConstants.PROP_ARTIFACT_ID, coordinates.getArtifactId());
         properties.put(TychoConstants.PROP_VERSION, coordinates.getVersion());
         putOrRemoveOnNull(properties, TychoConstants.PROP_CLASSIFIER, coordinates.getClassifier());
-        putOrRemoveOnNull(properties, TychoConstants.PROP_EXTENSION, coordinates.getExtension());
+        //This is only for older tycho versions trying to read newver repository formats
+        putOrRemoveOnNull(properties, TychoConstants.PROP_EXTENSION, coordinates.getType());
+        putOrRemoveOnNull(properties, TychoConstants.PROP_TYPE, coordinates.getType());
     }
 
     private static void putOrRemoveOnNull(Map<String, String> properties, String key, String value) {
@@ -81,7 +83,7 @@ public class GAVArtifactDescriptorBase extends ArtifactDescriptor {
         }
 
         String classifier = RepositoryLayoutHelper.getClassifier(descriptor.getProperties());
-        String extension = RepositoryLayoutHelper.getExtension(descriptor.getProperties());
+        String extension = RepositoryLayoutHelper.getType(descriptor.getProperties());
         return new MavenRepositoryCoordinates(gav, classifier, extension);
     }
 

@@ -47,6 +47,7 @@ import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
@@ -71,6 +72,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
      * Whether we need full p2 metadata (false) or just required capabilities.
      */
     private boolean dependenciesOnly;
+
+    private MavenContext mavenContext;
 
     public P2GeneratorImpl(boolean dependenciesOnly) {
         this.dependenciesOnly = dependenciesOnly;
@@ -168,10 +171,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 additionalProperties.put(TychoConstants.PROP_GROUP_ID, artifact.getGroupId());
                 additionalProperties.put(TychoConstants.PROP_ARTIFACT_ID, artifact.getArtifactId());
                 additionalProperties.put(TychoConstants.PROP_VERSION, artifact.getVersion());
-                additionalProperties.put(TychoConstants.PROP_CLASSIFIER,
-                        TychoConstants.PACK200_CLASSIFIER);
-                additionalProperties.put(TychoConstants.PROP_EXTENSION,
-                        TychoConstants.PACK200_EXTENSION);
+                additionalProperties.put(TychoConstants.PROP_CLASSIFIER, TychoConstants.PACK200_CLASSIFIER);
+                additionalProperties.put(TychoConstants.PROP_EXTENSION, TychoConstants.PACK200_EXTENSION);
                 // workaround bug 539696
                 if (options.generateDownloadStatsProperty) {
                     Optional<IArtifactDescriptor> canonicalDescriptor = metadata.getArtifactDescriptors().stream()
@@ -365,7 +366,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             interpolator = null;
         }
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
-        advice.add(new MavenPropertiesAdvice(artifact));
+        advice.add(new MavenPropertiesAdvice(artifact, mavenContext));
         advice.add(getExtraEntriesAdvice(artifact, interpolator));
 
         if (options.generateDownloadStatsProperty) {
@@ -378,5 +379,9 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             advice.add(featureRootAdvice);
         }
         return advice;
+    }
+
+    public void setMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
     }
 }
