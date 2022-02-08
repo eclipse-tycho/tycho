@@ -177,7 +177,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
         try {
             MavenRepositoryCoordinates coordinates = internalDescriptor.getMavenCoordinates();
-            artifactsMap.addToAutomaticLocation(coordinates.getClassifier(), coordinates.getExtension());
+            artifactsMap.addToAutomaticLocation(coordinates.getClassifier(), coordinates.getType());
 
         } catch (ProvisionException e) {
             // TODO 393004 Revise exception handling

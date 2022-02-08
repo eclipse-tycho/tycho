@@ -75,7 +75,7 @@ public class GAVArtifactDescriptor extends GAVArtifactDescriptorBase {
             Map<String, String> properties) {
         GAV gav = RepositoryLayoutHelper.getP2Gav(key.getClassifier(), key.getId(), key.getVersion().toString());
         String classifier = RepositoryLayoutHelper.getClassifier(properties);
-        String extension = RepositoryLayoutHelper.getExtension(properties);
+        String extension = RepositoryLayoutHelper.getType(properties);
 
         if (properties != null
                 && IArtifactDescriptor.FORMAT_PACKED.equals(properties.get(IArtifactDescriptor.FORMAT))) {

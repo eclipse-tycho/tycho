@@ -54,6 +54,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
@@ -81,9 +82,12 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private final Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<IArtifactDescriptor, IInstallableUnit>();
     private SupplierMetadataRepository metadataRepository;
     private FileArtifactRepository artifactRepository;
+    private MavenContext mavenContext;
 
     public MavenTargetDefinitionContent(MavenGAVLocation location, MavenDependenciesResolver mavenDependenciesResolver,
-            IncludeSourceMode sourceMode, IProvisioningAgent agent, MavenLogger logger) {
+            IncludeSourceMode sourceMode, IProvisioningAgent agent, MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
+        MavenLogger logger = mavenContext.getLogger();
         File repositoryRoot = mavenDependenciesResolver.getRepositoryRoot();
         boolean includeSource = sourceMode == IncludeSourceMode.force
                 || (sourceMode == IncludeSourceMode.honor && location.includeSource());
@@ -364,7 +368,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 bundleDescription.getVersion().toString());
         PublisherInfo publisherInfo = new PublisherInfo();
         if (mavenArtifact != null) {
-            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact);
+            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact, mavenContext);
             publisherInfo.addAdvice(advice);
         }
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);

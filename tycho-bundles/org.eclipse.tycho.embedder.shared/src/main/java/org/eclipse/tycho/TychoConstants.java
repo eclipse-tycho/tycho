@@ -48,7 +48,14 @@ public interface TychoConstants {
 
     String PROP_REPOSITORY = "maven-repository";
 
+    /**
+     * @deprecated this is deprecated but can't be removed as we otherwise loose compatibility for
+     *             older repository format, this should never be used in new code and usage should
+     *             clearly be documented
+     */
+    @Deprecated(forRemoval = false)
     String PROP_EXTENSION = "maven-extension";
+    String PROP_TYPE = "maven-type";
 
     String CLASSIFIER_P2_METADATA = "p2metadata";
 
@@ -90,4 +97,8 @@ public interface TychoConstants {
     String PACK200_CLASSIFIER = "pack200";
 
     String PACK200_EXTENSION = "jar.pack.gz";
+
+    public String ROOTFILE_CLASSIFIER = "root";
+
+    public String ROOTFILE_EXTENSION = "zip";
 }

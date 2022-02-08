@@ -182,7 +182,7 @@ public final class TargetDefinitionResolver {
             } else if (locationDefinition instanceof MavenGAVLocation) {
                 MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
                 MavenTargetDefinitionContent targetDefinitionContent = new MavenTargetDefinitionContent(location,
-                        mavenDependenciesResolver, includeSourceMode, provisioningAgent, logger);
+                        mavenDependenciesResolver, includeSourceMode, provisioningAgent, mavenContext);
                 mavenLocations.add(targetDefinitionContent);
                 IQueryResult<IInstallableUnit> result = targetDefinitionContent.query(QueryUtil.ALL_UNITS,
                         new LoggingProgressMonitor(logger));

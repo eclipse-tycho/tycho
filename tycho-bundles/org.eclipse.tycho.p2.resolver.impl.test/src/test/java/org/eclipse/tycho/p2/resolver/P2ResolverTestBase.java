@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
@@ -57,11 +58,14 @@ public class P2ResolverTestBase {
 
     @Before
     final public void prepare() throws Exception {
+        MockMavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
         fullGenerator = new P2GeneratorImpl(true);
+        fullGenerator.setMavenContext(mavenContext);
         BuildPropertiesParserForTesting buildPropertiesReader = new BuildPropertiesParserForTesting();
         fullGenerator.setBuildPropertiesParser(buildPropertiesReader);
         dependencyGenerator = new DefaultDependencyMetadataGenerator();
         dependencyGenerator.setBuildPropertiesParser(buildPropertiesReader);
+        dependencyGenerator.setMavenContext(mavenContext);
 
         tpConfig = new TargetPlatformConfigurationStub();
         tpFactory = resolverFactory.getTargetPlatformFactoryImpl();

@@ -383,7 +383,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         for (IArtifactDescriptor artifact : repo.getDescriptors()) {
             GAV gav = RepositoryLayoutHelper.getGAV(artifact.getProperties());
             String mavenClassifier = RepositoryLayoutHelper.getClassifier(artifact.getProperties());
-            String mavenExtension = RepositoryLayoutHelper.getExtension(artifact.getProperties());
+            String mavenExtension = RepositoryLayoutHelper.getType(artifact.getProperties());
             // should care about classifier, extension and other
             if (gav != null && !gav.getVersion().endsWith("-SNAPSHOT")) {
                 for (URI mavenRepo : mavenRepositories) {

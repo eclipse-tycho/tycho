@@ -44,6 +44,9 @@ public class RepositoryLayoutHelper {
             extension = TychoConstants.EXTENSION_P2_ARTIFACTS;
         } else if (TychoConstants.PACK200_CLASSIFIER.equals(classifier)) {
             extension = TychoConstants.PACK200_EXTENSION;
+        } else if (TychoConstants.ROOTFILE_CLASSIFIER.equals(classifier)
+                || (classifier != null && classifier.startsWith(TychoConstants.ROOTFILE_CLASSIFIER + "."))) {
+            extension = TychoConstants.ROOTFILE_EXTENSION;
         } else {
             switch (type) {
             case TychoConstants.JAR_EXTENSION:
@@ -116,11 +119,15 @@ public class RepositoryLayoutHelper {
         return (String) properties.get(TychoConstants.PROP_CLASSIFIER);
     }
 
-    public static String getExtension(Map<?, ?> properties) {
+    public static String getType(Map<?, ?> properties) {
         if (properties == null) {
             return null;
         }
-        String explicitExtension = (String) properties.get(TychoConstants.PROP_EXTENSION);
-        return explicitExtension == null ? TychoConstants.JAR_EXTENSION : explicitExtension;
+        String type = (String) properties.get(TychoConstants.PROP_TYPE);
+        if (type == null) {
+            //fallback for older repository formats
+            type = (String) properties.get(TychoConstants.PROP_EXTENSION);
+        }
+        return type;
     }
 }

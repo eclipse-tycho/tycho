@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 @SuppressWarnings("restriction")
@@ -29,9 +30,14 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     private final Map<String, String> properties = new LinkedHashMap<>();
 
-    public MavenPropertiesAdvice(IArtifactFacade artifactFacade) {
-        this(artifactFacade.getGroupId(), artifactFacade.getArtifactId(), artifactFacade.getVersion(),
-                artifactFacade.getClassifier(), artifactFacade.getPackagingType(), artifactFacade.getRepository());
+    public MavenPropertiesAdvice(IArtifactFacade artifactFacade, MavenContext mavenContext) {
+        this(artifactFacade, artifactFacade.getClassifier(), mavenContext);
+    }
+
+    public MavenPropertiesAdvice(IArtifactFacade artifactFacade, String classifier, MavenContext mavenContext) {
+        this(artifactFacade.getGroupId(), artifactFacade.getArtifactId(), artifactFacade.getVersion(), classifier,
+                mavenContext.getExtension(artifactFacade.getPackagingType()), artifactFacade.getPackagingType(),
+                artifactFacade.getRepository());
     }
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version) {
@@ -40,26 +46,21 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
         properties.put(TychoConstants.PROP_VERSION, version);
     }
 
-    public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier) {
+    public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier, String extension,
+            String type, String repository) {
         this(groupId, artifactId, version);
         if (classifier != null && !classifier.isEmpty()) {
             properties.put(TychoConstants.PROP_CLASSIFIER, classifier);
         }
-    }
-
-    public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier,
-            String extension) {
-        this(groupId, artifactId, version, classifier);
-        if (extension != null && !extension.isEmpty()) {
+        if (extension != null && !extension.isEmpty() && !"jar".equalsIgnoreCase(extension)) {
+            //This is only for the backward compat of older tycho versions
             properties.put(TychoConstants.PROP_EXTENSION, extension);
         }
-    }
-
-    public MavenPropertiesAdvice(String groupId, String artifactId, String version, String classifier, String extension,
-            String repository) {
-        this(groupId, artifactId, version, classifier, extension);
         if (repository != null && !repository.isEmpty()) {
             properties.put(TychoConstants.PROP_REPOSITORY, repository);
+        }
+        if (type != null && !type.isEmpty()) {
+            properties.put(TychoConstants.PROP_TYPE, type);
         }
     }
 

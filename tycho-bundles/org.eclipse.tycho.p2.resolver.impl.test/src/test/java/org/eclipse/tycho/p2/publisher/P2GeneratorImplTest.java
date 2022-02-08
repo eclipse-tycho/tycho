@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
@@ -44,14 +45,20 @@ import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.LogVerifier;
+import org.junit.Rule;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")
 public class P2GeneratorImplTest {
 
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
+
     @Test
     public void testGenerateSourceBundleMetadata() throws Exception {
-        DependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
+        SourcesBundleDependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
+        p2GeneratorImpl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
         File location = new File("resources/generator/bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
         Set<?> units = p2GeneratorImpl
@@ -74,7 +81,8 @@ public class P2GeneratorImplTest {
     public void generateSourceBundleMetadataForProjectWithP2Inf() throws Exception {
         // p2.inf must not leak into sources bundle
 
-        DependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
+        SourcesBundleDependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
+        p2GeneratorImpl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
         File location = new File("resources/generator/bundle-p2-inf").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
         Set<?> units = p2GeneratorImpl
@@ -125,6 +133,7 @@ public class P2GeneratorImplTest {
     private DefaultDependencyMetadataGenerator createDependencyMetadataGenerator() {
         DefaultDependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
         generator.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
+        generator.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
         return generator;
     }
 
