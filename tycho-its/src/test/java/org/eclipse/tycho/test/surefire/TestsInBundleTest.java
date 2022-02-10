@@ -28,9 +28,9 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
         Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
         verifier.executeGoals(Arrays.asList("clean", "test-compile"));
         verifier.verifyErrorFreeLog();
-        assertTrue("compiled class file do not exists",
+        assertTrue("compiled class file does not exist",
                 new File(verifier.getBasedir(), "target/classes/bundle/test/Counter.class").exists());
-        assertTrue("compiled test-class file do not exists",
+        assertTrue("compiled test-class file does not exist",
                 new File(verifier.getBasedir(), "target/test-classes/bundle/test/AdderTest.class").exists());
     }
 
@@ -39,7 +39,7 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
         Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
         verifier.executeGoals(Arrays.asList("clean", "test"));
         verifier.verifyErrorFreeLog();
-        assertTrue("tests where not run",
+        assertTrue("tests were not run",
                 new File(verifier.getBasedir(), "target/surefire-reports/bundle.test.AdderTest.txt").exists());
     }
 
