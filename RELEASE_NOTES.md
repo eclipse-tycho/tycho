@@ -164,12 +164,12 @@ It is now possible to resolve the JDT 'JUnit Classpath Container', for this do t
 For an example take a look at the [integration tests](https://github.com/eclipse/tycho/tree/master/tycho-its/projects/compiler.junitcontainer/junit4-in-bundle)
 
 ### [Execute unit-tests with eclipse-plugin packaging](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572420)
-Before unit-tests are only executed for eclipse-test-plugin packaging types. Beside that it was only possible to execute them as part of **tycho-surefire** (what executes them inside an OSGi runtime) in the integration-test phase (making them actually some kind of integration test).
+Previously, unit-tests were only executed for `eclipse-test-plugin` packaging types. Besides that, it was only possible to execute them as part of the **tycho-surefire:test** goal (which executes them inside an OSGi runtime) in the `integration-test` phase (making them actually some kind of integration tests).
 
-From now on this restriction is no longer true and one is able to execute unit-test with **maven-surefire** as well as integration-tests with **tycho-failfast** plugin. This works the following way:
+From now on, this restriction is no longer true and one is able to execute unit-tests with **maven-surefire** as well as integration-tests with the **tycho-surefire:integration-test** goal (which still executes them inside an OSGi runtime, see below). This works the following way:
 
- - create a source-folder in your eclipse-plugin packaged project and mark them as a contains test-sources in the classpath settings:![grafik](https://user-images.githubusercontent.com/1331477/116801917-b20cb080-ab0e-11eb-8c05-1796196ccb25.png)
- - Create a unit-test inside that folder, either name it with any of the [default-pattern](https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#includes) maven-surefire plugin of or configure them explicitly.
+ - create a source-folder in your `eclipse-plugin` packaged project and marks it as "Contains test sources" in the classpath settings:![grafik](https://user-images.githubusercontent.com/1331477/116801917-b20cb080-ab0e-11eb-8c05-1796196ccb25.png)
+ - Create a unit-test inside that folder, either name it with any of the [default-pattern](https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#includes) maven-surefire plugin or configure the include pattern explicitly.
  - Include maven-surefire plugin configuration in your pom to select the appropriate test-providers
 ```
 <plugin>
@@ -187,15 +187,20 @@ From now on this restriction is no longer true and one is able to execute unit-t
 ```
  - run your it with `mvn test`
 
-Tycho also includes a new tycho-failsafe mojo, that is similar to the maven one:
- - it executes at the integration-test phase but do not fail the build if a test fails, instead a summary file is written
- - the outcome of the tests are checked in the verify phase (and fail the build there if necessary)
- - this allows to hook some setup/teardown mojos (e.g. start webservers, ...) in the pre-integration-test phase and to safely tear them down in the post-integration test phase (thus the name 'failsafe' see [tycho-failsafe-faq](https://maven.apache.org/surefire/maven-failsafe-plugin/faq.html) for some more details
+As said above, Tycho also includes a new **tycho-surefire:integration-test** goal, that is similar to the **tycho-surefire:test** one:
+ - it executes in the `integration-test` phase, but does not fail the build if a test fails, instead a summary file is written
+ - the outcome of the tests are checked in the `verify` phase (and the build fails at that point, if necessary)
+ - this allows to hook some setup/teardown mojos (e.g. start webservers, ...) in the `pre-integration-test` phase and to safely tear them down in the `post-integration` phase (thus the name 'failsafe' see [maven-failsafe-plugin FAQ](https://maven.apache.org/surefire/maven-failsafe-plugin/faq.html) for some more details.
 
-Given you have the above setup you create an integration-test (executed in an OSGi runtime like traditional tycho-surefire mojo) as following:
+Given you have the above setup you create an integration-test (executed in an OSGi runtime like the traditional **tycho-surefire:test** goal) as following:
 
-- create a new test that matches the pattern `*IT.java` (or configure a different pattern that do not intersects with the surefire test pattern)
-- run your it with `mvn verify`
+- create a new test that matches the pattern `*IT.java` or `PluginTest*.java` (or configure a different pattern that does not intersects with the surefire test pattern)
+- run the build with `mvn verify`
+
+Summarizing
+
+-  **tycho-surefire:test** works as before: it is automatically activated in projects with packaging type `eclipse-test-plugin` (which are meant to contain only tests), it runs in the phase `integration-test` and makes the build fail if a test fails.
+-  **tycho-surefire:integration-test** is meant to be used in projects with packaging type `eclipse-plugin` (which are meant to contain both production code and tests, in a separate source folder) and it is meant to be bound to the phase `integration-test`, but following the `maven-failsafe` paradigm: if a test fails, the build does not fail in the phase `integration-test`, but in the phase `verify`.
 
 :warning: If you where previously using `-Dtest=....` on the root level of your build tree it might now be necessary to also include `-Dsurefire.failIfNoSpecifiedTests=false` as maven-surefire might otherwise complain about
 
