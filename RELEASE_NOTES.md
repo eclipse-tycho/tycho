@@ -247,9 +247,9 @@ If your pom contains license information, Tycho automatically creates (if not al
 
 ### Official Equinox Resolver used for dependency resolution (stricter and can produce errors for split packages)
 
-{{bug|570189}} Tycho now uses the same resolver as Equinox uses at runtime. This resolver is stricter and more correct than the previous one, and as a result should provide resolution results that are much more consistent with actual dependency resolution at runtime.
+[Bug 570189](https://bugs.eclipse.org/bugs/show_bug.cgi?id=570189) Tycho now uses the same resolver as Equinox uses at runtime. This resolver is stricter and more correct than the previous one, and as a result should provide resolution results that are much more consistent with actual dependency resolution at runtime.
 
-However, this change makes {{bug|403196}} more visible in some cases with split package, for example
+However, this change makes [bug 403196](https://bugs.eclipse.org/bugs/show_bug.cgi?id=403196) more visible in some cases with split package, for example
 <pre>
   Unresolved requirement: Require-Bundle: org.eclipse.equinox.security
     -> Bundle-SymbolicName: org.eclipse.equinox.security; bundle-version="1.3.600.v20210126-1005"; singleton:="true"
@@ -257,11 +257,11 @@ However, this change makes {{bug|403196}} more visible in some cases with split 
          Unresolved requirement: Import-Package: org.eclipse.core.runtime; registry="split"
 </pre>
 which means that the p2 resolution succeeds while it actually failed at providing the <tt>Import-Package: org.eclipse.core.runtime; registry="split"</tt> and later OSGi resolution will find it's missing and complain.<br>
-In such case, the workaround/solution is to ensure that the bundle that provides <tt>Import-Package: org.eclipse.core.runtime; registry="split"</tt> gets added as part of p2 resolution despite {{bug|403196}}, typically by adding <tt>org.eclipse.equinox.registry</tt> to the <tt>Required-Bundle</tt> of the bundles being built, or by adding it to <tt>target-platform-configuration</tt> as described in https://www.eclipse.org/tycho/sitedocs/target-platform-configuration/target-platform-configuration-mojo.html#dependency-resolution .
+In such case, the workaround/solution is to ensure that the bundle that provides <tt>Import-Package: org.eclipse.core.runtime; registry="split"</tt> gets added as part of p2 resolution despite [bug 403196](https://bugs.eclipse.org/bugs/show_bug.cgi?id=403196), typically by adding <tt>org.eclipse.equinox.registry</tt> to the <tt>Required-Bundle</tt> of the bundles being built, or by adding it to <tt>target-platform-configuration</tt> as described in https://www.eclipse.org/tycho/sitedocs/target-platform-configuration/target-platform-configuration-mojo.html#dependency-resolution .
 
 ### Enable reuse of workspace by tycho-eclipserun-plugin
 
-{{bug|570477}}, The <tt>tycho-eclipserun-plugin</tt> now has a configuration-parameter named <tt>clearWorkspaceBeforeLaunch</tt> to specify if the workspace should be cleared before running eclipse or not (default is <tt>true</tt>, matching the behavior until now). If the value is <tt>false</tt>, the workspace of the previous run is reused (if present), if the value is <tt>true</tt> the workspace-directory (i.e. the 'data' directory within the <tt>work</tt>-directory) and its content is deleted.
+[Bug 570477](https://bugs.eclipse.org/bugs/show_bug.cgi?id=570477), The <tt>tycho-eclipserun-plugin</tt> now has a configuration-parameter named <tt>clearWorkspaceBeforeLaunch</tt> to specify if the workspace should be cleared before running eclipse or not (default is <tt>true</tt>, matching the behavior until now). If the value is <tt>false</tt>, the workspace of the previous run is reused (if present), if the value is <tt>true</tt> the workspace-directory (i.e. the 'data' directory within the <tt>work</tt>-directory) and its content is deleted.
 
 ### A mojo to "fix" modified metadata in artifact repository (artifacts modified after after aggregation)
 
@@ -273,7 +273,7 @@ The [https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifac
 
 ### Target files can be specified directly now
 
-{{bug|571520}} allow to specify a target file as an alternative to a target artifact
+[Bug 571520](https://bugs.eclipse.org/bugs/show_bug.cgi?id=571520) allow to specify a target file as an alternative to a target artifact
 ```
   <plugin>
     <groupId>org.eclipse.tycho</groupId>
@@ -288,28 +288,28 @@ The [https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifac
 ```
 ### Multi-platform product packaging
 
-{{bug|572082}}, allow applications to use bundle pools in order to have a "cross platform" installation structure without duplicating the bundles. To activate the multi-platform package, simply add <tt><multiPlatformPackage>true</multiPlatformPackage></tt> to the product definition in the <tt>pom.xml</tt> file.
+[Bug 572082](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572082), allow applications to use bundle pools in order to have a "cross platform" installation structure without duplicating the bundles. To activate the multi-platform package, simply add <tt><multiPlatformPackage>true</multiPlatformPackage></tt> to the product definition in the <tt>pom.xml</tt> file.
 
 
 ## 2.2.0
 
 ## Support for m2e PDE Maven target locations
 
-{{bug|568729}}, {{bug|569481}} m2e includes a new feature that allows the usage of regular maven artifacts to be used in PDE target platforms. Support for this new location type was also added to tycho, you could read more about this new feature in the following [article](https://xn--lubisoft-0za.gmbh/en/articles/using-maven-artifacts-in-pde-rcp-and-tycho-builds/).
+[Bug 568729](https://bugs.eclipse.org/bugs/show_bug.cgi?id=568729), [bug 569481](https://bugs.eclipse.org/bugs/show_bug.cgi?id=569481) m2e includes a new feature that allows the usage of regular maven artifacts to be used in PDE target platforms. Support for this new location type was also added to tycho, you could read more about this new feature in the following [article](https://xn--lubisoft-0za.gmbh/en/articles/using-maven-artifacts-in-pde-rcp-and-tycho-builds/).
 
 #### Allow parallel dependency resolving
 
-{{bug|568446}} When using [parallel builds](https://cwiki.apache.org/confluence/display/MAVEN/Parallel+builds+in+Maven+3) the initial dependency resolution is now also executed in parallel.
+[Bug 568446](https://bugs.eclipse.org/bugs/show_bug.cgi?id=568446) When using [parallel builds](https://cwiki.apache.org/confluence/display/MAVEN/Parallel+builds+in+Maven+3) the initial dependency resolution is now also executed in parallel.
 
 ### Delay download of p2 artifacts for non-plugin modules
 
-{{bug|567760}} Tycho now stops downloading p2 artifacts from remote sources too early and relies mostly on p2 metadata to compute target platform and build order without downloading the artifacts. Downloads are then instead delayed to when the artifact files are really necessary (to compute compilation build path, to generate a p2 repository...). As a result performance will be improved as less artifacts may be downloaded, and some steps like `mvn clean` or `mvn validate` can avoid downloading artifacts to process, and the most probable build failures will be reported faster.
+[Bug 567760](https://bugs.eclipse.org/bugs/show_bug.cgi?id=567760) Tycho now stops downloading p2 artifacts from remote sources too early and relies mostly on p2 metadata to compute target platform and build order without downloading the artifacts. Downloads are then instead delayed to when the artifact files are really necessary (to compute compilation build path, to generate a p2 repository...). As a result performance will be improved as less artifacts may be downloaded, and some steps like `mvn clean` or `mvn validate` can avoid downloading artifacts to process, and the most probable build failures will be reported faster.
 
 Note that this is specifically visible for <tt>eclipse-feature</tt> and <tt>eclipse-repository</tt> modules; other module types like <tt>eclipse-plugin</tt> or <tt>eclipse-test-plugin</tt> do still require to download artifacts early to create the build path. Further improvements remain possible on that topic.
 
 ### Tycho Source Feature Generation moved from tycho extras to tycho core
 
-{{bug|568359}} Historically the tycho-source-feature-plugin was located in tycho extras but could be confusing because they often are used in conjunction with to each other because a source-bundle is hardly useful without corresponding source-feature. With the merge of tycho-core and tycho-extras these separation becomes even more obsolete.
+[Bug 568359](https://bugs.eclipse.org/bugs/show_bug.cgi?id=568359) Historically the tycho-source-feature-plugin was located in tycho extras but could be confusing because they often are used in conjunction with to each other because a source-bundle is hardly useful without corresponding source-feature. With the merge of tycho-core and tycho-extras these separation becomes even more obsolete.
 
 From now on, the tycho-source-plugin also includes the tycho-source-feature-plugin, the old one is deprecated and will be removed in the next major release.
 
@@ -347,7 +347,7 @@ Beside this, the new mojo does support one additional configuration option 'miss
 
 ### Support for consuming maven artifacts made of zipped P2 update sites ===
 
-{{bug|398238}} Tycho now supports in target files and in <repository> elements URLs of the form mvn:groupId:artifactId:version[:packaging[:classifier]] to be used for a repository.
+[Bug 398238](https://bugs.eclipse.org/bugs/show_bug.cgi?id=398238) Tycho now supports in target files and in <repository> elements URLs of the form mvn:groupId:artifactId:version[:packaging[:classifier]] to be used for a repository.
 
 For example
 ```
@@ -360,7 +360,7 @@ For example
 
 ### Support for excluding files in build.properties ===
 
-{{bug|568623}} Tycho now supports in build properties files to exclude files in library.
+[Bug 568623](https://bugs.eclipse.org/bugs/show_bug.cgi?id=568623) Tycho now supports in build properties files to exclude files in library.
 
 For example
 ```
