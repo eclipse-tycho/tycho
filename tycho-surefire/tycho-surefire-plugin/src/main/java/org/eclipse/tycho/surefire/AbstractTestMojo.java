@@ -292,7 +292,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private String product;
 
     @Parameter(property = "session", readonly = true, required = true)
-    private MavenSession session;
+    protected MavenSession session;
 
     /**
      * Run tests using UI (true) or headless (false) test harness.
@@ -426,7 +426,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private Integer skipAfterFailureCount;
 
     @Component
-    private RepositorySystem repositorySystem;
+    protected RepositorySystem repositorySystem;
 
     @Component
     private ResolutionErrorHandler resolutionErrorHandler;
@@ -447,7 +447,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private EquinoxLauncher launcher;
 
     @Component(role = TychoProject.class, hint = "eclipse-plugin")
-    private OsgiBundleProject osgiBundle;
+    protected OsgiBundleProject osgiBundle;
 
     /**
      * Normally tycho will automatically determine the test framework provider based on the test
@@ -783,7 +783,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             return null;
         }
         TestFrameworkProvider provider = providerHelper.selectProvider(
-                getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
+                getProjectType().getTestClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
                 providerHint);
         DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
         final List<ArtifactKey> extraDependencies = getExtraDependencies();
@@ -841,6 +841,14 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             testRuntime.addBundle(artifact);
         }
 
+        setupTestBundles(provider, testRuntime);
+
+        getReportsDirectory().mkdirs();
+        return installationFactory.createInstallation(testRuntime, work);
+    }
+
+    protected void setupTestBundles(TestFrameworkProvider provider, EquinoxInstallationDescription testRuntime)
+            throws MojoExecutionException {
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {
             DevBundleInfo devInfo = workspaceState.getBundleInfo(session, artifact.getGroupId(),
@@ -856,9 +864,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         }
 
         testRuntime.addDevEntries(getTestBundleSymbolicName(), getBuildOutputDirectories());
-
-        getReportsDirectory().mkdirs();
-        return installationFactory.createInstallation(testRuntime, work);
     }
 
     private List<ArtifactKey> getExtraDependencies() {
@@ -880,7 +885,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return getProjectType().getArtifactKey(getReactorProject()).getId();
     }
 
-    private ArtifactKey getBundleArtifactKey(File file) throws MojoExecutionException {
+    protected ArtifactKey getBundleArtifactKey(File file) throws MojoExecutionException {
         ArtifactKey key = osgiBundle.readArtifactKey(file);
         if (key == null) {
             throw new MojoExecutionException("Not an OSGi bundle " + file.getAbsolutePath());
@@ -996,6 +1001,14 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         TestListResolver resolver = new TestListResolver(includeList, excludeList);
         DirectoryScanner scanner = new DirectoryScanner(getTestClassesDirectory(), resolver);
         DefaultScanResult scanResult = scanner.scan();
+        List<String> classes = scanResult.getClasses();
+        for (String clazz : classes) {
+            getLog().debug("Class " + clazz + " matches the current filter.");
+        }
+        if (classes.isEmpty()) {
+            getLog().debug("Nothing matches pattern = " + includeList + " excluding " + excludeList + " in "
+                    + getTestClassesDirectory());
+        }
         return scanResult;
     }
 

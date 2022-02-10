@@ -663,16 +663,28 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public List<ClasspathEntry> getTestClasspath(ReactorProject reactorProject) {
-        @SuppressWarnings("unchecked")
+        return getTestClasspath(reactorProject, true);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<ClasspathEntry> getTestClasspath(ReactorProject reactorProject, boolean complete) {
         List<ClasspathEntry> classpath = (List<ClasspathEntry>) reactorProject
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH);
         if (classpath == null) {
             List<ClasspathEntry> testClasspath = new ArrayList<>(getClasspath(reactorProject));
-            testClasspath.addAll(computeExtraTestClasspath(reactorProject));
+            Collection<ClasspathEntry> extraTestClasspath = computeExtraTestClasspath(reactorProject);
+            reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_EXTRA_CLASSPATH, extraTestClasspath);
+            testClasspath.addAll(extraTestClasspath);
             reactorProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH, testClasspath);
             return testClasspath;
         }
-        return classpath;
+        if (complete) {
+            return classpath;
+        } else {
+            return (List<ClasspathEntry>) reactorProject
+                    .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_TEST_EXTRA_CLASSPATH);
+        }
     }
 
     public DependencyArtifacts getTestDependencyArtifacts(ReactorProject project) {
