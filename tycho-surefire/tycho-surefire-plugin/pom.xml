@@ -107,6 +107,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bndlib</artifactId>
+			<version>5.1.2</version>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.tycho.surefire.osgibooter</artifactId>
 			<version>${project.version}</version>

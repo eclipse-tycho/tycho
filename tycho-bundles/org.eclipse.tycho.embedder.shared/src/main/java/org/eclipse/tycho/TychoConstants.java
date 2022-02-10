@@ -28,6 +28,7 @@ public interface TychoConstants {
     static final String CTX_TEST_DEPENDENCY_ARTIFACTS = CTX_BASENAME + "/testDependencyArtifacts";
     static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_BASENAME + "/eclipsePluginProject";
     static final String CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH = CTX_BASENAME + "/eclipsePluginTestClasspath";
+    static final String CTX_ECLIPSE_PLUGIN_TEST_EXTRA_CLASSPATH = CTX_BASENAME + "/eclipsePluginTestClasspathExtra";
 
     static final String CTX_MERGED_PROPERTIES = CTX_BASENAME + "/mergedProperties";
     static final String CTX_TARGET_PLATFORM_CONFIGURATION = CTX_BASENAME + "/targetPlatformConfiguration";

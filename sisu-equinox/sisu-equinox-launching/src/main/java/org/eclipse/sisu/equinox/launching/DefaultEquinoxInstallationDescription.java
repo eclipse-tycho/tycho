@@ -144,7 +144,7 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
     @Override
     public void addDevEntries(String id, String entries) {
         if (entries != null) {
-            devEntries.put(id, entries);
+            devEntries.merge(id, entries, (s1, s2) -> s1 + "," + s2);
         }
     }
 
