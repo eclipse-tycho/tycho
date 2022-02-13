@@ -2,7 +2,7 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## 2.7.0 (under development)
+## 2.7.0
 
 ### Tycho-Pomless will become a tycho-core extension
 
