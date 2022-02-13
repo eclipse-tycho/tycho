@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho p2 Resolver Maven/OSGi Shared Classes Tests
 Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.shared.tests;singleton:=true
-Bundle-Version: 2.7.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.eclipse.tycho.p2.resolver.shared
 Bundle-Vendor: Eclipse Tycho

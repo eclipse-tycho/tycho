@@ -2,7 +2,17 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## 2.7.0 (under development)
+## 3.0.0 (under development)
+
+### Migration guide 2.x -> 3.x
+
+- ...
+- ...
+
+
+### New Feature ...
+
+## 2.7.0
 
 ### Tycho-Pomless will become a tycho-core extension
 
