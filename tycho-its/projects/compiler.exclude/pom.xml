@@ -7,16 +7,28 @@
 	<version>1.0.0</version>
 	<packaging>eclipse-plugin</packaging>
 
+	<properties>
+		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
+		<e342-repo>http://download.eclipse.org/eclipse/updates/3.4</e342-repo>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>eclipse.repo</id>
+			<layout>p2</layout>
+			<url>${e342-repo}</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
 		</plugins>
-
 	</build>
 
 </project>

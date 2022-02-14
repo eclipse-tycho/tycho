@@ -21,7 +21,7 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CompilerExclude extends AbstractTychoIntegrationTest {
+public class CompilerExcludeTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testExtraExports() throws Exception {

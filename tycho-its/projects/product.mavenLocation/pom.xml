@@ -10,7 +10,7 @@
 	<packaging>eclipse-repository</packaging>
 
 	<properties>
-		<tycho-version>2.7.0-SNAPSHOT</tycho-version>
+		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
 	</properties>
 
 	<build>
