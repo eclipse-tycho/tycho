@@ -9,7 +9,7 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<properties>
-		<tycho.version>2.7.0-SNAPSHOT</tycho.version>
+		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
 	</properties>
 
 	<build>
@@ -17,13 +17,13 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<configuration>
 					<target>
 						<file>jgit.target</file>
