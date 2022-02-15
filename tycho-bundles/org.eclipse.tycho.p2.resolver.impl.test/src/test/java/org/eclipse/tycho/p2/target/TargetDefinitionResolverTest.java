@@ -15,10 +15,14 @@ package org.eclipse.tycho.p2.target;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +36,6 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
@@ -93,6 +96,18 @@ public class TargetDefinitionResolverTest {
 
     static List<TargetEnvironment> defaultEnvironments() {
         return Collections.singletonList(new TargetEnvironment(null, null, null));
+    }
+
+    @Test
+    public void testURI() throws URISyntaxException, MalformedURLException {
+        String uri = TargetDefinitionResolver
+                .convertRawToUri("file:C:\\ws\\target-testcase\\tycho\\target.references\\target.refs/base.target");
+        //check that it has the missing / infront of the protocol
+        assertTrue(uri + " does not start with file:/", uri.startsWith("file:/"));
+        //check that this could be parsed as an URI afterwards
+        URI parsed = new URI(uri);
+        parsed.toURL();
+
     }
 
     @Test
