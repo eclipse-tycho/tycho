@@ -199,7 +199,7 @@ public final class TargetDefinitionResolver {
                 String resolvePath = resolvePath(referenceLocation.getUri(), definition);
                 URI resolvedUri;
                 try {
-                    resolvedUri = new URI(resolvePath);
+                    resolvedUri = new URI(convertRawToUri(resolvePath));
                 } catch (URISyntaxException e) {
                     throw new ResolverException("Invalid URI " + resolvePath + ": " + e.getMessage(), e);
                 }
@@ -272,6 +272,17 @@ public final class TargetDefinitionResolver {
             }
 
         };
+    }
+
+    static String convertRawToUri(String resolvePath) {
+        //We need to convert windows path separators here...
+        resolvePath = resolvePath.replace('\\', '/');
+        String lc = resolvePath.toLowerCase();
+        if (lc.startsWith("file:") && !lc.startsWith("file:/")) {
+            //according to rfc a file URI must always start with a slash
+            resolvePath = resolvePath.replaceFirst("(?i)^file:", "file:/");
+        }
+        return resolvePath;
     }
 
     protected String resolvePath(String path, TargetDefinition definition) {
