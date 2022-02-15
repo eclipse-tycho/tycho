@@ -236,12 +236,14 @@ public class MirrorMojo extends AbstractMojo {
         } else {
             sourceDescriptor = new RepositoryReferences();
         }
-        for (final Repository sourceRepository : source) {
-            if (sourceRepository.getLayout().hasMetadata()) {
-                sourceDescriptor.addMetadataRepository(sourceRepository.getLocation());
-            }
-            if (sourceRepository.getLayout().hasArtifacts()) {
-                sourceDescriptor.addArtifactRepository(sourceRepository.getLocation());
+        if (source != null) {
+            for (final Repository sourceRepository : source) {
+                if (sourceRepository.getLayout().hasMetadata()) {
+                    sourceDescriptor.addMetadataRepository(sourceRepository.getLocation());
+                }
+                if (sourceRepository.getLayout().hasArtifacts()) {
+                    sourceDescriptor.addArtifactRepository(sourceRepository.getLocation());
+                }
             }
         }
         if (sourceDescriptor.getArtifactRepositories().isEmpty()
