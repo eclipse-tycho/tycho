@@ -39,7 +39,6 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
@@ -231,12 +230,6 @@ public class BaselineValidator {
             // - feature jar artifacts
             // - feature rootfiles zip artifacts
             String classifier = classifierEntry.getKey();
-
-            if (TychoConstants.PACK200_CLASSIFIER.equals(classifier)) {
-                // in the unlikely event that reactor and baseline pack200 files have different contents
-                // but bundle jar files are the same, the build will silently use baseline pack200 file
-                continue;
-            }
 
             String deltaKey = classifier != null ? "classifier-" + classifier : "no-classifier";
 

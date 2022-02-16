@@ -20,7 +20,6 @@ import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,7 +56,6 @@ import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeOutputStream;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -301,7 +299,7 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetRawArtifactFile() {
         File result = subject.getArtifactFile(ARTIFACT_B_PACKED);
 
-        assertThat(result, is(artifactLocationOf(ARTIFACT_B_KEY, "-pack200.jar.pack.gz")));
+        assertThat(result, is(artifactLocationOf(ARTIFACT_B_KEY, ".jar")));
     }
 
     @Test
@@ -328,17 +326,6 @@ public class LocalArtifactRepositoryP2APITest {
         assertThat(testSink.writeIsStarted(), is(false));
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
-    }
-
-    @Test
-    public void testGetArtifactOnlyAvailableInPackedFormat() throws Exception {
-        Assume.assumeTrue("pack200 not available on current Java version", Runtime.version().feature() < 14);
-        testSink = newArtifactSinkFor(ARTIFACT_B_KEY);
-        // this method must return the original artifact, regardless of how the artifact is stored internally
-        status = subject.getArtifact(testSink, null);
-
-        assertThat(status, is(okStatus()));
-        assertThat(testSink.getFilesInZip(), is(ARTIFACT_B_CONTENT));
     }
 
     @Test
@@ -414,27 +401,6 @@ public class LocalArtifactRepositoryP2APITest {
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
     }
 
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testGetArtifactToStreamOnlyAvailableInPackedFormat() throws Exception {
-        Assume.assumeTrue("pack200 not available on current Java version", Runtime.version().feature() < 14);
-        // this method must always return the original artifact, even if called with a pack200 descriptor  
-        status = subject.getArtifact(ARTIFACT_B_PACKED, testOutputStream, null);
-
-        assertThat(status, is(okStatus()));
-        assertThat(testOutputStream.writtenBytes(), not(is(0)));
-        assertThat(testOutputStream.getFilesInZip(), is(ARTIFACT_B_CONTENT));
-    }
-
-    @Test
-    public void testGetRawArtifact() throws Exception {
-        rawTestSink = newRawArtifactSinkFor(ARTIFACT_A_PACKED);
-        status = subject.getRawArtifact(rawTestSink, null);
-
-        assertThat(status, is(okStatus()));
-        assertThat(rawTestSink.md5AsHex(), is(ARTIFACT_A_PACKED_MD5));
-    }
-
     @Test
     public void testGetRawArtifactForCanonicalFormat() throws Exception {
         rawTestSink = newRawArtifactSinkFor(ARTIFACT_A_CANONICAL);
@@ -473,15 +439,6 @@ public class LocalArtifactRepositoryP2APITest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetRawArtifactToClosedSink() throws Exception {
         subject.getRawArtifact(new NonStartableArtifactSink(), null);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testGetRawArtifactToStream() throws Exception {
-        status = subject.getRawArtifact(ARTIFACT_A_PACKED, testOutputStream, null);
-
-        assertThat(status, is(okStatus()));
-        assertThat(testOutputStream.md5AsHex(), is(ARTIFACT_A_PACKED_MD5));
     }
 
     @SuppressWarnings("deprecation")

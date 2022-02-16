@@ -85,19 +85,12 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      *            The provider that will be queried by this instance when it is asked for an
      *            artifact which is not (yet) available in the local Maven repository. Typically
      *            this provider is backed by remote p2 repositories.
-     * @param mirrorPacked
-     *            If <code>true</code>, the returned instance will also mirror the packed format of
-     *            all artifacts it is asked for.
      * @param logger
      *            a logger for progress output
      */
     public static MirroringArtifactProvider createInstance(LocalArtifactRepository localArtifactRepository,
-            IRawArtifactProvider remoteProviders, boolean mirrorPacked, MavenContext mavenContext) {
-        if (!mirrorPacked) {
-            return new MirroringArtifactProvider(localArtifactRepository, remoteProviders, mavenContext);
-        } else {
-            return new PackedFormatMirroringArtifactProvider(localArtifactRepository, remoteProviders, mavenContext);
-        }
+            IRawArtifactProvider remoteProviders, MavenContext context) {
+        return new MirroringArtifactProvider(localArtifactRepository, remoteProviders, context);
     }
 
     MirroringArtifactProvider(LocalArtifactRepository localArtifactRepository, IRawArtifactProvider remoteProviders,
@@ -395,8 +388,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         }
         Map<String, String> map = new LinkedHashMap<>(descriptor.getProperties());
         //fix bad metadata in p2...
-        if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)
-                && TychoConstants.PACK200_CLASSIFIER.equals(map.get(TychoConstants.PROP_CLASSIFIER))) {
+        if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)) {
             map.remove(TychoConstants.PROP_CLASSIFIER);
             map.put(TychoConstants.PROP_EXTENSION, "jar");
             map.put(TychoConstants.PROP_TYPE, PackagingType.TYPE_ECLIPSE_PLUGIN);

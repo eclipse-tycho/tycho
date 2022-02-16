@@ -42,8 +42,6 @@ public class RepositoryLayoutHelper {
             extension = TychoConstants.EXTENSION_P2_METADATA;
         } else if (TychoConstants.CLASSIFIER_P2_ARTIFACTS.equals(classifier)) {
             extension = TychoConstants.EXTENSION_P2_ARTIFACTS;
-        } else if (TychoConstants.PACK200_CLASSIFIER.equals(classifier)) {
-            extension = TychoConstants.PACK200_EXTENSION;
         } else if (TychoConstants.ROOTFILE_CLASSIFIER.equals(classifier)
                 || (classifier != null && classifier.startsWith(TychoConstants.ROOTFILE_CLASSIFIER + "."))) {
             extension = TychoConstants.ROOTFILE_EXTENSION;
@@ -52,7 +50,6 @@ public class RepositoryLayoutHelper {
             case TychoConstants.JAR_EXTENSION:
             case "zip":
             case "target":
-            case TychoConstants.PACK200_EXTENSION:
             case "xml":
                 extension = type;
                 break;

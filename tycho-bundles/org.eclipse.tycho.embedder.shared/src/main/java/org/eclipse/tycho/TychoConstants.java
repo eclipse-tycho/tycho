@@ -100,10 +100,6 @@ public interface TychoConstants {
      */
     String KEY_ARTIFACT_ATTACHED = "artifact.attached.";
 
-    String PACK200_CLASSIFIER = "pack200";
-
-    String PACK200_EXTENSION = "jar.pack.gz";
-
     public String ROOTFILE_CLASSIFIER = "root";
 
     public String ROOTFILE_EXTENSION = "zip";
