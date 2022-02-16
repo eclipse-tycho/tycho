@@ -190,17 +190,4 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-	<profiles>
-		<profile>
-    		<id>pack200</id>
-    		<activation>
-        		<jdk>(,13]</jdk>
-    		</activation>
-			<modules>
-				<module>pack200</module>
-			</modules>
-		</profile>
-	</profiles>
-
 </project>
