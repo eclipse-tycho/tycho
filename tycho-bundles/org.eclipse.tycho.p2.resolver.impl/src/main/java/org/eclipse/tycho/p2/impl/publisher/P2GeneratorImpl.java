@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,13 +17,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
@@ -42,7 +39,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
@@ -155,51 +151,9 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             P2Artifact p2artifact = new P2Artifact(artifact.getLocation(), metadata.getInstallableUnits(),
                     getCanonicalArtifact(artifact.getClassifier(), metadata.getArtifactDescriptors()));
             result.put(artifact.getClassifier(), p2artifact);
-
-            IArtifactDescriptor packed = getPackedArtifactDescriptor(metadata.getArtifactDescriptors());
-            if (packed != null) {
-                File packedLocation = new File(artifact.getLocation().getAbsolutePath() + ".pack.gz");
-                if (!packedLocation.canRead()) {
-                    throw new IllegalArgumentException(
-                            "Could not find packed artifact " + packed + " at " + packedLocation);
-                }
-                if (result.containsKey(TychoConstants.PACK200_CLASSIFIER)) {
-                    throw new IllegalArgumentException();
-                }
-                // workaround for bug 412497
-                Map<String, String> additionalProperties = new HashMap<>(5);
-                additionalProperties.put(TychoConstants.PROP_GROUP_ID, artifact.getGroupId());
-                additionalProperties.put(TychoConstants.PROP_ARTIFACT_ID, artifact.getArtifactId());
-                additionalProperties.put(TychoConstants.PROP_VERSION, artifact.getVersion());
-                additionalProperties.put(TychoConstants.PROP_CLASSIFIER, TychoConstants.PACK200_CLASSIFIER);
-                additionalProperties.put(TychoConstants.PROP_EXTENSION, TychoConstants.PACK200_EXTENSION);
-                // workaround bug 539696
-                if (options.generateDownloadStatsProperty) {
-                    Optional<IArtifactDescriptor> canonicalDescriptor = metadata.getArtifactDescriptors().stream()
-                            .filter(canonical -> packed.getArtifactKey().equals(canonical.getArtifactKey())
-                                    && canonical.getProperty(IArtifactDescriptor.FORMAT) == null)
-                            .findFirst();
-                    canonicalDescriptor
-                            .ifPresent(canonical -> additionalProperties.put(DownloadStatsAdvice.PROPERTY_NAME,
-                                    canonical.getProperty(DownloadStatsAdvice.PROPERTY_NAME)));
-                }
-
-                ((ArtifactDescriptor) packed).addProperties(additionalProperties);
-                result.put(TychoConstants.PACK200_CLASSIFIER,
-                        new P2Artifact(packedLocation, Collections.<IInstallableUnit> emptySet(), packed));
-            }
         }
 
         return result;
-    }
-
-    private IArtifactDescriptor getPackedArtifactDescriptor(Set<IArtifactDescriptor> artifactDescriptors) {
-        for (IArtifactDescriptor descriptor : artifactDescriptors) {
-            if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
-                return descriptor;
-            }
-        }
-        return null;
     }
 
     private IArtifactDescriptor getCanonicalArtifact(String classifier, Set<IArtifactDescriptor> artifactDescriptors) {

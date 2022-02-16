@@ -33,11 +33,9 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -107,13 +105,9 @@ public class LocalArtifactRepositoryTest {
                         "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar"),
                 repo.internalGetArtifactStorageLocation(desc));
 
-        ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {
-                new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) };
-        desc.setProcessingSteps(steps);
-        desc.setProperty(IArtifactDescriptor.FORMAT, "packed");
-
-        assertEquals(new File(mvnRepo.getLocalRepositoryRoot(),
-                "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0-pack200.jar.pack.gz"),
+        assertEquals(
+                new File(mvnRepo.getLocalRepositoryRoot(),
+                        "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar"),
                 repo.internalGetArtifactStorageLocation(desc));
     }
 

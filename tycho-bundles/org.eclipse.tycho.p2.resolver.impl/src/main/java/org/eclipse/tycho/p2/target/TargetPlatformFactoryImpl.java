@@ -181,7 +181,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints());
 
         IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(completeRepositories,
-                targetFileContent, tpConfiguration.getIncludePackedArtifacts());
+                targetFileContent);
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs, //
                 externalUIs, //
                 eeResolutionHandler.getResolutionHints(), //
@@ -343,13 +343,13 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      * Provider for all target platform artifacts from outside the reactor.
      */
     private IRawArtifactFileProvider createExternalArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
-            List<TargetDefinitionContent> targetDefinitionsContent, boolean includePackedArtifacts) {
+            List<TargetDefinitionContent> targetDefinitionsContent) {
         SortedRepositories repos = SortedRepositories.sort(targetDefinitionsContent.stream()
                 .map(TargetDefinitionContent::getArtifactRepository).collect(Collectors.toList()));
         RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
                 repos.remoteRepositories);
         MirroringArtifactProvider remoteArtifactProviderWithCache = MirroringArtifactProvider
-                .createInstance(localArtifactRepository, remoteArtifactProvider, includePackedArtifacts, mavenContext);
+                .createInstance(localArtifactRepository, remoteArtifactProvider, mavenContext);
 
         return new CompositeArtifactProvider(
                 new FileRepositoryArtifactProvider(repos.localRepositories,

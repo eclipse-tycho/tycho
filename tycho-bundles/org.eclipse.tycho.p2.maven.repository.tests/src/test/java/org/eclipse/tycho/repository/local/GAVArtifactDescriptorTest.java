@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -69,18 +68,6 @@ public class GAVArtifactDescriptorTest {
         assertThat(subject.getArtifactKey(), is(TEST_KEY));
         assertThat(subject.getMavenCoordinates(), is(new MavenRepositoryCoordinates("p2.p2.class", "p2.id",
                 "4.3.0.20130614", DEFAULT_CLASSIFIER, DEFAULT_EXTENSION)));
-    }
-
-    @Test
-    public void testCreationFromPlainP2DescriptorForPackedArtifact() {
-        ArtifactDescriptor input = createP2Descriptor();
-        input.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
-        // no maven properties set
-        subject = new GAVArtifactDescriptor(input);
-
-        assertThat(subject.getArtifactKey(), is(TEST_KEY));
-        assertThat(subject.getMavenCoordinates(),
-                is(new MavenRepositoryCoordinates("p2.p2.class", "p2.id", "4.3.0.20130614", "pack200", "jar.pack.gz")));
     }
 
     @Test

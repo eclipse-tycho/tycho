@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -76,12 +75,6 @@ public class GAVArtifactDescriptor extends GAVArtifactDescriptorBase {
         GAV gav = RepositoryLayoutHelper.getP2Gav(key.getClassifier(), key.getId(), key.getVersion().toString());
         String classifier = RepositoryLayoutHelper.getClassifier(properties);
         String extension = RepositoryLayoutHelper.getType(properties);
-
-        if (properties != null
-                && IArtifactDescriptor.FORMAT_PACKED.equals(properties.get(IArtifactDescriptor.FORMAT))) {
-            classifier = TychoConstants.PACK200_CLASSIFIER;
-            extension = TychoConstants.PACK200_EXTENSION;
-        }
 
         return new MavenRepositoryCoordinates(gav, classifier, extension);
     }
