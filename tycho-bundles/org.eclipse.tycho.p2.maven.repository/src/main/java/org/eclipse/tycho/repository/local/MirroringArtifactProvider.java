@@ -268,16 +268,11 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     private void ensureArtifactIsPresentInCanonicalFormat(IArtifactKey key)
             throws ProvisionException, ArtifactSinkException {
         if (findCanonicalDescriptor(localArtifactRepository.getArtifactDescriptors(key)) == null) {
-            boolean isPack200able = Runtime.version().feature() <= 13;
-            if (isPack200able) {
-                // there was at least format available, but not the canonical format -> create it from the packed format 
-                createCanonicalArtifactFromLocalPackedArtifact(key);
-            } else {
-                downloadCanonicalArtifact(key);
-            }
+            downloadCanonicalArtifact(key);
         }
     }
 
+<<<<<<< Upstream, based on 309b405e8df179b5739b27e1c5c3d0dafbce59ab
     private void createCanonicalArtifactFromLocalPackedArtifact(IArtifactKey key)
             throws ProvisionException, ArtifactSinkException {
         logger.info("Unpacking " + key.getId() + "_" + key.getVersion() + "...");
@@ -299,6 +294,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         return null;
     }
 
+=======
+>>>>>>> 932eb62 Remove pack200 from publishing mojo
     static IArtifactDescriptor findCanonicalDescriptor(IArtifactDescriptor[] descriptors) {
         for (IArtifactDescriptor descriptor : descriptors) {
             if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)) {

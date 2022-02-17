@@ -122,11 +122,6 @@ public class UpdateSite {
         }
     }
 
-    public boolean isPack200() {
-        String pack200 = dom.getAttributeValue("pack200");
-        return "true".equals(pack200);
-    }
-
     public String getAssociateSitesUrl() {
         return associateSitesUrl;
     }
