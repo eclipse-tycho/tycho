@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - API adjust
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
@@ -508,7 +509,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Test
     public void testWriteArtifact() throws Exception {
-        IArtifactSink addSink = subject.newAddingArtifactSink(NEW_KEY);
+        IArtifactSink addSink = subject.newAddingArtifactSink(new ArtifactDescriptor(NEW_KEY));
         addSink.beginWrite().write(new byte[33]);
         addSink.commitWrite();
 
@@ -522,7 +523,7 @@ public class LocalArtifactRepositoryP2APITest {
         // LocalArtifactRepository doesn't allow overwrites -> this may be different in other IArtifactRepository implementations
         ProvisionException expectedException = null;
         try {
-            IArtifactSink addSink = subject.newAddingArtifactSink(ARTIFACT_A_KEY);
+            IArtifactSink addSink = subject.newAddingArtifactSink(new ArtifactDescriptor(ARTIFACT_A_KEY));
             addSink.beginWrite();
             addSink.commitWrite();
         } catch (ProvisionException e) {
@@ -535,7 +536,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Test
     public void testWriteArtifactAndCancel() throws Exception {
-        IArtifactSink addSink = subject.newAddingArtifactSink(NEW_KEY);
+        IArtifactSink addSink = subject.newAddingArtifactSink(new ArtifactDescriptor(NEW_KEY));
         addSink.beginWrite().write(new byte[33]);
         addSink.abortWrite();
 
@@ -545,7 +546,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Test
     public void testWriteArtifactOnSecondAttempt() throws Exception {
-        IArtifactSink addSink = subject.newAddingArtifactSink(NEW_KEY);
+        IArtifactSink addSink = subject.newAddingArtifactSink(new ArtifactDescriptor(NEW_KEY));
         addSink.beginWrite().write(new byte[11]);
         addSink.beginWrite().write(new byte[22]);
         addSink.commitWrite();

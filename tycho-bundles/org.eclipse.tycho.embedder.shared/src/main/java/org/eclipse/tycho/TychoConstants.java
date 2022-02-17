@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...)
  *******************************************************************************/
 package org.eclipse.tycho;
 
@@ -48,6 +49,10 @@ public interface TychoConstants {
     String PROP_CLASSIFIER = "maven-classifier";
 
     String PROP_REPOSITORY = "maven-repository";
+
+    String PROP_PGP_KEYS = "pgp.publicKeys";
+
+    String PROP_PGP_SIGNATURES = "pgp.signatures";
 
     /**
      * @deprecated this is deprecated but can't be removed as we otherwise loose compatibility for
