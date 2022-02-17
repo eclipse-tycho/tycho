@@ -38,10 +38,9 @@ public interface IArtifactProvider extends IQueryable<IArtifactKey> {
      * 
      * <p>
      * The implementation is free to pick the most suitable internal storage format to serve the
-     * request, e.g. it may extract the artifact from a pack200-compressed format. If an error is
-     * detected while streaming the artifact (e.g. an MD5 checksum error), the implementation may
-     * re-attempt the read from all other available sources. In case there were multiple read
-     * attempts, a multi-status with the results of all attempts is returned.
+     * request. If an error is detected while streaming the artifact (e.g. an MD5 checksum error),
+     * the implementation may re-attempt the read from all other available sources. In case there
+     * were multiple read attempts, a multi-status with the results of all attempts is returned.
      * </p>
      * 
      * @param sink

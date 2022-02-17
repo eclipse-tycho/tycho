@@ -21,9 +21,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * 
  * <p>
  * Over {@link IArtifactFileProvider}, this interface adds methods for obtaining artifacts in raw
- * formats, e.g. compressed with the JAR-optimized pack200 format. (With the
- * <tt>IArtifactFileProvider</tt> interface, artifacts can only be obtained in the canonical format,
- * i.e. the format in which the artifact can be used directly without additional decompression.)
+ * formats. (With the <tt>IArtifactFileProvider</tt> interface, artifacts can only be obtained in
+ * the canonical format, i.e. the format in which the artifact can be used directly without
+ * additional decompression.)
  * </p>
  * <p>
  * Over {@link IRawArtifactProvider}, this interface adds a method for obtaining the artifacts as

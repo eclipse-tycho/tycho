@@ -17,7 +17,7 @@ public final class ArtifactTransferPolicies {
     /**
      * Returns the {@link ArtifactTransferPolicy} optimized for artifacts stored in the local file
      * system. A provider with this policy will use the canonical format (if available) when asked
-     * for an artifact, avoiding unnecessary pack200 decompression operations.
+     * for an artifact.
      */
     public static ArtifactTransferPolicy forLocalArtifacts() {
         return new LocalArtifactTransferPolicy();

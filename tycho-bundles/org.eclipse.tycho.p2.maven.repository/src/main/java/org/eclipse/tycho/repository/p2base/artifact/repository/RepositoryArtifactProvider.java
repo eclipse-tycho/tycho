@@ -188,7 +188,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
          * Composite p2 repositories will execute this request for each child repository which
          * contain the artifact key (until successful). Using the getArtifacts method instead of
          * getArtifact directly prevents that composite repositories mark their children as bad when
-         * the transfer of a broken pack200 artifact fails (cf. bug 412945).
+         * the transfer of a broken artifact fails (cf. bug 412945).
          */
         BooleanStatusArtifactRequest request = new BooleanStatusArtifactRequest(sink.getArtifactToBeWritten()) {
             @Override
@@ -253,8 +253,8 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
                  * CODE_RETRY is how the repository signals that it has more mirrors to try, and
                  * that we can call the same method with exactly the same parameters (!) again.
                  * However we try another format first, so that we don't "spoil" all mirrors by
-                 * continuing to querying for a pack200 artifact that is actually broken in the
-                 * master repository (cf. bug 412945).
+                 * continuing to querying for an artifact that is actually broken in the master
+                 * repository (cf. bug 412945).
                  */
                 if (status.getCode() != IArtifactRepository.CODE_RETRY) {
                     retryTracker.noMoreRetries();
