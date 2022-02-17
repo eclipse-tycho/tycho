@@ -53,7 +53,7 @@ public class MirroringArtifactProviderErrorTest {
 
         subject = MirroringArtifactProvider.createInstance(localRepository,
                 new RepositoryArtifactProvider(singletonList(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT),
-                        ArtifactTransferPolicies.forRemoteArtifacts(), p2Context.getAgent()),
+                        ArtifactTransferPolicies.forLocalArtifacts(), p2Context.getAgent()),
                 new MockMavenContext(null, logVerifier.getLogger()));
     }
 

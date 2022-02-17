@@ -13,18 +13,14 @@
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
 import static java.util.Arrays.asList;
+import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_CONTENT_MD5;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_FILES;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_KEY;
-import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_PACKED_CONTENT_MD5;
-import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_B_KEY;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_A;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_AB;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.packedDescriptorFor;
-import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -71,25 +67,13 @@ public class ProviderOnlyArtifactRepositoryTest {
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testGetArtifactViaStreamFailsOnFirstReadAttempt() throws Exception {
-        subject = createProviderOnlyArtifactRepositoryDelegatingTo(REPO_BUNLDE_AB_PACK_CORRUPT, REPO_BUNDLE_AB);
-
-        IStatus status = subject.getArtifact(canonicalDescriptorFor(BUNDLE_B_KEY), testOutputStream, null);
-
-        assertThat(testOutputStream.getStatus(), is(errorStatus()));
-        assertThat(status, is(errorStatus()));
-        assertThat(status.getMessage(), containsString("An error occurred while transferring artifact")); // original message from p2
-    }
-
-    @SuppressWarnings("deprecation")
-    @Test
     public void testGetRawArtifactViaStream() throws Exception {
         subject = createProviderOnlyArtifactRepositoryDelegatingTo(TestRepositoryContent.REPO_BUNDLE_AB);
 
-        IStatus status = subject.getRawArtifact(packedDescriptorFor(BUNDLE_A_KEY), testOutputStream, null);
+        IStatus status = subject.getRawArtifact(canonicalDescriptorFor(BUNDLE_A_KEY), testOutputStream, null);
 
         assertThat(status, is(okStatus()));
-        assertThat(testOutputStream.md5AsHex(), is(BUNDLE_A_PACKED_CONTENT_MD5));
+        assertThat(testOutputStream.md5AsHex(), is(BUNDLE_A_CONTENT_MD5));
     }
 
     @SuppressWarnings("deprecation")
@@ -97,18 +81,17 @@ public class ProviderOnlyArtifactRepositoryTest {
     public void testGetRawArtifactViaStreamFailsOnFirstReadAttempt() throws Exception {
         subject = createProviderOnlyArtifactRepositoryDelegatingTo(REPO_BUNLDE_AB_PACK_CORRUPT, REPO_BUNDLE_AB);
 
-        IStatus status = subject.getRawArtifact(packedDescriptorFor(BUNDLE_A_KEY), testOutputStream, null);
+        IStatus status = subject.getRawArtifact(canonicalDescriptorFor(BUNDLE_A_KEY), testOutputStream, null);
 
-        assertThat(testOutputStream.getStatus(), is(errorStatus()));
-        assertThat(status, is(errorStatus()));
-        assertThat(status.getMessage(), containsString("An error occurred while transferring artifact")); // original message from p2
+        assertThat(testOutputStream.getStatus(), is(okStatus()));
+        assertThat(status, is(okStatus()));
     }
 
     private static ProviderOnlyArtifactRepository createProviderOnlyArtifactRepositoryDelegatingTo(
             URI... delegatedContent) throws Exception {
         IProvisioningAgent p2Agent = p2Context.getAgent();
         IRawArtifactFileProvider artifactProvider = new FileRepositoryArtifactProvider(asList(delegatedContent),
-                ArtifactTransferPolicies.forRemoteArtifacts(), p2Agent);
+                ArtifactTransferPolicies.forLocalArtifacts(), p2Agent);
 
         ProviderOnlyArtifactRepository result = new ProviderOnlyArtifactRepository(artifactProvider, p2Agent,
                 URI.create("memory:test"));

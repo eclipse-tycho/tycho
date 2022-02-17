@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
-import static java.util.Arrays.asList;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_KEY;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_B_KEY;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_A_CORRUPT;
@@ -23,10 +22,10 @@ import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSi
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.ANY_ARTIFACT_KEY_QUERY;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
+import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.warningStatus;
 import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -57,7 +56,7 @@ import org.junit.Test;
 
 public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTestBase<IRawArtifactProvider> {
 
-    private static final ArtifactTransferPolicy TRANSFER_POLICY = ArtifactTransferPolicies.forRemoteArtifacts();
+    private static final ArtifactTransferPolicy TRANSFER_POLICY = ArtifactTransferPolicies.forLocalArtifacts();
 
     @Override
     protected IRawArtifactProvider createCompositeArtifactProvider(URI... repositoryURLs) throws Exception {
@@ -109,8 +108,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(status, is(warningStatus()));
-        assertThat(asList(status.getChildren()), hasItem(errorStatus()));
+        assertThat(status, is(okStatus()));
         assertThat(testSink.getFilesInZip(), is(TestRepositoryContent.BUNDLE_A_FILES));
     }
 

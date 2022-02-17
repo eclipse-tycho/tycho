@@ -29,8 +29,6 @@ abstract class ArtifactTransferPolicyBase extends ArtifactTransferPolicy {
         for (IArtifactDescriptor descriptor : artifactDescriptors) {
             if (isCanonicalFormat(descriptor)) {
                 canonical.add(descriptor);
-            } else if (isPack200Format(descriptor)) {
-                packed.add(descriptor);
             } else {
                 result.add(descriptor);
             }

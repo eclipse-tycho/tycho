@@ -272,30 +272,6 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         }
     }
 
-<<<<<<< Upstream, based on 309b405e8df179b5739b27e1c5c3d0dafbce59ab
-    private void createCanonicalArtifactFromLocalPackedArtifact(IArtifactKey key)
-            throws ProvisionException, ArtifactSinkException {
-        logger.info("Unpacking " + key.getId() + "_" + key.getVersion() + "...");
-
-        // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS
-
-        IArtifactSink sink = localArtifactRepository
-                .newAddingArtifactSink(localArtifactRepository.createArtifactDescriptor(key));
-        localArtifactRepository.getArtifact(sink, monitor);
-    }
-
-    @Deprecated(forRemoval = true)
-    static IArtifactDescriptor findPackedDescriptor(IArtifactDescriptor[] descriptors) {
-        for (IArtifactDescriptor descriptor : descriptors) {
-            if (ArtifactTransferPolicy.isPack200Format(descriptor)) {
-                return descriptor;
-            }
-        }
-        return null;
-    }
-
-=======
->>>>>>> 932eb62 Remove pack200 from publishing mojo
     static IArtifactDescriptor findCanonicalDescriptor(IArtifactDescriptor[] descriptors) {
         for (IArtifactDescriptor descriptor : descriptors) {
             if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)) {
