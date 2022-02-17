@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - API adjust
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
@@ -27,6 +28,8 @@ import java.util.Arrays;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
 import org.eclipse.tycho.repository.local.MirroringArtifactProvider.MirroringFailedException;
 import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
@@ -73,7 +76,8 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
     @Test
     public void testIgnoreIfPackedArtifactNotAvailableRemotely() throws Exception {
         subject = MirroringArtifactProvider.createInstance(localRepository,
-                providerFor(TestRepositoryContent.REPO_BUNDLE_A), true, logVerifier.getLogger());
+                providerFor(TestRepositoryContent.REPO_BUNDLE_A), true,
+                new MockMavenContext(null, logVerifier.getLogger()));
 
         IArtifactDescriptor[] mirroredDescriptors = subject.getArtifactDescriptors(BUNDLE_A_KEY);
 
@@ -84,7 +88,8 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
     @Test
     public void testErrorIfPackedArtifactIsAvailableButCorrupt() throws Exception {
         subject = MirroringArtifactProvider.createInstance(localRepository,
-                providerFor(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT), true, logVerifier.getLogger());
+                providerFor(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT), true,
+                new MockMavenContext(null, logVerifier.getLogger()));
 
         logVerifier.expectError(containsString(BUNDLE_A_KEY.toString()));
 
@@ -102,7 +107,7 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
         assertThat(isCanonicalFormat(localRepository.getArtifactDescriptors(BUNDLE_A_KEY)[0]), is(true)); // self-test
 
         subject = MirroringArtifactProvider.createInstance(localRepository, remoteProvider, true,
-                logVerifier.getLogger());
+                new MockMavenContext(null, logVerifier.getLogger()));
 
         assertThat(subject.getArtifactDescriptors(BUNDLE_A_KEY).length, is(2));
         assertThat(localRepository.getArtifactDescriptors(BUNDLE_A_KEY).length, is(2));
@@ -128,7 +133,7 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
 
         // also expect this for the non-pack200 mirroring implementation (so that it doesn't fail if a different build left the local Maven repository in this state)
         subject = MirroringArtifactProvider.createInstance(localRepository, emptyProvider, mirrorPacked,
-                logVerifier.getLogger());
+                new MockMavenContext(null, logVerifier.getLogger()));
 
         assertThat(subject.getArtifactDescriptors(BUNDLE_A_KEY).length, is(2));
         assertThat(localRepository.getArtifactDescriptors(BUNDLE_A_KEY).length, is(2));
@@ -145,7 +150,7 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
 
     private static void prefillLocalRepositoryWithCanonicalArtifact(LocalArtifactRepository localRepository,
             IRawArtifactProvider provider, IArtifactKey artifactKey) throws Exception {
-        provider.getArtifact(localRepository.newAddingArtifactSink(artifactKey), null);
+        provider.getArtifact(localRepository.newAddingArtifactSink(new ArtifactDescriptor(artifactKey)), null);
     }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,12 +9,15 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...)
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
 import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,6 +31,10 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
@@ -66,6 +73,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     protected final LocalArtifactRepository localArtifactRepository;
 
     protected final IProgressMonitor monitor;
+    private MavenContext mavenContext;
 
     /**
      * Creates a new {@link MirroringArtifactProvider} instance.
@@ -83,21 +91,22 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      *            a logger for progress output
      */
     public static MirroringArtifactProvider createInstance(LocalArtifactRepository localArtifactRepository,
-            IRawArtifactProvider remoteProviders, boolean mirrorPacked, MavenLogger logger) {
+            IRawArtifactProvider remoteProviders, boolean mirrorPacked, MavenContext mavenContext) {
         if (!mirrorPacked) {
-            return new MirroringArtifactProvider(localArtifactRepository, remoteProviders, logger);
+            return new MirroringArtifactProvider(localArtifactRepository, remoteProviders, mavenContext);
         } else {
-            return new PackedFormatMirroringArtifactProvider(localArtifactRepository, remoteProviders, logger);
+            return new PackedFormatMirroringArtifactProvider(localArtifactRepository, remoteProviders, mavenContext);
         }
     }
 
     MirroringArtifactProvider(LocalArtifactRepository localArtifactRepository, IRawArtifactProvider remoteProviders,
-            MavenLogger logger) {
+            MavenContext mavenContext) {
         this.remoteProviders = remoteProviders;
         this.localArtifactRepository = localArtifactRepository;
-        this.logger = logger;
-        this.splittingLogger = new MultiLineLogger(logger);
-        this.monitor = new LoggingProgressMonitor(logger);
+        this.mavenContext = mavenContext;
+        this.logger = mavenContext.getLogger();
+        this.splittingLogger = new MultiLineLogger(this.logger);
+        this.monitor = new LoggingProgressMonitor(this.logger);
     }
 
     // pass through methods
@@ -208,13 +217,16 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     protected boolean makeOneFormatLocallyAvailable(IArtifactKey key)
             throws MirroringFailedException, ProvisionException, ArtifactSinkException {
 
-        if (localArtifactRepository.contains(key)) {
+        if (isFileAlreadyAvailable(key)) {
             return true;
         } else if (remoteProviders.contains(key)) {
             Lock downloadLock = localArtifactRepository.getLockForDownload(key);
             downloadLock.lock();
             try {
-                if (!localArtifactRepository.contains(key)) { // check again within lock
+                if (!isFileAlreadyAvailable(key)) { // check again within lock
+                    if (localArtifactRepository.contains(key)) {
+                        localArtifactRepository.removeDescriptor(key);
+                    }
                     downloadArtifact(key);
                 }
             } finally {
@@ -251,7 +263,22 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     protected final IStatus downloadCanonicalArtifact(IArtifactKey key)
             throws ProvisionException, ArtifactSinkException {
         // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS - artifact may have been added by other thread in the meantime
-        IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(key);
+        IArtifactDescriptor descriptor = localArtifactRepository.createArtifactDescriptor(key);
+        if (descriptor instanceof ArtifactDescriptor) {
+            ArtifactDescriptor localDescriptor = (ArtifactDescriptor) descriptor;
+            IArtifactDescriptor remoteDescriptor = findCanonicalDescriptor(remoteProviders.getArtifactDescriptors(key));
+            if (remoteDescriptor != null) {
+                remoteDescriptor.getProperties().forEach(localDescriptor::setProperty);
+                //fix bad metadata in p2...
+                if (TychoConstants.PACK200_CLASSIFIER
+                        .equals(localDescriptor.getProperty(TychoConstants.PROP_CLASSIFIER))) {
+                    localDescriptor.setProperty(TychoConstants.PROP_CLASSIFIER, "");
+                    localDescriptor.setProperty(TychoConstants.PROP_EXTENSION, "jar");
+                    localDescriptor.setProperty(TychoConstants.PROP_TYPE, PackagingType.TYPE_ECLIPSE_PLUGIN);
+                }
+            }
+        }
+        IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(descriptor);
         return remoteProviders.getArtifact(localSink, monitorForDownload());
     }
 
@@ -273,7 +300,9 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         logger.info("Unpacking " + key.getId() + "_" + key.getVersion() + "...");
 
         // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS
-        IArtifactSink sink = localArtifactRepository.newAddingArtifactSink(key);
+
+        IArtifactSink sink = localArtifactRepository
+                .newAddingArtifactSink(localArtifactRepository.createArtifactDescriptor(key));
         localArtifactRepository.getArtifact(sink, monitor);
     }
 
@@ -329,6 +358,24 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     @Override
     public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
-        return localArtifactRepository.contains(artifactKey);
+        if (localArtifactRepository.contains(artifactKey)) {
+            if (mavenContext.isOffline()) {
+                return true;
+            }
+            if (remoteProviders.contains(artifactKey)) {
+                //we must compare remote versus local!
+                IArtifactDescriptor remoteDescriptor = findCanonicalDescriptor(
+                        remoteProviders.getArtifactDescriptors(artifactKey));
+                IArtifactDescriptor localDescriptor = findCanonicalDescriptor(
+                        localArtifactRepository.getArtifactDescriptors(artifactKey));
+                if (remoteDescriptor != null && localDescriptor != null) {
+                    Map<String, String> remoteProperties = remoteDescriptor.getProperties();
+                    Map<String, String> localProperties = localDescriptor.getProperties();
+                    return Objects.equals(remoteProperties, localProperties);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

@@ -366,14 +366,16 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             IArtifactFacade mavenArtifact) {
         IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
                 bundleDescription.getVersion().toString());
+        IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key);
         PublisherInfo publisherInfo = new PublisherInfo();
         if (mavenArtifact != null) {
             MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact, mavenContext);
             publisherInfo.addAdvice(advice);
+            advice.setDescriptorProperties(descriptor);
         }
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
         IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, key, publisherInfo);
-        repositoryContent.put(FileArtifactRepository.forFile(bundleLocation, key), iu);
+        repositoryContent.put(descriptor, iu);
         return iu;
     }
 

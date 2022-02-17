@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
 import org.eclipse.tycho.repository.local.MirroringArtifactProvider.MirroringFailedException;
 import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
@@ -57,7 +58,7 @@ public class MirroringArtifactProviderErrorTest {
         subject = MirroringArtifactProvider.createInstance(localRepository,
                 new RepositoryArtifactProvider(singletonList(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT),
                         ArtifactTransferPolicies.forRemoteArtifacts(), p2Context.getAgent()),
-                false, logVerifier.getLogger());
+                false, new MockMavenContext(null, logVerifier.getLogger()));
     }
 
     @Test(expected = MirroringFailedException.class)

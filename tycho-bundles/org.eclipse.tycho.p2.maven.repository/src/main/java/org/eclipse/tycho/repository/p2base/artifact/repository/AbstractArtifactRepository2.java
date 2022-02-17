@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...) 
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -199,7 +200,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
      *             if the artifact is already stored in the repository (in canonical format)
      */
     // TODO this method should be exposed via an interface
-    public abstract IArtifactSink newAddingArtifactSink(final IArtifactKey key) throws ProvisionException;
+    public abstract IArtifactSink newAddingArtifactSink(final IArtifactDescriptor descriptor) throws ProvisionException;
 
     /**
      * Returns a new {@link IRawArtifactSink} instance that adds the received artifact to this
@@ -227,8 +228,8 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
             IArtifactSink artifactSink = newAddingRawArtifactSink(descriptor);
             return new CommittingArtifactOutputStream(artifactSink);
         } catch (ArtifactSinkException e) {
-            throw new ProvisionException(new Status(IStatus.ERROR, BUNDLE_ID, "Error while writing to artifact sink: "
-                    + e.getMessage(), e));
+            throw new ProvisionException(
+                    new Status(IStatus.ERROR, BUNDLE_ID, "Error while writing to artifact sink: " + e.getMessage(), e));
         }
     }
 
