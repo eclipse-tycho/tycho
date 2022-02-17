@@ -22,7 +22,7 @@ The testProject/pom.xml makes use of the following three build plugins and corre
     Note: The implementation of PublishFeatureAndBundlesMojo allows to configure some parameters 
     which are passed to the FeaturesAndBundlesPublisher. The configurable parameters are: 
     -metadataRepositoryLocation, -artifactRepositoryLocation, -sourceLocation, -compress, -append, 
-    -publishArtifacts, -append, -reusePack200Files. As an example the testProject/pom.xml has 
+    -publishArtifacts. As an example the testProject/pom.xml has 
     configured -compress as 'false' which lead to the published content content/artifacts.xml 
     instead of content/artifacts.jar. 
     Not configured parameters are filled with the default values specified in the 

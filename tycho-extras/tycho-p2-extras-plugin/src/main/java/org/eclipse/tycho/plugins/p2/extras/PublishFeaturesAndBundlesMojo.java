@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -79,12 +79,6 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
     private boolean publishArtifacts;
 
     /**
-     * Optional flag to include .pack.gz files
-     */
-    @Parameter(defaultValue = "false")
-    private boolean reusePack200Files;
-
-    /**
      * Optional line of additional arguments passed to the p2 application launcher.
      */
     @Parameter(defaultValue = "")
@@ -125,7 +119,6 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
             launcher.addArguments(getPublishArtifactFlag());
             launcher.addArguments(getAppendFlag());
             launcher.addArguments(getCompressFlag());
-            launcher.addArguments(getReusePack200FilesFlag());
             launcher.addArguments(getAdditionalArgs());
             launcher.addArguments(contentArgs.toArray(new String[contentArgs.size()]));
 
@@ -157,13 +150,6 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
      */
     private String[] getPublishArtifactFlag() {
         return publishArtifacts ? new String[] { "-publishArtifacts" } : new String[0];
-    }
-
-    /**
-     * @return The '-reusePack200Files' flag or empty if we don't want to include .pack.gz files.
-     */
-    private String[] getReusePack200FilesFlag() {
-        return reusePack200Files ? new String[] { "-reusePack200Files" } : new String[0];
     }
 
     /**
