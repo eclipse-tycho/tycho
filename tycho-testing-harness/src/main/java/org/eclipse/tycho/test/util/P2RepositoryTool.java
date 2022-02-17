@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2011, 2022 SAP SE and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    SAP SE - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
 import java.io.File;
@@ -22,24 +34,29 @@ public class P2RepositoryTool {
 
     private final File repoLocation;
     private final File metadataFile;
+    private final File artifactsFile;
     private Document contentXml;
+    private Document artifactsXml;
     private XPath xPathTool;
     private Pattern strictVersionRangePattern;
 
-    private P2RepositoryTool(File metadataFile) {
+    private P2RepositoryTool(File metadataFile, File artifactsFile) {
         this.repoLocation = metadataFile.getParentFile();
         this.metadataFile = metadataFile;
+        this.artifactsFile = artifactsFile;
     }
 
     public static P2RepositoryTool forEclipseRepositoryModule(File projectRootFolder) {
         File repoLocation = new File(projectRootFolder, "target/repository");
         File contentXml = new File(repoLocation, "content.xml");
         File contentJar = new File(repoLocation, "content.jar");
+        File artifactXml = new File(repoLocation, "artifacts.xml");
+        File artifactJar = new File(repoLocation, "artifacts.jar");
 
-        if (contentXml.isFile()) {
-            return new P2RepositoryTool(contentXml);
-        } else if (contentJar.isFile()) {
-            return new P2RepositoryTool(contentJar);
+        if (contentXml.isFile() && artifactXml.isFile()) {
+            return new P2RepositoryTool(contentXml, artifactXml);
+        } else if (contentJar.isFile() && artifactJar.isFile()) {
+            return new P2RepositoryTool(contentJar, artifactJar);
         } else {
             throw new IllegalStateException(
                     "Not an eclipse-repository project, or project has not been built: " + projectRootFolder);
@@ -105,13 +122,15 @@ public class P2RepositoryTool {
      */
     public IU getUniqueIU(String unitId) throws Exception {
         loadMetadata();
+        loadArtifacts();
 
-        List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "']");
+        List<Node> contentNodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "']");
+        List<Node> artifactNodes = getNodes(artifactsXml, "/repository/artifacts/artifact[@id='" + unitId + "']");
 
-        if (nodes.isEmpty())
+        if (contentNodes.isEmpty())
             Assert.fail("Could not find IU with id '" + unitId + "'");
-        else if (nodes.size() == 1)
-            return new IU(nodes.get(0));
+        else if (contentNodes.size() == 1)
+            return new IU(contentNodes.get(0), (artifactNodes.size() > 0 ? artifactNodes.get(0) : null));
         else
             Assert.fail("Found more than one IU with id '" + unitId + "'");
 
@@ -127,14 +146,17 @@ public class P2RepositoryTool {
      */
     public IU getIU(String unitId, String version) throws Exception {
         loadMetadata();
+        loadArtifacts();
 
-        List<Node> nodes = getNodes(contentXml,
+        List<Node> contentNodes = getNodes(contentXml,
                 "/repository/units/unit[@id='" + unitId + "' and @version='" + version + "']");
+        List<Node> artifactNodes = getNodes(artifactsXml,
+                "/repository/artifacts/artifact[@id='" + unitId + "' and @version='" + version + "']");
 
-        if (nodes.isEmpty())
+        if (contentNodes.isEmpty())
             Assert.fail("Could not find IU with id '" + unitId + "' and version '" + version + "'");
-        else if (nodes.size() == 1)
-            return new IU(nodes.get(0));
+        else if (contentNodes.size() == 1)
+            return new IU(contentNodes.get(0), (artifactNodes.size() > 0 ? artifactNodes.get(0) : null));
         else
             Assert.fail("Found more than one IU with id '" + unitId + "' and version '" + version + "'");
 
@@ -155,6 +177,15 @@ public class P2RepositoryTool {
             throw new UnsupportedOperationException("Can't read compressed p2 repositories yet");
 
         contentXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile);
+    }
+
+    private void loadArtifacts() throws Exception {
+        if (artifactsXml != null)
+            return;
+        if (artifactsFile.getName().endsWith("jar"))
+            throw new UnsupportedOperationException("Can't read compressed p2 repositories yet");
+
+        artifactsXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(artifactsFile);
     }
 
     private XPath getXPathTool() {
@@ -218,9 +249,16 @@ public class P2RepositoryTool {
     public class IU {
 
         private final Node unitElement;
+        private final Node artifactElement;
 
-        IU(Node unitElement) {
+        /**
+         * Create a IU from the given unit XML (from metadata repository) and artifact XML (from
+         * artifact repository) elements. An installable unit does not necessarily have a
+         * corresponding artifact, so the artifact XML element may be null here.
+         */
+        IU(Node unitElement, Node artifactElement) {
             this.unitElement = unitElement;
+            this.artifactElement = artifactElement;
         }
 
         public String getVersion() throws Exception {
@@ -228,10 +266,29 @@ public class P2RepositoryTool {
         }
 
         /**
-         * Returns the properties of the IU as "key=value" strings.
+         * Returns the properties of the IU as "key=value" strings. Properties are from the metadata
+         * repository (content.xml).
          */
         public List<String> getProperties() throws Exception {
             List<Node> propertyNodes = getNodes(unitElement, "properties/property");
+
+            List<String> result = new ArrayList<>(propertyNodes.size());
+            for (Node node : propertyNodes) {
+                result.add(getAttribute(node, "@name") + "=" + getAttribute(node, "@value"));
+            }
+            return result;
+        }
+
+        /**
+         * Returns the properties of the IU as "key=value" strings. Properties are from the artifact
+         * repository (artifacts.xml).
+         */
+        public List<String> getArtifactProperties() throws Exception {
+            if (artifactElement == null) {
+                return List.of();
+            }
+
+            List<Node> propertyNodes = getNodes(artifactElement, "properties/property");
 
             List<String> result = new ArrayList<>(propertyNodes.size());
             for (Node node : propertyNodes) {

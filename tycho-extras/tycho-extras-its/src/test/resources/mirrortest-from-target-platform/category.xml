@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bytebuddy.byte-buddy" version="0.0.0"/>
+   <bundle id="net.bytebuddy.byte-buddy-agent" version="0.0.0"/>
+   <bundle id="org.mockito.mockito-core" version="0.0.0"/>
+   <bundle id="org.objenesis" version="0.0.0"/>
+</site>
