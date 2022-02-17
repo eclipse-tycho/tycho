@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
 import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
@@ -77,7 +78,9 @@ public class MirroringArtifactProviderTest {
     private static final IArtifactKey BUNDLE_L_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.core.jobs",
             Version.parseVersion("3.4.1.R34x_v20081128"));
     private static final Set<String> BUNDLE_L_CONTENT_FILES = new HashSet<>(
-            Arrays.asList("META-INF/", "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/", "org/eclipse/core/internal/", "org/eclipse/core/internal/jobs/", "org/eclipse/core/runtime/", "org/eclipse/core/runtime/jobs/", "plugin.properties"));
+            Arrays.asList("META-INF/", "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/",
+                    "org/eclipse/core/internal/", "org/eclipse/core/internal/jobs/", "org/eclipse/core/runtime/",
+                    "org/eclipse/core/runtime/jobs/", "plugin.properties"));
 
     // not available bundle
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
@@ -122,7 +125,7 @@ public class MirroringArtifactProviderTest {
         localRepository = localRepositoryManager.getLocalArtifactRepository();
 
         subject = MirroringArtifactProvider.createInstance(localRepository, remoteProvider, mirrorPacked,
-                logVerifier.getLogger());
+                new MockMavenContext(null, logVerifier.getLogger()));
     }
 
     @Before

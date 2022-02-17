@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -349,7 +349,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
                 repos.remoteRepositories);
         MirroringArtifactProvider remoteArtifactProviderWithCache = MirroringArtifactProvider
-                .createInstance(localArtifactRepository, remoteArtifactProvider, includePackedArtifacts, logger);
+                .createInstance(localArtifactRepository, remoteArtifactProvider, includePackedArtifacts, mavenContext);
 
         return new CompositeArtifactProvider(
                 new FileRepositoryArtifactProvider(repos.localRepositories,

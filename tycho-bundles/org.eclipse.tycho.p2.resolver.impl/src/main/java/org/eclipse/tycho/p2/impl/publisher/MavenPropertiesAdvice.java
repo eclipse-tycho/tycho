@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #658 - preserve p2 artifact properties (eg PGP, maven info...)
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
@@ -66,14 +67,20 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     @Override
     public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
-        // workaround Bug 539672
-        // TODO this is a nasty hack, and it doesn't even work; see org.eclipse.equinox.p2.publisher.AbstractPublisherAction.processArtifactPropertiesAdvice(IInstallableUnit, IArtifactDescriptor, IPublisherInfo) 
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            ((ArtifactDescriptor) descriptor).setProperty(key, value);
-        }
+        // TODO this is a nasty hack, workaround for Bug 539672 
+        setDescriptorProperties(descriptor);
         return null;
+    }
+
+    public void setDescriptorProperties(IArtifactDescriptor descriptor) {
+        if (descriptor instanceof ArtifactDescriptor) {
+            ArtifactDescriptor artifactDescriptor = (ArtifactDescriptor) descriptor;
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                artifactDescriptor.setProperty(key, value);
+            }
+        }
     }
 
     @Override

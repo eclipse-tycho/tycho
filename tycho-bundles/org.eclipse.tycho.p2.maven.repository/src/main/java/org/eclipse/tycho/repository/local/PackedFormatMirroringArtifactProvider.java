@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2021 SAP SE and others.
+ * Copyright (c) 2013, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
@@ -27,8 +27,8 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtif
 final class PackedFormatMirroringArtifactProvider extends MirroringArtifactProvider {
 
     PackedFormatMirroringArtifactProvider(LocalArtifactRepository localArtifactRepository,
-            IRawArtifactProvider remoteProviders, MavenLogger logger) {
-        super(localArtifactRepository, remoteProviders, logger);
+            IRawArtifactProvider remoteProviders, MavenContext mavenContext) {
+        super(localArtifactRepository, remoteProviders, mavenContext);
     }
 
     @Override

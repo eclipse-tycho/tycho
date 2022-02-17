@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -146,7 +146,7 @@ public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2
     }
 
     @Override
-    public IArtifactSink newAddingArtifactSink(IArtifactKey key) throws ProvisionException {
+    public IArtifactSink newAddingArtifactSink(IArtifactDescriptor descriptor) throws ProvisionException {
         throw new UnsupportedOperationException();
     }
 

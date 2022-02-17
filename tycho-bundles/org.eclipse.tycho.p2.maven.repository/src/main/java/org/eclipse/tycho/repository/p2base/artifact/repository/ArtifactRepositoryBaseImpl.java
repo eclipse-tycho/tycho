@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
+ *    Christoph Läubrich - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...)
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -370,8 +371,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     @Override
-    public final IArtifactSink newAddingArtifactSink(final IArtifactKey key) throws ProvisionException {
-        ArtifactDescriptorT newDescriptor = getInternalDescriptorForAdding(createArtifactDescriptor(key));
+    public final IArtifactSink newAddingArtifactSink(final IArtifactDescriptor descriptor) throws ProvisionException {
+        ArtifactDescriptorT newDescriptor = getInternalDescriptorForAdding(descriptor);
         return internalNewAddingArtifactSink(newDescriptor);
     }
 
