@@ -18,13 +18,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.internal.repository.mirroring.Mirroring;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -36,15 +32,13 @@ import org.eclipse.tycho.p2.tools.RepositoryReference;
 @SuppressWarnings("restriction")
 public class MirrorApplication extends org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication {
 
-    private final boolean includePackedArtifacts;
     private final Map<String, String> extraArtifactRepositoryProperties;
     private final List<RepositoryReference> repositoryReferences;
 
-    public MirrorApplication(IProvisioningAgent agent, boolean includePackedArtifacts,
-            Map<String, String> extraArtifactRepositoryProperties, List<RepositoryReference> repositoryReferences) {
+    public MirrorApplication(IProvisioningAgent agent, Map<String, String> extraArtifactRepositoryProperties,
+            List<RepositoryReference> repositoryReferences) {
         super();
         this.agent = agent;
-        this.includePackedArtifacts = includePackedArtifacts;
         this.extraArtifactRepositoryProperties = extraArtifactRepositoryProperties;
         this.repositoryReferences = repositoryReferences;
         this.removeAddedRepositories = false;
@@ -83,10 +77,4 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
                 type, rr.isEnable() ? IRepository.ENABLED : IRepository.NONE);
     }
 
-    @Override
-    protected Mirroring getMirroring(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
-        Mirroring mirroring = super.getMirroring(slice, monitor);
-        mirroring.setIncludePacked(includePackedArtifacts);
-        return mirroring;
-    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP SE and others.
+ * Copyright (c) 2010, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -76,8 +76,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
-            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent,
-                    mirrorOptions.isIncludePacked());
+            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
             mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
             mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
             try {
@@ -144,10 +143,10 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     @Override
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
-            boolean includePacked, Map<String, String> filterProperties) throws FacadeException {
+            Map<String, String> filterProperties) throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
-            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, includePacked);
+            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
 
             // mirror scope: seed units...
             mirrorApp.setSourceIUs(
@@ -220,8 +219,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     private static MirrorApplication createMirrorApplication(RepositoryReferences sources,
-            DestinationRepositoryDescriptor destination, IProvisioningAgent agent, boolean includePacked) {
-        final MirrorApplication mirrorApp = new MirrorApplication(agent, includePacked,
+            DestinationRepositoryDescriptor destination, IProvisioningAgent agent) {
+        final MirrorApplication mirrorApp = new MirrorApplication(agent,
                 destination.getExtraArtifactRepositoryProperties(), destination.getRepositoryReferences());
         mirrorApp.setRaw(false);
 

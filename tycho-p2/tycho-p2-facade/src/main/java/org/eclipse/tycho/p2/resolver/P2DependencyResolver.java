@@ -208,7 +208,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject);
 
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
-        tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
             addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration);
         }

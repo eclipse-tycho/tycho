@@ -49,7 +49,6 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {
     public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";
-    public static final String INCLUDE_PACKED_ARTIFACTS = "includePackedArtifacts";
     public static final String DEPENDENCY_RESOLUTION = "dependency-resolution";
     public static final String OPTIONAL_DEPENDENCIES = "optionalDependencies";
     public static final String FILTERS = "filters";
@@ -119,7 +118,6 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 readDependencyResolutionConfiguration(result, configuration);
 
-                setIncludePackedArtifacts(result, configuration);
                 setTargetDefinitionIncludeSources(result, configuration);
             }
         }
@@ -159,15 +157,6 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return result;
-    }
-
-    private void setIncludePackedArtifacts(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild(INCLUDE_PACKED_ARTIFACTS));
-
-        if (value == null) {
-            return;
-        }
-        result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
     }
 
     private void setTargetDefinitionIncludeSources(TargetPlatformConfiguration result, Xpp3Dom configuration)

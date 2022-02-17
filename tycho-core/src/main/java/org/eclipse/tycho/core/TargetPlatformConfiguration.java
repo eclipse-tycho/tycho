@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,8 +58,6 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
 
     private final List<ArtifactKey> extraRequirements = new ArrayList<>();
-
-    private boolean includePackedArtifacts;
 
     private Map<String, String> resolverProfileProperties = new HashMap<>();
 
@@ -192,14 +190,6 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void setOptionalResolutionAction(OptionalResolutionAction optionalAction) {
         this.optionalAction = optionalAction;
-    }
-
-    public void setIncludePackedArtifacts(boolean include) {
-        this.includePackedArtifacts = include;
-    }
-
-    public boolean isIncludePackedArtifacts() {
-        return includePackedArtifacts;
     }
 
     /**

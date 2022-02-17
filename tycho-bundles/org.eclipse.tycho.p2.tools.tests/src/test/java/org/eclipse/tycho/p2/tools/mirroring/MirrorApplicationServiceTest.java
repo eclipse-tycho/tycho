@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 SAP SE and others.
+ * Copyright (c) 2011, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -97,13 +97,13 @@ public class MirrorApplicationServiceTest {
         // make sure that this unsupported case is detected; the mirror application would just mirror everything
         Collection<DependencySeed> noSeeds = Collections.emptyList();
 
-        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, null);
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, null);
     }
 
     @Test
     public void testMirrorFeatureWithContent() throws Exception {
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
-                false, null);
+                null);
 
         logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
@@ -119,7 +119,7 @@ public class MirrorApplicationServiceTest {
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest2"), DEFAULT_NAME, false, false,
                 false, false, true, extraArtifactRepositoryProperties, Collections.emptyList());
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
-                false, null);
+                null);
 
         logVerifier.expectNoWarnings();
         File artifactsXml = repoFile(destinationRepo, "artifacts.xml");
@@ -142,7 +142,7 @@ public class MirrorApplicationServiceTest {
     @Test
     public void testMirrorPatch() throws Exception {
         subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo, seedFor(FEATURE_PATCH_IU), context, false,
-                false, null);
+                null);
 
         logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
@@ -152,7 +152,7 @@ public class MirrorApplicationServiceTest {
     @Test
     public void testMirrorFeatureAndPatch() throws Exception {
         subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo,
-                seedFor(SIMPLE_FEATURE_IU, FEATURE_PATCH_IU), context, false, false, null);
+                seedFor(SIMPLE_FEATURE_IU, FEATURE_PATCH_IU), context, false, null);
 
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
         assertTrue(repoFile(destinationRepo, "features/" + SIMPLE_FEATURE + "_1.0.0.jar").exists());
@@ -170,8 +170,7 @@ public class MirrorApplicationServiceTest {
          * since it is not easy to distinguish between patched and unpatched dependencies, only a
          * warning is issued.
          */
-        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, false,
-                null);
+        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, null);
 
         logVerifier.expectWarning(not(is("")));
     }
@@ -185,7 +184,7 @@ public class MirrorApplicationServiceTest {
         List<DependencySeed> seeds = Collections
                 .singletonList(new DependencySeed(null, "org.eclipse.core.runtime", null));
 
-        subject.mirrorReactor(sourceRepos("e342"), destinationRepo, seeds, context, false, false, null);
+        subject.mirrorReactor(sourceRepos("e342"), destinationRepo, seeds, context, false, null);
 
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
     }
