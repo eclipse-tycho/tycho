@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -154,9 +153,6 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
                 RepositoryReferences sources = getVisibleRepositories();
 
-                TargetPlatformConfiguration configuration = TychoProjectUtils
-                        .getTargetPlatformConfiguration(getReactorProject());
-
                 MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
 
                 List<RepositoryReference> repositoryRefrences = getCategories().stream()//
@@ -169,7 +165,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
                         !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryRefrences);
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                        includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
+                        includeAllDependencies, profileProperties);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Could not assemble p2 repository", e);
             }

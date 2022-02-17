@@ -27,7 +27,6 @@ public class MirrorOptions {
     private boolean followStrictOnly = false;
     private boolean includeOptional = true;
     private boolean includeNonGreedy = true;
-    private boolean includePacked = true;
     private boolean followOnlyFilteredRequirements = false;
     private boolean latestVersionOnly = false;
     private Map<String, String> filter = new HashMap<>();
@@ -45,8 +44,9 @@ public class MirrorOptions {
     }
 
     /**
-     * Set to true if only strict dependencies should be followed. A strict dependency is defined by a
-     * version range only including one version (e.g. [1.0.0.v2009, 1.0.0.v2009]). (Default is false)
+     * Set to true if only strict dependencies should be followed. A strict dependency is defined by
+     * a version range only including one version (e.g. [1.0.0.v2009, 1.0.0.v2009]). (Default is
+     * false)
      */
     public void setFollowStrictOnly(boolean followStrictOnly) {
         this.followStrictOnly = followStrictOnly;
@@ -65,10 +65,6 @@ public class MirrorOptions {
 
     public boolean isIncludeNonGreedy() {
         return includeNonGreedy;
-    }
-
-    public boolean isIncludePacked() {
-        return includePacked;
     }
 
     /**
@@ -122,13 +118,9 @@ public class MirrorOptions {
         filter.put("osgi.arch", arch);
     }
 
-    public void setIncludePacked(boolean includePacked) {
-        this.includePacked = includePacked;
-    }
-
     /**
-     * When set to true,the mirroring application continues to run in the event of an error during the
-     * mirroring process. (Default: false)
+     * When set to true,the mirroring application continues to run in the event of an error during
+     * the mirroring process. (Default: false)
      */
     public void setIgnoreErrors(boolean ignoreErrors) {
         this.ignoreErrors = ignoreErrors;

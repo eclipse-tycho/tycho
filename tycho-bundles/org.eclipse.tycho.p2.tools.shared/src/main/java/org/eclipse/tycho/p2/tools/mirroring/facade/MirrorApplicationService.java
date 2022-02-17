@@ -58,7 +58,7 @@ public interface MirrorApplicationService {
      */
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> seeds, BuildContext context, boolean includeAllDependencies,
-            boolean includePacked, Map<String, String> filterProperties) throws FacadeException;
+            Map<String, String> filterProperties) throws FacadeException;
 
     /**
      * recreates the metadata of an existing repository e.g. to account for changes in the contained

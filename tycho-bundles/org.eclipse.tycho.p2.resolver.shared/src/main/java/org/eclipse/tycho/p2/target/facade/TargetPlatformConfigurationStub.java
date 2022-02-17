@@ -27,7 +27,6 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 // TODO 412416 add an TargetPlatformConfiguration interface with only getters, and add implementation backed by the POM configuration
 public class TargetPlatformConfigurationStub {
 
-    private boolean includePackedArtifacts;
     private List<TargetEnvironment> environments;
     private final List<TargetPlatformFilter> iuFilters = new ArrayList<>();
 
@@ -42,14 +41,6 @@ public class TargetPlatformConfigurationStub {
 
     public List<TargetEnvironment> getEnvironments() {
         return environments;
-    }
-
-    public void setIncludePackedArtifacts(boolean include) {
-        this.includePackedArtifacts = include;
-    }
-
-    public boolean getIncludePackedArtifacts() {
-        return includePackedArtifacts;
     }
 
     public void addFilters(List<TargetPlatformFilter> filters) {

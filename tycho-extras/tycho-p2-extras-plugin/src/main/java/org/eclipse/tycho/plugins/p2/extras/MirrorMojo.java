@@ -111,12 +111,6 @@ public class MirrorMojo extends AbstractMojo {
     private boolean includeFeatures;
 
     /**
-     * Whether or not to include pack200 artifacts.
-     */
-    @Parameter(defaultValue = "false")
-    private boolean includePacked;
-
-    /**
      * Whether or not to follow optional requirements.
      */
     @Parameter(defaultValue = "true")
@@ -275,7 +269,6 @@ public class MirrorMojo extends AbstractMojo {
         options.setIncludeOptional(includeOptional);
         options.setLatestVersionOnly(latestVersionOnly);
         options.getFilter().putAll(filter);
-        options.setIncludePacked(includePacked);
         options.setIgnoreErrors(ignoreErrors);
         return options;
     }
