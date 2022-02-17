@@ -372,7 +372,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
 
         artifactRepositories.addAll(repos);
-        return new RepositoryArtifactProvider(artifactRepositories, ArtifactTransferPolicies.forRemoteArtifacts());
+        return new RepositoryArtifactProvider(artifactRepositories, ArtifactTransferPolicies.forLocalArtifacts());
     }
 
     private Map<IInstallableUnit, ReactorProjectIdentities> getPreliminaryReactorProjectUIs(

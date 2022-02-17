@@ -22,9 +22,6 @@ class LocalArtifactTransferPolicy extends ArtifactTransferPolicyBase {
     @Override
     protected void insertCanonicalAndPacked(List<IArtifactDescriptor> canonical, List<IArtifactDescriptor> packed,
             LinkedList<IArtifactDescriptor> list) {
-        if (packed != null) {
-            list.addAll(0, packed);
-        }
         if (canonical != null) {
             // canonical is most preferred -> add at head of the list
             list.addAll(0, canonical);

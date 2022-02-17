@@ -42,9 +42,4 @@ public abstract class ArtifactTransferPolicy {
         return null == format.getProperty(IArtifactDescriptor.FORMAT);
     }
 
-    @Deprecated(forRemoval = true)
-    public static boolean isPack200Format(IArtifactDescriptor format) {
-        return IArtifactDescriptor.FORMAT_PACKED.equals(format.getProperty(IArtifactDescriptor.FORMAT));
-    }
-
 }

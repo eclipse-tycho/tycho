@@ -14,12 +14,10 @@
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_KEY;
-import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_B_KEY;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_A;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_AB;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
@@ -28,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
@@ -59,16 +56,6 @@ public class FileRepositoryArtifactProviderTest {
         File result = subject.getArtifactFile(BUNDLE_A_KEY);
 
         assertThat(result, is(artifactInLocalRepo(BUNDLE_A_KEY, TestRepositoryContent.REPO_BUNDLE_A, ".jar")));
-    }
-
-    @Test
-    public void testGetRawArtifactFile() {
-        IArtifactDescriptor packedBundleB = subject.getArtifactDescriptors(BUNDLE_B_KEY)[0];
-        assertTrue(ArtifactTransferPolicy.isPack200Format(packedBundleB));
-
-        File result = subject.getArtifactFile(packedBundleB);
-
-        assertThat(result, is(artifactInLocalRepo(BUNDLE_B_KEY, TestRepositoryContent.REPO_BUNDLE_AB, ".jar.pack.gz")));
     }
 
     @Test(expected = IllegalArgumentException.class)

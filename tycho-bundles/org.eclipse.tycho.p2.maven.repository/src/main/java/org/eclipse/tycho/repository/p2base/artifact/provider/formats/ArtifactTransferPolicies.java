@@ -23,14 +23,4 @@ public final class ArtifactTransferPolicies {
         return new LocalArtifactTransferPolicy();
     }
 
-    /**
-     * Returns the {@link ArtifactTransferPolicy} optimized for artifacts stored on a remote server.
-     * A provider with this policy will internally use the size-optimized pack200 format (if
-     * available) when asked for an artifact. This policy leads to a lower network usage, at the
-     * cost of a higher CPU usage.
-     */
-    public static ArtifactTransferPolicy forRemoteArtifacts() {
-        return new RemoteArtifactTransferPolicy();
-    }
-
 }

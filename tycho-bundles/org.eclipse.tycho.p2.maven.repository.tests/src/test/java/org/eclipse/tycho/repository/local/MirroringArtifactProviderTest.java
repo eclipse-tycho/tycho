@@ -96,7 +96,7 @@ public class MirroringArtifactProviderTest {
     public void initSubject() throws Exception {
         RepositoryArtifactProvider remoteProvider = new RepositoryArtifactProvider(
                 Collections.singletonList(TestRepositoryContent.REPO_BUNDLE_AB),
-                ArtifactTransferPolicies.forRemoteArtifacts(), p2Context.getAgent());
+                ArtifactTransferPolicies.forLocalArtifacts(), p2Context.getAgent());
 
         // initialize local repository content (see BUNDLE_L_KEY)
         localRepositoryRoot = localRepositoryManager.getLocalRepositoryRoot();

@@ -16,10 +16,7 @@ import static java.util.Arrays.asList;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_CONTENT_MD5;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_FILES;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_KEY;
-import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_PACKED_CONTENT_MD5;
-import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_B_FILES;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_B_KEY;
-import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_B_PACKED_CONTENT_MD5;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_A;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_AB;
@@ -30,8 +27,6 @@ import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSi
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.ANY_ARTIFACT_KEY_QUERY;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.inCanonicalFormat;
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.inPackedFormat;
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.packedDescriptorFor;
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.statusWithMessageWhich;
@@ -54,7 +49,6 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
 import org.eclipse.tycho.repository.local.NonStartableArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkFactory;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
@@ -64,7 +58,6 @@ import org.eclipse.tycho.repository.streaming.testutil.ProbeOutputStream;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -150,16 +143,6 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
     }
 
     @Test
-    public void testGetArtifactOnlyAvailableInPackedRawFormat() throws Exception {
-        Assume.assumeTrue("pack200 not available on current Java version", Runtime.version().feature() < 14);
-        testSink = newArtifactSinkFor(BUNDLE_B_KEY);
-        status = subject.getArtifact(testSink, null);
-
-        assertThat(status, okStatus());
-        assertThat(testSink.getFilesInZip(), is(BUNDLE_B_FILES));
-    }
-
-    @Test
     public void testGetNonExistingArtifact() throws Exception {
         testSink = newArtifactSinkFor(NOT_CONTAINED_ARTIFACT_KEY);
         status = subject.getArtifact(testSink, null);
@@ -214,18 +197,9 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         subject.getArtifact(new NonStartableArtifactSink(), null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetArtifactToNonCanonicalSink() throws Exception {
-        subject.getArtifact(newRawArtifactSinkFor(packedDescriptorFor(BUNDLE_A_KEY)), null);
-    }
-
     @Test
-    public void testGetRawArtifact() throws Exception {
-        rawTestSink = newRawArtifactSinkFor(packedDescriptorFor(BUNDLE_B_KEY));
-        status = subject.getRawArtifact(rawTestSink, null);
-
-        assertThat(status, okStatus());
-        assertThat(rawTestSink.md5AsHex(), is(BUNDLE_B_PACKED_CONTENT_MD5));
+    public void testGetArtifactToNonCanonicalSink() throws Exception {
+        subject.getArtifact(newRawArtifactSinkFor(canonicalDescriptorFor(BUNDLE_A_KEY)), null);
     }
 
     @Test
@@ -242,35 +216,22 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
     @Test
     public void testGetRawArtifactSucceedsInSecondAttempt() throws Exception {
         subject = createCompositeArtifactProvider(REPO_BUNLDE_AB_PACK_CORRUPT, REPO_BUNDLE_AB);
-        rawTestSink = new ProbeRawArtifactSink(packedDescriptorFor(BUNDLE_A_KEY));
+        rawTestSink = new ProbeRawArtifactSink(canonicalDescriptorFor(BUNDLE_A_KEY));
         status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(status, is(warningStatus()));
-        assertThat(status.getMessage(), containsString("Some attempts to read"));
-        assertThat(asList(status.getChildren()), hasItem(errorStatus()));
-        assertThat(asList(status.getChildren()), hasItem(okStatus()));
-        assertThat(rawTestSink.md5AsHex(), is(BUNDLE_A_PACKED_CONTENT_MD5));
+        assertThat(status, is(okStatus()));
+        assertThat(rawTestSink.md5AsHex(), is(BUNDLE_A_CONTENT_MD5));
     }
 
     @Test
     public void testGetRawArtifactWithNonRestartableSink() throws Exception {
         subject = createCompositeArtifactProvider(REPO_BUNLDE_AB_PACK_CORRUPT, REPO_BUNDLE_AB);
 
-        IRawArtifactSink nonRestartableSink = ArtifactSinkFactory.rawWriteToStream(packedDescriptorFor(BUNDLE_A_KEY),
+        IRawArtifactSink nonRestartableSink = ArtifactSinkFactory.rawWriteToStream(canonicalDescriptorFor(BUNDLE_A_KEY),
                 testOutputStream);
         status = subject.getRawArtifact(nonRestartableSink, null);
 
-        // first read attempt fails -> operation fails
-        assertThat(status, is(errorStatus()));
-        assertThat(status.getMessage(), containsString("An error occurred while transferring artifact")); // original message from p2 as top-level status
-    }
-
-    @Test
-    public void testGetArtifactDescriptors() {
-        List<IArtifactDescriptor> descriptors = Arrays.asList(subject.getArtifactDescriptors(BUNDLE_B_KEY));
-
-        assertThat(descriptors, hasItem(inPackedFormat()));
-        assertThat(descriptors.size(), is(1));
+        assertThat(status, is(okStatus()));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -284,7 +245,6 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(BUNDLE_A_KEY));
 
         assertThat(result, hasItem(inCanonicalFormat()));
-        assertThat(result, hasItem(inPackedFormat()));
         assertThat(result.size(), is(2)); // no duplicates
     }
 
@@ -300,15 +260,6 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         status = subject.getRawArtifact(rawTestSink, null);
 
         assertThat(rawTestSink.md5AsHex(), is(BUNDLE_A_CONTENT_MD5)); // raw artifacts are never processed -> files should be identical
-    }
-
-    @Test
-    public void testGetPackedRawArtifact() throws Exception {
-        IArtifactDescriptor packedBundleB = subject.getArtifactDescriptors(BUNDLE_B_KEY)[0];
-        rawTestSink = newRawArtifactSinkFor(packedBundleB);
-        status = subject.getRawArtifact(rawTestSink, null);
-
-        assertThat(rawTestSink.md5AsHex(), is(TestRepositoryContent.BUNDLE_B_PACKED_CONTENT_MD5));
     }
 
 }
