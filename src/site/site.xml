@@ -26,10 +26,6 @@
       		<item name="Eclipserun Plugin" href="tycho-extras/tycho-eclipserun-plugin/plugin-info.html"/>
      		<item name="Document Bundle Plugin" href="tycho-extras/tycho-document-bundle-plugin/plugin-info.html"/>
       		<item name="Source Feature Generation Plugin" href="tycho-extras/tycho-source-feature-plugin/plugin-info.html"/>
-      		<item name="Pack200 Plugins" href="tycho-extras/tycho-pack200/index.html">
-        		<item name="Normalization Plugin" href="tycho-extras/tycho-pack200/tycho-pack200a-plugin/plugin-info.html"/>
-        		<item name="Pack Plugin" href="tycho-extras/tycho-pack200/tycho-pack200b-plugin/plugin-info.html"/>
-      		</item>
     	</menu>
 	</body>
 	<skin>
