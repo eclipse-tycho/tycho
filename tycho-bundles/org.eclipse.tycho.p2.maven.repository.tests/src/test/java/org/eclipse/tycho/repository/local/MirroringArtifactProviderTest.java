@@ -53,7 +53,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 @SuppressWarnings("restriction")
 public class MirroringArtifactProviderTest {
@@ -61,7 +60,6 @@ public class MirroringArtifactProviderTest {
     // remote bundles
     private static final IArtifactKey BUNDLE_A_KEY = TestRepositoryContent.BUNDLE_A_KEY;
     private static final IArtifactKey BUNDLE_B_KEY = TestRepositoryContent.BUNDLE_B_KEY;
-    private static final Set<String> BUNDLE_B_FILES = TestRepositoryContent.BUNDLE_B_FILES;
 
     // bundle already in local repository
     private static final IArtifactKey BUNDLE_L_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.core.jobs",
@@ -74,8 +72,6 @@ public class MirroringArtifactProviderTest {
     // not available bundle
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
 
-    @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
     @Rule

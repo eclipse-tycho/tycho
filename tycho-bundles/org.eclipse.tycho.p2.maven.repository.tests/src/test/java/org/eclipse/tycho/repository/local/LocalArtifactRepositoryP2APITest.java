@@ -75,7 +75,6 @@ public class LocalArtifactRepositoryP2APITest {
     private static final IArtifactKey ARTIFACT_B_KEY = TestRepositoryContent.BUNDLE_B_KEY;
 
     private static final Set<String> ARTIFACT_A_CONTENT = TestRepositoryContent.BUNDLE_A_FILES;
-    private static final Set<String> ARTIFACT_B_CONTENT = TestRepositoryContent.BUNDLE_B_FILES;
 
     private static final IArtifactDescriptor ARTIFACT_A_CANONICAL = localCanonicalDescriptorFor(ARTIFACT_A_KEY);
     private static final IArtifactDescriptor ARTIFACT_A_PACKED = localPackedDescriptorFor(ARTIFACT_A_KEY);
@@ -84,7 +83,6 @@ public class LocalArtifactRepositoryP2APITest {
     private static final IArtifactDescriptor ARTIFACT_B_CANONICAL = localCanonicalDescriptorFor(ARTIFACT_B_KEY);
 
     private static final String ARTIFACT_A_CANONICAL_MD5 = TestRepositoryContent.BUNDLE_A_CONTENT_MD5;
-    private static final String ARTIFACT_A_PACKED_MD5 = TestRepositoryContent.BUNDLE_A_PACKED_CONTENT_MD5;
 
     private static final IArtifactDescriptor ARTIFACT_A_DESCRIPTOR_1 = ARTIFACT_A_CANONICAL;
     private static final IArtifactDescriptor ARTIFACT_A_DESCRIPTOR_2 = ARTIFACT_A_PACKED;
@@ -374,11 +372,6 @@ public class LocalArtifactRepositoryP2APITest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetArtifactToClosedSink() throws Exception {
         subject.getArtifact(new NonStartableArtifactSink(), null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetArtifactToNonCanonicalSink() throws Exception {
-        subject.getArtifact(newRawArtifactSinkFor(ARTIFACT_A_PACKED), null);
     }
 
     @SuppressWarnings("deprecation")

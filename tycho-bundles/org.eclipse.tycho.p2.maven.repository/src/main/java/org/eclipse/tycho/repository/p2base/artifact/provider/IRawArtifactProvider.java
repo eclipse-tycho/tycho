@@ -25,9 +25,9 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtif
  * 
  * <p>
  * Over {@link IArtifactProvider}, this interface adds methods for obtaining artifacts in raw
- * formats, e.g. compressed with the JAR-optimized pack200 format. (With the
- * <tt>IArtifactProvider</tt> interface, artifacts can only be obtained in the canonical format,
- * i.e. the format in which the artifact can be used directly without additional decompression.)
+ * formats. (With the <tt>IArtifactProvider</tt> interface, artifacts can only be obtained in the
+ * canonical format, i.e. the format in which the artifact can be used directly without additional
+ * decompression.)
  * </p>
  */
 public interface IRawArtifactProvider extends IArtifactProvider {
