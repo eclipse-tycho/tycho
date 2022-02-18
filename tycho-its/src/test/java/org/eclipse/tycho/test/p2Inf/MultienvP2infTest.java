@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ package org.eclipse.tycho.test.p2Inf;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipFile;
 
@@ -36,7 +35,7 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 	public void test() throws Exception {
 		Verifier verifier = getVerifier("/p2Inf.multiEnv", false);
 		verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342);
-		verifier.executeGoals(Arrays.asList("clean", "verify"));
+		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 
 		// assert repository contains cross-platform IUs defined in p2.inf files

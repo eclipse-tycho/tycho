@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
@@ -242,7 +241,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
     @Test
     public void testGetArtifactDescriptorsDoesNotReturnDuplicates() {
         // the two source repositories each contain bundle A in canonical form
-        List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(BUNDLE_A_KEY));
+        List<IArtifactDescriptor> result = List.of(subject.getArtifactDescriptors(BUNDLE_A_KEY));
 
         assertThat(result, hasItem(inCanonicalFormat()));
         assertThat(result.size(), is(2)); // no duplicates

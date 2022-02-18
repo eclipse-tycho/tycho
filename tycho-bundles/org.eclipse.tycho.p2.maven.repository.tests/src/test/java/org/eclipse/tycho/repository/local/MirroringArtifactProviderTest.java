@@ -26,9 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IStatus;
@@ -64,10 +62,9 @@ public class MirroringArtifactProviderTest {
     // bundle already in local repository
     private static final IArtifactKey BUNDLE_L_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.core.jobs",
             Version.parseVersion("3.4.1.R34x_v20081128"));
-    private static final Set<String> BUNDLE_L_CONTENT_FILES = new HashSet<>(
-            Arrays.asList("META-INF/", "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/",
-                    "org/eclipse/core/internal/", "org/eclipse/core/internal/jobs/", "org/eclipse/core/runtime/",
-                    "org/eclipse/core/runtime/jobs/", "plugin.properties"));
+    private static final Set<String> BUNDLE_L_CONTENT_FILES = Set.of("META-INF/", "META-INF/MANIFEST.MF", "org/",
+            "org/eclipse/", "org/eclipse/core/", "org/eclipse/core/internal/", "org/eclipse/core/internal/jobs/",
+            "org/eclipse/core/runtime/", "org/eclipse/core/runtime/jobs/", "plugin.properties");
 
     // not available bundle
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;

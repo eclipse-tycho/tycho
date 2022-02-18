@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Christoph Läubrich and others.
+ * Copyright (c) 2021, 2022 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.Verifier;
@@ -30,7 +30,7 @@ public class ProductMixedVersionsTest extends AbstractTychoIntegrationTest {
 	public void testMixedPluginVersions() throws Exception {
 		Verifier verifier = getVerifier("product.differentVersions", false);
 		verifier.getSystemProperties().setProperty("platform-url", P2Repositories.ECLIPSE_LATEST.toString());
-		verifier.executeGoals(Arrays.asList("clean", "verify"));
+		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		// check that simple configurator is there...
 		File product = new File(verifier.getBasedir(), "product/target/products/com.test.sample.product");

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 SAP AG and others.
+ * Copyright (c) 2012, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@
 
 package org.eclipse.tycho.test.surefire;
 
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -51,8 +50,8 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
 				.listFiles((FilenameFilter) (dir, name) -> name.startsWith("TEST-") && name.endsWith(".xml"));
 		assertEquals(2, surefireXmlReports.length);
 		Set<String> actualTests = extractExecutedTests(surefireXmlReports);
-		Set<String> expectedTests = new HashSet<>(
-				asList("org.eclipse.tychoits.FirstTest#firstTest", "org.eclipse.tychoits.SecondTest#secondTest"));
+		Set<String> expectedTests = Set.of("org.eclipse.tychoits.FirstTest#firstTest",
+				"org.eclipse.tychoits.SecondTest#secondTest");
 		assertEquals(expectedTests, actualTests);
 	}
 

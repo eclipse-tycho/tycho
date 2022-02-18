@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021Christoph Läubrich and others.
+ * Copyright (c) 2021, 2022 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -17,6 +16,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -28,18 +28,18 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 	public void testProduceConsume() throws Exception {
 		{// parent
 			Verifier verifier = getVerifier("p2mavensite", false);
-			verifier.executeGoals(asList("install"));
+			verifier.executeGoal("install");
 			verifier.verifyErrorFreeLog();
 		}
 		{ // producer
 			Verifier verifier = getVerifier("p2mavensite/producer", false);
-			verifier.executeGoals(asList("clean", "install"));
+			verifier.executeGoals(List.of("clean", "install"));
 			verifier.verifyErrorFreeLog();
 			verifyRepositoryExits(verifier, "");
 		}
 		{ // consumer
 			Verifier verifier = getVerifier("p2mavensite/consumer", false);
-			verifier.executeGoals(asList("clean", "verify"));
+			verifier.executeGoals(List.of("clean", "verify"));
 			verifier.verifyErrorFreeLog();
 		}
 	}
@@ -47,7 +47,7 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDeployIgnore() throws Exception {
 		Verifier verifier = getVerifier("p2mavensite.reactor", false);
-		verifier.executeGoals(asList("install"));
+		verifier.executeGoals(List.of("install"));
 		verifier.verifyErrorFreeLog();
 		verifyRepositoryExits(verifier, "site/");
 		String artifacts = Files.readString(Paths.get(verifier.getBasedir(), "site/target/repository/artifacts.xml"),
@@ -61,7 +61,7 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testPGP() throws Exception {
 		Verifier verifier = getVerifier("p2mavensite.pgp", false);
-		verifier.executeGoals(asList("clean", "install"));
+		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		verifyRepositoryExits(verifier, "site/");
 	}

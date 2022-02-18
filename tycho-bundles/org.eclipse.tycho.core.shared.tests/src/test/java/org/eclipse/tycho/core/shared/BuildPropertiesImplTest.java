@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 SAP AG and others.
+ * Copyright (c) 2012, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -74,19 +73,16 @@ public class BuildPropertiesImplTest {
         assertEquals("1.3", buildProperties.getJavacSource());
         assertEquals("1.1", buildProperties.getJavacTarget());
         assertEquals("JavaSE-1.6", buildProperties.getJreCompilationProfile());
-        assertEquals(Arrays.asList("folder/", "file.txt"), buildProperties.getBinIncludes());
-        assertEquals(Arrays.asList("excluded_folder/", "excluded_file.txt"), buildProperties.getBinExcludes());
-        assertEquals(Arrays.asList("src_folder/", "src_file.txt"), buildProperties.getSourceIncludes());
-        assertEquals(Arrays.asList("excluded_src_folder/", "excluded_src_file.txt"),
-                buildProperties.getSourceExcludes());
+        assertEquals(List.of("folder/", "file.txt"), buildProperties.getBinIncludes());
+        assertEquals(List.of("excluded_folder/", "excluded_file.txt"), buildProperties.getBinExcludes());
+        assertEquals(List.of("src_folder/", "src_file.txt"), buildProperties.getSourceIncludes());
+        assertEquals(List.of("excluded_src_folder/", "excluded_src_file.txt"), buildProperties.getSourceExcludes());
         assertEquals(Collections.singletonList("platform_URL"), buildProperties.getJarsExtraClasspath());
-        assertEquals(Arrays.asList("foo.jar", "bar.jar"), buildProperties.getJarsCompileOrder());
-        assertEquals(Collections.singletonMap(".", Arrays.asList("extra.jar")),
-                buildProperties.getJarToExtraClasspathMap());
+        assertEquals(List.of("foo.jar", "bar.jar"), buildProperties.getJarsCompileOrder());
+        assertEquals(Collections.singletonMap(".", List.of("extra.jar")), buildProperties.getJarToExtraClasspathMap());
         assertEquals(Collections.singletonMap(".", "ISO-8859-1"), buildProperties.getJarToJavacDefaultEncodingMap());
         assertEquals("20120101000000", buildProperties.getForceContextQualifier());
-        assertEquals(Collections.singletonMap(".", Arrays.asList("foo/", "bar/")),
-                buildProperties.getJarToSourceFolderMap());
+        assertEquals(Collections.singletonMap(".", List.of("foo/", "bar/")), buildProperties.getJarToSourceFolderMap());
         assertEquals(Collections.singletonMap(".", "bin/"), buildProperties.getJarToOutputFolderMap());
         Map<String, String> rootEntries = buildProperties.getRootEntries();
         assertEquals(2, rootEntries.size());

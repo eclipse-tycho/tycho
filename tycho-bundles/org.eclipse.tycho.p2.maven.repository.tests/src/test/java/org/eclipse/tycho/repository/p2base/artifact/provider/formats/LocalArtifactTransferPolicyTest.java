@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +49,7 @@ public class LocalArtifactTransferPolicyTest {
         List<IArtifactDescriptor> result = subject.sortFormatsByPreference(descriptors);
 
         assertThat(result.get(0).getProperty(IArtifactDescriptor.FORMAT), is(nullValue()));
-        assertThat(formatsOf(result.get(1), result.get(2)), is(asSet("customFormat", "anotherFormat")));
+        assertThat(formatsOf(result.get(1), result.get(2)), is(Set.of("customFormat", "anotherFormat")));
         assertThat(result.size(), is(3));
     }
 
@@ -60,10 +59,6 @@ public class LocalArtifactTransferPolicyTest {
             result.add(descriptor.getProperty(IArtifactDescriptor.FORMAT));
         }
         return result;
-    }
-
-    static Set<String> asSet(String... values) {
-        return new HashSet<>(Arrays.asList(values));
     }
 
     static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context)

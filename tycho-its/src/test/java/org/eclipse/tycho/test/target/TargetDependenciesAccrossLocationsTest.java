@@ -2,7 +2,6 @@ package org.eclipse.tycho.test.target;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -41,7 +40,7 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 	public void slicerDoesNotFailWhenDependenciesExistInDifferentTargetLocation() throws Exception {
 		Verifier verifier = getVerifier("target.slicerWithDependenciesInDifferentTargetLocation", false);
 		fillInTargetUrls(verifier);
-		verifier.executeGoals(Arrays.asList("package"));
+		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
 
@@ -49,7 +48,7 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 	public void slicerDoesNotFailWhenDependenciesDoNotExistInAnyLocation() throws Exception {
 		Verifier verifier = getVerifier("target.slicerWithMissingDependencies", false);
 		fillInTargetUrls(verifier);
-		verifier.executeGoals(Arrays.asList("package"));
+		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
 
@@ -57,7 +56,7 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 	public void plannerDoesNotFailWhenDependenciesExistInDifferentTargetLocation() throws Exception {
 		Verifier verifier = getVerifier("target.plannerWithDependenciesInDifferentTargetLocation", false);
 		fillInTargetUrls(verifier);
-		verifier.executeGoals(Arrays.asList("package"));
+		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
 
@@ -66,7 +65,7 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 		Verifier verifier = getVerifier("target.plannerWithMissingDependencies", false);
 		fillInTargetUrls(verifier);
 		try {
-			verifier.executeGoals(Arrays.asList("package"));
+			verifier.executeGoal("package");
 		} catch (VerificationException e) {
 			// expected
 		}

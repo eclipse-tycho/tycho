@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.xtend;
 
-import static java.util.Arrays.asList;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -23,7 +23,7 @@ public class TychoXtendTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void projectA() throws Exception {
 		Verifier verifier = getVerifier("tycho.xtend");
-		verifier.executeGoals(asList("clean", "install"));
+		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 	}
 }

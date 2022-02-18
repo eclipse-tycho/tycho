@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@
 package org.eclipse.tycho.test.product;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -21,18 +21,18 @@ import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
 public class ProductArchiveFormatTest extends AbstractTychoIntegrationTest {
-    @Test
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("/product.archiveFormat", false);
-        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoals(Arrays.asList("clean", "verify"));
-        verifier.verifyErrorFreeLog();
+	@Test
+	public void test() throws Exception {
+		Verifier verifier = getVerifier("/product.archiveFormat", false);
+		verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
 
-        File basedir = new File(verifier.getBasedir());
+		File basedir = new File(verifier.getBasedir());
 
-        assertFileExists(basedir, "target/products/customArchiveName-win32.win32.x86.zip");
-        assertFileExists(basedir, "target/products/customArchiveName-linux.gtk.x86.zip");
-        assertFileExists(basedir, "target/products/customArchiveName-macosx.cocoa.x86_64.tar.gz");
-    }
+		assertFileExists(basedir, "target/products/customArchiveName-win32.win32.x86.zip");
+		assertFileExists(basedir, "target/products/customArchiveName-linux.gtk.x86.zip");
+		assertFileExists(basedir, "target/products/customArchiveName-macosx.cocoa.x86_64.tar.gz");
+	}
 
 }

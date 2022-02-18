@@ -28,8 +28,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -96,9 +94,9 @@ public class LocalArtifactRepositoryP2APITest {
     private static final IArtifactKey NEW_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
     private static final IArtifactDescriptor NEW_DESCRIPTOR = localPackedDescriptorFor(NEW_KEY);
 
-    private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<>(Arrays.asList(ARTIFACT_A_KEY, ARTIFACT_B_KEY));
-    private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = new HashSet<>(
-            Arrays.asList(ARTIFACT_A_CANONICAL, ARTIFACT_A_PACKED, ARTIFACT_B_PACKED));
+    private static final Set<IArtifactKey> ORIGINAL_KEYS = Set.of(ARTIFACT_A_KEY, ARTIFACT_B_KEY);
+    private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = Set.of(ARTIFACT_A_CANONICAL, ARTIFACT_A_PACKED,
+            ARTIFACT_B_PACKED);
 
     @Rule
     public TemporaryLocalMavenRepository temporaryLocalMavenRepo = new TemporaryLocalMavenRepository();
@@ -152,7 +150,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Test
     public void testGetDescriptors() {
-        List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(ARTIFACT_A_KEY));
+        List<IArtifactDescriptor> result = List.of(subject.getArtifactDescriptors(ARTIFACT_A_KEY));
 
         assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
         assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_2));
@@ -161,7 +159,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Test
     public void testGetDescriptorsOfNonContainedKey() {
-        List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(OTHER_KEY));
+        List<IArtifactDescriptor> result = List.of(subject.getArtifactDescriptors(OTHER_KEY));
 
         assertThat(result, notNullValue());
         assertThat(result.size(), is(0));

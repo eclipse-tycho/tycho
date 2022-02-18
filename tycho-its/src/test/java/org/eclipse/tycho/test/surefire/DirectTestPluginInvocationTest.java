@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.surefire;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -20,14 +20,16 @@ import org.junit.Test;
 
 public class DirectTestPluginInvocationTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void test() throws Exception {
-        // a project with an eclipse-plugin and an eclipse-test-plugin module
-        Verifier verifier = getVerifier("surefire.cli"); // TODO simplify test project; is currently a copy of the "tycho98" project
+	@Test
+	public void test() throws Exception {
+		// a project with an eclipse-plugin and an eclipse-test-plugin module
+		Verifier verifier = getVerifier("surefire.cli"); // TODO simplify test project; is currently a copy of the
+															// "tycho98" project
 
-        // calling the test plugin on the aggregator failed with an NPE -> this was MNGECLIPSE-999
-        verifier.executeGoals(Arrays.asList("package", "org.eclipse.tycho:tycho-surefire-plugin:test"));
-        verifier.verifyErrorFreeLog();
-    }
+		// calling the test plugin on the aggregator failed with an NPE -> this was
+		// MNGECLIPSE-999
+		verifier.executeGoals(List.of("package", "org.eclipse.tycho:tycho-surefire-plugin:test"));
+		verifier.verifyErrorFreeLog();
+	}
 
 }

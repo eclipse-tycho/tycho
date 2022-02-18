@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
@@ -95,7 +95,7 @@ public class LocalMetadataRepositoryTest {
 
         IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
         IInstallableUnit iu2 = MetadataFactory.createInstallableUnit(iud2);
-        repository.addInstallableUnits(Arrays.asList(iu, iu2));
+        repository.addInstallableUnits(List.of(iu, iu2));
 
         repository = (LocalMetadataRepository) loadRepository(location);
 
@@ -123,7 +123,7 @@ public class LocalMetadataRepositoryTest {
         iud.setProperty(TychoConstants.PROP_ARTIFACT_ID, "artifact");
         iud.setProperty(TychoConstants.PROP_VERSION, "version");
         IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
-        repository.addInstallableUnits(Arrays.asList(iu));
+        repository.addInstallableUnits(List.of(iu));
         repository = (LocalMetadataRepository) loadRepository(location);
 
         // check: the artifact is in the index

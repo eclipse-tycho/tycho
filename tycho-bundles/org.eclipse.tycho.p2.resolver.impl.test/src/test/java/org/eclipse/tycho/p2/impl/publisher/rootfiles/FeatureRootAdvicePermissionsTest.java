@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,6 @@ import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTes
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -132,12 +131,13 @@ public class FeatureRootAdvicePermissionsTest {
     private static List<String[]> getSortedPermissions(IFeatureRootAdvice advice, String configSpec) {
         String[][] permissionsArray = advice.getDescriptor(configSpec).getPermissions();
         ArrayList<String[]> permissionsList = new ArrayList<>();
-        permissionsList.addAll(Arrays.asList(permissionsArray));
+        permissionsList.addAll(List.of(permissionsArray));
         Collections.sort(permissionsList, new PermissionEntryComparator());
         return permissionsList;
     }
 
-    private static void assertPermissionEntry(String expectedFile, String expectedChmod, String[] descriptorPermission) {
+    private static void assertPermissionEntry(String expectedFile, String expectedChmod,
+            String[] descriptorPermission) {
         assertEquals(expectedChmod, descriptorPermission[0]);
         assertEquals(expectedFile, descriptorPermission[1]);
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,6 @@
 package org.eclipse.tycho.p2.maven.repository.tests;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -29,13 +27,13 @@ public final class TestRepositoryContent {
     public static final IArtifactKey BUNDLE_B_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.ecf",
             Version.parseVersion("3.1.300.v20120319-0616"));
 
-    public static final Set<String> BUNDLE_A_FILES = new HashSet<>(Arrays.asList("about_files/", "META-INF/",
-            "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/", "org/eclipse/core/runtime/",
-            "org/eclipse/core/runtime/adaptor/", "org/eclipse/core/runtime/internal/",
-            "org/eclipse/core/runtime/internal/adaptor/", "org/eclipse/core/runtime/internal/stats/",
-            "org/eclipse/osgi/", "org/eclipse/osgi/baseadaptor/", "org/eclipse/osgi/baseadaptor/bundlefile/",
-            "org/eclipse/osgi/baseadaptor/hooks/", "org/eclipse/osgi/baseadaptor/loader/", "org/eclipse/osgi/event/",
-            "org/eclipse/osgi/framework/", "org/eclipse/osgi/framework/adaptor/", "org/eclipse/osgi/framework/console/",
+    public static final Set<String> BUNDLE_A_FILES = Set.of("about_files/", "META-INF/", "META-INF/MANIFEST.MF", "org/",
+            "org/eclipse/", "org/eclipse/core/", "org/eclipse/core/runtime/", "org/eclipse/core/runtime/adaptor/",
+            "org/eclipse/core/runtime/internal/", "org/eclipse/core/runtime/internal/adaptor/",
+            "org/eclipse/core/runtime/internal/stats/", "org/eclipse/osgi/", "org/eclipse/osgi/baseadaptor/",
+            "org/eclipse/osgi/baseadaptor/bundlefile/", "org/eclipse/osgi/baseadaptor/hooks/",
+            "org/eclipse/osgi/baseadaptor/loader/", "org/eclipse/osgi/event/", "org/eclipse/osgi/framework/",
+            "org/eclipse/osgi/framework/adaptor/", "org/eclipse/osgi/framework/console/",
             "org/eclipse/osgi/framework/debug/", "org/eclipse/osgi/framework/eventmgr/",
             "org/eclipse/osgi/framework/internal/", "org/eclipse/osgi/framework/internal/core/",
             "org/eclipse/osgi/framework/internal/protocol/",
@@ -58,9 +56,9 @@ public final class TestRepositoryContent {
             "org/eclipse/osgi/storagemanager/", "org/eclipse/osgi/util/", "org/osgi/", "org/osgi/framework/",
             "org/osgi/service/", "org/osgi/service/condpermadmin/", "org/osgi/service/packageadmin/",
             "org/osgi/service/permissionadmin/", "org/osgi/service/startlevel/", "org/osgi/service/url/",
-            "org/osgi/util/", "org/osgi/util/tracker/", "systembundle.properties"));
-    public static final Set<String> BUNDLE_B_FILES = new HashSet<>(
-            Arrays.asList("META-INF/", "META-INF/eclipse.inf", "META-INF/MANIFEST.MF"));
+            "org/osgi/util/", "org/osgi/util/tracker/", "systembundle.properties");
+    public static final Set<String> BUNDLE_B_FILES = Set.of("META-INF/", "META-INF/eclipse.inf",
+            "META-INF/MANIFEST.MF");
 
     public static final String BUNDLE_A_CONTENT_MD5 = "58057045158895009b845b9a93f3eb6e";
 

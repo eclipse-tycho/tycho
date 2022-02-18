@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -53,8 +52,8 @@ public class DirectorApplicationCommandTest {
 
     @Test
     public void testAllDirectorApplicationArguments() {
-        subject.addMetadataSources(Arrays.asList(REPO_1, REPO_2));
-        subject.addArtifactSources(Arrays.asList(REPO_3));
+        subject.addMetadataSources(List.of(REPO_1, REPO_2));
+        subject.addArtifactSources(List.of(REPO_3));
         subject.addUnitToInstall(UNIT_1);
         subject.addUnitToInstall(UNIT_2);
         subject.setEnvironment(new TargetEnvironment(OS, WS, ARCH));

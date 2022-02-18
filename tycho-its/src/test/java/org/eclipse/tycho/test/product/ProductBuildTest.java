@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -19,7 +19,7 @@ public class ProductBuildTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMavenDepedencyInTarget() throws Exception {
 		Verifier verifier = getVerifier("product.mavenLocation", false);
-		verifier.executeGoals(Arrays.asList("clean", "verify"));
+		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
 }

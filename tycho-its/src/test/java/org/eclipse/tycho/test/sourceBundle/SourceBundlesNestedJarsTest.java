@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2021 SAP AG and others.
+ * Copyright (c) 2013, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,13 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.sourceBundle;
 
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.jar.JarFile;
 
 import org.apache.maven.it.Verifier;
@@ -39,7 +38,7 @@ public class SourceBundlesNestedJarsTest extends AbstractTychoIntegrationTest {
 			String sourceBundleHeader = jar.getManifest().getMainAttributes().getValue("Eclipse-SourceBundle");
 			ManifestElement element = ManifestElement.parseHeader("", sourceBundleHeader)[0];
 			String[] roots = element.getDirective("roots").split(",");
-			assertEquals(new HashSet<>(asList(".", "foosrc", "barsrc")), new HashSet<>(asList(roots)));
+			assertEquals(Set.of(".", "foosrc", "barsrc"), Set.of(roots));
 			assertNotNull(jar.getEntry("Main.java"));
 			assertNotNull(jar.getEntry("foosrc/Foo1.java"));
 			assertNotNull(jar.getEntry("foosrc/Foo2.java"));

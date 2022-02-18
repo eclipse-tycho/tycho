@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG and others.
+ * Copyright (c) 2010, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -50,8 +49,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 	private static final String ARTIFACT_ID = "pi.eclipse-repository";
 	private static final String VERSION = "1.0.0-SNAPSHOT";
 
-	private static final List<Product> TEST_PRODUCTS = Arrays.asList(
-			new Product("main.product.id", "", false, true, false),
+	private static final List<Product> TEST_PRODUCTS = List.of(new Product("main.product.id", "", false, true, false),
 			new Product("multi.platform.package.product.id", "multiPlatformPackage", false, true, true),
 			new Product("extra.product.id", "extra", "rootfolder", true, false, false),
 			new Product("repoonly.product.id", false));
