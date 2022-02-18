@@ -6,7 +6,20 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Migration guide 2.x -> 3.x
 
-- ...
+#### Pack200
+
+Pack200 technology is obsolete and no longer supported after Java 13. Tycho removed all support for dealing with pack.gz files including pack200 specific plugins, various options in Mojos and support for resolving fetching in core. 
+
+Omit any pack200 specific plugins, options and in any other way dealing with ***.pack.gz** files.
+The following are removed:
+- Plugins
+	- tycho-pack200a-plugin
+	- tycho-pack200b-plugin
+- Mojo options
+	- TargetPlatformConfigurationMojo' includePackedArtifacts
+	- MirrorMojo's includePacked
+	- PublishFeaturesAndBundlesMojo reusePack200Files
+	
 - ...
 
 
