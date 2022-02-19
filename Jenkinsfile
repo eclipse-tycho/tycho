@@ -24,7 +24,7 @@ pipeline {
 		}
 		stage('Deploy Snapshot') {
 			when {
-				branch 'tycho-2.7.0'
+				branch 'tycho-2.7.x'
 			}
 			steps {
 				sh 'mvn -V deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::default::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
