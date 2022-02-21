@@ -16,8 +16,10 @@ package org.eclipse.tycho.repository.local;
 import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,7 +33,6 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -228,6 +229,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
                         localArtifactRepository.removeDescriptor(key);
                     }
                     downloadArtifact(key);
+                    localArtifactRepository.save();
                 }
             } finally {
                 downloadLock.unlock();
@@ -262,23 +264,11 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     protected final IStatus downloadCanonicalArtifact(IArtifactKey key)
             throws ProvisionException, ArtifactSinkException {
-        // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS - artifact may have been added by other thread in the meantime
-        IArtifactDescriptor descriptor = localArtifactRepository.createArtifactDescriptor(key);
-        if (descriptor instanceof ArtifactDescriptor) {
-            ArtifactDescriptor localDescriptor = (ArtifactDescriptor) descriptor;
-            IArtifactDescriptor remoteDescriptor = findCanonicalDescriptor(remoteProviders.getArtifactDescriptors(key));
-            if (remoteDescriptor != null) {
-                remoteDescriptor.getProperties().forEach(localDescriptor::setProperty);
-                //fix bad metadata in p2...
-                if (TychoConstants.PACK200_CLASSIFIER
-                        .equals(localDescriptor.getProperty(TychoConstants.PROP_CLASSIFIER))) {
-                    localDescriptor.setProperty(TychoConstants.PROP_CLASSIFIER, "");
-                    localDescriptor.setProperty(TychoConstants.PROP_EXTENSION, "jar");
-                    localDescriptor.setProperty(TychoConstants.PROP_TYPE, PackagingType.TYPE_ECLIPSE_PLUGIN);
-                }
-            }
-        }
-        IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(descriptor);
+        GAVArtifactDescriptor localDescriptor = localArtifactRepository.createArtifactDescriptor(key);
+        IArtifactDescriptor remoteDescriptor = findCanonicalDescriptor(remoteProviders.getArtifactDescriptors(key));
+        Map<String, String> properties = getProperties(remoteDescriptor);
+        properties.forEach(localDescriptor::setProperty);
+        IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(localDescriptor);
         return remoteProviders.getArtifact(localSink, monitorForDownload());
     }
 
@@ -364,18 +354,53 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
             }
             if (remoteProviders.contains(artifactKey)) {
                 //we must compare remote versus local!
-                IArtifactDescriptor remoteDescriptor = findCanonicalDescriptor(
-                        remoteProviders.getArtifactDescriptors(artifactKey));
-                IArtifactDescriptor localDescriptor = findCanonicalDescriptor(
-                        localArtifactRepository.getArtifactDescriptors(artifactKey));
-                if (remoteDescriptor != null && localDescriptor != null) {
-                    Map<String, String> remoteProperties = remoteDescriptor.getProperties();
-                    Map<String, String> localProperties = localDescriptor.getProperties();
-                    return Objects.equals(remoteProperties, localProperties);
+                IArtifactDescriptor[] remoteDescriptors = remoteProviders.getArtifactDescriptors(artifactKey);
+                IArtifactDescriptor remoteDescriptor = findCanonicalDescriptor(remoteDescriptors);
+                IArtifactDescriptor[] localDescriptors = localArtifactRepository.getArtifactDescriptors(artifactKey);
+                GAVArtifactDescriptor localDescriptor = (GAVArtifactDescriptor) findCanonicalDescriptor(
+                        localDescriptors);
+                if (remoteDescriptor != null && localDescriptor != null && localDescriptor.getMavenCoordinates()
+                        .getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
+                    Map<String, String> remoteProperties = getProperties(remoteDescriptor);
+                    Map<String, String> localProperties = getProperties(localDescriptor);
+                    if (!Objects.equals(remoteProperties, localProperties)) {
+                        if (logger.isExtendedDebugEnabled()) {
+                            logger.info("ArtifactKey " + artifactKey + " differs between local and remote:");
+                            TreeSet<String> allKeys = new TreeSet<>();
+                            allKeys.addAll(remoteProperties.keySet());
+                            allKeys.addAll(localProperties.keySet());
+                            for (String key : allKeys) {
+                                String remoteValue = remoteProperties.get(key);
+                                String localValue = localProperties.get(key);
+                                if (Objects.equals(remoteValue, localValue)) {
+                                    continue;
+                                }
+                                logger.info(
+                                        "\t" + key + " diverged, remote = " + remoteValue + ", local = " + localValue);
+                            }
+                        }
+                        return false;
+                    }
                 }
             }
             return true;
         }
         return false;
+    }
+
+    @SuppressWarnings("deprecation")
+    private Map<String, String> getProperties(IArtifactDescriptor descriptor) {
+        if (descriptor == null) {
+            return Map.of();
+        }
+        Map<String, String> map = new LinkedHashMap<>(descriptor.getProperties());
+        //fix bad metadata in p2...
+        if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)
+                && TychoConstants.PACK200_CLASSIFIER.equals(map.get(TychoConstants.PROP_CLASSIFIER))) {
+            map.remove(TychoConstants.PROP_CLASSIFIER);
+            map.put(TychoConstants.PROP_EXTENSION, "jar");
+            map.put(TychoConstants.PROP_TYPE, PackagingType.TYPE_ECLIPSE_PLUGIN);
+        }
+        return map;
     }
 }

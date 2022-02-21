@@ -188,7 +188,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     @Override
-    protected final void internalRemoveDescriptors(IArtifactKey key) {
+    protected void internalRemoveDescriptors(IArtifactKey key) {
         descriptorsMap.remove(key);
     }
 
