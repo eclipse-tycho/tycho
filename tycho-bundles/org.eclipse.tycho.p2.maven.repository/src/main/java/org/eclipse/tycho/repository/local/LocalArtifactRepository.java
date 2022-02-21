@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,10 +9,9 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - #670 - Issue  Significant target-resolution runtime regression 
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
-
-import static java.util.stream.Collectors.toSet;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -27,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -38,15 +38,15 @@ import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
+import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 
 public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtifactDescriptor> {
 
-    private Set<IArtifactDescriptor> descriptorsOnLastSave;
+    private Set<IArtifactKey> descriptorsOnLastSave;
     private final LocalRepositoryP2Indices localRepoIndices;
     private final RepositoryReader contentLocator;
     private final Map<IArtifactKey, Lock> downloadLocks = new ConcurrentHashMap<>();
@@ -80,44 +80,48 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
             try {
                 File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
                         TychoConstants.CLASSIFIER_P2_ARTIFACTS, ArtifactType.TYPE_P2_ARTIFACTS);
-                if (!localArtifactFileLocation.exists()) {
-                    // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
-                    index.removeGav(gav);
-                } else {
-                    try (InputStream is = new FileInputStream(contentLocator.getLocalArtifactLocation(gav,
-                            TychoConstants.CLASSIFIER_P2_ARTIFACTS, ArtifactType.TYPE_P2_ARTIFACTS))) {
+                if (localArtifactFileLocation.isFile()) {
+                    try (InputStream is = new FileInputStream(localArtifactFileLocation)) {
                         final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
                         for (IArtifactDescriptor descriptor : gavDescriptors) {
-                            internalAddDescriptor(descriptor);
+                            if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)
+                                    && gav.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
+                                //we must use the key to get the correct artifact GAV location
+                                GAVArtifactDescriptor copy = new GAVArtifactDescriptor(descriptor.getArtifactKey());
+                                //but retain the properties of the given descriptor
+                                descriptor.getProperties().forEach(copy::setProperty);
+                                copy.setProcessingSteps(descriptor.getProcessingSteps());
+                                copy.setRepository(this);
+                                internalAddDescriptor(copy);
+                            } else {
+                                internalAddDescriptor(descriptor);
+                            }
                         }
                     }
+                } else {
+                    // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
+                    index.removeGav(gav);
                 }
             } catch (IOException e) {
-                // TODO throw properly typed exception if repository cannot be loaded
-                e.printStackTrace();
+                index.removeGav(gav);
+                localRepoIndices.getMavenContext().getLogger().debug("can't read stored meta-data", e);
             }
         }
 
-        descriptorsOnLastSave = flattenedValues().collect(toSet());
+        descriptorsOnLastSave = currentKeys();
     }
 
-    private synchronized void saveMaven() {
-        File location = getBasedir();
-
+    public synchronized void save() {
         TychoRepositoryIndex index = localRepoIndices.getArtifactsIndex();
 
         ArtifactsIO io = new ArtifactsIO();
 
-        Set<GAVArtifactDescriptor> descriptors = flattenedValues().collect(toSet());
-        Set<IArtifactDescriptor> changedDescriptors = new HashSet<>(descriptors);
-        changedDescriptors.removeAll(descriptorsOnLastSave);
+        Set<IArtifactKey> descriptors = currentKeys();
 
-        Set<IArtifactKey> changedKeys = new HashSet<>();
-        for (IArtifactDescriptor changedDescriptor : changedDescriptors) {
-            changedKeys.add(changedDescriptor.getArtifactKey());
-        }
-
-        for (IArtifactKey key : changedKeys) {
+        for (IArtifactKey key : descriptors) {
+            if (descriptorsOnLastSave.contains(key)) {
+                continue;
+            }
             Set<GAVArtifactDescriptor> keyDescriptors = descriptorsMap.get(key);
             if (keyDescriptors != null && !keyDescriptors.isEmpty()) {
                 // all descriptors should have the same GAV
@@ -125,11 +129,11 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                 GAV gav = anyDescriptorOfKey.getMavenCoordinates().getGav();
                 index.addGav(gav);
 
-                String relpath = getMetadataRelpath(gav);
-
-                File file = new File(location, relpath);
+                File file = contentLocator.getLocalArtifactLocation(gav, TychoConstants.CLASSIFIER_P2_ARTIFACTS,
+                        ArtifactType.TYPE_P2_ARTIFACTS);
                 file.getParentFile().mkdirs();
-
+                localRepoIndices.getMavenContext().getLogger()
+                        .debug("Writing P2 metadata for " + key + " to " + file + "...");
                 try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
                     io.writeXML(keyDescriptors, os);
                 } catch (IOException e) {
@@ -147,20 +151,9 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         descriptorsOnLastSave = new HashSet<>(descriptors);
     }
 
-    private String getMetadataRelpath(GAV gav) {
-        String relpath = RepositoryLayoutHelper.getRelativePath(gav, TychoConstants.CLASSIFIER_P2_ARTIFACTS,
-                ArtifactType.TYPE_P2_ARTIFACTS, localRepoIndices.getMavenContext());
-        return relpath;
-    }
-
-    // TODO 393004 store index on every write operation
-//    @Override
-//    protected void internalStore(IProgressMonitor monitor) {
-//        // ...
-//    }
-
-    public void save() {
-        saveMaven();
+    protected HashSet<IArtifactKey> currentKeys() {
+        return flattenedValues().map(IArtifactDescriptor::getArtifactKey)
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     @Override
@@ -171,8 +164,10 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     }
 
     @Override
-    public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
-        return new GAVArtifactDescriptor(key);
+    public GAVArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+        GAVArtifactDescriptor descriptor = new GAVArtifactDescriptor(key);
+        descriptor.setRepository(this);
+        return descriptor;
     }
 
     @Override
@@ -212,5 +207,11 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
 
     Lock getLockForDownload(IArtifactKey key) {
         return downloadLocks.computeIfAbsent(key, k -> new ReentrantLock());
+    }
+
+    @Override
+    protected void internalRemoveDescriptors(IArtifactKey key) {
+        super.internalRemoveDescriptors(key);
+        descriptorsOnLastSave.remove(key);
     }
 }
