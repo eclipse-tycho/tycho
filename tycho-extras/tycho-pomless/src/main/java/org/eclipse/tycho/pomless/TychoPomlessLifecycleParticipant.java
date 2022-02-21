@@ -39,7 +39,6 @@ public class TychoPomlessLifecycleParticipant extends AbstractMavenLifecyclePart
 
     @Override
     public void afterSessionStart(MavenSession session) throws MavenExecutionException {
-        session.getUserProperties().setProperty("tycho.mode", "extension");
         File moduleProjectDirectory = session.getRequest().getMultiModuleProjectDirectory();
         if (moduleProjectDirectory != null) {
             File extensionsFile = new File(moduleProjectDirectory, ".mvn/extensions.xml");
