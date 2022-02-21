@@ -90,8 +90,6 @@
     <requirement
         name="org.sonatype.m2e.plexus.annotations.feature.feature.group"/>
     <requirement
-        name="com.ifedorenko.m2e.mavendev.feature.feature.group"/>
-    <requirement
         name="com.ianbrandt.tools.m2e.mdp.feature.feature.group"/>
     <requirement
         name="org.eclipse.m2e.feature.feature.group"/>
@@ -185,6 +183,13 @@
         xsi:type="maven:MavenImportTask"
         projectNameTemplate="">
       <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-build"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-bundles"
           locateNestedProjects="true"/>
       <description>Import Maven Project</description>
@@ -223,6 +228,20 @@
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-extras"
           locateNestedProjects="true"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-gpg-plugin"/>
+      <description>Import Maven Project</description>
+    </setupTask>
+    <setupTask
+        xsi:type="maven:MavenImportTask"
+        projectNameTemplate="">
+      <sourceLocator
+          rootFolder="${git.cloneTycho.location}/tycho-its"/>
       <description>Import Maven Project</description>
     </setupTask>
     <setupTask
@@ -280,13 +299,6 @@
         xsi:type="maven:MavenImportTask"
         projectNameTemplate="">
       <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-releng"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-source-plugin"/>
       <description>Import Maven Project</description>
     </setupTask>
@@ -303,13 +315,6 @@
         projectNameTemplate="">
       <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-testing-harness"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-its"/>
       <description>Import Maven Project</description>
     </setupTask>
     <description>Maven Project Import</description>
