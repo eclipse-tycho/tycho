@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target includeMode="feature" name="target-platform">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="false" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/eclipse/updates/4.23-I-builds/"/>
+			<unit id="org.objenesis" version="0.0.0"/>
+		</location>
+	</locations>
+</target>
