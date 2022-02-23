@@ -7,19 +7,6 @@
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>tycho-snapshots</id>
-			<url>${tycho-snapshots-url}</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<modules>
 		<module>license.feature</module>
 		<module>feature</module>
