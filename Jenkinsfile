@@ -36,7 +36,7 @@ pipeline {
 				branch 'master'
 			}
 			steps {
-				build wait: false, job: '/tycho-sitedocs'
+				sh 'mvn -V clean install site site:stage'
 			}
 		}
 	}
