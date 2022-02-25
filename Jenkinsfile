@@ -35,7 +35,7 @@ pipeline {
 				branch 'master'
 			}
 			steps {
-				build job: '/tycho-sitedocs'
+				build wait: false, job: '/tycho-sitedocs'
 			}
 		}
 	}
