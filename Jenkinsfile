@@ -35,7 +35,7 @@ pipeline {
 				branch 'master'
 			}
 			steps {
-				sh 'mvn -V clean install site site:stage'
+				sh 'mvn -V clean install site site:stage -DskipTests=true'
 			}
 		}
 	}
