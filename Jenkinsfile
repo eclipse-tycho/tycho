@@ -30,7 +30,7 @@ pipeline {
 				sh 'mvn -V deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::default::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
 			}
 		}
-		stage('Build downstream') {
+		stage('Deploy sitedocs') {
 			when {
 				branch 'master'
 			}
