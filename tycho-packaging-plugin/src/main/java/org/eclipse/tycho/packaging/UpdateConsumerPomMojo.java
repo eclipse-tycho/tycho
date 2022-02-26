@@ -67,6 +67,12 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = ".tycho-consumer-pom.xml", required = true)
 	protected String tychoPomFilename;
 
+	/**
+	 * If deleteOnExit is true the file will be marked for deletion on JVM exit
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean deleteOnExit = true;
+
 	@Parameter
 	protected Boolean skipPomGeneration;
 
@@ -119,6 +125,9 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			}
 		}
 		File output = new File(outputDirectory, tychoPomFilename);
+		if (deleteOnExit) {
+			output.deleteOnExit();
+		}
 		try {
 			modelWriter.write(output, null, projectModel);
 		} catch (IOException e) {
