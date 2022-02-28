@@ -15,14 +15,13 @@ Subject: Tycho <VERSION> release
 We plan to release Tycho <VERSION> next week. For details of new features and bugfixes, see [release notes](https://github.com/eclipse/tycho/blob/tycho-x.y.z/RELEASE_NOTES.md).
 Please help by testing the SNAPSHOTS build. To use it, change your tycho version to <VERSION>-SNAPSHOT and add the following snippet to your pom.
 
-```
 <pluginRepositories>
     <pluginRepository>
       <id>tycho-snapshots</id>
       <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
     </pluginRepository>
 </pluginRepositories>
-```
+
 
 We plan to promote this release in one week unless major regressions are found.
 
@@ -62,6 +61,7 @@ mvn clean deploy -Prelease -DskipTests -Dsource=8 -DjdetectJavaApiLink=false \
      -Dgpg.keyname=<your e-mail of pgpg key>
 ```
 - In the meantime...
+    - [ ] `git fetch --all --tags`
     - [ ] `git tag tycho-<TYCHO_VERSION>`
     - [ ] Find out who contributed to the release:
 ```
