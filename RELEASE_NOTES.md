@@ -22,7 +22,7 @@ Neverless, the name "pomless" was always a bit misleading, as actually we have r
 Because of this, an to not limit the usage to "pomless" with this version a new core-extension is available name 'tycho-build', that effectively does what tycho-extras-pomless does but in the context of 'core' and is open to further improvements 
 (maybe some time offering an option to not needing a pom at all).
 
-All that needs to be done is replace the old 
+All that needs to be done is to replace the old 
 ```
 <extension>
 	<groupId>org.eclipse.tycho.extras</groupId>
@@ -51,18 +51,18 @@ Using the custom `GraphBuilder` Tycho is able to perform P2 dependency resolutio
 
 ### Mixed reactor build support
 
-previously Tycho has resolved pom considered depdencies as part of the inital maven setup (before the actual build starts). This has lead to the fact that it was not possible to mix projects that e.g. dynamically generate a manifest.
+Previously Tycho has resolved pom considered dependencies as part of the initial Maven setup (before the actual build starts). This has led to the fact that it was not possible to mix projects that e.g. dynamically generate a manifest.
 
-This was [now changed](https://github.com/eclipse/tycho/issues/462) and Tycho can now build mixed project setups see this integration test as an example:
+This was [now changed](https://github.com/eclipse/tycho/issues/462) and Tycho can now build mixed project setups. See this integration test as an example:
 https://github.com/eclipse/tycho/tree/master/tycho-its/projects/mixed.reactor
 
-This slightly changes some of the behaviour of previous pomDependecies=consider:
+This slightly changes some of the behavior of previous `pomDependencies=consider`:
 
-- dependecies of pom considered items has to be always been declared on the maven level (either by the project using it or the dependecy declaring it)
+- dependencies of pom considered items always have to be declared on the Maven level (either by the project using it or the dependency declaring it)
 - pom considered items do not participate in the build-order computation as of the previous statement already ensure this
-- if enabled, builds might fail later as projects are allowed to have incomplete requirements up until the `intilize` phase.
+- if enabled, builds might fail later as projects are allowed to have incomplete requirements up until the `initialize` phase.
 
-There is one restriction for such mixed setups see: https://github.com/eclipse/tycho/issues/479
+There is one restriction for such mixed setups, see: https://github.com/eclipse/tycho/issues/479
 
 ## 2.6.0
 
@@ -92,12 +92,12 @@ If you want to perform the classpath validation in the `validate` phase of your 
 ```
 
 ### Support for generation of a feature from a maven target-location template
-Tycho now support the m2e feature to [generate a feature from a maven target location](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-generation-of-a-feature-from-a-location).
+Tycho now supports the m2e feature to [generate a feature from a maven target location](https://github.com/eclipse-m2e/m2e-core/blob/master/RELEASE_NOTES.md#the-m2e-pde-editor-now-supports-generation-of-a-feature-from-a-location).
 
 ### Support for nested targets
 Tycho now supports [nested target locations](https://github.com/eclipse/tycho/issues/401).
 
-An example could be found [here](https://github.com/eclipse/tycho/tree/master/tycho-its/projects/target.references/target.refs).
+An example can be found [here](https://github.com/eclipse/tycho/tree/master/tycho-its/projects/target.references/target.refs).
 
 ### Support for pom dependencies in maven target locations
 Tycho now supports [pom dependencies inside maven target locations](https://github.com/eclipse/tycho/issues/331).
