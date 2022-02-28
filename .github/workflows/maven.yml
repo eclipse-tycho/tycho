@@ -2,7 +2,9 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 name: Build Tycho
-
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 on:
   push:
     branches: 
@@ -34,15 +36,15 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-maven27-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
-          ${{ runner.os }}-maven-
+          ${{ runner.os }}-maven27-
     - name: Build Tycho
       run: | 
         cp toolchains-gh.xml ~/.m2/toolchains.xml
         mvn -U -V -e -B -ntp clean install --file pom.xml
     - name: Run Integration Tests
-      run: mvn -U -V -e -B -ntp -Pits -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml
+      run: mvn -U -V -e -B -ntp -Pits -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml -Dmaven.repo.local=$HOME/.m2/repository27
     - name: Upload Test Results
       uses: actions/upload-artifact@v2
       with:
