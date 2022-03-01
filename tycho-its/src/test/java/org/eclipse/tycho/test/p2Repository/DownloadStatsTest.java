@@ -10,7 +10,7 @@
  * Contributors:
  *    Mickael Istria (Red Hat Inc.) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.downloadstats;
+package org.eclipse.tycho.test.p2Repository;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
