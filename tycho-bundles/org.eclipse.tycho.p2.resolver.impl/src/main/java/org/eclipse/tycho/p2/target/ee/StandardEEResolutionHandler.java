@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2.target.ee;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -45,8 +44,6 @@ class StandardEEResolutionHandler extends ExecutionEnvironmentResolutionHandler 
     @Override
     public void readFullSpecification(Collection<IInstallableUnit> targetPlatformContent) {
         if (environmentConfiguration.ignoreExecutionEnvironment()) {
-            //if it is ignored not setting the specification leads to strange errors in downstream mojos...
-            environmentConfiguration.setFullSpecificationForCustomProfile(Collections.emptyList());
             //and we might want to inform the user about ignored items...
             logger.info("The following Execution Environments are currently known but are ignored by configuration:");
             Map<String, Collection<String>> map = targetPlatformContent.stream()//
