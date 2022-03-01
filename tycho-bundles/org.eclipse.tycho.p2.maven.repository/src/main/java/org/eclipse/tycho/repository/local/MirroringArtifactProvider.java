@@ -361,7 +361,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         }
         Map<String, String> map = new LinkedHashMap<>(descriptor.getProperties());
         //fix bad metadata in p2...
-        if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)) {
+        if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)
+                && "pack200".equals(map.get(TychoConstants.PROP_CLASSIFIER))) {
             map.remove(TychoConstants.PROP_CLASSIFIER);
             map.put(TychoConstants.PROP_EXTENSION, "jar");
             map.put(TychoConstants.PROP_TYPE, PackagingType.TYPE_ECLIPSE_PLUGIN);
