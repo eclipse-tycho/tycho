@@ -102,6 +102,9 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
 
     @Override
     public boolean isCustomProfile() {
+        if (ignoreExecutionEnvironment()) {
+            return false;
+        }
         String profileName = getProfileName();
         boolean profileExists = ExecutionEnvironmentUtils.getProfileNames().contains(profileName);
         if (!profileExists && ignoredByResolver) {
@@ -127,15 +130,15 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
 
     @Override
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException {
+        if (ignoreExecutionEnvironment()) {
+            return NoExecutionEnvironment.INSTANCE;
+        }
         if (isCustomProfile()) {
             if (customExecutionEnvironment == null) {
                 throw new IllegalStateException(
                         "Full specification of custom profile '" + getProfileName() + "' is not (yet) determined");
             }
             return customExecutionEnvironment;
-        }
-        if (ignoreExecutionEnvironment()) {
-            return NoExecutionEnvironment.INSTANCE;
         }
         return ExecutionEnvironmentUtils.getExecutionEnvironment(getProfileName(), toolchainManager, session, logger);
     }
