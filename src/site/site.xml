@@ -13,7 +13,6 @@
 			<item name="p2 Director Plugin" href="tycho-p2/tycho-p2-director-plugin/plugin-info.html" />
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="Versions Plugin" href="tycho-release/tycho-versions-plugin/plugin-info.html" />
-			<item name="POM Generator Plugin" href="tycho-pomgenerator-plugin/plugin-info.html" />
 			<item name="Properties">
 				<item name="Build Properties" href="BuildProperties.html" />
             	<item name="Tycho Properties" href="TychoProperties.html" />

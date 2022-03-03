@@ -215,12 +215,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-pomgenerator-plugin</artifactId>
-			<version>${tycho-build-version}</version>
-			<type>maven-plugin</type>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-compiler-plugin</artifactId>
 			<version>${tycho-build-version}</version>
 			<type>maven-plugin</type>

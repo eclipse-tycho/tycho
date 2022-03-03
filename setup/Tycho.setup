@@ -284,13 +284,6 @@
         xsi:type="maven:MavenImportTask"
         projectNameTemplate="">
       <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-pomgenerator-plugin"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
           rootFolder="${git.cloneTycho.location}/tycho-release"
           locateNestedProjects="true"/>
       <description>Import Maven Project</description>

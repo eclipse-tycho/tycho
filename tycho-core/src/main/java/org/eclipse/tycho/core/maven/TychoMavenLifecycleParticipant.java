@@ -59,7 +59,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private static final String TYCHO_GROUPID = "org.eclipse.tycho";
     private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<>(Arrays.asList("tycho-maven-plugin",
             "tycho-p2-director-plugin", "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin",
-            "tycho-packaging-plugin", "tycho-pomgenerator-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
+            "tycho-packaging-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
             "tycho-versions-plugin", "tycho-compiler-plugin"));
     private static final String P2_USER_AGENT_KEY = "p2.userAgent";
     private static final String P2_USER_AGENT_VALUE = "tycho/";
