@@ -450,7 +450,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         try (FileOutputStream fos = new FileOutputStream(configIni)) {
             props.store(fos, "Product Runtime Configuration File");
         } catch (IOException e) {
-            throw new MojoExecutionException("Error creating .eclipseproduct file.", e);
+            throw new MojoExecutionException("Error creating config.ini file.", e);
         }
     }
 
