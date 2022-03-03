@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Tests Fragment
-Bundle-SymbolicName: bundle.tests;singleton:=true
-Bundle-Version: 1.0.0
-Fragment-Host: bundle;bundle-version="1.0.0"
-Require-Bundle: tests.utils;bundle-version="1.0.0",
- org.junit;bundle-version="[4.0.0,5.0.0)"

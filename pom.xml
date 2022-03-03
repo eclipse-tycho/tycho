@@ -479,8 +479,6 @@
 		<module>tycho-source-plugin</module>
 		<module>target-platform-configuration</module>
 		<module>tycho-maven-plugin</module>
-		<module>tycho-pomgenerator-plugin</module>
-
 		<!-- surefire -->
 		<module>tycho-surefire</module>
 

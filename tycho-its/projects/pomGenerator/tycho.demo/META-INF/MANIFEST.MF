@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Demo Plug-in
-Bundle-SymbolicName: tycho.demo; singleton:=true
-Bundle-Version: 1.0.0
-Bundle-Activator: tycho.demo.Activator
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
-Eclipse-LazyStart: true

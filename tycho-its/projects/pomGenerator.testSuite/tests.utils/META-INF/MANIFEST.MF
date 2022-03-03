@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Utils Plug-in
-Bundle-SymbolicName: tests.utils;singleton:=true
-Bundle-Version: 1.0.0
-Require-Bundle: org.junit;bundle-version="[4.0.0,5.0.0)"
-Bundle-ActivationPolicy: lazy
-Eclipse-LazyStart: true

@@ -6,6 +6,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Migration guide 2.x -> 3.x
 
+#### Removal of tycho-pomgenerator:generate-poms
+
+tycho-pomgenerator:generate-poms mojo is no longer supported as it was useful in the days where tycho-pomless was incomplete, today its usage is very limited and tycho-pomless is a much better (and supported) alternative now.
+
 #### Pack200
 
 Pack200 technology is obsolete and no longer supported after Java 13. Tycho removed all support for dealing with pack.gz files including pack200 specific plugins, various options in Mojos and support for resolving fetching in core. 
