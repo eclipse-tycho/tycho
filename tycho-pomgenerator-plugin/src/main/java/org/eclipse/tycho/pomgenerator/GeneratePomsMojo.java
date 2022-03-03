@@ -571,7 +571,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             return null;
         }
         if (moduleDirs.size() > 1) {
-            StringBuilder sb = new StringBuilder("Duplicate module defintion ").append(name);
+            StringBuilder sb = new StringBuilder("Duplicate module definition ").append(name);
             for (File dir : moduleDirs) {
                 sb.append("\n\t").append(dir.getAbsoluteFile());
             }

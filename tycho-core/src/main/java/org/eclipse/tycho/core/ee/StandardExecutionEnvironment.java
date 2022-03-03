@@ -205,7 +205,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
             // EE definitions in Tycho for JVMs 11+ will no longer contain system packages as with modular JVMs it's not sure
             // all packages will be available at runtime
             if (profileProperties.containsKey(Constants.FRAMEWORK_SYSTEMPACKAGES)) {
-                logger.debug("Found system.packages in profile defintion file for " + profileName + ",");
+                logger.debug("Found system.packages in profile definition file for " + profileName + ",");
                 String systemPackagesValue = profileProperties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
                 if (systemPackagesValue.isBlank()) {
                     this.systemPackages = Collections.emptyList();
@@ -225,7 +225,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                 }
             } else if (toolchain != null) {
                 logger.debug(
-                        "No system.packages in profile defintion file for " + profileName + "; checking toolchain.");
+                        "No system.packages in profile definition file for " + profileName + "; checking toolchain.");
                 this.systemPackages = readFromToolchains(toolchain).stream()
                         .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
             } else if (Integer.parseInt(compilerSourceLevel) == Runtime.version().feature()) {
