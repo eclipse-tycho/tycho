@@ -88,7 +88,8 @@ public class TargetPlatformBundlePublisher {
     MavenBundleInfo attemptToPublishBundle(IArtifactFacade mavenArtifact, boolean wrapIfNessesary) {
         if (!isAvailableAsLocalFile(mavenArtifact)) {
             // this should have been ensured by the caller
-            throw new IllegalArgumentException("Not an artifact file: " + mavenArtifact.getLocation());
+            throw new IllegalArgumentException(
+                    mavenArtifact + " is not a local artifact file @ location " + mavenArtifact.getLocation());
         }
         PublisherRun publisherRun = new PublisherRun(mavenArtifact, project, publishedArtifacts.getBaseDir(),
                 mavenContext, wrapIfNessesary);
