@@ -40,7 +40,7 @@ jobs:
     - name: Build Tycho
       run: | 
         cp toolchains-gh.xml ~/.m2/toolchains.xml
-        mvn -U -V -e -B -ntp clean install --file pom.xml
+        mvn -U -V -e -B -ntp clean install --file pom.xml -T1C
     - name: Run Integration Tests
       run: mvn -U -V -e -B -ntp -Pits -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml
     - name: Upload Test Results
