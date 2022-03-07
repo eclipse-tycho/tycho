@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.director.Explanation.HardRequirement;
@@ -107,28 +106,11 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
             throw new ResolverException(StatusTool.toLogMessage(slicerStatus), properties.toString(),
                     StatusTool.findException(slicerStatus));
         }
-        warnAboutMissingDependencies(slicerStatus);
-
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Slice:\n" + ResolverDebugUtils.toDebugString(slice, false, monitor));
         }
 
         return slice;
-    }
-
-    private void warnAboutMissingDependencies(MultiStatus slicerStatus) {
-        var msg = new StringBuilder(
-                "Following dependencies were not found by the slicer (you can disregard this if it is intentional):\n");
-        var anyWarnPresent = false;
-        for (var statusItem : slicerStatus.getChildren()) {
-            if (statusItem.getSeverity() == IStatus.WARNING) {
-                anyWarnPresent = true;
-                msg.append(statusItem.getMessage()).append("\n");
-            }
-        }
-        if (anyWarnPresent) {
-            logger.warn(msg.toString());
-        }
     }
 
     protected abstract boolean isSlicerError(MultiStatus slicerStatus);

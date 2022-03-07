@@ -156,14 +156,14 @@ public class InstallableUnitResolver {
                     ResolutionDataImpl data = new ResolutionDataImpl(executionEnvironment);
                     data.setRootIUs(root.rootIUs);
                     data.setAvailableIUsAndFilter(root.localUnits);
-                    SlicerResolutionStrategy strategy = getSlicerResolutionStrategy(data);
+                    SlicerResolutionStrategy strategy = getSlicerResolutionStrategy(data, true);
                     Collection<IInstallableUnit> resolve = strategy.multiPlatformResolve(environments,
                             new DuplicateFilteringLoggingProgressMonitor(logger));
                     if (!resolve.isEmpty()) {
                         collector.addAll(resolve);
                         if (includeSource) {
-                            collector.addAll(addSourceBundleUnits(data, this::getSlicerResolutionStrategy, resolve,
-                                    new DuplicateFilteringLoggingProgressMonitor(logger)));
+                            collector.addAll(addSourceBundleUnits(data, d -> getSlicerResolutionStrategy(d, false),
+                                    resolve, new DuplicateFilteringLoggingProgressMonitor(logger)));
                         }
                     }
                 }
@@ -182,8 +182,8 @@ public class InstallableUnitResolver {
         return false;
     }
 
-    private SlicerResolutionStrategy getSlicerResolutionStrategy(ResolutionData data) {
-        SlicerResolutionStrategy strategy = new SlicerResolutionStrategy(logger, includeAllEnvironments);
+    private SlicerResolutionStrategy getSlicerResolutionStrategy(ResolutionData data, boolean warn) {
+        SlicerResolutionStrategy strategy = new SlicerResolutionStrategy(logger, includeAllEnvironments, warn);
         strategy.setData(data);
         return strategy;
     }

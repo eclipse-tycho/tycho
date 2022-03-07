@@ -34,15 +34,17 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
     private boolean ignoreFilters;
+    private boolean warnIfMissing;
 
     /**
      * @param ignoreFilters
      *            treat all filters as if they weren't present. Equivalent to evaluating all filters
      *            to true.
      */
-    public SlicerResolutionStrategy(MavenLogger logger, boolean ignoreFilters) {
+    public SlicerResolutionStrategy(MavenLogger logger, boolean ignoreFilters, boolean warnIfMissing) {
         super(logger);
         this.ignoreFilters = ignoreFilters;
+        this.warnIfMissing = warnIfMissing;
     }
 
     @Override
@@ -66,6 +68,20 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
     @Override
     protected boolean isSlicerError(MultiStatus slicerStatus) {
+        if (warnIfMissing && logger.isExtendedDebugEnabled()) {
+            var msg = new StringBuilder(
+                    "Following dependencies were not found by the slicer (you can disregard this if it is intentional):\n");
+            var anyWarnPresent = false;
+            for (var statusItem : slicerStatus.getChildren()) {
+                if (statusItem.getSeverity() == IStatus.WARNING) {
+                    anyWarnPresent = true;
+                    msg.append(statusItem.getMessage()).append("\n");
+                }
+            }
+            if (anyWarnPresent) {
+                logger.warn(msg.toString());
+            }
+        }
         return slicerStatus.matches(IStatus.ERROR | IStatus.CANCEL);
     }
 
@@ -85,8 +101,8 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
         IQueryable<IInstallableUnit> slice = slice(properties, monitor);
 
-        Set<IInstallableUnit> result = new LinkedHashSet<>(slice.query(QueryUtil.ALL_UNITS, monitor)
-                .toUnmodifiableSet());
+        Set<IInstallableUnit> result = new LinkedHashSet<>(
+                slice.query(QueryUtil.ALL_UNITS, monitor).toUnmodifiableSet());
         result.removeAll(data.getEEResolutionHints().getTemporaryAdditions());
 
         if (logger.isExtendedDebugEnabled()) {
