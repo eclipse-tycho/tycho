@@ -83,7 +83,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     public void initDefaultResolver() throws Exception {
 //        org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
         pomDependencies = resolverFactory.newPomDependencyCollector();
-        impl = new P2ResolverImpl(tpFactory, logVerifier.getLogger());
+        impl = new P2ResolverImpl(tpFactory, null, logVerifier.getLogger());
         impl.setEnvironments(getEnvironments());
     }
 

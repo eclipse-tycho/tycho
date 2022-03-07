@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -98,8 +97,12 @@ public class P2ResolverImpl implements P2Resolver {
 
     private PomDependencies pomDependencies = PomDependencies.ignore;
 
-    public P2ResolverImpl(TargetPlatformFactoryImpl targetPlatformFactory, MavenLogger logger) {
+    private P2ResolverFactoryImpl p2ResolverFactoryImpl;
+
+    public P2ResolverImpl(TargetPlatformFactoryImpl targetPlatformFactory, P2ResolverFactoryImpl p2ResolverFactoryImpl,
+            MavenLogger logger) {
         this.targetPlatformFactory = targetPlatformFactory;
+        this.p2ResolverFactoryImpl = p2ResolverFactoryImpl;
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
         this.environments = Collections.singletonList(TargetEnvironment.getRunningEnvironment());
@@ -255,38 +258,9 @@ public class P2ResolverImpl implements P2Resolver {
         if (usedTargetPlatformUnits != null) {
             usedTargetPlatformUnits.addAll(newState);
         }
-        Set<IInstallableUnit> dependencyFragments = new HashSet<>();
-        for (IInstallableUnit iu : availableUnits) {
-            for (IProvidedCapability capability : iu.getProvidedCapabilities()) {
-                String nameSpace = capability.getNamespace();
-                if (BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(nameSpace)) {
-                    String fragmentName = capability.getName();
-                    IRequiredCapability fragmentHost = findFragmentHostRequirement(iu, fragmentName);
-                    if (fragmentHost != null) {
-                        for (IInstallableUnit resolved : newState) {
-                            if (fragmentHost.isMatch(resolved)) {
-                                dependencyFragments.add(iu);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
+        Set<IInstallableUnit> dependencyFragments = p2ResolverFactoryImpl == null ? Collections.emptySet()
+                : p2ResolverFactoryImpl.calculateDependencyFragments(data, newState);
         return toResolutionResult(newState, dependencyFragments, project, targetPlatform);
-    }
-
-    private static IRequiredCapability findFragmentHostRequirement(IInstallableUnit unit, String fragmentName) {
-        for (IRequirement requirement : unit.getRequirements()) {
-            if (requirement instanceof IRequiredCapability) {
-                IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
-                if (fragmentName.equals(requiredCapability.getName())) {
-                    return requiredCapability;
-                }
-            }
-        }
-        return null;
     }
 
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> resolvedUnits,
