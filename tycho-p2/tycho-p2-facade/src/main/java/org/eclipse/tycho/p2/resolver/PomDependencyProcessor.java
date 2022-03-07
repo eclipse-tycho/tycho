@@ -93,6 +93,11 @@ public class PomDependencyProcessor {
                 if (logger.isDebugEnabled()) {
                     logger.debug("P2resolver.addMavenArtifact " + artifact.toString());
                 }
+                if (artifact.getFile() == null) {
+                    //FIXME this should not be necessary... why do we have this case see Issue #723 for where it causes problems
+                    Artifact find = session.getLocalRepository().find(artifact);
+                    artifact.setFile(find.getFile());
+                }
                 result.addMavenArtifact(new MavenArtifactFacade(artifact), allowGenerateOSGiBundle);
             } else {
                 failDueToPartialP2Data(artifact, p2Data);
@@ -102,8 +107,7 @@ public class PomDependencyProcessor {
     }
 
     private void failDueToPartialP2Data(Artifact artifact, P2DataArtifacts p2Data) {
-        String p2MetadataFileName = TychoConstants.CLASSIFIER_P2_METADATA + "."
-                + TychoConstants.EXTENSION_P2_METADATA;
+        String p2MetadataFileName = TychoConstants.CLASSIFIER_P2_METADATA + "." + TychoConstants.EXTENSION_P2_METADATA;
         String p2ArtifactsFileName = TychoConstants.CLASSIFIER_P2_ARTIFACTS + "."
                 + TychoConstants.EXTENSION_P2_ARTIFACTS;
         String artifactGAV = artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
