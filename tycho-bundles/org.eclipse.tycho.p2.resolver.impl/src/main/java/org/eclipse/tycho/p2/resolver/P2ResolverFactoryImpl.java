@@ -19,8 +19,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -134,25 +132,26 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         if (fragmentsList.isEmpty()) {
             return Collections.emptySet();
         }
-        Set<IInstallableUnit> dependencyFragments = new HashSet<>();
-        for (Iterator<IInstallableUnit> iterator = resolvedUnits.iterator(); iterator.hasNext()
-                && !fragmentsList.isEmpty();) {
-            IInstallableUnit resolvedUnit = iterator.next();
-            addMatchingFragments(fragmentsList, dependencyFragments, resolvedUnit);
-        }
-        return dependencyFragments;
-    }
 
-    private static void addMatchingFragments(List<Entry<IInstallableUnit, IRequiredCapability>> fragmentsList,
-            Set<IInstallableUnit> dependencyFragments, IInstallableUnit unitToMatch) {
-        Iterator<Entry<IInstallableUnit, IRequiredCapability>> iterator = fragmentsList.iterator();
-        while (iterator.hasNext()) {
-            Entry<IInstallableUnit, IRequiredCapability> fragment = iterator.next();
-            if (fragment.getValue().isMatch(unitToMatch)) {
-                dependencyFragments.add(fragment.getKey());
-                iterator.remove();
-            }
-        }
+        Map<String, List<IInstallableUnit>> resolvedUnitsById = resolvedUnits.stream()//
+                .collect(Collectors.groupingBy(iu -> iu.getId()));
+
+        return fragmentsList.stream()//
+                .filter(entry -> {
+                    IRequiredCapability hostRequirement = entry.getValue();
+                    List<IInstallableUnit> potentialHosts = resolvedUnitsById.get(hostRequirement.getName());
+                    if (potentialHosts == null) { // quick lookup by ID
+                        return false;
+                    }
+                    for (IInstallableUnit potentialHost : potentialHosts) {
+                        if (hostRequirement.isMatch(potentialHost)) { // precise match
+                            return true;
+                        }
+                    }
+                    return false;
+                })//
+                .map(entry -> entry.getKey())//
+                .collect(Collectors.toSet());
     }
 
     private static Optional<Entry<IInstallableUnit, IRequiredCapability>> findFragmentHostRequirement(
