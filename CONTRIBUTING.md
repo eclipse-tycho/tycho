@@ -125,7 +125,7 @@ Tycho makes heavy use of p2 functionality. Therefore it may be useful to try out
 1. Get the p2 sources (see [p2 project information](http://projects.eclipse.org/projects/rt.equinox.p2/developer))
 2. Make changes in the p2 sources, **(!) don't forget to increase the version of that bundle otherwise your changes will be overwritten with the current release version (!)**
 3. Build the changed p2 bundles individually with <tt>mvn clean install -Pbuild-individual-bundles</tt> (see [Equinox/p2/Build](https://wiki.eclipse.org/Equinox/p2/Build) for more information)
-4. Build at least the Tycho module tycho-bundles-external with <tt>mvn clean install</tt> - you should see a warning that the locally built p2 bundles have been used.
+4. Build at least the Tycho module tycho-bundles-external with <tt>mvn clean install -Dtycho.localArtifacts=default</tt> - you should see a warning that the locally built p2 bundles have been used.
 Then the locally built Tycho SNAPSHOT includes the patched p2 version.
 
 Note: Tycho always allows references to locally built artifacts, even if they are not part of the target platform. Therefore you may want to clear the list of locally built artifacts (in the local Maven repository in .meta/p2-local-metadata.properties) after you have finished your trials with the patched p2 version.
