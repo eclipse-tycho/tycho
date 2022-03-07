@@ -121,8 +121,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
                     for (IProvidedCapability capability : iu.getProvidedCapabilities()) {
                         String nameSpace = capability.getNamespace();
                         if (BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(nameSpace)) {
-                            String fragmentName = capability.getName();
-                            return findFragmentHostRequirement(iu, fragmentName);
+                            String hostName = capability.getName();
+                            return findFragmentHostRequirement(iu, hostName);
                         }
                     }
                     return Optional.empty();
@@ -156,11 +156,11 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     }
 
     private static Optional<Entry<IInstallableUnit, IRequiredCapability>> findFragmentHostRequirement(
-            IInstallableUnit unit, String fragmentName) {
+            IInstallableUnit unit, String hostName) {
         for (IRequirement requirement : unit.getRequirements()) {
             if (requirement instanceof IRequiredCapability) {
                 IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
-                if (fragmentName.equals(requiredCapability.getName())) {
+                if (hostName.equals(requiredCapability.getName())) {
                     return Optional.of(new SimpleEntry<>(unit, requiredCapability));
                 }
             }
