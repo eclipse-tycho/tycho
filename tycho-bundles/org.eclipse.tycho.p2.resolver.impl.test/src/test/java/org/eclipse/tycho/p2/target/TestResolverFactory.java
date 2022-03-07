@@ -151,7 +151,7 @@ public class TestResolverFactory implements P2ResolverFactory {
 
     @Override
     public P2Resolver createResolver(MavenLogger logger) {
-        return new P2ResolverImpl(getTargetPlatformFactoryImpl(), mavenContext.getLogger());
+        return new P2ResolverImpl(getTargetPlatformFactoryImpl(), null, mavenContext.getLogger());
     }
 
     @Override

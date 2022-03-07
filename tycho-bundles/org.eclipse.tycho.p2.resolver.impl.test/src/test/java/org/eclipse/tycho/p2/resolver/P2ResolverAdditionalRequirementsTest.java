@@ -43,7 +43,7 @@ public class P2ResolverAdditionalRequirementsTest {
 
     @Before
     public void initBlankResolver() {
-        impl = new P2ResolverImpl(null, logVerifier.getLogger());
+        impl = new P2ResolverImpl(null, null, logVerifier.getLogger());
     }
 
     @Test
@@ -92,10 +92,10 @@ public class P2ResolverAdditionalRequirementsTest {
 
         IInstallableUnit iu = createIU(arbitraryVersion);
 
-        Assert.assertTrue("Requires version 0.0.0; should be satisfied by any version", additionalRequirements.get(0)
-                .isMatch(iu));
-        Assert.assertTrue("Requires version 0.0.0; should be satisfied by any version", additionalRequirements.get(1)
-                .isMatch(iu));
+        Assert.assertTrue("Requires version 0.0.0; should be satisfied by any version",
+                additionalRequirements.get(0).isMatch(iu));
+        Assert.assertTrue("Requires version 0.0.0; should be satisfied by any version",
+                additionalRequirements.get(1).isMatch(iu));
     }
 
     @Test
@@ -111,10 +111,10 @@ public class P2ResolverAdditionalRequirementsTest {
 
         IInstallableUnit iu = createIU(arbitraryVersion);
 
-        Assert.assertTrue("Given version was null; should be satisfied by any version", additionalRequirements.get(0)
-                .isMatch(iu));
-        Assert.assertTrue("Given version was null; should be satisfied by any version", additionalRequirements.get(1)
-                .isMatch(iu));
+        Assert.assertTrue("Given version was null; should be satisfied by any version",
+                additionalRequirements.get(0).isMatch(iu));
+        Assert.assertTrue("Given version was null; should be satisfied by any version",
+                additionalRequirements.get(1).isMatch(iu));
     }
 
     @Test
