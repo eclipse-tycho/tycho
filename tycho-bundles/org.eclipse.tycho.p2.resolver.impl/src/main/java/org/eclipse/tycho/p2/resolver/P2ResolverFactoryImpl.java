@@ -15,11 +15,28 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
@@ -35,9 +52,11 @@ import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2.util.resolution.ResolutionData;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 
+@SuppressWarnings("restriction")
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     // TODO cache these instances in an p2 agent, and not here
@@ -48,6 +67,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private LocalRepositoryP2Indices localRepoIndices;
     private RemoteAgentManager remoteAgentManager;
     private TargetDefinitionResolverService targetDefinitionResolverService;
+    private ConcurrentMap<IInstallableUnit, Optional<Entry<IInstallableUnit, IRequiredCapability>>> hostRequirementMap = new ConcurrentHashMap<>();
 
     private static synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
             LocalRepositoryP2Indices localRepoIndices) {
@@ -90,7 +110,62 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     @Override
     public P2ResolverImpl createResolver(MavenLogger logger) {
-        return new P2ResolverImpl(getTargetPlatformFactory(), logger);
+        return new P2ResolverImpl(getTargetPlatformFactory(), this, logger);
+    }
+
+    public Set<IInstallableUnit> calculateDependencyFragments(ResolutionData data,
+            Collection<IInstallableUnit> resolvedUnits) {
+        Collection<IInstallableUnit> availableIUs = data.getAvailableIUs();
+        List<Entry<IInstallableUnit, IRequiredCapability>> fragmentsList = availableIUs.stream()//
+                .map(iu -> hostRequirementMap.computeIfAbsent(iu, key -> {
+                    for (IProvidedCapability capability : iu.getProvidedCapabilities()) {
+                        String nameSpace = capability.getNamespace();
+                        if (BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(nameSpace)) {
+                            String fragmentName = capability.getName();
+                            return findFragmentHostRequirement(iu, fragmentName);
+                        }
+                    }
+                    return Optional.empty();
+
+                }))//
+                .filter(Optional::isPresent)//
+                .map(Optional::get)//
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (fragmentsList.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Set<IInstallableUnit> dependencyFragments = new HashSet<>();
+        for (Iterator<IInstallableUnit> iterator = resolvedUnits.iterator(); iterator.hasNext()
+                && !fragmentsList.isEmpty();) {
+            IInstallableUnit resolvedUnit = iterator.next();
+            addMatchingFragments(fragmentsList, dependencyFragments, resolvedUnit);
+        }
+        return dependencyFragments;
+    }
+
+    private static void addMatchingFragments(List<Entry<IInstallableUnit, IRequiredCapability>> fragmentsList,
+            Set<IInstallableUnit> dependencyFragments, IInstallableUnit unitToMatch) {
+        Iterator<Entry<IInstallableUnit, IRequiredCapability>> iterator = fragmentsList.iterator();
+        while (iterator.hasNext()) {
+            Entry<IInstallableUnit, IRequiredCapability> fragment = iterator.next();
+            if (fragment.getValue().isMatch(unitToMatch)) {
+                dependencyFragments.add(fragment.getKey());
+                iterator.remove();
+            }
+        }
+    }
+
+    private static Optional<Entry<IInstallableUnit, IRequiredCapability>> findFragmentHostRequirement(
+            IInstallableUnit unit, String fragmentName) {
+        for (IRequirement requirement : unit.getRequirements()) {
+            if (requirement instanceof IRequiredCapability) {
+                IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
+                if (fragmentName.equals(requiredCapability.getName())) {
+                    return Optional.of(new SimpleEntry<>(unit, requiredCapability));
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     // setters for DS
