@@ -81,6 +81,10 @@ This slightly changes some of the behavior of previous `pomDependencies=consider
 
 There is one restriction for such mixed setups, see: https://github.com/eclipse/tycho/issues/479
 
+### Caution when switching between Tycho versions
+
+Tycho 2.7 changed how it handles bad p2 maven meta-data. When you run builds with Tycho 2.7+ and then run builds with older Tycho versions, the meta-data written to your local Maven repository (e.g. ~/.m2/repository/.meta/p2-artifacts.properties) by Tycho 2.7 confuses older Tycho versions, so using different local Maven repositories or deleting that file between builds is recommended when switching between builds with current Tycho and older versions.
+
 ## 2.6.0
 
 ### Delayed classpath computation
