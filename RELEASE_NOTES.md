@@ -4,6 +4,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Limit the number of parallel test executions across the reactor
+
+You can specify a `<reactorConcurrencyLevel>` (default unlimited) for the `tycho-surefire:integration-test` and `tycho-surefire:test` that limits the number of concurrent running tests.
+This could be usefull if you like to execute the build with multiple threads (e.g. `-T1C`) but want to run the integration tests in a serial manner (e.g. because they are UI based).
+
 ### Migration guide 2.x -> 3.x
 
 #### Removal of tycho-pomgenerator:generate-poms

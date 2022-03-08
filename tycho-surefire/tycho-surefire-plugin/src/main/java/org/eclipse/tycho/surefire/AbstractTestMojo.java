@@ -108,7 +108,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH",
             "SIGIO", "SIGPWR", "SIGSYS" };
 
-    private static final Object LOCK = new Object();
+    private static final ConcurrencyLock CONCURRENCY_LOCK = new ConcurrencyLock();
 
     /**
      * Root directory (<a href=
@@ -593,6 +593,15 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Parameter(defaultValue = "DefaultProfile")
     private String profileName;
 
+    /**
+     * Configures the overall concurrency level. <b>Important Note:</b> If there are multiple mojo
+     * configurations this will choose the lowest configured number! So for example if in the same
+     * reactor there is one configuration with a concurrency level of 5 and one with a concurrency
+     * level of 3 then then only three parallel runs will be possible!
+     */
+    @Parameter
+    private int reactorConcurrencyLevel;
+
     @Component
     private ToolchainManager toolchainManager;
 
@@ -674,18 +683,26 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         }
         if (shouldRun()) {
             EquinoxInstallation equinoxTestRuntime;
-            synchronized (LOCK) {
+            synchronized (AbstractTestMojo.class) {
                 if ("p2Installed".equals(testRuntime)) {
                     equinoxTestRuntime = createProvisionedInstallation();
                 } else if ("default".equals(testRuntime)) {
                     equinoxTestRuntime = createEclipseInstallation();
                 } else {
                     throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
-                            + "' is unkown. Allowed values: 'default', 'p2Installed'.");
+                            + "' is unknown. Allowed values: 'default', 'p2Installed'.");
                 }
             }
             if (equinoxTestRuntime != null) {
-                runTest(equinoxTestRuntime);
+                try (AutoCloseable runLock = CONCURRENCY_LOCK.aquire(reactorConcurrencyLevel)) {
+                    runTest(equinoxTestRuntime);
+                } catch (InterruptedException e) {
+                    return;
+                } catch (MojoExecutionException | MojoFailureException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new MojoFailureException(e);
+                }
             }
         }
     }
