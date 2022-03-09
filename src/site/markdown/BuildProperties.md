@@ -66,7 +66,7 @@ root.folder | supported (since Tycho 0.27.0)
 root.config.folder | supported (since Tycho 0.27.0)
 root.permissions | supported
 root.link | supported
-generate.feature | not supported - use [Tycho Source Feature Plugin](https://www.eclipse.org/tycho/sitedocs-extras/tycho-source-feature-plugin/plugin-info.html) instead
+generate.feature | not supported - use [Tycho Source Plugin](tycho-source-plugin/plugin-info.html) instead
 generate.plugin | not supported - use [Tycho Source Plugin](tycho-source-plugin/plugin-info.html) instead
 significantVersionDigits | not supported
 generatedVersionLength | not supported

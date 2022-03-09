@@ -15,6 +15,10 @@ This could be usefull if you like to execute the build with multiple threads (e.
 
 tycho-pomgenerator:generate-poms mojo is no longer supported as it was useful in the days where tycho-pomless was incomplete, today its usage is very limited and tycho-pomless is a much better (and supported) alternative now.
 
+#### Removal of tycho-source-feature:source-feature
+
+This mojo is replaced by the tycho-source-plugin with execution feature-source which offers equivalent and even enhanced functionality.
+
 #### Pack200
 
 Pack200 technology is obsolete and no longer supported after Java 13. Tycho removed all support for dealing with pack.gz files including pack200 specific plugins, various options in Mojos and support for resolving fetching in core. 

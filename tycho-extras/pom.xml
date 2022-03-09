@@ -36,8 +36,6 @@
 	<modules>
 		<module>tycho-document-bundle-plugin</module>
 		<module>tycho-version-bump-plugin</module>
-		<!-- tycho-source-feature-plugin must run *before* tycho-p2-extras-plguin -->
-		<module>tycho-source-feature-plugin</module>
 		<module>tycho-p2-extras-plugin</module>
 		<module>tycho-custom-bundle-plugin</module>
 		<module>tycho-eclipserun-plugin</module>
