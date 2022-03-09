@@ -162,7 +162,6 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     private static class MavenLocation implements TargetDefinition.MavenGAVLocation {
 
-        private final Set<String> globalExcludes;
         private final Collection<String> includeDependencyScopes;
         private final MissingManifestStrategy manifestStrategy;
         private final boolean includeSource;
@@ -173,13 +172,12 @@ public final class TargetDefinitionFile implements TargetDefinition {
         private final Element featureTemplate;
 
         public MavenLocation(Collection<MavenDependency> roots, Collection<String> includeDependencyScopes,
-                MissingManifestStrategy manifestStrategy, Set<String> globalExcludes, boolean includeSource,
+                MissingManifestStrategy manifestStrategy, boolean includeSource,
                 Collection<BNDInstructions> instructions, DependencyDepth dependencyDepth,
                 Collection<MavenArtifactRepositoryReference> repositoryReferences, Element featureTemplate) {
             this.roots = roots;
             this.includeDependencyScopes = includeDependencyScopes;
             this.manifestStrategy = manifestStrategy;
-            this.globalExcludes = globalExcludes;
             this.includeSource = includeSource;
             this.instructions = instructions;
             this.dependencyDepth = dependencyDepth;
@@ -595,7 +593,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
             }
         }
         Element featureTemplate = getChild(dom, "feature");
-        return new MavenLocation(parseRoots(dom, globalExcludes), scopes, parseManifestStrategy(dom), globalExcludes,
+        return new MavenLocation(parseRoots(dom, globalExcludes), scopes, parseManifestStrategy(dom),
                 Boolean.parseBoolean(dom.getAttribute("includeSource")), parseInstructions(dom),
                 parseDependencyDepth(dom, scope), parseRepositoryReferences(dom), featureTemplate);
     }
