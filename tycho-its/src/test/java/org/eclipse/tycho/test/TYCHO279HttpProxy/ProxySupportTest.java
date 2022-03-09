@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG and others.
+ * Copyright (c) 2010, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,9 +34,9 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.NetworkTrafficServerConnector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -149,7 +149,7 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 
 	private void startHttpServer() throws Exception {
 		httpServer = new Server();
-		Connector connector = new SocketConnector();
+		ServerConnector connector = new NetworkTrafficServerConnector(httpServer);
 		httpServerPort = findFreePort();
 		connector.setPort(httpServerPort);
 		httpServer.addConnector(connector);
