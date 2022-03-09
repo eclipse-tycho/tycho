@@ -14,6 +14,7 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,39 +66,32 @@ public final class MavenDependencyInjector {
     private final Logger logger;
 
     private final MavenProject project;
+    private final boolean fetch;
 
     private Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping;
 
     MavenDependencyInjector(MavenProject project, BundleReader bundleReader,
             Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger) {
         this.project = project;
+        this.fetch = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())
+                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging());
         this.bundleReader = bundleReader;
         this.descriptorMapping = descriptorMapping;
         this.logger = logger;
     }
 
     void addDependency(ArtifactDescriptor artifact, String scope) {
-        List<Dependency> dependencyList;
-        if (artifact.getMavenProject() != null) {
-            dependencyList = collectProjectDependencies(artifact, scope);
-        } else if (requiresExternalDependencies()) {
-            dependencyList = collectExternalDependencies(artifact, scope);
-        } else {
-            return;
-        }
+        List<Dependency> dependencyList = artifact.getMavenProject() != null //
+                ? collectProjectDependencies(artifact, scope) //
+                : collectExternalDependencies(artifact, scope);
         Model model = project.getModel();
         for (Dependency dependency : dependencyList) {
             model.addDependency(dependency);
         }
     }
 
-    private boolean requiresExternalDependencies() {
-        return PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())
-                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging());
-    }
-
     private List<Dependency> collectExternalDependencies(ArtifactDescriptor artifact, String scope) {
-        File location = artifact.getLocation(true);
+        File location = artifact.getLocation(fetch);
         if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
             if (location == null || !location.isFile() || !location.canRead()) {
                 if (location != null && location.isDirectory()) {
@@ -177,10 +171,9 @@ public final class MavenDependencyInjector {
             dependency.setType(artifactKey.getType());
         }
         if (Artifact.SCOPE_SYSTEM.equals(dependency.getScope())) {
-            if (location == null || !location.isFile()) {
-                return null;
-            }
-            dependency.setSystemPath(location.getAbsolutePath());
+            dependency.setSystemPath(location != null && location.isFile() //
+                    ? location.getAbsolutePath() //
+                    : fileNotAvailable());
         }
         return dependency;
     }
@@ -305,4 +298,18 @@ public final class MavenDependencyInjector {
 
     }
 
+    private static File fileNotYetAvailable;
+
+    private static String fileNotAvailable() {
+        if (fileNotYetAvailable == null) {
+            try {
+                fileNotYetAvailable = File.createTempFile("file not yet available", null);
+                fileNotYetAvailable.deleteOnExit();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return fileNotYetAvailable.getAbsolutePath();
+    }
 }
