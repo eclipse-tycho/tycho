@@ -17,6 +17,7 @@ import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -90,4 +91,14 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 		assertThat(new File(repository, "p2.index"), isFile());
 	}
 
+	@Test
+	public void testDependencyList() throws Exception {
+		Verifier dependencyListVerifier = getVerifier("/p2Repository.basic");
+		dependencyListVerifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_352);
+		dependencyListVerifier.executeGoal("dependency:list");
+		dependencyListVerifier.verifyErrorFreeLog();
+		File logFile = new File(dependencyListVerifier.getBasedir(), dependencyListVerifier.getLogFileName());
+		assertTrue(Files.lines(logFile.toPath()).anyMatch(line -> line
+				.contains("p2.eclipse.plugin:org.eclipse.osgi:eclipse-plugin:3.5.2.R35x_v20100126:system")));
+	}
 }
