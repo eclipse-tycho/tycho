@@ -195,7 +195,7 @@ Tycho now supports M2_REPO variable from .classpath
 ## 2.4.0
 
 ### [Support resolving of JUnit Classpath Container](https://bugs.eclipse.org/bugs/show_bug.cgi?id=572602)
-It is now possible to resolve the JDT 'JUnit Classpath Container', for this do the following:
+It is now possible to resolve the JDT 'JUnit Classpath Container' (this is meant only for `eclipse-plugin` projects, NOT for `eclipse-test-plugin`), for this do the following:
 
 - add the 'JUnit Classpath Container' to the classpath of your eclipse project
 - make sure you check in the .classpath file
