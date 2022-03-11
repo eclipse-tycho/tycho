@@ -13,9 +13,11 @@
 package org.eclipse.tycho.p2.target;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -104,6 +106,13 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
             } else {
                 message = type + " artifact with ID \"" + id + "\" and version matching \"" + version
                         + "\" was not found in the target platform";
+            }
+            String candidates = installableUnits.stream()
+                    .sorted(Comparator.comparing(IInstallableUnit::getId).thenComparing(IInstallableUnit::getVersion))
+                    .filter(iu -> iu.getId().contains(id)).map(iu -> iu.getId() + ":" + iu.getVersion())
+                    .collect(Collectors.joining(System.lineSeparator()));
+            if (!candidates.isBlank()) {
+                message = message + ", did you probably mean: " + candidates;
             }
             throw new DependencyResolutionException(message);
         }
