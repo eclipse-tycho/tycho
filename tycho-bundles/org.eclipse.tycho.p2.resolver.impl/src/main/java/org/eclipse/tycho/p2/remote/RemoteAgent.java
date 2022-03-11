@@ -47,7 +47,9 @@ public class RemoteAgent implements IProvisioningAgent {
             boolean disableP2Mirrors, MavenRepositorySettings mavenRepositorySettings) throws ProvisionException {
         // TODO set a temporary folder as persistence location
         AgentBuilder agent = new AgentBuilder(Activator.newProvisioningAgent());
-
+        if ("tycho".equals(System.getProperty("tycho.p2.transport"))) {
+            agent.getAgent().registerService(Transport.SERVICE_NAME, new TychoRepositoryTransport(mavenContext));
+        }
         // suppress p2.index access
         final Transport transport;
         if (mavenContext.isOffline()) {
