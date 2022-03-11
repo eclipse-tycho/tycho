@@ -4,6 +4,66 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Automatic generation of PDE source bundles for pom-first bundles
+
+PDE requires some special headers to detect a bundle as a "Source Bundle", there is now a new mojo `tycho-source-plugin:generate-pde-source-header` that support this, it requires the following configuration:
+
+1. Enable the generation of a source-jar with the `maven-source-plugin`, please note that it needs to be explicitly bound to the `prepare-package` phase!
+```
+<plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-source-plugin</artifactId>
+	<executions>
+		<execution>
+			<id>attach-sources</id>
+			<goals>
+				<goal>jar</goal>
+			</goals>
+			<phase>prepare-package</phase>
+		</execution>
+	</executions>
+</plugin>
+```
+2. enable the generation of the appropriate PDE header
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-source-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<id>generate-pde-source-header</id>
+			<goals>
+				<goal>generate-pde-source-header</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+```
+3. finally enable generation of P2 metadata so tycho can use the source bundle in the build (you can omit this step if you don't want to reference the source bundle in a product, update-site or feature).
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<id>attached-p2-metadata</id>
+			<phase>package</phase>
+			<goals>
+				<goal>p2-metadata</goal>
+			</goals>
+			<configuration>
+				<supportedProjectTypes>
+					<value>bundle</value>
+					<value>jar</value>
+				</supportedProjectTypes>
+			</configuration>
+		</execution>
+	</executions>
+</plugin>
+```
+
 ### Limit the number of parallel test executions across the reactor
 
 You can specify a `<reactorConcurrencyLevel>` (default unlimited) for the `tycho-surefire:integration-test` and `tycho-surefire:test` that limits the number of concurrent running tests.
