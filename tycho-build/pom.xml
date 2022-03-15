@@ -94,7 +94,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
-			<version>1.4.1</version>
+			<version>1.4.2</version>
 		</dependency>
 
 
