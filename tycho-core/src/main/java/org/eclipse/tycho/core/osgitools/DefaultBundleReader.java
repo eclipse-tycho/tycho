@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #663 - Access to the tycho .cache directory is not properly synchronized 
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
@@ -18,9 +19,10 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -34,11 +36,12 @@ import org.eclipse.tycho.locking.facade.FileLocker;
 @Component(role = BundleReader.class)
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
 
+    private static final long LOCK_TIMEOUT = Long.getLong("tycho.bundlereader.lock.timeout", 5 * 60 * 1000L);
     public static final String CACHE_PATH = ".cache/tycho";
     private final Map<String, OsgiManifest> manifestCache = new HashMap<>();
 
     private File cacheDir;
-    private Set<String> extractedFiles = new HashSet<>();
+    private ConcurrentMap<String, Optional<File>> extractedFiles = new ConcurrentHashMap<>();
 
     @Requirement
     private FileLockService fileLockService;
@@ -109,32 +112,42 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
             getLogger().warn("Ignoring Bundle-ClassPath entry '" + path + "' of bundle " + bundleLocation);
             return null;
         }
-        final File result;
+        final Optional<File> result;
         if (bundleLocation.isDirectory()) {
-            result = new File(bundleLocation, path);
-        } else {
-            try {
-                File outputDirectory = new File(cacheDir, bundleLocation.getName());
-                result = new File(outputDirectory, path);
-                String resultPath = result.getCanonicalPath();
-                if (extractedFiles.contains(resultPath) && result.exists()) {
-                    return result;
-                } else {
-                    FileLocker locker = fileLockService.getFileLocker(outputDirectory);
-                    locker.lock(5 * 60 * 1000L);
-                    try {
-                        extractZipEntries(bundleLocation, path, outputDirectory);
-                    } finally {
-                        locker.release();
-                    }
-                    extractedFiles.add(resultPath);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("IOException while extracting '" + path + "' from " + bundleLocation, e);
+            File file = new File(bundleLocation, path);
+            if (file.exists()) {
+                result = Optional.of(file);
+            } else {
+                result = Optional.empty();
             }
+        } else {
+            String cacheKey;
+            File outputDirectory = new File(cacheDir, bundleLocation.getName());
+            File cacheFile = new File(outputDirectory, path);
+            try {
+                cacheKey = cacheFile.getCanonicalPath();
+            } catch (IOException e) {
+                throw new RuntimeException("can't get canonical path for " + cacheFile, e);
+            }
+            result = extractedFiles.computeIfAbsent(cacheKey, nil -> {
+                FileLocker locker = fileLockService.getFileLocker(outputDirectory);
+                locker.lock(LOCK_TIMEOUT);
+                try {
+                    extractZipEntries(bundleLocation, path, outputDirectory);
+                    if (cacheFile.exists()) {
+                        return Optional.of(cacheFile);
+                    }
+                    return Optional.empty();
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Can't extract '" + path + "' from " + bundleLocation + " to " + outputDirectory, e);
+                } finally {
+                    locker.release();
+                }
+            });
         }
-        if (result.exists()) {
-            return result;
+        if (result.isPresent()) {
+            return result.get();
         } else {
             getLogger().warn("Bundle-ClassPath entry " + path + " does not exist in " + bundleLocation);
             return null;
@@ -147,16 +160,16 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
             InputStream singleEntryStream;
             if (singleEntry != null && !singleEntry.isDirectory()
                     && (singleEntryStream = zip.getInputStream(singleEntry)) != null) {
-                // fix for performance bug 367098: avoid loop if path is a single zip file entry
-                copyStreamToFile(singleEntryStream, new File(outputDirectory, singleEntry.getName()),
-                        singleEntry.getTime());
+                // extract an exact match
+                File outputFile = new File(outputDirectory, singleEntry.getName());
+                copyStreamToFile(singleEntryStream, outputFile, singleEntry.getTime());
             } else {
-                // loop over all entries and extract matching
+                // loop over all entries and extract matching (e.g. in case we wan't a directory entry extracted)
                 for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
                     ZipEntry zipEntry = entries.nextElement();
                     if (!zipEntry.isDirectory() && zipEntry.getName().startsWith(path)) {
-                        copyStreamToFile(zip.getInputStream(zipEntry), new File(outputDirectory, zipEntry.getName()),
-                                zipEntry.getTime());
+                        File outputFile = new File(outputDirectory, zipEntry.getName());
+                        copyStreamToFile(zip.getInputStream(zipEntry), outputFile, zipEntry.getTime());
                     }
                 }
             }
