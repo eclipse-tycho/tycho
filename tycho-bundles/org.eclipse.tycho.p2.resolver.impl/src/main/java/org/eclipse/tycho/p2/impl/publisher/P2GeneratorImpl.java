@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - fix handling of optional secondary metadata
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
@@ -21,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
@@ -148,22 +150,31 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             // secondary metadata is meant to represent installable units that are provided by this project
             // but do not affect dependencies of the project itself. generateMetadata is called at the end
             // of project build lifecycle, and primary/secondary metadata separation is irrelevant at this point
-            P2Artifact p2artifact = new P2Artifact(artifact.getLocation(), metadata.getInstallableUnits(),
-                    getCanonicalArtifact(artifact.getClassifier(), metadata.getArtifactDescriptors()));
-            result.put(artifact.getClassifier(), p2artifact);
+
+            String classifier = artifact.getClassifier();
+            getCanonicalArtifact(classifier, metadata.getArtifactDescriptors()).ifPresentOrElse(canonical -> {
+                P2Artifact p2artifact = new P2Artifact(artifact.getLocation(), metadata.getInstallableUnits(),
+                        canonical);
+                result.put(classifier, p2artifact);
+            }, () -> {
+                mavenContext.getLogger().debug("Skip generation of secondary metadata for artifact = " + artifact
+                        + ", as it does not has a canonical ArtifactDescriptor");
+            });
+
         }
 
         return result;
     }
 
-    private IArtifactDescriptor getCanonicalArtifact(String classifier, Set<IArtifactDescriptor> artifactDescriptors) {
+    private Optional<IArtifactDescriptor> getCanonicalArtifact(String classifier,
+            Set<IArtifactDescriptor> artifactDescriptors) {
         for (IArtifactDescriptor descriptor : artifactDescriptors) {
             String _classifier = descriptor.getProperty(TychoConstants.PROP_CLASSIFIER);
             if (eq(classifier, _classifier) && descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
-                return descriptor;
+                return Optional.of(descriptor);
             }
         }
-        throw new IllegalArgumentException();
+        return Optional.empty();
     }
 
     private static <T> boolean eq(T a, T b) {
