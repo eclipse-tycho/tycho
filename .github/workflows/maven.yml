@@ -42,6 +42,10 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.3
+      with:
+        maven-version: 3.8.5
     - name: Build Tycho
       run: | 
         cp toolchains-gh.xml ~/.m2/toolchains.xml
