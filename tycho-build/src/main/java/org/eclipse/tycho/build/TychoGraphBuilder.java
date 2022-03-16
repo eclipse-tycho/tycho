@@ -55,7 +55,6 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -116,9 +115,6 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		if (!makeDownstream && !makeUpstream) {
 			// just like default...
 			return graphResult;
-		}
-		if (DirectorActivator.context == null) {
-			DirectorActivator.context = bundleContext;
 		}
 		ProjectDependencyGraph graph = graphResult.get();
 		List<MavenProject> projects = graph.getAllProjects();
