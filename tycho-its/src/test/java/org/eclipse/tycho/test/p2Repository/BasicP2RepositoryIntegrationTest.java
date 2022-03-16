@@ -49,7 +49,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 	@Test
 	public void test381377BundleInclusion() {
 		// check that (separately!) included bundle is there
-		assertThat(p2Repo.getBundleArtifact("osgi.enterprise", "4.2.0.v201108120515"), isFile());
+		assertThat(p2Repo.getBundleArtifact("com.sun.el", "2.2.0.v201303151357"), isFile());
 	}
 
 	@Test
