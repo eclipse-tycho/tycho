@@ -117,9 +117,6 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			// just like default...
 			return graphResult;
 		}
-		if (DirectorActivator.context == null) {
-			DirectorActivator.context = bundleContext;
-		}
 		ProjectDependencyGraph graph = graphResult.get();
 		List<MavenProject> projects = graph.getAllProjects();
 		List<ModelProblem> problems = new CopyOnWriteArrayList<>();
