@@ -24,22 +24,24 @@ import org.junit.Test;
 
 public class CustomProfileIntegrationTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testBuildWithCustomProfile() throws Exception {
-        // reactor with a test bundle importing javax.activation;version="1.1.0"
-        Verifier verifier = getVerifier("eeProfile.custom/build", false);
+	@Test
+	public void testBuildWithCustomProfile() throws Exception {
+		// reactor with a test bundle importing javax.activation;version="1.1.0"
+		Verifier verifier = getVerifier("eeProfile.custom/build", false);
 
-        // repository where the custom EE is the only provider of javax.activation;version="1.1.0"
-        verifier.setSystemProperty("custom-profile-repo",
-                ResourceUtil.resolveTestResource("projects/eeProfile.custom/repository").toURI().toString());
+		// repository where the custom EE is the only provider of
+		// javax.activation;version="1.1.0"
+		verifier.setSystemProperty("custom-profile-repo",
+				ResourceUtil.resolveTestResource("projects/eeProfile.custom/repository").toURI().toString());
 
-        verifier.setSystemProperty("test-runtime-repo", ResourceUtil.P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
+		verifier.setSystemProperty("test-runtime-repo", ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 
-        // custom EE is in build result (because there is a dependency from the product via the bundle and includeAllDependencies=true)
-        P2RepositoryTool repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir(), "product"));
-        P2RepositoryTool.IU customProfileIU = repo.getUniqueIU("a.jre.customprofile");
-        assertEquals("1.6.0", customProfileIU.getVersion());
-    }
+		// custom EE is in build result (because there is a dependency from the product
+		// via the bundle and includeAllDependencies=true)
+		P2RepositoryTool repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir(), "product"));
+		P2RepositoryTool.IU customProfileIU = repo.getUniqueIU("a.jre.customprofile");
+		assertEquals("1.6.0", customProfileIU.getVersion());
+	}
 }
