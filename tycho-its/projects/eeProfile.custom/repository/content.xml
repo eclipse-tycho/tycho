@@ -208,6 +208,9 @@
         <provided namespace='osgi.ee' name='JavaSE' version='1.4.0'/>
         <provided namespace='osgi.ee' name='JavaSE' version='1.5.0'/>
         <provided namespace='osgi.ee' name='JavaSE' version='1.6.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.7.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.8.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='11'/>
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
     </unit>
