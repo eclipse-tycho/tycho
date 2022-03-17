@@ -213,6 +213,11 @@
 			<artifactId>org.eclipse.tycho.core.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>p2-maven-plugin</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
