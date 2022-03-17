@@ -1,78 +1,57 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2022 Christoph Läubrich and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - http://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    Christoph Läubrich - initial API and implementation
+ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>tycho-build</artifactId>
 
-	<build>
+	<artifactId>p2-maven-plugin</artifactId>
+	<packaging>maven-plugin</packaging>
 
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-component-metadata</artifactId>
-			</plugin>
+	<name>P2 Maven Integration</name>
+	<description>The P2 Maven Plugin provides access to the P2 eco-system inside maven.</description>
 
-		</plugins>
-	</build>
-
+	<properties></properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-utils</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.tycho.extras</groupId>
-			<artifactId>tycho-pomless</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.core.shared</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
--->
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.core</artifactId>
 			<version>2.9.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
 			<version>3.17.200</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.publisher</artifactId>
 			<version>1.7.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.director</artifactId>
 			<version>2.5.200</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.engine</artifactId>
 			<version>2.7.300</version>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.metadata</artifactId>
@@ -83,25 +62,15 @@
 			<artifactId>org.eclipse.equinox.p2.repository</artifactId>
 			<version>2.6.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
 			<version>1.2.600</version>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
 			<version>1.4.2</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>org.eclipse.sisu</groupId>
-			<artifactId>org.eclipse.sisu.plexus</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -119,28 +88,23 @@
 			<artifactId>maven-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
 			<version>1.4.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>p2-maven-plugin</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>

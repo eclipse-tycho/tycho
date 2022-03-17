@@ -37,11 +37,11 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
+import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "MavenContextConfigurator")
 public class MavenContextConfigurator extends EquinoxLifecycleListener {

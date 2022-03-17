@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.p2;
+package org.eclipse.tycho.p2maven.repository;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.aether.RepositorySystemSession;

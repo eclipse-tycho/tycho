@@ -28,11 +28,11 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
-import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 /**
  * Quick&dirty way to update .product file to use latest versions of IUs available from specified

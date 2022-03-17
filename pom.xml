@@ -468,6 +468,8 @@
 
 		<module>sisu-equinox</module>
 
+		<module>p2-maven-plugin</module>
+
 		<module>tycho-metadata-model</module>
 		<module>tycho-embedder-api</module>
 		<module>tycho-core</module>

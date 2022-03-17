@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.p2;
+package org.eclipse.tycho.p2maven.repository;
 
 import java.util.Collection;
 

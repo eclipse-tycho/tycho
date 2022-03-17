@@ -10,7 +10,7 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.build;
+package org.eclipse.tycho.p2maven;
 
 import java.io.File;
 import java.io.InputStream;
@@ -18,6 +18,9 @@ import java.util.Collection;
 import java.util.Dictionary;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -34,7 +37,7 @@ import org.osgi.framework.ServiceRegistration;
 
 //FIXME this should not be necessary at all see https://bugs.eclipse.org/bugs/show_bug.cgi?id=578387
 @Component(role = BundleContext.class, hint = "plexus")
-public class PlexusBundleContext implements BundleContext {
+public class PlexusBundleContext implements BundleContext, Initializable, Disposable {
 
 	@Override
 	public String getProperty(String key) {
@@ -176,6 +179,15 @@ public class PlexusBundleContext implements BundleContext {
 	@Override
 	public Bundle getBundle(String location) {
 		return getBundle();
+	}
+
+	@Override
+	public void initialize() throws InitializationException {
+
+	}
+
+	@Override
+	public void dispose() {
 	}
 
 }
