@@ -34,6 +34,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
 
 /**
  * Updates the pom file with the dependencies from the tycho model. If you
@@ -109,10 +111,12 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		List<Dependency> list = Objects.requireNonNullElse(project.getDependencies(), Collections.emptyList());
 		for (Dependency dep : list) {
 			Dependency copy = dep.clone();
-			copy.setSystemPath(null);
-			if (dep.getGroupId().startsWith("p2.eclipse.") && Artifact.SCOPE_SYSTEM.equals(dep.getScope())) {
-				copy.setOptional(true);
-				copy.setScope(Artifact.SCOPE_PROVIDED);
+			if (Artifact.SCOPE_SYSTEM.equals(dep.getScope())) {
+				if (dep.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX) || isEmbeddedJar(dep)) {
+					copy.setOptional(true);
+					copy.setScope(Artifact.SCOPE_PROVIDED);
+					copy.setSystemPath(null);
+				}
 			}
 			dependencies.add(copy);
 		}
@@ -137,6 +141,11 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			project.setFile(output);
 		}
 
+	}
+
+	private boolean isEmbeddedJar(Dependency dep) {
+		return PackagingType.TYPE_ECLIPSE_PLUGIN.equals(dep.getType()) && dep.getClassifier() != null
+				&& !dep.getClassifier().isBlank();
 	}
 
 }
