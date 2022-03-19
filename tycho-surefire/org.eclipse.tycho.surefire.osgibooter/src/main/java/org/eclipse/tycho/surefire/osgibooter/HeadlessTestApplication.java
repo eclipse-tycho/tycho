@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,11 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - [Issue 790] Support printing of bundle wirings in tycho-surefire-plugin
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
+
+import java.util.Properties;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
@@ -20,7 +23,9 @@ public class HeadlessTestApplication implements IApplication {
 
     public Object start(IApplicationContext context) throws Exception {
         String[] args = Platform.getCommandLineArgs();
-        return Integer.valueOf(OsgiSurefireBooter.run(args));
+        Properties testProps = OsgiSurefireBooter.loadProperties(args);
+        OsgiSurefireBooter.printBundleInfos(testProps);
+        return Integer.valueOf(OsgiSurefireBooter.run(args, testProps));
     }
 
     public void stop() {
