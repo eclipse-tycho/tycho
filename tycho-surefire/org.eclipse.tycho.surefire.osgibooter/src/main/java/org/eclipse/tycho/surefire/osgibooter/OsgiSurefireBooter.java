@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,11 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG        - port to surefire 2.10
  *    Red Hat Inc.  - Lazier logging of resolution error
+ *    Christoph Läubrich - [Issue 790] Support printing of bundle wirings in tycho-surefire-plugin
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
+
+import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -56,12 +59,13 @@ import org.eclipse.osgi.service.resolver.ResolverError;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.wiring.BundleWire;
+import org.osgi.framework.wiring.BundleWiring;
 
 public class OsgiSurefireBooter {
     private static final String XSD = "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd";
 
-    public static int run(String[] args) throws Exception {
-        Properties testProps = loadProperties(getTestProperties(args));
+    public static int run(String[] args, Properties testProps) throws Exception {
         boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
@@ -76,16 +80,6 @@ public class OsgiSurefireBooter {
         Map<String, String> propertiesMap = new HashMap<String, String>();
         for (String key : testProps.stringPropertyNames()) {
             propertiesMap.put(key, testProps.getProperty(key));
-        }
-        if (Boolean.parseBoolean(testProps.getProperty("printBundles"))) {
-            System.out.println("====== Installed Bundles ========");
-            Bundle fwbundle = getBundle(Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
-            Bundle[] bundles = fwbundle.getBundleContext().getBundles();
-            for (Bundle bundle : bundles) {
-                System.out.println("[" + bundle.getBundleId() + "][" + bundle.getState() + "] "
-                        + bundle.getSymbolicName() + " (" + bundle.getVersion() + ")");
-            }
-            System.out.println("=================================");
         }
         PropertiesWrapper wrapper = new PropertiesWrapper(propertiesMap);
         List<String> suiteXmlFiles = wrapper.getStringList(BooterConstants.TEST_SUITE_XML_FILES);
@@ -133,6 +127,62 @@ public class OsgiSurefireBooter {
         }
         // counter-intuitive, but null indicates OK here
         return result.getFailsafeCode() == null ? 0 : result.getFailsafeCode();
+    }
+
+    protected static void printBundleInfos(Properties testProps) {
+        boolean printBundles = Boolean.parseBoolean(testProps.getProperty("printBundles"));
+        boolean printWires = Boolean.parseBoolean(testProps.getProperty("printWires"));
+        if (printBundles || printWires) {
+            System.out.println("====== Installed Bundles ========");
+            Bundle fwbundle = getBundle(Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
+            Bundle[] bundles = fwbundle.getBundleContext().getBundles();
+            for (Bundle bundle : bundles) {
+                System.out.println("[" + bundle.getBundleId() + "][" + getBundleState(bundle) + "] "
+                        + bundle.getSymbolicName() + " (" + bundle.getVersion() + ")");
+                if (printWires) {
+                    printImports(bundle);
+                }
+            }
+            System.out.println("=================================");
+        }
+    }
+
+    private static String getBundleState(Bundle bundle) {
+        int state = bundle.getState();
+        switch (state) {
+        case Bundle.UNINSTALLED:
+            return "UNINSTALLED";
+        case Bundle.INSTALLED:
+            return "INSTALLED";
+        case Bundle.RESOLVED:
+            return "RESOLVED";
+        case Bundle.STARTING:
+            return "STARTING";
+        case Bundle.STOPPING:
+            return "STOPPING";
+        case Bundle.ACTIVE:
+            return "ACTIVE";
+        default:
+            return "UNKOWN";
+        }
+    }
+
+    private static void printImports(Bundle source) {
+        BundleWiring bundleWiring = source.adapt(BundleWiring.class);
+        if (bundleWiring == null) {
+            return;
+        }
+        List<BundleWire> wires = bundleWiring.getRequiredWires(PACKAGE_NAMESPACE);
+        if (wires.isEmpty()) {
+            return;
+        }
+        System.out.println(" Imported-Packages:");
+        for (BundleWire wire : wires) {
+            String pack = (String) wire.getCapability().getAttributes().get(PACKAGE_NAMESPACE);
+            Bundle bundle = wire.getProviderWiring().getBundle();
+            System.out.println("   " + pack + " <--> " + bundle.getSymbolicName() + " (" + bundle.getVersion()
+                    + ") @ " + bundle.getLocation());
+        }
     }
 
     private static ClassLoader createCombinedClassLoader(String testPlugin) throws BundleException {
@@ -249,6 +299,10 @@ public class OsgiSurefireBooter {
         public String toString() {
             return bundle.getSymbolicName() + " [" + bundle.getVersion() + "]";
         }
+    }
+
+    public static Properties loadProperties(String[] args) throws IOException, CoreException {
+        return loadProperties(getTestProperties(args));
     }
 
 }

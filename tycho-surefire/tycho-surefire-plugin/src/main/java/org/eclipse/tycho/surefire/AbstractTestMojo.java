@@ -14,6 +14,7 @@
  *    Bachmann electrontic GmbH - 510425 parallel mode requires threadCount>1 or useUnlimitedThreads=true
  *    Christoph Läubrich    - [Bug 529929] improve error message in case of failures
  *                          - [Bug 572420] Tycho-Surefire should be executable for eclipse-plugin package type
+ *                          - [Issue 790] Support printing of bundle wirings in tycho-surefire-plugin
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
@@ -228,6 +229,12 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      */
     @Parameter(property = "tycho.printBundles", defaultValue = "false")
     private boolean printBundles;
+
+    /**
+     * prints all loaded bundles
+     */
+    @Parameter(property = "tycho.printWires", defaultValue = "false")
+    private boolean printWires;
 
     /**
      * Set this to "true" to redirect the unit test standard output to a file (found in
@@ -942,6 +949,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         wrapper.setProperty("skipAfterFailureCount", String.valueOf(skipAfterFailureCount));
         wrapper.setProperty("rerunFailingTestsCount", String.valueOf(rerunFailingTestsCount));
         wrapper.setProperty("printBundles", String.valueOf(printBundles));
+        wrapper.setProperty("printWires", String.valueOf(printWires));
         Properties mergedProviderProperties = getMergedProviderProperties();
         mergedProviderProperties.putAll(provider.getProviderSpecificProperties());
         Map<String, String> providerPropertiesAsMap = propertiesAsMap(mergedProviderProperties);

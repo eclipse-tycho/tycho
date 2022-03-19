@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,11 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - [Issue 790] Support printing of bundle wirings in tycho-surefire-plugin
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
+
+import java.util.Properties;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -34,7 +37,7 @@ public abstract class AbstractUITestApplication implements ITestHarness {
             fTestableObject.runTest(new Runnable() {
                 public void run() {
                     try {
-                        fTestRunnerResult = OsgiSurefireBooter.run(fArgs);
+                        fTestRunnerResult = OsgiSurefireBooter.run(fArgs, getTestProperties());
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -43,7 +46,7 @@ public abstract class AbstractUITestApplication implements ITestHarness {
             });
         } else {
             try {
-                fTestRunnerResult = OsgiSurefireBooter.run(fArgs);
+                fTestRunnerResult = OsgiSurefireBooter.run(fArgs, getTestProperties());
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -51,6 +54,8 @@ public abstract class AbstractUITestApplication implements ITestHarness {
         }
         fTestableObject.testingFinished();
     }
+
+    protected abstract Properties getTestProperties();
 
     private boolean useUIThread(String[] args) {
         if (args != null) {
@@ -119,7 +124,7 @@ public abstract class AbstractUITestApplication implements ITestHarness {
             if (application == null) {
                 return Integer.valueOf(200);
             }
-            runApplication(application, args);
+            runApplication(application, args, getTestProperties());
         } catch (Exception e) {
             if (fTestRunnerResult == -1) {
                 throw e;
@@ -134,5 +139,5 @@ public abstract class AbstractUITestApplication implements ITestHarness {
         return Integer.valueOf(fTestRunnerResult);
     }
 
-    protected abstract void runApplication(Object application, String[] args) throws Exception;
+    protected abstract void runApplication(Object application, String[] args, Properties testProps) throws Exception;
 }
