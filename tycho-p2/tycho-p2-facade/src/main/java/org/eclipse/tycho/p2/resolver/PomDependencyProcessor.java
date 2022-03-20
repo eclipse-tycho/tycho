@@ -23,8 +23,10 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
@@ -51,6 +53,8 @@ public class PomDependencyProcessor {
 
     PomDependencyCollector collectPomDependencies(MavenProject project, Collection<Artifact> transitivePomDependencies,
             boolean allowGenerateOSGiBundle) {
+        TargetPlatformConfiguration targetPlatformConfiguration = TychoProjectUtils
+                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
         final TychoRepositoryIndex p2ArtifactsInLocalRepo = localRepoIndices.getArtifactsIndex();
         PomDependencyCollector result = resolverFactory.newPomDependencyCollector(DefaultReactorProject.adapt(project));
 
@@ -98,7 +102,9 @@ public class PomDependencyProcessor {
                     Artifact find = session.getLocalRepository().find(artifact);
                     artifact.setFile(find.getFile());
                 }
-                result.addMavenArtifact(new MavenArtifactFacade(artifact), allowGenerateOSGiBundle);
+                if (!targetPlatformConfiguration.isExcluded(artifact.getGroupId(), artifact.getArtifactId())) {
+                    result.addMavenArtifact(new MavenArtifactFacade(artifact), allowGenerateOSGiBundle);
+                }
             } else {
                 failDueToPartialP2Data(artifact, p2Data);
             }
