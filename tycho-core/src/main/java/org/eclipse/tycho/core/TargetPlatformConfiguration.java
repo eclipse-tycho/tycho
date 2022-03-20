@@ -9,6 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - [Bug 550169] - Improve Tychos handling of includeSource="true" in target definition
  *                         [Bug 567098] - pomDependencies=consider should wrap non-osgi jars
+ *                         [Issue 792]  - Support exclusion of certain dependencies from pom dependency consideration
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
@@ -17,8 +18,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactKey;
@@ -58,6 +61,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
 
     private final List<ArtifactKey> extraRequirements = new ArrayList<>();
+    private final Set<String> exclusions = new HashSet<>();
 
     private Map<String, String> resolverProfileProperties = new HashMap<>();
 
@@ -201,6 +205,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void addProfileProperty(String key, String value) {
         resolverProfileProperties.put(key, value);
+    }
+
+    public void addExclusion(String groupId, String artifactId) {
+        exclusions.add(groupId + ":" + artifactId);
+    }
+
+    public boolean isExcluded(String groupId, String artifactId) {
+        return exclusions.contains(groupId + ":" + artifactId);
     }
 
 }

@@ -1,7 +1,21 @@
+/*******************************************************************************
+ * Copyright (c) 2020, 2022 Red Hat Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Red Hat Inc. - initial API and implementation
+ *    Christoph Läubrich - [Issue 792]  - Support exclusion of certain dependencies from pom dependency consideration 
+ *******************************************************************************/
 package org.eclipse.tycho.target;
 
 import java.util.List;
 
+import org.apache.maven.model.Exclusion;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -142,6 +156,15 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.FILTERS)
     private List<?> filters; //TODO stronger typing?
+
+    /**
+     * Exclusions could be used together with {@link #pomDependencies} setting to exclude certain
+     * maven dependencies from being considered. This is useful for example if there is an offending
+     * (transitive) dependency needed for compilation but not for the runtime that would cause
+     * problems otherwise.
+     */
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.EXCLUSIONS)
+    private List<Exclusion> exclusions;
 
     /**
      * Configure dependency resolution, for example by adding requirements.

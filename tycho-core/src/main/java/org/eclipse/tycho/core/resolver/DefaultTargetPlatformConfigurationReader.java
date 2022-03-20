@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich -  [Bug 461284] - Improve discovery and attach of .target files in eclipse-target-definition
  *                          [Bug 567098] - pomDependencies=consider should wrap non-osgi jars
+ *                          [Issue 792]  - Support exclusion of certain dependencies from pom dependency consideration 
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
@@ -61,6 +62,7 @@ public class DefaultTargetPlatformConfigurationReader {
     public static final String TARGET = "target";
     public static final String RESOLVER = "resolver";
     public static final String ENVIRONMENTS = "environments";
+    public static final String EXCLUSIONS = "exclusions";
     private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
     private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
     private static final String OPTIONAL_RESOLUTION_OPTIONAL = "optional";
@@ -115,6 +117,11 @@ public class DefaultTargetPlatformConfigurationReader {
                 setResolveWithEEContraints(result, configuration);
 
                 readFilters(result, configuration);
+                try {
+                    readExclusions(result, configuration);
+                } catch (TargetPlatformConfigurationException e) {
+                    throw new BuildFailureException("reading exclusions failed", e);
+                }
 
                 readDependencyResolutionConfiguration(result, configuration);
 
@@ -463,6 +470,28 @@ public class DefaultTargetPlatformConfigurationReader {
         if (filtersDom != null) {
             result.setFilters(filterReader.parseFilterConfiguration(filtersDom));
         }
+    }
+
+    private void readExclusions(TargetPlatformConfiguration result, Xpp3Dom configuration)
+            throws TargetPlatformConfigurationException {
+        Xpp3Dom exclusionsDom = configuration.getChild(EXCLUSIONS);
+        if (exclusionsDom != null) {
+            Xpp3Dom[] children = exclusionsDom.getChildren("exclusion");
+            for (Xpp3Dom exclusion : children) {
+                Xpp3Dom groupId = exclusion.getChild("groupId");
+                if (groupId == null) {
+                    throw new TargetPlatformConfigurationException(
+                            "<groupId> element is missing within target-platform-configuration (element <exclusion>)");
+                }
+                Xpp3Dom artifactId = exclusion.getChild("artifactId");
+                if (artifactId == null) {
+                    throw new TargetPlatformConfigurationException(
+                            "<artifactId> element is missing within target-platform-configuration (element <exclusion>)");
+                }
+                result.addExclusion(groupId.getValue(), artifactId.getValue());
+            }
+        }
+
     }
 
     private static TargetEnvironment newTargetEnvironment(Xpp3Dom environmentDom)
