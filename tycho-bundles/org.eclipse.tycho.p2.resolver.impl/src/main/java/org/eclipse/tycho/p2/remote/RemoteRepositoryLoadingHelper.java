@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,13 +9,15 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - Issue #797 - Implement a caching P2 transport  
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
@@ -31,7 +33,7 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
     private final MavenRepositorySettings settings;
     private final MavenLogger logger;
 
-    private Map<URI, String> knownMavenRepositoryIds = new HashMap<>();
+    private Map<URI, String> knownMavenRepositoryIds = new ConcurrentHashMap<>();
 
     public RemoteRepositoryLoadingHelper(MavenRepositorySettings settings, MavenLogger logger) {
         this.settings = settings;
@@ -132,6 +134,11 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
     private static boolean certainlyNoRemoteURL(URI location) {
         // e.g. in-memory composite artifact repositories; see see org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository.createMemoryComposite(IProvisioningAgent)
         return location.isOpaque() || !location.isAbsolute();
+    }
+
+    public Stream<MavenRepositoryLocation> getKnownMavenRepositoryLocations() {
+        return knownMavenRepositoryIds.entrySet().stream()
+                .map(e -> new MavenRepositoryLocation(e.getValue(), e.getKey()));
     }
 
 }

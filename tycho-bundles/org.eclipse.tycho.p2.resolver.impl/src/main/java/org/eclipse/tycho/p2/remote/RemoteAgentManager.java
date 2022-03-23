@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
@@ -33,6 +34,8 @@ public class RemoteAgentManager {
     // TODO stop when this service is stopped?
     private IProvisioningAgent cachedAgent;
 
+    private IProxyService proxyService;
+
     public RemoteAgentManager(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
     }
@@ -44,7 +47,7 @@ public class RemoteAgentManager {
     public synchronized IProvisioningAgent getProvisioningAgent() throws ProvisionException {
         if (cachedAgent == null) {
             boolean disableP2Mirrors = getDisableP2MirrorsConfiguration();
-            cachedAgent = new RemoteAgent(mavenContext, mavenRepositorySettings, disableP2Mirrors);
+            cachedAgent = new RemoteAgent(mavenContext, proxyService, mavenRepositorySettings, disableP2Mirrors);
         }
         return cachedAgent;
     }
@@ -68,6 +71,10 @@ public class RemoteAgentManager {
 
     public void setMavenRepositorySettings(MavenRepositorySettings mavenRepositorySettings) {
         this.mavenRepositorySettings = mavenRepositorySettings;
+    }
+
+    public void setProxyService(IProxyService proxyService) {
+        this.proxyService = proxyService;
     }
 
 }

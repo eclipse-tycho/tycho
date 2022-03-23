@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2022 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - Issue #797 - Implement a caching P2 transport  
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
@@ -88,7 +89,7 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
                 SettingsDecryptionResult result = decrypter.decryptAndLogProblems(serverSettings);
                 Server decryptedServer = result.getServer();
                 return new MavenRepositorySettings.Credentials(decryptedServer.getUsername(),
-                        decryptedServer.getPassword());
+                        decryptedServer.getPassword(), location.getURL());
             }
             return null;
         }

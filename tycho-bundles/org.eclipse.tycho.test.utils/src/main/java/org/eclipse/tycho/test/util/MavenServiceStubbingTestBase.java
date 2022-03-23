@@ -12,9 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
+import org.eclipse.core.internal.net.ProxyManager;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.p2.remote.testutil.MavenRepositorySettingsStub;
 import org.junit.Before;
@@ -43,13 +45,17 @@ public class MavenServiceStubbingTestBase {
     public StubServiceRegistration<FileLockService> fileLockServiceRegistration = new StubServiceRegistration<>(
             FileLockService.class, new NoopFileLockService());
 
+    @Rule
+    public StubServiceRegistration<IProxyService> proxyServiceRegistration = new StubServiceRegistration<>(
+            IProxyService.class, ProxyManager.getProxyManager());
+
     @Before
     public void initServiceInstances() throws Exception {
         mavenContextRegistration.registerService(createMavenContext());
     }
 
     private MavenContext createMavenContext() throws Exception {
-        MavenContext mavenContext = new MavenContextImpl(temporaryFolder.newFolder("target"), logVerifier.getLogger()) {
+        MavenContext mavenContext = new MockMavenContext(temporaryFolder.newFolder("target"), logVerifier.getLogger()) {
 
             @Override
             public String getExtension(String artifactType) {

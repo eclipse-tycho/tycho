@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - Issue #797 - Implement a caching P2 transport  
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver.shared;
 
