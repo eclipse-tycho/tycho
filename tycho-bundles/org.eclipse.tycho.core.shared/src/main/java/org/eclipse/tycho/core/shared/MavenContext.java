@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP AG and others.
+ * Copyright (c) 2011, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,10 @@ package org.eclipse.tycho.core.shared;
 import java.io.File;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 
 /**
  * Makes maven information which is constant for the whole maven session available as a service to
@@ -33,6 +35,11 @@ public interface MavenContext {
      * whether maven was started in offline mode (CLI option "-o")
      */
     public boolean isOffline();
+
+    /**
+     * whether maven was started with the update-snapshots mode (CLI option "-U")
+     */
+    boolean isUpdateSnapshots();
 
     /**
      * Session-global properties merged from (in order of precedence)
@@ -58,5 +65,11 @@ public interface MavenContext {
      * @return the extension for the given type
      */
     public String getExtension(String artifactType);
+
+    /**
+     * 
+     * @return a collection of all {@link MavenRepositoryLocation}s know to the maven context
+     */
+    Stream<MavenRepositoryLocation> getMavenRepositoryLocations();
 
 }

@@ -54,10 +54,15 @@ public class RemoteAgentMavenMirrorsTest {
     public void initSubject() throws Exception {
         File localRepository = tempManager.newFolder("localRepo");
         MavenContext mavenContext = new MockMavenContext(localRepository, OFFLINE, logVerifier.getLogger(),
-                new Properties());
+                new Properties()) {
+            @Override
+            public boolean isUpdateSnapshots() {
+                return true;
+            }
+        };
 
         mavenRepositorySettings = new MavenRepositorySettingsStub();
-        subject = new RemoteAgent(mavenContext, mavenRepositorySettings, OFFLINE);
+        subject = new RemoteAgent(mavenContext, null, mavenRepositorySettings, OFFLINE);
     }
 
     @Test

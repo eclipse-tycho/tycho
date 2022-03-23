@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.junit.Test;
@@ -170,7 +170,7 @@ public class GAVArtifactDescriptorTest {
                 OTHER_EXTENSION);
         subject = new GAVArtifactDescriptor(createP2Descriptor(), coordinates);
 
-        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(new MavenContextImpl(null, false, null, null) {
+        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(new MockMavenContext(null, false, null, null) {
 
             @Override
             public String getExtension(String artifactType) {
@@ -185,7 +185,7 @@ public class GAVArtifactDescriptorTest {
                 DEFAULT_EXTENSION);
         subject = new GAVArtifactDescriptor(createP2Descriptor(), coordinates);
 
-        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(new MavenContextImpl(null, false, null, null) {
+        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(new MockMavenContext(null, false, null, null) {
 
             @Override
             public String getExtension(String artifactType) {

@@ -4,6 +4,31 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Improved P2 transport for more efficiently http-cache handling and improved offline mode
+
+P2 default transport is more designed as a weak cache that assumes the user is always online.
+While for an IDE that might be sufficient as target resolution is only performed once in a while and updates are triggered by explicit user request, for tycho this does not work well:
+
+- Builds are often trigger on each code change, requiring repeated target resolution
+- Builds might be asked to run in an offline mode
+- If there is a temporary server outrage one might to fallback to the previous state for this build instead of fail completely
+- Build times are often a rare resource one don't want to waste waiting for servers, bandwidth might even be limited or you have to pay for it
+
+Because of this, Tycho now includes a brand new caching P2 transport that allows advanced aching, offline handling and fallback to cache in case of server failures. The transport is enabled by default so nothing has to be done, just in case you want the old behavior you can set `-D=tycho.p2.transport=ecf` beside that the following properties might be interesting:
+
+#### Force cache-revalidation
+If you run maven with the `-U` switch Tycho revalidates the cache, this is useful if you have changed an updatesite in an unusual way (e.g. adding new index files) as tycho now also caches not found items to speed-up certain scenarios where many non existing files are queried.
+
+#### Configure minimum caching age
+
+Some servers don't provide you with sufficient caching information, for this purpose, tychy by default assumes a minimum caching age of one hour. You can switch this off, or configure a longer delay by using `-Dtycho.p2.transport.min-cache-minutes=<desired minimum in minutes>`.
+Choosing a sensible value could greatly improve your build times and lower banYdwith usage. If your build contains a mixture of released and 'snapshot' sites you have the following options:
+
+1. Consider adding a mirror to your settings.xml for the snapshot page that point to a file-local copy (e.g. output of another build)
+2. Configure the webserver of your snapshot site with the `Cache-Control: must-revalidate` header in which case tycho ignores any minimum age
+3. Use `-Dtycho.p2.transport.min-cache-minutes=0` this will still improve the time to resolve the target
+
+
 ### Automatic generation of PDE source bundles for pom-first bundles
 
 PDE requires some special headers to detect a bundle as a "Source Bundle", there is now a new mojo `tycho-source-plugin:generate-pde-source-header` that support this, it requires the following configuration:

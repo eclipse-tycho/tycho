@@ -14,9 +14,11 @@ package org.eclipse.tycho.core.shared;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 
 public class MockMavenContext extends MavenContextImpl {
 
@@ -57,6 +59,16 @@ public class MockMavenContext extends MavenContextImpl {
         default:
             return "jar";
         }
+    }
+
+    @Override
+    public boolean isUpdateSnapshots() {
+        return false;
+    }
+
+    @Override
+    public Stream<MavenRepositoryLocation> getMavenRepositoryLocations() {
+        return Stream.empty();
     }
 
 }

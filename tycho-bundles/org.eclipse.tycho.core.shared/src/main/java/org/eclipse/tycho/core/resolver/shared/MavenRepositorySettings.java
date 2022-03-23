@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,11 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - Issue #797 - Implement a caching P2 transport  
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver.shared;
+
+import java.net.URI;
 
 /**
  * Provides the mirror configuration and credentials from the Maven settings for loading remote p2
@@ -21,10 +24,12 @@ public interface MavenRepositorySettings {
     public final class Credentials {
         private final String userName;
         private final String password;
+        private final URI url;
 
-        public Credentials(String userName, String password) {
+        public Credentials(String userName, String password, URI uri) {
             this.userName = userName;
             this.password = password;
+            this.url = uri;
         }
 
         public String getUserName() {
@@ -33,6 +38,10 @@ public interface MavenRepositorySettings {
 
         public String getPassword() {
             return password;
+        }
+
+        public URI getURI() {
+            return url;
         }
     }
 
