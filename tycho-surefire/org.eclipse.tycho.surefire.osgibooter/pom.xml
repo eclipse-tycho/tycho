@@ -73,8 +73,23 @@
 									<version>${surefire-version}</version>
 								</artifactItem>
 								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-extensions-api</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-shared-utils</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
 									<groupId>org.apache.maven.plugins</groupId>
 									<artifactId>maven-failsafe-plugin</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>common-java5</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
 							</artifactItems>

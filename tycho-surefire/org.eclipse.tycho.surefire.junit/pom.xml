@@ -36,6 +36,11 @@
 							<artifactId>surefire-junit3</artifactId>
 							<version>${surefire-version}</version>
 						</artifactItem>
+						<artifactItem>
+							<groupId>org.apache.maven.surefire</groupId>
+							<artifactId>common-junit3</artifactId>
+							<version>${surefire-version}</version>
+						</artifactItem>
 					</artifactItems>
 				</configuration>
 			</plugin>

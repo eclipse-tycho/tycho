@@ -45,7 +45,7 @@
 		<install-plugin.version>2.3.1</install-plugin.version>
 		<deploy-plugin.version>2.5</deploy-plugin.version>
 		<clean-plugin.version>2.4.1</clean-plugin.version>
-		<surefire-plugin.version>2.22.2</surefire-plugin.version>
+		<surefire-plugin.version>${surefire-version}</surefire-plugin.version>
 	</properties>
 
 	<build>

@@ -22,9 +22,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -32,26 +34,30 @@ import java.util.Set;
 
 import org.apache.maven.plugin.failsafe.util.FailsafeSummaryXmlUtils;
 import org.apache.maven.plugin.surefire.StartupReportConfiguration;
+import org.apache.maven.plugin.surefire.extensions.SurefireConsoleOutputReporter;
+import org.apache.maven.plugin.surefire.extensions.SurefireStatelessReporter;
+import org.apache.maven.plugin.surefire.extensions.SurefireStatelessTestsetInfoReporter;
 import org.apache.maven.plugin.surefire.log.api.PrintStreamLogger;
 import org.apache.maven.plugin.surefire.report.ConsoleReporter;
 import org.apache.maven.plugin.surefire.report.DefaultReporterFactory;
+import org.apache.maven.surefire.api.booter.Shutdown;
+import org.apache.maven.surefire.api.cli.CommandLineOption;
+import org.apache.maven.surefire.api.report.ReporterConfiguration;
+import org.apache.maven.surefire.api.report.ReporterFactory;
+import org.apache.maven.surefire.api.suite.RunResult;
+import org.apache.maven.surefire.api.testset.DirectoryScannerParameters;
+import org.apache.maven.surefire.api.testset.RunOrderParameters;
+import org.apache.maven.surefire.api.testset.TestListResolver;
+import org.apache.maven.surefire.api.testset.TestRequest;
 import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
 import org.apache.maven.surefire.booter.ClasspathConfiguration;
 import org.apache.maven.surefire.booter.ForkedBooter;
+import org.apache.maven.surefire.booter.ProcessCheckerType;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.apache.maven.surefire.booter.ProviderConfiguration;
 import org.apache.maven.surefire.booter.ProviderFactory;
-import org.apache.maven.surefire.booter.Shutdown;
 import org.apache.maven.surefire.booter.StartupConfiguration;
-import org.apache.maven.surefire.cli.CommandLineOption;
-import org.apache.maven.surefire.report.ReporterConfiguration;
-import org.apache.maven.surefire.report.ReporterFactory;
-import org.apache.maven.surefire.suite.RunResult;
-import org.apache.maven.surefire.testset.DirectoryScannerParameters;
-import org.apache.maven.surefire.testset.RunOrderParameters;
-import org.apache.maven.surefire.testset.TestListResolver;
-import org.apache.maven.surefire.testset.TestRequest;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -66,7 +72,6 @@ public class OsgiSurefireBooter {
     private static final String XSD = "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd";
 
     public static int run(String[] args, Properties testProps) throws Exception {
-        boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
         String testPlugin = testProps.getProperty("testpluginname");
@@ -89,8 +94,6 @@ public class OsgiSurefireBooter {
             DumpStackTracesTimer.startStackDumpTimeoutTimer(timeoutParameter);
         }
 
-        boolean forkRequested = true;
-        boolean inForkedVM = true;
         boolean useSystemClassloader = false;
         boolean useManifestOnlyJar = false;
         boolean useFile = true;
@@ -99,24 +102,27 @@ public class OsgiSurefireBooter {
 
         ClasspathConfiguration classPathConfig = new ClasspathConfiguration(false, false);
         StartupConfiguration startupConfiguration = new StartupConfiguration(provider, classPathConfig,
-                new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), forkRequested, inForkedVM);
+                new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), ProcessCheckerType.ALL,
+                new LinkedList<String[]>());
         // TODO dir scanning with no includes done here (done in TestMojo already)
         // but without dirScannerParams we get an NPE accessing runOrder
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
                 Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
-                failIfNoTests, runOrder);
+                runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
                 TestListResolver.getEmptyTestListResolver(), rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
-                new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
+                new RunOrderParameters(runOrder, null), reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
                 skipAfterFailureCount, Shutdown.DEFAULT, 30);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
-                ConsoleReporter.PLAIN, redirectTestOutputToFile, disableXmlReport, reportsDir, trimStackTrace, null,
-                new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, null, false);
+                ConsoleReporter.PLAIN, redirectTestOutputToFile, reportsDir, trimStackTrace, null,
+                new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(),
+                false, new SurefireStatelessReporter(disableXmlReport, null), new SurefireConsoleOutputReporter(),
+                new SurefireStatelessTestsetInfoReporter());
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
-                new PrintStreamLogger(startupReportConfig.getOriginalSystemOut()));
+                new PrintStreamLogger(System.out));
         // API indicates we should use testClassLoader below but surefire also tries
         // to load surefire classes using this classloader
         RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin), reporterFactory,
@@ -180,8 +186,8 @@ public class OsgiSurefireBooter {
         for (BundleWire wire : wires) {
             String pack = (String) wire.getCapability().getAttributes().get(PACKAGE_NAMESPACE);
             Bundle bundle = wire.getProviderWiring().getBundle();
-            System.out.println("   " + pack + " <--> " + bundle.getSymbolicName() + " (" + bundle.getVersion()
-                    + ") @ " + bundle.getLocation());
+            System.out.println("   " + pack + " <--> " + bundle.getSymbolicName() + " (" + bundle.getVersion() + ") @ "
+                    + bundle.getLocation());
         }
     }
 

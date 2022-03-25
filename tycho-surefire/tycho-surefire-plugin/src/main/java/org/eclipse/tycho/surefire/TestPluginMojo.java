@@ -20,16 +20,12 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.surefire.booter.PropertiesWrapper;
-import org.apache.maven.surefire.util.ScanResult;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 
 /**
  * <p>
@@ -98,15 +94,6 @@ public class TestPluginMojo extends AbstractTestMojo {
     @Override
     protected File getReportsDirectory() {
         return reportsDirectory;
-    }
-
-    @Override
-    protected PropertiesWrapper createSurefireProperties(TestFrameworkProvider provider, ScanResult scanResult)
-            throws MojoExecutionException {
-
-        PropertiesWrapper properties = super.createSurefireProperties(provider, scanResult);
-        properties.setProperty("failifnotests", String.valueOf(failIfNoTests));
-        return properties;
     }
 
     @Override

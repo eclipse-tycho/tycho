@@ -11,15 +11,15 @@ import org.junit.Test;
 
 public class JUnit5TempDirTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testJUnit5Runner() throws Exception {
-        Verifier verifier = getVerifier("/surefire.junit5tempdir/bundle.test", false);
-        Properties props = verifier.getSystemProperties();
-        props.setProperty("2019-09-repo", P2Repositories.ECLIPSE_LATEST.toString());
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
-        String projectBasedir = verifier.getBasedir();
-        assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5TempDirTest", "tempDirTest{File}");
-    }
+	@Test
+	public void testJUnit5Runner() throws Exception {
+		Verifier verifier = getVerifier("/surefire.junit5tempdir/bundle.test", false);
+		Properties props = verifier.getSystemProperties();
+		props.setProperty("2019-09-repo", P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+		String projectBasedir = verifier.getBasedir();
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5TempDirTest", "tempDirTest(File)");
+	}
 
 }
