@@ -5,11 +5,15 @@ Require-Bundle: org.eclipse.osgi;bundle-version="3.2.2",
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 3.0.0.qualifier
 Bundle-ClassPath: .,
- jars/surefire-booter-2.22.2.jar,
- jars/surefire-api-2.22.2.jar,
- jars/surefire-logger-api-2.22.2.jar,
- jars/maven-surefire-common-2.22.2.jar,
- jars/maven-failsafe-plugin-2.22.2.jar
+ jars/surefire-booter-3.0.0-M6.jar,
+ jars/surefire-api-3.0.0-M6.jar,
+ jars/surefire-logger-api-3.0.0-M6.jar,
+ jars/surefire-extensions-api-3.0.0-M6.jar,
+ jars/common-junit4-3.0.0-M6.jar,
+ jars/common-java5-3.0.0-M6.jar,
+ jars/maven-surefire-common-3.0.0-M6.jar,
+ jars/maven-failsafe-plugin-3.0.0-M6.jar,
+ jars/surefire-shared-utils-3.0.0-M6.jar
 Bundle-Name: Tycho Surefire OSGi Booter Eclipse Application
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.tycho.surefire.osgibooter;singleton:=true

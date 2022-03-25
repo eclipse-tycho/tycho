@@ -7,6 +7,7 @@ Import-Package: \
 	org.junit;resolution:=optional;version='[4.12,5)',\
 	junit.runner;resolution:=optional;version='[4.12,5)',\
 	!org.apache.maven.surefire.*,\
+	!org.apache.maven.plugin.surefire.*,\
 	*
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 # The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.

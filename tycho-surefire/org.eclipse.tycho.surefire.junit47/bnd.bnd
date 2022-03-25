@@ -4,6 +4,7 @@ Import-Package: \
 	junit.framework.*;version=3,\
 	org.junit.*;version='[4.7,5)',\
 	!org.apache.maven.surefire.*,\
+	!org.apache.maven.plugin.surefire.*,\
 	!org.apache.maven.shared.utils.*,\
 	!net.jcip.*,\
 	*

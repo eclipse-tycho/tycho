@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.surefire.booter.ProviderParameterNames;
-import org.apache.maven.surefire.util.ScanResult;
+import org.apache.maven.surefire.api.booter.ProviderParameterNames;
+import org.apache.maven.surefire.api.util.ScanResult;
 import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;

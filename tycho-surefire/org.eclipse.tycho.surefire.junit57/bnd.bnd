@@ -2,6 +2,7 @@ Import-Package: \
 	org.junit.jupiter.api.*;version='[5.7,6)',\
 	org.opentest4j;version='[1.2,2)',\
 	!org.apache.maven.surefire.*,\
+	!org.apache.maven.plugin.surefire.*,\
 	*
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 # The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.

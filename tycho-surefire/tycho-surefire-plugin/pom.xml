@@ -42,37 +42,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${surefire-version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<id>enforce-runtime-jdk-compatibility</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<phase>verify</phase>
-						<configuration>
-							<rules>
-								<enforceBytecodeVersion>
-									<!-- Surefire Booter Eclipse Application and JUnit/TestNG Runners -->
-									<includes>org.eclipse.tycho:org.eclipse.tycho.surefire.*</includes>
-									<maxJdkVersion>1.8</maxJdkVersion>
-								</enforceBytecodeVersion>
-							</rules>
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>extra-enforcer-rules</artifactId>
-						<version>1.5.1</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 		</plugins>
 	</build>

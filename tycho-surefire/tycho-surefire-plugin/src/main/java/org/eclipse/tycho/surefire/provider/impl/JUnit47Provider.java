@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.model.Dependency;
-import org.apache.maven.surefire.booter.ProviderParameterNames;
+import org.apache.maven.surefire.api.booter.ProviderParameterNames;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
