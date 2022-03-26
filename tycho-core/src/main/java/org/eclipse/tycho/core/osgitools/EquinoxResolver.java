@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -162,8 +163,32 @@ public class EquinoxResolver {
                     report = container.refresh(null);
                 }
             }
+            if (logger.isDebugEnabled()) {
+                Set<Module> unresolvedModules = container.getModules().stream()
+                        .filter(m -> m.getState() != State.RESOLVED).collect(Collectors.toSet());
+                if (!unresolvedModules.isEmpty()) {
+                    logger.warn("OSGi state has " + unresolvedModules.size() + " unresolved module(s):");
+                    logger.debug("The following modules are used to build the current state:");
+                    for (Module m : container.getModules()) {
+                        State state = m.getState();
+                        ModuleRevision revision = m.getCurrentRevision();
+                        boolean unresolved = unresolvedModules.contains(m);
+                        String message = "| " + state + " | " + revision.getSymbolicName() + " ("
+                                + revision.getVersion() + ") @ " + m.getLocation();
+                        if (unresolved) {
+                            logger.warn(message);
+                            String reportMessage = report.getResolutionReportMessage(revision);
+                            String[] lines = reportMessage.split("\r?\n");
+                            for (int i = 1; i < lines.length; i++) {
+                                logger.warn("            " + lines[i]);
+                            }
+                        } else {
+                            logger.debug("   " + message);
+                        }
+                    }
+                }
+            }
             assertResolved(report, moduleRevision);
-
             return container;
         } finally {
             executorService.shutdownNow();
