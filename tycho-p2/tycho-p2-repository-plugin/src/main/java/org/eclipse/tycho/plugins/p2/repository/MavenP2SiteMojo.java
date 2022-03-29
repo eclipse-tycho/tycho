@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -255,7 +256,12 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 if (includePGPSignature) {
                     for (Artifact attached : mavenProject.getAttachedArtifacts()) {
                         if (attached.getType().equals(attachedSignature)) {
-                            attachedSignatureFile = attached.getFile();
+                            //check that this is the "main" artifact signature
+                            if (Objects.equals(attached.getArtifactId(), artifact.getArtifactId())
+                                    && Objects.equals(attached.getGroupId(), artifact.getGroupId())
+                                    && (attached.getClassifier() == null || attached.getClassifier().isEmpty())) {
+                                attachedSignatureFile = attached.getFile();
+                            }
                         }
                     }
                 }
@@ -481,8 +487,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
             p2.deleteOnExit();
             Properties properties = new Properties();
             addProvidesAndProperty(properties, TychoConstants.PROP_GROUP_ID, artifact.getGroupId(), cnt++);
-            addProvidesAndProperty(properties, TychoConstants.PROP_ARTIFACT_ID, artifact.getArtifactId(),
-                    cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_ARTIFACT_ID, artifact.getArtifactId(), cnt++);
             addProvidesAndProperty(properties, TychoConstants.PROP_VERSION, artifact.getVersion(), cnt++);
             addProvidesAndProperty(properties, TychoConstants.PROP_EXTENSION, artifact.getType(), cnt++);
             addProvidesAndProperty(properties, TychoConstants.PROP_CLASSIFIER, artifact.getClassifier(), cnt++);
