@@ -3,6 +3,7 @@ pipeline {
 		timeout(time: 180, unit: 'MINUTES')
 		buildDiscarder(logRotator(numToKeepStr:'10'))
 		disableConcurrentBuilds(abortPrevious: true)
+		skipDefaultCheckout()
 	}
 	agent {
 		label "centos-8"
@@ -14,6 +15,16 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
+				checkout(scm, extensions: [
+					[
+						$class: 'PathRestriction', 
+					 	excludedRegions: '''
+					 			.*\\.MD
+								.github/.*
+								''',
+					 	includedRegions: ''
+					]
+				])
 				sh 'mvn -U -V -e clean install org.eclipse.dash:license-tool-plugin:license-check -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
 			}
 			post {
