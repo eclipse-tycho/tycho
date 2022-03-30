@@ -2,6 +2,13 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 2.7.1
+
+Fixes:
+- Access to the tycho .cache directory is not properly synchronized #663 
+- compare-versions-with-baseline failing (since 2.7) when executionEnvironment=none #707 
+- JGit packaging build fails with Tycho 2.7.0 #723 
+
 ## 2.7.0
 
 ### Tycho-Pomless will become a tycho-core extension
