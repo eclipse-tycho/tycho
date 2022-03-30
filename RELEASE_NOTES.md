@@ -11,6 +11,7 @@ Fixes:
 - Backport of #767
 - Maven artifacts deployed with Tycho 2.7 are resolved without transitive dependencies by Maven #781
 - Slicer warnings are to verboose #728 
+- Performance regression in classpath resolution #719
 
 ## 2.7.0
 
