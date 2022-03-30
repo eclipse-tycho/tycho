@@ -31,9 +31,8 @@
       <plugin id="org.apache.felix.gogo.runtime"/>
       <plugin id="org.apache.felix.gogo.shell"/>
       <plugin id="org.apache.felix.scr"/>
-      <plugin id="org.apache.httpcomponents.client5.httpclient5"/>
-      <plugin id="org.apache.httpcomponents.core5.httpcore5"/>
-      <plugin id="org.apache.httpcomponents.core5.httpcore5-h2" />
+      <plugin id="org.apache.httpcomponents.httpclient"/>
+      <plugin id="org.apache.httpcomponents.httpcore"/>
       <plugin id="org.bouncycastle.bcprov"/>
       <plugin id="org.bouncycastle.bcpg"/>
       <plugin id="org.eclipse.core.contenttype"/>
@@ -44,7 +43,7 @@
       <plugin id="org.eclipse.ecf.filetransfer"/>
       <plugin id="org.eclipse.ecf.identity"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient5"/>
+      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient45"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
       <plugin id="org.eclipse.equinox.app"/>

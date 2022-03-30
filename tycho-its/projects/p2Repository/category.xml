@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- includes three bundles in different ways; note: the bundles do not require each other -->
 <site>
-   <bundle id="com.sun.el" version="0.0.0"/>
+   <bundle id="osgi.enterprise" version="0.0.0"/>
    <iu id="org.apache.felix.gogo.runtime" version="0.0.0">
      <category name="Test Category" />
    </iu>
