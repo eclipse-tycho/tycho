@@ -8,6 +8,8 @@ Fixes:
 - Access to the tycho .cache directory is not properly synchronized #663 
 - compare-versions-with-baseline failing (since 2.7) when executionEnvironment=none #707 
 - JGit packaging build fails with Tycho 2.7.0 #723 
+- Backport of #767
+- Maven artifacts deployed with Tycho 2.7 are resolved without transitive dependencies by Maven #781 
 
 ## 2.7.0
 
