@@ -152,9 +152,10 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             // secondary metadata is meant to represent installable units that are provided by this project
             // but do not affect dependencies of the project itself. generateMetadata is called at the end
             // of project build lifecycle, and primary/secondary metadata separation is irrelevant at this point
-            P2Artifact p2artifact = new P2Artifact(artifact.getLocation(), metadata.getInstallableUnits(),
-                    getCanonicalArtifact(artifact.getClassifier(), metadata.getArtifactDescriptors()));
-            result.put(artifact.getClassifier(), p2artifact);
+            getCanonicalArtifact(artifact.getClassifier(), metadata.getArtifactDescriptors()).ifPresent(desc -> {
+                P2Artifact p2artifact = new P2Artifact(artifact.getLocation(), metadata.getInstallableUnits(), desc);
+                result.put(artifact.getClassifier(), p2artifact);
+            });
 
             IArtifactDescriptor packed = getPackedArtifactDescriptor(metadata.getArtifactDescriptors());
             if (packed != null) {
@@ -202,14 +203,15 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         return null;
     }
 
-    private IArtifactDescriptor getCanonicalArtifact(String classifier, Set<IArtifactDescriptor> artifactDescriptors) {
+    private Optional<IArtifactDescriptor> getCanonicalArtifact(String classifier,
+            Set<IArtifactDescriptor> artifactDescriptors) {
         for (IArtifactDescriptor descriptor : artifactDescriptors) {
             String _classifier = descriptor.getProperty(TychoConstants.PROP_CLASSIFIER);
             if (eq(classifier, _classifier) && descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
-                return descriptor;
+                return Optional.of(descriptor);
             }
         }
-        throw new IllegalArgumentException();
+        return Optional.empty();
     }
 
     private static <T> boolean eq(T a, T b) {
