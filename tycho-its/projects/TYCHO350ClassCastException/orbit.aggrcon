@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ASCII"?>
+<aggregator:Contribution xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:aggregator="http://www.eclipse.org/cbi/p2repo/2011/aggregator/1.1.0" label="Orbit">
+  <repositories location="https://download.eclipse.org/tools/orbit/downloads/drops/R20220302172233/repository" description="Enforced Orbit Bundle Versions">
+    <bundles description="Workaround for Bug 568136 - this used to be pulled in from BIRT" name="com.google.protobuf" versionRange="[2.4.0.v201105131100]"/>
+  </repositories>
+</aggregator:Contribution>
