@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *                         Issue #443 - Use regular Maven coordinates -when possible- for dependencies 
+ *                         Issue #822 - If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -19,6 +20,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -132,11 +134,18 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         if (fragmentsList.isEmpty()) {
             return Collections.emptySet();
         }
+        MavenLogger logger = mavenContext.getLogger();
+        if (logger.isExtendedDebugEnabled() && !fragmentsList.isEmpty()) {
+            logger.debug("Possible candidate fragments:");
+            for (Entry<IInstallableUnit, IRequiredCapability> fragmentEntry : fragmentsList) {
+                logger.debug(" " + fragmentEntry.getKey().toString());
+            }
+        }
 
         Map<String, List<IInstallableUnit>> resolvedUnitsById = resolvedUnits.stream()//
                 .collect(Collectors.groupingBy(iu -> iu.getId()));
 
-        return fragmentsList.stream()//
+        Map<String, List<IInstallableUnit>> matching = fragmentsList.stream()//
                 .filter(entry -> {
                     IRequiredCapability hostRequirement = entry.getValue();
                     List<IInstallableUnit> potentialHosts = resolvedUnitsById.get(hostRequirement.getName());
@@ -151,7 +160,21 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
                     return false;
                 })//
                 .map(entry -> entry.getKey())//
-                .collect(Collectors.toSet());
+                .collect(Collectors.groupingBy(IInstallableUnit::getId));
+        Set<IInstallableUnit> filteredResult = matching.values().stream().map(candidates -> {
+            if (candidates.size() == 1) {
+                return candidates.get(0);
+            }
+            return candidates.stream().max(Comparator.comparing(IInstallableUnit::getVersion)).get();
+        }).collect(Collectors.toSet());
+
+        if (logger.isDebugEnabled() && !filteredResult.isEmpty()) {
+            logger.info("Resolved fragments:");
+            for (IInstallableUnit unit : filteredResult) {
+                logger.info(" " + unit.toString());
+            }
+        }
+        return filteredResult;
     }
 
     private static Optional<Entry<IInstallableUnit, IRequiredCapability>> findFragmentHostRequirement(
