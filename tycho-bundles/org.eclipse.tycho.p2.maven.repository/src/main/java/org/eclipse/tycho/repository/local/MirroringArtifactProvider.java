@@ -9,19 +9,23 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
- *    Christoph Läubrich - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...)
+ *    Christoph Läubrich    - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...)
+ *                          - Issue #692 - Check Hashsums for local cached artifacts 
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
 import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -225,8 +229,22 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
             downloadLock.lock();
             try {
                 if (!isFileAlreadyAvailable(key)) { // check again within lock
+                    File artifactFile;
                     if (localArtifactRepository.contains(key)) {
+                        artifactFile = localArtifactRepository.getArtifactFile(key);
                         localArtifactRepository.removeDescriptor(key);
+                    } else {
+                        artifactFile = localArtifactRepository.internalGetArtifactStorageLocation(
+                                localArtifactRepository.createArtifactDescriptor(key));
+                    }
+                    if (artifactFile != null && artifactFile.isFile()) {
+                        //check if only properties has changed...
+                        GAVArtifactDescriptor descriptor = newLocalDescriptor(key);
+                        if (fileMatchesProperties(artifactFile, descriptor.getProperties())) {
+                            localArtifactRepository.internalAddDescriptor(descriptor);
+                            localArtifactRepository.save();
+                            return true;
+                        }
                     }
                     downloadArtifact(key);
                     localArtifactRepository.save();
@@ -238,6 +256,33 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         } else {
             return false;
         }
+    }
+
+    private boolean fileMatchesProperties(File file, Map<String, String> properties) {
+        String downloadSize = properties.get("download.size");
+        if (downloadSize != null && !downloadSize.equals(String.valueOf(file.length()))) {
+            //early break out...
+            return false;
+        }
+        String sha256 = properties.get("download.checksum.sha-256");
+        if (sha256 != null) {
+            try (FileInputStream stream = new FileInputStream(file)) {
+                String fileSha256 = DigestUtils.sha256Hex(stream);
+                return fileSha256.equalsIgnoreCase(sha256);
+            } catch (IOException e) {
+                return false;
+            }
+        }
+        String md5 = properties.get("download.checksum.md5");
+        if (md5 != null) {
+            try (FileInputStream stream = new FileInputStream(file)) {
+                String fileMd5 = DigestUtils.md5Hex(stream);
+                return fileMd5.equalsIgnoreCase(md5);
+            } catch (IOException e) {
+                return false;
+            }
+        }
+        return false;
     }
 
     protected final void downloadArtifact(IArtifactKey key)
@@ -264,12 +309,17 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     protected final IStatus downloadCanonicalArtifact(IArtifactKey key)
             throws ProvisionException, ArtifactSinkException {
+        GAVArtifactDescriptor localDescriptor = newLocalDescriptor(key);
+        IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(localDescriptor);
+        return remoteProviders.getArtifact(localSink, monitorForDownload());
+    }
+
+    protected GAVArtifactDescriptor newLocalDescriptor(IArtifactKey key) {
         GAVArtifactDescriptor localDescriptor = localArtifactRepository.createArtifactDescriptor(key);
         IArtifactDescriptor remoteDescriptor = findCanonicalDescriptor(remoteProviders.getArtifactDescriptors(key));
         Map<String, String> properties = getProperties(remoteDescriptor);
         properties.forEach(localDescriptor::setProperty);
-        IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(localDescriptor);
-        return remoteProviders.getArtifact(localSink, monitorForDownload());
+        return localDescriptor;
     }
 
     private void ensureArtifactIsPresentInCanonicalFormat(IArtifactKey key)

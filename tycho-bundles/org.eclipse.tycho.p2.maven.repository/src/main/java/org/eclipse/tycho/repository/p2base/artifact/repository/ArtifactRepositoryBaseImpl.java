@@ -159,7 +159,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             throws IllegalArgumentException;
 
     @Override
-    protected final void internalAddDescriptor(IArtifactDescriptor descriptor) {
+    protected void internalAddDescriptor(IArtifactDescriptor descriptor) {
         internalAddInternalDescriptor(getInternalDescriptorForAdding(descriptor));
     }
 

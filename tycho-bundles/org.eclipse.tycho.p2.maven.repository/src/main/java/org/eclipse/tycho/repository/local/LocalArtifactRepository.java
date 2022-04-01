@@ -92,9 +92,9 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                                 descriptor.getProperties().forEach(copy::setProperty);
                                 copy.setProcessingSteps(descriptor.getProcessingSteps());
                                 copy.setRepository(this);
-                                internalAddDescriptor(copy);
+                                super.internalAddDescriptor(copy);
                             } else {
-                                internalAddDescriptor(descriptor);
+                                super.internalAddDescriptor(descriptor);
                             }
                         }
                     }
@@ -213,5 +213,11 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     protected void internalRemoveDescriptors(IArtifactKey key) {
         super.internalRemoveDescriptors(key);
         descriptorsOnLastSave.remove(key);
+    }
+
+    @Override
+    protected void internalAddDescriptor(IArtifactDescriptor descriptor) {
+        super.internalAddDescriptor(descriptor);
+        descriptorsOnLastSave.remove(descriptor.getArtifactKey());
     }
 }
