@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="A Product that includes a PGP artifact" uid="pgp" version="0.0.1" useFeatures="false" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <plugins>
+      <plugin id="org.mockito.mockito-core"/>
+      <plugin id="net.bytebuddy.byte-buddy"/>
+      <plugin id="net.bytebuddy.byte-buddy-agent"/>
+      <plugin id="org.objenesis"/>
+   </plugins>
+
+
+</product>
