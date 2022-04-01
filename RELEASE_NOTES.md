@@ -12,6 +12,7 @@ Fixes:
 - Maven artifacts deployed with Tycho 2.7 are resolved without transitive dependencies by Maven #781
 - Slicer warnings are to verboose #728 
 - Performance regression in classpath resolution #719
+- If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match #822 
 
 ## 2.7.0
 
