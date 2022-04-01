@@ -13,6 +13,7 @@ Fixes:
 - Slicer warnings are to verboose #728 
 - Performance regression in classpath resolution #719
 - If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match #822 
+- Check Hashsums for local cached artifacts #692 
 
 ## 2.7.0
 
