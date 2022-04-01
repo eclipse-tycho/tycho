@@ -9,6 +9,7 @@
  *     SAP AG - initial API and implementation
  *     Christoph Läubrich - Bug 564363 - Make ReactorProject available in MavenContext
  *                          Issue #797 - Implement a caching P2 transport  
+ *                          Issue #829 - Support maven --strict-checksums option
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
@@ -39,6 +41,7 @@ import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.core.shared.MavenContext.ChecksumPolicy;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
@@ -70,6 +73,12 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
                         return null;
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+        ChecksumPolicy checksumPolicy;
+        if (MavenExecutionRequest.CHECKSUM_POLICY_FAIL.equals(session.getRequest().getGlobalChecksumPolicy())) {
+            checksumPolicy = ChecksumPolicy.STRICT;
+        } else {
+            checksumPolicy = ChecksumPolicy.LAX;
+        }
         MavenContextImpl mavenContext = new MavenContextImpl(localRepoRoot, session.isOffline(), mavenLogger,
                 globalProps) {
 
@@ -91,6 +100,11 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
             public Stream<MavenRepositoryLocation> getMavenRepositoryLocations() {
 
                 return repositoryLocations.stream();
+            }
+
+            @Override
+            public ChecksumPolicy getChecksumsMode() {
+                return checksumPolicy;
             }
 
         };

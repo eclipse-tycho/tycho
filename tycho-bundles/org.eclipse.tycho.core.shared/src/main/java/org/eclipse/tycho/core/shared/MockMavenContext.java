@@ -71,4 +71,9 @@ public class MockMavenContext extends MavenContextImpl {
         return Stream.empty();
     }
 
+    @Override
+    public ChecksumPolicy getChecksumsMode() {
+        return ChecksumPolicy.LAX;
+    }
+
 }
