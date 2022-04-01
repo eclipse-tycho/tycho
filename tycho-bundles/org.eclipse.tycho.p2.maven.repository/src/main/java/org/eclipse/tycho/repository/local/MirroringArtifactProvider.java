@@ -40,6 +40,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.core.shared.MavenContext.ChecksumPolicy;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
@@ -233,7 +234,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
                     if (artifactFile != null && artifactFile.isFile()) {
                         //check if only properties has changed...
                         GAVArtifactDescriptor descriptor = newLocalDescriptor(key);
-                        if (fileMatchesProperties(artifactFile, descriptor.getProperties())) {
+                        if (fileMatchesProperties(artifactFile, descriptor.getProperties(),
+                                mavenContext.getChecksumsMode() == ChecksumPolicy.STRICT)) {
                             localArtifactRepository.internalAddDescriptor(descriptor);
                             localArtifactRepository.save();
                             return true;
@@ -251,29 +253,47 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         }
     }
 
-    private boolean fileMatchesProperties(File file, Map<String, String> properties) {
+    private boolean fileMatchesProperties(File file, Map<String, String> properties, boolean logFailure) {
         String downloadSize = properties.get("download.size");
         if (downloadSize != null && !downloadSize.equals(String.valueOf(file.length()))) {
             //early break out...
+            if (logFailure) {
+                mavenContext.getLogger().warn("File size for " + file.getAbsolutePath()
+                        + " does not match, attempting to download file again...");
+            }
             return false;
         }
         String sha256 = properties.get("download.checksum.sha-256");
         if (sha256 != null) {
             try (FileInputStream stream = new FileInputStream(file)) {
                 String fileSha256 = DigestUtils.sha256Hex(stream);
-                return fileSha256.equalsIgnoreCase(sha256);
+                if (fileSha256.equalsIgnoreCase(sha256)) {
+                    return true;
+                }
             } catch (IOException e) {
-                return false;
+                mavenContext.getLogger().debug("Computing hash sum failed, assume file is corrupted (" + e + ")");
             }
+            if (logFailure) {
+                mavenContext.getLogger().warn("sha-256 checksum for " + file.getAbsolutePath()
+                        + " does not match, attempting to download file again...");
+            }
+            return false;
         }
         String md5 = properties.get("download.checksum.md5");
         if (md5 != null) {
             try (FileInputStream stream = new FileInputStream(file)) {
                 String fileMd5 = DigestUtils.md5Hex(stream);
-                return fileMd5.equalsIgnoreCase(md5);
+                if (fileMd5.equalsIgnoreCase(md5)) {
+                    return true;
+                }
             } catch (IOException e) {
-                return false;
+                mavenContext.getLogger().debug("Computing hash sum failed, assume file is corrupted (" + e + ")");
             }
+            if (logFailure) {
+                mavenContext.getLogger().warn("md5 checksum for " + file.getAbsolutePath()
+                        + " does not match, attempting to download file again...");
+            }
+            return false;
         }
         return false;
     }
@@ -375,6 +395,15 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
                 IArtifactDescriptor[] localDescriptors = localArtifactRepository.getArtifactDescriptors(artifactKey);
                 GAVArtifactDescriptor localDescriptor = (GAVArtifactDescriptor) findCanonicalDescriptor(
                         localDescriptors);
+                if (mavenContext.getChecksumsMode() == ChecksumPolicy.STRICT && remoteDescriptor != null
+                        && localDescriptor != null) {
+                    File artifactFile = localArtifactRepository.getArtifactFile(localDescriptor);
+                    if (artifactFile != null && artifactFile.isFile()) {
+                        if (!fileMatchesProperties(artifactFile, remoteDescriptor.getProperties(), false)) {
+                            return false;
+                        }
+                    }
+                }
                 if (remoteDescriptor != null && localDescriptor != null && localDescriptor.getMavenCoordinates()
                         .getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
                     Map<String, String> remoteProperties = getProperties(remoteDescriptor);

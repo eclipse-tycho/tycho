@@ -10,6 +10,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *     Christoph Läubrich - Bug 564363 - add access to reactor projects
+ *                          Issue #829 - Support maven --strict-checksums option 
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
@@ -27,6 +28,10 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
  */
 public interface MavenContext {
 
+    enum ChecksumPolicy {
+        LAX, STRICT;
+    }
+
     public File getLocalRepositoryRoot();
 
     public MavenLogger getLogger();
@@ -40,6 +45,8 @@ public interface MavenContext {
      * whether maven was started with the update-snapshots mode (CLI option "-U")
      */
     boolean isUpdateSnapshots();
+
+    ChecksumPolicy getChecksumsMode();
 
     /**
      * Session-global properties merged from (in order of precedence)
