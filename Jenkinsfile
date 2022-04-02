@@ -1,3 +1,13 @@
+def deployBranch = 'master'
+def agentLabel
+if(env.BRANCH_NAME == deployBranch) {
+	//branches that are deployable must run on eclipse infra
+	agentLabel = "centos-latest"
+} else {
+	//others (prs for example) can run on any infra
+	agentLabel = "centos-latest || linux"
+}
+
 pipeline {
 	options {
 		timeout(time: 180, unit: 'MINUTES')
@@ -5,7 +15,7 @@ pipeline {
 		disableConcurrentBuilds(abortPrevious: true)
 	}
 	agent {
-		label "centos-8"
+		label agentLabel
 	}
 	tools {
 		maven 'apache-maven-latest'
@@ -25,7 +35,7 @@ pipeline {
 		}
 		stage('Deploy Snapshot') {
 			when {
-				branch 'master'
+				branch deployBranch
 			}
 			steps {
 				sh 'mvn --batch-mode -V deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::default::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
