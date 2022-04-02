@@ -5,7 +5,7 @@ pipeline {
 		disableConcurrentBuilds(abortPrevious: true)
 	}
 	agent {
-		label "centos-8"
+		label "laeubisoft-build-node"
 	}
 	tools {
 		maven 'apache-maven-latest'
