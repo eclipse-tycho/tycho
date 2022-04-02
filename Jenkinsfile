@@ -1,3 +1,13 @@
+def deployBranch = 'tycho-2.7.x'
+def agentLabel
+if(env.BRANCH_NAME == deployBranch) {
+	//branches that are deployable must run on eclipse infra
+	agentLabel = "centos-latest"
+} else {
+	//others (prs for example) can run on any infra
+	agentLabel = "centos-latest || linux"
+}
+
 pipeline {
 	options {
 		timeout(time: 180, unit: 'MINUTES')
@@ -5,7 +15,7 @@ pipeline {
 		disableConcurrentBuilds(abortPrevious: true)
 	}
 	agent {
-		label "centos-8"
+		label agentLabel
 	}
 	tools {
 		maven 'apache-maven-latest'
@@ -14,7 +24,7 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
-				sh 'mvn -U -V -e clean install org.eclipse.dash:license-tool-plugin:license-check -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
+				sh 'mvn --batch-mode -U -V -e clean install org.eclipse.dash:license-tool-plugin:license-check -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
 			}
 			post {
 				always {
@@ -25,18 +35,18 @@ pipeline {
 		}
 		stage('Deploy Snapshot') {
 			when {
-				branch 'tycho-2.7.x'
+				branch deployBranch
 			}
 			steps {
-				sh 'mvn -V deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::default::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
+				sh 'mvn --batch-mode -V deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::default::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
 			}
 		}
-		stage('Build downstream') {
+		stage('Deploy sitedocs') {
 			when {
 				branch 'master'
 			}
 			steps {
-				build job: '/tycho-sitedocs'
+				sh 'mvn --batch-mode -V clean install site site:stage -DskipTests=true'
 			}
 		}
 	}
