@@ -14,7 +14,7 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
-				sh 'mvn -U -V -e clean install org.eclipse.dash:license-tool-plugin:license-check -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
+				sh 'mvn --batch-mode -U -V -e clean install org.eclipse.dash:license-tool-plugin:license-check -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
 			}
 			post {
 				always {
@@ -28,7 +28,7 @@ pipeline {
 				branch 'master'
 			}
 			steps {
-				sh 'mvn -V deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::default::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
+				sh 'mvn --batch-mode -V deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::default::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
 			}
 		}
 		stage('Deploy sitedocs') {
@@ -36,7 +36,7 @@ pipeline {
 				branch 'master'
 			}
 			steps {
-				sh 'mvn -V clean install site site:stage -DskipTests=true'
+				sh 'mvn --batch-mode -V clean install site site:stage -DskipTests=true'
 			}
 		}
 	}
