@@ -1,12 +1,5 @@
 def deployBranch = 'master'
 def agentLabel
-if(env.BRANCH_NAME == deployBranch) {
-	//branches that are deployable must run on eclipse infra
-	agentLabel = "centos-latest"
-} else {
-	//others (prs for example) can run on any infra
-	agentLabel = "centos-latest || linux"
-}
 
 pipeline {
 	options {
@@ -15,7 +8,7 @@ pipeline {
 		disableConcurrentBuilds(abortPrevious: true)
 	}
 	agent {
-		label agentLabel
+		label 'basic'
 	}
 	tools {
 		maven 'apache-maven-latest'
