@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SAP SE and others.
+ * Copyright (c) 2011, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Issue #845 - Feature restrictions are not taken into account when using emptyVersion 
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
@@ -90,23 +92,32 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
     @Override
     public final org.eclipse.tycho.ArtifactKey resolveArtifact(String type, String id, String version)
             throws IllegalArtifactReferenceException, DependencyResolutionException {
-        IInstallableUnit resolvedUnit = resolveUnit(type, id, ArtifactMatcher.parseAsOSGiVersion(version));
+        IInstallableUnit resolvedUnit;
+        if (version != null && (version.startsWith("[") || version.startsWith("("))) {
+            resolvedUnit = resolveUnit(type, id, VersionRange.create(version));
+        } else if (version != null && version.contains("|")) {
+            String[] split = version.split("\\|", 2);
+            resolvedUnit = resolveUnit(type, id, ArtifactMatcher.getVersionRangeFromImport(split[0], split[1]));
+        } else {
+            resolvedUnit = resolveUnit(type, id, ArtifactMatcher.parseAsOSGiVersion(version));
+        }
         return new DefaultArtifactKey(type, id, resolvedUnit.getVersion().toString());
     }
 
     @Override
     public final IInstallableUnit resolveUnit(String type, String id, Version version)
             throws IllegalArtifactReferenceException, DependencyResolutionException {
+        VersionRange versionRange = ArtifactMatcher.getVersionRangeFromReference(version);
+        return resolveUnit(type, id, versionRange);
+    }
 
-        IInstallableUnit matchingUnit = ArtifactMatcher.resolveReference(type, id, version, installableUnits);
+    @Override
+    public IInstallableUnit resolveUnit(String type, String id, VersionRange versionRange)
+            throws IllegalArtifactReferenceException, DependencyResolutionException {
+        IInstallableUnit matchingUnit = ArtifactMatcher.resolveReference(type, id, versionRange, installableUnits);
         if (matchingUnit == null) {
-            String message;
-            if (version == null) {
-                message = type + " artifact with ID \"" + id + "\" was not found in the target platform";
-            } else {
-                message = type + " artifact with ID \"" + id + "\" and version matching \"" + version
-                        + "\" was not found in the target platform";
-            }
+            String message = type + " artifact with ID \"" + id + "\" and version matching \"" + versionRange
+                    + "\" was not found in the target platform";
             String candidates = installableUnits.stream()
                     .sorted(Comparator.comparing(IInstallableUnit::getId).thenComparing(IInstallableUnit::getVersion))
                     .filter(iu -> iu.getId().contains(id)).map(iu -> iu.getId() + ":" + iu.getVersion())
