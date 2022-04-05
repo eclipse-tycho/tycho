@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.test.sample.feature"
+      version="1.0.0">
+   <includes id="com.test.base.feature" version="0.0.0"/> 
+   <requires>
+      <import feature="com.test.base.feature" match="compatible" version="1.0.0"/>
+   </requires>
+
+</feature>

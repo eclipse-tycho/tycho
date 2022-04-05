@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SAP SE and others.
+ * Copyright (c) 2011, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Issue #845 - Feature restrictions are not taken into account when using emptyVersion
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -20,6 +21,7 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
@@ -82,7 +84,10 @@ public interface P2TargetPlatform extends TargetPlatform {
      * Note: "artifact" in "resolveArtifact" refers to a Tycho artifact, which technically represent
      * a p2 installable unit and optionally the associated p2 artifact.
      */
-    IInstallableUnit resolveUnit(String type, String id, Version version) throws IllegalArtifactReferenceException,
-            DependencyResolutionException;
+    IInstallableUnit resolveUnit(String type, String id, Version version)
+            throws IllegalArtifactReferenceException, DependencyResolutionException;
+
+    IInstallableUnit resolveUnit(String type, String id, VersionRange versionRange)
+            throws IllegalArtifactReferenceException, DependencyResolutionException;
 
 }

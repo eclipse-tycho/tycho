@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Issue #845 - Feature restrictions are not taken into account when using emptyVersion
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -17,22 +18,25 @@ import java.util.LinkedHashSet;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.publisher.eclipse.Feature;
+import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
+import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 
+@SuppressWarnings("restriction")
 public class ArtifactMatcher {
 
-    public static IInstallableUnit resolveReference(String type, String id, Version version,
+    public static IInstallableUnit resolveReference(String type, String id, VersionRange versionRange,
             LinkedHashSet<IInstallableUnit> candidateUnits) throws IllegalArtifactReferenceException {
         if (id == null) {
             throw new IllegalArtifactReferenceException("ID is required");
         }
 
-        VersionRange versionRange = getVersionRangeFromReference(version);
-        IQuery<IInstallableUnit> query = QueryUtil.createLatestQuery(ArtifactTypeHelper.createQueryFor(type, id,
-                versionRange));
+        IQuery<IInstallableUnit> query = QueryUtil
+                .createLatestQuery(ArtifactTypeHelper.createQueryFor(type, id, versionRange));
 
         IQueryResult<IInstallableUnit> matchingIUs = query.perform(candidateUnits.iterator());
         if (matchingIUs.isEmpty()) {
@@ -43,6 +47,9 @@ public class ArtifactMatcher {
     }
 
     public static Version parseAsOSGiVersion(String version) throws IllegalArtifactReferenceException {
+        if (version == null) {
+            return Version.emptyVersion;
+        }
         try {
             return Version.parseVersion(version);
         } catch (IllegalArgumentException e) {
@@ -50,7 +57,7 @@ public class ArtifactMatcher {
         }
     }
 
-    private static VersionRange getVersionRangeFromReference(Version version) {
+    public static VersionRange getVersionRangeFromReference(Version version) {
         VersionRange range;
         if (version.getSegmentCount() > 3 && "qualifier".equals(version.getSegment(3))) {
             range = getRangeOfEquivalentVersions(version);
@@ -60,6 +67,28 @@ public class ArtifactMatcher {
             range = getStrictRange(version);
         }
         return range;
+    }
+
+    public static VersionRange getVersionRangeFromImport(String version, String rule) {
+        class DummyFeatureAction extends FeaturesAction {
+
+            public DummyFeatureAction() {
+                super(new Feature[0]);
+            }
+
+            @Override
+            protected VersionRange getVersionRange(FeatureEntry entry) {
+                VersionRange versionRange = super.getVersionRange(entry);
+                if (versionRange == null) {
+                    return VersionRange.emptyRange;
+                }
+                return versionRange;
+            }
+
+        }
+        FeatureEntry entry = FeatureEntry.createRequires("dummy", version, rule, null, false);
+
+        return new DummyFeatureAction().getVersionRange(entry);
     }
 
     private static VersionRange getStrictRange(Version version) {
@@ -74,8 +103,8 @@ public class ArtifactMatcher {
         Integer major = (Integer) version.getSegment(0);
         Integer minor = (Integer) version.getSegment(1);
         Integer micro = (Integer) version.getSegment(2);
-        VersionRange range = new VersionRange(Version.createOSGi(major, minor, micro), true, Version.createOSGi(major,
-                minor, micro + 1), false);
+        VersionRange range = new VersionRange(Version.createOSGi(major, minor, micro), true,
+                Version.createOSGi(major, minor, micro + 1), false);
         return range;
     }
 
