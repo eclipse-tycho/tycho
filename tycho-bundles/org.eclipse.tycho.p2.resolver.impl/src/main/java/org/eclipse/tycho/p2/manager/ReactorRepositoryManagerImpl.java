@@ -9,7 +9,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
- *    Christoph Läubrich - Adjust to new API
+ *    Christoph Läubrich - Issue #697 - Failed to resolve dependencies with Tycho 2.7.0 for custom repositories
  *******************************************************************************/
 package org.eclipse.tycho.p2.manager;
 
@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -24,11 +25,14 @@ import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.PreliminaryTargetPlatformImpl;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
@@ -85,6 +89,12 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
         // at this point, there is only incomplete ("dependency-only") metadata for the reactor projects
         TargetPlatform result = tpFactory.createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects);
         project.setContextValue(PRELIMINARY_TARGET_PLATFORM_KEY, result);
+
+        List<MavenArtifactRepositoryReference> repositoryReferences = tpConfiguration.getTargetDefinitions().stream()
+                .flatMap(definition -> definition.getLocations().stream()).filter(MavenGAVLocation.class::isInstance)
+                .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
+                .collect(Collectors.toList());
+        project.setContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE, repositoryReferences);
         return result;
     }
 
