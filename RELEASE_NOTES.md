@@ -15,6 +15,7 @@ Fixes:
 - If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match #822 
 - Check Hashsums for local cached artifacts #692 
 - JAVA_HOME check is not OS independent #849 
+- Bug 571533 - tycho-compiler-plugin with useJDK=BREE and BREE==JavaSE-1.8 fails to find some EE packages #51 
 
 ## 2.7.0
 
