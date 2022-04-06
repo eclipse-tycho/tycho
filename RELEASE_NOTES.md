@@ -14,6 +14,7 @@ Fixes:
 - Performance regression in classpath resolution #719
 - If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match #822 
 - Check Hashsums for local cached artifacts #692 
+- JAVA_HOME check is not OS independent #849 
 
 ## 2.7.0
 
