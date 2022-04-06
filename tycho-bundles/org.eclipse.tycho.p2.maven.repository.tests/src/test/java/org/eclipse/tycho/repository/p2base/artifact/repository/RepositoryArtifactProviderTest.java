@@ -29,9 +29,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -114,8 +114,8 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         when(failingMirrorsRepository.contains(BUNDLE_A_KEY)).thenReturn(true);
         when(failingMirrorsRepository.getArtifactDescriptors(BUNDLE_A_KEY))
                 .thenReturn(new IArtifactDescriptor[] { canonicalDescriptorFor(BUNDLE_A_KEY) });
-        when(failingMirrorsRepository.getArtifact(argThat(is(canonicalDescriptorFor(BUNDLE_A_KEY))),
-                any(OutputStream.class), any(IProgressMonitor.class))).thenReturn(errorWithRetry("mirror 1 failure")) //
+        when(failingMirrorsRepository.getArtifact(eq(canonicalDescriptorFor(BUNDLE_A_KEY)), any(OutputStream.class),
+                any(IProgressMonitor.class))).thenReturn(errorWithRetry("mirror 1 failure")) //
                         .thenReturn(errorWithRetry("mirror 2 failure")) //
                         .thenReturn(Status.OK_STATUS);
         subject = new RepositoryArtifactProvider(Collections.singletonList(failingMirrorsRepository), TRANSFER_POLICY);
@@ -134,8 +134,8 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         when(failingMirrorsRepository.contains(BUNDLE_A_KEY)).thenReturn(true);
         when(failingMirrorsRepository.getArtifactDescriptors(BUNDLE_A_KEY))
                 .thenReturn(new IArtifactDescriptor[] { canonicalDescriptorFor(BUNDLE_A_KEY) });
-        when(failingMirrorsRepository.getArtifact(argThat(is(canonicalDescriptorFor(BUNDLE_A_KEY))),
-                any(OutputStream.class), any(IProgressMonitor.class))).thenReturn(errorWithRetry("mirror failure"));
+        when(failingMirrorsRepository.getArtifact(eq(canonicalDescriptorFor(BUNDLE_A_KEY)), any(OutputStream.class),
+                any(IProgressMonitor.class))).thenReturn(errorWithRetry("mirror failure"));
         subject = new RepositoryArtifactProvider(Collections.singletonList(failingMirrorsRepository), TRANSFER_POLICY);
 
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);
