@@ -3,9 +3,9 @@ About Tycho Extras
 
 Additional tools for Tycho.
 
-  * [Project Homepage](http://www.eclipse.org/tycho/)
-  * [Documentation](http://eclipse.org/tycho/documentation.php)
-  * [Bug Tracker](https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho)
-  * [How to Contribute](https://wiki.eclipse.org/Tycho/Contributor_Guide)
+  * [Project Homepage](https://www.eclipse.org/tycho/)
+  * [Documentation](https://www.eclipse.org/tycho/sitedocs/)
+  * [Bug Tracker](https://github.com/eclipse/tycho/issues)
+  * [How to Contribute](https://github.com/eclipse/tycho/blob/master/CONTRIBUTING.md)
   * [Contact Us](https://dev.eclipse.org/mailman/listinfo/tycho-user)
 

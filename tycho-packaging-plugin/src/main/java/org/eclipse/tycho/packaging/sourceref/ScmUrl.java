@@ -18,7 +18,7 @@ import java.util.Properties;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Maven SCM URL as specified by {@linkplain http://maven.apache.org/scm/scm-url-format.html}
+ * Maven SCM URL as specified by {@linkplain https://maven.apache.org/scm/scm-url-format.html}
  */
 public class ScmUrl {
 
@@ -34,7 +34,7 @@ public class ScmUrl {
         }
         if (!url.startsWith("scm:")) {
             throw new MojoExecutionException("Invalid SCM URL: '" + url
-                    + "'. See http://maven.apache.org/scm/scm-url-format.html");
+                    + "'. See https://maven.apache.org/scm/scm-url-format.html");
         }
         int delimiterIndex = -1;
         int pipeIndex = url.indexOf('|', 4);
@@ -50,7 +50,7 @@ public class ScmUrl {
         }
         if (delimiterIndex == -1) {
             throw new MojoExecutionException("Invalid SCM URL: '" + url
-                    + "'. See http://maven.apache.org/scm/scm-url-format.html");
+                    + "'. See https://maven.apache.org/scm/scm-url-format.html");
         }
         this.type = url.substring(4, delimiterIndex);
     }

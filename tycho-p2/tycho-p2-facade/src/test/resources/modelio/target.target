@@ -17,7 +17,7 @@
 <unit id="org.tigris.subversion.clientadapter.javahl.feature.feature.group" version="1.6.9.3"/>
 
 <!-- this repository contains all units listed above ... -->
-<repository location="http://subclipse.tigris.org/update_1.6.x/"/>
+<repository location="https://subclipse.tigris.org/update_1.6.x/"/>
 
 <!-- ... but this repository is needed nevertheless because the transitive dependencies of the 
      unit org.tigris.subversion.subclipse.mylyn.feature.group is neither in first repository nor 

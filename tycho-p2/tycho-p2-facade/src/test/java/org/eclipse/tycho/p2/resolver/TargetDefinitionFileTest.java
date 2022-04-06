@@ -53,7 +53,7 @@ public class TargetDefinitionFileTest {
         InstallableUnitLocation l02 = (InstallableUnitLocation) locations.get(1);
         assertEquals(5, l02.getUnits().size());
         assertEquals(2, l02.getRepositories().size());
-        assertEquals(URI.create("http://subclipse.tigris.org/update_1.6.x/"),
+        assertEquals(URI.create("https://subclipse.tigris.org/update_1.6.x/"),
                 l02.getRepositories().get(0).getLocation());
         assertEquals(URI.create("https://download.eclipse.org/tools/mylyn/update/e3.4/"),
                 l02.getRepositories().get(1).getLocation());

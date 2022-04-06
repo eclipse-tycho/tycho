@@ -24,7 +24,7 @@ import org.eclipse.osgi.util.ManifestElement;
  * 
  * [1] {@linkplain https://wiki.eclipse.org/PDE/UI/SourceReferences}
  * 
- * [2] {@linkplain http://maven.apache.org/scm/scm-url-format.html}
+ * [2] {@linkplain https://maven.apache.org/scm/scm-url-format.html}
  */
 public interface SourceReferencesProvider {
 

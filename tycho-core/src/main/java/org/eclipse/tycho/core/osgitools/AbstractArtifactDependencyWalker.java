@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -141,7 +141,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
                 // for Mac OS X there is no org.eclipse.equinox.launcher.carbon.macosx.x86 or org.eclipse.equinox.launcher.carbon.macosx.ppc folder,
                 // only a org.eclipse.equinox.launcher.carbon.macosx folder.
-                // see http://jira.codehaus.org/browse/MNGECLIPSE-1075
+                // see https://jira.codehaus.org/browse/MNGECLIPSE-1075
                 if (PlatformPropertiesUtils.OS_MACOSX.equals(os) && (PlatformPropertiesUtils.ARCH_X86.equals(arch)
                         || PlatformPropertiesUtils.ARCH_PPC.equals(arch))) {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os;

@@ -38,21 +38,21 @@ This project leverages the following third party content.
 Apache Commons Compress (1.7)
 
 * License: Apache License, 2.0
-* Project: http://commons.apache.org/proper/commons-compress/
+* Project: https://commons.apache.org/proper/commons-compress/
 * Source: https://github.com/apache/commons-compress/tree/COMPRESS-1.7
 
 Apache Commons Configuration (1.9)
 
 * License: Apache License, 2.0
-* Project: http://commons.apache.org/proper/commons-configuration/index.html
+* Project: https://commons.apache.org/proper/commons-configuration/index.html
 * Source:
-   http://svn.apache.org/repos/asf/commons/proper/configuration/tags/CONFIGURATION_1_9/
+   https://svn.apache.org/repos/asf/commons/proper/configuration/tags/CONFIGURATION_1_9/
 
 Apache Commons Exec (1.2)
 
 * License: Apache License 2.0
-* Project: http://commons.apache.org/proper/commons-exec/
-* Source: http://svn.apache.org/viewvc/commons/proper/exec/tags/1.2/
+* Project: https://commons.apache.org/proper/commons-exec/
+* Source: https://svn.apache.org/viewvc/commons/proper/exec/tags/1.2/
 
 Apache Commons Exec (1.3)
 
@@ -89,15 +89,15 @@ Apache HttpClient (3.1)
 asm (4.0)
 
 * License: New BSD License
-* Project: http://asm.ow2.org/
-* Source: http://websvn.ow2.org/listing.php?repname=asm&
+* Project: https://asm.ow2.org/
+* Source: https://websvn.ow2.org/listing.php?repname=asm&
 
 asm (5.0.3)
 
 * License: New BSD license
-* Project: http://asm.ow2.org/
+* Project: https://asm.ow2.org/
 * Source:
-   http://search.maven.org/remotecontent?filepath=org/ow2/asm/asm/5.0.3/asm-5.0.3-sources.jar
+   https://search.maven.org/remotecontent?filepath=org/ow2/asm/asm/5.0.3/asm-5.0.3-sources.jar
 
 ASM (6.1.1)
 
@@ -118,7 +118,7 @@ backport-util-concurrent (3.1)
 common-java5 (2.17)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/common-java5/
+* Project: https://maven.apache.org/surefire/surefire-providers/common-java5/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
@@ -133,13 +133,13 @@ Commons IO (1.4)
 commons-compress (1.9)
 
 * License: Apache License, 2.0
-* Project: http://commons.apache.org/proper/commons-compress/
-* Source: http://svn.apache.org/repos/asf/commons/proper/compress/trunk
+* Project: https://commons.apache.org/proper/commons-compress/
+* Source: https://svn.apache.org/repos/asf/commons/proper/compress/trunk
 
 commons-compress (1.11)
 
 * License: Apache License, 2.0, BSD (one file), Public Domain (one file)
-* Project: http://commons.apache.org/proper/commons-compress/
+* Project: https://commons.apache.org/proper/commons-compress/
 * Source: https://git-wip-us.apache.org/repos/asf?p=commons-compress.git
 
 commons-compress (1.15)
@@ -153,14 +153,14 @@ commons-compress (1.19)
 commons-io (2.5)
 
 * License: Apache License, 2.0
-* Project: http://commons.apache.org/proper/commons-io/
-* Source: http://svn.apache.org/viewvc/commons/proper/io/tags/commons-io-2.5
+* Project: https://commons.apache.org/proper/commons-io/
+* Source: https://svn.apache.org/viewvc/commons/proper/io/tags/commons-io-2.5
 
 de.pdark.decentxml (1.3)
 
 * License: New BSD license
-* Project: http://code.google.com/p/decentxml/
-* Source: http://decentxml.googlecode.com/svn/tags/r1.3/
+* Project: https://code.google.com/p/decentxml/
+* Source: https://decentxml.googlecode.com/svn/tags/r1.3/
 
 de.pdark.decentxml (1.4)
 
@@ -169,9 +169,9 @@ de.pdark.decentxml (1.4)
 doxia-sink-api (1.0)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/doxia/doxia/doxia-sink-api/
+* Project: https://maven.apache.org/doxia/doxia/doxia-sink-api/
 * Source:
-   http://svn.apache.org/viewvc/maven/doxia/doxia/tags/doxia-1.0-alpha-7/doxia-sink-api/
+   https://svn.apache.org/viewvc/maven/doxia/doxia/tags/doxia-1.0-alpha-7/doxia-sink-api/
 
 hamcrest-core (1.3)
 
@@ -260,14 +260,14 @@ JUnit5 Jupiter Engine (5.4.1)
 maven-archiver (2.4)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/shared/maven-archiver/
-* Source: http://svn.apache.org/viewvc/maven/shared/tags/maven-archiver-2.4/
+* Project: https://maven.apache.org/shared/maven-archiver/
+* Source: https://svn.apache.org/viewvc/maven/shared/tags/maven-archiver-2.4/
 
 maven-archiver (2.5)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/shared/maven-archiver/
-* Source: http://svn.apache.org/viewvc/maven/shared/tags/maven-archiver-2.5/
+* Project: https://maven.apache.org/shared/maven-archiver/
+* Source: https://svn.apache.org/viewvc/maven/shared/tags/maven-archiver-2.5/
 
 maven-archiver (3.5.0)
 
@@ -286,49 +286,49 @@ maven-artifact-manager (2.0.9)
 * License: Apache License, 2.0
 * Project: https://maven.apache.org/
 * Source:
-   http://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-artifact-manager/
+   https://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-artifact-manager/
 
 maven-artifact-manager (2.2.1)
 
 * License: Apache-2.0
-* Project: http://maven.apache.org/ref/2.0.11/maven-artifact-manager/index.html
+* Project: https://maven.apache.org/ref/2.0.11/maven-artifact-manager/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/maven-2/tags/maven-2.2.1/maven-artifact-manager/
+   https://svn.apache.org/viewvc/maven/maven-2/tags/maven-2.2.1/maven-artifact-manager/
 
 maven-clean-plugin (2.4.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/plugins/maven-clean-plugin/
+* Project: https://maven.apache.org/plugins/maven-clean-plugin/
 * Source:
-   http://svn.apache.org/viewvc/maven/plugins/tags/maven-clean-plugin-2.4.1/
+   https://svn.apache.org/viewvc/maven/plugins/tags/maven-clean-plugin-2.4.1/
 
 maven-compiler-plugin (2.0.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/plugins/maven-compiler-plugin/
+* Project: https://maven.apache.org/plugins/maven-compiler-plugin/
 * Source:
-   http://svn.apache.org/viewvc/maven/plugins/tags/maven-compiler-plugin-2.0.1/
+   https://svn.apache.org/viewvc/maven/plugins/tags/maven-compiler-plugin-2.0.1/
 
 maven-deploy-plugin (2.5)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/plugins/maven-deploy-plugin/
+* Project: https://maven.apache.org/plugins/maven-deploy-plugin/
 * Source:
-   http://svn.apache.org/viewvc/maven/plugins/tags/maven-deploy-plugin-2.5/
+   https://svn.apache.org/viewvc/maven/plugins/tags/maven-deploy-plugin-2.5/
 
 maven-filtering (1.0)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/shared/maven-filtering/
+* Project: https://maven.apache.org/shared/maven-filtering/
 * Source:
-   http://svn.apache.org/viewvc/maven/shared/tags/maven-filtering-1.0-beta-4/
+   https://svn.apache.org/viewvc/maven/shared/tags/maven-filtering-1.0-beta-4/
 
 maven-install-plugin (2.3.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/plugins/maven-install-plugin/
+* Project: https://maven.apache.org/plugins/maven-install-plugin/
 * Source:
-   http://svn.apache.org/viewvc/maven/plugins/tags/maven-install-plugin-2.3.1/
+   https://svn.apache.org/viewvc/maven/plugins/tags/maven-install-plugin-2.3.1/
 
 maven-plugin-annotations (3.3)
 
@@ -339,7 +339,7 @@ maven-plugin-descriptor (2.0.9)
 * License: Apache License, 2.0
 * Project: https://maven.apache.org/index.html
 * Source:
-   http://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-plugin-descriptor/
+   https://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-plugin-descriptor/
 
 maven-plugin-descriptor (2.2.1)
 
@@ -351,7 +351,7 @@ maven-plugin-registry (2.0.9)
 * License: Apache License, 2.0
 * Project: https://maven.apache.org/
 * Source:
-   http://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-plugin-registry/
+   https://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-plugin-registry/
 
 maven-plugin-registry (2.2.1)
 
@@ -363,7 +363,7 @@ maven-profile (2.0.9)
 * License: Apache License, 2.0
 * Project: https://maven.apache.org/
 * Source:
-   http://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-profile/
+   https://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-profile/
 
 maven-profile (2.2.1)
 
@@ -382,37 +382,37 @@ maven-project (2.2.1)
 maven-reporting-api (2.0.6)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/shared/maven-reporting-api/
+* Project: https://maven.apache.org/shared/maven-reporting-api/
 * Source:
-   http://svn.apache.org/viewvc/maven/components/tags/maven-2.0.6/maven-reporting/maven-reporting-api/
+   https://svn.apache.org/viewvc/maven/components/tags/maven-2.0.6/maven-reporting/maven-reporting-api/
 
 maven-resources-plugin (2.4.3)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/plugins/maven-resources-plugin/
+* Project: https://maven.apache.org/plugins/maven-resources-plugin/
 * Source:
-   http://svn.apache.org/viewvc/maven/plugins/tags/maven-resources-plugin-2.4.3/
+   https://svn.apache.org/viewvc/maven/plugins/tags/maven-resources-plugin-2.4.3/
 
 maven-shared-utils (0.9)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/shared/maven-shared-utils/
+* Project: https://maven.apache.org/shared/maven-shared-utils/
 * Source:
-   http://svn.apache.org/viewvc/maven/shared/tags/maven-shared-utils-3.1.0
+   https://svn.apache.org/viewvc/maven/shared/tags/maven-shared-utils-3.1.0
 
 maven-source-plugin (2.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/plugins/maven-source-plugin/
+* Project: https://maven.apache.org/plugins/maven-source-plugin/
 * Source:
-   http://svn.apache.org/repos/asf/maven/plugins/tags/maven-source-plugin-2.1/
+   https://svn.apache.org/repos/asf/maven/plugins/tags/maven-source-plugin-2.1/
 
 maven-toolchain (2.0.9)
 
 * License: Apache License, 2.0
 * Project: https://maven.apache.org/
 * Source:
-   http://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-toolchain/
+   https://svn.apache.org/repos/asf/maven/components/tags/maven-2.0.9/maven-toolchain/
 
 maven-toolchain (2.2.1)
 
@@ -453,15 +453,15 @@ plexus-archiver (1.2)
 
 * License: Apache License, 2.0
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-archiver/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-archiver/index.html
 * Source:
-   http://svn.codehaus.org/plexus/plexus-components/tags/plexus-archiver-1.2/
+   https://svn.codehaus.org/plexus/plexus-components/tags/plexus-archiver-1.2/
 
 plexus-archiver (2.2)
 
 * License: Apache License, 2.0
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-archiver/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-archiver/index.html
 * Source: https://github.com/sonatype/plexus-archiver.git
 
 plexus-archiver (2.9.1)
@@ -474,7 +474,7 @@ plexus-archiver (2.10.1)
 
 * License: Apache License, 2.0
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-archiver/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-archiver/index.html
 * Source: https://github.com/sonatype/plexus-archiver
 
 plexus-archiver (3.4)
@@ -499,23 +499,23 @@ plexus-compiler-api (1.6)
 
 * License: MIT License, Apache License, 2.0
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-compiler/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-compiler/index.html
 * Source:
-   http://svn.codehaus.org/plexus/plexus-components/tags/plexus-compiler-1.6/plexus-compiler-api/
+   https://svn.codehaus.org/plexus/plexus-components/tags/plexus-compiler-1.6/plexus-compiler-api/
 
 plexus-compiler-api (1.8.1)
 
 * License: MIT License, Apache License 2.0
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-compiler/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-compiler/index.html
 * Source:
-   http://svn.codehaus.org/plexus/plexus-components/tags/1.8.1/plexus-compiler-api/
+   https://svn.codehaus.org/plexus/plexus-components/tags/1.8.1/plexus-compiler-api/
 
 plexus-compiler-api (2.2)
 
 * License: MIT License, Apache License 2.0
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-compiler/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-compiler/index.html
 * Source: https://github.com/sonatype/plexus-compiler/tree/plexus-compiler-2.2
 
 plexus-compiler-api (2.8.5)
@@ -526,23 +526,23 @@ plexus-compiler-manager (1.6)
 
 * License: MIT License
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-compiler/plexus-compiler-manager/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-compiler/plexus-compiler-manager/index.html
 * Source:
-   http://svn.codehaus.org/plexus/plexus-components/tags/plexus-compiler-1.6/plexus-compiler-manager/
+   https://svn.codehaus.org/plexus/plexus-components/tags/plexus-compiler-1.6/plexus-compiler-manager/
 
 plexus-compiler-manager (1.8.1)
 
 * License: MIT License
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-compiler/plexus-compiler-manager/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-compiler/plexus-compiler-manager/index.html
 * Source:
-   http://svn.codehaus.org/plexus/plexus-components/tags/1.8.1/plexus-compiler-manager/
+   https://svn.codehaus.org/plexus/plexus-components/tags/1.8.1/plexus-compiler-manager/
 
 plexus-compiler-manager (2.2)
 
 * License: MIT License
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-compiler/plexus-compiler-manager/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-compiler/plexus-compiler-manager/index.html
 * Source:
    https://github.com/sonatype/plexus-compiler/tree/plexus-compiler-2.2/plexus-compiler-manager
 
@@ -554,54 +554,54 @@ plexus-digest (1.0)
 
 * License: Apache License, 2.0
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-digest/index.html
-* Source: http://svn.codehaus.org/plexus/tags/plexus-digest-1.0/
+   https://plexus.codehaus.org/plexus-components/plexus-digest/index.html
+* Source: https://svn.codehaus.org/plexus/tags/plexus-digest-1.0/
 
 plexus-interactivity-api (1.0)
 
 * License: MIT license
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-interactivity/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-interactivity/index.html
 * Source:
-   http://svn.codehaus.org/plexus/tags/plexus-interactivity-1.0-alpha-4/plexus-interactivity-api/
+   https://svn.codehaus.org/plexus/tags/plexus-interactivity-1.0-alpha-4/plexus-interactivity-api/
 
 plexus-interpolation (1.13)
 
 * License: Apache Software License 1.1, Apache License, 2.0, MIT license 
 * Project:
-   http://plexus.codehaus.org/plexus-components/plexus-interpolation/index.html
+   https://plexus.codehaus.org/plexus-components/plexus-interpolation/index.html
 * Source:
-   http://svn.codehaus.org/plexus/plexus-components/tags/plexus-interpolation-1.13/
+   https://svn.codehaus.org/plexus/plexus-components/tags/plexus-interpolation-1.13/
 
 plexus-io (1.0.1)
 
 * License: Apache License, 2.0
-* Project: http://plexus.codehaus.org/plexus-components/plexus-io/index.html
+* Project: https://plexus.codehaus.org/plexus-components/plexus-io/index.html
 * Source:
-   http://svn.codehaus.org/plexus/plexus-components/tags/plexus-io-1.0.1/
+   https://svn.codehaus.org/plexus/plexus-components/tags/plexus-io-1.0.1/
 
 plexus-io (2.0.5)
 
 * License: Apache License, 2.0
-* Project: http://plexus.codehaus.org/plexus-components/plexus-io/index.html
+* Project: https://plexus.codehaus.org/plexus-components/plexus-io/index.html
 * Source: https://github.com/sonatype/plexus-io.git
 
 plexus-io (2.4.1)
 
 * License: Apache License, 2.0
-* Project: http://plexus.codehaus.org/plexus-components/plexus-io/index.html
+* Project: https://plexus.codehaus.org/plexus-components/plexus-io/index.html
 * Source: https://github.com/sonatype/plexus-io.git
 
 plexus-io (2.6)
 
 * License: Apache License, 2.0
-* Project: http://plexus.codehaus.org/plexus-components/plexus-io/index.html
+* Project: https://plexus.codehaus.org/plexus-components/plexus-io/index.html
 * Source: https://github.com/sonatype/plexus-io.git
 
 plexus-io (2.7.1)
 
 * License: Apache-2.0
-* Project: http://plexus.codehaus.org/plexus-components/plexus-io/index.html
+* Project: https://plexus.codehaus.org/plexus-components/plexus-io/index.html
 * Source: https://github.com/sonatype/plexus-io.git
 
 plexus-io (3.2.0)
@@ -616,7 +616,7 @@ plexus-util (3.0.20)
 
 * License: Apache 2.0, Apache 1.1, BSD, Public Domain, Indiana University
    Extreme! Lab Software License V1.1.1 (Apache 1.1 styl
-* Project: http://plexus.codehaus.org/plexus-utils/
+* Project: https://plexus.codehaus.org/plexus-utils/
 * Source: https://github.com/sonatype/plexus-utils
 
 plexus-utils (1.5.6)
@@ -633,21 +633,21 @@ plexus-utils (2.0.5)
 
 * License:  Apache 2.0, Apache 1.1, BSD, Public Domain, Indiana University
    Extreme! Lab Software License V1.1.1 (Apache 1.1 style)
-* Project: http://plexus.codehaus.org/plexus-utils/
-* Source: http://svn.codehaus.org/plexus/plexus-utils/tags/plexus-utils-2.0.5/
+* Project: https://plexus.codehaus.org/plexus-utils/
+* Source: https://svn.codehaus.org/plexus/plexus-utils/tags/plexus-utils-2.0.5/
 
 plexus-utils (3.0.7)
 
 * License: Apache 2.0, Apache 1.1, BSD, Public Domain, Indiana University
    Extreme! Lab Software License V1.1.1 (Apache 1.1 style) 
-* Project: http://plexus.codehaus.org/plexus-utils/
+* Project: https://plexus.codehaus.org/plexus-utils/
 
 plexus-utils (3.0.24)
 
 * License: Apache 2.0, Apache 1.1, BSD, Public Domain, Indiana University
    Extreme! Lab Software License V1.1.1 (Apache 1.1 style)
 * Project: https://codehaus-plexus.github.io/plexus-utils/
-* Source: http://github.com/codehaus-plexus/plexus-utils
+* Source: https://github.com/codehaus-plexus/plexus-utils
 
 plexus-utils (3.3.0)
 
@@ -678,82 +678,82 @@ sat4j (2.2.0)
 Surefire common-java5 (2.19.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/common-java5/
+* Project: https://maven.apache.org/surefire/surefire-providers/common-java5/
 * Source:
    https://github.com/apache/maven-surefire/tree/surefire-2.19.1_vote-2/surefire-providers/common-java5
 
 Surefire common-junit3 (2.19.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/common-junit3/
+* Project: https://maven.apache.org/surefire/surefire-providers/common-junit3/
 * Source:
    https://github.com/apache/maven-surefire/tree/surefire-2.19.1_vote-2/surefire-providers/common-junit3
 
 Surefire common-junit4 (2.19.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/common-junit4/
+* Project: https://maven.apache.org/surefire/surefire-providers/common-junit4/
 * Source:
    https://github.com/apache/maven-surefire/tree/surefire-2.19.1_vote-2/surefire-providers/common-junit4
 
 surefire-api (2.4.3)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-api/index.html
-* Source: http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.4.3/
+* Project: https://maven.apache.org/surefire/surefire-api/index.html
+* Source: https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.4.3/
 
 surefire-api (2.10)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-api/index.html
+* Project: https://maven.apache.org/surefire/surefire-api/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-api/
+   https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-api/
 
 surefire-api (2.17)
 
 * License: Apache License 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
 surefire-api (2.19.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-api/
+* Project: https://maven.apache.org/surefire/surefire-api/
 * Source:
    https://github.com/apache/maven-surefire/tree/surefire-2.19.1_vote-2/surefire-api
 
 surefire-api (2.22.0)
 
 * License: Apache-2.0
-* Project: http://maven.apache.org/surefire/surefire-api/
+* Project: https://maven.apache.org/surefire/surefire-api/
 * Source: https://maven.apache.org/surefire/surefire-api/source-repository.html
 
 surefire-booter (2.4.3)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-booter/index.html
+* Project: https://maven.apache.org/surefire/surefire-booter/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.4.3/surefire-booter/
+   https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.4.3/surefire-booter/
 
 surefire-booter (2.10)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-booter/index.html
+* Project: https://maven.apache.org/surefire/surefire-booter/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-booter/
+   https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-booter/
 
 surefire-booter (2.17)
 
 * License: Apache License 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
 surefire-booter (2.19.1)
 
 * License: Apache-2.0
-* Project: http://maven.apache.org/surefire/
+* Project: https://maven.apache.org/surefire/
 * Source: https://github.com/apache/maven-surefire/tree/master/surefire-booter
 
 surefire-booter (2.22.0)
@@ -766,42 +766,42 @@ surefire-booter (2.22.0)
 surefire-common (2.17)
 
 * License: Apache License 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
 surefire-common (2.22)
 
 * License: Apache-2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://maven.apache.org/surefire/maven-surefire-common/source-repository.html
 
 surefire-common-junit48 (2.17)
 
 * License: Apache License 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
 surefire-common-junit48 (2.19.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/common-junit48/
+* Project: https://maven.apache.org/surefire/surefire-providers/common-junit48/
 * Source:
    https://github.com/apache/maven-surefire/tree/surefire-2.19.1_vote-2/surefire-providers/common-junit48
 
 surefire-grouper (2.17)
 
 * License: Apache License 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
 surefire-grouper (2.19.1)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-grouper/
+* Project: https://maven.apache.org/surefire/surefire-grouper/
 * Source:
    https://github.com/apache/maven-surefire/tree/surefire-2.19.1_vote-2/surefire-grouper
 
@@ -809,16 +809,16 @@ surefire-juni47 (2.19.1)
 
 * License: Apache License, 2.0
 * Project:
-   http://maven.apache.org/components/surefire/surefire-providers/surefire-junit47/
+   https://maven.apache.org/components/surefire/surefire-providers/surefire-junit47/
 * Source:
    https://github.com/apache/maven-surefire/tree/surefire-2.19.1_vote-2/surefire-providers/surefire-junit47
 
 surefire-junit (2.4.3)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/index.html
+* Project: https://maven.apache.org/surefire/surefire-providers/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.4.3/surefire-providers/surefire-junit/
+   https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.4.3/surefire-providers/surefire-junit/
 
 surefire-junit-platform (2.22.0)
 
@@ -831,35 +831,35 @@ surefire-junit-platform (2.22.0)
 surefire-junit3 (2.10)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/index.html
+* Project: https://maven.apache.org/surefire/surefire-providers/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-providers/surefire-junit3/
+   https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-providers/surefire-junit3/
 
 surefire-junit3 (2.17)
 
 * License: Apache License 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
 surefire-junit4 (2.4.3)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/index.html
+* Project: https://maven.apache.org/surefire/surefire-providers/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.4.3/surefire-providers/surefire-junit4/
+   https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.4.3/surefire-providers/surefire-junit4/
 
 surefire-junit4 (2.10)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/index.html
+* Project: https://maven.apache.org/surefire/surefire-providers/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-providers/surefire-junit4/
+   https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-providers/surefire-junit4/
 
 surefire-junit4 (2.17)
 
 * License: Apache License 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
@@ -870,14 +870,14 @@ surefire-junit4 (2.19.1)
 surefire-junit47 (2.10)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/surefire-providers/index.html
+* Project: https://maven.apache.org/surefire/surefire-providers/index.html
 * Source:
-   http://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-providers/surefire-junit47/
+   https://svn.apache.org/viewvc/maven/surefire/tags/surefire-2.10/surefire-providers/surefire-junit47/
 
 surefire-junit47 (2.17)
 
 * License: Apache License 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
@@ -899,7 +899,7 @@ surefire-testng (2.19.1)
 surefire-testng-util (2.17)
 
 * License: Apache License, 2.0
-* Project: http://maven.apache.org/surefire/maven-surefire-plugin/
+* Project: https://maven.apache.org/surefire/maven-surefire-plugin/
 * Source:
    https://git-wip-us.apache.org/repos/asf?p=maven-surefire.git;a=tag;h=refs/tags/surefire-2.17
 
@@ -916,8 +916,8 @@ testng (6.9.10)
 xz for java (1.5)
 
 * License: Public-Domain
-* Project: http://tukaani.org/xz/java.html
-* Source: http://git.tukaani.org/xz-java.git
+* Project: https://tukaani.org/xz/java.html
+* Source: https://git.tukaani.org/xz-java.git
 
 ## Cryptography
 

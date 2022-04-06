@@ -10,7 +10,7 @@
 
   <properties>
     <tycho-version>0.9.0-SNAPSHOT</tycho-version>
-    <p2.repo>http://download.eclipse.org/eclipse/updates/3.5</p2.repo>
+    <p2.repo>https://download.eclipse.org/eclipse/updates/3.5</p2.repo>
   </properties>
 
   <repositories>

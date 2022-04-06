@@ -1,6 +1,6 @@
 ## Build Properties
 
-Tycho uses the `build.properties` file [as defined by PDE](http://help.eclipse.org/luna/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm) to configure various aspects of the build.
+Tycho uses the `build.properties` file [as defined by PDE](https://help.eclipse.org/luna/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm) to configure various aspects of the build.
 
 Note that Tycho only supports a subset of keys defined by PDE. If a key is not supported, this may be because
 

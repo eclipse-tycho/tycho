@@ -12,7 +12,7 @@
   </modules>
 
   <properties>
-    <p2.repo>http://download.eclipse.org/releases/galileo</p2.repo>
+    <p2.repo>https://download.eclipse.org/releases/galileo</p2.repo>
   </properties>
 
   <repositories>

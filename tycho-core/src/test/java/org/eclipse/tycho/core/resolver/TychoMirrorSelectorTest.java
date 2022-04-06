@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
  *    Bachmann electronic GmbH. - initial API and implementation
@@ -27,7 +27,7 @@ public class TychoMirrorSelectorTest {
     public void testWithMatchingMirrorOfIds() {
         ArtifactRepository repository = createArtifactRepository("neon-repo",
                 "https://download.eclipse.org/eclipse/update/4.6");
-        Mirror mirrorWithMatchingMirrorOfIds = createMirror("myId", "http://foo.bar", "neon-repo");
+        Mirror mirrorWithMatchingMirrorOfIds = createMirror("myId", "https://foo.bar", "neon-repo");
         Mirror selectedMirror = selector.getMirror(repository, Arrays.asList(mirrorWithMatchingMirrorOfIds));
         Assert.assertEquals(mirrorWithMatchingMirrorOfIds, selectedMirror);
     }
@@ -36,12 +36,12 @@ public class TychoMirrorSelectorTest {
     public void testWithPrefixMirror() {
         ArtifactRepository repository = createArtifactRepository("neon-repo",
                 "https://download.eclipse.org/eclipse/update/4.6");
-        Mirror prefixMatchingMirror1 = createMirror("myId1", "http://foo.bar", "https://download.eclipse.org");
-        Mirror prefixMatchingMirror2 = createMirror("myId2", "http://foo1.bar1", "http://abc.vxz");
+        Mirror prefixMatchingMirror1 = createMirror("myId1", "https://foo.bar", "https://download.eclipse.org");
+        Mirror prefixMatchingMirror2 = createMirror("myId2", "https://foo1.bar1", "https://abc.vxz");
         Mirror selectedMirror = selector.getMirror(repository,
                 Arrays.asList(prefixMatchingMirror1, prefixMatchingMirror2));
         Assert.assertNotNull(selectedMirror);
-        Assert.assertEquals("http://foo.bar/eclipse/update/4.6", selectedMirror.getUrl());
+        Assert.assertEquals("https://foo.bar/eclipse/update/4.6", selectedMirror.getUrl());
     }
 
     private ArtifactRepository createArtifactRepository(String id, String url) {

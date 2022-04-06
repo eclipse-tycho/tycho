@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.Path;
 
 /**
  * Ant-like file set. Wildcards *, ** and ? are implemented as described on <br/>
- * {@link http://en.wikibooks.org/wiki/Apache_Ant/Fileset }. This is not a complete equivalent
+ * {@link https://en.wikibooks.org/wiki/Apache_Ant/Fileset }. This is not a complete equivalent
  * implementation of the ant fileset. Only the subset needed for PDE root files is supported.
  */
 public class FileSet extends AbstractFileSet {

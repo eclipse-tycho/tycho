@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <setup:Project
     xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xmi="https://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:git="http://www.eclipse.org/oomph/setup/git/1.0"
-    xmlns:jdt="http://www.eclipse.org/oomph/setup/jdt/1.0"
-    xmlns:maven="http://www.eclipse.org/oomph/setup/maven/1.0"
-    xmlns:pde="http://www.eclipse.org/oomph/setup/pde/1.0"
-    xmlns:predicates="http://www.eclipse.org/oomph/predicates/1.0"
-    xmlns:projects="http://www.eclipse.org/oomph/setup/projects/1.0"
-    xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
-    xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
-    xmlns:setup.workingsets="http://www.eclipse.org/oomph/setup/workingsets/1.0"
-    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/maven/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Maven.ecore http://www.eclipse.org/oomph/setup/pde/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/PDE.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore http://www.eclipse.org/oomph/setup/workingsets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupWorkingSets.ecore"
+    xmlns:git="https://www.eclipse.org/oomph/setup/git/1.0"
+    xmlns:jdt="https://www.eclipse.org/oomph/setup/jdt/1.0"
+    xmlns:maven="https://www.eclipse.org/oomph/setup/maven/1.0"
+    xmlns:pde="https://www.eclipse.org/oomph/setup/pde/1.0"
+    xmlns:predicates="https://www.eclipse.org/oomph/predicates/1.0"
+    xmlns:projects="https://www.eclipse.org/oomph/setup/projects/1.0"
+    xmlns:setup="https://www.eclipse.org/oomph/setup/1.0"
+    xmlns:setup.p2="https://www.eclipse.org/oomph/setup/p2/1.0"
+    xmlns:setup.workingsets="https://www.eclipse.org/oomph/setup/workingsets/1.0"
+    xsi:schemaLocation="https://www.eclipse.org/oomph/setup/git/1.0 https://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore https://www.eclipse.org/oomph/setup/jdt/1.0 https://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore https://www.eclipse.org/oomph/setup/maven/1.0 https://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Maven.ecore https://www.eclipse.org/oomph/setup/pde/1.0 https://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/PDE.ecore https://www.eclipse.org/oomph/predicates/1.0 https://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore https://www.eclipse.org/oomph/setup/projects/1.0 https://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore https://www.eclipse.org/oomph/setup/workingsets/1.0 https://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupWorkingSets.ecore"
     name="tycho"
     label="Tycho">
   <setupTask
@@ -42,7 +42,7 @@
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.text.custom_code_templates"
-          value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?>&lt;templates>&lt;template autoinsert=&quot;false&quot; context=&quot;filecomment_context&quot; deleted=&quot;false&quot; description=&quot;Comment for created Java files&quot; enabled=&quot;true&quot; id=&quot;org.eclipse.jdt.ui.text.codetemplates.filecomment&quot; name=&quot;filecomment&quot;>/*******************************************************************************&#xD;&#xA; * Copyright (c) $${currentDate:date('yyyy')} $${user} and others.&#xD;&#xA; * All rights reserved. This program and the accompanying materials&#xD;&#xA; * are made available under the terms of the Eclipse Public License v1.0&#xD;&#xA; * which accompanies this distribution, and is available at&#xD;&#xA; * http://www.eclipse.org/legal/epl-v10.html&#xD;&#xA; *&#xD;&#xA; * Contributors:&#xD;&#xA; *    $${user}&#xD;&#xA; *&#xD;&#xA; * TODO: comment here what the class does&#xD;&#xA; *******************************************************************************/&lt;/template>&lt;/templates>"/>
+          value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?>&lt;templates>&lt;template autoinsert=&quot;false&quot; context=&quot;filecomment_context&quot; deleted=&quot;false&quot; description=&quot;Comment for created Java files&quot; enabled=&quot;true&quot; id=&quot;org.eclipse.jdt.ui.text.codetemplates.filecomment&quot; name=&quot;filecomment&quot;>/*******************************************************************************&#xD;&#xA; * Copyright (c) $${currentDate:date('yyyy')} $${user} and others.&#xD;&#xA; * All rights reserved. This program and the accompanying materials&#xD;&#xA; * are made available under the terms of the Eclipse Public License v1.0&#xD;&#xA; * which accompanies this distribution, and is available at&#xD;&#xA; * https://www.eclipse.org/legal/epl-v10.html&#xD;&#xA; *&#xD;&#xA; * Contributors:&#xD;&#xA; *    $${user}&#xD;&#xA; *&#xD;&#xA; * TODO: comment here what the class does&#xD;&#xA; *******************************************************************************/&lt;/template>&lt;/templates>"/>
     </setupTask>
   </setupTask>
   <setupTask
@@ -102,7 +102,7 @@
     <repository
         url="https://repo1.maven.org/maven2/.m2e/connectors/mavendev/0.5.0/N/0.5.0.201807010411/"/>
     <repository
-        url="http://ianbrandt.github.io/m2e-maven-dependency-plugin/"/>
+        url="https://ianbrandt.github.io/m2e-maven-dependency-plugin/"/>
     <repository
         url="https://download.eclipse.org/technology/m2e/releases/latest/"/>
     <description>P2 Update Sites for the m2e connectors</description>
@@ -113,7 +113,7 @@
       remoteURI="eclipse/tycho"
       pushURI="">
     <annotation
-        source="http://www.eclipse.org/oomph/setup/InducedChoices">
+        source="https://www.eclipse.org/oomph/setup/InducedChoices">
       <detail
           key="inherit">
         <value>github.remoteURIs</value>

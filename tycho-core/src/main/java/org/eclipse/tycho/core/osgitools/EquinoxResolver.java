@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -440,7 +440,7 @@ public class EquinoxResolver {
     private boolean isFrameworkImplementation(OsgiManifest mf) {
         // starting with OSGi R4.2, /META-INF/services/org.osgi.framework.launch.FrameworkFactory
         // can be used to detect framework implementation
-        // See http://www.osgi.org/javadoc/r4v42/org/osgi/framework/launch/FrameworkFactory.html
+        // See https://www.osgi.org/javadoc/r4v42/org/osgi/framework/launch/FrameworkFactory.html
 
         // Assume only framework implementation export org.osgi.framework package
         String value = mf.getHeaders().get(Constants.EXPORT_PACKAGE);

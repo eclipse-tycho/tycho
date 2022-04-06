@@ -8,7 +8,7 @@
 
   <properties>
     <tycho-version>2.3.0</tycho-version>
-    <eclipse-repository-url>http://download.eclipse.org/eclipse/updates/3.6</eclipse-repository-url>
+    <eclipse-repository-url>https://download.eclipse.org/eclipse/updates/3.6</eclipse-repository-url>
   </properties>
 
   <modules>
@@ -20,7 +20,7 @@
     <profile>
       <id>e35</id>
       <properties>
-        <eclipse-repository-url>http://download.eclipse.org/eclipse/updates/3.5</eclipse-repository-url>
+        <eclipse-repository-url>https://download.eclipse.org/eclipse/updates/3.5</eclipse-repository-url>
       </properties>
     </profile>
   </profiles>

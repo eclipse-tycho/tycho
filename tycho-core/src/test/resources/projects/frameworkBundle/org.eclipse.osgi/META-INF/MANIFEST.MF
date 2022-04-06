@@ -106,7 +106,7 @@ Bundle-Copyright: %copyright
 Bundle-Vendor: %eclipse.org
 Bundle-Version: 3.16.200.qualifier
 Bundle-Localization: systembundle
-Bundle-DocUrl: http://www.eclipse.org
+Bundle-DocUrl: https://www.eclipse.org
 Eclipse-ExtensibleAPI: true
 Eclipse-SystemBundle: true
 Main-Class: org.eclipse.core.runtime.adaptor.EclipseStarter

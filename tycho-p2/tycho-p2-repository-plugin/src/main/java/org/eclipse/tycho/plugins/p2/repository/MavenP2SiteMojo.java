@@ -123,7 +123,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
     //See GpgSigner.SIGNATURE_EXTENSION
     private static final String SIGNATURE_EXTENSION = ".asc";
 
-    private static final String MAVEN_CENTRAL_KEY_SERVER = "http://pgp.mit.edu/pks/lookup?op=get&search={0}";
+    private static final String MAVEN_CENTRAL_KEY_SERVER = "https://pgp.mit.edu/pks/lookup?op=get&search={0}";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;

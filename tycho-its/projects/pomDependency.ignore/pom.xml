@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.eclipse.tycho.its</groupId>
@@ -11,7 +11,7 @@
 
 	<properties>
 		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
-		<p2-repo>http://download.eclipse.org/releases/2019-03</p2-repo>
+		<p2-repo>https://download.eclipse.org/releases/2019-03</p2-repo>
 	</properties>
 
 	<repositories>

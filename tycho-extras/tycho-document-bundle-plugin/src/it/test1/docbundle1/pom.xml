@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>tycho-extras-its-project.test1</groupId>
@@ -56,10 +56,10 @@
 							    </docletArtifacts>
 								<additionalArguments>
 									<additionalArgument>-linkoffline
-										http://docs.oracle.com/javase/7/docs/api/
+										https://docs.oracle.com/javase/7/docs/api/
 										${basedir}/input/javase-7</additionalArgument>
 									<additionalArgument>-linkoffline
-										http://www.osgi.org/javadoc/r4v43/ ${basedir}/input/osgi-r4v43</additionalArgument>
+										https://www.osgi.org/javadoc/r4v43/ ${basedir}/input/osgi-r4v43</additionalArgument>
 								</additionalArguments>
 							</javadocOptions>
 							<tocOptions>

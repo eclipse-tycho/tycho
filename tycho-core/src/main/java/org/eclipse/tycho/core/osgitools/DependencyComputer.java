@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
  *    IBM Corporation - initial API and implementation
@@ -386,7 +386,7 @@ public class DependencyComputer {
      * bundle are supposed to come from JRE and which from the bundle itself, so returned classpath
      * access rules include all packages exported by the framework extension bundles.
      * 
-     * [1] http://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
+     * [1] https://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
      */
 
     public List<AccessRule> computeBootClasspathExtraAccessRules(ModuleContainer container) {

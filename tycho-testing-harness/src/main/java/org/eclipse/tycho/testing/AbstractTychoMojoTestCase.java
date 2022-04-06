@@ -173,7 +173,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     /**
      * Returns a mojo configured with the mojo's default configuration.
      */
-    // workaround for MPLUGINTESTING-46 - see http://jira.codehaus.org/browse/MPLUGINTESTING-46
+    // workaround for MPLUGINTESTING-46 - see https://jira.codehaus.org/browse/MPLUGINTESTING-46
     protected Mojo lookupMojoWithDefaultConfiguration(MavenProject project, MavenSession session, String goal)
             throws Exception {
         Mojo mojo = lookupEmptyMojo(goal, project.getFile());

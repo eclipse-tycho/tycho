@@ -10,8 +10,8 @@
 
   <properties>
     <tycho-version>0.10.0</tycho-version>
-    <e342-p2.repo>http://download.eclipse.org/eclipse/updates/3.4</e342-p2.repo>
-    <e352-p2.repo>http://download.eclipse.org/eclipse/updates/3.5</e352-p2.repo>
+    <e342-p2.repo>https://download.eclipse.org/eclipse/updates/3.4</e342-p2.repo>
+    <e352-p2.repo>https://download.eclipse.org/eclipse/updates/3.5</e352-p2.repo>
   </properties>
 
   <repositories>

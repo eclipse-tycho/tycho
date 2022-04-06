@@ -36,7 +36,7 @@ public class DirectorApplicationCommandTest {
 
     private static final URI REPO_1 = URI.create("http://meta1/");
     private static final URI REPO_2 = URI.create("file:/meta2/");
-    private static final URI REPO_3 = URI.create("http://example.org/artifactrepo");
+    private static final URI REPO_3 = URI.create("https://example.org/artifactrepo");
     private static final String UNIT_1 = "product.uid";
     private static final String UNIT_2 = "org.example.feature.feature.group";
     private static final String PROFILE_NAME = "SDKProfile";

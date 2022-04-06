@@ -8,8 +8,8 @@
 
   <properties>
     <tycho-version>0.12.0</tycho-version>
-    <e342-url>http://download.eclipse.org/releases/ganymede</e342-url>
-    <e352-url>http://download.eclipse.org/releases/galileo</e352-url>
+    <e342-url>https://download.eclipse.org/releases/ganymede</e342-url>
+    <e352-url>https://download.eclipse.org/releases/galileo</e352-url>
   </properties>
 
   <modules>

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ * 	https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -136,7 +136,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * Which JDK to use for compilation. Default value is SYSTEM which means the currently running
      * JDK. If BREE is specified, MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code>
      * is used to define the JDK to compile against. In this case, you need to provide a
-     * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>
+     * <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>
      * configuration file. The value of BREE will be matched against the id of the toolchain
      * elements in toolchains.xml. Example:
      * 
@@ -257,9 +257,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * 
      * Set this to <code>false</code> in case you want to keep resources separate from java files in
      * <code>src/main/resources</code> and handle them using
-     * <a href="http://maven.apache.org/plugins/maven-resources-plugin/"> maven-resources-plugin</a>
+     * <a href="https://maven.apache.org/plugins/maven-resources-plugin/"> maven-resources-plugin</a>
      * (e.g. for <a href=
-     * "http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html">resource
+     * "https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html">resource
      * filtering<a/>.
      * 
      */
@@ -677,7 +677,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         DefaultJavaToolChain toolChain = toolchainProvider.findMatchingJavaToolChain(session, toolchainId);
         if (toolChain == null) {
             throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
-                    + toolchainId + "' found. See http://maven.apache.org/guides/mini/guide-using-toolchains.html");
+                    + toolchainId + "' found. See https://maven.apache.org/guides/mini/guide-using-toolchains.html");
         }
         compilerConfiguration.addCompilerCustomArgument("use.java.home", toolChain.getJavaHome());
         configureBootClassPath(compilerConfiguration, toolChain);

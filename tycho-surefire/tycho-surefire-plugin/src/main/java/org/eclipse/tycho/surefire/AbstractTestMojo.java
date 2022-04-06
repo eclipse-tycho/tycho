@@ -630,11 +630,11 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      * <p/>
      * <ul>
      * <li>SYSTEM: Use the currently running JVM (or from
-     * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchain</a> if
+     * <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchain</a> if
      * configured in pom.xml)</li>
      * <li>BREE: use MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code> to lookup the
      * JDK from
-     * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>.
+     * <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>.
      * The value of BREE will be matched against the id of the toolchain elements in
      * toolchains.xml.</li>
      * </ul>
@@ -1161,7 +1161,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         Toolchain toolChain = toolchainProvider.findMatchingJavaToolChain(session, profileName);
         if (toolChain == null) {
             throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
-                    + profileName + "' found. See http://maven.apache.org/guides/mini/guide-using-toolchains.html");
+                    + profileName + "' found. See https://maven.apache.org/guides/mini/guide-using-toolchains.html");
         }
         return toolChain;
     }

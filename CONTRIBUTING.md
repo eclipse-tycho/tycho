@@ -29,7 +29,7 @@ and the minimal reproducer project to Tycho's [issue tracker](https://github.com
 
 Java 11 and Maven 3.6.3, or newer.
 
-If your Internet connection uses a proxy, make sure that you have the proxy configured in your [Maven settings.xml](http://maven.apache.org/settings.html).
+If your Internet connection uses a proxy, make sure that you have the proxy configured in your [Maven settings.xml](https://maven.apache.org/settings.html).
 
 ### Using the Eclipse Installer (Oomph)
 
@@ -75,7 +75,7 @@ _Background information on the Tycho integration tests_
 
 The integration tests trigger sample builds that use Tycho. These builds expect that Tycho has been installed to the local Maven repository. This is why you need to build Tycho through a `mvn install` before you can run the integration tests.
 
-Alternatively, e.g. if you are only interested in modifying an integration test and do not want to patch Tycho itself, you can configure the integration tests to download the current Tycho snapshot produced by the [Tycho CI builds](http://hudson.eclipse.org/tycho/view/CI). To do this, you need to edit the Maven settings stored in `tycho-its/settings.xml` and add the tycho-snapshots repository as described in [[Getting Tycho]]. (Advanced note: The integration tests can also be pointed to a different settings.xml with the system property `tycho.testSettings`.)
+Alternatively, e.g. if you are only interested in modifying an integration test and do not want to patch Tycho itself, you can configure the integration tests to download the current Tycho snapshot produced by the [Tycho CI builds](https://hudson.eclipse.org/tycho/view/CI). To do this, you need to edit the Maven settings stored in `tycho-its/settings.xml` and add the tycho-snapshots repository as described in [[Getting Tycho]]. (Advanced note: The integration tests can also be pointed to a different settings.xml with the system property `tycho.testSettings`.)
 
 ### Writing Tycho integration tests
 
@@ -122,7 +122,7 @@ To use a different Tycho snapshot repository use the system property `tycho-snap
 
 Tycho makes heavy use of p2 functionality. Therefore it may be useful to try out patches to p2 without waiting for a new p2 release, or even just the next nightly build. With the following steps it is possible to build Tycho against a locally built version of p2.
 
-1. Get the p2 sources (see [p2 project information](http://projects.eclipse.org/projects/rt.equinox.p2/developer))
+1. Get the p2 sources (see [p2 project information](https://projects.eclipse.org/projects/rt.equinox.p2/developer))
 2. Make changes in the p2 sources, **(!) don't forget to increase the version of that bundle otherwise your changes will be overwritten with the current release version (!)**
 3. Build the changed p2 bundles individually with <tt>mvn clean install -Pbuild-individual-bundles</tt> (see [Equinox/p2/Build](https://wiki.eclipse.org/Equinox/p2/Build) for more information)
 4. Build at least the Tycho module tycho-bundles-external with <tt>mvn clean install</tt> - you should see a warning that the locally built p2 bundles have been used.
@@ -156,7 +156,7 @@ To use the profiler, [set the system property](https://github.com/jcgay/maven-pr
 
 To get started with YouMonitor, you need to install and run the application. It will ask you for a repository, which is how you aggregate builds (e.g. use one repository per different project that you want to investigate). Afterwards select the [Monitoring in IDE or command line](https://www.yourkit.com/docs/youmonitor/help/ide_and_command_line.jsp) and use the button "Open Instructions". That will show you the project and machine specific argument which needs to be added to the Java command line. E.g. if you want to profile tests, you might want to add it to the [argLine configuration of Tycho Surefire](https://www.eclipse.org/tycho/sitedocs/tycho-surefire-plugin/test-mojo.html#argLine).
 
-## üèóÔ∏è Build & Test
+## ü?óÔ∏? Build & Test
 
 From the root directory of your local Tycho git-repository clone run the following Maven commands...
 * to check if compilation and all tests succeed:
@@ -235,7 +235,7 @@ Development Process and operates under the terms of the Eclipse IP Policy.
 ## Eclipse Contributor Agreement
 
 Before your contribution can be accepted by the project team contributors must
-electronically sign the Eclipse Contributor Agreement (ECA): http://www.eclipse.org/legal/ECA.php
+electronically sign the Eclipse Contributor Agreement (ECA): https://www.eclipse.org/legal/ECA.php
 
 For more information, please see the Eclipse Committer Handbook:
 https://www.eclipse.org/projects/handbook/#resources-commit

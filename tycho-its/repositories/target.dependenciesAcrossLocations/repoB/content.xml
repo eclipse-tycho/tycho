@@ -60,7 +60,7 @@
         </instructions>
       </touchpointData>
       <licenses size='1'>
-        <license uri='http://example.com' url='http://example.com'>
+        <license uri='https://example.com' url='https://example.com'>
           .
         </license>
       </licenses>
@@ -89,7 +89,7 @@
       </requires>
       <touchpoint id='null' version='0.0.0'/>
       <licenses size='1'>
-        <license uri='http://example.com' url='http://example.com'>
+        <license uri='https://example.com' url='https://example.com'>
           .
         </license>
       </licenses>

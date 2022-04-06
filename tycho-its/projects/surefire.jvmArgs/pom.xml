@@ -22,7 +22,7 @@
 			<activation>
 				<property>
 					<name>java.vendor.url</name>
-					<value>http://java.sun.com/</value>
+					<value>https://java.sun.com/</value>
 				</property>
 			</activation>
 		</profile>
