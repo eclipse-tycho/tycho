@@ -14,11 +14,15 @@
  *    Bachmann electrontic GmbH - 510425 parallel mode requires threadCount>1 or useUnlimitedThreads=true
  *    Christoph Läubrich    - [Bug 529929] improve error message in case of failures
  *                          - [Bug 572420] Tycho-Surefire should be executable for eclipse-plugin package type
+ *                          - [Issue 790] Support printing of bundle wirings in tycho-surefire-plugin
+ *                          - [Issue 849] JAVA_HOME check is not OS independent
+ *                          - [Issue 790] Support printing of bundle wirings in tycho-surefire-plugin
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -34,6 +38,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -102,6 +107,8 @@ import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilderFac
 
 public abstract class AbstractTestMojo extends AbstractMojo {
 
+    private static final String SYSTEM_JDK = "jdk";
+
     private static String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, signals start with 1
             "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL", "SIGUSR1",
             "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
@@ -109,6 +116,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             "SIGIO", "SIGPWR", "SIGSYS" };
 
     private static final Object LOCK = new Object();
+
+    private static final String[] JAVA_EXECUTABLES = { "java", "java.exe" };
 
     /**
      * Root directory (<a href=
@@ -1127,7 +1136,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     protected Toolchain getToolchain() throws MojoExecutionException {
         if (JDKUsage.SYSTEM.equals(useJDK)) {
             if (toolchainManager != null) {
-                return toolchainManager.getToolchainFromBuildContext("jdk", session);
+                return toolchainManager.getToolchainFromBuildContext(SYSTEM_JDK, session);
             }
             return null;
         }
@@ -1209,14 +1218,42 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         }
         String javaHome = System.getenv("JAVA_HOME");
         if (javaHome != null && !javaHome.isBlank()) {
-            File file = new File(javaHome, "bin/java");
-            if (file.exists()) {
-                getLog().info("Could not find the Toolchain, using java from JAVA_HOME instead");
-                return file.getAbsolutePath();
+            File java = getJavaFromJavaHome(javaHome);
+            if (java != null) {
+                getLog().info("Could not find a java toolchain of type " + SYSTEM_JDK
+                        + ", using java from JAVA_HOME instead (" + java.getAbsolutePath() + ")");
+                return java.getAbsolutePath();
+            }
+            getLog().info("Could not find a java toolchain of type " + SYSTEM_JDK
+                    + " and JAVA_HOME seem to not point to a valid location, trying java from PATH instead (current JAVA_HOME="
+                    + javaHome + ")");
+        } else {
+            getLog().info("Could not find a java toolchain of type " + SYSTEM_JDK
+                    + " and JAVA_HOME is not set, trying java from PATH instead");
+        }
+        return "java";
+    }
+
+    private File getJavaFromJavaHome(String javaHome) {
+        File javaBin = new File(javaHome, "bin");
+        for (String executable : JAVA_EXECUTABLES) {
+            File java = new File(javaBin, executable);
+            if (java.isFile()) {
+                return java;
             }
         }
-        getLog().info("Could not find the Toolchain nor JAVA_HOME, trying java from PATH instead");
-        return "java";
+        //last resort just in case other extension or case-sensitive file-system...
+        File[] listFiles = javaBin.listFiles(new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isFile() && FilenameUtils.getBaseName(pathname.getName().toLowerCase()).equals("java");
+            }
+        });
+        if (listFiles != null && listFiles.length > 0) {
+            return listFiles[0];
+        }
+        return null;
     }
 
     private Map<String, String> getMergedSystemProperties() {
