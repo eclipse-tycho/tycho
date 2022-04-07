@@ -29,7 +29,6 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryParser;
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
-import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
@@ -63,8 +62,7 @@ import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
     private static final String[] SUPPORTED_TYPES = { PackagingType.TYPE_ECLIPSE_PLUGIN,
             PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, PackagingType.TYPE_ECLIPSE_FEATURE,
-            PackagingType.TYPE_ECLIPSE_UPDATE_SITE, PackagingType.TYPE_ECLIPSE_APPLICATION,
-            PackagingType.TYPE_ECLIPSE_REPOSITORY };
+            PackagingType.TYPE_ECLIPSE_APPLICATION, PackagingType.TYPE_ECLIPSE_REPOSITORY };
 
     /**
      * Whether we need full p2 metadata (false) or just required capabilities.
@@ -243,12 +241,6 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
-            }
-        } else if (PackagingType.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)) {
-            if (dependenciesOnly) {
-                actions.add(new SiteDependenciesAction(location, artifact.getArtifactId(), artifact.getVersion()));
-            } else {
-                actions.add(new SiteXMLAction(location.toURI(), null));
             }
         } else if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
             for (File productFile : getProductFiles(location)) {

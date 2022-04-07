@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -65,9 +65,6 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
 
         assertPom(new File(basedir, "feature03"));
         assertFeatureXml(new File(basedir, "feature03"));
-
-        assertPom(new File(basedir, "site"));
-        assertSiteXml(new File(basedir, "site"));
 
         assertPom(new File(basedir, "product"));
         assertProductFile(new File(basedir, "product"), "product.product");

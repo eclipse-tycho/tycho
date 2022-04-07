@@ -47,7 +47,6 @@ public class MockMavenContext extends MavenContextImpl {
         case "java-source":
         case "maven-plugin":
             return "jar";
-        case PackagingType.TYPE_ECLIPSE_UPDATE_SITE:
         case PackagingType.TYPE_ECLIPSE_REPOSITORY:
         case PackagingType.TYPE_ECLIPSE_APPLICATION:
         case ArtifactType.TYPE_ECLIPSE_PRODUCT:
