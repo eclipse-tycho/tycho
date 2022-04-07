@@ -91,7 +91,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testTargetPlatformArtifactCaching() throws Exception {
 		Verifier verifier = getVerifier("target.artifact.caching", false, true);
-		verifier.getCliOptions().add("-Dtycho.localArtifacts=default");
+		verifier.addCliOption("-Dtycho.localArtifacts=default");
 
 		File annotBundleManifestFile = new File(verifier.getBasedir(),
 				"target.test/plugins/osgi.annotation.bundle_0.0.1/META-INF/MANIFEST.MF");

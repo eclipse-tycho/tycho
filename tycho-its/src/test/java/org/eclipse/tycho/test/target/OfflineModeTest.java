@@ -31,68 +31,68 @@ import org.junit.Test;
 
 public class OfflineModeTest extends AbstractTychoIntegrationTest {
 
-    private HttpServer server;
+	private HttpServer server;
 
-    @Before
-    public void startServer() throws Exception {
-        server = HttpServer.startServer();
-    }
+	@Before
+	public void startServer() throws Exception {
+		server = HttpServer.startServer();
+	}
 
-    @After
-    public void stopServer() throws Exception {
-        server.stop();
-    }
+	@After
+	public void stopServer() throws Exception {
+		server.stop();
+	}
 
-    @Test
-    public void testWithSimpleRepository() throws Exception {
-        Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineMode", "repo");
-        runAndVerifyOnlineBuild(verifier);
-        runAndVerifyOfflineBuild(verifier);
-    }
+	@Test
+	public void testWithSimpleRepository() throws Exception {
+		Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineMode", "repo");
+		runAndVerifyOnlineBuild(verifier);
+		runAndVerifyOfflineBuild(verifier);
+	}
 
-    @Test
-    public void testWithXZRepository() throws Exception {
-        Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineModeXZRepo", "repo");
-        runAndVerifyOnlineBuild(verifier);
-        runAndVerifyOfflineBuild(verifier);
-    }
+	@Test
+	public void testWithXZRepository() throws Exception {
+		Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineModeXZRepo", "repo");
+		runAndVerifyOnlineBuild(verifier);
+		runAndVerifyOfflineBuild(verifier);
+	}
 
-    @Test
-    public void testWithCompositeRepository() throws Exception {
-        Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineModeCompositeRepo", "compositeRepo");
-        server.addServer("test/childOne", new File(verifier.getBasedir(), "compositeRepo/child1"));
-        server.addServer("test/childTwo", new File(verifier.getBasedir(), "compositeRepo/child2"));
+	@Test
+	public void testWithCompositeRepository() throws Exception {
+		Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineModeCompositeRepo", "compositeRepo");
+		server.addServer("test/childOne", new File(verifier.getBasedir(), "compositeRepo/child1"));
+		server.addServer("test/childTwo", new File(verifier.getBasedir(), "compositeRepo/child2"));
 
-        runAndVerifyOnlineBuild(verifier);
-        runAndVerifyOfflineBuild(verifier);
+		runAndVerifyOnlineBuild(verifier);
+		runAndVerifyOfflineBuild(verifier);
 
-    }
+	}
 
-    private Verifier getVerifierAndSetupServerAndRepo(String basedir, String repoName) throws Exception, IOException {
-        Verifier verifier = getVerifier(basedir, false);
-        String url = server.addServer("test", new File(verifier.getBasedir(), repoName));
-        verifier.getSystemProperties().setProperty("p2.repo", url);
+	private Verifier getVerifierAndSetupServerAndRepo(String basedir, String repoName) throws Exception, IOException {
+		Verifier verifier = getVerifier(basedir, false);
+		String url = server.addServer("test", new File(verifier.getBasedir(), repoName));
+		verifier.getSystemProperties().setProperty("p2.repo", url);
 
-        File platformFile = new File(verifier.getBasedir(), "platform.target");
-        TargetDefinitionUtil.setRepositoryURLs(platformFile, url);
-        return verifier;
-    }
+		File platformFile = new File(verifier.getBasedir(), "platform.target");
+		TargetDefinitionUtil.setRepositoryURLs(platformFile, url);
+		return verifier;
+	}
 
-    private void runAndVerifyOfflineBuild(Verifier verifier) throws VerificationException {
-        verifier.getCliOptions().add("--offline");
-        verifier.setLogFileName("log-offline.txt");
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
-        Set<String> urls = new LinkedHashSet<>(server.getAccessedUrls("test"));
-        assertTrue(urls.toString(), urls.isEmpty());
-    }
+	private void runAndVerifyOfflineBuild(Verifier verifier) throws VerificationException {
+		verifier.addCliOption("--offline");
+		verifier.setLogFileName("log-offline.txt");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+		Set<String> urls = new LinkedHashSet<>(server.getAccessedUrls("test"));
+		assertTrue(urls.toString(), urls.isEmpty());
+	}
 
-    private void runAndVerifyOnlineBuild(Verifier verifier) throws VerificationException {
-        verifier.setLogFileName("log-online.txt");
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
-        assertFalse(server.getAccessedUrls("test").isEmpty());
-        server.getAccessedUrls("test").clear();
-    }
+	private void runAndVerifyOnlineBuild(Verifier verifier) throws VerificationException {
+		verifier.setLogFileName("log-online.txt");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+		assertFalse(server.getAccessedUrls("test").isEmpty());
+		server.getAccessedUrls("test").clear();
+	}
 
 }

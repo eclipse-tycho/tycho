@@ -25,72 +25,75 @@ import org.junit.Test;
 
 public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegrationTest {
 
-    private Verifier verifier;
+	private Verifier verifier;
 
-    @Test
-    public void testWithFile() throws Exception {
-        verifier = getVerifier("target.usefile", false);
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void testWithFile() throws Exception {
+		verifier = getVerifier("target.usefile", false);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+	}
 
-    @Test
-    public void testWithFileAbsolute() throws Exception {
-        verifier = getVerifier("target.usefileAbsolute", false);
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void testWithFileAbsolute() throws Exception {
+		verifier = getVerifier("target.usefileAbsolute", false);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+	}
 
-    @Test
-    public void testVersionRestrictionWithPlanner() throws Exception {
-        verifier = getVerifier("target.restriction.targetFile/testProject", false);
-        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "planner.target"),
-                new File("projects/target.restriction.targetFile/testProject/trt.targets"));
+	@Test
+	public void testVersionRestrictionWithPlanner() throws Exception {
+		verifier = getVerifier("target.restriction.targetFile/testProject", false);
+		TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "planner.target"),
+				new File("projects/target.restriction.targetFile/testProject/trt.targets"));
 
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 
-        P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(getRepositoryProject());
-        assertTrue(p2Repo.getBundleArtifact("trt.bundle", "1.0.0.201108051343").isFile());
+		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(getRepositoryProject());
+		assertTrue(p2Repo.getBundleArtifact("trt.bundle", "1.0.0.201108051343").isFile());
 
-        // in the planner mode, optionally required things are included in the target platform 
-        assertTrue(p2Repo.getBundleArtifact("trt.bundle.optional", "1.0.0.201108051328").isFile());
+		// in the planner mode, optionally required things are included in the target
+		// platform
+		assertTrue(p2Repo.getBundleArtifact("trt.bundle.optional", "1.0.0.201108051328").isFile());
 
-        // there is a newer version in the p2 repository, but only the 1.0 version is in the target platform
-        assertFalse(p2Repo.getBundleArtifact("trt.bundle.referenced", "2.0.0.201108051319").isFile());
-        assertTrue(p2Repo.getBundleArtifact("trt.bundle.referenced", "1.0.0.201108051343").isFile());
+		// there is a newer version in the p2 repository, but only the 1.0 version is in
+		// the target platform
+		assertFalse(p2Repo.getBundleArtifact("trt.bundle.referenced", "2.0.0.201108051319").isFile());
+		assertTrue(p2Repo.getBundleArtifact("trt.bundle.referenced", "1.0.0.201108051343").isFile());
 
-        assertTrue(p2Repo.findFeatureArtifact("trt.feature").isFile());
-    }
+		assertTrue(p2Repo.findFeatureArtifact("trt.feature").isFile());
+	}
 
-    @Test
-    public void testContentAndVersionRestrictionWithSlicer() throws Exception {
-        verifier = getVerifier("target.restriction.targetFile/testProject", false);
-        verifier.getCliOptions().add("-Pwith-slicer-target");
-        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "slicer.target"),
-                new File("projects/target.restriction.targetFile/testProject/trt.targets"));
+	@Test
+	public void testContentAndVersionRestrictionWithSlicer() throws Exception {
+		verifier = getVerifier("target.restriction.targetFile/testProject", false);
+		verifier.addCliOption("-Pwith-slicer-target");
+		TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "slicer.target"),
+				new File("projects/target.restriction.targetFile/testProject/trt.targets"));
 
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 
-        P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(getRepositoryProject());
-        assertTrue(p2Repo.getBundleArtifact("trt.bundle", "1.0.0.201108051343").isFile());
+		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(getRepositoryProject());
+		assertTrue(p2Repo.getBundleArtifact("trt.bundle", "1.0.0.201108051343").isFile());
 
-        // in the slicer mode, only included content is part of the target platform
-        assertFalse(p2Repo.getBundleArtifact("trt.bundle.optional", "1.0.0.201108051328").isFile());
+		// in the slicer mode, only included content is part of the target platform
+		assertFalse(p2Repo.getBundleArtifact("trt.bundle.optional", "1.0.0.201108051328").isFile());
 
-        // there is a newer version in the p2 repository, but only the 1.0 version is in the target platform
-        assertFalse(p2Repo.getBundleArtifact("trt.bundle.referenced", "2.0.0.201108051319").isFile());
-        assertTrue(p2Repo.getBundleArtifact("trt.bundle.referenced", "1.0.0.201108051343").isFile());
+		// there is a newer version in the p2 repository, but only the 1.0 version is in
+		// the target platform
+		assertFalse(p2Repo.getBundleArtifact("trt.bundle.referenced", "2.0.0.201108051319").isFile());
+		assertTrue(p2Repo.getBundleArtifact("trt.bundle.referenced", "1.0.0.201108051343").isFile());
 
-        assertTrue(p2Repo.findFeatureArtifact("trt.feature").isFile());
-    }
+		assertTrue(p2Repo.findFeatureArtifact("trt.feature").isFile());
+	}
 
-    private File getTargetsProject() {
-        return new File(verifier.getBasedir(), "trt.targets");
-    }
+	private File getTargetsProject() {
+		return new File(verifier.getBasedir(), "trt.targets");
+	}
 
-    private File getRepositoryProject() {
-        return new File(verifier.getBasedir(), "trt.assembly");
-    }
+	private File getRepositoryProject() {
+		return new File(verifier.getBasedir(), "trt.assembly");
+	}
 }

@@ -102,27 +102,27 @@ public abstract class AbstractTychoIntegrationTest {
             verifier.getEnvironmentVariables().put("MAVEN_OPTS", mvnOpts);
             System.out.flush();
         }
-        verifier.getCliOptions().add("-Dmaven.home=" + getMavenHome());
-        verifier.getCliOptions().add("-Dtycho-version=" + getTychoVersion());
+        verifier.addCliOption("-Dmaven.home=" + getMavenHome());
+        verifier.addCliOption("-Dtycho-version=" + getTychoVersion());
         // bug 447397: use temp dir in target/ folder to make sure we don't leave garbage behind
         // when using maven < 3.1 
         File tmpDir = new File("target/tmp");
         tmpDir.mkdirs();
-        verifier.getCliOptions().add("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
+        verifier.addCliOption("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
-            verifier.getCliOptions().add("-Dtarget-platform=" + getTargetPlatform());
+            verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform());
         }
         if (ignoreLocalArtifacts) {
-            verifier.getCliOptions().add("-Dtycho.localArtifacts=ignore");
+            verifier.addCliOption("-Dtycho.localArtifacts=ignore");
         }
-        verifier.getCliOptions().add("-X");
-        verifier.getCliOptions().add("-s " + userSettings.getAbsolutePath());
+        verifier.addCliOption("-X");
+        verifier.addCliOption("-s " + userSettings.getAbsolutePath());
         verifier.getVerifierProperties().put("use.mavenRepoLocal", "true");
         verifier.setLocalRepo(EnvironmentUtil.getLocalRepo());
 
         String customOptions = System.getProperty("it.cliOptions");
         if (customOptions != null && !customOptions.trim().isEmpty()) {
-            verifier.getCliOptions().add(customOptions);
+            verifier.addCliOption(customOptions);
         }
 
         if (System.getProperty(SYSPROP_STATELOCATION) != null) {

@@ -16,12 +16,12 @@ import org.junit.Test;
 
 public class SplitPackagesTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testSplitPackage() throws Exception {
-        Verifier verifier = getVerifier("/resolver.split/org.eclipse.equinox.security");
-        verifier.getCliOptions().add("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
-        verifier.executeGoal("compile");
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void testSplitPackage() throws Exception {
+		Verifier verifier = getVerifier("/resolver.split/org.eclipse.equinox.security");
+		verifier.addCliOption("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("compile");
+		verifier.verifyErrorFreeLog();
+	}
 
 }

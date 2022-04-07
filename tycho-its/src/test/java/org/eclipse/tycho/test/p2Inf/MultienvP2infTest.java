@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Inf;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -22,7 +24,6 @@ import java.util.zip.ZipFile;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.Assert;
 import org.junit.Test;
 
 import de.pdark.decentxml.Document;
@@ -35,7 +36,7 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void test() throws Exception {
 		Verifier verifier = getVerifier("/p2Inf.multiEnv", false);
-		verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342);
+		verifier.addCliOption("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342);
 		verifier.executeGoals(Arrays.asList("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 
@@ -56,7 +57,7 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 		// disabled due to a limitation of BundlesAction
 		// Assert.assertTrue(ids.contains("tychotest.bundle.macosx"));
 
-		Assert.assertTrue(ids.contains("tychotest.feature.macosx"));
-		Assert.assertTrue(ids.contains("tychotest.product.macosx"));
+		assertTrue(ids.contains("tychotest.feature.macosx"));
+		assertTrue(ids.contains("tychotest.product.macosx"));
 	}
 }

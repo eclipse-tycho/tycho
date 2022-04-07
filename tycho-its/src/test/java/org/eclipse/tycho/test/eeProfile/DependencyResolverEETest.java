@@ -20,27 +20,27 @@ import org.junit.Test;
 // tests that the dependency resolver resolves for the configured execution environment (bug 364095)
 public class DependencyResolverEETest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void eeFromBREE() throws Exception {
-        Verifier verifier = getVerifier("/eeProfile/ee-from-bree", false);
-        verifier.getCliOptions().add(
-                "-Djavax.xml-repo=" + ResourceUtil.resolveTestResource("repositories/javax.xml").toURI().toString());
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void eeFromBREE() throws Exception {
+		Verifier verifier = getVerifier("/eeProfile/ee-from-bree", false);
+		verifier.addCliOption(
+				"-Djavax.xml-repo=" + ResourceUtil.resolveTestResource("repositories/javax.xml").toURI().toString());
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
 
-    @Test
-    public void eeFromPOM() throws Exception {
-        Verifier verifier = getVerifier("/eeProfile/ee-from-pom", false);
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void eeFromPOM() throws Exception {
+		Verifier verifier = getVerifier("/eeProfile/ee-from-pom", false);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
 
-    @Test
-    public void breeForDependencyHigherThanCurrentBREE() throws Exception {
-        Verifier verifier = getVerifier("/eeProfile/dependencyHigherBREE", false);
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void breeForDependencyHigherThanCurrentBREE() throws Exception {
+		Verifier verifier = getVerifier("/eeProfile/dependencyHigherBREE", false);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
 
 }
