@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,14 +68,14 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         ReactorProject reactorProject = DefaultReactorProject.adapt(javaSE10Project);
         ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject)
                 .getFullSpecification();
-        assertEquals("JavaSE-11", ee.getProfileName());
+        assertEquals("JavaSE-" + Runtime.version().feature(), ee.getProfileName());
         Properties platformProperties = subject.getPlatformProperties(reactorProject, null,
                 new DefaultDependencyArtifacts(), ee);
         String executionEnvironments = platformProperties.getProperty("org.osgi.framework.executionenvironment");
         assertTrue(executionEnvironments.contains("JavaSE-10"));
         String capabilities = platformProperties.getProperty("org.osgi.framework.system.capabilities");
         assertTrue(capabilities.contains(
-                "osgi.ee=\"JavaSE\"; version:List<Version>=\"1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.0, 10.0, 11.0\""));
+                "osgi.ee=\"JavaSE\"; version:List<Version>=\"1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.0, 10.0, 11.0"));
     }
 
     public void testBuildFrameworkBundle() throws Exception {
