@@ -27,7 +27,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
@@ -75,7 +74,7 @@ public class FeatureXmlTransformer {
 
 		for (PluginRef pluginRef : feature.getPlugins()) {
 			String version = pluginRef.getVersion();
-			if (Version.emptyVersion.toString().equals(version)) {
+			if ("0.0.0".equals(version)) {
 				ImportRef importRef = pluginImports.get(pluginRef.getId());
 				if (importRef != null) {
 					version = importRef.getVersion() + "|" + importRef.getMatch();
@@ -93,7 +92,7 @@ public class FeatureXmlTransformer {
 
 		for (FeatureRef featureRef : feature.getIncludedFeatures()) {
 			String version = featureRef.getVersion();
-			if (Version.emptyVersion.toString().equals(version)) {
+			if ("0.0.0".equals(version)) {
 				ImportRef importRef = featureImports.get(featureRef.getId());
 				if (importRef != null) {
 					version = importRef.getVersion() + "|" + importRef.getMatch();
@@ -105,38 +104,6 @@ public class FeatureXmlTransformer {
 
 		return feature;
 	}
-//from features action....	
-//	protected VersionRange getVersionRange(FeatureEntry entry) {
-//		String versionSpec = entry.getVersion();
-//		if (versionSpec == null)
-//			return VersionRange.emptyRange;
-//		String match = entry.getMatch();
-//		if ("versionRange".equals(match)) //$NON-NLS-1$
-//			return VersionRange.create(versionSpec);
-//		Version version = Version.parseVersion(versionSpec);
-//		if (version.equals(Version.emptyVersion))
-//			return VersionRange.emptyRange;
-//		if (!entry.isRequires())
-//			return new VersionRange(version, true, version, true);
-//		if (match == null)
-//			// TODO should really be returning VersionRange.emptyRange here...
-//			return null;
-//		if (match.equals("perfect")) //$NON-NLS-1$
-//			return new VersionRange(version, true, version, true);
-//
-//		org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(version);
-//		if (match.equals("equivalent")) { //$NON-NLS-1$
-//			Version upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor() + 1, 0);
-//			return new VersionRange(version, true, upper, false);
-//		}
-//		if (match.equals("compatible")) { //$NON-NLS-1$
-//			Version upper = Version.createOSGi(osgiVersion.getMajor() + 1, 0, 0);
-//			return new VersionRange(version, true, upper, false);
-//		}
-//		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
-//			return new VersionRange(version, true, Version.MAX_VERSION, true);
-//		return null;
-//	}
 
 	private ArtifactKey resolvePluginReference(TargetPlatform targetPlatform, PluginRef pluginRef, String version)
 			throws MojoFailureException {
