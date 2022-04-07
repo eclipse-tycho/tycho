@@ -14,8 +14,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import static org.eclipse.tycho.versions.manipulation.SiteXmlManipulator.rewriteFeatureUrl;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -28,6 +26,7 @@ import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
+import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
 
@@ -72,6 +71,13 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
                 }
             }
         }
+    }
+
+    static String rewriteFeatureUrl(String url, VersionChange change) {
+        if (url != null) {
+            return url.replaceAll("\\Q" + change.getVersion() + "\\E", change.getNewVersion());
+        }
+        return null;
     }
 
     private void updatePluginReferences(PomVersionChange pluginVersionChange, ProjectMetadata project) {

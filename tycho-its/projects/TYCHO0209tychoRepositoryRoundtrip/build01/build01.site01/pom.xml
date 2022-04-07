@@ -19,6 +19,6 @@
 
 
   <artifactId>build01.site01</artifactId>
-  <packaging>eclipse-update-site</packaging>
+  <packaging>eclipse-repository</packaging>
 
 </project>

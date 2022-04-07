@@ -166,20 +166,6 @@ public class P2DependencyGeneratorImplTest {
     }
 
     @Test
-    public void site() throws Exception {
-        generateDependencies("site", PackagingType.TYPE_ECLIPSE_UPDATE_SITE);
-
-        assertEquals(1, units.size());
-        IInstallableUnit unit = units.iterator().next();
-
-        assertEquals("site", unit.getId());
-        assertEquals("raw:1.0.0.'SNAPSHOT'/format(n[.n=0;[.n=0;[-S]]]):1.0.0-SNAPSHOT", unit.getVersion().toString());
-        assertEquals(1, unit.getRequirements().size());
-
-        assertEquals(0, artifacts.size());
-    }
-
-    @Test
     public void rcpBundle() throws Exception {
         generateDependencies("rcp-bundle", PackagingType.TYPE_ECLIPSE_APPLICATION);
 

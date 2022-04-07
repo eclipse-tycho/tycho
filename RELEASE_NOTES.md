@@ -96,6 +96,10 @@ This could be usefull if you like to execute the build with multiple threads (e.
 
 ### Migration guide 2.x -> 3.x
 
+#### Removal of eclipse-update-site packaging type
+
+This packaging type has been deprecate for long time as there is full featured eclipse-repository replacement.
+
 #### Removal of tycho-pomgenerator:generate-poms
 
 tycho-pomgenerator:generate-poms mojo is no longer supported as it was useful in the days where tycho-pomless was incomplete, today its usage is very limited and tycho-pomless is a much better (and supported) alternative now.

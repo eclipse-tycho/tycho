@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,26 +12,27 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.tycho001;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class P2MetadataGenerationTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("tycho001");
+	@Test
+	public void test() throws Exception {
+		Verifier verifier = getVerifier("tycho001");
 
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
 
-        File site = new File(verifier.getBasedir(), "site/target/site");
-        Assert.assertTrue(new File(site, "artifacts.xml").canRead());
-        Assert.assertTrue(new File(site, "content.xml").canRead());
+		File site = new File(verifier.getBasedir(), "site/target/repository");
+		assertTrue(new File(site, "artifacts.jar").canRead());
+		assertTrue(new File(site, "content.jar").canRead());
 
-    }
+	}
 
 }

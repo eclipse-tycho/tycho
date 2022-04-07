@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,10 +34,6 @@ public abstract class AbstractVersionChangeTest extends AbstractMojoTestCase {
         assertFileContent(new File(basedir, "feature.xml"));
     }
 
-    protected static void assertSiteXml(File basedir) throws IOException {
-        assertFileContent(new File(basedir, "site.xml"));
-    }
-
     protected static void assertCategoryXml(File basedir) throws IOException {
         assertFileContent(new File(basedir, "category.xml"));
     }
@@ -57,14 +53,11 @@ public abstract class AbstractVersionChangeTest extends AbstractMojoTestCase {
 
     private static String toAsciiString(File file) throws IOException {
         StringBuilder sb = new StringBuilder();
-        BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-        try {
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             String str;
             while ((str = r.readLine()) != null) {
                 sb.append(str).append('\n');
             }
-        } finally {
-            r.close();
         }
         return sb.toString();
     }
