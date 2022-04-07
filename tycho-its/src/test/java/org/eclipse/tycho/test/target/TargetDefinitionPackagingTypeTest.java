@@ -45,7 +45,7 @@ public class TargetDefinitionPackagingTypeTest extends AbstractTychoIntegrationT
 
 	@Test
 	public void testTargetDefinitionFromWithinReactor() throws Exception {
-		verifier.getCliOptions().add("-PtargetAndBundle");
+		verifier.addCliOption("-PtargetAndBundle");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
@@ -53,7 +53,7 @@ public class TargetDefinitionPackagingTypeTest extends AbstractTychoIntegrationT
 	@Test
 	public void testTargetDefinitionFromLocalRepo() throws Exception {
 		// first, install the target definition into the local repo
-		verifier.getCliOptions().add("-PtargetOnly");
+		verifier.addCliOption("-PtargetOnly");
 		verifier.executeGoal("install");
 		verifier.verifyErrorFreeLog();
 		verifier.assertArtifactContents(TARGET_GROUPID, TARGET_ARTIFACTID, TARGET_VERSION, TARGET_EXTENSION,
@@ -61,7 +61,7 @@ public class TargetDefinitionPackagingTypeTest extends AbstractTychoIntegrationT
 		// then, run the build of the bundle module only which should now
 		// be able to resolve the target definition from the local repo
 		verifier = getVerifier("target.packagingType", false);
-		verifier.getCliOptions().add("-PbundleOnly");
+		verifier.addCliOption("-PbundleOnly");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}

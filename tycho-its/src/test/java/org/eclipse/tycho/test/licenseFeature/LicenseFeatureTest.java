@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.licenseFeature;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void test() throws Exception {
 		Verifier verifier = getVerifier("/licenseFeature", false);
-		verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliOption("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 
@@ -64,12 +65,12 @@ public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
 			Feature featureXML = Feature.readJar(feature);
 
 			// make sure that the properties file contains the keys
-			Assert.assertEquals("file1.txt", p.getProperty("licenseURL"));
-			Assert.assertEquals("License - The More The Merrier.", p.getProperty("license"));
+			assertEquals("file1.txt", p.getProperty("licenseURL"));
+			assertEquals("License - The More The Merrier.", p.getProperty("license"));
 
 			// make sure that the feature.xml references the keys from the properties file
-			Assert.assertEquals("%licenseURL", featureXML.getLicenseURL());
-			Assert.assertEquals("%license", featureXML.getLicense().trim());
+			assertEquals("%licenseURL", featureXML.getLicenseURL());
+			assertEquals("%license", featureXML.getLicense().trim());
 		}
 	}
 

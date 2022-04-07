@@ -26,25 +26,25 @@ import org.junit.Test;
 // TODO make this a unit test
 public class SetLicenseFeatureVersionTest extends AbstractTychoIntegrationTest {
 
-    private static final String NEW_MAVEN_VERSION = "1.0.1-SNAPSHOT";
-    private static final String NEW_OSGI_VERSION = "1.0.1.qualifier";
+	private static final String NEW_MAVEN_VERSION = "1.0.1-SNAPSHOT";
+	private static final String NEW_OSGI_VERSION = "1.0.1.qualifier";
 
-    @Test
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("/licenseFeature.setVersion", false);
+	@Test
+	public void test() throws Exception {
+		Verifier verifier = getVerifier("/licenseFeature.setVersion", false);
 
-        verifier.getCliOptions().add("-DnewVersion=" + NEW_MAVEN_VERSION);
-        verifier.executeGoal(
-                "org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":set-version");
+		verifier.addCliOption("-DnewVersion=" + NEW_MAVEN_VERSION);
+		verifier.executeGoal(
+				"org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":set-version");
 
-        verifier.verifyErrorFreeLog();
+		verifier.verifyErrorFreeLog();
 
-        File licenseFeatureDir = new File(verifier.getBasedir(), "license.feature");
-        Feature licenseFeature = Feature.read(new File(licenseFeatureDir, "feature.xml"));
-        assertEquals(NEW_OSGI_VERSION, licenseFeature.getVersion());
+		File licenseFeatureDir = new File(verifier.getBasedir(), "license.feature");
+		Feature licenseFeature = Feature.read(new File(licenseFeatureDir, "feature.xml"));
+		assertEquals(NEW_OSGI_VERSION, licenseFeature.getVersion());
 
-        File otherFeatureDir = new File(verifier.getBasedir(), "other.feature");
-        Feature otherFeature = Feature.read(new File(otherFeatureDir, "feature.xml"));
-        assertEquals(NEW_OSGI_VERSION, otherFeature.getLicenseFeatureVersion());
-    }
+		File otherFeatureDir = new File(verifier.getBasedir(), "other.feature");
+		Feature otherFeature = Feature.read(new File(otherFeatureDir, "feature.xml"));
+		assertEquals(NEW_OSGI_VERSION, otherFeature.getLicenseFeatureVersion());
+	}
 }

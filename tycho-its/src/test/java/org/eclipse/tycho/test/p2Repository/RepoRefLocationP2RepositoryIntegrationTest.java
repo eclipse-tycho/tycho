@@ -34,71 +34,71 @@ import de.pdark.decentxml.XMLParser;
 
 public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoIntegrationTest {
 
-    private static Verifier verifier;
+	private static Verifier verifier;
 
-    private static class RepositoryReferenceData {
-        private String uri;
-        private String type;
-        private String enabled;
+	private static class RepositoryReferenceData {
+		private String uri;
+		private String type;
+		private String enabled;
 
-        public RepositoryReferenceData(String uri, String type, String enabled) {
-            this.uri = uri;
-            this.type = type;
-            this.enabled = enabled;
-        }
+		public RepositoryReferenceData(String uri, String type, String enabled) {
+			this.uri = uri;
+			this.type = type;
+			this.enabled = enabled;
+		}
 
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            RepositoryReferenceData other = (RepositoryReferenceData) obj;
-            return Objects.equals(enabled, other.enabled) && Objects.equals(type, other.type)
-                    && Objects.equals(uri, other.uri);
-        }
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			RepositoryReferenceData other = (RepositoryReferenceData) obj;
+			return Objects.equals(enabled, other.enabled) && Objects.equals(type, other.type)
+					&& Objects.equals(uri, other.uri);
+		}
 
-        @Override
-        public String toString() {
-            return "[uri=" + uri + ", type=" + type + ", enabled=" + enabled + "]";
-        }
-    }
+		@Override
+		public String toString() {
+			return "[uri=" + uri + ", type=" + type + ", enabled=" + enabled + "]";
+		}
+	}
 
-    @BeforeClass
-    public static void executeBuild() throws Exception {
-        verifier = new RepoRefLocationP2RepositoryIntegrationTest().getVerifier("/p2Repository.repositoryRef.location",
-                false);
-        verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
-    }
+	@BeforeClass
+	public static void executeBuild() throws Exception {
+		verifier = new RepoRefLocationP2RepositoryIntegrationTest().getVerifier("/p2Repository.repositoryRef.location",
+				false);
+		verifier.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+	}
 
-    @Test
-    public void testRefLocation() throws Exception {
-        File target = new File(verifier.getBasedir(), "target");
-        File repository = new File(target, "repository");
-        File contentXml = new File(repository, "content.xml");
-        assertThat(contentXml, isFile());
-        File artifactXml = new File(repository, "artifacts.xml");
-        assertThat(artifactXml, isFile());
-        assertThat(new File(target, "category.xml"), isFile());
+	@Test
+	public void testRefLocation() throws Exception {
+		File target = new File(verifier.getBasedir(), "target");
+		File repository = new File(target, "repository");
+		File contentXml = new File(repository, "content.xml");
+		assertThat(contentXml, isFile());
+		File artifactXml = new File(repository, "artifacts.xml");
+		assertThat(artifactXml, isFile());
+		assertThat(new File(target, "category.xml"), isFile());
 
-        Document artifactsDocument = XMLParser.parse(contentXml);
-        // See MetadataRepositoryIO.Writer#writeRepositoryReferences
-        List<Element> repositories = artifactsDocument.getChild("repository").getChild("references")
-                .getChildren("repository");
-        assertThat(repositories, hasSize(4));
-        List<RepositoryReferenceData> actual = repositories.stream()
-                .map(e -> new RepositoryReferenceData(e.getAttributeValue("uri"), e.getAttributeValue("type"),
-                        e.getAttributeValue("options")))
-                .collect(Collectors.toList());
-        assertThat(actual,
-                containsInAnyOrder(new RepositoryReferenceData("http://some.where", "1", "0"),
-                        new RepositoryReferenceData("http://some.where", "0", "0"),
-                        new RepositoryReferenceData("http://some.where.else", "1", "1"),
-                        new RepositoryReferenceData("http://some.where.else", "0", "1")));
-    }
+		Document artifactsDocument = XMLParser.parse(contentXml);
+		// See MetadataRepositoryIO.Writer#writeRepositoryReferences
+		List<Element> repositories = artifactsDocument.getChild("repository").getChild("references")
+				.getChildren("repository");
+		assertThat(repositories, hasSize(4));
+		List<RepositoryReferenceData> actual = repositories.stream()
+				.map(e -> new RepositoryReferenceData(e.getAttributeValue("uri"), e.getAttributeValue("type"),
+						e.getAttributeValue("options")))
+				.collect(Collectors.toList());
+		assertThat(actual,
+				containsInAnyOrder(new RepositoryReferenceData("http://some.where", "1", "0"),
+						new RepositoryReferenceData("http://some.where", "0", "0"),
+						new RepositoryReferenceData("http://some.where.else", "1", "1"),
+						new RepositoryReferenceData("http://some.where.else", "0", "1")));
+	}
 
 }
