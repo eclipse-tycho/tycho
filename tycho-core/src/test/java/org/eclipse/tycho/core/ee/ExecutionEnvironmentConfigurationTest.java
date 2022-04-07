@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,9 +45,10 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Test
     public void testDefaults() {
-        assertThat(subject.getProfileName(), is("JavaSE-11"));
-        assertThat(subject.isCustomProfile(), is(false));
-        assertThat(subject.getFullSpecification().getProfileName(), is("JavaSE-11"));
+        int javaVersion = Runtime.version().feature();
+        assertEquals("JavaSE-" + javaVersion, subject.getProfileName());
+        assertFalse(subject.isCustomProfile());
+        assertEquals("JavaSE-" + javaVersion, subject.getFullSpecification().getProfileName());
     }
 
     @Test
@@ -55,7 +56,7 @@ public class ExecutionEnvironmentConfigurationTest {
         subject.setProfileConfiguration("P1", DUMMY_ORIGIN);
         subject.setProfileConfiguration("P2", DUMMY_ORIGIN);
 
-        assertThat(subject.getProfileName(), is("P2"));
+        assertEquals("P2", subject.getProfileName());
     }
 
     @Test
@@ -65,28 +66,28 @@ public class ExecutionEnvironmentConfigurationTest {
         subject.overrideProfileConfiguration("P3", DUMMY_ORIGIN);
         subject.setProfileConfiguration("P4", DUMMY_ORIGIN);
 
-        assertThat(subject.getProfileName(), is("P3"));
+        assertEquals("P3", subject.getProfileName());
     }
 
     @Test
     public void testStandardProfile() {
         subject.setProfileConfiguration(STANDARD_PROFILE, DUMMY_ORIGIN);
 
-        assertThat(subject.isCustomProfile(), is(false));
-        assertThat(subject.getFullSpecification(), is(instanceOf(StandardExecutionEnvironment.class)));
-        assertThat(subject.getFullSpecification().getProfileName(), is(STANDARD_PROFILE));
+        assertFalse(subject.isCustomProfile());
+        assertTrue(subject.getFullSpecification() instanceof StandardExecutionEnvironment);
+        assertEquals(STANDARD_PROFILE, subject.getFullSpecification().getProfileName());
     }
 
     @Test
     public void testCustomProfile() {
         subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
 
-        assertThat(subject.isCustomProfile(), is(true));
+        assertTrue(subject.isCustomProfile());
 
         subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
 
-        assertThat(subject.getFullSpecification(), is(instanceOf(CustomExecutionEnvironment.class)));
-        assertThat(subject.getFullSpecification().getProfileName(), is(CUSTOM_PROFILE));
+        assertTrue(subject.getFullSpecification() instanceof CustomExecutionEnvironment);
+        assertEquals(CUSTOM_PROFILE, subject.getFullSpecification().getProfileName());
     }
 
     @Test(expected = BuildFailureException.class)
