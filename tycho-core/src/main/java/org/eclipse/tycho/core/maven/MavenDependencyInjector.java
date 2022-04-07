@@ -9,21 +9,28 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - inject nested class path elements into maven model (TYCHO-483)
  *    Christoph Läubrich    - Issue #443 - Use regular Maven coordinates -when possible- for dependencies 
- *                          - Issue #581 - Use the correct scope when injecting dependencies into the maven model 
+ *                          - Issue #581 - Use the correct scope when injecting dependencies into the maven model
+ *                          - Issue #697 - Failed to resolve dependencies with Tycho 2.7.0 for custom repositories  
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -34,6 +41,8 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 
 public final class MavenDependencyInjector {
 
@@ -48,7 +57,8 @@ public final class MavenDependencyInjector {
      */
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
             DependencyArtifacts testDependencies, BundleReader bundleReader,
-            Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger) {
+            Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger,
+            RepositorySystem repositorySystem) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
@@ -59,6 +69,44 @@ public final class MavenDependencyInjector {
                     .filter(testDep -> dependencies.getArtifact(testDep.getKey()) == null) //
                     .forEach(descriptor -> generator.addDependency(descriptor, Artifact.SCOPE_TEST));
         }
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        @SuppressWarnings("unchecked")
+        Collection<MavenArtifactRepositoryReference> repositoryReferences = (Collection<MavenArtifactRepositoryReference>) reactorProject
+                .getContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE);
+        if (repositoryReferences != null && !repositoryReferences.isEmpty()) {
+            Map<String, ArtifactRepository> repositoryMap = project.getRemoteArtifactRepositories().stream()
+                    .collect(Collectors.toMap(MavenDependencyInjector::getId, Function.identity(), (a, b) -> a,
+                            LinkedHashMap::new));
+            for (MavenArtifactRepositoryReference reference : repositoryReferences) {
+                String id = getId(reference);
+                ArtifactRepository artifactRepository = repositoryMap.get(id);
+                if (artifactRepository == null) {
+                    repositoryMap.put(id,
+                            repositorySystem.createArtifactRepository(id, reference.getUrl(), null, null, null));
+                } else if (!artifactRepository.getUrl().equals(reference.getUrl())) {
+                    logger.warn("Target defines an artifact repository with the ID " + id
+                            + " but there is already a repository for that ID mapped to a different URL! (target URL = "
+                            + reference.getUrl() + ", existing URL = " + artifactRepository.getUrl());
+                }
+            }
+            project.setRemoteArtifactRepositories(new ArrayList<ArtifactRepository>(repositoryMap.values()));
+        }
+    }
+
+    private static String getId(MavenArtifactRepositoryReference reference) {
+        String id = reference.getId();
+        if (id == null || id.isBlank()) {
+            return reference.getUrl();
+        }
+        return id;
+    }
+
+    private static String getId(ArtifactRepository repository) {
+        String id = repository.getId();
+        if (id == null || id.isBlank()) {
+            return repository.getUrl();
+        }
+        return id;
     }
 
     private final BundleReader bundleReader;
