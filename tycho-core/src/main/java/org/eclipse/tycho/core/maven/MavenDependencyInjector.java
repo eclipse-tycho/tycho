@@ -75,10 +75,11 @@ public final class MavenDependencyInjector {
         Collection<MavenArtifactRepositoryReference> repositoryReferences = (Collection<MavenArtifactRepositoryReference>) reactorProject
                 .getContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE);
         if (repositoryReferences != null && !repositoryReferences.isEmpty()) {
-            Map<String, ArtifactRepository> repositoryMap = project.getRemoteArtifactRepositories().stream().collect(
-                    Collectors.toMap(ArtifactRepository::getId, Function.identity(), (a, b) -> a, LinkedHashMap::new));
+            Map<String, ArtifactRepository> repositoryMap = project.getRemoteArtifactRepositories().stream()
+                    .collect(Collectors.toMap(MavenDependencyInjector::getId, Function.identity(), (a, b) -> a,
+                            LinkedHashMap::new));
             for (MavenArtifactRepositoryReference reference : repositoryReferences) {
-                String id = reference.getId();
+                String id = getId(reference);
                 ArtifactRepository artifactRepository = repositoryMap.get(id);
                 if (artifactRepository == null) {
                     repositoryMap.put(id,
@@ -89,7 +90,24 @@ public final class MavenDependencyInjector {
                             + reference.getUrl() + ", existing URL = " + artifactRepository.getUrl());
                 }
             }
+            project.setRemoteArtifactRepositories(new ArrayList<ArtifactRepository>(repositoryMap.values()));
         }
+    }
+
+    private static String getId(MavenArtifactRepositoryReference reference) {
+        String id = reference.getId();
+        if (id == null || id.isBlank()) {
+            return reference.getUrl();
+        }
+        return id;
+    }
+
+    private static String getId(ArtifactRepository repository) {
+        String id = repository.getId();
+        if (id == null || id.isBlank()) {
+            return repository.getUrl();
+        }
+        return id;
     }
 
     private final BundleReader bundleReader;
