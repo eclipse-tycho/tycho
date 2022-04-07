@@ -39,11 +39,6 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<version>${tycho-version}</version>
-				<configuration>
-					<!-- Test run on a 1.8 JRE by default, so make sure classes
-					     are compatible with 1.8 despite overriden EE -->
-					<target>1.8</target>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
