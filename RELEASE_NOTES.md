@@ -17,6 +17,7 @@ Fixes:
 - JAVA_HOME check is not OS independent #849 
 - Bug 571533 - tycho-compiler-plugin with useJDK=BREE and BREE==JavaSE-1.8 fails to find some EE packages #51 
 - Failed to resolve dependencies with Tycho 2.7.0 for custom repositories #697 
+- Feature restrictions are not taken into account when using emptyVersion #845 
 
 ## 2.7.0
 
