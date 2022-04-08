@@ -27,14 +27,14 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
 	public void testLocalMavenRepository() throws Exception {
 		// build01
 		Verifier v01 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build01", false);
-		v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
+		v01.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString());
 		v01.executeGoal("install");
 		v01.verifyErrorFreeLog();
 
 		final boolean ignoreLocallyInstalledArtifacts = false;
 		// build02, some dependencies come from local, some from remote repositories
 		Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false, ignoreLocallyInstalledArtifacts);
-		v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
+		v02.addCliOption("-Dp2.rep" + P2Repositories.ECLIPSE_LATEST.toString());
 		v02.executeGoal("install");
 		v02.verifyErrorFreeLog();
 		v02.verifyTextInLog(

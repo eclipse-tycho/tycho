@@ -19,17 +19,17 @@ import org.junit.Test;
 
 public class InvalidProductTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testInvalidProductFile() throws Exception {
-        Verifier verifier = getVerifier("product.invalid", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_342.toString());
+	@Test
+	public void testInvalidProductFile() throws Exception {
+		Verifier verifier = getVerifier("product.invalid", false);
+		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
 
-        // run build and verify we get a proper error message instead of an NPE
-        try {
-            verifier.executeGoal("package");
-            fail("We expect to fail on malformed product definitions");
-        } catch (VerificationException e) {
-            verifier.verifyTextInLog("The product file invalid.product does not contain the mandatory attribute");
-        }
-    }
+		// run build and verify we get a proper error message instead of an NPE
+		try {
+			verifier.executeGoal("package");
+			fail("We expect to fail on malformed product definitions");
+		} catch (VerificationException e) {
+			verifier.verifyTextInLog("The product file invalid.product does not contain the mandatory attribute");
+		}
+	}
 }

@@ -31,99 +31,106 @@ import org.junit.Test;
 
 public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoIntegrationTest {
 
-    /**
-     * The forcedContextQualifier set in the parent POM.
-     */
-    private static final String DEFAULT_QUALIFIER = "20101116-forcedDefault";
+	/**
+	 * The forcedContextQualifier set in the parent POM.
+	 */
+	private static final String DEFAULT_QUALIFIER = "20101116-forcedDefault";
 
-    /**
-     * The expanded version of projects with Maven version "1.0.0-SNAPSHOT" which didn't force a
-     * different qualifier than the parent POM.
-     */
-    private static final String DEFAULT_VERSION = "1.0.0." + DEFAULT_QUALIFIER;
-    private static final String FEATURE_VERSION = "1.2.0.20141230-qualifierOfFeature";
-    private static final String BUNDLE_VERSION = "1.2.0.20141230-qualifierOfBundle";
+	/**
+	 * The expanded version of projects with Maven version "1.0.0-SNAPSHOT" which
+	 * didn't force a different qualifier than the parent POM.
+	 */
+	private static final String DEFAULT_VERSION = "1.0.0." + DEFAULT_QUALIFIER;
+	private static final String FEATURE_VERSION = "1.2.0.20141230-qualifierOfFeature";
+	private static final String BUNDLE_VERSION = "1.2.0.20141230-qualifierOfBundle";
 
-    private static Verifier verifier;
-    private static P2RepositoryTool p2Repository;
+	private static Verifier verifier;
+	private static P2RepositoryTool p2Repository;
 
-    @BeforeClass
-    public static void executeBuild() throws Exception {
-        verifier = new QualifierExpansionAndArtifactAssemblyTest().getVerifier("p2Repository.reactor", false);
-        verifier.getSystemProperties().put("e352-repo", P2Repositories.ECLIPSE_352.toString());
+	@BeforeClass
+	public static void executeBuild() throws Exception {
+		verifier = new QualifierExpansionAndArtifactAssemblyTest().getVerifier("p2Repository.reactor", false);
+		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
 
-        /*
-         * Do not execute "install" to ensure that features and bundles can be included directly
-         * from the build results of the local reactor.
-         */
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
+		/*
+		 * Do not execute "install" to ensure that features and bundles can be included
+		 * directly from the build results of the local reactor.
+		 */
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
 
-        p2Repository = P2RepositoryTool
-                .forEclipseRepositoryModule(new File(verifier.getBasedir(), "eclipse-repository"));
-    }
+		p2Repository = P2RepositoryTool
+				.forEclipseRepositoryModule(new File(verifier.getBasedir(), "eclipse-repository"));
+	}
 
-    @Test
-    public void testCategoryUnitHasInclusionsVersionsExpanded() throws Exception {
-        IU categoryIU = p2Repository.getUniqueIU("20141230-qualifierOfRepo" + ".example.category");
+	@Test
+	public void testCategoryUnitHasInclusionsVersionsExpanded() throws Exception {
+		IU categoryIU = p2Repository.getUniqueIU("20141230-qualifierOfRepo" + ".example.category");
 
-        assertThat(categoryIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.category=true"));
-        assertThat(categoryIU.getProperties(), hasItem("org.eclipse.equinox.p2.name=Example Category"));
+		assertThat(categoryIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.category=true"));
+		assertThat(categoryIU.getProperties(), hasItem("org.eclipse.equinox.p2.name=Example Category"));
 
-        assertThat(categoryIU.getInclusions(),
-                hasItem(withIdAndVersion("prr.example.feature.feature.group", FEATURE_VERSION)));
-    }
+		assertThat(categoryIU.getInclusions(),
+				hasItem(withIdAndVersion("prr.example.feature.feature.group", FEATURE_VERSION)));
+	}
 
-    @Test
-    public void testFeatureUnitHasOwnVersionAndInclusionsExpanded() throws Exception {
-        IU featureIU = p2Repository.getIU("prr.example.feature" + ".feature.group", FEATURE_VERSION);
+	@Test
+	public void testFeatureUnitHasOwnVersionAndInclusionsExpanded() throws Exception {
+		IU featureIU = p2Repository.getIU("prr.example.feature" + ".feature.group", FEATURE_VERSION);
 
-        assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.group=true"));
+		assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.group=true"));
 
-        List<IdAndVersion> inclusions = featureIU.getInclusions();
-        assertThat(inclusions,
-                hasItem(withIdAndVersion("prr.example.included.feature.feature.group", DEFAULT_VERSION)));
-        assertThat(inclusions, hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
-        assertThat(inclusions, hasItem(withIdAndVersion("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451"))); // a bundle from the external target platform
+		List<IdAndVersion> inclusions = featureIU.getInclusions();
+		assertThat(inclusions,
+				hasItem(withIdAndVersion("prr.example.included.feature.feature.group", DEFAULT_VERSION)));
+		assertThat(inclusions, hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
+		assertThat(inclusions, hasItem(withIdAndVersion("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451"))); // a
+																														// bundle
+																														// from
+																														// the
+																														// external
+																														// target
+																														// platform
 
-        File featureJar = p2Repository.getFeatureArtifact("prr.example.feature", FEATURE_VERSION);
-        assertThat(featureJar, isFile());
-    }
+		File featureJar = p2Repository.getFeatureArtifact("prr.example.feature", FEATURE_VERSION);
+		assertThat(featureJar, isFile());
+	}
 
-    @Test
-    public void testProductUnitHasOwnVersionAndInclusionsExpanded() throws Exception {
-        IU featureIU = p2Repository.getIU("prr.example.product", "1.0.0.20141230-qualifierOfRepo");
+	@Test
+	public void testProductUnitHasOwnVersionAndInclusionsExpanded() throws Exception {
+		IU featureIU = p2Repository.getIU("prr.example.product", "1.0.0.20141230-qualifierOfRepo");
 
-        assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.group=true"));
-        assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+		assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.group=true"));
+		assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
 
-        List<IdAndVersion> inclusions = featureIU.getInclusions();
-        assertThat(inclusions, hasItem(withIdAndVersion("prr.example.feature.feature.group", FEATURE_VERSION)));
-        assertThat(inclusions, hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
-    }
+		List<IdAndVersion> inclusions = featureIU.getInclusions();
+		assertThat(inclusions, hasItem(withIdAndVersion("prr.example.feature.feature.group", FEATURE_VERSION)));
+		assertThat(inclusions, hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
+	}
 
-    @Test
-    public void testPublishedBundleIU() throws Exception {
-        assertThat(p2Repository.getAllUnits(), hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
-        assertThat(p2Repository.getBundleArtifact("prr.example.bundle", BUNDLE_VERSION), isFile());
-    }
+	@Test
+	public void testPublishedBundleIU() throws Exception {
+		assertThat(p2Repository.getAllUnits(), hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
+		assertThat(p2Repository.getBundleArtifact("prr.example.bundle", BUNDLE_VERSION), isFile());
+	}
 
-    // TODO 373817 test that inclusions in products have the right expanded qualifier
+	// TODO 373817 test that inclusions in products have the right expanded
+	// qualifier
 
-    @Test
-    public void testIncludedReactorArtifactsAreAssembled() throws Exception {
-        assertThat(p2Repository.getAllUnitIds(), hasItem("prr.example.included.feature" + ".feature.group"));
-        assertThat(p2Repository.getFeatureArtifact("prr.example.included.feature", DEFAULT_VERSION), isFile());
+	@Test
+	public void testIncludedReactorArtifactsAreAssembled() throws Exception {
+		assertThat(p2Repository.getAllUnitIds(), hasItem("prr.example.included.feature" + ".feature.group"));
+		assertThat(p2Repository.getFeatureArtifact("prr.example.included.feature", DEFAULT_VERSION), isFile());
 
-        assertThat(p2Repository.getAllUnitIds(), hasItem("prr.example.included.bundle"));
-        assertThat(p2Repository.getBundleArtifact("prr.example.included.bundle", DEFAULT_VERSION), isFile());
-    }
+		assertThat(p2Repository.getAllUnitIds(), hasItem("prr.example.included.bundle"));
+		assertThat(p2Repository.getBundleArtifact("prr.example.included.bundle", DEFAULT_VERSION), isFile());
+	}
 
-    @Test
-    public void testIncludedExternalArtifactIsAssembled() throws Exception {
-        assertThat(p2Repository.getAllUnitIds(), hasItem("org.eclipse.core.contenttype"));
-        assertThat(p2Repository.getBundleArtifact("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451"),
-                isFile());
-    }
+	@Test
+	public void testIncludedExternalArtifactIsAssembled() throws Exception {
+		assertThat(p2Repository.getAllUnitIds(), hasItem("org.eclipse.core.contenttype"));
+		assertThat(p2Repository.getBundleArtifact("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451"),
+				isFile());
+	}
 
 }

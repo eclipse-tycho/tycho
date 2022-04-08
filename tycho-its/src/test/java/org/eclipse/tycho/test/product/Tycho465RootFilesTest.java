@@ -38,8 +38,8 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	public void testProductBuild() throws Exception {
 		Verifier verifier = getVerifier("product.rootFiles", false);
 
-		verifier.getSystemProperties().setProperty("forceContextQualifier", Tycho465RootFilesTest.QUALIFIER.toString());
-		verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliOption("-DforceContextQualifier=" + Tycho465RootFilesTest.QUALIFIER.toString());
+		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
 
 		verifier.executeGoal("install");
 		verifier.verifyErrorFreeLog();
@@ -62,9 +62,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		Verifier eclipseRepoProjectVerifier = getVerifier("product.rootFiles/eclipse-repository", false,
 				ignoreLocallyInstalledArtifacts);
 
-		eclipseRepoProjectVerifier.getSystemProperties().setProperty("forceContextQualifier",
-				Tycho465RootFilesTest.QUALIFIER.toString());
-		eclipseRepoProjectVerifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+		eclipseRepoProjectVerifier
+				.addCliOption("-DforceContextQualifier=" + Tycho465RootFilesTest.QUALIFIER.toString());
+		eclipseRepoProjectVerifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
 
 		eclipseRepoProjectVerifier.executeGoal("verify");
 		eclipseRepoProjectVerifier.verifyErrorFreeLog();

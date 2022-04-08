@@ -18,19 +18,19 @@ import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class LocalRepositoryCrosstalkTest extends AbstractTychoIntegrationTest {
-    @Test
-    public void test() throws Exception {
-        // run e352 test first
-        Verifier v01 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle02", false);
-        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
-        v01.executeGoal("install");
-        v01.verifyErrorFreeLog();
+	@Test
+	public void test() throws Exception {
+		// run e352 test first
+		Verifier v01 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle02", false);
+		v01.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		v01.executeGoal("install");
+		v01.verifyErrorFreeLog();
 
-        // now run e342 test, it should not "see" e352 artifacts in local repo
-        Verifier v02 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle01", false);
-        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_OXYGEN.toString());
-        v02.executeGoal("install");
-        v02.verifyErrorFreeLog();
-    }
+		// now run e342 test, it should not "see" e352 artifacts in local repo
+		Verifier v02 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle01", false);
+		v02.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_OXYGEN.toString());
+		v02.executeGoal("install");
+		v02.verifyErrorFreeLog();
+	}
 
 }

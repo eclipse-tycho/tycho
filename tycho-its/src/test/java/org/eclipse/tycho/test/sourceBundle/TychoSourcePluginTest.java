@@ -31,7 +31,6 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 import de.pdark.decentxml.Document;
@@ -43,15 +42,15 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testBasic() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/basic", false, false);
-		verifier.getSystemProperties().setProperty("e342-url", ECLIPSE_342.toString());
+		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File feature = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/features/sourcefeature.feature_1.0.0.123abc.jar");
 		File sourceFeature = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/features/sourcefeature.feature.source_1.0.0.123abc.jar");
-		Assert.assertTrue("Missing expected file " + feature, feature.canRead());
-		Assert.assertTrue("Missing expected file " + sourceFeature, sourceFeature.canRead());
+		assertTrue("Missing expected file " + feature, feature.canRead());
+		assertTrue("Missing expected file " + sourceFeature, sourceFeature.canRead());
 
 		try (ZipFile featureZip = new ZipFile(feature); ZipFile sourceFeatureZip = new ZipFile(sourceFeature)) {
 			assertTrue("Missing expected file featrue.properties in " + feature,
@@ -72,21 +71,21 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 		}
 		// Test Bug 374349
 		Document sourceFeatureXml = parseFeatureXml(sourceFeature);
-		Assert.assertEquals("Wrong label - bug 374349", "%label",
+		assertEquals("Wrong label - bug 374349", "%label",
 				sourceFeatureXml.getChild("feature").getAttributeValue("label"));
 		// Test bug 407706
 		assertNull(sourceFeatureXml.getChild("feature").getAttribute("plugin"));
 
 		File indirectFeature = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/features/sourcefeature.feature.indirect.source_1.0.0.123abc.jar");
-		Assert.assertTrue("Missing expected file " + indirectFeature, indirectFeature.canRead());
+		assertTrue("Missing expected file " + indirectFeature, indirectFeature.canRead());
 
 		Document indirectFeatureXml = parseFeatureXml(indirectFeature);
 //		// Test bug 407706
-		Assert.assertEquals("sourcefeature.bundle", indirectFeatureXml.getChild("feature").getAttributeValue("plugin"));
+		assertEquals("sourcefeature.bundle", indirectFeatureXml.getChild("feature").getAttributeValue("plugin"));
 		File bundle = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/sourcefeature.bundle.source_1.0.0.123abc.jar");
-		Assert.assertTrue("Missing expected file " + bundle, bundle.canRead());
+		assertTrue("Missing expected file " + bundle, bundle.canRead());
 	}
 
 	private Document parseFeatureXml(File file) throws IOException {
@@ -106,7 +105,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testExtraSourceBundles() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/extra-source-bundles", false, false);
-		verifier.getSystemProperties().setProperty("e342-url", ECLIPSE_342.toString());
+		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),
@@ -117,11 +116,11 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testLicenseFeature() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/license-feature", false, false);
-		verifier.getSystemProperties().setProperty("e342-url", ECLIPSE_342.toString());
+		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File sourceFeature = new File(verifier.getBasedir(), "feature/target/feature-1.0.0-sources-feature.jar");
-		Assert.assertTrue("Missing expected file " + sourceFeature, sourceFeature.canRead());
+		assertTrue("Missing expected file " + sourceFeature, sourceFeature.canRead());
 		ZipFile featureZip = new ZipFile(sourceFeature);
 		assertTrue("feature.properties not found in " + sourceFeature,
 				findEntry(featureZip, "feature.properties").isPresent());
@@ -142,7 +141,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testRemoteSourceBundles() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/remote-source-bundles", false, false);
-		verifier.getSystemProperties().setProperty("e342-url", ECLIPSE_342.toString());
+		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),

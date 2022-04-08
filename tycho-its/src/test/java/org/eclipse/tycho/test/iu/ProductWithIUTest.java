@@ -26,22 +26,22 @@ import org.junit.Test;
 
 public class ProductWithIUTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testRootFilesFromIUPackagingInstalledAndInRepo() throws Exception {
-        Verifier verifier = getVerifier("iu.product", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_LATEST.toString());
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
+	@Test
+	public void testRootFilesFromIUPackagingInstalledAndInRepo() throws Exception {
+		Verifier verifier = getVerifier("iu.product", false);
+		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
 
-        File rootFileInstalledByIU = new File(verifier.getBasedir(),
-                "eclipse-repository/target/products/main.product.id/linux/gtk/x86/myFile.txt");
-        assertThat(rootFileInstalledByIU, isFile());
+		File rootFileInstalledByIU = new File(verifier.getBasedir(),
+				"eclipse-repository/target/products/main.product.id/linux/gtk/x86/myFile.txt");
+		assertThat(rootFileInstalledByIU, isFile());
 
-        P2RepositoryTool p2Repository = P2RepositoryTool
-                .forEclipseRepositoryModule(new File(verifier.getBasedir(), "eclipse-repository"));
-        assertThat(p2Repository.findBinaryArtifact("iup.iuForRootFile"), isFile());
+		P2RepositoryTool p2Repository = P2RepositoryTool
+				.forEclipseRepositoryModule(new File(verifier.getBasedir(), "eclipse-repository"));
+		assertThat(p2Repository.findBinaryArtifact("iup.iuForRootFile"), isFile());
 
-        assertThat(p2Repository.getAllUnitIds(), hasItem("iup.iuForRootFile"));
-    }
+		assertThat(p2Repository.getAllUnitIds(), hasItem("iup.iuForRootFile"));
+	}
 
 }

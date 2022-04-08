@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.surefire;
 
-import java.util.Properties;
-
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
@@ -21,15 +19,14 @@ import org.junit.Test;
 
 public class CategoriesTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testIncludeExcludeCategories() throws Exception {
-        Verifier verifier = getVerifier("/surefire.junit47/categories", false);
-        Properties props = verifier.getSystemProperties();
-        props.setProperty("kepler-repo", P2Repositories.ECLIPSE_LATEST.toString());
-        props.setProperty("groups", "tycho.demo.itp01.tests.FastTests");
-        props.setProperty("excludedGroups", "tycho.demo.itp01.tests.SlowTests");
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void testIncludeExcludeCategories() throws Exception {
+		Verifier verifier = getVerifier("/surefire.junit47/categories", false);
+		verifier.addCliOption("-Dkepler-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliOption("-Dgroups=tycho.demo.itp01.tests.FastTests");
+		verifier.addCliOption("-DexcludedGroups=tycho.demo.itp01.tests.SlowTests");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
 
 }
