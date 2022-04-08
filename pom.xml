@@ -15,7 +15,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<inceptionYear>2008</inceptionYear>
-	<url>http://www.eclipse.org/tycho/</url>
+	<url>https://www.eclipse.org/tycho/</url>
 	<ciManagement>
 		<system>jenkins</system>
 		<url>https://ci.eclipse.org/tycho</url>
@@ -23,13 +23,13 @@
 	<licenses>
 		<license>
 			<name>Eclipse Public License</name>
-			<url>http://www.eclipse.org/legal/epl-v20.html</url>
+			<url>https://www.eclipse.org/legal/epl-v20.html</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
 	<organization>
 		<name>Eclipse Foundation</name>
-		<url>http://www.eclipse.org/</url>
+		<url>https://www.eclipse.org/</url>
 	</organization>
 	<issueManagement>
 		<system>GitHub</system>
@@ -44,17 +44,17 @@
 		<developer>
 			<name>Igor Fedorenko</name>
 			<organization>Sonatype</organization>
-			<organizationUrl>http://www.sonatype.com</organizationUrl>
+			<organizationUrl>https://www.sonatype.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Tobias Oberlies</name>
 			<organization>SAP</organization>
-			<organizationUrl>http://www.sap.com</organizationUrl>
+			<organizationUrl>https://www.sap.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Jan Sievers</name>
 			<organization>SAP</organization>
-			<organizationUrl>http://www.sap.com</organizationUrl>
+			<organizationUrl>https://www.sap.com</organizationUrl>
 		</developer>
 	</developers>
 	<prerequisites>
@@ -321,7 +321,7 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-plugin-plugin</artifactId>
 					<version>${pluginToolsVersion}</version>
-					<!-- workaround for http://jira.codehaus.org/browse/MNG-5346 -->
+					<!-- workaround for https://jira.codehaus.org/browse/MNG-5346 -->
 					<configuration>
 						<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
 						<extractors>
@@ -580,7 +580,7 @@
 		<site>
 			<id>tycho.site</id>
 			<name>Tycho Site</name>
-			<!-- >workaround for http://jira.codehaus.org/browse/MSITE-671 -->
+			<!-- >workaround for https://jira.codehaus.org/browse/MSITE-671 -->
 			<url>http://staging</url>
 		</site>
 		<repository>

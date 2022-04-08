@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ * 	https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -195,7 +195,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
     /**
      * Qualified class names of annotation processors to run. If specified, the
-     * <a href="http://java.sun.com/javase/6/docs/api/javax/annotation/processing/Processor.html" >
+     * <a href="https://java.sun.com/javase/6/docs/api/javax/annotation/processing/Processor.html" >
      * normal processor discovery process</a> will be skipped. This parameter requires a 1.6 VM or
      * above and is used only if the compliance is 1.6
      * 

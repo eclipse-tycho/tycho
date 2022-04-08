@@ -140,7 +140,7 @@ public class JdkLibraryInfoProvider {
         String[] bootclasspath = splitPath(parts[1]);
         String[] extDirs = splitPath(parts[2]);
         String[] endorsedDirs = splitPath(parts[3]);
-        // workaround for missing bootclasspath in Java 9 - see JDT bug http://eclip.se/489207  
+        // workaround for missing bootclasspath in Java 9 - see JDT bug https://eclip.se/489207  
         if (bootclasspath.length == 0) {
             File jrtFsJar = new File(javaHome, "lib/jrt-fs.jar");
             if (!jrtFsJar.isFile()) {
