@@ -167,7 +167,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcpBundle() throws Exception {
-        generateDependencies("rcp-bundle", PackagingType.TYPE_ECLIPSE_APPLICATION);
+        generateDependencies("rcp-bundle", PackagingType.TYPE_ECLIPSE_REPOSITORY);
 
         assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();
@@ -188,7 +188,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcp_with_p2_inf() throws Exception {
-        generateDependencies("rcp-p2-inf", PackagingType.TYPE_ECLIPSE_APPLICATION);
+        generateDependencies("rcp-p2-inf", PackagingType.TYPE_ECLIPSE_REPOSITORY);
 
         assertEquals(2, units.size());
         IInstallableUnit unit = getUnitWithId("org.eclipse.tycho.p2.impl.test.rcp-p2-inf", units);
@@ -221,7 +221,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcpFeature() throws Exception {
-        generateDependencies("rcp-feature", PackagingType.TYPE_ECLIPSE_APPLICATION);
+        generateDependencies("rcp-feature", PackagingType.TYPE_ECLIPSE_REPOSITORY);
 
         assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();
@@ -236,7 +236,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcpNoLaunchers() throws Exception {
-        generateDependencies("rcp-no-launchers", PackagingType.TYPE_ECLIPSE_APPLICATION);
+        generateDependencies("rcp-no-launchers", PackagingType.TYPE_ECLIPSE_REPOSITORY);
 
         assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();

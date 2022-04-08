@@ -9,6 +9,6 @@
   </parent>
 
   <artifactId>productDotQualifier.product</artifactId>
-  <packaging>eclipse-application</packaging>
-
+  <packaging>eclipse-repository</packaging>
+  
 </project>

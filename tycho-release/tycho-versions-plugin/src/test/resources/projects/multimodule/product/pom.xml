@@ -8,6 +8,6 @@
   </parent>
 
   <artifactId>product</artifactId>
-  <packaging>eclipse-application</packaging>
+  <packaging>eclipse-repository</packaging>
 
 </project>

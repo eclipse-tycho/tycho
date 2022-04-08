@@ -43,9 +43,8 @@ public class JarDirectoryBundlesTest extends AbstractTychoIntegrationTest {
 		assertEquals("platform.jar", siteBundleManifest.getBundleClasspath()[0]);
 		assertEquals("org.eclipse.platform", siteBundleManifest.getBundleSymbolicName());
 
-		File[] productPlugins = new File(verifier.getBasedir(), "product/target/product/eclipse/plugins")
-				.listFiles((FileFilter) pathname -> pathname.isDirectory()
-						&& pathname.getName().startsWith("org.eclipse.platform"));
+		File[] productPlugins = new File(verifier.getBasedir(), "product/target/repository/plugins")
+				.listFiles((FileFilter) pathname -> pathname.getName().startsWith("org.eclipse.platform"));
 		assertEquals(1, productPlugins.length);
 
 		// verify directory actually makes sense

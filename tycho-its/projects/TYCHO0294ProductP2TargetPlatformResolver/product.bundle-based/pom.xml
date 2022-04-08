@@ -9,6 +9,6 @@
 
   <artifactId>product.bundle-based</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <packaging>eclipse-application</packaging>
+  <packaging>eclipse-repository</packaging>
 
 </project>

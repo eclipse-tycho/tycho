@@ -3,6 +3,27 @@
 
 <product uid="testproduct" version="0.0.1.qualifier" useFeatures="true" includeLaunchers="false">
 
+
+   <configIni>
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <windowImages/>
+
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
+
    <plugins>
    </plugins>
 
@@ -10,5 +31,12 @@
       <feature id="feature" version="0.0.1.qualifier"/>
    </features>
 
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

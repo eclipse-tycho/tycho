@@ -6,4 +6,4 @@ Bundle-Version: 0.0.1.qualifier
 Fragment-Host: mpr.bundle;bundle-version="0.0.1"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Eclipse-PlatformFilter: (& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=
- x86))
+ x86_64))

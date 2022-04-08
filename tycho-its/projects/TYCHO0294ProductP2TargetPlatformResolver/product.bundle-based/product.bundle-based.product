@@ -3,8 +3,24 @@
 
 <product uid="product.bundle-based" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
    <plugins>
-      <plugin id="bundle" fragment=""/>
+      <plugin id="bundle"/>
    </plugins>
 
 
