@@ -54,7 +54,7 @@ jobs:
       run: mvn -U -V -e -B -ntp -Pits -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml
       if: github.event.pull_request.draft == false
     - name: Upload Test Results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: test-results
         if-no-files-found: error
