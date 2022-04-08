@@ -38,7 +38,7 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testArtifactRepositoryExtraProperties() throws Exception {
 		Verifier verifier = getVerifier("p2Repository.reactor", false);
-		verifier.getSystemProperties().put("e352-repo", P2Repositories.ECLIPSE_352.toString());
+		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		File artifactXml = new File(verifier.getBasedir(), "eclipse-repository/target/repository/artifacts.xml");

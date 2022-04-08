@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO502sourceBundleQualifier;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.jar.JarFile;
@@ -20,7 +23,6 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class Tycho502SourceBundleQualifierTest extends AbstractTychoIntegrationTest {
@@ -30,43 +32,41 @@ public class Tycho502SourceBundleQualifierTest extends AbstractTychoIntegrationT
 		Verifier verifier = getVerifier("/TYCHO502sourceBundleQualifier", false);
 		File targetDir = new File(verifier.getBasedir(), "target");
 		{
-			verifier.getSystemProperties().setProperty("forceContextQualifier", "old");
+			verifier.addCliOption("-DforceContextQualifier=old");
 			verifier.executeGoal("package");
 			verifier.verifyErrorFreeLog();
 
 			String bundleQualifier = getBundleQualifier(targetDir);
-			Assert.assertEquals("old", bundleQualifier);
+			assertEquals("old", bundleQualifier);
 			String referencedQualifier = getQualifierReferencedBySourceBundle(targetDir);
-			Assert.assertEquals("old", referencedQualifier);
+			assertEquals("old", referencedQualifier);
 		}
 		// rebuild _without clean_ and test again
 		{
-			verifier.getSystemProperties().setProperty("forceContextQualifier", "new");
+			verifier.addCliOption("-DforceContextQualifier=new");
 			verifier.setAutoclean(false);
 			verifier.executeGoal("package");
 			verifier.verifyErrorFreeLog();
 			String bundleQualifier = getBundleQualifier(targetDir);
-			Assert.assertEquals("new", bundleQualifier);
+			assertEquals("new", bundleQualifier);
 			String referencedQualifier = getQualifierReferencedBySourceBundle(targetDir);
-			Assert.assertEquals("new", referencedQualifier);
+			assertEquals("new", referencedQualifier);
 		}
 	}
 
 	private String getQualifierReferencedBySourceBundle(File targetDir) throws IOException {
 		File sourceJar = new File(targetDir, "bundle-0.0.1-SNAPSHOT-sources.jar");
-		Assert.assertTrue(sourceJar.isFile());
+		assertTrue(sourceJar.isFile());
 		Pattern versionPattern = Pattern.compile(";version=\"(.*)\";roots:=\".\"");
 		Matcher matcher = versionPattern.matcher(getManifestHeaderValue("Eclipse-SourceBundle", sourceJar).trim());
-		Assert.assertTrue(matcher.find());
-		String referencedQualifier = matcher.group(1).split("\\.")[3];
-		return referencedQualifier;
+		assertTrue(matcher.find());
+		return matcher.group(1).split("\\.")[3];
 	}
 
 	private String getBundleQualifier(File targetDir) throws IOException {
 		File bundleJar = new File(targetDir, "bundle-0.0.1-SNAPSHOT.jar");
-		Assert.assertTrue(bundleJar.isFile());
-		String bundleQualifier = getManifestHeaderValue("Bundle-Version", bundleJar).trim().split("\\.")[3];
-		return bundleQualifier;
+		assertTrue(bundleJar.isFile());
+		return getManifestHeaderValue("Bundle-Version", bundleJar).trim().split("\\.")[3];
 	}
 
 	private String getManifestHeaderValue(String key, File bundleJar) throws IOException {

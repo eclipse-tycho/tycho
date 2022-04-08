@@ -17,13 +17,13 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
 public class RunSingleTestTest extends AbstractTychoIntegrationTest {
-    @Test
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("surefire.testSelection");
+	@Test
+	public void test() throws Exception {
+		Verifier verifier = getVerifier("surefire.testSelection");
 
-        // call test with -Dtest=bundle.WorkingTest -> supported since TYCHO-356
-        verifier.getSystemProperties().setProperty("test", "bundle.WorkingTest");
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
-    }
+		// call test with -Dtest=bundle.WorkingTest -> supported since TYCHO-356
+		verifier.addCliOption("-Dtest=bundle.WorkingTest");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+	}
 }

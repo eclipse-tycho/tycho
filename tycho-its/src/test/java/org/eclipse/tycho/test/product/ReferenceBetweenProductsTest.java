@@ -27,23 +27,24 @@ import org.junit.Test;
 
 public class ReferenceBetweenProductsTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testProductCanReferenceProductFromDifferentModule() throws Exception {
-        Verifier verifier = getVerifier("product.crossReference", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_LATEST.toString());
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
+	@Test
+	public void testProductCanReferenceProductFromDifferentModule() throws Exception {
+		Verifier verifier = getVerifier("product.crossReference", false);
+		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 
-        File repositoryProject = new File(verifier.getBasedir(), "eclipse-repository");
-        P2RepositoryTool repository = P2RepositoryTool.forEclipseRepositoryModule(repositoryProject);
+		File repositoryProject = new File(verifier.getBasedir(), "eclipse-repository");
+		P2RepositoryTool repository = P2RepositoryTool.forEclipseRepositoryModule(repositoryProject);
 
-        // verify that product IUs were create by full publisher and not the dependency-only publisher
-        P2RepositoryTool.IU referencingProduct = repository.getUniqueIU("product.crossreference.extending-product");
-        assertThat(referencingProduct.getVersion(), not(containsString("qualifier")));
-        assertThat(referencingProduct.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+		// verify that product IUs were create by full publisher and not the
+		// dependency-only publisher
+		P2RepositoryTool.IU referencingProduct = repository.getUniqueIU("product.crossreference.extending-product");
+		assertThat(referencingProduct.getVersion(), not(containsString("qualifier")));
+		assertThat(referencingProduct.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
 
-        P2RepositoryTool.IU referencedProduct = repository.getUniqueIU("product.crossreference.product");
-        assertThat(referencedProduct.getVersion(), not(containsString("qualifier")));
-        assertThat(referencedProduct.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
-    }
+		P2RepositoryTool.IU referencedProduct = repository.getUniqueIU("product.crossreference.product");
+		assertThat(referencedProduct.getVersion(), not(containsString("qualifier")));
+		assertThat(referencedProduct.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+	}
 }

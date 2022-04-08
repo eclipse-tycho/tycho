@@ -20,26 +20,26 @@ import org.junit.Test;
 
 public class FailIfNoTestsTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testNoTestsNoFailure() throws Exception {
-        Verifier verifier = getVerifier("surefire.noTests");
+	@Test
+	public void testNoTestsNoFailure() throws Exception {
+		Verifier verifier = getVerifier("surefire.noTests");
 
-        // support for this option was requested in TYCHO-432
-        verifier.getSystemProperties().setProperty("failIfNoTests", "false");
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
-    }
+		// support for this option was requested in TYCHO-432
+		verifier.addCliOption("-DfailIfNoTests=false");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+	}
 
-    @Test
-    public void testNoTestsFailureDefaultCase() throws Exception {
-        Verifier verifier = getVerifier("surefire.noTests");
-        try {
-            verifier.executeGoal("integration-test");
-            Assert.fail();
-        } catch (VerificationException e) {
-            // expected
-        }
-        verifier.verifyTextInLog("No tests found");
-    }
+	@Test
+	public void testNoTestsFailureDefaultCase() throws Exception {
+		Verifier verifier = getVerifier("surefire.noTests");
+		try {
+			verifier.executeGoal("integration-test");
+			Assert.fail();
+		} catch (VerificationException e) {
+			// expected
+		}
+		verifier.verifyTextInLog("No tests found");
+	}
 
 }

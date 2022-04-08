@@ -31,35 +31,36 @@ import org.junit.Test;
 // TODO make this a unit test?
 public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegrationTest {
 
-    private static final String BUNDLE_IN_PRODUCT_FILE = "org.example.toBeIgnored";
-    private static final String FEATURE_IN_PRODUCT_FILE = "org.eclipse.equinox.executable.feature.group";
+	private static final String BUNDLE_IN_PRODUCT_FILE = "org.example.toBeIgnored";
+	private static final String FEATURE_IN_PRODUCT_FILE = "org.eclipse.equinox.executable.feature.group";
 
-    @Test
-    public void testBuildOfProductWithBundlesDespiteUseFeaturesTrue() throws Exception {
-        /*
-         * Project with a product file which lists a feature, although the useFeatures attribute is
-         * false. The current (Indigo) product editor produces such a file when changing the mode in
-         * which the content is defined from features to bundles.
-         */
-        Verifier verifier = getVerifier("product.sourceFile.leftovers", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
+	@Test
+	public void testBuildOfProductWithBundlesDespiteUseFeaturesTrue() throws Exception {
+		/*
+		 * Project with a product file which lists a feature, although the useFeatures
+		 * attribute is false. The current (Indigo) product editor produces such a file
+		 * when changing the mode in which the content is defined from features to
+		 * bundles.
+		 */
+		Verifier verifier = getVerifier("product.sourceFile.leftovers", false);
+		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 
-        // check product IU
-        P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
-        IU product = p2Repository.getUniqueIU("psl.product");
-        assertThat(product.getRequiredIds(), not(hasItem(BUNDLE_IN_PRODUCT_FILE)));
-        assertThat(product.getRequiredIds(), hasItem(FEATURE_IN_PRODUCT_FILE));
+		// check product IU
+		P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
+		IU product = p2Repository.getUniqueIU("psl.product");
+		assertThat(product.getRequiredIds(), not(hasItem(BUNDLE_IN_PRODUCT_FILE)));
+		assertThat(product.getRequiredIds(), hasItem(FEATURE_IN_PRODUCT_FILE));
 
-        // verify that IUs included in product exist
-        List<String> inclusionIds = product.getInclusionIds();
-        assertThat(inclusionIds.size(), not(0));
-        assertThat(p2Repository.getAllUnitIds(), hasItems(inclusionIds));
-    }
+		// verify that IUs included in product exist
+		List<String> inclusionIds = product.getInclusionIds();
+		assertThat(inclusionIds.size(), not(0));
+		assertThat(p2Repository.getAllUnitIds(), hasItems(inclusionIds));
+	}
 
-    @SuppressWarnings("unchecked")
-    private static <T> Matcher<Iterable<T>> hasItems(List<T> list) {
-        return CoreMatchers.hasItems((T[]) list.toArray());
-    }
+	@SuppressWarnings("unchecked")
+	private static <T> Matcher<Iterable<T>> hasItems(List<T> list) {
+		return CoreMatchers.hasItems((T[]) list.toArray());
+	}
 }

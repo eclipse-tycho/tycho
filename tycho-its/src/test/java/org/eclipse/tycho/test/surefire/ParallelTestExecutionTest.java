@@ -42,7 +42,7 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testParallelExecution() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit47/parallel");
-		verifier.getSystemProperties().setProperty("parallel", "classes");
+		verifier.addCliOption("-Dparallel=classes");
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 		File surefireReportsDir = new File(verifier.getBasedir(), "target/surefire-reports");

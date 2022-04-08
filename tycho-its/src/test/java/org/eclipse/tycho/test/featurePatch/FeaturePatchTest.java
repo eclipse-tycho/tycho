@@ -21,14 +21,14 @@ import org.junit.Test;
 
 public class FeaturePatchTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testFeaturePatch() throws Exception {
-        Verifier verifier = getVerifier("featurePatch.build", false);
+	@Test
+	public void testFeaturePatch() throws Exception {
+		Verifier verifier = getVerifier("featurePatch.build", false);
 
-        verifier.getSystemProperties().setProperty("e342-url", ECLIPSE_342.toString());
-        verifier.getSystemProperties().setProperty("e352-url", ECLIPSE_352.toString());
+		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
+		verifier.addCliOption("-De352-url=" + ECLIPSE_352.toString());
 
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
-    }
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
 }

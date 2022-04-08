@@ -23,7 +23,7 @@ public class DotQualifierMatchingTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testFeature() throws Exception {
 		Verifier verifier = getVerifier("/TYCHO0383dotQualifierMatching/featureDotQualifier", false);
-		verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 
@@ -34,7 +34,7 @@ public class DotQualifierMatchingTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testProduct() throws Exception {
 		Verifier verifier = getVerifier("/TYCHO0383dotQualifierMatching/productDotQualifier", false);
-		verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 

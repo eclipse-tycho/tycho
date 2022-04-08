@@ -59,7 +59,7 @@ public class Tycho109ProductExportTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void productNoZip() throws Exception {
 		Verifier verifier = getVerifier("/TYCHO109product/product-nozip/product");
-		verifier.getSystemProperties().setProperty("tycho.product.createArchive", "false");
+		verifier.addCliOption("-Dtycho.product.createArchive=false");
 
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();

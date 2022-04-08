@@ -71,7 +71,7 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
 	private Verifier getVerifierAndSetupServerAndRepo(String basedir, String repoName) throws Exception, IOException {
 		Verifier verifier = getVerifier(basedir, false);
 		String url = server.addServer("test", new File(verifier.getBasedir(), repoName));
-		verifier.getSystemProperties().setProperty("p2.repo", url);
+		verifier.addCliOption("-Dp2.repo=" + url);
 
 		File platformFile = new File(verifier.getBasedir(), "platform.target");
 		TargetDefinitionUtil.setRepositoryURLs(platformFile, url);

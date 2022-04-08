@@ -19,11 +19,11 @@ import org.junit.Test;
 
 public class ProductDuplicateIUsTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testMultipleProductsNoDuplicateIUs() throws Exception {
-        Verifier verifier = getVerifier("product.duplicateIUs", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_LATEST.toString());
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void testMultipleProductsNoDuplicateIUs() throws Exception {
+		Verifier verifier = getVerifier("product.duplicateIUs", false);
+		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+	}
 }

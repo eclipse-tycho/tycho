@@ -27,7 +27,7 @@ public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
 		// project that marks org.apache.ant as "exploded" (unpacked) for the test
 		// runtime -> supported since TYCHO-340
 		Verifier v01 = getVerifier("surefire.bundleUnpack", false);
-		v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
+		v01.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString());
 		v01.executeGoal("install");
 		v01.verifyErrorFreeLog();
 		// TODO this is only an indirect test; it should test that the bundles nested

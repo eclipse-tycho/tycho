@@ -34,7 +34,7 @@ public class TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
 	@BeforeClass
 	public static void buildFeatureAndBundlesAndRepos() throws Exception {
 		verifier = new TransitiveP2RepoTest().getVerifier("p2Repository.transitive", false);
-		verifier.getSystemProperties().setProperty("p2.repo", ECLIPSE_352.toString());
+		verifier.addCliOption("-Dp2.repo=" + ECLIPSE_352.toString());
 		/*
 		 * Do not execute "install" to ensure that features and bundles can be included
 		 * directly from the build results of the local reactor.

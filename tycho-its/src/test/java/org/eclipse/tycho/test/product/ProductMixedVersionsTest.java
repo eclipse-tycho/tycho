@@ -29,7 +29,7 @@ public class ProductMixedVersionsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMixedPluginVersions() throws Exception {
 		Verifier verifier = getVerifier("product.differentVersions", false);
-		verifier.getSystemProperties().setProperty("platform-url", P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliOption("-Dplatform-url=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoals(Arrays.asList("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		// check that simple configurator is there...

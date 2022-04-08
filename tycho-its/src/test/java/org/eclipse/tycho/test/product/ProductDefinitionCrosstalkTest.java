@@ -27,27 +27,29 @@ import org.junit.Test;
 // TODO make this a unit test
 public class ProductDefinitionCrosstalkTest extends AbstractTychoIntegrationTest {
 
-    private static final String BUNDLE_ONLY_IN_PRODUCT_A = "org.eclipse.equinox.registry";
-    private static final String BUNDLE_ONLY_IN_PRODUCT_B = "org.eclipse.core.jobs";
+	private static final String BUNDLE_ONLY_IN_PRODUCT_A = "org.eclipse.equinox.registry";
+	private static final String BUNDLE_ONLY_IN_PRODUCT_B = "org.eclipse.core.jobs";
 
-    @Test
-    public void testProductContentNotLeakedBetweenProducts() throws Exception {
-        // an eclipse-repository module with two product definitions, each containing exactly one bundle
-        Verifier verifier = getVerifier("product.crosstalk", false);
-        verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
+	@Test
+	public void testProductContentNotLeakedBetweenProducts() throws Exception {
+		// an eclipse-repository module with two product definitions, each containing
+		// exactly one bundle
+		Verifier verifier = getVerifier("product.crosstalk", false);
+		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 
-        File projectRoot = new File(verifier.getBasedir());
-        P2RepositoryTool repository = P2RepositoryTool.forEclipseRepositoryModule(projectRoot);
+		File projectRoot = new File(verifier.getBasedir());
+		P2RepositoryTool repository = P2RepositoryTool.forEclipseRepositoryModule(projectRoot);
 
-        // this was bug 346532: one of the product IUs also required the bundle only contained in the other product
-        P2RepositoryTool.IU productA = repository.getUniqueIU("product-a");
-        assertThat(productA.getRequiredIds(), hasItem(BUNDLE_ONLY_IN_PRODUCT_A));
-        assertThat(productA.getRequiredIds(), not(hasItem(BUNDLE_ONLY_IN_PRODUCT_B)));
+		// this was bug 346532: one of the product IUs also required the bundle only
+		// contained in the other product
+		P2RepositoryTool.IU productA = repository.getUniqueIU("product-a");
+		assertThat(productA.getRequiredIds(), hasItem(BUNDLE_ONLY_IN_PRODUCT_A));
+		assertThat(productA.getRequiredIds(), not(hasItem(BUNDLE_ONLY_IN_PRODUCT_B)));
 
-        P2RepositoryTool.IU productB = repository.getUniqueIU("product-b");
-        assertThat(productB.getRequiredIds(), not(hasItem(BUNDLE_ONLY_IN_PRODUCT_A)));
-        assertThat(productB.getRequiredIds(), hasItem(BUNDLE_ONLY_IN_PRODUCT_B));
-    }
+		P2RepositoryTool.IU productB = repository.getUniqueIU("product-b");
+		assertThat(productB.getRequiredIds(), not(hasItem(BUNDLE_ONLY_IN_PRODUCT_A)));
+		assertThat(productB.getRequiredIds(), hasItem(BUNDLE_ONLY_IN_PRODUCT_B));
+	}
 }

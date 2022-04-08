@@ -18,14 +18,14 @@ import org.junit.Test;
 
 public class CustomSourceEncodingTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("MNGECLIPSE937");
+	@Test
+	public void test() throws Exception {
+		Verifier verifier = getVerifier("MNGECLIPSE937");
 
-        verifier.getSystemProperties().setProperty("file.encoding", "US-ASCII");
+		verifier.addCliOption("-Dfile.encoding=US-ASCII");
 
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
 
-    }
+	}
 }
