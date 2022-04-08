@@ -41,7 +41,7 @@ public interface TestFrameworkProvider {
 
     /**
      * Fully qualified class name of the surefire provider (must implement contract
-     * http://maven.apache.org/plugins/maven-surefire-plugin/api.html ).
+     * https://maven.apache.org/plugins/maven-surefire-plugin/api.html ).
      */
     public String getSurefireProviderClassName();
 

@@ -36,7 +36,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
  * Finds bundles in Eclipse installation.
  * 
  * See https://wiki.eclipse.org/Equinox_p2_Getting_Started See
- * http://mea-bloga.blogspot.com/2008/04/new-target-platform-preference.html
+ * https://mea-bloga.blogspot.com/2008/04/new-target-platform-preference.html
  * 
  * @author igor
  * @deprecated only required for {@link LocalDependencyResolver}

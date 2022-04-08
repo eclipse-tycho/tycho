@@ -57,7 +57,7 @@ public class MavenCompatiblityHelper {
      * 
      * The types RemoteRepository and RepositorySystemSession from aether are changed incompatibly
      * in maven 3.1 so we invoke MavenPluginManager#getPluginDescriptor reflectively. See maven
-     * issue <a href="http://jira.codehaus.org/browse/MNG-5354">MNG-5354</a>.
+     * issue <a href="https://jira.codehaus.org/browse/MNG-5354">MNG-5354</a>.
      * 
      */
     public PluginDescriptor getPluginDescriptor(Plugin plugin, MavenProject project, MavenSession session)
@@ -93,7 +93,7 @@ public class MavenCompatiblityHelper {
      * 
      * The types RemoteRepository and RepositorySystemSession from aether are changed incompatibly
      * in maven 3.1 so we invoke PluginDescriptorCache#createKey reflectively. See maven issue <a
-     * href="http://jira.codehaus.org/browse/MNG-5354">MNG-5354</a>.
+     * href="https://jira.codehaus.org/browse/MNG-5354">MNG-5354</a>.
      */
     public PluginDescriptorCache.Key createKey(Plugin plugin, MavenProject project, MavenSession session) {
         try {

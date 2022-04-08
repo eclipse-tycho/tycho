@@ -440,7 +440,7 @@ public class EquinoxResolver {
     private boolean isFrameworkImplementation(OsgiManifest mf) {
         // starting with OSGi R4.2, /META-INF/services/org.osgi.framework.launch.FrameworkFactory
         // can be used to detect framework implementation
-        // See http://www.osgi.org/javadoc/r4v42/org/osgi/framework/launch/FrameworkFactory.html
+        // See https://www.osgi.org/javadoc/r4v42/org/osgi/framework/launch/FrameworkFactory.html
 
         // Assume only framework implementation export org.osgi.framework package
         String value = mf.getHeaders().get(Constants.EXPORT_PACKAGE);

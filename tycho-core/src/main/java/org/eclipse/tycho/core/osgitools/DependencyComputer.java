@@ -386,7 +386,7 @@ public class DependencyComputer {
      * bundle are supposed to come from JRE and which from the bundle itself, so returned classpath
      * access rules include all packages exported by the framework extension bundles.
      * 
-     * [1] http://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
+     * [1] https://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
      */
 
     public List<AccessRule> computeBootClasspathExtraAccessRules(ModuleContainer container) {

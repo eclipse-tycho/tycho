@@ -572,7 +572,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                 // the launcher is renamed to "eclipse", because
                 // this is the value of the CFBundleExecutable
                 // property within the Info.plist file.
-                // see http://jira.codehaus.org/browse/MNGECLIPSE-1087
+                // see https://jira.codehaus.org/browse/MNGECLIPSE-1087
                 newName = "eclipse";
             }
 
@@ -585,7 +585,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
 
             // macosx: the *.app directory is renamed to the
             // product configuration launcher name
-            // see http://jira.codehaus.org/browse/MNGECLIPSE-1087
+            // see https://jira.codehaus.org/browse/MNGECLIPSE-1087
             if (PlatformPropertiesUtils.OS_MACOSX.equals(os)) {
                 newName = launcherName + ".app";
                 getLog().debug("Renaming Eclipse.app to " + newName);

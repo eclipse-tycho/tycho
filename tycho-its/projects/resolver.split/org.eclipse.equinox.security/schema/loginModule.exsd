@@ -51,7 +51,7 @@
       <annotation>
          <documentation>
             An entry defining a single LoginModule that can be used for authenticating users. See
-&lt;A HREF=&quot;http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/spi/LoginModule.html&quot;&gt;javax.security.auth.spi.LoginModule&lt;/A&gt; for more information.
+&lt;A HREF=&quot;https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/spi/LoginModule.html&quot;&gt;javax.security.auth.spi.LoginModule&lt;/A&gt; for more information.
          </documentation>
       </annotation>
       <complexType>

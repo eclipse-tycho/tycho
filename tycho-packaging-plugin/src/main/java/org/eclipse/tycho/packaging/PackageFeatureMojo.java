@@ -53,7 +53,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     private static final String FEATURE_PROPERTIES = "feature.properties";
 
     /**
-     * The <a href="http://maven.apache.org/shared/maven-archiver/">maven archiver</a> to use. One
+     * The <a href="https://maven.apache.org/shared/maven-archiver/">maven archiver</a> to use. One
      * of the archiver properties is the <code>addMavenDescriptor</code> flag, which indicates
      * whether the generated archive will contain the pom.xml and pom.properties file. If no archive
      * configuration is specified, the default value is <code>false</code>. If the maven descriptor

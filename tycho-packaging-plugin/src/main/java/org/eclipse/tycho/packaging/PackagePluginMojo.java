@@ -97,7 +97,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
     protected String finalName;
 
     /**
-     * The <a href="http://maven.apache.org/shared/maven-archiver/">maven archiver</a> to use. One
+     * The <a href="https://maven.apache.org/shared/maven-archiver/">maven archiver</a> to use. One
      * of the archiver properties is the <code>addMavenDescriptor</code> flag, which indicates
      * whether the generated archive will contain the pom.xml and pom.properties file. If no archive
      * configuration is specified, the default value is <code>true</code>. If the maven descriptor
@@ -123,7 +123,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
      * Whether to generate an
      * <a href="https://wiki.eclipse.org/PDE/UI/SourceReferences">Eclipse-SourceReferences</a>
      * MANIFEST header. When using this parameter, property ${tycho.scmUrl} must be set and be a
-     * valid <a href="http://maven.apache.org/scm/scm-url-format.html">maven SCM URL</a>.
+     * valid <a href="https://maven.apache.org/scm/scm-url-format.html">maven SCM URL</a>.
      * 
      * Example configuration:
      * 

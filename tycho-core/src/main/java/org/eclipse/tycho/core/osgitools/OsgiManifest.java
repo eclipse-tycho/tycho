@@ -142,7 +142,7 @@ public class OsgiManifest {
      * https://help.eclipse.org/galileo/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/misc/
      * bundle_manifest.html
      * 
-     * http://eclipsesource.com/blogs/2009/01/20/tip-eclipse-bundleshape/
+     * https://eclipsesource.com/blogs/2009/01/20/tip-eclipse-bundleshape/
      */
     public boolean isDirectoryShape() {
         return isDirectoryShape;
