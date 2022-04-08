@@ -3,9 +3,33 @@
 
 <product name="product" uid="productDotQualifier" id="productDotQualifier.plugin.product" application="productDotQualifier.plugin.application" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false">
 
+   <configIni>
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+
    <plugins>
-      <plugin id="org.eclipse.osgi" version="3.4.3"/>
+      <plugin id="org.eclipse.osgi" version="3.4.3.R34x_v20081215-1030"/>
    </plugins>
 
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

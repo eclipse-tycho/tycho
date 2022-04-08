@@ -96,9 +96,9 @@ This could be usefull if you like to execute the build with multiple threads (e.
 
 ### Migration guide 2.x -> 3.x
 
-#### Removal of eclipse-update-site packaging type
+#### Removal of deprecated eclipse-update-site and eclipse-application packaging types
 
-This packaging type has been deprecate for long time as there is full featured eclipse-repository replacement.
+This packaging types have been deprecate for long time as there is full featured replacement eclipse-repository.
 
 #### Removal of tycho-pomgenerator:generate-poms
 

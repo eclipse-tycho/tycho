@@ -24,14 +24,15 @@ public class MultiplatformReactorTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMultiplatformReactorBuild() throws Exception {
 		Verifier verifier = getVerifier("multiPlatform.reactor", false);
-		verifier.getSystemProperties().setProperty("testRepository", P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliOption("-Dtarget-platform=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 
 		// assert product got proper platform fragments
 		File productTarget = new File(verifier.getBasedir(), "product/target");
-		assertFileExists(productTarget, "linux.gtk.x86_64/eclipse/plugins/mpr.fragment.linux_0.0.1.*.jar");
-		assertFileExists(productTarget, "win32.win32.x86/eclipse/plugins/mpr.fragment.windows_0.0.1.*.jar");
+		assertFileExists(productTarget, "products/mpr.product/linux/gtk/x86_64/plugins/mpr.fragment.linux_0.0.1.*.jar");
+		assertFileExists(productTarget,
+				"products/mpr.product/win32/win32/x86_64/plugins/mpr.fragment.windows_0.0.1.*.jar");
 
 		// assert site got all platform fragments
 		File siteproductTarget = new File(verifier.getBasedir(), "site/target");

@@ -219,7 +219,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private ArtifactDependencyWalker getDependencyWalker(TargetEnvironment environment) {
-        return getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_APPLICATION)
+		return getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_REPOSITORY)
                 .getDependencyWalker(DefaultReactorProject.adapt(project), environment);
     }
 

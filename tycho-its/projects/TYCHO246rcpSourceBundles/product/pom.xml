@@ -7,7 +7,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>product</artifactId>
-  <packaging>eclipse-application</packaging>
+  <packaging>eclipse-repository</packaging>
 
   <build>
     <plugins>
@@ -16,6 +16,7 @@
         <artifactId>tycho-packaging-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
+          <includeSources>false</includeSources>
         </configuration>
       </plugin>
     </plugins>

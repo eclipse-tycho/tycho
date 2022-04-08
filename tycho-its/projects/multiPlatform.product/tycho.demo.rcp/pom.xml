@@ -1,13 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>tycho.demo</groupId>
-    <artifactId>tychodemo</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  <groupId>tycho.demo</groupId>
-  <artifactId>tycho.demo.rcp</artifactId>
-  <version>1.0.0</version>
-  <packaging>eclipse-application</packaging>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>tycho.demo</groupId>
+		<artifactId>tychodemo</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<groupId>tycho.demo</groupId>
+	<artifactId>tycho.demo.rcp</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-repository</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>archive-products</id>
+						<goals>
+							<goal>archive-products</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+
 </project>

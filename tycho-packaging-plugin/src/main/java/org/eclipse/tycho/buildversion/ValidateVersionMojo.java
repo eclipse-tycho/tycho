@@ -69,8 +69,6 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
             return "META-INF/MANIFEST.MF";
         } else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             return "feature.xml";
-        } else if (PackagingType.TYPE_ECLIPSE_APPLICATION.equals(packaging)) {
-            return project.getArtifactId() + ".product";
         } else if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
             return project.getArtifactId();
         } else if (PackagingType.TYPE_P2_IU.equals(packaging)) {

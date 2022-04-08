@@ -4,5 +4,5 @@ Bundle-Name: bundle.osx
 Bundle-SymbolicName: mpr.bundle.osx
 Bundle-Version: 0.0.1.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Eclipse-PlatformFilter: (& (osgi.os=macosx) (osgi.ws=carbon)
- (osgi.arch=x86))
+Eclipse-PlatformFilter: (& (osgi.os=macosx) (osgi.ws=cocoa)
+ (osgi.arch=x86_64))

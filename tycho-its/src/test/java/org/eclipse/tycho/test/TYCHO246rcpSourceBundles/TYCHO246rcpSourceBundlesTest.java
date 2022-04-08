@@ -19,19 +19,15 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
 public class TYCHO246rcpSourceBundlesTest extends AbstractTychoIntegrationTest {
-    @Test
-    public void testMultiplatformReactorBuild() throws Exception {
-        Verifier verifier = getVerifier("/TYCHO246rcpSourceBundles");
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
+	@Test
+	public void testMultiplatformReactorBuild() throws Exception {
+		Verifier verifier = getVerifier("/TYCHO246rcpSourceBundles");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
 
-        File productTarget = new File(verifier.getBasedir(), "product/target");
-        assertFileExists(productTarget, "product/eclipse/plugins/org.eclipse.osgi_*.jar");
-        assertFileDoesNotExist(productTarget, "product/eclipse/plugins/org.eclipse.osgi.source_*.jar");
-
-        File productWithSourcesTarget = new File(verifier.getBasedir(), "productWithSources/target");
-        assertFileExists(productWithSourcesTarget, "product/eclipse/plugins/org.eclipse.osgi_*.jar");
-        assertFileExists(productWithSourcesTarget, "product/eclipse/plugins/org.eclipse.osgi.source_*.jar");
-    }
+		File productTarget = new File(verifier.getBasedir(), "product/target");
+		assertFileExists(productTarget, "repository/plugins/org.eclipse.osgi_*.jar");
+		assertFileExists(productTarget, "repository/plugins/org.eclipse.osgi.source_*.jar");
+	}
 
 }

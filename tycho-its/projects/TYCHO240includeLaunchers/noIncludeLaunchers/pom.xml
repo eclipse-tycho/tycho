@@ -5,7 +5,7 @@
   <groupId>TYCHO240includeLaunchers</groupId>
   <artifactId>noIncludeLaunchers</artifactId>
   <version>1.0.0</version>
-  <packaging>eclipse-application</packaging>
+  <packaging>eclipse-repository</packaging>
 
   <build>
     <plugins>

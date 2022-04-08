@@ -20,21 +20,18 @@ import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class ProductP2TargetPlatformResolverTest extends AbstractTychoIntegrationTest {
-    @Test
-    public void testBasic() throws Exception {
-        Verifier verifier = getVerifier("/TYCHO0294ProductP2TargetPlatformResolver");
-        verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_LATEST.toString());
-        verifier.executeGoal("install");
-        verifier.verifyErrorFreeLog();
+	@Test
+	public void testBasic() throws Exception {
+		Verifier verifier = getVerifier("/TYCHO0294ProductP2TargetPlatformResolver");
+		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 
-        File target = new File(verifier.getBasedir(), "product.bundle-based/target");
+		File target = new File(verifier.getBasedir(), "product.bundle-based/target/repository/binary");
 
-        assertDirectoryExists(target,
-                "linux.gtk.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_*");
-        assertDirectoryExists(target,
-                "macosx.cocoa.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64_*");
-        assertDirectoryExists(target,
-                "win32.win32.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.win32.win32.x86_64_*");
-    }
+		assertFileExists(target, "product.bundle-based.executable.gtk.linux.x86_64_*");
+		assertFileExists(target, "product.bundle-based.executable.cocoa.macosx.x86_64_*");
+		assertFileExists(target, "product.bundle-based.executable.win32.win32.x86_64_*");
+	}
 
 }
