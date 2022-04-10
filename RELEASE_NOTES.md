@@ -125,7 +125,22 @@ The following are removed:
 - ...
 
 
-### New Feature ...
+## 2.7.1
+
+Fixes:
+- Access to the tycho .cache directory is not properly synchronized #663 
+- compare-versions-with-baseline failing (since 2.7) when executionEnvironment=none #707 
+- JGit packaging build fails with Tycho 2.7.0 #723 
+- Backport of #767
+- Maven artifacts deployed with Tycho 2.7 are resolved without transitive dependencies by Maven #781
+- Slicer warnings are to verboose #728 
+- Performance regression in classpath resolution #719
+- If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match #822 
+- Check Hashsums for local cached artifacts #692 
+- JAVA_HOME check is not OS independent #849 
+- Bug 571533 - tycho-compiler-plugin with useJDK=BREE and BREE==JavaSE-1.8 fails to find some EE packages #51 
+- Failed to resolve dependencies with Tycho 2.7.0 for custom repositories #697 
+- Feature restrictions are not taken into account when using emptyVersion #845 
 
 ## 2.7.0
 
