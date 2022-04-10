@@ -17,7 +17,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>2.7.1-SNAPSHOT</version>
+		<version>2.7.1</version>
 	</parent>
 	<artifactId>tycho-metadata-model</artifactId>
 
