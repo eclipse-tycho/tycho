@@ -122,4 +122,10 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 	}
 
+	@Test
+	public void testMavenLocationEclipseFeature() throws Exception {
+		Verifier verifier = getVerifier("target.maven.eclipse-feature", false, true);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
 }

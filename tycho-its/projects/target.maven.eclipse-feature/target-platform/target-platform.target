@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="tp">
+	<locations>
+		<location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>org.eclipse.jgit.feature</groupId>
+					<artifactId>org.eclipse.jgit</artifactId>
+					<version>6.1.0.202203080745-r</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+			<repositories>
+				<repository>
+					<id>jgit</id>
+					<url>https://repo.eclipse.org/content/groups/jgit/</url>
+				</repository>
+			</repositories>
+		</location>
+	</locations>
+</target>
