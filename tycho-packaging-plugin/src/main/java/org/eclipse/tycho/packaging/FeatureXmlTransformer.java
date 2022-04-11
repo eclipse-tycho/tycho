@@ -76,8 +76,8 @@ public class FeatureXmlTransformer {
 			String version = pluginRef.getVersion();
 			if ("0.0.0".equals(version)) {
 				ImportRef importRef = pluginImports.get(pluginRef.getId());
-				if (importRef != null) {
-					version = importRef.getVersion() + "|" + importRef.getMatch();
+				if (isVersionedRef(importRef)) {
+					version = String.format("%s|%s", importRef.getVersion(), importRef.getMatch());
 				}
 			}
 			ArtifactKey plugin = resolvePluginReference(targetPlatform, pluginRef, version);
@@ -94,8 +94,8 @@ public class FeatureXmlTransformer {
 			String version = featureRef.getVersion();
 			if ("0.0.0".equals(version)) {
 				ImportRef importRef = featureImports.get(featureRef.getId());
-				if (importRef != null) {
-					version = importRef.getVersion() + "|" + importRef.getMatch();
+				if (isVersionedRef(importRef)) {
+					version = String.format("%s|%s", importRef.getVersion(), importRef.getMatch());
 				}
 			}
 			ArtifactKey includedFeature = resolveFeatureReference(targetPlatform, featureRef, version);
@@ -103,6 +103,21 @@ public class FeatureXmlTransformer {
 		}
 
 		return feature;
+	}
+
+	private boolean isVersionedRef(ImportRef importRef) {
+		if (importRef == null) {
+			return false;
+		}
+		String version = importRef.getVersion();
+		if (version == null || version.isEmpty()) {
+			return false;
+		}
+		String match = importRef.getMatch();
+		if (match == null || match.isEmpty()) {
+			return false;
+		}
+		return true;
 	}
 
 	private ArtifactKey resolvePluginReference(TargetPlatform targetPlatform, PluginRef pluginRef, String version)
