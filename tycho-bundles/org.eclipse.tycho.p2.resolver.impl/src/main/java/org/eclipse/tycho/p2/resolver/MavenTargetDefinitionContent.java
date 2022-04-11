@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -162,6 +163,14 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         continue;
                     }
                     logger.debug("Resolved " + mavenArtifact + "...");
+
+                    Feature feature = new FeatureParser().parse(mavenArtifact.getLocation());
+                    if (feature != null) {
+                        feature.setLocation(mavenArtifact.getLocation().getAbsolutePath());
+                        features.add(feature);
+                        continue;
+                    }
+
                     String symbolicName;
                     String bundleVersion;
                     try {
