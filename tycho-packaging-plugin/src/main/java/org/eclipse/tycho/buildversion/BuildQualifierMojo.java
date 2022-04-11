@@ -16,7 +16,6 @@ import static org.eclipse.tycho.TychoProperties.BUILD_QUALIFIER;
 import static org.eclipse.tycho.TychoProperties.QUALIFIED_VERSION;
 import static org.eclipse.tycho.TychoProperties.UNQUALIFIED_VERSION;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -96,14 +95,6 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
      */
     @Parameter(defaultValue = "yyyyMMddHHmm")
     protected SimpleDateFormat format;
-
-    /**
-     * @deprecated This parameter is deprecated and may be removed in future versions of Tycho.
-     */
-    @Deprecated
-    // TODO this should not be configurable
-    @Parameter(property = "project.basedir")
-    protected File baseDir;
 
     @Parameter(property = "forceContextQualifier")
     protected String forceContextQualifier;

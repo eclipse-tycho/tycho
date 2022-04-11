@@ -22,8 +22,6 @@
         <version>${tycho-version}</version>
         <configuration>
           <format>yyyyMMddHHmm</format>
-          
-          <baseDir>target/projects/buildqualifier/p002/</baseDir>
         </configuration>
       </plugin>
     </plugins>
