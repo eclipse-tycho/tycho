@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP AG and others.
+ * Copyright (c) 2011, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,15 +23,6 @@ public class BuildOutputDirectory implements BuildDirectory {
     private final File location;
     private final File outputDirectory;
     private final File testOutputDirectory;
-
-    /**
-     * @deprecated will be removed in next release!
-     * @param location
-     */
-    @Deprecated
-    public BuildOutputDirectory(String location) {
-        this(new File(location));
-    }
 
     public BuildOutputDirectory(File location) {
         this(location, null, null);
