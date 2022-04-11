@@ -18,7 +18,6 @@
         <configuration>
           <packaging>eclipse-plugin</packaging>
           <format>yyyyMMddHHmm</format>
-          <baseDir>target/projects/buildqualifier/noqualifier/</baseDir>
         </configuration>
       </plugin>
     </plugins>

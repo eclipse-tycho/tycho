@@ -122,7 +122,9 @@ The following are removed:
 	- MirrorMojo's includePacked
 	- PublishFeaturesAndBundlesMojo reusePack200Files
 	
-- ...
+#### BuildQualifierMojo project.basedir option removed
+
+It was totally ignored in all latest versions.
 
 
 ## 2.7.1
