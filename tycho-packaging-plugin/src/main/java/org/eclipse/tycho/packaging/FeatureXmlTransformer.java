@@ -77,8 +77,8 @@ public class FeatureXmlTransformer {
 			String version = pluginRef.getVersion();
 			if (Version.emptyVersion.toString().equals(version)) {
 				ImportRef importRef = pluginImports.get(pluginRef.getId());
-				if (importRef != null) {
-					version = importRef.getVersion() + "|" + importRef.getMatch();
+				if (isVersionedRef(importRef)) {
+					version = String.format("%s|%s", importRef.getVersion(), importRef.getMatch());
 				}
 			}
 			ArtifactKey plugin = resolvePluginReference(targetPlatform, pluginRef, version);
@@ -95,8 +95,8 @@ public class FeatureXmlTransformer {
 			String version = featureRef.getVersion();
 			if (Version.emptyVersion.toString().equals(version)) {
 				ImportRef importRef = featureImports.get(featureRef.getId());
-				if (importRef != null) {
-					version = importRef.getVersion() + "|" + importRef.getMatch();
+				if (isVersionedRef(importRef)) {
+					version = String.format("%s|%s", importRef.getVersion(), importRef.getMatch());
 				}
 			}
 			ArtifactKey includedFeature = resolveFeatureReference(targetPlatform, featureRef, version);
@@ -105,38 +105,21 @@ public class FeatureXmlTransformer {
 
 		return feature;
 	}
-//from features action....	
-//	protected VersionRange getVersionRange(FeatureEntry entry) {
-//		String versionSpec = entry.getVersion();
-//		if (versionSpec == null)
-//			return VersionRange.emptyRange;
-//		String match = entry.getMatch();
-//		if ("versionRange".equals(match)) //$NON-NLS-1$
-//			return VersionRange.create(versionSpec);
-//		Version version = Version.parseVersion(versionSpec);
-//		if (version.equals(Version.emptyVersion))
-//			return VersionRange.emptyRange;
-//		if (!entry.isRequires())
-//			return new VersionRange(version, true, version, true);
-//		if (match == null)
-//			// TODO should really be returning VersionRange.emptyRange here...
-//			return null;
-//		if (match.equals("perfect")) //$NON-NLS-1$
-//			return new VersionRange(version, true, version, true);
-//
-//		org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(version);
-//		if (match.equals("equivalent")) { //$NON-NLS-1$
-//			Version upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor() + 1, 0);
-//			return new VersionRange(version, true, upper, false);
-//		}
-//		if (match.equals("compatible")) { //$NON-NLS-1$
-//			Version upper = Version.createOSGi(osgiVersion.getMajor() + 1, 0, 0);
-//			return new VersionRange(version, true, upper, false);
-//		}
-//		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
-//			return new VersionRange(version, true, Version.MAX_VERSION, true);
-//		return null;
-//	}
+
+	private boolean isVersionedRef(ImportRef importRef) {
+		if (importRef == null) {
+			return false;
+		}
+		String version = importRef.getVersion();
+		if (version == null || version.isEmpty()) {
+			return false;
+		}
+		String match = importRef.getMatch();
+		if (match == null || match.isEmpty()) {
+			return false;
+		}
+		return true;
+	}
 
 	private ArtifactKey resolvePluginReference(TargetPlatform targetPlatform, PluginRef pluginRef, String version)
 			throws MojoFailureException {
