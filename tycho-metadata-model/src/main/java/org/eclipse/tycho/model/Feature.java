@@ -157,6 +157,43 @@ public class Feature {
                 return patch;
             }
         }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("ImportRef [");
+            String plugin = getPlugin();
+            if (plugin != null) {
+                builder.append("plugin=");
+                builder.append(plugin);
+                builder.append(", ");
+            }
+            String feature = getFeature();
+            if (feature != null) {
+                builder.append("Feature=");
+                builder.append(feature);
+                builder.append(", ");
+            }
+            String version = getVersion();
+            if (version != null) {
+                builder.append("version=");
+                builder.append(version);
+                builder.append(", ");
+            }
+            String match = getMatch();
+            if (match != null) {
+                builder.append("match=");
+                builder.append(match);
+                builder.append(", ");
+            }
+            String patch = getPatch();
+            if (patch != null) {
+                builder.append("patch=");
+                builder.append(patch);
+            }
+            builder.append("]");
+            return builder.toString();
+        }
     }
 
     public String getVersion() {
