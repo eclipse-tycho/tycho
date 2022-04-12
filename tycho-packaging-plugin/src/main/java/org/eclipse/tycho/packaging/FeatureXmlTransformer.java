@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -68,10 +69,11 @@ public class FeatureXmlTransformer {
 
 		Map<String, ImportRef> featureImports = feature.getRequires().stream().flatMap(req -> req.getImports().stream())
 				.filter(imp -> Objects.nonNull(imp.getFeature()) && !imp.getFeature().isBlank())
-				.collect(Collectors.toMap(ImportRef::getFeature, Function.identity()));
+				.collect(Collectors.toMap(ImportRef::getFeature, Function.identity(),
+						checkDuplicates(ImportRef::getFeature, "feature")));
 		Map<String, ImportRef> pluginImports = feature.getRequires().stream().flatMap(req -> req.getImports().stream())
-				.filter(imp -> Objects.nonNull(imp.getPlugin()) && !imp.getPlugin().isBlank())
-				.collect(Collectors.toMap(ImportRef::getPlugin, Function.identity()));
+				.filter(imp -> Objects.nonNull(imp.getPlugin()) && !imp.getPlugin().isBlank()).collect(Collectors.toMap(
+						ImportRef::getPlugin, Function.identity(), checkDuplicates(ImportRef::getPlugin, "plugin")));
 
 		for (PluginRef pluginRef : feature.getPlugins()) {
 			String version = pluginRef.getVersion();
@@ -104,6 +106,13 @@ public class FeatureXmlTransformer {
 		}
 
 		return feature;
+	}
+
+	private static BinaryOperator<ImportRef> checkDuplicates(Function<ImportRef, String> id, String name) {
+		return (a, b) -> {
+			throw new RuntimeException("duplicate reference to " + name + " " + id.apply(a) + " encountered: "
+					+ System.lineSeparator() + a + System.lineSeparator() + b);
+		};
 	}
 
 	private boolean isVersionedRef(ImportRef importRef) {
