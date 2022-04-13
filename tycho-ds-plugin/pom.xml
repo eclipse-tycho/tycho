@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>tycho-ds-plugin</artifactId>
+  <packaging>maven-plugin</packaging>
+
+	<name>Tycho OSGi Declarative Services Plugin</name>
+	<description>A plugin for handling OSGi Declarative Services</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-compat</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-annotations</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>biz.aQute.bnd</groupId>
+		    <artifactId>biz.aQute.bndlib</artifactId>
+		    <version>6.2.0</version>
+		</dependency>
+	</dependencies>
+</project>

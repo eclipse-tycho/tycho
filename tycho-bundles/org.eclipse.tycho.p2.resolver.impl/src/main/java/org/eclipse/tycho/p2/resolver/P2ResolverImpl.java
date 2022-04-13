@@ -45,6 +45,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -148,11 +149,9 @@ public class P2ResolverImpl implements P2Resolver {
         for (ArtifactKey artifactKey : artifacts) {
             QueryableCollection queriable = new QueryableCollection(targetPlatform.getInstallableUnits());
             VersionRange range = new VersionRange(artifactKey.getVersion());
-            IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
-                    artifactKey.getId(), range, null, 1 /* min */, Integer.MAX_VALUE /* max */,
-                    false /* greedy */);
-            IQueryResult<IInstallableUnit> result = queriable
-                    .query(QueryUtil.createLatestQuery(QueryUtil.createMatchQuery(requirement.getMatches())), monitor);
+            IQuery<IInstallableUnit> query = ArtifactTypeHelper.createQueryFor(artifactKey.getType(),
+                    artifactKey.getId(), range);
+            IQueryResult<IInstallableUnit> result = queriable.query(QueryUtil.createLatestQuery(query), monitor);
             roots.addAll(result.toUnmodifiableSet());
         }
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
