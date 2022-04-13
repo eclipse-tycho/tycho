@@ -9,6 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich -  [Bug 461284] - Improve discovery and attach of .target files in eclipse-target-definition
  *                          [Bug 567098] - pomDependencies=consider should wrap non-osgi jars
+ *                          [Issue #885] - 'includePackedArtifacts' must be automatically disabled when running with an incompatible vm
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
@@ -167,7 +168,12 @@ public class DefaultTargetPlatformConfigurationReader {
         if (value == null) {
             return;
         }
-        result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
+        boolean include = Boolean.parseBoolean(value);
+        if (include && Runtime.version().feature() >= 14) {
+            logger.warn("Pack200 is not supported when running on Java 14 and higher");
+            return;
+        }
+        result.setIncludePackedArtifacts(include);
     }
 
     private void setTargetDefinitionIncludeSources(TargetPlatformConfiguration result, Xpp3Dom configuration)
