@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
@@ -101,7 +102,10 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         } else {
             resolvedUnit = resolveUnit(type, id, ArtifactMatcher.parseAsOSGiVersion(version));
         }
-        return new DefaultArtifactKey(type, id, resolvedUnit.getVersion().toString());
+        if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(type)) {
+            return new DefaultArtifactKey(type, id, resolvedUnit.getVersion().toString());
+        }
+        return new DefaultArtifactKey(type, resolvedUnit.getId(), resolvedUnit.getVersion().toString());
     }
 
     @Override

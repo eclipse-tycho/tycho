@@ -47,16 +47,21 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.artifacts.configuration.DeclarativeServiceConfigurationReader;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
@@ -117,6 +122,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private EquinoxServiceFactory equinox;
+
+    @Requirement
+    private DeclarativeServiceConfigurationReader dsConfigReader;
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment) {
@@ -507,6 +515,27 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 classpath
                         .add(new DefaultClasspathEntry(project, projectKey, Collections.singletonList(location), null));
             }
+        }
+        try {
+            DeclarativeServicesConfiguration configuration = dsConfigReader.getConfiguration(getMavenProject(project));
+            if (configuration != null && configuration.isAddToClasspath()) {
+                TargetPlatform tp = TychoProjectUtils.getTargetPlatform(project);
+                org.osgi.framework.Version specificationVersion = configuration.getSpecificationVersion();
+                ArtifactKey dsJar = tp.resolveArtifact("java.package",
+                        "org.osgi.service.component.annotations",
+                        "[" + specificationVersion + "," + (specificationVersion.getMajor() + 1) + ".0.0)");
+                File location = tp.getArtifactLocation(
+                        new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, dsJar.getId(), dsJar.getVersion()));
+                logger.debug("Resolved declarative service specification " + specificationVersion + " to "
+                        + dsJar.getId() + " " + dsJar.getVersion() + " " + location);
+                DefaultAccessRule rule = new DefaultAccessRule("org/osgi/service/component/annotations/*", false);
+                classpath.add(new DefaultClasspathEntry(project, getArtifactKey(project),
+                        Collections.singletonList(location), List.of(rule)));
+            }
+        } catch (IOException e) {
+            logger.warn("Can't read Declarative Services Configuration: " + e.getMessage(), e);
+        } catch (IllegalArtifactReferenceException | DependencyResolutionException e) {
+            logger.warn("Can't find declarative service specification in target platform: " + e.getMessage(), e);
         }
     }
 

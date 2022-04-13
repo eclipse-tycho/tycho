@@ -6,6 +6,8 @@ This page describes the noteworthy improvements provided by each release of Ecli
 Fixes:
 - [2.7.1][regression] Neither raw version nor format was specified #876 
 - [2.7.1] 'includePackedArtifacts' must be automatically disabled when running with an incompatible vm #885 
+- Resolve DS classpath entry and generate component xmls #406
+
 
 ## 2.7.1
 
