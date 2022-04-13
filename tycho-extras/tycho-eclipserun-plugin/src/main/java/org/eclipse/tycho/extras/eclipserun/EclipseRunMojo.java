@@ -36,6 +36,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
@@ -212,6 +213,38 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Parameter
 	private Map<String, String> environmentVariables;
 
+	/**
+	 * Bundle start level and auto start configuration used by the eclipse runtime.
+	 * Example:
+	 *
+	 * <pre>
+	 * &lt;bundleStartLevel&gt;
+	 *   &lt;bundle&gt;
+	 *     &lt;id&gt;foo.bar.myplugin&lt;/id&gt;
+	 *     &lt;level&gt;6&lt;/level&gt;
+	 *     &lt;autoStart&gt;true&lt;/autoStart&gt;
+	 *   &lt;/bundle&gt;
+	 * &lt;/bundleStartLevel&gt;
+	 * </pre>
+	 */
+	@Parameter
+	private BundleStartLevel[] bundleStartLevel;
+
+	/**
+	 * The default bundle start level and auto start configuration used by the
+	 * runtime for bundles where the start level/auto start is not configured in
+	 * {@link #bundleStartLevel}. Example:
+	 *
+	 * <pre>
+	 *   &lt;defaultStartLevel&gt;
+	 *     &lt;level&gt;6&lt;/level&gt;
+	 *     &lt;autoStart&gt;true&lt;/autoStart&gt;
+	 *   &lt;/defaultStartLevel&gt;
+	 * </pre>
+	 */
+	@Parameter
+	private BundleStartLevel defaultStartLevel;
+
 	@Component
 	private EquinoxInstallationFactory installationFactory;
 
@@ -325,6 +358,12 @@ public class EclipseRunMojo extends AbstractMojo {
 							new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getId(), entry.getVersion()),
 							entry.getLocation(true));
 				}
+			}
+		}
+		installationDesc.setDefaultBundleStartLevel(defaultStartLevel);
+		if (bundleStartLevel != null) {
+			for (BundleStartLevel level : bundleStartLevel) {
+				installationDesc.addBundleStartLevel(level);
 			}
 		}
 		return installationFactory.createInstallation(installationDesc, work);
