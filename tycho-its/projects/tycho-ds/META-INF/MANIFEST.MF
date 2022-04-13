@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tycho DS
+Bundle-SymbolicName: tycho.ds
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: tycho.ds
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Service-Component: OSGI-INF/tycho.ds.TestComponent.xml,
+ OSGI-INF/tycho.ds.TestComponent2.xml
+Bundle-ActivationPolicy: lazy
+Import-Package: org.osgi.framework

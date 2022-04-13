@@ -4,6 +4,30 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Support for PDE Declarative Component Annotation progressing
+
+One can enable either global or per project the generation of component xmls in PDE. Until now it was required for Tycho to still import the annotation package even though `classpath=true` was set, beside that one needs to check in the generated xmls.
+
+Tycho now has improved support for this with the following:
+
+1. if there is a `.settings/org.eclipse.pde.ds.annotations.prefs` in the project, tycho adapts the settings there and if `classpath=true` is set no more imports are required.
+2. one can enable a new `tycho-ds-plugin` where global default settings can be configured if project settings are not present, the below shows an example with default values:
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-ds-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<classpath>true</classpath>
+		<dsVersion>1.3</dsVersion>
+		<enabled>false</enabled>
+		<path>OSGI-INF</path>
+		<skip>false</skip>
+	</configuration>
+</plugin>
+```
+If the `tycho-ds-plugin` is enabled for a project it generated the necessary xml files if not already present in the project.
+
 ### Improved P2 transport for more efficiently http-cache handling and improved offline mode
 
 P2 default transport is more designed as a weak cache that assumes the user is always online.

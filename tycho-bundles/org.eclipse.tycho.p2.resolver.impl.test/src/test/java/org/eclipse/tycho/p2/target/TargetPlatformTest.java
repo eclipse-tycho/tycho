@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.junit.Before;
@@ -159,9 +160,9 @@ public class TargetPlatformTest {
 
     @Test
     public void testResolveUnknownType() throws Exception {
-        IllegalArtifactReferenceException e = assertThrows(IllegalArtifactReferenceException.class,
+        DependencyResolutionException e = assertThrows(DependencyResolutionException.class,
                 () -> subject.resolveArtifact("invalid-type", "unit", ANY_VERSION));
-        assertTrue(e.getMessage().contains("Unknown artifact type"));
+        assertTrue(e.getMessage().contains("invalid-type"));
     }
 
     private FinalTargetPlatformImpl createTP() {

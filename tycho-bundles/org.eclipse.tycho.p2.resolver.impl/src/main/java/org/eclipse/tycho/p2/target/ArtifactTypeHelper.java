@@ -42,11 +42,8 @@ public class ArtifactTypeHelper {
      * 
      * @param type
      *            Eclipse artifact type as defined in Tycho's {@link ArtifactType}
-     * @throws IllegalArtifactReferenceException
-     *             if the given artifact type is unknown
      */
-    public static IQuery<IInstallableUnit> createQueryFor(String type, String id, VersionRange versionRange)
-            throws IllegalArtifactReferenceException {
+    public static IQuery<IInstallableUnit> createQueryFor(String type, String id, VersionRange versionRange) {
 
         if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(type)) {
             return QueryUtil.createMatchQuery(createBundleRequirement(id, versionRange).getMatches());
@@ -63,7 +60,10 @@ public class ArtifactTypeHelper {
             return QueryUtil.createIUQuery(id, versionRange);
 
         } else {
-            throw new IllegalArtifactReferenceException("Unknown artifact type \"" + type + "\"");
+
+            IRequirement requirement = MetadataFactory.createRequirement(type, id, versionRange, null,
+                    1 /* min */, Integer.MAX_VALUE /* max */, false /* greedy */);
+            return QueryUtil.createMatchQuery(requirement.getMatches());
         }
     }
 
