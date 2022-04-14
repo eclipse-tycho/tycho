@@ -72,6 +72,7 @@ public class OsgiSurefireBooter {
     private static final String XSD = "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd";
 
     public static int run(String[] args, Properties testProps) throws Exception {
+        boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
         String testPlugin = testProps.getProperty("testpluginname");
@@ -108,18 +109,20 @@ public class OsgiSurefireBooter {
         // but without dirScannerParams we get an NPE accessing runOrder
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
                 Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
-                runOrder);
+                failIfNoTests, runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
                 TestListResolver.getEmptyTestListResolver(), rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
-                new RunOrderParameters(runOrder, null), reporterConfig, null, testRequest,
+                new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
                 skipAfterFailureCount, Shutdown.DEFAULT, 30);
+        SurefireConsoleOutputReporter consoleOutputReporter = new SurefireConsoleOutputReporter();
+        //consoleOutputReporter.setDisable(true); // storing console output causes OOM, see https://github.com/eclipse/tycho/issues/879 & https://issues.apache.org/jira/browse/SUREFIRE-1845
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
-                ConsoleReporter.PLAIN, redirectTestOutputToFile, reportsDir, trimStackTrace, null,
-                new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(),
-                false, new SurefireStatelessReporter(disableXmlReport, null), new SurefireConsoleOutputReporter(),
+                ConsoleReporter.PLAIN, false, reportsDir, trimStackTrace, null, new File(reportsDir, "TESTHASH"), false,
+                rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(), false,
+                new SurefireStatelessReporter(disableXmlReport, null), consoleOutputReporter,
                 new SurefireStatelessTestsetInfoReporter());
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
                 new PrintStreamLogger(System.out));
