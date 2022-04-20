@@ -154,6 +154,10 @@ It was totally ignored in all latest versions.
 
 It was hardcoded to "tooling" always and had no practical meaning to change.
 
+#### EclipseRunMojo argLine and appArgLine options removed
+
+Replaced by jvmArgs and applicationArgs respectively.
+
 
 ## 2.7.1
 

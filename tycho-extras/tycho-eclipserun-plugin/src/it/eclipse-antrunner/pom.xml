@@ -46,13 +46,14 @@
 				<configuration>
 					<repositories>
 						<repository>
-							<id>4.17</id>
+							<id>latest</id>
 							<layout>p2</layout>
-							<url>https://download.eclipse.org/eclipse/updates/4.17/</url>
+							<url>https://download.eclipse.org/eclipse/updates/latest/</url>
 						</repository>
 					</repositories>
-					<appArgLine>-application org.eclipse.ant.core.antRunner</appArgLine>
 					<applicationsArgs>
+					    <args>-application</args>
+					    <args>org.eclipse.ant.core.antRunner</args>
 						<args>-buildfile</args>
 						<args>build-test.xml</args>
 					</applicationsArgs>
