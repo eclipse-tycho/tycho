@@ -24,7 +24,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -61,17 +60,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     private static final Version LUNA_SR2_EXECUTABLE_FEATURE_VERSION = Version.parseVersion("3.6.102.v20150204-1316");
 
     /**
-     * <p>
-     * The name of the p2 installation flavor to create. De facto, this parameter is set to
-     * "tooling" in all uses of p2.
-     * </p>
-     * 
-     * @deprecated This parameter has no useful effect and may be removed in a future version of
-     *             Tycho.
+     * The name of the p2 installation flavor to create. "tooling" in all uses of p2.
      */
-    @Parameter(defaultValue = "tooling")
-    @Deprecated
-    private String flavor;
+    private static final String FLAVOR = "tooling";
 
     @Component(role = UnArchiver.class, hint = "zip")
     private UnArchiver deflater;
@@ -102,7 +93,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 }
 
                 seeds.addAll(publisher.publishProduct(productFile,
-                        productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, flavor));
+                        productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, FLAVOR));
             } catch (IOException e) {
                 throw new MojoExecutionException(
                         "I/O exception while writing product definition or copying launcher icons", e);

@@ -150,6 +150,10 @@ The following are removed:
 
 It was totally ignored in all latest versions.
 
+#### PublishProductMojo flavor option removed
+
+It was hardcoded to "tooling" always and had no practical meaning to change.
+
 
 ## 2.7.1
 
