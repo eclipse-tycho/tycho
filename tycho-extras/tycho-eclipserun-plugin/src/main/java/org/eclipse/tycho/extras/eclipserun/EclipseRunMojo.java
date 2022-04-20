@@ -147,15 +147,6 @@ public class EclipseRunMojo extends AbstractMojo {
 	private MavenSession session;
 
 	/**
-	 * Arbitrary JVM options to set on the command line.
-	 * 
-	 * @deprecated use {@link #jvmArgs} instead.
-	 */
-	@Deprecated
-	@Parameter
-	private String argLine;
-
-	/**
 	 * List of JVM arguments set on the command line. Example:
 	 * 
 	 * <pre>
@@ -175,15 +166,6 @@ public class EclipseRunMojo extends AbstractMojo {
 	 */
 	@Parameter(property = "eclipserun.skip", defaultValue = "false")
 	private boolean skip;
-
-	/**
-	 * Arbitrary applications arguments to set on the command line.
-	 * 
-	 * @deprecated use {@link #applicationsArgs} instead.
-	 */
-	@Deprecated
-	@Parameter
-	private String appArgLine;
 
 	/**
 	 * List of applications arguments set on the command line. Example:
@@ -410,7 +392,6 @@ public class EclipseRunMojo extends AbstractMojo {
 		cli.setJvmExecutable(executable);
 		cli.setWorkingDirectory(project.getBasedir());
 
-		cli.addVMArguments(splitArgLine(argLine));
 		if (jvmArgs != null) {
 			cli.addVMArguments(jvmArgs.toArray(new String[jvmArgs.size()]));
 		}
@@ -421,7 +402,6 @@ public class EclipseRunMojo extends AbstractMojo {
 		File workspace = new File(work, "data");
 		addProgramArgs(cli, "-data", workspace.getAbsolutePath());
 
-		cli.addProgramArguments(splitArgLine(appArgLine));
 		if (applicationsArgs != null) {
 			for (String args : applicationsArgs) {
 				cli.addProgramArguments(splitArgLine(args));

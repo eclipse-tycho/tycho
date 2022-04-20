@@ -75,12 +75,10 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 		List<String> args = Arrays.asList("-Xdebug", "-DanotherOptionWithValue=theValue",
 				"-DoptionWith=\"A space in the value\"");
 		setVariableValueToObject(runMojo, "jvmArgs", args);
-		setVariableValueToObject(runMojo, "argLine", "-DoldArgLineOption");
 		LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
 		List<String> vmArgs = Arrays.asList(commandLine.getVMArguments());
 		assertTrue(vmArgs.contains("-Xdebug"));
 		assertTrue(vmArgs.contains("-DanotherOptionWithValue=theValue"));
-		assertTrue(vmArgs.contains("-DoldArgLineOption"));
 		assertTrue(vmArgs.contains("-DoptionWith=\"A space in the value\""));
 	}
 
