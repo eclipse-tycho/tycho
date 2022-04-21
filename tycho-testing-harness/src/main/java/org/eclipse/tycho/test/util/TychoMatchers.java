@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
-import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 import org.hamcrest.CoreMatchers;
@@ -65,59 +63,4 @@ public class TychoMatchers {
         };
     }
 
-    /**
-     * Creates a matcher matching any collection with the given size.
-     * 
-     * @see CoreMatchers#hasItem(Matcher)
-     */
-    public static <T> Matcher<Collection<? extends T>> hasSize(final int size) {
-        return new TypeSafeMatcher<Collection<? extends T>>() {
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("a collection with size " + size);
-            }
-
-            @Override
-            protected boolean matchesSafely(Collection<? extends T> item) {
-                return item.size() == size;
-            }
-        };
-    }
-
-    /**
-     * Returns a matcher matching any existing file or directory.
-     */
-    public static Matcher<File> exists() {
-        return new TypeSafeMatcher<File>() {
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("an existing file or directory");
-            }
-
-            @Override
-            public boolean matchesSafely(File item) {
-                return item.exists();
-            }
-        };
-    }
-
-    /**
-     * Returns a matcher matching any existing, regular file.
-     */
-    public static Matcher<File> isFile() {
-        return new TypeSafeMatcher<File>() {
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("an existing file");
-            }
-
-            @Override
-            public boolean matchesSafely(File item) {
-                return item.isFile();
-            }
-        };
-    }
 }

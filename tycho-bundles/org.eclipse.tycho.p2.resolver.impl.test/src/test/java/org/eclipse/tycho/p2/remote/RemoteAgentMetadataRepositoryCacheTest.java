@@ -12,14 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collections;
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -66,7 +64,7 @@ public class RemoteAgentMetadataRepositoryCacheTest {
     public void testOnlineLoading() throws Exception {
         RemoteAgent onlineAgent = newOnlineAgent();
         IMetadataRepository repo = loadHttpRepository(onlineAgent);
-        assertThat(repo, is(notNullValue()));
+        assertNotNull(repo);
     }
 
     @Test
@@ -74,14 +72,14 @@ public class RemoteAgentMetadataRepositoryCacheTest {
         RemoteAgent onlineAgent = newOnlineAgent();
         loadHttpRepository(onlineAgent);
 
-        assertThat(localServer.getAccessedUrls(HTTP_REPO_PATH), not(is(Collections.<String> emptyList()))); // self-test
+        assertFalse(localServer.getAccessedUrls(HTTP_REPO_PATH).isEmpty()); // self-test
         localServer.clearAccessedUrls(HTTP_REPO_PATH);
 
         RemoteAgent offlineAgent = newOfflineAgent();
         IMetadataRepository repo = loadHttpRepository(offlineAgent);
-        assertThat(repo, is(notNullValue()));
+        assertNotNull(repo);
 
-        assertThat(localServer.getAccessedUrls(HTTP_REPO_PATH), is(Collections.<String> emptyList()));
+        assertTrue(localServer.getAccessedUrls(HTTP_REPO_PATH).isEmpty());
     }
 
     @Test(expected = ProvisionException.class)
@@ -100,7 +98,7 @@ public class RemoteAgentMetadataRepositoryCacheTest {
 
         RemoteAgent onlineAgent2 = newOnlineAgent();
         IMetadataRepository repo = loadHttpRepository(onlineAgent2);
-        assertThat(repo, is(notNullValue()));
+        assertNotNull(repo);
     }
 
     @Test(expected = ProvisionException.class)
@@ -117,13 +115,13 @@ public class RemoteAgentMetadataRepositoryCacheTest {
         RemoteAgent onlineAgent = newOnlineAgent();
         loadHttpRepository(onlineAgent);
 
-        assertThat(localServer.getAccessedUrls(HTTP_REPO_PATH), not(is(Collections.<String> emptyList()))); // self-test
+        assertFalse(localServer.getAccessedUrls(HTTP_REPO_PATH).isEmpty()); // self-test
         localServer.clearAccessedUrls(HTTP_REPO_PATH);
 
         IMetadataRepository repo = loadHttpRepository(onlineAgent);
-        assertThat(repo, is(notNullValue()));
+        assertNotNull(repo);
 
-        assertThat(localServer.getAccessedUrls(HTTP_REPO_PATH), is(Collections.<String> emptyList()));
+        assertTrue(localServer.getAccessedUrls(HTTP_REPO_PATH).isEmpty());
     }
 
     private RemoteAgent newOnlineAgent() throws Exception {

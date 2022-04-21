@@ -12,10 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.util.Map;
 
@@ -58,19 +56,19 @@ public class TargetEnvironmentTest {
 
     @Test
     public void testToFilterExpression() throws Exception {
-        assertThat(subject.toFilterExpression(), is("(& (osgi.os=macosx) (osgi.ws=cocoa) (osgi.arch=ppc) )"));
+        assertEquals("(& (osgi.os=macosx) (osgi.ws=cocoa) (osgi.arch=ppc) )", subject.toFilterExpression());
     }
 
     @Test
     public void testToFilterExpressionWithUnsetAttribute() throws Exception {
         subject = new TargetEnvironment(OS, null, ARCH);
-        assertThat(subject.toFilterExpression(), is("(& (osgi.os=macosx) (osgi.arch=ppc) )"));
+        assertEquals("(& (osgi.os=macosx) (osgi.arch=ppc) )", subject.toFilterExpression());
     }
 
     @Test
     public void testToFilterExpressionWithOnlyOneAttribute() throws Exception {
         subject = new TargetEnvironment(OS, null, null);
-        assertThat(subject.toFilterExpression(), is("(osgi.os=macosx)"));
+        assertEquals("(osgi.os=macosx)", subject.toFilterExpression());
     }
 
     @Test
@@ -88,9 +86,9 @@ public class TargetEnvironmentTest {
     }
 
     private static void asserNotEqual(TargetEnvironment left, TargetEnvironment right) {
-        assertThat(left, not(right));
+        assertNotEquals(left, right);
 
         // should also not lead to hash code collisions
-        assertThat(left.hashCode(), not(right.hashCode()));
+        assertNotEquals(left.hashCode(), right.hashCode());
     }
 }

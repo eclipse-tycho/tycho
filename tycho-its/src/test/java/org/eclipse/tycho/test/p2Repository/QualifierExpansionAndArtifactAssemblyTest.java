@@ -13,9 +13,9 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static org.eclipse.tycho.test.util.P2RepositoryTool.withIdAndVersion;
-import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -86,14 +86,8 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 		assertThat(inclusions, hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
 		assertThat(inclusions, hasItem(withIdAndVersion("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451"))); // a
 																														// bundle
-																														// from
-																														// the
-																														// external
-																														// target
-																														// platform
-
 		File featureJar = p2Repository.getFeatureArtifact("prr.example.feature", FEATURE_VERSION);
-		assertThat(featureJar, isFile());
+		assertTrue(featureJar.isFile());
 	}
 
 	@Test
@@ -111,7 +105,7 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 	@Test
 	public void testPublishedBundleIU() throws Exception {
 		assertThat(p2Repository.getAllUnits(), hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
-		assertThat(p2Repository.getBundleArtifact("prr.example.bundle", BUNDLE_VERSION), isFile());
+		assertTrue(p2Repository.getBundleArtifact("prr.example.bundle", BUNDLE_VERSION).isFile());
 	}
 
 	// TODO 373817 test that inclusions in products have the right expanded
@@ -120,17 +114,17 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 	@Test
 	public void testIncludedReactorArtifactsAreAssembled() throws Exception {
 		assertThat(p2Repository.getAllUnitIds(), hasItem("prr.example.included.feature" + ".feature.group"));
-		assertThat(p2Repository.getFeatureArtifact("prr.example.included.feature", DEFAULT_VERSION), isFile());
+		assertTrue(p2Repository.getFeatureArtifact("prr.example.included.feature", DEFAULT_VERSION).isFile());
 
 		assertThat(p2Repository.getAllUnitIds(), hasItem("prr.example.included.bundle"));
-		assertThat(p2Repository.getBundleArtifact("prr.example.included.bundle", DEFAULT_VERSION), isFile());
+		assertTrue(p2Repository.getBundleArtifact("prr.example.included.bundle", DEFAULT_VERSION).isFile());
 	}
 
 	@Test
 	public void testIncludedExternalArtifactIsAssembled() throws Exception {
 		assertThat(p2Repository.getAllUnitIds(), hasItem("org.eclipse.core.contenttype"));
-		assertThat(p2Repository.getBundleArtifact("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451"),
-				isFile());
+		assertTrue(
+				p2Repository.getBundleArtifact("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451").isFile());
 	}
 
 }

@@ -32,7 +32,7 @@ import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLParser;
 
-public class EclipseModelTest {
+class EclipseModelTest {
 
     File target = new File("target/modelio");
 
@@ -42,7 +42,7 @@ public class EclipseModelTest {
     }
 
     @Test
-    public void testUpdateSite() throws Exception {
+    void testUpdateSite() throws Exception {
         UpdateSite site = UpdateSite.read(new File("src/test/resources/modelio/site.xml"));
 
         List<UpdateSite.SiteFeatureRef> features = site.getFeatures();
@@ -68,7 +68,7 @@ public class EclipseModelTest {
     }
 
     @Test
-    public void testFeature() throws Exception {
+    void testFeature() throws Exception {
         Feature feature = Feature.read(new File("src/test/resources/modelio/feature.xml"));
 
         assertEquals("1.0.0", feature.getVersion());
@@ -120,7 +120,7 @@ public class EclipseModelTest {
     }
 
     @Test
-    public void testPlatform() throws Exception {
+    void testPlatform() throws Exception {
         Platform platform = Platform.read(new File("src/test/resources/modelio/platform.xml"));
 
         assertEquals(false, platform.isTransient());
@@ -171,7 +171,7 @@ public class EclipseModelTest {
     }
 
     @Test
-    public void testDefaultXmlEncoding() throws Exception {
+    void testDefaultXmlEncoding() throws Exception {
         // Run the test with -Dfile.encoding=Cp1252 to be sure
 
         Feature feature = Feature.read(new File("src/test/resources/modelio/feature-default-encoding.xml"));

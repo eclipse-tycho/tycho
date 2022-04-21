@@ -13,10 +13,6 @@
 package org.eclipse.tycho.buildnumber.test;
 
 import static org.eclipse.tycho.test.util.ArchiveContentUtil.getFilesInZip;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.List;
@@ -46,7 +42,7 @@ public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
                 new File(basedir, "src/main/resources").getAbsolutePath());
         mojo.execute();
 
-        assertThat(getFilesInZip(new File(basedir, "target/iuWithPayload-1.0.0.zip")), hasItem("file.txt"));
+		assertTrue(getFilesInZip(new File(basedir, "target/iuWithPayload-1.0.0.zip")).contains("file.txt"));
     }
 
     public void testArtifactWithoutPayload() throws Exception {
@@ -64,9 +60,9 @@ public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
 
         IU iu = IU.loadIU(new File(basedir, "target"));
         Element artifact = iu.getSelfArtifact();
-        assertThat(artifact, nullValue());
+		assertNull(artifact);
 
-        assertThat(new File(basedir, "target/iuWithoutPayload-1.0.0.zip").exists(), is(true));
+		assertTrue(new File(basedir, "target/iuWithoutPayload-1.0.0.zip").exists());
     }
 
     public void testInjectArtifactReference() throws Exception {
@@ -87,8 +83,8 @@ public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
         IU iu = IU.loadIU(new File(basedir, "target"));
         Element artifact = iu.getSelfArtifact();
         assertNotNull(artifact);
-        assertThat(artifact.getAttributeValue("classifier"), is("binary"));
-        assertThat(artifact.getAttributeValue("id"), is("iuWithPayloadButNoArtifactReference"));
-        assertThat(artifact.getAttributeValue("version"), is("1.0.0"));
+		assertEquals("binary", artifact.getAttributeValue("classifier"));
+		assertEquals("iuWithPayloadButNoArtifactReference", artifact.getAttributeValue("id"));
+		assertEquals("1.0.0", artifact.getAttributeValue("version"));
     }
 }

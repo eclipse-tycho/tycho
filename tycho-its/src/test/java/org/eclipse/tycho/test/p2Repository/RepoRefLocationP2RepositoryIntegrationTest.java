@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -80,16 +80,16 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 		File target = new File(verifier.getBasedir(), "target");
 		File repository = new File(target, "repository");
 		File contentXml = new File(repository, "content.xml");
-		assertThat(contentXml, isFile());
+		assertTrue(contentXml.isFile());
 		File artifactXml = new File(repository, "artifacts.xml");
-		assertThat(artifactXml, isFile());
-		assertThat(new File(target, "category.xml"), isFile());
+		assertTrue(artifactXml.isFile());
+		assertTrue(new File(target, "category.xml").isFile());
 
 		Document artifactsDocument = XMLParser.parse(contentXml);
 		// See MetadataRepositoryIO.Writer#writeRepositoryReferences
 		List<Element> repositories = artifactsDocument.getChild("repository").getChild("references")
 				.getChildren("repository");
-		assertThat(repositories, hasSize(4));
+		assertEquals(4, repositories.size());
 		List<RepositoryReferenceData> actual = repositories.stream()
 				.map(e -> new RepositoryReferenceData(e.getAttributeValue("uri"), e.getAttributeValue("type"),
 						e.getAttributeValue("options")))

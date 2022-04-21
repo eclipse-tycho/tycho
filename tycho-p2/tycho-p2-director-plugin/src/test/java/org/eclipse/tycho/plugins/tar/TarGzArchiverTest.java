@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.tar;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -86,8 +84,8 @@ public class TarGzArchiverTest {
         archiver.createArchive();
         Map<String, TarArchiveEntry> tarEntries = getTarEntries();
         assertEquals(7, tarEntries.size());
-        assertThat(tarEntries.keySet(), hasItems("dir2/", "dir2/test.txt", "dir2/dir3/", "dir2/dir3/test.sh",
-                "dir2/testPermissions", "dir2/testLastModified", "dir2/testOwnerAndGroupName"));
+        assertTrue(tarEntries.keySet().containsAll(Set.of("dir2/", "dir2/test.txt", "dir2/dir3/", "dir2/dir3/test.sh",
+                "dir2/testPermissions", "dir2/testLastModified", "dir2/testOwnerAndGroupName")));
         TarArchiveEntry dirArchiveEntry = tarEntries.get("dir2/");
         assertTrue(dirArchiveEntry.isDirectory());
         TarArchiveEntry textFileEntry = tarEntries.get("dir2/test.txt");

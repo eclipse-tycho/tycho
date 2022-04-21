@@ -12,8 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.testing;
 
-import static org.eclipse.tycho.test.util.TychoMatchers.exists;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +24,7 @@ public class TestUtil {
 
     public static File getTestResourceLocation(String name) throws IOException {
         File src = new File(PlexusTestCase.getBasedir(), "src/test/resources/" + name);
-        assertThat(src, exists());
+        assertTrue(src.exists());
         return src;
     }
 

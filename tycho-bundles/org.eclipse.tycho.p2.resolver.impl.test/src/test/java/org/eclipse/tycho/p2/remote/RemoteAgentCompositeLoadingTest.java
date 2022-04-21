@@ -12,10 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,8 +59,8 @@ public class RemoteAgentCompositeLoadingTest {
             expectedException = e;
         }
 
-        assertThat(expectedException, not(nullValue()));
-        assertThat(expectedException.getStatus().getCode(), is(ProvisionException.REPOSITORY_FAILED_READ));
+        assertNotNull(expectedException);
+        assertEquals(ProvisionException.REPOSITORY_FAILED_READ, expectedException.getStatus().getCode());
     }
 
 }

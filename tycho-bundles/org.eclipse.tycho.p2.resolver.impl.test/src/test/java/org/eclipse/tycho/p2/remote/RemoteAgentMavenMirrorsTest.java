@@ -12,9 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.net.URI;
@@ -72,8 +71,8 @@ public class RemoteAgentMavenMirrorsTest {
 
         Repositories repos = loadRepositories(repositoryId, url);
 
-        assertThat(repos.getMetadataRepository(), notNullValue());
-        assertThat(repos.getArtifactRepository(), notNullValue());
+        assertNotNull(repos.getMetadataRepository());
+        assertNotNull(repos.getArtifactRepository());
     }
 
     @Test
@@ -86,8 +85,8 @@ public class RemoteAgentMavenMirrorsTest {
 
         Repositories repos = loadRepositories(repositoryId, originalUrl);
 
-        assertThat(repos.getMetadataRepository(), notNullValue());
-        assertThat(repos.getArtifactRepository(), notNullValue());
+        assertNotNull(repos.getMetadataRepository());
+        assertNotNull(repos.getArtifactRepository());
     }
 
     @Test
@@ -101,8 +100,8 @@ public class RemoteAgentMavenMirrorsTest {
 
         Repositories repos = loadRepositories(null, originalUrl);
 
-        assertThat(repos.getMetadataRepository(), notNullValue());
-        assertThat(repos.getArtifactRepository(), notNullValue());
+        assertNotNull(repos.getMetadataRepository());
+        assertNotNull(repos.getArtifactRepository());
     }
 
     private void prepareMavenMirrorConfiguration(String id, URI mirrorUrl) {

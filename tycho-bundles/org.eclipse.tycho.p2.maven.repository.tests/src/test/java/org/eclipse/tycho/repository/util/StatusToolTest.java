@@ -14,9 +14,9 @@ package org.eclipse.tycho.repository.util;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNull;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -32,7 +32,7 @@ public class StatusToolTest {
 
         assertThat(StatusTool.toLogMessage(status), is("Simple error"));
         assertThat(StatusTool.collectProblems(status), is("Simple error"));
-        assertThat(StatusTool.findException(status), is(nullValue()));
+        assertNull(StatusTool.findException(status));
     }
 
     @Test

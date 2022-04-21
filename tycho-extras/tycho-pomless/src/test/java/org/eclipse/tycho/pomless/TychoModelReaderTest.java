@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import java.io.File;
@@ -153,7 +151,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
             getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml, createReaderOptions(featureXml));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing or empty 'id' attribute in element 'feature'"));
+            assertTrue(e.getMessage().contains("missing or empty 'id' attribute in element 'feature'"));
         }
     }
 
@@ -164,7 +162,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
             getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml, createReaderOptions(featureXml));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing or empty 'version' attribute in element 'feature'"));
+            assertTrue(e.getMessage().contains("missing or empty 'version' attribute in element 'feature'"));
         }
     }
 
@@ -177,7 +175,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
                     createReaderOptions(buildProperties));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("Bundle-SymbolicName missing in"));
+            assertTrue(e.getMessage().contains("Bundle-SymbolicName missing in"));
         }
     }
 
@@ -190,7 +188,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
                     createReaderOptions(buildProperties));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("Bundle-Version missing in"));
+            assertTrue(e.getMessage().contains("Bundle-Version missing in"));
         }
     }
 
@@ -201,7 +199,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
         FileNotFoundException e = assertThrows(FileNotFoundException.class,
                 () -> getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
                         createReaderOptions(buildProperties)));
-        assertThat(e.getMessage(), containsString("No parent pom file found in"));
+        assertTrue(e.getMessage().contains("No parent pom file found in"));
     }
 
     @Test
@@ -242,7 +240,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
             getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(product, createReaderOptions(product));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing or empty 'uid' attribute in element 'product'"));
+            assertTrue(e.getMessage().contains("missing or empty 'uid' attribute in element 'product'"));
         }
     }
 

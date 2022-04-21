@@ -12,9 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.net.URI;
@@ -48,7 +47,7 @@ public class RemoteAgentDisableP2MirrorsTest {
         IProvisioningAgent agent = createRemoteAgent(true);
         IArtifactRepository repo = loadRepository(agent, ResourceUtil.resourceFile("p2-mirrors-disable").toURI());
 
-        assertThat(repo.getProperty(IRepository.PROP_MIRRORS_URL), is(nullValue()));
+        assertNull(repo.getProperty(IRepository.PROP_MIRRORS_URL));
     }
 
     @Test
@@ -56,7 +55,7 @@ public class RemoteAgentDisableP2MirrorsTest {
         IProvisioningAgent agent = createRemoteAgent(false);
         IArtifactRepository repo = loadRepository(agent, ResourceUtil.resourceFile("p2-mirrors-disable").toURI());
 
-        assertThat(repo.getProperty(IRepository.PROP_MIRRORS_URL), is("file://dummy/"));
+        assertEquals("file://dummy/", repo.getProperty(IRepository.PROP_MIRRORS_URL));
     }
 
     private IProvisioningAgent createRemoteAgent(boolean disableMirrors) throws Exception {
