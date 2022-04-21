@@ -61,20 +61,10 @@ public class ExecutionEnvironmentUtils {
 
     private static Properties readProperties(final URL url) {
         Properties listProps = new Properties();
-        InputStream stream = null;
-        try {
-            stream = url.openStream();
+        try (InputStream stream = url.openStream()) {
             listProps.load(stream);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (stream != null) {
-                    stream.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
         return listProps;
     }
