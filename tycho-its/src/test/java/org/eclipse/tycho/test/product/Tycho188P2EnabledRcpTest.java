@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
@@ -124,7 +123,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
 		// test that root level feature is assembled into the p2 repository...
 		File rootFeatureInRepo = p2Repository.findFeatureArtifact("pi.root-level-installed-feature");
-		assertThat(rootFeatureInRepo, isFile());
+		assertTrue(rootFeatureInRepo.isFile());
 
 		// ... although there is no dependency from the product IU.
 		assertThat(p2Repository.getUniqueIU("main.product.id").getRequiredIds(),

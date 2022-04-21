@@ -13,8 +13,7 @@
 package org.eclipse.tycho.test.surefire;
 
 import static org.eclipse.tycho.test.util.SurefireUtil.testResultFile;
-import static org.eclipse.tycho.test.util.TychoMatchers.exists;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -22,19 +21,19 @@ import org.junit.Test;
 
 public class Junit4TestBundleTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void test() throws Exception {
+	@Test
+	public void test() throws Exception {
 
-        // a eclipse-test-plugin using JUnit 4 -> supported since MNGECLIPSE-1031
-        Verifier verifier = getVerifier("surefire.junit4/bundle.test");
+		// a eclipse-test-plugin using JUnit 4 -> supported since MNGECLIPSE-1031
+		Verifier verifier = getVerifier("surefire.junit4/bundle.test");
 
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
 
-        assertThat(testResultFile(verifier.getBasedir(), "bundle.test", "JUnit4Test"), exists());
+		assertTrue(testResultFile(verifier.getBasedir(), "bundle.test", "JUnit4Test").exists());
 
-        // ensure that JUnit 3 style tests also work -> related to bug 388909
-        assertThat(testResultFile(verifier.getBasedir(), "bundle.test", "JUnit3Test"), exists());
-    }
+		// ensure that JUnit 3 style tests also work -> related to bug 388909
+		assertTrue(testResultFile(verifier.getBasedir(), "bundle.test", "JUnit3Test").exists());
+	}
 
 }

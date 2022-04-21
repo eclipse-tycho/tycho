@@ -13,8 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom.tests;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -24,7 +23,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.tycho.versions.pom.PomFile;
-import org.junit.Assert;
 import org.junit.Test;
 
 import de.pdark.decentxml.XMLParseException;
@@ -37,19 +35,19 @@ public class MutablePomFileTest {
     public void testWhitespacesInValuesAreIgnored() throws Exception {
         subject = getPom("/poms/whitespaceInElementText.xml");
 
-        assertThat(subject.getParent().getGroupId(), is("ignorewhitespace"));
-        assertThat(subject.getParent().getArtifactId(), is("parent"));
-        assertThat(subject.getParent().getVersion(), is("1.0.0-SNAPSHOT"));
-        assertThat(subject.getParentVersion(), is("1.0.0-SNAPSHOT"));
-        assertThat(subject.getGroupId(), is("without.space"));
-        assertThat(subject.getArtifactId(), is("bundle"));
-        assertThat(subject.getVersion(), is("1.0.1-SNAPSHOT"));
-        assertThat(subject.getPackaging(), is("pom"));
+        assertEquals("ignorewhitespace", subject.getParent().getGroupId());
+        assertEquals("parent", subject.getParent().getArtifactId());
+        assertEquals("1.0.0-SNAPSHOT", subject.getParent().getVersion());
+        assertEquals("1.0.0-SNAPSHOT", subject.getParentVersion());
+        assertEquals("without.space", subject.getGroupId());
+        assertEquals("bundle", subject.getArtifactId());
+        assertEquals("1.0.1-SNAPSHOT", subject.getVersion());
+        assertEquals("pom", subject.getPackaging());
 
-        assertThat(subject.getModules().get(0), is("child"));
-        assertThat(subject.getProfiles().get(0).getModules().get(0), is("profileChild"));
+        assertEquals("child", subject.getModules().get(0));
+        assertEquals("profileChild", subject.getProfiles().get(0).getModules().get(0));
 
-        assertThat(subject.getProperties().get(0).getValue(), is("value-without-space"));
+        assertEquals("value-without-space", subject.getProperties().get(0).getValue());
     }
 
     public void testSetVersion() throws Exception {
@@ -68,65 +66,65 @@ public class MutablePomFileTest {
     @Test
     public void testSetExplicitVersion() throws Exception {
         subject = getPom("/poms/inheritedVersion.xml");
-        assertThat(subject.getParentVersion(), is("1.0.2"));
-        assertThat(subject.getVersion(), is("1.0.2"));
+        assertEquals("1.0.2", subject.getParentVersion());
+        assertEquals("1.0.2", subject.getVersion());
 
         subject.setVersion("1.1.0-SNAPSHOT");
 
-        assertThat(subject.getVersion(), is("1.1.0-SNAPSHOT"));
+        assertEquals("1.1.0-SNAPSHOT", subject.getVersion());
         assertContent(subject, "/poms/inheritedVersion_changedProjectVersion.xml");
     }
 
     @Test
     public void testSetParentVersionDoesNotChangeEffectiveVersionOfChild() throws Exception {
         subject = getPom("/poms/inheritedVersion.xml");
-        assertThat(subject.getParentVersion(), is("1.0.2"));
-        assertThat(subject.getVersion(), is("1.0.2"));
+        assertEquals("1.0.2", subject.getParentVersion());
+        assertEquals("1.0.2", subject.getVersion());
 
         subject.setParentVersion("3.0.0");
 
-        assertThat(subject.getParentVersion(), is("3.0.0"));
-        assertThat(subject.getVersion(), is("1.0.2"));
+        assertEquals("3.0.0", subject.getParentVersion());
+        assertEquals("1.0.2", subject.getVersion());
         assertContent(subject, "/poms/inheritedVersion_changedParentVersion.xml");
     }
 
     @Test
     public void testSetVersionDoesNotIntroduceRedundantVersions() throws Exception {
         subject = getPom("/poms/inheritedVersion.xml");
-        assertThat(subject.getParentVersion(), is("1.0.2"));
-        assertThat(subject.getVersion(), is("1.0.2"));
+        assertEquals("1.0.2", subject.getParentVersion());
+        assertEquals("1.0.2", subject.getVersion());
 
         subject.setVersion("3.0.0");
         subject.setParentVersion("3.0.0");
 
-        assertThat(subject.getVersion(), is("3.0.0"));
-        assertThat(subject.getParentVersion(), is("3.0.0"));
+        assertEquals("3.0.0", subject.getVersion());
+        assertEquals("3.0.0", subject.getParentVersion());
         assertContent(subject, "/poms/inheritedVersion_changedBothVersions.xml");
     }
 
     @Test
     public void testSetVersionPreservesRedundantVersion() throws Exception {
         subject = getPom("/poms/inheritedVersionRedundant.xml");
-        assertThat(subject.getParentVersion(), is("1.0.2"));
-        assertThat(subject.getVersion(), is("1.0.2")); // project.version is stated explicitly in the POM, although it could be inherited
+        assertEquals("1.0.2", subject.getParentVersion());
+        assertEquals("1.0.2", subject.getVersion()); // project.version is stated explicitly in the POM, although it could be inherited
 
         subject.setVersion("3.0.0");
         subject.setParentVersion("3.0.0");
 
-        assertThat(subject.getVersion(), is("3.0.0"));
-        assertThat(subject.getParentVersion(), is("3.0.0"));
+        assertEquals("3.0.0", subject.getVersion());
+        assertEquals("3.0.0", subject.getParentVersion());
         assertContent(subject, "/poms/inheritedVersionRedundant_changedBothVersions.xml"); // project.version tag still exists
     }
 
     @Test
     public void testSetVersionPrefersNonRedundantVersionDeclarationIfVersionsWereDifferent() throws Exception {
         subject = getPom("/poms/inheritedVersion_changedProjectVersion.xml");
-        assertThat(subject.getParentVersion(), is("1.0.2"));
-        assertThat(subject.getVersion(), is("1.1.0-SNAPSHOT"));
+        assertEquals("1.0.2", subject.getParentVersion());
+        assertEquals("1.1.0-SNAPSHOT", subject.getVersion());
 
         subject.setVersion("1.0.2");
 
-        assertThat(subject.getVersion(), is("1.0.2"));
+        assertEquals("1.0.2", subject.getVersion());
         assertContent(subject, "/poms/inheritedVersion.xml"); // no project.version tag
     }
 
@@ -145,7 +143,7 @@ public class MutablePomFileTest {
             pomFile = new File(url.toURI());
             PomFile.read(pomFile, true);
         } catch (Exception pe) {
-            Assert.assertEquals("This Pom " + pomFile.getAbsolutePath() + " is in the Wrong Format", pe.getMessage());
+            assertEquals("This Pom " + pomFile.getAbsolutePath() + " is in the Wrong Format", pe.getMessage());
             throw pe;
         }
     }
@@ -162,15 +160,13 @@ public class MutablePomFileTest {
         PomFile.write(pom, buf);
         byte[] actual = buf.toByteArray();
 
-        Assert.assertEquals(toAsciiStringWithoutLineFeeds(expected), toAsciiStringWithoutLineFeeds(actual));
+        assertEquals(toAsciiStringWithoutLineFeeds(expected), toAsciiStringWithoutLineFeeds(actual));
     }
 
     private static byte[] toByteArray(String path) throws IOException {
-        byte expected[];
         try (InputStream is = MutablePomFileTest.class.getResourceAsStream(path)) {
-            expected = is.readAllBytes();
+            return is.readAllBytes();
         }
-        return expected;
     }
 
     private static String toAsciiStringWithoutLineFeeds(byte[] bytes) {

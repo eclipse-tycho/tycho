@@ -13,8 +13,7 @@
 package org.eclipse.tycho.test.surefire;
 
 import static org.eclipse.tycho.test.util.SurefireUtil.testResultFile;
-import static org.eclipse.tycho.test.util.TychoMatchers.exists;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -24,21 +23,21 @@ import org.junit.Test;
 
 public class TestNGBundleTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void test() throws Exception {
+	@Test
+	public void test() throws Exception {
 
-        Verifier verifier = getVerifier("surefire.testng");
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
+		Verifier verifier = getVerifier("surefire.testng");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
 
-        assertThat(testResultFile(verifier.getBasedir() + File.separator + "bundle.test", "bundle.test", "TestNGTest"),
-                exists());
+		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.test", "bundle.test", "TestNGTest")
+				.exists());
 
-        assertThat(testResultFile(verifier.getBasedir() + File.separator + "bundle.testGroups", "bundle.test",
-                "GroupsTest"), exists());
+		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.testGroups", "bundle.test",
+				"GroupsTest").exists());
 
-        assertThat(testResultFile(verifier.getBasedir() + File.separator + "bundle.testSuites", "TestSuite"), exists());
+		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.testSuites", "TestSuite").exists());
 
-    }
+	}
 
 }

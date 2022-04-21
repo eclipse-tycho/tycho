@@ -13,8 +13,9 @@
 package org.eclipse.tycho.repository.p2base.artifact.provider.formats;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.util.Arrays;
@@ -49,9 +50,9 @@ public class LocalArtifactTransferPolicyTest {
 
         List<IArtifactDescriptor> result = subject.sortFormatsByPreference(descriptors);
 
-        assertThat(result.get(0).getProperty(IArtifactDescriptor.FORMAT), is(nullValue()));
+        assertNull(result.get(0).getProperty(IArtifactDescriptor.FORMAT));
         assertThat(formatsOf(result.get(1), result.get(2)), is(asSet("customFormat", "anotherFormat")));
-        assertThat(result.size(), is(3));
+        assertEquals(3, result.size());
     }
 
     static Set<String> formatsOf(IArtifactDescriptor... descriptors) {

@@ -12,8 +12,7 @@
  ******************************************************************************/
 package org.eclipse.sisu.equinox.launching.internal;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +59,7 @@ public class DefaultEquinoxInstallationFactoryTest {
 
         List<String> config = splitAtComma(
                 subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
-        assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@6"));
+        assertTrue(config.contains("reference:file:absolute/path/to/bundle1@6"));
     }
 
     @Test
@@ -69,14 +68,14 @@ public class DefaultEquinoxInstallationFactoryTest {
 
         List<String> config = splitAtComma(
                 subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
-        assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@6:start"));
+        assertTrue(config.contains("reference:file:absolute/path/to/bundle1@6:start"));
     }
 
     @Test
     public void testDefaultStartLevelIsNotSet() throws Exception {
         List<String> config = splitAtComma(
                 subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
-        assertThat(config, hasItem("reference:file:absolute/path/to/bundle2")); // don't need @n here because this would be redundant
+        assertTrue(config.contains("reference:file:absolute/path/to/bundle2")); // don't need @n here because this would be redundant
     }
 
     @Test
@@ -85,7 +84,7 @@ public class DefaultEquinoxInstallationFactoryTest {
 
         List<String> config = splitAtComma(
                 subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
-        assertThat(config, hasItem("reference:file:absolute/path/to/bundle2@start"));
+        assertTrue(config.contains("reference:file:absolute/path/to/bundle2@start"));
     }
 
     @Test
@@ -94,7 +93,7 @@ public class DefaultEquinoxInstallationFactoryTest {
 
         List<String> config = splitAtComma(
                 subject.toOsgiBundles(bundles, instDesc.getBundleStartLevel(), defaultLevel));
-        assertThat(config, hasItem("reference:file:absolute/path/to/bundle1@start")); // implicitly use default start level
+        assertTrue(config.contains("reference:file:absolute/path/to/bundle1@start")); // implicitly use default start level
     }
 
     private static File mockFile(String absolutePath) {

@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.maven.test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,10 +30,10 @@ import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.junit.jupiter.api.Test;
 
-public class ProductConfigurationTest {
+class ProductConfigurationTest {
 
     @Test
-    public void testProductConfigurationParse() throws Exception {
+    void testProductConfigurationParse() throws Exception {
         ProductConfiguration config = ProductConfiguration
                 .read(getClass().getResourceAsStream("/product/MyFirstRCP.product"));
 
@@ -102,7 +100,7 @@ public class ProductConfigurationTest {
     }
 
     @Test
-    public void testProductConfigurationParseWithStartLevel() throws Exception {
+    void testProductConfigurationParseWithStartLevel() throws Exception {
         ProductConfiguration config = ProductConfiguration
                 .read(getClass().getResourceAsStream("/product/MyProduct.product"));
         Map<String, BundleConfiguration> bundles = config.getPluginConfiguration();
@@ -121,21 +119,21 @@ public class ProductConfigurationTest {
     }
 
     @Test
-    public void testFeatureInstallMode() throws Exception {
+    void testFeatureInstallMode() throws Exception {
         ProductConfiguration config = ProductConfiguration
                 .read(getClass().getResourceAsStream("/product/rootFeatures.product"));
 
         Map<String, InstallMode> modes = getInstallModes(config);
 
-        assertThat(modes.get("org.eclipse.rcp"), is(InstallMode.include));
-        assertThat(modes.get("org.eclipse.e4.rcp"), is(InstallMode.include));
-        assertThat(modes.get("org.eclipse.help"), is(InstallMode.root));
-        assertThat(modes.get("org.eclipse.egit"), is(InstallMode.root));
-        assertThat(modes.size(), is(4));
+        assertEquals(InstallMode.include, modes.get("org.eclipse.rcp"));
+        assertEquals(InstallMode.include, modes.get("org.eclipse.e4.rcp"));
+        assertEquals(InstallMode.root, modes.get("org.eclipse.help"));
+        assertEquals(InstallMode.root, modes.get("org.eclipse.egit"));
+        assertEquals(4, modes.size());
     }
 
     @Test
-    public void testRemoveRootFeatures() throws Exception {
+    void testRemoveRootFeatures() throws Exception {
         ProductConfiguration config = ProductConfiguration
                 .read(getClass().getResourceAsStream("/product/rootFeatures.product"));
 
@@ -143,9 +141,9 @@ public class ProductConfigurationTest {
 
         Map<String, InstallMode> modes = getInstallModes(config);
 
-        assertThat(modes.get("org.eclipse.rcp"), is(InstallMode.include));
-        assertThat(modes.get("org.eclipse.e4.rcp"), is(InstallMode.include));
-        assertThat(modes.size(), is(2));
+        assertEquals(InstallMode.include, modes.get("org.eclipse.rcp"));
+        assertEquals(InstallMode.include, modes.get("org.eclipse.e4.rcp"));
+        assertEquals(2, modes.size());
     }
 
     private static Map<String, InstallMode> getInstallModes(ProductConfiguration config) {

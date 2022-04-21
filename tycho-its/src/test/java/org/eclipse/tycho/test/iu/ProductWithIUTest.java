@@ -12,9 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.iu;
 
-import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -35,13 +33,13 @@ public class ProductWithIUTest extends AbstractTychoIntegrationTest {
 
 		File rootFileInstalledByIU = new File(verifier.getBasedir(),
 				"eclipse-repository/target/products/main.product.id/linux/gtk/x86/myFile.txt");
-		assertThat(rootFileInstalledByIU, isFile());
+		assertTrue(rootFileInstalledByIU.isFile());
 
 		P2RepositoryTool p2Repository = P2RepositoryTool
 				.forEclipseRepositoryModule(new File(verifier.getBasedir(), "eclipse-repository"));
-		assertThat(p2Repository.findBinaryArtifact("iup.iuForRootFile"), isFile());
+		assertTrue(p2Repository.findBinaryArtifact("iup.iuForRootFile").isFile());
 
-		assertThat(p2Repository.getAllUnitIds(), hasItem("iup.iuForRootFile"));
+		assertTrue(p2Repository.getAllUnitIds().contains("iup.iuForRootFile"));
 	}
 
 }

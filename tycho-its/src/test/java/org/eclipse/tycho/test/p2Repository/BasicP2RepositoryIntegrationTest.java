@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,7 +48,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 	@Test
 	public void test381377BundleInclusion() {
 		// check that (separately!) included bundle is there
-		assertThat(p2Repo.getBundleArtifact("com.sun.el", "2.2.0.v201303151357"), isFile());
+		assertTrue(p2Repo.getBundleArtifact("com.sun.el", "2.2.0.v201303151357").isFile());
 	}
 
 	@Test
@@ -71,24 +70,24 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 	@Test
 	public void test347416CustomFinalName() throws Exception {
 		File repositoryArchive = new File(verifier.getBasedir(), "target/" + CUSTOM_FINAL_NAME + ".zip");
-		assertThat(repositoryArchive, isFile());
+		assertTrue(repositoryArchive.isFile());
 	}
 
 	@Test
 	public void testResourcesProcessed() throws Exception {
 		File repository = new File(verifier.getBasedir(), "target/repository");
-		assertThat(new File(repository, "index.html"), isFile());
+		assertTrue(new File(repository, "index.html").isFile());
 		File aboutFile = new File(repository, "about/about.html");
-		assertThat(aboutFile, isFile());
+		assertTrue(aboutFile.isFile());
 		assertThat(Files.readString(aboutFile.toPath()).trim(), equalTo("About testrepo"));
 	}
 
 	@Test
 	public void testXZCompression() throws Exception {
 		File repository = new File(verifier.getBasedir(), "target/repository");
-		assertThat(new File(repository, "content.xml.xz"), isFile());
-		assertThat(new File(repository, "artifacts.xml.xz"), isFile());
-		assertThat(new File(repository, "p2.index"), isFile());
+		assertTrue(new File(repository, "content.xml.xz").isFile());
+		assertTrue(new File(repository, "artifacts.xml.xz").isFile());
+		assertTrue(new File(repository, "p2.index").isFile());
 	}
 
 	@Test

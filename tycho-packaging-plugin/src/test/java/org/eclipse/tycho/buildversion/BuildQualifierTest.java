@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -220,7 +217,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
             mojo.execute();
             fail();
         } catch (MojoFailureException e) {
-            assertThat(e.getMessage(), containsString("Invalid build qualifier"));
+			assertTrue(e.getMessage().contains("Invalid build qualifier"));
         }
     }
 
@@ -232,7 +229,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
             mojo.execute();
             fail();
         } catch (MojoFailureException e) {
-            assertThat(e.getMessage(), containsString("Invalid build qualifier"));
+			assertTrue(e.getMessage().contains("Invalid build qualifier"));
         }
     }
 
@@ -244,7 +241,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
             mojo.execute();
             fail();
         } catch (MojoFailureException e) {
-            assertThat(e.getMessage(), containsString("This qualifier should be in error message"));
+			assertTrue(e.getMessage().contains("This qualifier should be in error message"));
         }
     }
 

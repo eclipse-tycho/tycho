@@ -13,11 +13,8 @@
 package org.eclipse.tycho.p2.tools.publisher;
 
 import static org.eclipse.tycho.p2.tools.test.util.ResourceUtil.resourceFile;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -89,20 +86,20 @@ public class PublisherServiceTest {
 
         Collection<DependencySeed> seeds = subject.publishCategories(categoryDefinition);
 
-        assertThat(seeds.size(), is(1));
+        assertEquals(1, seeds.size());
         DependencySeed seed = seeds.iterator().next();
 
         Set<Object> publishedUnits = outputRepository.getInstallableUnits();
-        assertThat(publishedUnits, hasItem(seed.getInstallableUnit()));
+        assertTrue(publishedUnits.contains(seed.getInstallableUnit()));
     }
 
     @Test
     public void testProfilePublishing() throws Exception {
         File customProfile = resourceFile("publishers/virgo-1.6.profile");
         Collection<DependencySeed> seeds = subject.publishEEProfile(customProfile);
-        assertThat(seeds.size(), is(2));
+        assertEquals(2, seeds.size());
         IInstallableUnit virgoProfileIU = unitsById(seeds).get("a.jre.virgo");
-        assertThat(virgoProfileIU, not(nullValue()));
+        assertNotNull(virgoProfileIU);
         Collection<IProvidedCapability> provided = virgoProfileIU.getProvidedCapabilities();
         boolean customJavaxActivationVersionFound = false;
         Version version_1_1_1 = Version.create("1.1.1");
@@ -118,7 +115,7 @@ public class PublisherServiceTest {
         }
         assertTrue("did not find capability for package javax.activation with custom version " + version_1_1_1,
                 customJavaxActivationVersionFound);
-        assertThat(unitsById(seeds).keySet(), hasItem("config.a.jre.virgo"));
+        assertTrue(unitsById(seeds).keySet().contains("config.a.jre.virgo"));
     }
 
     @Test(expected = FacadeException.class)

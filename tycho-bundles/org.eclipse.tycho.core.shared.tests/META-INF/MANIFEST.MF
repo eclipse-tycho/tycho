@@ -5,7 +5,6 @@ Bundle-SymbolicName: org.eclipse.tycho.core.shared.tests
 Bundle-Version: 3.0.0.qualifier
 Fragment-Host: org.eclipse.tycho.core.shared
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.junit;bundle-version="4.8.2",
- org.hamcrest.core
+Require-Bundle: org.junit;bundle-version="4.8.2"
 Bundle-Vendor: %providerName
 Automatic-Module-Name: org.eclipse.tycho.core.shared.tests

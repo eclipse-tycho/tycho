@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -35,7 +33,7 @@ public class ProfileNameTest {
 
     @Test
     public void testNoEnvironmentSpecificNames() throws Exception {
-        assertThat(DEFAULT_NAME, is(ProfileName.getNameForEnvironment(LINUX_GTK_X86_64, null, DEFAULT_NAME)));
+        assertEquals(DEFAULT_NAME, ProfileName.getNameForEnvironment(LINUX_GTK_X86_64, null, DEFAULT_NAME));
     }
 
     @Test

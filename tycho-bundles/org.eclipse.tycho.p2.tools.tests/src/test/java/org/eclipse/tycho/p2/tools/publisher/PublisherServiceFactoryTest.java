@@ -12,9 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 import org.eclipse.tycho.p2.tools.impl.Activator;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
@@ -32,7 +30,7 @@ public class PublisherServiceFactoryTest extends MavenServiceStubbingTestBase {
         try {
             PublisherServiceFactory publisherServiceFactory = tracker.waitForService(2000);
             // factory service is only available if all required services are available
-            assertThat(publisherServiceFactory, is(notNullValue()));
+            assertNotNull(publisherServiceFactory);
         } finally {
             tracker.close();
         }

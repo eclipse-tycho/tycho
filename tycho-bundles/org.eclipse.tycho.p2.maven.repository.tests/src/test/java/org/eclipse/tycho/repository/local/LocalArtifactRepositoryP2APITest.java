@@ -20,10 +20,11 @@ import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -156,15 +157,15 @@ public class LocalArtifactRepositoryP2APITest {
 
         assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
         assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_2));
-        assertThat(result.size(), is(2));
+        assertEquals(2, result.size());
     }
 
     @Test
     public void testGetDescriptorsOfNonContainedKey() {
         List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(OTHER_KEY));
 
-        assertThat(result, notNullValue());
-        assertThat(result.size(), is(0));
+        assertNotNull(result);
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -281,7 +282,7 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetArtifactFileOfNonContainedKey() {
         File result = subject.getArtifactFile(OTHER_KEY);
 
-        assertThat(result, is(nullValue()));
+        assertNull(result);
     }
 
     @Test
@@ -290,7 +291,7 @@ public class LocalArtifactRepositoryP2APITest {
 
         File result = subject.getArtifactFile(ARTIFACT_B_KEY);
 
-        assertThat(result, is(nullValue()));
+        assertNull(result);
     }
 
     @Test
@@ -304,7 +305,7 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetRawArtifactFileOfNonContainedFormat() {
         File result = subject.getArtifactFile(ARTIFACT_B_CANONICAL);
 
-        assertThat(result, is(nullValue()));
+        assertNull(result);
     }
 
     @Test

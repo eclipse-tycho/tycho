@@ -12,9 +12,6 @@
  ******************************************************************************/
 package org.eclipse.tycho.extras.eclipserun;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -90,19 +87,18 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 	public void testCreateCommandLineProgramArgs() throws MojoExecutionException {
 		LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
 		List<String> programArgs = Arrays.asList(commandLine.getProgramArguments());
-		assertThat(programArgs, contains( //
-				"-install", installation.getLocation().getAbsolutePath(), //
+		assertTrue(programArgs.containsAll(List.of("-install", installation.getLocation().getAbsolutePath(), //
 				"-configuration", new File(workFolder, "configuration").getAbsolutePath(), //
 				"-data", new File(workFolder, "data").getAbsolutePath() //
-		));
+		)));
 	}
 
 	public void testDataDirectoryIsClearedBeforeLaunching() throws IOException, MojoExecutionException {
 		File markerFile = new File(workFolder, "data/markerfile").getAbsoluteFile();
 		markerFile.getParentFile().mkdirs();
 		markerFile.createNewFile();
-		assertThat(markerFile.exists(), is(true));
+		assertTrue(markerFile.exists());
 		runMojo.runEclipse(installation);
-		assertThat(markerFile.exists(), is(false));
+		assertFalse(markerFile.exists());
 	}
 }

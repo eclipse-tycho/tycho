@@ -17,8 +17,8 @@ import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.warningStatus;
 import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -117,7 +117,7 @@ public class ProbeArtifactSink implements IArtifactSink {
     }
 
     public void checkConsistencyWithStatus(IStatus status) {
-        assertThat(status, is(notNullValue()));
+        assertNotNull(status);
 
         if (writeIsCommitted()) {
             // status must be non-fatal

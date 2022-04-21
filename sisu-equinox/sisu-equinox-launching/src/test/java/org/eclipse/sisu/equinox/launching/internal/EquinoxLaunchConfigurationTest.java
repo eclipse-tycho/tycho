@@ -12,18 +12,17 @@
  ******************************************************************************/
 package org.eclipse.sisu.equinox.launching.internal;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-public class EquinoxLaunchConfigurationTest {
+class EquinoxLaunchConfigurationTest {
 
     @Test
-    public void testAddEnvironmentVariables() {
+    void testAddEnvironmentVariables() {
         EquinoxLaunchConfiguration config = new EquinoxLaunchConfiguration(null);
         Map<String, String> envVariables = new HashMap<>();
         envVariables.put("key1", "value1");
@@ -31,9 +30,9 @@ public class EquinoxLaunchConfigurationTest {
         config.addEnvironmentVariables(envVariables);
 
         Map<String, String> environment = config.getEnvironment();
-        assertThat(environment.size(), equalTo(2));
-        assertThat(environment.get("key1"), equalTo("value1"));
-        assertThat(environment.get("key2"), equalTo(""));
+        assertEquals(2, environment.size());
+        assertEquals("value1", environment.get("key1"));
+        assertEquals("", environment.get("key2"));
     }
 
 }

@@ -20,9 +20,9 @@ import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -190,7 +190,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetUnavailableArtifactFile() {
-        assertThat(subject.getArtifactFile(OTHER_KEY), is(nullValue()));
+        assertNull(subject.getArtifactFile(OTHER_KEY));
     }
 
     @Test
@@ -221,7 +221,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetRawArtifactFileOfUnavailableFile() {
-        assertThat(subject.getArtifactFile(canonicalDescriptorFor(OTHER_KEY)), is(nullValue()));
+        assertNull(subject.getArtifactFile(canonicalDescriptorFor(OTHER_KEY)));
     }
 
     @Test

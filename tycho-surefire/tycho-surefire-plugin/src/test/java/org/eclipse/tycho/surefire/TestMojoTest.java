@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -64,7 +62,7 @@ public class TestMojoTest {
             testMojo.splitArgLine("\"'missing closing double-quote'");
             fail("unreachable code");
         } catch (MojoExecutionException e) {
-            assertThat(e.getMessage(), containsString("unbalanced quotes"));
+            assertTrue(e.getMessage().contains("unbalanced quotes"));
         }
     }
 

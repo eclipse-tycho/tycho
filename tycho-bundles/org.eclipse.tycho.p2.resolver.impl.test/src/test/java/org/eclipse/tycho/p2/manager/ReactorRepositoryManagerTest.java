@@ -15,9 +15,8 @@ package org.eclipse.tycho.p2.manager;
 
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,20 +63,20 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
     public void testReactorRepositoryManagerServiceAvailability() throws Exception {
         subject = getService(ReactorRepositoryManager.class);
 
-        assertThat(subject, is(notNullValue()));
+        assertNotNull(subject);
     }
 
     @Test
     public void testReactorRepositoryManagerFacadeServiceAvailability() throws Exception {
         subject = getService(ReactorRepositoryManagerFacade.class);
 
-        assertThat(subject, is(notNullValue()));
+        assertNotNull(subject);
     }
 
     @Test
     public void testTargetPlatformComputationInIntegration() throws Exception {
         subject = getService(ReactorRepositoryManagerFacade.class);
-        assertThat(subject, is(notNullValue()));
+        assertNotNull(subject);
         ReactorProject currentProject = new ReactorProjectStub("reactor-artifact");
 
         TargetPlatformConfigurationStub tpConfig = new TargetPlatformConfigurationStub();
