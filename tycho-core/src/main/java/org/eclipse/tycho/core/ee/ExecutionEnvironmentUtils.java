@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,6 @@ public class ExecutionEnvironmentUtils {
         Properties listProps = readProperties(findInSystemBundle("profile.list"));
         List<String> profileFiles = new ArrayList<>(Arrays.asList(listProps.getProperty("java.profiles").split(",")));
         profileFiles.add("JavaSE-11.profile");
-        profileFiles.add("JavaSE-16.profile");
         profileFiles.add("JavaSE-17.profile");
         profileFiles.add("JavaSE-18.profile");
         Map<String, Properties> envMap = new LinkedHashMap<>(profileFiles.size(), 1.f);

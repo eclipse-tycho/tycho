@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2021 SAP SE and others.
+ * Copyright (c) 2018, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -44,8 +44,8 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
 
     /**
      * <p>
-     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-16,
-     * JavaSE-17.
+     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-17,
+     * JavaSE-18.
      * 
      * It is advised to keep this list as small as possible and the list must include the BREE used
      * by the platform, last Java LTS and the latest Java release.
