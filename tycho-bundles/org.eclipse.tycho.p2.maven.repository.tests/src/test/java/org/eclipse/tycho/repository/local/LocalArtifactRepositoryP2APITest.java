@@ -122,7 +122,7 @@ public class LocalArtifactRepositoryP2APITest {
     @After
     public void checkStreamNotClosed() {
         // none of the tested methods should close the stream
-        assertThat(testOutputStream.isClosed(), is(false));
+        assertFalse(testOutputStream.isClosed());
     }
 
     @After
@@ -322,7 +322,7 @@ public class LocalArtifactRepositoryP2APITest {
         testSink = newArtifactSinkFor(OTHER_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(testSink.writeIsStarted(), is(false));
+        assertFalse(testSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
     }
@@ -330,12 +330,12 @@ public class LocalArtifactRepositoryP2APITest {
     @Test
     public void testGetCorruptedArtifact() throws Exception {
         // simulate corruption of the artifact in the file system
-        assertThat(artifactLocationOf(ARTIFACT_B_KEY, "-pack200.jar.pack.gz").delete(), is(true)); // this is the only format
+        assertTrue(artifactLocationOf(ARTIFACT_B_KEY, "-pack200.jar.pack.gz").delete()); // this is the only format
 
         testSink = newArtifactSinkFor(ARTIFACT_B_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(testSink.writeIsCommitted(), is(false));
+        assertFalse(testSink.writeIsCommitted());
         assertThat(status, is(errorStatus()));
     }
 
@@ -413,7 +413,7 @@ public class LocalArtifactRepositoryP2APITest {
         rawTestSink = newRawArtifactSinkFor(ARTIFACT_B_CANONICAL);
         status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(rawTestSink.writeIsStarted(), is(false));
+        assertFalse(rawTestSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
     }
@@ -421,12 +421,12 @@ public class LocalArtifactRepositoryP2APITest {
     @Test
     public void testGetCorruptedRawArtifact() throws Exception {
         // simulate corruption of the artifact in the file system
-        assertThat(artifactLocationOf(ARTIFACT_B_KEY, "-pack200.jar.pack.gz").delete(), is(true));
+        assertTrue(artifactLocationOf(ARTIFACT_B_KEY, "-pack200.jar.pack.gz").delete());
 
         rawTestSink = newRawArtifactSinkFor(ARTIFACT_B_PACKED);
         status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(rawTestSink.writeIsCommitted(), is(false));
+        assertFalse(rawTestSink.writeIsCommitted());
         assertThat(status, is(errorStatus()));
     }
 
@@ -502,8 +502,8 @@ public class LocalArtifactRepositoryP2APITest {
         addSink.beginWrite().write(new byte[22]);
         addSink.commitWrite();
 
-        assertThat(subject.contains(NEW_KEY), is(true));
-        assertThat(subject.contains(localCanonicalDescriptorFor(NEW_KEY)), is(true));
+        assertTrue(subject.contains(NEW_KEY));
+        assertTrue(subject.contains(localCanonicalDescriptorFor(NEW_KEY)));
         assertThat(readSizeOfArtifact(NEW_KEY), is(22));
     }
 
@@ -513,8 +513,8 @@ public class LocalArtifactRepositoryP2APITest {
         addSink.beginWrite().write(new byte[33]);
         addSink.commitWrite();
 
-        assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
-        assertThat(subject.contains(NEW_DESCRIPTOR.getArtifactKey()), is(true));
+        assertTrue(subject.contains(NEW_DESCRIPTOR));
+        assertTrue(subject.contains(NEW_DESCRIPTOR.getArtifactKey()));
         assertThat(readSizeOfRawArtifact(NEW_DESCRIPTOR), is(33));
     }
 
@@ -525,8 +525,8 @@ public class LocalArtifactRepositoryP2APITest {
             addSink.write(new byte[33]);
         }
 
-        assertThat(subject.contains(NEW_KEY), is(true));
-        assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
+        assertTrue(subject.contains(NEW_KEY));
+        assertTrue(subject.contains(NEW_DESCRIPTOR));
         subject.getRawArtifact(NEW_DESCRIPTOR, testOutputStream, null);
         assertThat(testOutputStream.writtenBytes(), is(33));
     }
@@ -555,8 +555,8 @@ public class LocalArtifactRepositoryP2APITest {
             ((IStateful) addSink).setStatus(new Status(IStatus.ERROR, "test", "written data is bad"));
         }
 
-        assertThat(subject.contains(NEW_DESCRIPTOR), is(false));
-        assertThat(subject.contains(NEW_KEY), is(false));
+        assertFalse(subject.contains(NEW_DESCRIPTOR));
+        assertFalse(subject.contains(NEW_KEY));
     }
 
     @SuppressWarnings("deprecation")
@@ -567,7 +567,7 @@ public class LocalArtifactRepositoryP2APITest {
             ((IStateful) addSink).setStatus(new Status(IStatus.WARNING, "test", "irrelevant warning"));
         }
 
-        assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
+        assertTrue(subject.contains(NEW_DESCRIPTOR));
     }
 
     /**

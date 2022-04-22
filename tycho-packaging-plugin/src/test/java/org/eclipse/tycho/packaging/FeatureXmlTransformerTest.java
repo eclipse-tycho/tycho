@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2021 SAP SE and others.
+ * Copyright (c) 2014, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ package org.eclipse.tycho.packaging;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -70,7 +71,7 @@ public class FeatureXmlTransformerTest {
         assertThat(plugin.getId(), is("org.junit4"));
         assertThat(plugin.getDownloadSize(), is(1L)); // 1720 bytes rounded to kiB
         assertThat(plugin.getInstallSize(), is(2L)); // 2419 bytes rounded to kiB // TODO shouldn't installSize=downloadSize for unpack=false?
-        assertThat(plugin.isUnpack(), is(false));
+        assertFalse(plugin.isUnpack());
     }
 
     private static Matcher<FeatureRef> feature(final String id, final String version) {

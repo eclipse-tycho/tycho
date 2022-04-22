@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -85,7 +85,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
     @After
     public void checkStreamNotClosed() {
         // none of the tested methods should close the stream
-        assertThat(testOutputStream.isClosed(), is(false));
+        assertFalse(testOutputStream.isClosed());
     }
 
     @After
@@ -147,7 +147,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         testSink = newArtifactSinkFor(NOT_CONTAINED_ARTIFACT_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(testSink.writeIsStarted(), is(false));
+        assertFalse(testSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
         assertThat(status, statusWithMessageWhich(containsString("is not available in")));
@@ -174,7 +174,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(testSink.writeIsCommitted(), is(false));
+        assertFalse(testSink.writeIsCommitted());
         assertThat(status, is(errorStatus()));
         assertThat(status.getMessage(), containsString("All attempts to read"));
         assertThat(asList(status.getChildren()), hasItem(errorStatus()));
@@ -207,7 +207,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         rawTestSink = new ProbeRawArtifactSink(canonicalDescriptorFor(NOT_CONTAINED_ARTIFACT_KEY));
         status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(rawTestSink.writeIsStarted(), is(false));
+        assertFalse(rawTestSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
         assertThat(status, statusWithMessageWhich(containsString("is not available in")));
@@ -250,8 +250,8 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
 
     @Test
     public void testContainsArtifactDescriptor() {
-        assertThat(subject.contains(canonicalDescriptorFor(BUNDLE_A_KEY)), is(true));
-        assertThat(subject.contains(canonicalDescriptorFor(BUNDLE_B_KEY)), is(false));
+        assertTrue(subject.contains(canonicalDescriptorFor(BUNDLE_A_KEY)));
+        assertFalse(subject.contains(canonicalDescriptorFor(BUNDLE_B_KEY)));
     }
 
     @Test

@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -81,7 +82,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         assertThat(status, is(errorStatus()));
         assertThat(status.getMessage(), both(containsString("An error occurred while transferring artifact"))
                 .and(containsString(REPO_BUNDLE_A_CORRUPT.toString())));
-        assertThat(testSink.writeIsCommitted(), is(false));
+        assertFalse(testSink.writeIsCommitted());
     }
 
     @Test
@@ -94,7 +95,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         assertThat(status, is(errorStatus()));
         assertThat(status.getMessage(), both(containsString("An error occurred while transferring artifact"))
                 .and(containsString(REPO_BUNDLE_A_CORRUPT.toString())));
-        assertThat(rawTestSink.writeIsCommitted(), is(false));
+        assertFalse(rawTestSink.writeIsCommitted());
     }
 
     @Test
@@ -105,7 +106,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         status = subject.getArtifact(testSink, null);
 
         assertThat(status, is(errorStatus()));
-        assertThat(testSink.writeIsCommitted(), is(false));
+        assertFalse(testSink.writeIsCommitted());
     }
 
     @Test
