@@ -13,10 +13,10 @@
 package org.eclipse.tycho.repository.util;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -30,8 +30,8 @@ public class StatusToolTest {
     public void testSimpleStatus() {
         IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, "Simple error");
 
-        assertThat(StatusTool.toLogMessage(status), is("Simple error"));
-        assertThat(StatusTool.collectProblems(status), is("Simple error"));
+        assertEquals("Simple error", StatusTool.toLogMessage(status));
+        assertEquals("Simple error", StatusTool.collectProblems(status));
         assertNull(StatusTool.findException(status));
     }
 
@@ -40,7 +40,7 @@ public class StatusToolTest {
         Throwable exception = new Exception();
         IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, "Simple error", exception);
 
-        assertThat(StatusTool.findException(status), is(sameInstance(exception)));
+        assertSame(exception, StatusTool.findException(status));
     }
 
     @Test
@@ -54,13 +54,13 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Complicated error. See children for details.",
                 null);
 
-        assertThat(StatusTool.toLogMessage(status),
-                is("Complicated error. See children for details.:\n   Detail 1\n   Detail 2\n   Detail 3"));
-        assertThat(StatusTool.collectProblems(status),
-                is("Complicated error. See children for details.: [Detail 1; Detail 2; Detail 3]"));
+        assertEquals("Complicated error. See children for details.:\n   Detail 1\n   Detail 2\n   Detail 3",
+                StatusTool.toLogMessage(status));
+        assertEquals("Complicated error. See children for details.: [Detail 1; Detail 2; Detail 3]",
+                StatusTool.collectProblems(status));
 
         // use the first exception found
-        assertThat(StatusTool.findException(status), is(sameInstance(exceptionChild2)));
+        assertSame(exceptionChild2, StatusTool.findException(status));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class StatusToolTest {
         root.add(child);
 
         // prefer root exceptions over child exceptions
-        assertThat(StatusTool.findException(root), is(sameInstance(exceptionRoot)));
+        assertSame(exceptionRoot, StatusTool.findException(root));
     }
 
     @Test
@@ -89,10 +89,10 @@ public class StatusToolTest {
         child2.add(new Status(IStatus.ERROR, PLUGIN_ID, "Child 2.1"));
         root.add(child2);
 
-        assertThat(StatusTool.toLogMessage(root),
-                is("Root message:\n   Child 1:\n      Child 1.1\n      Child 1.2\n   Child 2:\n      Child 2.1"));
-        assertThat(StatusTool.collectProblems(root),
-                is("Root message: [Child 1: [Child 1.1; Child 1.2]; Child 2: [Child 2.1]]"));
+        assertEquals("Root message:\n   Child 1:\n      Child 1.1\n      Child 1.2\n   Child 2:\n      Child 2.1",
+                StatusTool.toLogMessage(root));
+        assertEquals("Root message: [Child 1: [Child 1.1; Child 1.2]; Child 2: [Child 2.1]]",
+                StatusTool.collectProblems(root));
     }
 
     @Test
@@ -103,8 +103,8 @@ public class StatusToolTest {
         IStatus[] children = new IStatus[] { Status.OK_STATUS, info, Status.OK_STATUS, error, warning };
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
-        assertThat(StatusTool.collectProblems(status),
-                is("Root message: [Info message; Error message; Warning message]"));
+        assertEquals("Root message: [Info message; Error message; Warning message]",
+                StatusTool.collectProblems(status));
     }
 
     @Test

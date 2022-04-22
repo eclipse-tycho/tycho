@@ -91,20 +91,20 @@ public class TargetPlatformBundlePublisherTest {
 
         assertThat(publishedUnit, is(unit(bundleId, bundleVersion)));
         assertThat(publishedUnit.getProperties(), containsGAV(GROUP_ID, ARTIFACT_ID, VERSION));
-        assertThat(publishedUnit.getArtifacts().size(), is(1));
+        assertEquals(1, publishedUnit.getArtifacts().size());
 
         IArtifactKey referencedArtifact = publishedUnit.getArtifacts().iterator().next();
         IRawArtifactProvider artifactRepo = subject.getArtifactRepoOfPublishedBundles();
         assertThat(artifactRepo, contains(referencedArtifact));
 
         IArtifactDescriptor[] artifactDescriptors = artifactRepo.getArtifactDescriptors(referencedArtifact);
-        assertThat(artifactDescriptors.length, is(1));
+        assertEquals(1, artifactDescriptors.length);
         assertThat(artifactDescriptors[0].getProperties(), containsGAV(GROUP_ID, ARTIFACT_ID, VERSION));
         assertThat(artifactDescriptors[0].getProperties(),
                 hasProperty("download.md5", "6303323acc98658c0fed307c84db4411"));
 
         // test that reading the artifact succeeds (because the way it is added to the repository is a bit special) 
-        assertThat(artifactMD5Of(referencedArtifact, artifactRepo), is("6303323acc98658c0fed307c84db4411"));
+        assertEquals("6303323acc98658c0fed307c84db4411", artifactMD5Of(referencedArtifact, artifactRepo));
     }
 
     @Test

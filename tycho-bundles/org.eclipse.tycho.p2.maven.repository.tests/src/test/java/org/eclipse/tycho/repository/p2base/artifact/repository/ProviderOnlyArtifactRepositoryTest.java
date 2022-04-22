@@ -20,10 +20,9 @@ import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_AB;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
-import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 
@@ -62,8 +61,8 @@ public class ProviderOnlyArtifactRepositoryTest {
 
         IStatus status = subject.getArtifact(canonicalDescriptorFor(BUNDLE_A_KEY), testOutputStream, null);
 
-        assertThat(status, is(okStatus()));
-        assertThat(testOutputStream.getFilesInZip(), is(BUNDLE_A_FILES));
+        assertTrue(status.isOK());
+        assertEquals(BUNDLE_A_FILES, testOutputStream.getFilesInZip());
     }
 
     @SuppressWarnings("deprecation")
@@ -73,8 +72,8 @@ public class ProviderOnlyArtifactRepositoryTest {
 
         IStatus status = subject.getRawArtifact(canonicalDescriptorFor(BUNDLE_A_KEY), testOutputStream, null);
 
-        assertThat(status, is(okStatus()));
-        assertThat(testOutputStream.md5AsHex(), is(BUNDLE_A_CONTENT_MD5));
+        assertTrue(status.isOK());
+        assertEquals(BUNDLE_A_CONTENT_MD5, testOutputStream.md5AsHex());
     }
 
     @SuppressWarnings("deprecation")
@@ -84,8 +83,8 @@ public class ProviderOnlyArtifactRepositoryTest {
 
         IStatus status = subject.getRawArtifact(canonicalDescriptorFor(BUNDLE_A_KEY), testOutputStream, null);
 
-        assertThat(testOutputStream.getStatus(), is(okStatus()));
-        assertThat(status, is(okStatus()));
+        assertTrue(testOutputStream.getStatus().isOK());
+        assertTrue(status.isOK());
     }
 
     private static ProviderOnlyArtifactRepository createProviderOnlyArtifactRepositoryDelegatingTo(

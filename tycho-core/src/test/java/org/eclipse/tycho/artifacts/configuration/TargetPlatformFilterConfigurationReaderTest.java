@@ -80,7 +80,7 @@ public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTes
         List<TargetPlatformFilter> filters = subject.parseFilterConfiguration(filterConfig);
 
         for (TargetPlatformFilter filter : filters) {
-            assertThat(filter.getAction(), is(FilterAction.REMOVE_ALL));
+            assertEquals(FilterAction.REMOVE_ALL, filter.getAction());
         }
 
         assertThat(filters.get(0).getScopePattern(), is(patternWithoutVersion(CapabilityType.OSGI_BUNDLE,

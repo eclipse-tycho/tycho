@@ -14,12 +14,12 @@ package org.eclipse.tycho.repository.module;
 
 import static org.eclipse.tycho.repository.module.ModuleArtifactRepositoryTest.writeAndClose;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.allKeysIn;
-import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class PublishingRepositoryTest {
         assertThat(artifacts.keySet(), hasItem("p2artifacts"));
 
         for (File artifactFile : artifacts.values()) {
-            assertThat(artifactFile, isFile());
+            assertTrue(artifactFile.isFile());
         }
 
         // file name extension is used when attaching the artifacts
@@ -92,7 +92,7 @@ public class PublishingRepositoryTest {
         assertThat(artifacts.keySet(), hasItem("p2artifacts"));
 
         for (File artifactFile : artifacts.values()) {
-            assertThat(artifactFile, isFile());
+            assertTrue(artifactFile.isFile());
         }
     }
 
@@ -105,12 +105,12 @@ public class PublishingRepositoryTest {
         assertThat(allKeysIn(artifactRepo), hasItem(AttachedTestArtifact.key));
 
         IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(AttachedTestArtifact.key);
-        assertThat(descriptors.length, is(1));
+        assertEquals(1, descriptors.length);
         Map<String, String> props = descriptors[0].getProperties();
-        assertThat(props.get(TychoConstants.PROP_GROUP_ID), is(project.getGroupId()));
-        assertThat(props.get(TychoConstants.PROP_ARTIFACT_ID), is(project.getArtifactId()));
-        assertThat(props.get(TychoConstants.PROP_VERSION), is(project.getVersion()));
-        assertThat(props.get(TychoConstants.PROP_CLASSIFIER), is(AttachedTestArtifact.classifier));
+        assertEquals(project.getGroupId(), props.get(TychoConstants.PROP_GROUP_ID));
+        assertEquals(project.getArtifactId(), props.get(TychoConstants.PROP_ARTIFACT_ID));
+        assertEquals(project.getVersion(), props.get(TychoConstants.PROP_VERSION));
+        assertEquals(AttachedTestArtifact.classifier, props.get(TychoConstants.PROP_CLASSIFIER));
     }
 
     private static void insertTestArtifact(PublishingRepository publishingRepo) throws ProvisionException, IOException {

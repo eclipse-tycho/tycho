@@ -13,8 +13,8 @@
 package org.eclipse.tycho.packaging;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,9 +68,10 @@ public class FeatureXmlTransformerTest {
 
         assertThat(feature.getPlugins(), hasItem(plugin("org.junit4", "4.8.1.v20100302")));
         PluginRef plugin = feature.getPlugins().get(0);
-        assertThat(plugin.getId(), is("org.junit4"));
-        assertThat(plugin.getDownloadSize(), is(1L)); // 1720 bytes rounded to kiB
-        assertThat(plugin.getInstallSize(), is(2L)); // 2419 bytes rounded to kiB // TODO shouldn't installSize=downloadSize for unpack=false?
+		assertEquals("org.junit4", plugin.getId());
+		assertEquals(1L, plugin.getDownloadSize()); // 1720 bytes rounded to kiB
+		assertEquals(2L, plugin.getInstallSize()); // 2419 bytes rounded to kiB // TODO shouldn't
+													// installSize=downloadSize for unpack=false?
         assertFalse(plugin.isUnpack());
     }
 

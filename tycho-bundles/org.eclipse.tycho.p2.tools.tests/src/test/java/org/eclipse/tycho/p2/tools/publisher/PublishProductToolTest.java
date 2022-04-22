@@ -22,8 +22,6 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createBundleIU;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createFeatureIU;
 import static org.eclipse.tycho.p2.testutil.MatchingItemFinder.getUnique;
 import static org.eclipse.tycho.p2.tools.test.util.ResourceUtil.resourceFile;
-import static org.eclipse.tycho.test.util.TychoMatchers.hasSize;
-import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.endsWith;
@@ -31,7 +29,9 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,7 +61,6 @@ import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
-import org.eclipse.tycho.test.util.TychoMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -115,7 +114,7 @@ public class PublishProductToolTest {
         subject = initPublisher();
         Collection<DependencySeed> seeds = subject.publishProduct(productDefinition, launcherBinaries, FLAVOR);
 
-        assertThat(seeds.size(), is(1));
+        assertEquals(1, seeds.size());
         DependencySeed seed = seeds.iterator().next();
 
         Set<Object> publishedUnits = outputRepository.getInstallableUnits();
@@ -126,7 +125,7 @@ public class PublishProductToolTest {
         // TODO 348586 drop productUid from classifier
         String executableClassifier = "productUid.executable.testws.testos.testarch";
         assertThat(artifactLocations.keySet(), hasItem(executableClassifier));
-        assertThat(artifactLocations.get(executableClassifier), isFile());
+        assertTrue(artifactLocations.get(executableClassifier).isFile());
         assertThat(artifactLocations.get(executableClassifier).toString(), endsWith(".zip"));
     }
 
@@ -137,7 +136,7 @@ public class PublishProductToolTest {
 
         IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
-        assertThat(unit.getVersion().toString(), is("0.1.0." + QUALIFIER));
+        assertEquals("0.1.0." + QUALIFIER, unit.getVersion().toString());
     }
 
     @Test
@@ -233,7 +232,7 @@ public class PublishProductToolTest {
 
         assertThat(unitsIn(outputRepository), hasItem(unitWithId("extra.iu")));
         IInstallableUnit extraUnit = getUnique(unitWithId("extra.iu"), unitsIn(outputRepository));
-        assertThat(extraUnit.getVersion().toString(), is("1.2.3." + QUALIFIER));
+        assertEquals("1.2.3." + QUALIFIER, extraUnit.getVersion().toString());
         assertThat(extraUnit, hasSelfCapability());
     }
 
@@ -278,20 +277,20 @@ public class PublishProductToolTest {
                 not(hasItem(requirement("org.eclipse.help.feature.group", "2.0.102.v20140128"))));
         assertThat(productUnit.getRequirements(), not(hasItem(requirement("org.eclipse.egit.feature.group", "2.0"))));
 
-        assertThat(seeds.get(1).getId(), is("org.eclipse.help"));
+        assertEquals("org.eclipse.help", seeds.get(1).getId());
         assertThat((IInstallableUnit) seeds.get(1).getInstallableUnit(),
                 is(unitWithId("org.eclipse.help.feature.group")));
-        assertThat(seeds.get(2).getId(), is("org.eclipse.egit"));
+        assertEquals("org.eclipse.egit", seeds.get(2).getId());
         assertThat((IInstallableUnit) seeds.get(2).getInstallableUnit(),
                 is(unitWithId("org.eclipse.egit.feature.group")));
-        assertThat(seeds, hasSize(3));
+        assertEquals(3, seeds.size());
     }
 
     /**
      * Returns the IU from the only dependency seed.
      */
     private static IInstallableUnit getUnit(Collection<DependencySeed> seeds) {
-        assertThat(seeds, TychoMatchers.hasSize(1));
+        assertEquals(1, seeds.size());
         return (IInstallableUnit) seeds.iterator().next().getInstallableUnit();
     }
 

@@ -13,8 +13,7 @@
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_KEY;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.net.URI;
@@ -51,7 +50,7 @@ public class CompositeArtifactProviderTest extends CompositeArtifactProviderTest
     public void testGetArtifactFile() {
         File result = subject.getArtifactFile(BUNDLE_A_KEY);
 
-        assertThat(result, is(artifactInLocalRepo(BUNDLE_A_KEY, TestRepositoryContent.REPO_BUNDLE_A, ".jar")));
+        assertEquals(artifactInLocalRepo(BUNDLE_A_KEY, TestRepositoryContent.REPO_BUNDLE_A, ".jar"), result);
     }
 
     private static File artifactInLocalRepo(IArtifactKey key, URI localRepository, String extension) {

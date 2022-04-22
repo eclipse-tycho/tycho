@@ -14,7 +14,6 @@ package org.eclipse.tycho.repository.module;
 
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.allKeysIn;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -85,15 +84,15 @@ public class ModuleArtifactRepositoryTest {
     public void testLoadRepository() throws Exception {
         subject = ModuleArtifactRepository.restoreInstance(null, existingModuleDir);
 
-        assertThat(artifactSizeOf(BUNDLE_ARTIFACT_KEY, subject), is(BUNDLE_ARTIFACT_SIZE));
-        assertThat(artifactSizeOf(SOURCE_ARTIFACT_KEY, subject), is(SOURCE_ARTIFACT_SIZE));
+        assertEquals(BUNDLE_ARTIFACT_SIZE, artifactSizeOf(BUNDLE_ARTIFACT_KEY, subject));
+        assertEquals(SOURCE_ARTIFACT_SIZE, artifactSizeOf(SOURCE_ARTIFACT_KEY, subject));
     }
 
     @Test
     public void testLoadRepositoryWithFactory() throws Exception {
         subject = (ModuleArtifactRepository) loadRepositoryViaAgent(existingModuleDir);
 
-        assertThat(subject.getArtifactDescriptors(SOURCE_ARTIFACT_KEY).length, is(1));
+        assertEquals(1, subject.getArtifactDescriptors(SOURCE_ARTIFACT_KEY).length);
     }
 
     @Test(expected = ProvisionException.class)
@@ -105,7 +104,7 @@ public class ModuleArtifactRepositoryTest {
         try {
             subject = (ModuleArtifactRepository) loadRepositoryViaAgent(corruptRepository);
         } catch (ProvisionException e) {
-            assertThat(e.getStatus().getCode(), is(ProvisionException.REPOSITORY_FAILED_READ));
+            assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
             assertThat(e.getStatus().getMessage(), containsString("Error while reading repository"));
             assertThat(e.getStatus().getMessage(), containsString("Maven coordinate properties are missing"));
             throw e;
@@ -128,7 +127,7 @@ public class ModuleArtifactRepositoryTest {
         writeAndClose(sink.beginWrite(), BINARY_ARTIFACT_SIZE);
         sink.commitWrite();
 
-        assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, subject), is(BINARY_ARTIFACT_SIZE));
+        assertEquals(BINARY_ARTIFACT_SIZE, artifactSizeOf(BINARY_ARTIFACT_KEY, subject));
     }
 
     @SuppressWarnings("deprecation")
@@ -139,7 +138,7 @@ public class ModuleArtifactRepositoryTest {
         OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
 
-        assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, subject), is(BINARY_ARTIFACT_SIZE));
+        assertEquals(BINARY_ARTIFACT_SIZE, artifactSizeOf(BINARY_ARTIFACT_KEY, subject));
     }
 
     @Test
@@ -148,7 +147,7 @@ public class ModuleArtifactRepositoryTest {
         subject = ModuleArtifactRepository.createInstance(null, repoDir);
 
         IArtifactRepository result = loadRepositoryViaAgent(repoDir);
-        assertThat(allKeysIn(result).size(), is(0));
+        assertTrue(allKeysIn(result).isEmpty());
     }
 
     @Test
@@ -161,7 +160,7 @@ public class ModuleArtifactRepositoryTest {
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
 
         IArtifactRepository result = loadRepositoryViaAgent(repoDir);
-        assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, result), is(BINARY_ARTIFACT_SIZE));
+        assertEquals(BINARY_ARTIFACT_SIZE, artifactSizeOf(BINARY_ARTIFACT_KEY, result));
     }
 
     @Test

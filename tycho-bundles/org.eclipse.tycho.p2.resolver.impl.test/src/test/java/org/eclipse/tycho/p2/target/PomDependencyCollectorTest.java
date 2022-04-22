@@ -16,8 +16,9 @@ package org.eclipse.tycho.p2.target;
 
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Collection;
@@ -62,7 +63,7 @@ public class PomDependencyCollectorTest {
 
         Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
         assertThat(units, hasItem(unitWithId("test.unit.source")));
-        assertThat(units.size(), is(1));
+        assertEquals(1, units.size());
     }
 
     @Test
@@ -74,7 +75,7 @@ public class PomDependencyCollectorTest {
 
         Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
         assertThat(units, hasItem(unitWithId("test.unit")));
-        assertThat(units.size(), is(1));
+        assertEquals(1, units.size());
     }
 
     @Test
@@ -85,7 +86,7 @@ public class PomDependencyCollectorTest {
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
         Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
-        assertThat(units.size(), is(0));
+        assertTrue(units.isEmpty());
     }
 
     static ArtifactMock artifactWithClassifier(String classifier) throws Exception {

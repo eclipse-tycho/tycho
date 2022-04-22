@@ -12,10 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -46,17 +44,17 @@ public class GAVArtifactDescriptorTest {
                 OTHER_EXTENSION);
         subject = new GAVArtifactDescriptor(createP2Descriptor(), coordinates);
 
-        assertThat(subject.getArtifactKey(), is(TEST_KEY));
-        assertThat(subject.getMavenCoordinates(), is(coordinates));
+        assertEquals(TEST_KEY, subject.getArtifactKey());
+        assertEquals(coordinates, subject.getMavenCoordinates());
     }
 
     @Test
     public void testCreationFromP2Key() {
         subject = new GAVArtifactDescriptor(TEST_KEY);
 
-        assertThat(subject.getArtifactKey(), is(TEST_KEY));
-        assertThat(subject.getMavenCoordinates(), is(new MavenRepositoryCoordinates("p2.p2.class", "p2.id",
-                "4.3.0.20130614", DEFAULT_CLASSIFIER, DEFAULT_EXTENSION)));
+        assertEquals(TEST_KEY, subject.getArtifactKey());
+        assertEquals(new MavenRepositoryCoordinates("p2.p2.class", "p2.id", "4.3.0.20130614", DEFAULT_CLASSIFIER,
+                DEFAULT_EXTENSION), subject.getMavenCoordinates());
     }
 
     @Test
@@ -65,9 +63,9 @@ public class GAVArtifactDescriptorTest {
         // no maven properties set
         subject = new GAVArtifactDescriptor(input);
 
-        assertThat(subject.getArtifactKey(), is(TEST_KEY));
-        assertThat(subject.getMavenCoordinates(), is(new MavenRepositoryCoordinates("p2.p2.class", "p2.id",
-                "4.3.0.20130614", DEFAULT_CLASSIFIER, DEFAULT_EXTENSION)));
+        assertEquals(TEST_KEY, subject.getArtifactKey());
+        assertEquals(new MavenRepositoryCoordinates("p2.p2.class", "p2.id", "4.3.0.20130614", DEFAULT_CLASSIFIER,
+                DEFAULT_EXTENSION), subject.getMavenCoordinates());
     }
 
     @Test
@@ -80,9 +78,9 @@ public class GAVArtifactDescriptorTest {
 
         subject = new GAVArtifactDescriptor(input);
 
-        assertThat(subject.getArtifactKey(), is(TEST_KEY));
-        assertThat(subject.getMavenCoordinates(),
-                is(new MavenRepositoryCoordinates(TEST_GAV, DEFAULT_CLASSIFIER, DEFAULT_EXTENSION)));
+        assertEquals(TEST_KEY, subject.getArtifactKey());
+        assertEquals(new MavenRepositoryCoordinates(TEST_GAV, DEFAULT_CLASSIFIER, DEFAULT_EXTENSION),
+                subject.getMavenCoordinates());
     }
 
     @Test
@@ -94,8 +92,8 @@ public class GAVArtifactDescriptorTest {
 
         subject = new GAVArtifactDescriptor(input);
 
-        assertThat(subject.getMavenCoordinates(),
-                is(new MavenRepositoryCoordinates(TEST_GAV, OTHER_CLASSIFIER, OTHER_EXTENSION)));
+        assertEquals(new MavenRepositoryCoordinates(TEST_GAV, OTHER_CLASSIFIER, OTHER_EXTENSION),
+                subject.getMavenCoordinates());
     }
 
     @Test
@@ -106,8 +104,8 @@ public class GAVArtifactDescriptorTest {
 
         subject = new GAVArtifactDescriptor(input);
 
-        assertThat(subject.getMavenCoordinates(),
-                is(new MavenRepositoryCoordinates(TEST_GAV, DEFAULT_CLASSIFIER, DEFAULT_EXTENSION)));
+        assertEquals(new MavenRepositoryCoordinates(TEST_GAV, DEFAULT_CLASSIFIER, DEFAULT_EXTENSION),
+                subject.getMavenCoordinates());
     }
 
     @Test
@@ -119,8 +117,8 @@ public class GAVArtifactDescriptorTest {
         subject = new GAVArtifactDescriptor(input);
 
         // treated like completely missing properties
-        assertThat(subject.getMavenCoordinates(), is(new MavenRepositoryCoordinates("p2.p2.class", "p2.id",
-                "4.3.0.20130614", DEFAULT_CLASSIFIER, DEFAULT_EXTENSION)));
+        assertEquals(new MavenRepositoryCoordinates("p2.p2.class", "p2.id", "4.3.0.20130614", DEFAULT_CLASSIFIER,
+                DEFAULT_EXTENSION), subject.getMavenCoordinates());
     }
 
     @Test
@@ -131,8 +129,8 @@ public class GAVArtifactDescriptorTest {
 
         subject = serializeAndDeSerialize(original);
 
-        assertThat(subject.getArtifactKey(), is(TEST_KEY));
-        assertThat(subject.getMavenCoordinates(), is(coordinates));
+        assertEquals(TEST_KEY, subject.getArtifactKey());
+        assertEquals(coordinates, subject.getMavenCoordinates());
     }
 
     @Test
@@ -143,8 +141,8 @@ public class GAVArtifactDescriptorTest {
 
         ArtifactDescriptor serialized = new ArtifactDescriptor(subject);
 
-        assertThat(serialized.getProperties().keySet(), not(hasItem("maven-classifier")));
-        assertThat(serialized.getProperties().keySet(), not(hasItem("maven-extension")));
+        assertFalse(serialized.getProperties().keySet().contains("maven-classifier"));
+        assertFalse(serialized.getProperties().keySet().contains("maven-extension"));
     }
 
     @Test
@@ -160,8 +158,8 @@ public class GAVArtifactDescriptorTest {
 
         subject = serializeAndDeSerialize(original);
 
-        assertThat(subject.getArtifactKey(), is(TEST_KEY));
-        assertThat(subject.getMavenCoordinates(), is(explicitCoordinatesWithDefaults));
+        assertEquals(TEST_KEY, subject.getArtifactKey());
+        assertEquals(explicitCoordinatesWithDefaults, subject.getMavenCoordinates());
     }
 
     @Test
@@ -170,13 +168,13 @@ public class GAVArtifactDescriptorTest {
                 OTHER_EXTENSION);
         subject = new GAVArtifactDescriptor(createP2Descriptor(), coordinates);
 
-        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(new MockMavenContext(null, false, null, null) {
-
-            @Override
-            public String getExtension(String artifactType) {
-                return artifactType;
-            }
-        }), is("mvn/group/mvn.id/4.3.0-SNAPSHOT/mvn.id-4.3.0-SNAPSHOT-mvn.classifier.mvn.fileextension"));
+        assertEquals("mvn/group/mvn.id/4.3.0-SNAPSHOT/mvn.id-4.3.0-SNAPSHOT-mvn.classifier.mvn.fileextension",
+                subject.getMavenCoordinates().getLocalRepositoryPath(new MockMavenContext(null, false, null, null) {
+                    @Override
+                    public String getExtension(String artifactType) {
+                        return artifactType;
+                    }
+                }));
     }
 
     @Test
@@ -185,13 +183,13 @@ public class GAVArtifactDescriptorTest {
                 DEFAULT_EXTENSION);
         subject = new GAVArtifactDescriptor(createP2Descriptor(), coordinates);
 
-        assertThat(subject.getMavenCoordinates().getLocalRepositoryPath(new MockMavenContext(null, false, null, null) {
-
-            @Override
-            public String getExtension(String artifactType) {
-                return "jar";
-            }
-        }), is("mvn/group/mvn.id/4.3.0-SNAPSHOT/mvn.id-4.3.0-SNAPSHOT.jar"));
+        assertEquals("mvn/group/mvn.id/4.3.0-SNAPSHOT/mvn.id-4.3.0-SNAPSHOT.jar",
+                subject.getMavenCoordinates().getLocalRepositoryPath(new MockMavenContext(null, false, null, null) {
+                    @Override
+                    public String getExtension(String artifactType) {
+                        return "jar";
+                    }
+                }));
     }
 
     private static ArtifactDescriptor createP2Descriptor() {
