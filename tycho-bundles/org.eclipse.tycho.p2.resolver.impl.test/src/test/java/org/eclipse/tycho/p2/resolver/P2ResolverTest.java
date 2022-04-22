@@ -24,7 +24,6 @@ import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.customEE
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.standardEEResolutionHintProvider;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -241,7 +240,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
-        assertThat(result.getArtifacts().size(), is(2));
+        assertEquals(2, result.getArtifacts().size());
         assertThat(result.getArtifacts(), hasItem(withId("bundle.nodeps")));
         assertThat(result.getArtifacts(), hasItem(withId("org.eclipse.ui.ide.application")));
     }
@@ -379,7 +378,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         result = singleEnv(impl.resolveTargetDependencies(
                 getTargetPlatform(customEEResolutionHintProvider("Custom_Profile-2")), projectToResolve));
 
-        assertThat(result.getNonReactorUnits().size(), is(1));
+        assertEquals(1, result.getNonReactorUnits().size());
         assertContainsUnit("a.jre.custom.profile", result.getNonReactorUnits());
         // I don't know why we should expect a config.a.jre.custom.profile IU here
     }
@@ -408,8 +407,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         Exception e = assertThrows(Exception.class, () -> {
             result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
             // ... or the p2.inf "artifact" could also just be omitted
-            assertThat(getClassifiedArtifact(result, null).getType(), is(ArtifactType.TYPE_ECLIPSE_FEATURE));
-            assertThat(result.getArtifacts().size(), is(1));
+            assertEquals(ArtifactType.TYPE_ECLIPSE_FEATURE, getClassifiedArtifact(result, null).getType());
+            assertEquals(1, result.getArtifacts().size());
         });
         assertTrue(e.getMessage().contains("classifier"));
 
@@ -422,9 +421,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
                 TYPE_ECLIPSE_FEATURE, "p2Inf.additional-artifact");
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
-        assertThat(getClassifiedArtifact(result, null).getType(), is(ArtifactType.TYPE_ECLIPSE_FEATURE));
-        // this is the current behaviour, but the p2.inf "artifact" could also be omitted
-        //assertThat(getClassifiedArtifact(result, "p2inf").getType(), is(ArtifactType.TYPE_ECLIPSE_PLUGIN));
+        assertEquals(ArtifactType.TYPE_ECLIPSE_FEATURE, getClassifiedArtifact(result, null).getType());
     }
 
     @Test

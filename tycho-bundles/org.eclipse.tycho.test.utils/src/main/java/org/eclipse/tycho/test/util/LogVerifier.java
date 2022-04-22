@@ -14,8 +14,8 @@
 package org.eclipse.tycho.test.util;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,7 +127,7 @@ public class LogVerifier extends Verifier {
 
         void checkLoggedErrors() {
             if (expectNoErrors) {
-                assertThat(getLoggedErrors(), is(""));
+                assertEquals("", getLoggedErrors());
             } else {
                 Matcher<String> combinedMatcher = CoreMatchers.allOf(loggedErrorsMatchers);
                 assertThat(getLoggedErrors(), combinedMatcher);
@@ -136,7 +136,7 @@ public class LogVerifier extends Verifier {
 
         void checkLoggedWarnings() {
             if (expectNoWarnings) {
-                assertThat(getLoggedWarnings(), is(""));
+                assertEquals("", getLoggedWarnings());
             } else {
                 Matcher<String> combinedMatcher = CoreMatchers.allOf(loggedWarningsMatchers);
                 assertThat(getLoggedWarnings(), combinedMatcher);

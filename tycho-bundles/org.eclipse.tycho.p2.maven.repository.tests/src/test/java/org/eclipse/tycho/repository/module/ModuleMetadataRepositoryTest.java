@@ -13,8 +13,8 @@
 package org.eclipse.tycho.repository.module;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class ModuleMetadataRepositoryTest {
 
         subject = new ModuleMetadataRepository(null, targetFolder);
 
-        assertThat(unitsIn(subject).size(), is(0));
+        assertTrue(unitsIn(subject).isEmpty());
     }
 
     @Test
@@ -99,7 +99,7 @@ public class ModuleMetadataRepositoryTest {
         subject = new ModuleMetadataRepository(null, targetFolder);
 
         IMetadataRepository result = loadRepositoryViaAgent(targetFolder);
-        assertThat(unitsIn(result).size(), is(0));
+        assertTrue(unitsIn(result).isEmpty());
     }
 
     @Test

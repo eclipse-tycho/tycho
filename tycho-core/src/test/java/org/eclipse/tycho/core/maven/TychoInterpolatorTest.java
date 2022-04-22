@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,7 +20,6 @@ import java.util.Properties;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,66 +60,66 @@ public class TychoInterpolatorTest {
     @Test
     public void testProjectPropertiesGetInterpolated() {
         String interpolated = interpolator.interpolate("${myProjectPropertyKey}");
-        Assert.assertEquals("myProjectPropertyValue", interpolated);
+        assertEquals("myProjectPropertyValue", interpolated);
     }
 
     @Test
     public void testUserPropertiesGetInterpolated() {
         String interpolated = interpolator.interpolate("${myUserPropertyKey}");
-        Assert.assertEquals("myUserPropertyValue", interpolated);
+        assertEquals("myUserPropertyValue", interpolated);
     }
 
     @Test
     public void testSystemPropertiesGetInterpolated() {
         String interpolated = interpolator.interpolate("${mySystemPropertyKey}");
-        Assert.assertEquals("mySystemPropertyValue", interpolated);
+        assertEquals("mySystemPropertyValue", interpolated);
     }
 
     @Test
     public void testLocalRepositoryGetInterpolated() {
         String interpolated = interpolator.interpolate("${localRepository}");
-        Assert.assertEquals("myLocalRepo", interpolated);
+        assertEquals("myLocalRepo", interpolated);
     }
 
     @Test
     public void testBaseDirGetInterpolated() {
         String interpolated = interpolator.interpolate("${basedir}");
-        Assert.assertEquals("absolutePathToBaseDir", interpolated);
+        assertEquals("absolutePathToBaseDir", interpolated);
     }
 
     @Test
     public void testVersionGetInterpolated() {
         String interpolated = interpolator.interpolate("${version}");
-        Assert.assertEquals("1.0.0", interpolated);
+        assertEquals("1.0.0", interpolated);
     }
 
     @Test
     public void testProjectMembersGetInterpolated() {
         when(project.getArtifactId()).thenReturn("myArtifactId");
         String interpolated = interpolator.interpolate("${project.artifactId}");
-        Assert.assertEquals("myArtifactId", interpolated);
+        assertEquals("myArtifactId", interpolated);
     }
 
     @Test
     public void testSettingsMembersGetInterpolated() {
         when(settings.getSourceLevel()).thenReturn("mySourceLevel");
         String interpolated = interpolator.interpolate("${settings.sourceLevel}");
-        Assert.assertEquals("mySourceLevel", interpolated);
+        assertEquals("mySourceLevel", interpolated);
     }
 
     @Test
     public void testInterpolateSubString() {
-        assertThat(interpolator.interpolate("pre1${localRepository}1post"), is("pre1myLocalRepo1post"));
+        assertEquals("pre1myLocalRepo1post", interpolator.interpolate("pre1${localRepository}1post"));
     }
 
     @Test
     public void testInterpolateNonExisting() {
-        assertThat(interpolator.interpolate("${undefined}"), is("${undefined}"));
+        assertEquals("${undefined}", interpolator.interpolate("${undefined}"));
     }
 
     @Test
     public void testInterpolateSyntaxError() {
-        assertThat(interpolator.interpolate("${not closed"), is("${not closed"));
+        assertEquals("${not closed", interpolator.interpolate("${not closed"));
     }
 
 }

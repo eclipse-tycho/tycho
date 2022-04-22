@@ -14,8 +14,7 @@ package org.eclipse.tycho.repository.local;
 
 import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -74,7 +73,7 @@ public class MirroringArtifactProviderErrorTest {
     }
 
     private void assertNotMirrored(IArtifactKey key) {
-        assertThat(localRepository.getArtifactDescriptors(key).length, is(0));
+        assertEquals(0, localRepository.getArtifactDescriptors(key).length);
     }
 
 }

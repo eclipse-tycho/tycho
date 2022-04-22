@@ -16,8 +16,7 @@ package org.eclipse.tycho.repository.p2base.artifact.repository;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_KEY;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_A;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.REPO_BUNDLE_AB;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
@@ -55,7 +54,7 @@ public class FileRepositoryArtifactProviderTest {
     public void testGetArtifactFile() {
         File result = subject.getArtifactFile(BUNDLE_A_KEY);
 
-        assertThat(result, is(artifactInLocalRepo(BUNDLE_A_KEY, TestRepositoryContent.REPO_BUNDLE_A, ".jar")));
+        assertEquals(artifactInLocalRepo(BUNDLE_A_KEY, TestRepositoryContent.REPO_BUNDLE_A, ".jar"), result);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -17,9 +17,9 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.defaultEn
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitionWith;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdsOf;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
@@ -79,7 +79,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertThat(content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(2));
+        assertEquals(2, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertThat(content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(2));
+        assertEquals(2, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition, p2Context.getAgent());
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
-        assertThat(content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(1));
+        assertEquals(1, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
     }
 
     @Test
@@ -113,7 +113,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition, p2Context.getAgent());
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
-        assertThat(content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(1));
+        assertEquals(1, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertThat(content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(3));
+        assertEquals(3, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertThat(content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size(), is(3));
+        assertEquals(3, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
     }
 
     static class WithSourceLocationStub extends LocationStub implements InstallableUnitLocation {

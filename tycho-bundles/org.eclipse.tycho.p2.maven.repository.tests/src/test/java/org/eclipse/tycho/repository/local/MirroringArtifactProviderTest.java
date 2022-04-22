@@ -16,12 +16,9 @@ import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.
 import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.ANY_ARTIFACT_KEY_QUERY;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
-import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
-import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -136,7 +133,7 @@ public class MirroringArtifactProviderTest {
     @Test
     public void testQuery() {
         IQueryResult<IArtifactKey> result = subject.query(ANY_ARTIFACT_KEY_QUERY, null);
-        assertThat(result.toSet().size(), is(3));
+        assertEquals(3, result.toSet().size());
 
         assertNotMirrored(BUNDLE_A_KEY);
     }
@@ -148,8 +145,8 @@ public class MirroringArtifactProviderTest {
         testSink = newArtifactSinkFor(BUNDLE_L_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(status, okStatus());
-        assertThat(testSink.getFilesInZip(), is(BUNDLE_L_CONTENT_FILES));
+        assertTrue(status.isOK());
+        assertEquals(BUNDLE_L_CONTENT_FILES, testSink.getFilesInZip());
     }
 
     @Test
@@ -158,8 +155,8 @@ public class MirroringArtifactProviderTest {
         status = subject.getArtifact(testSink, null);
 
         assertFalse(testSink.writeIsStarted());
-        assertThat(status, is(errorStatus()));
-        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+        assertEquals(IStatus.ERROR, status.getSeverity());
+        assertEquals(ProvisionException.ARTIFACT_NOT_FOUND, status.getCode());
     }
 
     // TODO set up a test which uses a Jetty server?
@@ -176,14 +173,14 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetAlreadyMirroredArtifactFile() {
-        assertThat(subject.getArtifactFile(BUNDLE_L_KEY),
-                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_L_KEY))));
+        assertEquals(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_L_KEY)),
+                subject.getArtifactFile(BUNDLE_L_KEY));
     }
 
     @Test
     public void testGetArtifactFile() {
-        assertThat(subject.getArtifactFile(BUNDLE_A_KEY),
-                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY))));
+        assertEquals(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY)),
+                subject.getArtifactFile(BUNDLE_A_KEY));
 
         assertMirrored(BUNDLE_A_KEY);
     }
@@ -195,7 +192,7 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testGetArtifactDescriptorsOfUnavailableArtifact() {
-        assertThat(subject.getArtifactDescriptors(OTHER_KEY).length, is(0));
+        assertEquals(0, subject.getArtifactDescriptors(OTHER_KEY).length);
     }
 
     @Test
@@ -213,8 +210,8 @@ public class MirroringArtifactProviderTest {
     @Test
     public void testGetRawCanonicalArtifactFile() {
         // the getArtifactFile method that takes a descriptor returns the raw file
-        assertThat(subject.getArtifactFile(canonicalDescriptorFor(BUNDLE_A_KEY)),
-                is(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY))));
+        assertEquals(new File(localRepositoryRoot, localRepoPathOf(BUNDLE_A_KEY)),
+                subject.getArtifactFile(canonicalDescriptorFor(BUNDLE_A_KEY)));
 
         assertMirrored(BUNDLE_A_KEY);
     }
@@ -230,16 +227,16 @@ public class MirroringArtifactProviderTest {
         status = subject.getRawArtifact(rawTestSink, null);
 
         assertFalse(rawTestSink.writeIsStarted());
-        assertThat(status, is(errorStatus()));
-        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+        assertEquals(IStatus.ERROR, status.getSeverity());
+        assertEquals(ProvisionException.ARTIFACT_NOT_FOUND, status.getCode());
     }
 
     private void assertNotMirrored(IArtifactKey key) {
-        assertThat(localRepository.getArtifactDescriptors(key).length, is(0));
+        assertEquals(0, localRepository.getArtifactDescriptors(key).length);
     }
 
     private void assertMirrored(IArtifactKey key) {
-        assertThat(localRepository.getArtifactDescriptors(key).length, not(is(0)));
+        assertNotEquals(0, localRepository.getArtifactDescriptors(key).length);
     }
 
     private static String localRepoPathOf(IArtifactKey key) {

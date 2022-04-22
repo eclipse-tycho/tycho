@@ -11,7 +11,6 @@
 package org.eclipse.tycho.core.test;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertArrayEquals;
@@ -129,8 +128,8 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
 
         if (dependencies.size() > 0) {
-            assertThat(dependencies.size(), is(1));
-            assertThat(dependencies.get(0).module.getSymbolicName(), is(Constants.SYSTEM_BUNDLE_SYMBOLICNAME));
+            assertEquals(1, dependencies.size());
+            assertEquals(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, dependencies.get(0).module.getSymbolicName());
         }
     }
 

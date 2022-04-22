@@ -35,6 +35,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -114,7 +115,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
     @Test
     public void testQuery() {
         IQueryResult<IArtifactKey> result = subject.query(ANY_ARTIFACT_KEY_QUERY, null);
-        assertThat(result.toSet().size(), is(2));
+        assertEquals(2, result.toSet().size());
     }
 
     @Test
@@ -122,7 +123,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         subject = createCompositeArtifactProvider(REPO_BUNDLE_A);
 
         IQueryResult<IArtifactKey> result = subject.query(ANY_ARTIFACT_KEY_QUERY, null);
-        assertThat(result.toSet().size(), is(1));
+        assertEquals(1, result.toSet().size());
     }
 
     @Test
@@ -130,7 +131,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         subject = createCompositeArtifactProvider(new URI[0]);
 
         IQueryResult<IArtifactKey> result = subject.query(ANY_ARTIFACT_KEY_QUERY, null);
-        assertThat(result.toSet().size(), is(0));
+        assertTrue(result.toSet().isEmpty());
     }
 
     @Test
@@ -138,8 +139,8 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(status, okStatus());
-        assertThat(testSink.getFilesInZip(), is(BUNDLE_A_FILES));
+        assertTrue(status.isOK());
+        assertEquals(BUNDLE_A_FILES, testSink.getFilesInZip());
     }
 
     @Test
@@ -149,7 +150,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
 
         assertFalse(testSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
-        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+        assertEquals(ProvisionException.ARTIFACT_NOT_FOUND, status.getCode());
         assertThat(status, statusWithMessageWhich(containsString("is not available in")));
     }
 
@@ -164,7 +165,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         assertThat(status.getMessage(), containsString("Some attempts to read"));
         assertThat(asList(status.getChildren()), hasItem(errorStatus()));
         assertThat(asList(status.getChildren()), hasItem(okStatus()));
-        assertThat(testSink.getFilesInZip(), is(BUNDLE_A_FILES));
+        assertEquals(BUNDLE_A_FILES, testSink.getFilesInZip());
     }
 
     @Test
@@ -209,7 +210,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
 
         assertFalse(rawTestSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
-        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+        assertEquals(ProvisionException.ARTIFACT_NOT_FOUND, status.getCode());
         assertThat(status, statusWithMessageWhich(containsString("is not available in")));
     }
 
@@ -219,8 +220,8 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         rawTestSink = new ProbeRawArtifactSink(canonicalDescriptorFor(BUNDLE_A_KEY));
         status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(status, is(okStatus()));
-        assertThat(rawTestSink.md5AsHex(), is(BUNDLE_A_CONTENT_MD5));
+        assertTrue(status.isOK());
+        assertEquals(BUNDLE_A_CONTENT_MD5, rawTestSink.md5AsHex());
     }
 
     @Test
@@ -231,7 +232,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
                 testOutputStream);
         status = subject.getRawArtifact(nonRestartableSink, null);
 
-        assertThat(status, is(okStatus()));
+        assertTrue(status.isOK());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -245,7 +246,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(BUNDLE_A_KEY));
 
         assertThat(result, hasItem(inCanonicalFormat()));
-        assertThat(result.size(), is(2)); // no duplicates
+        assertEquals(2, result.size()); // no duplicates
     }
 
     @Test
@@ -259,7 +260,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         rawTestSink = newRawArtifactSinkFor(canonicalDescriptorFor(BUNDLE_A_KEY));
         status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(rawTestSink.md5AsHex(), is(BUNDLE_A_CONTENT_MD5)); // raw artifacts are never processed -> files should be identical
+        assertEquals(BUNDLE_A_CONTENT_MD5, rawTestSink.md5AsHex()); // raw artifacts are never processed -> files should be identical
     }
 
 }

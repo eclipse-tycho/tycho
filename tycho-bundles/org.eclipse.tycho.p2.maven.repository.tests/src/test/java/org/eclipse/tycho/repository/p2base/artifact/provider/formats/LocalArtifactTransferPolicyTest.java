@@ -12,13 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider.formats;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +48,7 @@ public class LocalArtifactTransferPolicyTest {
         List<IArtifactDescriptor> result = subject.sortFormatsByPreference(descriptors);
 
         assertNull(result.get(0).getProperty(IArtifactDescriptor.FORMAT));
-        assertThat(formatsOf(result.get(1), result.get(2)), is(asSet("customFormat", "anotherFormat")));
+        assertEquals(Set.of("customFormat", "anotherFormat"), formatsOf(result.get(1), result.get(2)));
         assertEquals(3, result.size());
     }
 
@@ -61,10 +58,6 @@ public class LocalArtifactTransferPolicyTest {
             result.add(descriptor.getProperty(IArtifactDescriptor.FORMAT));
         }
         return result;
-    }
-
-    static Set<String> asSet(String... values) {
-        return new HashSet<>(Arrays.asList(values));
     }
 
     static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context)

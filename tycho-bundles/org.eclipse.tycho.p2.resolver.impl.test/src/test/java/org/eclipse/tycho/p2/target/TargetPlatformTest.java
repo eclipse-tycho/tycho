@@ -15,8 +15,7 @@ package org.eclipse.tycho.p2.target;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createBundleIU;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createFeatureIU;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createProductIU;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -52,9 +51,9 @@ public class TargetPlatformTest {
     public void testResolveFixedVersion() throws Exception {
         ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", "1.1.0.v2013");
 
-        assertThat(key.getType(), is(ArtifactType.TYPE_ECLIPSE_PLUGIN));
-        assertThat(key.getId(), is("some.bundle"));
-        assertThat(key.getVersion(), is("1.1.0.v2013"));
+        assertEquals(ArtifactType.TYPE_ECLIPSE_PLUGIN, key.getType());
+        assertEquals("some.bundle", key.getId());
+        assertEquals("1.1.0.v2013", key.getVersion());
     }
 
     @Test
@@ -83,7 +82,7 @@ public class TargetPlatformTest {
     public void testResolveLatestVersionThroughZeros() throws Exception {
         ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", "0.0.0");
 
-        assertThat(key.getVersion(), is("1.2.0"));
+        assertEquals("1.2.0", key.getVersion());
     }
 
     @Test
@@ -91,14 +90,14 @@ public class TargetPlatformTest {
         // e.g. when version attribute is omitted
         ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", null);
 
-        assertThat(key.getVersion(), is("1.2.0"));
+        assertEquals("1.2.0", key.getVersion());
     }
 
     @Test
     public void testResolveLatestQualifierWithQualifierLiteral() throws Exception {
         ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", "1.1.0.qualifier");
 
-        assertThat(key.getVersion(), is("1.1.0.v2014"));
+        assertEquals("1.1.0.v2014", key.getVersion());
     }
 
     @Test
@@ -106,7 +105,7 @@ public class TargetPlatformTest {
         ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", "1.1.0");
 
         // three-segment versions don't have a special semantic in the PDE, so 1.1.0 doesn't resolve to 1.1.0.v2014 (cf. bug 373844)
-        assertThat(key.getVersion(), is("1.1.0"));
+        assertEquals("1.1.0", key.getVersion());
     }
 
     @Test
@@ -116,9 +115,9 @@ public class TargetPlatformTest {
 
         ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "unit", ANY_VERSION);
 
-        assertThat(key.getType(), is(ArtifactType.TYPE_ECLIPSE_PLUGIN));
-        assertThat(key.getId(), is("unit"));
-        assertThat(key.getVersion(), is("1.0.0"));
+        assertEquals(ArtifactType.TYPE_ECLIPSE_PLUGIN, key.getType());
+        assertEquals("unit", key.getId());
+        assertEquals("1.0.0", key.getVersion());
     }
 
     @Test
@@ -128,9 +127,9 @@ public class TargetPlatformTest {
 
         ArtifactKey key = subject.resolveArtifact("eclipse-product", "unit", ANY_VERSION);
 
-        assertThat(key.getType(), is(ArtifactType.TYPE_ECLIPSE_PRODUCT));
-        assertThat(key.getId(), is("unit"));
-        assertThat(key.getVersion(), is("1.99.0"));
+        assertEquals(ArtifactType.TYPE_ECLIPSE_PRODUCT, key.getType());
+        assertEquals("unit", key.getId());
+        assertEquals("1.99.0", key.getVersion());
     }
 
     @Test
@@ -140,9 +139,9 @@ public class TargetPlatformTest {
 
         ArtifactKey key = subject.resolveArtifact("p2-installable-unit", "unit", ANY_VERSION);
 
-        assertThat(key.getType(), is(ArtifactType.TYPE_INSTALLABLE_UNIT));
-        assertThat(key.getId(), is("unit"));
-        assertThat(key.getVersion(), is("2.0.0"));
+        assertEquals(ArtifactType.TYPE_INSTALLABLE_UNIT, key.getType());
+        assertEquals("unit", key.getId());
+        assertEquals("2.0.0", key.getVersion());
     }
 
     @Test
@@ -153,9 +152,9 @@ public class TargetPlatformTest {
 
         ArtifactKey key = subject.resolveArtifact("eclipse-feature", "unit", ANY_VERSION);
 
-        assertThat(key.getType(), is(ArtifactType.TYPE_ECLIPSE_FEATURE));
-        assertThat(key.getId(), is("unit")); // id is feature id
-        assertThat(key.getVersion(), is("1.2.0"));
+        assertEquals(ArtifactType.TYPE_ECLIPSE_FEATURE, key.getType());
+        assertEquals("unit", key.getId()); // id is feature id
+        assertEquals("1.2.0", key.getVersion());
     }
 
     @Test

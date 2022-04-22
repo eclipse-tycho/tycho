@@ -16,7 +16,6 @@ package org.eclipse.tycho.repository.local;
 import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
 import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
-import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -174,7 +173,7 @@ public class LocalArtifactRepositoryP2APITest {
 
         assertThat(result, hasItem(ARTIFACT_A_KEY));
         assertThat(result, hasItem(ARTIFACT_B_KEY));
-        assertThat(result, is(ORIGINAL_KEYS));
+        assertEquals(ORIGINAL_KEYS, result);
     }
 
     @Test
@@ -184,7 +183,7 @@ public class LocalArtifactRepositoryP2APITest {
         assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
         assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_2));
         assertThat(result, hasItem(ARTIFACT_B_DESCRIPTOR));
-        assertThat(result, is(ORIGINAL_DESCRIPTORS));
+        assertEquals(ORIGINAL_DESCRIPTORS, result);
     }
 
     @Test
@@ -266,8 +265,8 @@ public class LocalArtifactRepositoryP2APITest {
     public void testRemoveAll() {
         subject.removeAll();
 
-        assertThat(allKeysIn(subject).size(), is(0));
-        assertThat(allDescriptorsIn(subject).size(), is(0));
+        assertTrue(allKeysIn(subject).isEmpty());
+        assertTrue(allDescriptorsIn(subject).isEmpty());
         assertTotal(-2, -3);
     }
 
@@ -313,8 +312,8 @@ public class LocalArtifactRepositoryP2APITest {
         testSink = newArtifactSinkFor(ARTIFACT_A_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(status, is(okStatus()));
-        assertThat(testSink.getFilesInZip(), is(ARTIFACT_A_CONTENT));
+        assertTrue(status.isOK());
+        assertEquals(ARTIFACT_A_CONTENT, testSink.getFilesInZip());
     }
 
     @Test
@@ -324,7 +323,7 @@ public class LocalArtifactRepositoryP2APITest {
 
         assertFalse(testSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
-        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+        assertEquals(ProvisionException.ARTIFACT_NOT_FOUND, status.getCode());
     }
 
     @Test
@@ -380,8 +379,8 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetArtifactToStream() throws Exception {
         status = subject.getArtifact(ARTIFACT_A_CANONICAL, testOutputStream, null);
 
-        assertThat(status, is(okStatus()));
-        assertThat(testOutputStream.getFilesInZip(), is(ARTIFACT_A_CONTENT));
+        assertTrue(status.isOK());
+        assertEquals(ARTIFACT_A_CONTENT, testOutputStream.getFilesInZip());
     }
 
     @SuppressWarnings("deprecation")
@@ -389,10 +388,10 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetNonContainedArtifactToStream() {
         status = subject.getArtifact(OTHER_DESCRIPTOR, testOutputStream, null);
 
-        assertThat(testOutputStream.writtenBytes(), is(0));
+        assertEquals(0, testOutputStream.writtenBytes());
         assertThat(testOutputStream.getStatus(), is(errorStatus())); // from IStateful
         assertThat(status, is(errorStatus()));
-        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+        assertEquals(ProvisionException.ARTIFACT_NOT_FOUND, status.getCode());
     }
 
     @Test
@@ -400,8 +399,8 @@ public class LocalArtifactRepositoryP2APITest {
         rawTestSink = newRawArtifactSinkFor(ARTIFACT_A_CANONICAL);
         status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(status, is(okStatus()));
-        assertThat(rawTestSink.md5AsHex(), is(ARTIFACT_A_CANONICAL_MD5));
+        assertTrue(status.isOK());
+        assertEquals(ARTIFACT_A_CANONICAL_MD5, rawTestSink.md5AsHex());
     }
 
     @Test
@@ -415,7 +414,7 @@ public class LocalArtifactRepositoryP2APITest {
 
         assertFalse(rawTestSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
-        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+        assertEquals(ProvisionException.ARTIFACT_NOT_FOUND, status.getCode());
     }
 
     @Test
@@ -440,8 +439,8 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetRawArtifactForCanonicalFormatToStream() throws Exception {
         status = subject.getRawArtifact(ARTIFACT_A_CANONICAL, testOutputStream, null);
 
-        assertThat(status, is(okStatus()));
-        assertThat(testOutputStream.md5AsHex(), is(ARTIFACT_A_CANONICAL_MD5));
+        assertTrue(status.isOK());
+        assertEquals(ARTIFACT_A_CANONICAL_MD5, testOutputStream.md5AsHex());
     }
 
     @SuppressWarnings("deprecation")
@@ -452,10 +451,10 @@ public class LocalArtifactRepositoryP2APITest {
         // getRawArtifact does not convert from packed to canonical format
         status = subject.getRawArtifact(ARTIFACT_B_CANONICAL, testOutputStream, null);
 
-        assertThat(testOutputStream.writtenBytes(), is(0));
+        assertEquals(0, testOutputStream.writtenBytes());
         assertThat(testOutputStream.getStatus(), is(errorStatus())); // from IStateful
         assertThat(status, is(errorStatus()));
-        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+        assertEquals(ProvisionException.ARTIFACT_NOT_FOUND, status.getCode());
     }
 
     @Test
@@ -466,7 +465,7 @@ public class LocalArtifactRepositoryP2APITest {
 
         assertTrue(subject.contains(NEW_KEY));
         assertTrue(subject.contains(localCanonicalDescriptorFor(NEW_KEY)));
-        assertThat(readSizeOfArtifact(NEW_KEY), is(33));
+        assertEquals(33, readSizeOfArtifact(NEW_KEY));
     }
 
     @Test
@@ -482,7 +481,7 @@ public class LocalArtifactRepositoryP2APITest {
         }
 
         assertThat(expectedException, is(instanceOf(ProvisionException.class)));
-        assertThat(expectedException.getStatus().getCode(), is(ProvisionException.ARTIFACT_EXISTS));
+        assertEquals(ProvisionException.ARTIFACT_EXISTS, expectedException.getStatus().getCode());
     }
 
     @Test
@@ -504,7 +503,7 @@ public class LocalArtifactRepositoryP2APITest {
 
         assertTrue(subject.contains(NEW_KEY));
         assertTrue(subject.contains(localCanonicalDescriptorFor(NEW_KEY)));
-        assertThat(readSizeOfArtifact(NEW_KEY), is(22));
+        assertEquals(22, readSizeOfArtifact(NEW_KEY));
     }
 
     @Test
@@ -515,7 +514,7 @@ public class LocalArtifactRepositoryP2APITest {
 
         assertTrue(subject.contains(NEW_DESCRIPTOR));
         assertTrue(subject.contains(NEW_DESCRIPTOR.getArtifactKey()));
-        assertThat(readSizeOfRawArtifact(NEW_DESCRIPTOR), is(33));
+        assertEquals(33, readSizeOfRawArtifact(NEW_DESCRIPTOR));
     }
 
     @SuppressWarnings("deprecation")
@@ -528,7 +527,7 @@ public class LocalArtifactRepositoryP2APITest {
         assertTrue(subject.contains(NEW_KEY));
         assertTrue(subject.contains(NEW_DESCRIPTOR));
         subject.getRawArtifact(NEW_DESCRIPTOR, testOutputStream, null);
-        assertThat(testOutputStream.writtenBytes(), is(33));
+        assertEquals(33, testOutputStream.writtenBytes());
     }
 
     @SuppressWarnings("deprecation")
@@ -543,7 +542,7 @@ public class LocalArtifactRepositoryP2APITest {
         }
 
         assertThat(expectedException, is(instanceOf(ProvisionException.class)));
-        assertThat(expectedException.getStatus().getCode(), is(ProvisionException.ARTIFACT_EXISTS));
+        assertEquals(ProvisionException.ARTIFACT_EXISTS, expectedException.getStatus().getCode());
     }
 
     @SuppressWarnings("deprecation")
@@ -601,8 +600,8 @@ public class LocalArtifactRepositoryP2APITest {
     }
 
     private void assertNoChanges() {
-        assertThat(allKeysIn(subject), is(ORIGINAL_KEYS));
-        assertThat(allDescriptorsIn(subject), is(ORIGINAL_DESCRIPTORS));
+        assertEquals(ORIGINAL_KEYS, allKeysIn(subject));
+        assertEquals(ORIGINAL_DESCRIPTORS, allDescriptorsIn(subject));
     }
 
     private void assertTotal(int keyDiff, int descriptorDiff) {
