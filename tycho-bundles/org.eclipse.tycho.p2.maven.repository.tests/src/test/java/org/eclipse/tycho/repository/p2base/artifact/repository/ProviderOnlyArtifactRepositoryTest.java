@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 
 import java.net.URI;
 
@@ -51,7 +52,7 @@ public class ProviderOnlyArtifactRepositoryTest {
     @After
     public void checkStreamNotClosed() {
         // none of the tested methods should close the stream
-        assertThat(testOutputStream.isClosed(), is(false));
+        assertFalse(testOutputStream.isClosed());
     }
 
     @SuppressWarnings("deprecation")

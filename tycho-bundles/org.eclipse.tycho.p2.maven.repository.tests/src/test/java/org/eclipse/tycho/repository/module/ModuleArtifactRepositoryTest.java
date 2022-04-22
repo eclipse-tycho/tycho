@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 SAP SE and others.
+ * Copyright (c) 2010, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -114,7 +116,7 @@ public class ModuleArtifactRepositoryTest {
     public void testCreateRepository() throws Exception {
         subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
 
-        assertThat(allKeysIn(subject).isEmpty(), is(true));
+        assertTrue(allKeysIn(subject).isEmpty());
     }
 
     @Test
@@ -169,9 +171,9 @@ public class ModuleArtifactRepositoryTest {
         IArtifactDescriptor originalDescriptor = subject.getArtifactDescriptors(BUNDLE_ARTIFACT_KEY)[0];
         IArtifactDescriptor equivalentDescriptor = new ArtifactDescriptor(originalDescriptor);
 
-        assertThat(subject.contains(BUNDLE_ARTIFACT_KEY), is(true));
-        assertThat(subject.contains(originalDescriptor), is(true));
-        assertThat(subject.contains(equivalentDescriptor), is(true));
+        assertTrue(subject.contains(BUNDLE_ARTIFACT_KEY));
+        assertTrue(subject.contains(originalDescriptor));
+        assertTrue(subject.contains(equivalentDescriptor));
     }
 
     @Test
@@ -186,15 +188,15 @@ public class ModuleArtifactRepositoryTest {
         IArtifactDescriptor equivalentDescriptor = new ArtifactDescriptor(originalDescriptor);
 
         // self-test: now the key/descriptor should be contained
-        assertThat(subject.contains(BINARY_ARTIFACT_KEY), is(true));
-        assertThat(subject.contains(originalDescriptor), is(true));
-        assertThat(subject.contains(equivalentDescriptor), is(true));
+        assertTrue(subject.contains(BINARY_ARTIFACT_KEY));
+        assertTrue(subject.contains(originalDescriptor));
+        assertTrue(subject.contains(equivalentDescriptor));
 
         subject.removeDescriptor(equivalentDescriptor);
 
-        assertThat(subject.contains(equivalentDescriptor), is(false));
-        assertThat(subject.contains(originalDescriptor), is(false));
-        assertThat(subject.contains(BUNDLE_ARTIFACT_KEY), is(false));
+        assertFalse(subject.contains(equivalentDescriptor));
+        assertFalse(subject.contains(originalDescriptor));
+        assertFalse(subject.contains(BUNDLE_ARTIFACT_KEY));
     }
 
     private IArtifactDescriptor newDescriptor(ArtifactKey artifactKey) {

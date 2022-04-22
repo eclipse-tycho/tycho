@@ -157,7 +157,7 @@ public class MirroringArtifactProviderTest {
         testSink = newArtifactSinkFor(OTHER_KEY);
         status = subject.getArtifact(testSink, null);
 
-        assertThat(testSink.writeIsStarted(), is(false));
+        assertFalse(testSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
     }
@@ -229,7 +229,7 @@ public class MirroringArtifactProviderTest {
         rawTestSink = newRawArtifactSinkFor(canonicalDescriptorFor(OTHER_KEY));
         status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(rawTestSink.writeIsStarted(), is(false));
+        assertFalse(rawTestSink.writeIsStarted());
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
     }

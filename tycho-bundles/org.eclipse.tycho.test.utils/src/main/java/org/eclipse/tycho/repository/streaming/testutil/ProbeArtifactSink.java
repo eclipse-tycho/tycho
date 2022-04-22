@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP SE and others.
+ * Copyright (c) 2013, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -129,7 +130,7 @@ public class ProbeArtifactSink implements IArtifactSink {
         }
         if (writeIsStarted()) {
             // if the sink was opened, it should also be closed
-            assertThat(writeIsAborted() || writeIsCommitted(), is(true));
+            assertTrue(writeIsAborted() || writeIsCommitted());
         }
     }
 

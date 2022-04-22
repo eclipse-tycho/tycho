@@ -16,6 +16,7 @@ import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.tycho.core.shared.MockMavenContext;
@@ -68,7 +69,7 @@ public class MirroringArtifactProviderErrorTest {
 
         } finally {
             assertNotMirrored(CORRUPT_ARTIFACT);
-            assertThat(testSink.writeIsStarted(), is(false));
+            assertFalse(testSink.writeIsStarted());
         }
     }
 
