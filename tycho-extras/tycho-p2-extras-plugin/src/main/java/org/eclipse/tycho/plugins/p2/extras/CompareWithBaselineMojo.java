@@ -13,7 +13,6 @@
 package org.eclipse.tycho.plugins.p2.extras;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
@@ -112,7 +112,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
             return;
         }
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        Set<?> dependencyMetadata = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
+        Set<IInstallableUnit> dependencyMetadata = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
         if (dependencyMetadata == null || dependencyMetadata.isEmpty()) {
             getLog().debug("Skipping baseline version comparison, no p2 artifacts created in build.");
             return;
@@ -134,12 +134,10 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         TargetPlatform baselineTP = resolverFactory.getTargetPlatformFactory().createTargetPlatform(baselineTPStub,
                 TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject), null);
 
-        for (Object item : dependencyMetadata) {
+        for (IInstallableUnit item : dependencyMetadata) {
             try {
-                Method getIdMethod = item.getClass().getMethod("getId");
-                Method getVersionMethod = item.getClass().getMethod("getVersion");
-                String id = (String) getIdMethod.invoke(item);
-                Version version = new Version(getVersionMethod.invoke(item).toString());
+                String id = item.getId();
+                Version version = new Version(item.getVersion().toString());
                 P2ResolutionResult res = resolver.resolveInstallableUnit(baselineTP, id, "0.0.0");
 
                 for (Entry foundInBaseline : res.getArtifacts()) {

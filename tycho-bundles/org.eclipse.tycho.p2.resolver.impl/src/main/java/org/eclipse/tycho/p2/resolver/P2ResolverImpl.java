@@ -123,11 +123,11 @@ public class P2ResolverImpl implements P2Resolver {
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         Set<IInstallableUnit> usedTargetPlatformUnits = new LinkedHashSet<>();
-        Set<?> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
+        Set<IInstallableUnit> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
                 : Collections.emptySet();
         for (TargetEnvironment environment : environments) {
             if (isMatchingEnv(metadata, environment, logger::debug)) {
-                results.put(environment, resolveDependencies(Collections.<IInstallableUnit> emptySet(), project,
+                results.put(environment, resolveDependencies(Collections.emptySet(), project,
                         new ProjectorResolutionStrategy(logger), environment, targetPlatform, usedTargetPlatformUnits));
             } else {
                 logger.info(MessageFormat.format(
@@ -505,19 +505,17 @@ public class P2ResolverImpl implements P2Resolver {
      * @param environment
      * @return
      */
-    private static boolean isMatchingEnv(Set<?> metadata, TargetEnvironment environment,
+    private static boolean isMatchingEnv(Set<IInstallableUnit> metadata, TargetEnvironment environment,
             Consumer<String> debugConsumer) {
         if (metadata != null) {
-            for (Object meta : metadata) {
-                if (meta instanceof IInstallableUnit) {
-                    IMatchExpression<IInstallableUnit> filter = ((IInstallableUnit) meta).getFilter();
-                    if (filter != null) {
-                        boolean match = filter.isMatch(InstallableUnit.contextIU(environment.toFilterProperties()));
-                        debugConsumer.accept(MessageFormat.format("{0}: {1} (matches {2})", filter,
-                                Arrays.toString(filter.getParameters()), match));
-                        if (!match) {
-                            return false;
-                        }
+            for (IInstallableUnit meta : metadata) {
+                IMatchExpression<IInstallableUnit> filter = meta.getFilter();
+                if (filter != null) {
+                    boolean match = filter.isMatch(InstallableUnit.contextIU(environment.toFilterProperties()));
+                    debugConsumer.accept(MessageFormat.format("{0}: {1} (matches {2})", filter,
+                            Arrays.toString(filter.getParameters()), match));
+                    if (!match) {
+                        return false;
                     }
                 }
             }

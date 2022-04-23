@@ -184,9 +184,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         Set<IInstallableUnit> units = new LinkedHashSet<>();
         Set<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<>();
         for (IP2Artifact artifact : metadata.values()) {
-            for (IInstallableUnit unit : artifact.getInstallableUnits()) {
-                units.add(unit);
-            }
+            units.addAll(artifact.getInstallableUnits());
             artifactDescriptors.add(artifact.getArtifactDescriptor());
         }
         new MetadataIO().writeXML(units, unitsXml);

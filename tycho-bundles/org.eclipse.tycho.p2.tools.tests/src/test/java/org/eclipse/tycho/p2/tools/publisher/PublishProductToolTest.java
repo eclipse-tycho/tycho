@@ -278,8 +278,7 @@ public class PublishProductToolTest {
         assertThat(productUnit.getRequirements(), not(hasItem(requirement("org.eclipse.egit.feature.group", "2.0"))));
 
         assertEquals("org.eclipse.help", seeds.get(1).getId());
-        assertThat((IInstallableUnit) seeds.get(1).getInstallableUnit(),
-                is(unitWithId("org.eclipse.help.feature.group")));
+        assertThat(seeds.get(1).getInstallableUnit(), is(unitWithId("org.eclipse.help.feature.group")));
         assertEquals("org.eclipse.egit", seeds.get(2).getId());
         assertThat((IInstallableUnit) seeds.get(2).getInstallableUnit(),
                 is(unitWithId("org.eclipse.egit.feature.group")));
@@ -291,13 +290,13 @@ public class PublishProductToolTest {
      */
     private static IInstallableUnit getUnit(Collection<DependencySeed> seeds) {
         assertEquals(1, seeds.size());
-        return (IInstallableUnit) seeds.iterator().next().getInstallableUnit();
+        return seeds.iterator().next().getInstallableUnit();
     }
 
     private Set<IInstallableUnit> unitsIn(Collection<DependencySeed> seeds) {
         Set<IInstallableUnit> result = new HashSet<>();
         for (DependencySeed seed : seeds) {
-            result.add((IInstallableUnit) seed.getInstallableUnit());
+            result.add(seed.getInstallableUnit());
         }
         return result;
     }
