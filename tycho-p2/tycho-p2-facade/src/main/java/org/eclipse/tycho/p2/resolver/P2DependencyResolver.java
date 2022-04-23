@@ -92,7 +92,6 @@ import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -150,15 +149,13 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             typeMap.put(type, new LinkedHashSet<>());
         }
         for (IDependencyMetadata metadata : metadataMap.values()) {
-            for (Entry<DependencyMetadataType, Set<IInstallableUnit>> map : typeMap.entrySet()) {
-                map.getValue().addAll(metadata.getDependencyMetadata(map.getKey()));
-            }
+            typeMap.forEach((key, value) -> value.addAll(metadata.getDependencyMetadata(key)));
         }
         Set<IInstallableUnit> initial = new HashSet<>();
-        for (Entry<DependencyMetadataType, Set<IInstallableUnit>> entry : typeMap.entrySet()) {
-            reactorProject.setDependencyMetadata(entry.getKey(), entry.getValue());
-            initial.addAll(entry.getValue());
-        }
+        typeMap.forEach((key, value) -> {
+        	reactorProject.setDependencyMetadata(key, value);
+            initial.addAll(value);
+        });
         reactorProject.setDependencyMetadata(DependencyMetadataType.INITIAL, initial);
     }
 
@@ -239,8 +236,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
                 optionalAction);
         Map<DependencyMetadataType, Set<IInstallableUnit>> typeMap = new TreeMap<>();
-        for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
-            IDependencyMetadata value = entry.getValue();
+        for (IDependencyMetadata value : dependencyMetadata.values()) {
             for (DependencyMetadataType type : DependencyMetadataType.values()) {
                 typeMap.computeIfAbsent(type, t -> new LinkedHashSet<>()).addAll(value.getDependencyMetadata(type));
             }
@@ -343,11 +339,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         if (dependencyArtifacts instanceof ArtifactCollection) {
             //enhance the dependency set
             ArtifactCollection collection = (ArtifactCollection) dependencyArtifacts;
-            Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = dependencyCollector
-                    .getMavenInstallableUnits();
-            for (var entry : mavenInstallableUnits.entrySet()) {
-                IInstallableUnit key = entry.getKey();
-                IArtifactFacade val = entry.getValue();
+            dependencyCollector.getMavenInstallableUnits().forEach((key, val) -> {
                 ArtifactKey artifactKey = dependencyCollector.getArtifactKey(val);
                 File location = val.getLocation();
                 try {
@@ -355,7 +347,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 } catch (IllegalStateException e) {
                     //already contained in the collection --> ignore it...
                 }
-            }
+            });
         }
         return dependencyCollector;
     }

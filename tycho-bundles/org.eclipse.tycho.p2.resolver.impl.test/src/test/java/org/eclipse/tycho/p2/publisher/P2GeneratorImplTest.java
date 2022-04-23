@@ -95,9 +95,8 @@ public class P2GeneratorImplTest {
         assertEquals(0, unit.getRequirements().size());
     }
 
-    private IInstallableUnit getUnit(String id, Set<?> units) {
-        for (Object obj : units) {
-            IInstallableUnit unit = (IInstallableUnit) obj;
+    private IInstallableUnit getUnit(String id, Set<IInstallableUnit> units) {
+        for (IInstallableUnit unit : units) {
             if (id.equals(unit.getId())) {
                 return unit;
             }

@@ -186,16 +186,16 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public Set<IInstallableUnit> getDependencyMetadata() {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>(
-                getDependencyMetadata(DependencyMetadataType.SEED));
+        Set<IInstallableUnit> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataType.SEED));
         result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
     @Override
     public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
-        return Objects.requireNonNullElse((Set<IInstallableUnit>) getContextValue(getDependencyMetadataKey(type)),
-                Collections.emptySet());
+        @SuppressWarnings("unchecked")
+        Set<IInstallableUnit> contextValue = (Set<IInstallableUnit>) getContextValue(getDependencyMetadataKey(type));
+        return Objects.requireNonNullElse(contextValue, Collections.emptySet());
     }
 
     private static String getDependencyMetadataKey(DependencyMetadataType type) {
