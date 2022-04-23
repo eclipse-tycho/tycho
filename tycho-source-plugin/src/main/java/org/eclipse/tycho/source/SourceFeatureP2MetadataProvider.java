@@ -64,7 +64,8 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
         }
         Plugin plugin = project.getPlugin("org.eclipse.tycho:tycho-source-plugin");
         if (plugin != null) {
-            PluginExecution execution = plugin.getExecutionsAsMap().get("feature-source");
+            PluginExecution execution = plugin.getExecutions().stream()
+                    .filter(e -> e.getGoals().contains(SourceFeatureMojo.GOAL)).findFirst().orElse(null);
             if (execution == null) {
                 return null;
             }

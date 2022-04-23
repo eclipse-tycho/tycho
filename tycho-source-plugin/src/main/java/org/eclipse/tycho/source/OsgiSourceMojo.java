@@ -61,10 +61,10 @@ import org.osgi.framework.Version;
 /**
  * Goal to create a JAR-package containing all the source files of a osgi project.
  */
-@Mojo(name = "plugin-source", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
+@Mojo(name = OsgiSourceMojo.GOAL, defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
-    private static final String GOAL = "plugin-source";
+    static final String GOAL = "plugin-source";
 
     static final String MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE = "Eclipse-SourceBundle";
     private static final String MANIFEST_BUNDLE_LOCALIZATION_BASENAME = BUNDLE_LOCALIZATION_DEFAULT_BASENAME + "-src";
