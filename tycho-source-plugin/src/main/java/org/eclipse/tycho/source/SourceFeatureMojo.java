@@ -30,7 +30,6 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -90,8 +89,10 @@ import de.pdark.decentxml.Element;
  * <code>&lt;originalFeature&gt;/feature.properties</code>.
  * 
  */
-@Mojo(name = "feature-source", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
+@Mojo(name = SourceFeatureMojo.GOAL, defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class SourceFeatureMojo extends AbstractMojo {
+
+    static final String GOAL = "feature-source";
 
     public enum MissingSourcesAction {
         FAIL, WARN;
@@ -257,7 +258,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                 projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
                 if (!isP2GenerationEnabled()) {
                     logger.warn(
-                            "org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated feature is used in an update-site. You can add the following snippet to your pom: \n" //
+                            "org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated source-feature is used in an update-site or another feature. You can add the following snippet to your pom: \n" //
                                     + "            <plugin>\n"
                                     + "                <groupId>org.eclipse.tycho</groupId>\n" //
                                     + "                <artifactId>tycho-p2-plugin</artifactId>\n" //
@@ -282,13 +283,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     protected boolean isP2GenerationEnabled() {
         Plugin plugin = project.getPlugin("org.eclipse.tycho:tycho-p2-plugin");
-        if (plugin != null) {
-            PluginExecution execution = plugin.getExecutionsAsMap().get("attach-p2-metadata");
-            if (execution != null) {
-                return execution.getGoals().contains("p2-metadata");
-            }
-        }
-        return false;
+        return plugin != null && plugin.getExecutions().stream().anyMatch(e -> e.getGoals().contains("p2-metadata"));
     }
 
     static File getSourcesFeatureOutputDir(MavenProject project) {
