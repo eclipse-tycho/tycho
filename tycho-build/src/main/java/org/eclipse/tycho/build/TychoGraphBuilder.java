@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Christoph Läubrich and others.
+ * Copyright (c) 2021, 2022 Christoph Läubrich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,6 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -72,8 +71,10 @@ import org.eclipse.tycho.p2.target.ee.NoExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
+import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Component(role = GraphBuilder.class, hint = GraphBuilder.HINT)
 public class TychoGraphBuilder extends DefaultGraphBuilder {
@@ -90,8 +91,22 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 	@Requirement(hint = "plexus")
 	private BundleContext bundleContext;
 
+	@Requirement(role = Mapping.class)
+	private Map<String, Mapping> polyglotMappings;
+
 	@Override
 	public Result<ProjectDependencyGraph> build(MavenSession session) {
+		// Tell the polyglot mappings that we are in extension mode
+		for (Mapping mapping : polyglotMappings.values()) {
+			if (mapping instanceof AbstractTychoMapping) {
+				AbstractTychoMapping tychoMapping = (AbstractTychoMapping) mapping;
+				tychoMapping.setExtensionMode(true);
+				tychoMapping.setMultiModuleProjectDirectory(session.getRequest().getMultiModuleProjectDirectory());
+				if (session.getRequest().getSystemProperties().getProperty("tycho.buildqualifier.format") != null) {
+					tychoMapping.setSnapshotFormat("${" + TychoCiFriendlyVersions.BUILD_QUALIFIER + "}");
+				}
+			}
+		}
 		MavenExecutionRequest request = session.getRequest();
 		ProjectDependencyGraph dependencyGraph = session.getProjectDependencyGraph();
 		Result<ProjectDependencyGraph> graphResult = super.build(session);
@@ -201,9 +216,10 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 								.distinct()//
 								.peek(project -> loggerAdapter.debug(" + add upstream project '" + project.getName()
 										+ "' of project '" + projectRequest.mavenProject.getName() + "'..."))//
-								// make behaviors are both false here as projectDependenciesMap includes transitive already
-								.forEach(
-										project -> queue.add(new ProjectRequest(project, false, false, projectRequest)));
+								// make behaviors are both false here as projectDependenciesMap includes
+								// transitive already
+								.forEach(project -> queue
+										.add(new ProjectRequest(project, false, false, projectRequest)));
 					}
 					if (projectRequest.requestDownstream) {
 						projectDependenciesMap.entrySet().stream()//
@@ -217,7 +233,8 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 								.distinct()//
 								.peek(project -> loggerAdapter.debug(" + add downstream project '" + project.getName()
 										+ "' of project '" + projectRequest.mavenProject.getName() + "'..."))//
-								// request dependencies of dependants, otherwise, -amd would not be able to produce a satisfiable build graph
+								// request dependencies of dependants, otherwise, -amd would not be able to
+								// produce a satisfiable build graph
 								.forEach(
 										project -> queue.add(new ProjectRequest(project, false, true, projectRequest)));
 					}

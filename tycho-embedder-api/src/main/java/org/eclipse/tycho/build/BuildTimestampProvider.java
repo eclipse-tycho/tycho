@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.buildversion;
+package org.eclipse.tycho.build;
 
 import java.util.Date;
 
@@ -26,5 +26,12 @@ public interface BuildTimestampProvider {
      */
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution)
             throws MojoExecutionException;
+
+    /**
+     * ask the provider to be as quiet as possible (e.g. not emit any message at INFO / WARNING)
+     * 
+     * @param quiet
+     */
+    public void setQuiet(boolean quiet);
 
 }

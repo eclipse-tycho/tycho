@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #611 - Support setting CI-Friendly-Versions in tycho-build-extension
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
@@ -30,6 +31,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.tycho.build.BuildTimestampProvider;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.VersioningHelper;
 import org.osgi.framework.Version;
@@ -93,7 +95,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
      * Specify a date format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
      * </p>
      */
-    @Parameter(defaultValue = "yyyyMMddHHmm")
+	@Parameter(defaultValue = "yyyyMMddHHmm", property = "tycho.buildqualifier.format")
     protected SimpleDateFormat format;
 
     @Parameter(property = "forceContextQualifier")
@@ -106,7 +108,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
      * 
      * @since 0.16.0
      */
-    @Parameter
+	@Parameter(property = "tycho.buildqualifier.provider")
     protected String timestampProvider;
 
     @Parameter(property = "mojoExecution", readonly = true)
@@ -144,8 +146,21 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
                 return new TychoProjectVersion(unqualifiedVersion, osgiVersion.getQualifier());
             }
         }
+		String qualifier = getDesiredQualifier();
 
-        String qualifier = forceContextQualifier;
+        validateQualifier(qualifier);
+
+		String pomOSGiVersion = getUnqualifiedVersion();
+		String suffix = "." + qualifier;
+		if (pomOSGiVersion.endsWith(suffix)) {
+			return new TychoProjectVersion(pomOSGiVersion.substring(0, pomOSGiVersion.length() - suffix.length()),
+					qualifier);
+		}
+		return new TychoProjectVersion(pomOSGiVersion, qualifier);
+    }
+
+	protected String getDesiredQualifier() throws MojoExecutionException {
+		String qualifier = forceContextQualifier;
 
         if (qualifier == null) {
 			qualifier = DefaultReactorProject.adapt(project).getBuildProperties().getForceContextQualifier();
@@ -155,11 +170,8 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
             Date timestamp = getBuildTimestamp();
             qualifier = getQualifier(timestamp);
         }
-
-        validateQualifier(qualifier);
-
-        return new TychoProjectVersion(getUnqualifiedVersion(), qualifier);
-    }
+		return qualifier;
+	}
 
     private Version getParsedOSGiVersion() throws MojoFailureException {
         String osgiVersionString = getOSGiVersion();

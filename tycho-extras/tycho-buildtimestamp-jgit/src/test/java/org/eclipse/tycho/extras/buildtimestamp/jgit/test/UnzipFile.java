@@ -23,10 +23,10 @@ import org.codehaus.plexus.logging.console.ConsoleLogger;
  * Helper class used from prebuild.bsh
  */
 public class UnzipFile {
-    public static void unzip(File src, File target) throws ArchiverException {
-        ZipUnArchiver unzip = new ZipUnArchiver(src);
-        unzip.enableLogging(new ConsoleLogger(Logger.LEVEL_ERROR, "unzip"));
-        unzip.setDestDirectory(target);
-        unzip.extract();
-    }
+	public static void unzip(File src, File target) throws ArchiverException {
+		ZipUnArchiver unzip = new ZipUnArchiver(src);
+		unzip.enableLogging(new ConsoleLogger(Logger.LEVEL_ERROR, "unzip"));
+		unzip.setDestDirectory(target);
+		unzip.extract();
+	}
 }

@@ -35,6 +35,16 @@
 			<artifactId>org.eclipse.tycho.core.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho.extras</groupId>
+			<artifactId>tycho-buildtimestamp-jgit</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-embedder-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!--
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>

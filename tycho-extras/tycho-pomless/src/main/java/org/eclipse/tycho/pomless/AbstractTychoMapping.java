@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 Lablicate GmbH and others.
+ * Copyright (c) 2019, 2022 Lablicate GmbH and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -64,6 +64,9 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     protected Logger logger;
 
     private ModelWriter writer;
+    private boolean extensionMode;
+    private File multiModuleProjectDirectory;
+    private String snapshotFormat;
 
     @Override
     public File locatePom(File dir) {
@@ -295,11 +298,32 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         model.setLocation("", new InputLocation(0, 0, inputSource));
     }
 
-    protected static String getPomVersion(String pdeVersion) {
+    protected String getPomVersion(String pdeVersion) {
         String pomVersion = pdeVersion;
         if (pdeVersion.endsWith(QUALIFIER_SUFFIX)) {
-            pomVersion = pdeVersion.substring(0, pdeVersion.length() - QUALIFIER_SUFFIX.length()) + "-SNAPSHOT";
+            String unqualifiedVersion = pdeVersion.substring(0, pdeVersion.length() - QUALIFIER_SUFFIX.length());
+            if (isExtensionMode() && snapshotFormat != null) {
+                return unqualifiedVersion + snapshotFormat;
+            }
+            return unqualifiedVersion + "-SNAPSHOT";
         }
         return pomVersion;
+    }
+
+    public boolean isExtensionMode() {
+        return extensionMode;
+    }
+
+    public void setExtensionMode(boolean extensionMode) {
+        this.extensionMode = extensionMode;
+
+    }
+
+    public void setMultiModuleProjectDirectory(File multiModuleProjectDirectory) {
+        this.multiModuleProjectDirectory = multiModuleProjectDirectory;
+    }
+
+    public void setSnapshotFormat(String snapshotFormat) {
+        this.snapshotFormat = snapshotFormat;
     }
 }

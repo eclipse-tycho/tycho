@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.tycho.tycho-its</groupId>
+	<artifactId>ci-friendly-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>${releaseVersion}${qualifier}</version>
+	<modules>
+		<module>bundle</module>
+		<module>bundle2</module>
+	</modules>
+
+  <properties>
+  	<!-- Define the release version used for unversioned items like pom file -->
+    <releaseVersion>1.0.0</releaseVersion>
+    <!-- Defines the default Qualifier if no format is given-->
+    <qualifier>-SNAPSHOT</qualifier>
+  </properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-packaging-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.eclipse.tycho.extras</groupId>
+							<artifactId>tycho-buildtimestamp-jgit</artifactId>
+							<version>${tycho-version}</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<jgit.ignore>
+							pom.xml
+							.project
+							.settings/
+						</jgit.ignore>
+						<jgit.dirtyWorkingTree>ignore</jgit.dirtyWorkingTree>
+					</configuration>
+				</plugin>
+		</plugins>
+	</build>
+</project>
