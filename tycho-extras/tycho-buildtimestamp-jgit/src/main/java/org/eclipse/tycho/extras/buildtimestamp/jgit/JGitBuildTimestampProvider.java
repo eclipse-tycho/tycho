@@ -41,7 +41,7 @@ import org.eclipse.jgit.submodule.SubmoduleWalk.IgnoreSubmoduleMode;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.eclipse.tycho.buildversion.BuildTimestampProvider;
+import org.eclipse.tycho.build.BuildTimestampProvider;
 
 /**
  * Build timestamp provider that returns date of the most recent git commit that
@@ -97,6 +97,8 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 	@Requirement
 	private Logger logger;
 
+	private boolean quiet;
+
 	private enum DirtyBehavior {
 
 		ERROR, WARNING, IGNORE;
@@ -143,8 +145,10 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 				if (headId == null) {
 					String message = "Git repository without HEAD on " + project.getBasedir()
 							+ ". You can make a first commit to solve that.";
-					logger.warn(message);
-					logger.warn("Fallback to default timestamp provider");
+					if (!quiet) {
+						logger.warn(message);
+						logger.warn("Fallback to default timestamp provider");
+					}
 					return defaultTimestampProvider.getTimestamp(session, project, execution);
 				}
 				DirtyBehavior dirtyBehaviour = DirtyBehavior.getDirtyWorkingTreeBehaviour(execution);
@@ -163,8 +167,10 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 						String message = "Working tree is dirty.\ngit status " + (relPath != null ? relPath : "")
 								+ ":\n" + toGitStatusStyleOutput(diff);
 						if (dirtyBehaviour == DirtyBehavior.WARNING) {
-							logger.warn(message);
-							logger.warn("Fallback to default timestamp provider");
+							if (!quiet) {
+								logger.warn(message);
+								logger.warn("Fallback to default timestamp provider");
+							}
 							return defaultTimestampProvider.getTimestamp(session, project, execution);
 						} else {
 							throw new MojoExecutionException(message + "\n"
@@ -274,6 +280,11 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 		for (String file : files) {
 			witer.println(prefix + file);
 		}
+	}
+
+	@Override
+	public void setQuiet(boolean quiet) {
+		this.quiet = quiet;
 	}
 
 }

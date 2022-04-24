@@ -20,6 +20,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.VersioningHelper;
 import org.eclipse.tycho.model.IU;
 
@@ -46,6 +48,10 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
         if (osgiVersion == null) {
             return;
         }
+		ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+		if (mavenVersion.equals(reactorProject.getExpandedVersion())) {
+			return;
+		}
 
         if (project.getArtifact().isSnapshot() || osgiVersion.endsWith(VersioningHelper.QUALIFIER)) {
             validateSnapshotVersion(mavenVersion, osgiVersion);

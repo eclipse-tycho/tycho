@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.buildversion;
+package org.eclipse.tycho.build;
 
 import java.util.Date;
 
@@ -18,7 +18,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.build.BuildTimestampProvider;
 
 /**
  * Build timestamp provider that returns the same timestamp for all projects, the
