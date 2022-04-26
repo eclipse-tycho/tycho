@@ -11,7 +11,6 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,8 +26,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
 	}
 
 	private Verifier getVerifier(String project, File baselineRepo) throws Exception {
-		Verifier verifier = getVerifier("/packaging.reproducibleArtifacts/" + project, false);
-		verifier.addCliOption("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+		Verifier verifier = getVerifier("/packaging.reproducibleArtifacts/" + project, true);
 		verifier.addCliOption("-Dbaseline-repo=" + baselineRepo.toURI().toString());
 		return verifier;
 	}

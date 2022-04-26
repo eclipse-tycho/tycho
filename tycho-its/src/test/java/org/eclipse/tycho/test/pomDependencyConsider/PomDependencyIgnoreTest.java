@@ -17,7 +17,7 @@ public class PomDependencyIgnoreTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testIgnorePomDependency() throws Exception {
-		Verifier verifier = getVerifier("pomDependency.ignore", false, true);
+		Verifier verifier = getVerifier("pomDependency.ignore", true, true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 	}

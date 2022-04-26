@@ -21,7 +21,7 @@
   </description>
 
   <properties>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+    <target-platform>http://download.eclipse.org/releases/ganymede</target-platform>
   </properties>
 
   <modules>
@@ -31,9 +31,9 @@
 
   <repositories>
     <repository>
-      <id>e342</id>
+      <id>repo</id>
       <layout>p2</layout>
-      <url>${e342-repo}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
 

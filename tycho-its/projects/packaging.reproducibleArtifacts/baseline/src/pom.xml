@@ -8,15 +8,15 @@
   <packaging>pom</packaging>
 
   <properties>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+    <repo>http://download.eclipse.org/releases/latest</repo>
     <versionQualifier>1</versionQualifier>
   </properties>
 
   <repositories>
     <repository>
-      <id>e342</id>
+      <id>target-platform</id>
       <layout>p2</layout>
-      <url>${e342-repo}</url>
+      <url>${repo}</url>
     </repository>
   </repositories>
 

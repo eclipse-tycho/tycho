@@ -8,14 +8,14 @@
   <packaging>pom</packaging>
 
   <properties>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+    <target-latest>http://download.eclipse.org/releases/latest</target-latest>
   </properties>
 
   <repositories>
     <repository>
-      <id>e342</id>
+      <id>target-platform</id>
       <layout>p2</layout>
-      <url>${e342-repo}</url>
+      <url>${target-latest}</url>
     </repository>
   </repositories>
 

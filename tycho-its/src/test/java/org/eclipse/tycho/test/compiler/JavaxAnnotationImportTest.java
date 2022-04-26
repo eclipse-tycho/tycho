@@ -19,9 +19,9 @@ import org.junit.Test;
 
 public class JavaxAnnotationImportTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testStrictImportJREPackages() throws Exception {
-        Verifier verifier = getVerifier("compiler.javaxAnnotationImport", false);
-        verifier.executeGoal("compile");
-    }
+	@Test
+	public void testStrictImportJREPackages() throws Exception {
+		Verifier verifier = getVerifier("compiler.javaxAnnotationImport", true);
+		verifier.executeGoal("compile");
+	}
 }

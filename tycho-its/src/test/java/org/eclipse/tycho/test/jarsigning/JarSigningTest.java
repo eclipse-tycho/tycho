@@ -35,7 +35,7 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testSigning() throws Exception {
-		Verifier verifier = getVerifier("jar-signing", false);
+		Verifier verifier = getVerifier("jar-signing", true);
 
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
@@ -45,7 +45,7 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testExtraSigning() throws Exception {
-		Verifier verifier = getVerifier("jar-signing-extra", false);
+		Verifier verifier = getVerifier("jar-signing-extra", true);
 
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();

@@ -23,7 +23,6 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
 import de.pdark.decentxml.Document;
@@ -35,8 +34,7 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void test() throws Exception {
-		Verifier verifier = getVerifier("/p2Inf.multiEnv", false);
-		verifier.addCliOption("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342);
+		Verifier verifier = getVerifier("/p2Inf.multiEnv", true);
 		verifier.executeGoals(Arrays.asList("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 
