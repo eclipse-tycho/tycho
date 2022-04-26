@@ -17,14 +17,12 @@ import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
 public class ProductArchiveFormatTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void test() throws Exception {
-		Verifier verifier = getVerifier("/product.archiveFormat", false);
-		verifier.addCliOption("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+		Verifier verifier = getVerifier("/product.archiveFormat", true);
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 

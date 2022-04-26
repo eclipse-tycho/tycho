@@ -58,8 +58,8 @@
 	
 	<repositories>
 		<repository>
-			<id>download.eclipse.org_releases_indigo</id>
-			<url>http://download.eclipse.org/releases/indigo/</url>
+			<id>target-platform</id>
+			<url>http://download.eclipse.org/releases/latest/</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>

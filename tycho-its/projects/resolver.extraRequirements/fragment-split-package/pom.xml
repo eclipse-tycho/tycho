@@ -27,7 +27,7 @@
     <repository>
       <id>e342</id>
       <layout>p2</layout>
-      <url>${e342-repo}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
 

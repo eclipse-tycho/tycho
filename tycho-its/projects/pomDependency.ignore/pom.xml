@@ -11,13 +11,13 @@
 
 	<properties>
 		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
-		<p2-repo>http://download.eclipse.org/releases/2019-03</p2-repo>
+		<target-platform>http://download.eclipse.org/releases/latest</target-platform>
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>sdk</id>
-			<url>${p2-repo}</url>
+			<url>${target-platform}</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>

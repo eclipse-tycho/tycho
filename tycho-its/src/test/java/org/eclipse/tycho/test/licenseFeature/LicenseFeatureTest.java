@@ -26,7 +26,6 @@ import java.util.zip.ZipFile;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,8 +34,7 @@ public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void test() throws Exception {
-		Verifier verifier = getVerifier("/licenseFeature", false);
-		verifier.addCliOption("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+		Verifier verifier = getVerifier("/licenseFeature", true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 
