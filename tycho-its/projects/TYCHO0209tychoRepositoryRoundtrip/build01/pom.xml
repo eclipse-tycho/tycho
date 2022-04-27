@@ -15,14 +15,14 @@
   </modules>
 
   <properties>
-    <p2.repo>http://download.eclipse.org/releases/galileo</p2.repo>
+    <target-platform>http://download.eclipse.org/releases/latest</target-platform>
   </properties>
 
   <repositories>
     <repository>
       <id>p2</id>
       <layout>p2</layout>
-      <url>${p2.repo}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
 

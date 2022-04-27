@@ -14,7 +14,6 @@ package org.eclipse.tycho.test.resolver;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 // tests that optional dependencies are put on the compile class path (bug 351842)
@@ -22,8 +21,7 @@ public class OptionalDependenciesTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testOptionallyRequiredBundleIsOnCompileClassPath() throws Exception {
-		Verifier verifier = getVerifier("/resolver.optionalDependencies/require-bundle", false);
-		verifier.addCliOption("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
+		Verifier verifier = getVerifier("/resolver.optionalDependencies/require-bundle", true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 	}

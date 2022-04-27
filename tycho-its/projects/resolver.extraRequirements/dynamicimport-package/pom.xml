@@ -21,7 +21,7 @@
   </description>
 
   <properties>
-    <target-platform>http://download.eclipse.org/releases/ganymede</target-platform>
+    <target-platform>http://download.eclipse.org/releases/latest</target-platform>
   </properties>
 
   <modules>

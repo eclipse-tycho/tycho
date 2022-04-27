@@ -14,7 +14,7 @@
   </description>
 
   <properties>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+    <e342-repo>http://download.eclipse.org/releases/latest</e342-repo>
   </properties>
 
   <modules>
