@@ -7,15 +7,11 @@
   <version>1.0.0</version>
   <packaging>eclipse-plugin</packaging>
 
-  <properties>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
-  </properties>
-
   <repositories>
     <repository>
       <id>repository</id>
       <layout>p2</layout>
-      <url>https://download.eclipse.org/tools/orbit/downloads/drops/R20201130205003/repository</url>
+      <url>https://download.eclipse.org/tools/orbit/downloads/drops/R20220302172233/repository</url>
     </repository>
   </repositories>
 

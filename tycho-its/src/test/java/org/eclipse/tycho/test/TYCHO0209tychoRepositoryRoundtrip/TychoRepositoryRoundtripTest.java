@@ -18,7 +18,6 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
@@ -26,15 +25,13 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testLocalMavenRepository() throws Exception {
 		// build01
-		Verifier v01 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build01", false);
-		v01.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier v01 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build01", true);
 		v01.executeGoal("install");
 		v01.verifyErrorFreeLog();
 
 		final boolean ignoreLocallyInstalledArtifacts = false;
 		// build02, some dependencies come from local, some from remote repositories
-		Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false, ignoreLocallyInstalledArtifacts);
-		v02.addCliOption("-Dp2.rep" + P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", true, ignoreLocallyInstalledArtifacts);
 		v02.executeGoal("install");
 		v02.verifyErrorFreeLog();
 		v02.verifyTextInLog(

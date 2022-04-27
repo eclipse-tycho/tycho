@@ -3,8 +3,8 @@
 <target name="test">
 <locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="http://download.eclipse.org/releases/2020-06"/>
-			<unit id="org.eclipse.sdk.feature.group" version="4.16.0.v20200604-0951"/>
+			<repository location="http://download.eclipse.org/releases/latest"/>
+			<unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 		</location>
 	<location includeSource="true" missingManifest="generate" type="Maven">
 		<dependencies>

@@ -29,7 +29,7 @@
 		</repository>
 		<repository>
 			<id>eclipse</id>
-			<url>http://download.eclipse.org/releases/mars/</url>
+			<url>http://download.eclipse.org/releases/latest/</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>

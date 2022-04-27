@@ -16,7 +16,6 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,8 +25,7 @@ public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
 	public void testLocalMavenRepository() throws Exception {
 		// project that marks org.apache.ant as "exploded" (unpacked) for the test
 		// runtime -> supported since TYCHO-340
-		Verifier v01 = getVerifier("surefire.bundleUnpack", false);
-		v01.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier v01 = getVerifier("surefire.bundleUnpack", true);
 		v01.executeGoal("install");
 		v01.verifyErrorFreeLog();
 		// TODO this is only an indirect test; it should test that the bundles nested

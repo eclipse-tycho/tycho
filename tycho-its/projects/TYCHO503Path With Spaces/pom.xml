@@ -26,7 +26,7 @@
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
-							<arch>x86</arch>
+							<arch>x86_64</arch>
 						</environment>
 					</environments>
 				</configuration>
@@ -49,7 +49,7 @@
 	<repositories>
 		<repository>
 			<id>helios</id>
-			<url>http://download.eclipse.org/releases/helios</url>
+			<url>http://download.eclipse.org/releases/latest</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
