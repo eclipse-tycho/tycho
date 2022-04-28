@@ -4,6 +4,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Support for non-modular JVMs no longer top tier
+
+Support for compilation for pre-Java 11 JVMs bytecode is no longer considered first class nor tested. Actual support is not removed but people facing issues with it will have to come with fixes on their own.
+
 ### Support for PDE Declarative Component Annotation progressing
 
 One can enable either global or per project the generation of component xmls in PDE. Until now it was required for Tycho to still import the annotation package even though `classpath=true` was set, beside that one needs to check in the generated xmls.
