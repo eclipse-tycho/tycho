@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG and others.
+ * Copyright (c) 2010, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import java.util.zip.ZipException;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,10 +35,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testProductBuild() throws Exception {
-		Verifier verifier = getVerifier("product.rootFiles", false);
+		Verifier verifier = getVerifier("product.rootFiles", true);
 
 		verifier.addCliOption("-DforceContextQualifier=" + Tycho465RootFilesTest.QUALIFIER.toString());
-		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
 
 		verifier.executeGoal("install");
 		verifier.verifyErrorFreeLog();
@@ -59,12 +57,11 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		// created root file zips were attached
 		// to the project and are available from the local repository
 		final boolean ignoreLocallyInstalledArtifacts = false;
-		Verifier eclipseRepoProjectVerifier = getVerifier("product.rootFiles/eclipse-repository", false,
+		Verifier eclipseRepoProjectVerifier = getVerifier("product.rootFiles/eclipse-repository", true,
 				ignoreLocallyInstalledArtifacts);
 
 		eclipseRepoProjectVerifier
 				.addCliOption("-DforceContextQualifier=" + Tycho465RootFilesTest.QUALIFIER.toString());
-		eclipseRepoProjectVerifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
 
 		eclipseRepoProjectVerifier.executeGoal("verify");
 		eclipseRepoProjectVerifier.verifyErrorFreeLog();
@@ -135,7 +132,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	static void assertAddedRootFile(File targetDir) {
 		String relRootFilePath = "addedFile.txt";
 
-		File mainWinConfigProductDir = new File(targetDir, "products/main.product.id/win32/win32/x86");
+		File mainWinConfigProductDir = new File(targetDir, "products/main.product.id/win32/win32/x86_64");
 		File rootFile = new File(mainWinConfigProductDir, relRootFilePath);
 
 		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
@@ -180,7 +177,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	}
 
 	static void assertInstalledWinConfigRootFile(File targetDir) {
-		File mainProductDir = new File(targetDir, "products/main.product.id/win32/win32/x86");
+		File mainProductDir = new File(targetDir, "products/main.product.id/win32/win32/x86_64");
 		String relRootFilePath = "file1.txt";
 		File rootFile = new File(mainProductDir, relRootFilePath);
 
@@ -214,7 +211,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 				featureIus.size());
 
 		Element featureIu = featureIus.iterator().next();
-		String rootWinConfigFeatureIuId = featureId + "_root.win32.win32.x86";
+		String rootWinConfigFeatureIuId = featureId + "_root.win32.win32.x86_64";
 
 		assertTrue(
 				"Verifying content.xml failed because feature iu with id = '" + featureIuId
