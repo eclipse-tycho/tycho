@@ -54,7 +54,6 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 
@@ -139,7 +138,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
 
         for (File site : layout.getSites()) {
             for (File plugin : layout.getPlugins(site)) {
-                ArtifactKey artifactKey = getArtifactKey(session, plugin);
+                ArtifactKey artifactKey = getArtifactKey(plugin);
 
                 if (artifactKey != null) {
                     platform.addArtifactFile(artifactKey, plugin, null);
@@ -189,7 +188,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
                 .filter(projectIds::containsKey)//
                 .map(projectIds::get)//
                 .forEach(dependent -> {
-                    ArtifactKey artifactKey = getArtifactKey(session, dependent);
+                    ArtifactKey artifactKey = getArtifactKey(dependent);
                     if (artifactKey != null) {
                         platform.removeAll(artifactKey.getType(), artifactKey.getId());
                         ReactorProject projectProxy = DefaultReactorProject.adapt(dependent);
@@ -229,7 +228,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
             String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
             if (!projectIds.containsKey(key)) {
                 File plugin = artifact.getFile();
-                ArtifactKey artifactKey = getArtifactKey(session, plugin);
+                ArtifactKey artifactKey = getArtifactKey(plugin);
 
                 if (artifactKey != null) {
                     platform.addArtifactFile(artifactKey, plugin, null);
@@ -241,7 +240,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
         }
     }
 
-    public ArtifactKey getArtifactKey(MavenSession session, MavenProject project) {
+    public ArtifactKey getArtifactKey(MavenProject project) {
         OsgiManifest mf;
         try {
             mf = manifestReader.loadManifest(project.getBasedir());
@@ -251,7 +250,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
         return mf.toArtifactKey();
     }
 
-    public ArtifactKey getArtifactKey(MavenSession session, File plugin) {
+    public ArtifactKey getArtifactKey(File plugin) {
         OsgiManifest mf = manifestReader.loadManifest(plugin);
         ArtifactKey key = mf.toArtifactKey();
         return key;
@@ -268,10 +267,6 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         // walk depencencies for consistency
         if (projectType instanceof AbstractArtifactBasedProject) {
-
-            TargetPlatformConfiguration configuration = TychoProjectUtils
-                    .getTargetPlatformConfiguration(reactorProject);
-
             // this throws exceptions when dependencies are missing
             projectType.getDependencyWalker(reactorProject).walk(new ArtifactDependencyVisitor() {
             });
