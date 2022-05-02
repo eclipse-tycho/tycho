@@ -148,7 +148,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
                 Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getReactorProject());
                 if (projectSeeds.isEmpty()) {
-                    throw new MojoFailureException("No content specified for p2 repository");
+                    getLog().warn("No content specified for p2 repository");
+                    return;
                 }
 
                 RepositoryReferences sources = getVisibleRepositories();
