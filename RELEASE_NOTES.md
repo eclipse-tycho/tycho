@@ -162,6 +162,11 @@ It was hardcoded to "tooling" always and had no practical meaning to change.
 
 Replaced by jvmArgs and applicationArgs respectively.
 
+## 2.7.2
+Fixes:
+- [2.7.1][regression] Neither raw version nor format was specified #876 
+- [2.7.1] 'includePackedArtifacts' must be automatically disabled when running with an incompatible vm #885 
+- Resolve DS classpath entry and generate component xmls #406
 
 ## 2.7.1
 
