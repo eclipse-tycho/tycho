@@ -87,7 +87,7 @@ Regards,
 ```
 - [ ] close the staging repository on https://oss.sonatype.org/#stagingRepositories 
 - [ ] Wait until all checks are done (this takes some time, see Activity tab). If all checks have passed, release the repository.
-- [ ] Wait for artifacts to be available on Maven central.
+- [ ] Wait for artifacts to be available on Maven central, e.g. by looking at https://repo1.maven.org/maven2/org/eclipse/tycho/tycho-core/
 - [ ] push tag `git push origin tycho-<TYCHO_VERSION>`
 - Documentation
   - [ ] Generate site docs using `mvn install site site:stage -DskipTests` and check the result from `target/staging` seems viable.
