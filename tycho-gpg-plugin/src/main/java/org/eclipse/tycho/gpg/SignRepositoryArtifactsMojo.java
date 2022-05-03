@@ -64,7 +64,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
      * Configures to <code>true</code> to generate PGP signature only for artifacts that do
      * <strong>not</strong> already contain signatures files from jarsigner.
      */
-    @Parameter
+    @Parameter(defaultValue = "true")
     private boolean skipIfJarsigned;
 
     @Parameter(defaultValue = "true")
