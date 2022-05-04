@@ -5,6 +5,6 @@
     <artifactId>tycho-build</artifactId>
     <!-- TODO this should be a property
         see https://issues.apache.org/jira/browse/MNG-7395 -->
-    <version>2.7.2-SNAPSHOT</version>
+    <version>2.7.3-SNAPSHOT</version>
   </extension>
 </extensions>

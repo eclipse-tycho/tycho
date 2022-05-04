@@ -2,6 +2,9 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 2.7.3
+Fixes:
+
 ## 2.7.2
 Fixes:
 - [2.7.1][regression] Neither raw version nor format was specified #876 
