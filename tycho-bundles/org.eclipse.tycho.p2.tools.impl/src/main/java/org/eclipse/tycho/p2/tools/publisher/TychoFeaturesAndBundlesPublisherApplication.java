@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Christoph Läubrich and others.
+ * Copyright (c) 2021, 2022 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
@@ -63,6 +64,8 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
     private URI categoryDefinition;
     private String[] rules;
     private String publicKeys;
+    private boolean indexArtifacts = true;
+    private boolean publishArtifacts = true;
 
     @Override
     public Object run(PublisherInfo publisherInfo) throws Exception {
@@ -85,6 +88,19 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
             }
         }
         return run;
+    }
+
+    @Override
+    protected void initialize(PublisherInfo publisherInfo) throws ProvisionException {
+        int artifactOptions = 0;
+        if (indexArtifacts) {
+            artifactOptions |= IPublisherInfo.A_INDEX;
+        }
+        if (publishArtifacts) {
+            artifactOptions |= IPublisherInfo.A_PUBLISH;
+        }
+        publisherInfo.setArtifactOptions(artifactOptions);
+        super.initialize(publisherInfo);
     }
 
     @Override
@@ -133,6 +149,12 @@ public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublish
             } catch (IOException e) {
                 throw new URISyntaxException(parameter, "can't read public key file: " + e);
             }
+        }
+        if (arg.equalsIgnoreCase("-aindex")) {
+            indexArtifacts = Boolean.parseBoolean(parameter);
+        }
+        if (arg.equalsIgnoreCase("-apublish")) {
+            publishArtifacts = Boolean.parseBoolean(parameter);
         }
     }
 
