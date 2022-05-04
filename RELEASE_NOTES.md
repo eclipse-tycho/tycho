@@ -180,6 +180,10 @@ This could be usefull if you like to execute the build with multiple threads (e.
 
 ### Migration guide 2.x -> 3.x
 
+#### jgit-timestamp provider moved from org.eclipse.tych.extras to org.eclipse.tych
+
+The `tycho-buildtimestamp-jgit` plugin is now moved to the `org.eclipse.tycho` group id.
+
 #### Removal of deprecated eclipse-update-site and eclipse-application packaging types
 
 This packaging types have been deprecate for long time as there is full featured replacement eclipse-repository.

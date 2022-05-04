@@ -28,7 +28,6 @@
 	<description>Additional tools for Tycho</description>
 
 	<properties>
-		<jgit-version>6.1.0.202203080745-r</jgit-version>
 		<tycho-version>${project.version}</tycho-version>
 		<invoker.debug>true</invoker.debug>
 	</properties>
@@ -39,7 +38,6 @@
 		<module>tycho-p2-extras-plugin</module>
 		<module>tycho-custom-bundle-plugin</module>
 		<module>tycho-eclipserun-plugin</module>
-		<module>tycho-buildtimestamp-jgit</module>
 		<module>tycho-sourceref-jgit</module>
 		<module>target-platform-validation-plugin</module>
 		<module>tycho-pomless</module>
