@@ -12,8 +12,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.eclipse.tycho.extras</groupId>
-		<artifactId>tycho-extras</artifactId>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-buildtimestamp-jgit</artifactId>
@@ -34,17 +34,17 @@
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-embedder-api</artifactId>
-			<version>${tycho-version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
+			<version>${jgit-version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-archiver</artifactId>
-			<version>4.2.7</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
