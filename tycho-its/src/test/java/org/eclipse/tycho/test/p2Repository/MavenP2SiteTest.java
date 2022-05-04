@@ -56,6 +56,10 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 		assertFalse("artifact is deployed but should't", artifacts.contains("id='org.eclipse.tycho.it.ignoreme'"));
 		assertFalse("artifact is deployed but should't",
 				artifacts.contains("id='org.eclipse.tycho.it.ignoreme-property'"));
+		assertFalse("There should be no plugins folder!",
+				new File(verifier.getBasedir(), "site/target/repository/plugins/").exists());
+		assertFalse("There should be no features folder!",
+				new File(verifier.getBasedir(), "site/target/repository/features/").exists());
 	}
 
 	@Test

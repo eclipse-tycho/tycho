@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Christoph Läubrich and others.
+ * Copyright (c) 2021, 2022 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -339,6 +339,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         launcher.setApplicationName("org.eclipse.tycho.p2.tools.publisher.TychoFeaturesAndBundlesPublisher");
         launcher.addArguments("-artifactRepository", destination.toURI().toString(), //
                 "-metadataRepository", destination.toURI().toString(), //
+                "-apublish", "false", //
                 "-bundles", //
                 bundlesFile.getAbsolutePath(), //
                 "-advices", //
