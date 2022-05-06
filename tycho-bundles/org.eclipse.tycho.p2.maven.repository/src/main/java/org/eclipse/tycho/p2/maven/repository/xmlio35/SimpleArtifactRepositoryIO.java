@@ -246,7 +246,7 @@ public class SimpleArtifactRepositoryIO {
         private SimpleArtifactRepository theRepository = null;
 
         public Parser(BundleContext context, String bundleId) {
-            super(context, bundleId);
+            super(bundleId);
         }
 
         public synchronized void parse(InputStream stream) throws IOException {

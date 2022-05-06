@@ -18,9 +18,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
+import org.eclipse.equinox.internal.p2.director.Slicer;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
+import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -53,6 +60,28 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
         extraArtifactRepositoryProperties.entrySet()
                 .forEach(entry -> result.setProperty(entry.getKey(), entry.getValue()));
         return result;
+    }
+
+    @Override
+    protected Slicer createSlicer(SlicingOptions options) {
+        PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), options.getFilter(),
+                options.includeOptionalDependencies(), options.isEverythingGreedy(), options.forceFilterTo(),
+                options.considerStrictDependencyOnly(), options.followOnlyFilteredRequirements()) {
+            @Override
+            protected boolean isApplicable(IInstallableUnit iu, IRequirement req) {
+                if (QueryUtil.isGroup(iu)) {
+                    if (req instanceof IRequiredCapability) {
+                        if (IInstallableUnit.NAMESPACE_IU_ID.equals(((IRequiredCapability) req).getNamespace())) {
+                            //TODO check other things too...
+                            return true;
+                        }
+                    }
+                }
+                return super.isApplicable(iu, req);
+            }
+
+        };
+        return slicer;
     }
 
     @Override
