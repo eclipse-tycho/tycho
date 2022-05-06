@@ -37,4 +37,21 @@ public class Repository {
     public MavenRepositoryLocation toRepositoryLocation() {
         return new MavenRepositoryLocation(id, url);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Repository [");
+        if (id != null) {
+            builder.append("id=");
+            builder.append(id);
+            builder.append(", ");
+        }
+        if (url != null) {
+            builder.append("url=");
+            builder.append(url);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Christoph Läubrich - Issue #943 - Strange Expected to have bigger x.y.z than what is available in baseline
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
@@ -50,7 +51,6 @@ import org.eclipse.tycho.p2.metadata.PublisherOptions;
 
 @Mojo(name = "p2-metadata", threadSafe = true)
 public class P2MetadataMojo extends AbstractMojo {
-    private static final Object LOCK = new Object();
 
     @Parameter(property = "project")
     protected MavenProject project;
@@ -96,8 +96,13 @@ public class P2MetadataMojo extends AbstractMojo {
      * <li><code>fail</code>: Fail the build if there are any discrepancy between build and baseline
      * artifacts.</li>
      * </ul>
+     * If this property is not given the following defaults are applied:
+     * <ul>
+     * <li>If no baselineRepositories <code>disable</code> is assumed</li>
+     * <li>If at least one baselineRepositories <code>warn</code> is assumed</li>
+     * </ul>
      */
-    @Parameter(property = "tycho.baseline", defaultValue = "warn")
+    @Parameter(property = "tycho.baseline")
     private BaselineMode baselineMode;
 
     /**
@@ -127,9 +132,7 @@ public class P2MetadataMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            attachP2Metadata();
-        }
+        attachP2Metadata();
     }
 
     private <T> T getService(Class<T> type) {
@@ -172,17 +175,19 @@ public class P2MetadataMojo extends AbstractMojo {
 
             Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts,
                     new PublisherOptions(generateDownloadStatsProperty), targetDir);
-
-            if (baselineMode != BaselineMode.disable) {
+            BaselineMode mode = getEffectiveMode();
+            if (mode != BaselineMode.disable) {
                 generatedMetadata = baselineValidator.validateAndReplace(project, execution, generatedMetadata,
-                        baselineRepositories, baselineMode, baselineReplace);
+                        baselineRepositories, mode, baselineReplace);
             }
 
             File contentsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_METADATA);
             File artifactsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_ARTIFACTS);
             p2generator.persistMetadata(generatedMetadata, contentsXml, artifactsXml);
-            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA, TychoConstants.CLASSIFIER_P2_METADATA, contentsXml);
-            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS, TychoConstants.CLASSIFIER_P2_ARTIFACTS, artifactsXml);
+            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA,
+                    TychoConstants.CLASSIFIER_P2_METADATA, contentsXml);
+            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS,
+                    TychoConstants.CLASSIFIER_P2_ARTIFACTS, artifactsXml);
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
@@ -209,6 +214,16 @@ public class P2MetadataMojo extends AbstractMojo {
 
         File localArtifactsFile = new File(project.getBuild().getDirectory(), TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
         writeArtifactLocations(localArtifactsFile, getAllProjectArtifacts(project));
+    }
+
+    private BaselineMode getEffectiveMode() {
+        if (baselineMode != null) {
+            return baselineMode;
+        }
+        if (baselineRepositories != null && baselineRepositories.size() > 0) {
+            return BaselineMode.warn;
+        }
+        return BaselineMode.disable;
     }
 
     private static boolean hasAttachedArtifact(MavenProject project, String classifier) {
@@ -253,7 +268,8 @@ public class P2MetadataMojo extends AbstractMojo {
             if (entry.getKey() == null) {
                 outputProperties.put(TychoConstants.KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
             } else {
-                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath());
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(),
+                        entry.getValue().getAbsolutePath());
             }
         }
 

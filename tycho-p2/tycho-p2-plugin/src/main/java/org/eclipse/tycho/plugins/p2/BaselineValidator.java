@@ -74,131 +74,147 @@ public class BaselineValidator {
     public Map<String, IP2Artifact> validateAndReplace(MavenProject project, MojoExecution execution,
             Map<String, IP2Artifact> reactorMetadata, List<Repository> baselineRepositories, BaselineMode baselineMode,
             BaselineReplace baselineReplace) throws IOException, MojoExecutionException {
+        if (baselineMode == disable) {
+            return reactorMetadata;
+        }
+        if (baselineRepositories == null || baselineRepositories.isEmpty()) {
+            if (baselineMode == fail || baselineMode == failCommon) {
+                throw new MojoExecutionException(
+                        "There are no baseline repositories for " + project + " defined to validate against.");
+            }
+            log.warn("No baseline repositories defined for " + project);
+            return reactorMetadata;
+        }
+        log.debug("The following  baseline repositories are used to verify the baseline: " + baselineRepositories);
 
         Map<String, IP2Artifact> result = reactorMetadata;
 
-        if (baselineMode != disable && baselineRepositories != null && !baselineRepositories.isEmpty()) {
-            List<MavenRepositoryLocation> _repositories = new ArrayList<>();
-            for (Repository repository : baselineRepositories) {
-                if (repository.getUrl() != null) {
-                    _repositories.add(new MavenRepositoryLocation(repository.getId(), repository.getUrl()));
+        List<MavenRepositoryLocation> _repositories = new ArrayList<>();
+        for (Repository repository : baselineRepositories) {
+            if (repository.getUrl() != null) {
+                _repositories.add(new MavenRepositoryLocation(repository.getId(), repository.getUrl()));
+            }
+        }
+
+        File baselineBasedir = new File(project.getBuild().getDirectory(), "baseline");
+
+        BaselineService baselineService = getService(BaselineService.class);
+
+        Map<String, IP2Artifact> baselineMetadata = baselineService.getProjectBaseline(_repositories, reactorMetadata,
+                baselineBasedir);
+
+        if (baselineMetadata != null) {
+            CompoundArtifactDelta delta = getDelta(baselineService, baselineMetadata, reactorMetadata, execution);
+            if (delta != null) {
+                if (System.getProperties().containsKey("tycho.debug.artifactcomparator")) {
+                    File logdir = new File(project.getBuild().getDirectory(), "artifactcomparison");
+                    log.info("Artifact comparison detailed log directory " + logdir.getAbsolutePath());
+                    for (Map.Entry<String, ArtifactDelta> classifier : delta.getMembers().entrySet()) {
+                        if (classifier.getValue() instanceof CompoundArtifactDelta) {
+                            ((CompoundArtifactDelta) classifier.getValue())
+                                    .writeDetails(new File(logdir, classifier.getKey()));
+                        }
+                    }
+                }
+                if (baselineMode == fail || (baselineMode == failCommon && !isMissingOnlyDelta(delta))) {
+                    throw new MojoExecutionException(delta.getDetailedMessage());
+                } else {
+                    log.warn(project.toString() + ": " + delta.getDetailedMessage());
                 }
             }
 
-            File baselineBasedir = new File(project.getBuild().getDirectory(), "baseline");
+            if (baselineReplace != none) {
+                result = new LinkedHashMap<>();
 
-            BaselineService baselineService = getService(BaselineService.class);
-
-            Map<String, IP2Artifact> baselineMetadata = baselineService.getProjectBaseline(_repositories,
-                    reactorMetadata, baselineBasedir);
-
-            if (baselineMetadata != null) {
-                CompoundArtifactDelta delta = getDelta(baselineService, baselineMetadata, reactorMetadata, execution);
-                if (delta != null) {
-                    if (System.getProperties().containsKey("tycho.debug.artifactcomparator")) {
-                        File logdir = new File(project.getBuild().getDirectory(), "artifactcomparison");
-                        log.info("Artifact comparison detailed log directory " + logdir.getAbsolutePath());
-                        for (Map.Entry<String, ArtifactDelta> classifier : delta.getMembers().entrySet()) {
-                            if (classifier.getValue() instanceof CompoundArtifactDelta) {
-                                ((CompoundArtifactDelta) classifier.getValue())
-                                        .writeDetails(new File(logdir, classifier.getKey()));
-                            }
-                        }
-                    }
-                    if (baselineMode == fail || (baselineMode == failCommon && !isMissingOnlyDelta(delta))) {
-                        throw new MojoExecutionException(delta.getDetailedMessage());
+                // replace reactor artifacts with baseline
+                ArrayList<String> replaced = new ArrayList<>();
+                for (Map.Entry<String, IP2Artifact> artifact : baselineMetadata.entrySet()) {
+                    File baseLineFile = artifact.getValue().getLocation();
+                    String classifier = artifact.getKey();
+                    File reactorFile = reactorMetadata.get(classifier).getLocation();
+                    if (baseLineFile.isFile() && baseLineFile.length() == 0L) {
+                        // workaround for possibly corrupted download - bug 484003
+                        log.error("baseline file " + baseLineFile.getAbsolutePath() + " is empty. Will not replace "
+                                + reactorFile);
                     } else {
-                        log.warn(project.toString() + ": " + delta.getDetailedMessage());
+                        FileUtils.copyFile(baseLineFile, reactorFile);
+                        result.put(classifier, artifact.getValue());
+                        if (classifier != null) {
+                            replaced.add(classifier);
+                        }
                     }
                 }
 
-                if (baselineReplace != none) {
-                    result = new LinkedHashMap<>();
-
-                    // replace reactor artifacts with baseline
-                    ArrayList<String> replaced = new ArrayList<>();
-                    for (Map.Entry<String, IP2Artifact> artifact : baselineMetadata.entrySet()) {
-                        File baseLineFile = artifact.getValue().getLocation();
-                        String classifier = artifact.getKey();
-                        File reactorFile = reactorMetadata.get(classifier).getLocation();
-                        if (baseLineFile.isFile() && baseLineFile.length() == 0L) {
-                            // workaround for possibly corrupted download - bug 484003
-                            log.error("baseline file " + baseLineFile.getAbsolutePath() + " is empty. Will not replace "
-                                    + reactorFile);
-                        } else {
-                            FileUtils.copyFile(baseLineFile, reactorFile);
-                            result.put(classifier, artifact.getValue());
-                            if (classifier != null) {
-                                replaced.add(classifier);
-                            }
-                        }
+                // un-attach and delete artifacts present in reactor but not in baseline
+                ArrayList<String> removed = new ArrayList<>();
+                ArrayList<String> inconsistent = new ArrayList<>();
+                for (Map.Entry<String, IP2Artifact> entry : reactorMetadata.entrySet()) {
+                    String classifier = entry.getKey();
+                    IP2Artifact artifact = entry.getValue();
+                    if (classifier == null || artifact == null) {
+                        continue;
                     }
-
-                    // un-attach and delete artifacts present in reactor but not in baseline
-                    ArrayList<String> removed = new ArrayList<>();
-                    ArrayList<String> inconsistent = new ArrayList<>();
-                    for (Map.Entry<String, IP2Artifact> entry : reactorMetadata.entrySet()) {
-                        String classifier = entry.getKey();
-                        IP2Artifact artifact = entry.getValue();
-                        if (classifier == null || artifact == null) {
-                            continue;
-                        }
-                        if (baselineReplace == all && !baselineMetadata.containsKey(classifier)) {
-                            List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
-                            ListIterator<Artifact> iterator = attachedArtifacts.listIterator();
-                            while (iterator.hasNext()) {
-                                Artifact next = iterator.next();
-                                if (classifier.equals(next.getClassifier())) {
+                    if (baselineReplace == all && !baselineMetadata.containsKey(classifier)) {
+                        List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
+                        ListIterator<Artifact> iterator = attachedArtifacts.listIterator();
+                        while (iterator.hasNext()) {
+                            Artifact next = iterator.next();
+                            if (classifier.equals(next.getClassifier())) {
+                                try {
+                                    iterator.remove();
+                                } catch (UnsupportedOperationException e) {
+                                    ArrayList<Artifact> list = new ArrayList<>(attachedArtifacts);
+                                    list.remove(next);
                                     try {
-                                        iterator.remove();
-                                    } catch (UnsupportedOperationException e) {
-                                        ArrayList<Artifact> list = new ArrayList<>(attachedArtifacts);
-                                        list.remove(next);
-                                        try {
-                                            MethodUtils.invokeMethod(project, true, "setAttachedArtifacts", list);
-                                        } catch (NoSuchMethodException | IllegalAccessException
-                                                | InvocationTargetException ignored) {
-                                            log.warn("The attached artifact " + classifier
-                                                    + " is not present in the baseline but could not be removed!");
-                                        }
+                                        MethodUtils.invokeMethod(project, true, "setAttachedArtifacts", list);
+                                    } catch (NoSuchMethodException | IllegalAccessException
+                                            | InvocationTargetException ignored) {
+                                        log.warn("The attached artifact " + classifier
+                                                + " is not present in the baseline but could not be removed!");
                                     }
-                                    break;
                                 }
+                                break;
                             }
-                            artifact.getLocation().delete();
-                            removed.add(classifier);
-                        } else {
-                            inconsistent.add(classifier);
-                            result.put(classifier, artifact);
                         }
-                    }
-
-                    // Reactor build can have more or less artifacts than baseline 
-                    // baselineReplace==all guarantees consistency of build artifacts with baseline repository
-                    // baselineReplace==none build results are self-consistent, but maybe inconsistent with baseline
-                    // baselineReplace==common build artifacts are inconsistent
-
-                    if (log.isInfoEnabled()) {
-                        StringBuilder msg = new StringBuilder();
-                        msg.append(project.toString());
-                        msg.append("\n    The main artifact has been replaced with the baseline version.\n");
-                        if (!replaced.isEmpty()) {
-                            msg.append(
-                                    "    The following attached artifacts have been replaced with the baseline version: ");
-                            msg.append(replaced.toString());
-                            msg.append("\n");
-                        }
-                        if (!removed.isEmpty()) {
-                            msg.append(
-                                    "    The following attached artifacts are not present in the baseline and have been removed: ");
-                            msg.append(removed.toString());
-                            msg.append("\n");
-                        }
-                        log.info(msg.toString());
+                        artifact.getLocation().delete();
+                        removed.add(classifier);
+                    } else {
+                        inconsistent.add(classifier);
+                        result.put(classifier, artifact);
                     }
                 }
+
+                // Reactor build can have more or less artifacts than baseline 
+                // baselineReplace==all guarantees consistency of build artifacts with baseline repository
+                // baselineReplace==none build results are self-consistent, but maybe inconsistent with baseline
+                // baselineReplace==common build artifacts are inconsistent
+
+                if (log.isInfoEnabled()) {
+                    StringBuilder msg = new StringBuilder();
+                    msg.append(project.toString());
+                    msg.append("\n    The main artifact has been replaced with the baseline version.\n");
+                    if (!replaced.isEmpty()) {
+                        msg.append(
+                                "    The following attached artifacts have been replaced with the baseline version: ");
+                        msg.append(replaced.toString());
+                        msg.append("\n");
+                    }
+                    if (!removed.isEmpty()) {
+                        msg.append(
+                                "    The following attached artifacts are not present in the baseline and have been removed: ");
+                        msg.append(removed.toString());
+                        msg.append("\n");
+                    }
+                    log.info(msg.toString());
+                }
+            }
+        } else {
+            String message = "No baseline found for project " + project.getGroupId() + ":" + project.getArtifactId()
+                    + " using the following repositories: " + baselineRepositories;
+            if (baselineMode == fail || baselineMode == failCommon) {
+                log.warn(message);
             } else {
-                log.info("No baseline version " + project);
+                log.info(message);
             }
         }
         return result;
