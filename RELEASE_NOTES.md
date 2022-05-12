@@ -222,6 +222,10 @@ It was hardcoded to "tooling" always and had no practical meaning to change.
 
 Replaced by jvmArgs and applicationArgs respectively.
 
+## 2.7.3
+Fixes:
+-  p2-maven-site includes bundles in the repository #932 
+
 ## 2.7.2
 Fixes:
 - [2.7.1][regression] Neither raw version nor format was specified #876 
