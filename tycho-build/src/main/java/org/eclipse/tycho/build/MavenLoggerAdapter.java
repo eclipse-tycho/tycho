@@ -76,8 +76,4 @@ public class MavenLoggerAdapter implements MavenLogger {
 	public boolean isExtendedDebugEnabled() {
 		return extendedDebug;
 	}
-
-	private boolean isEmpty(String message) {
-		return message == null || message.isEmpty();
-	}
 }
