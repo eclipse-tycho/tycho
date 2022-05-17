@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP SE and others.
+ * Copyright (c) 2010, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -48,8 +48,6 @@ public interface MirrorApplicationService {
      *            environment specific installable units
      * @param includeAllDependencies
      *            Whether to include all transitive dependencies
-     * @param includePacked
-     *            Whether to include packed artifacts
      * @param filterProperties
      *            additional filter properties to be set in the p2 slicing options. May be
      *            <code>null</code>

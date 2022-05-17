@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 class LocalArtifactTransferPolicy extends ArtifactTransferPolicyBase {
 
     @Override
-    protected void insertCanonicalAndPacked(List<IArtifactDescriptor> canonical, List<IArtifactDescriptor> packed,
-            LinkedList<IArtifactDescriptor> list) {
+    protected void insertCanonical(List<IArtifactDescriptor> canonical, LinkedList<IArtifactDescriptor> list) {
         if (canonical != null) {
             // canonical is most preferred -> add at head of the list
             list.addAll(0, canonical);
