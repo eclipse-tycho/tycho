@@ -12,22 +12,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.tycho937;
 
-import java.io.File;
 import java.util.List;
-import org.apache.bcel.classfile.ClassParser;
-import org.apache.bcel.classfile.JavaClass;
+
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class Tycho937Test extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testCompilerSourceTargetConfigurationViaManifest() throws Exception {
-        Verifier verifier = getVerifier("tycho937", false);
-        verifier.executeGoals(List.of("clean", "javadoc:aggregate-jar", "verify"));
-        verifier.verifyErrorFreeLog();
-    }
+	@Test
+	public void testCompilerSourceTargetConfigurationViaManifest() throws Exception {
+		Verifier verifier = getVerifier("tycho937", false);
+		verifier.executeGoals(List.of("clean", "javadoc:aggregate-jar", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
 
 }
