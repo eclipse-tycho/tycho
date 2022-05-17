@@ -66,7 +66,7 @@ import org.eclipse.tycho.repository.util.StatusTool;
  * installed) in addition to the remote content. This allows lazy access to the remote repositories
  * (bug 347477).</li>
  * <li>This instance only provides the remote artifacts in certain formats, i.e. only the canonical
- * format, or the canonical format and the packed format.</li>
+ * format.</li>
  * </ul>
  * </p>
  */
@@ -194,11 +194,10 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
             if (isAvailable) {
                 /*
-                 * Always execute this step (even when not mirroring packed artifacts) so that a
-                 * local repository that only contains the packed format of an artifact is
-                 * automatically corrected. We need the canonical format in the local repository so
-                 * that {@link IArtifactFileProvider#getArtifactFile(IArtifactKey)} does not return
-                 * null.
+                 * Always execute this step so that a local repository that only contains the packed
+                 * format of an artifact is automatically corrected. We need the canonical format in
+                 * the local repository so that {@link
+                 * IArtifactFileProvider#getArtifactFile(IArtifactKey)} does not return null.
                  */
                 ensureArtifactIsPresentInCanonicalFormat(key);
             }
