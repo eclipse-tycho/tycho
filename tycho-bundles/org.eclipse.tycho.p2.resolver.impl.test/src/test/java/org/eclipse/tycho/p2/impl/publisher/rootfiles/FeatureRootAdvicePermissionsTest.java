@@ -137,7 +137,8 @@ public class FeatureRootAdvicePermissionsTest {
         return permissionsList;
     }
 
-    private static void assertPermissionEntry(String expectedFile, String expectedChmod, String[] descriptorPermission) {
+    private static void assertPermissionEntry(String expectedFile, String expectedChmod,
+            String[] descriptorPermission) {
         assertEquals(expectedChmod, descriptorPermission[0]);
         assertEquals(expectedFile, descriptorPermission[1]);
     }
