@@ -103,6 +103,10 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
         }
         if (useDefaultExcludes) {
             allExcludes.addAll(Arrays.asList(AbstractScanner.DEFAULTEXCLUDES));
+			// keep ignoring the following files after
+			// https://github.com/codehaus-plexus/plexus-utils/pull/174
+			allExcludes.add("**/.gitignore");
+			allExcludes.add("**/.gitattributes");
         }
 
         fileSet.setExcludes(allExcludes.toArray(new String[allExcludes.size()]));
