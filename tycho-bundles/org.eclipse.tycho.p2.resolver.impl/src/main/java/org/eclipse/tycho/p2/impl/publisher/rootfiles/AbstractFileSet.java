@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -76,6 +76,9 @@ public abstract class AbstractFileSet {
         for (String exclude : DEFAULTEXCLUDES) {
             defaultExcludePatterns.add(convertToRegexPattern(exclude));
         }
+        // keep ignoring the following files after https://github.com/codehaus-plexus/plexus-utils/pull/174
+        defaultExcludePatterns.add(convertToRegexPattern("**/.gitignore"));
+        defaultExcludePatterns.add(convertToRegexPattern("**/.gitattributes"));
         return defaultExcludePatterns;
     }
 
