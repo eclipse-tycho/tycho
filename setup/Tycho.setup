@@ -143,172 +143,22 @@
       xsi:type="setup:CompoundTask"
       name="Maven Project Import">
     <setupTask
-        xsi:type="maven:MavenImportTask">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-bundles/tycho-bundles-target"
-          locateNestedProjects="true"/>
-      <description>Import Target Platform Project</description>
-    </setupTask>
-    <setupTask
         xsi:type="maven:MavenImportTask"
         id="TychoProjectImport"
         projectNameTemplate="">
       <sourceLocator
-          rootFolder="${git.cloneTycho.location}"/>
-      <description>Import the root project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/sisu-equinox"
-          locateNestedProjects="true"/>
-      <description>Import project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/target-platform-configuration"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-artifactcomparator"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-build"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-bundles"
-          locateNestedProjects="true"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-compiler-jdt"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-compiler-plugin"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-core"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-embedder-api"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-extras"
-          locateNestedProjects="true"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-gpg-plugin"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-its"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-lib-detector"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-maven-plugin"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-metadata-model"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-p2"
-          locateNestedProjects="true"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-packaging-plugin"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-release"
-          locateNestedProjects="true"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-source-plugin"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-surefire"
-          locateNestedProjects="true"/>
-      <description>Import Maven Project</description>
-    </setupTask>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${git.cloneTycho.location}/tycho-testing-harness"/>
-      <description>Import Maven Project</description>
+          rootFolder="${git.cloneTycho.location}"
+          locateNestedProjects="true">
+        <predicate
+            xsi:type="predicates:LocationPredicate"
+            pattern="${git.cloneTycho.location|path}"/>
+        <predicate
+            xsi:type="predicates:LocationPredicate"
+            pattern="${git.cloneTycho.location|path}/[^/]+"/>
+        <predicate
+            xsi:type="predicates:LocationPredicate"
+            pattern="${git.cloneTycho.location|path}/[^/]+/[^/]+"/>
+      </sourceLocator>
     </setupTask>
     <description>Maven Project Import</description>
   </setupTask>
