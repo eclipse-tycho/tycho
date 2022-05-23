@@ -53,7 +53,7 @@ public abstract class AbstractFileSet {
             // Mercurial
             "**/.hg", "**/.hg/**",
             // git
-            "**/.git", "**/.git/**",
+            "**/.git", "**/.git/**", "**/.gitignore", "**/.gitattributes",
             // BitKeeper
             "**/BitKeeper", "**/BitKeeper/**", "**/ChangeSet", "**/ChangeSet/**",
             // darcs
@@ -68,7 +68,6 @@ public abstract class AbstractFileSet {
         this.useDefaultExcludes = useDefaultExcludes;
         this.includePattern = convertToRegexPattern(pattern);
         this.defaultExcludePatterns = createDefaultExcludePatterns();
-        this.defaultExcludePatterns = createDefaultExcludePatterns();
     }
 
     private List<Pattern> createDefaultExcludePatterns() {
@@ -76,9 +75,6 @@ public abstract class AbstractFileSet {
         for (String exclude : DEFAULTEXCLUDES) {
             defaultExcludePatterns.add(convertToRegexPattern(exclude));
         }
-        // keep ignoring the following files after https://github.com/codehaus-plexus/plexus-utils/pull/174
-        defaultExcludePatterns.add(convertToRegexPattern("**/.gitignore"));
-        defaultExcludePatterns.add(convertToRegexPattern("**/.gitattributes"));
         return defaultExcludePatterns;
     }
 
