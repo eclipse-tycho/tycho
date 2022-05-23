@@ -257,8 +257,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * 
      * Set this to <code>false</code> in case you want to keep resources separate from java files in
      * <code>src/main/resources</code> and handle them using
-     * <a href="https://maven.apache.org/plugins/maven-resources-plugin/"> maven-resources-plugin</a>
-     * (e.g. for <a href=
+     * <a href="https://maven.apache.org/plugins/maven-resources-plugin/">
+     * maven-resources-plugin</a> (e.g. for <a href=
      * "https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html">resource
      * filtering<a/>.
      * 
@@ -432,6 +432,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             excludes.addAll(getCompileSourceExcludePaths());
             excludes.addAll(getEclipsePluginProject().getBuildProperties().getBinExcludes());
             excludes.add("**/*.java");
+            // keep ignoring the following files after
+            // https://github.com/codehaus-plexus/plexus-utils/pull/174
+            excludes.add("**/.gitignore");
+            excludes.add("**/.gitattributes");
             StaleSourceScanner scanner = new StaleSourceScanner(0L, MATCH_ALL, excludes);
             CopyMapping copyMapping = new CopyMapping();
             scanner.addSourceMapping(copyMapping);
