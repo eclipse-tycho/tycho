@@ -1,11 +1,3 @@
-org.osgi.framework.bootdelegation = \
- javax.*,\
- org.ietf.jgss,\
- org.omg.*,\
- org.w3c.*,\
- org.xml.*,\
- sun.*,\
- com.sun.*
 org.osgi.framework.executionenvironment = \
  OSGi/Minimum-1.0,\
  OSGi/Minimum-1.1,\
