@@ -16,10 +16,10 @@ Starting with Maven 3.8.5 Tycho now supports an enhanced form of the [Maven CI F
 
 These uses the usual semantics that you can use them in a version string e.g. `<version>${releaseVersion}${qualifier}</version>` and pass them on the commandline.
 
-Beside this, Tycho supports some useful default calculation for `qualifier` if you gives a format on the commandline with `-Dtycho.buildqualifier.format=yyyyMMddHHmm` 
-(or [any other format supported}(https://www.eclipse.org/tycho/sitedocs/tycho-packaging-plugin/build-qualifier-mojo.html#format)) Tycho automatically will set the build qualifier also availablee in your maven model!
+Beside this, Tycho supports some useful default calculation for `qualifier` if you give a format on the commandline with `-Dtycho.buildqualifier.format=yyyyMMddHHmm` 
+(or [any other format supported](https://www.eclipse.org/tycho/sitedocs/tycho-packaging-plugin/build-qualifier-mojo.html#format)). Tycho will also make the build qualifier available in your Maven model!
 
-That way you can configure your pom in the follwoing way:
+That way you can configure your pom in the following way:
 ```
 <project>
 	<modelVersion>4.0.0</modelVersion>
@@ -37,7 +37,7 @@ That way you can configure your pom in the follwoing way:
 ```
 
 What will result in the usual `1.0.0-SNAPSHOT` for a regular `mvn clean install`, if you want to do a release, you can now simply call `mvn -Dtycho.buildqualifier.format=yyyyMMddHHmm clean deploy`
-and your artifact will get the `1.0.0-<formated qualifier>` version when published! This also is supported if you use pomless build.
+and your artifact will get the `1.0.0-<formatted qualifier>` version when published! This also is supported if you use pomless build.
 
 To use this new feature you need to enable the tycho-build extension with the `.mvn/extensions.xml` file in the root of your project directory:
 ```
@@ -48,23 +48,23 @@ To use this new feature you need to enable the tycho-build extension with the `.
 		<artifactId>tycho-build</artifactId>
 		<version>${tycho-version}</version>
 	</extension>
-	<!-- possibly other extension here -->
+	<!-- possibly other extensions here -->
 </extensions>
 ```
-please note that we here use another new feature from Maven 3.8.5, where one could use properties from the file `.mvn/maven.config` in your `.mvn/extensions.xml` file, so if you put in this:
+Please note that we use another new feature from Maven 3.8.5 here, where you can use properties from the file `.mvn/maven.config` in your `.mvn/extensions.xml` file, so if you put in this:
 ```
 -Dtycho-version=3.0.0-SNAPSHOT
 # probably add more here ..
 ```
 
-You can now control your Tycho version for `.mvn/extensions.xml` and your `pom.xml` in one place and still override it on the commandline with  `-Dtycho-version=...`
+You can now control your Tycho version for `.mvn/extensions.xml` and your `pom.xml` in one place and still override it on the commandline with `-Dtycho-version=...`
 
 
 ### Support for non-modular JVMs no longer top tier
 
 Support for compilation for pre-Java 11 JVMs bytecode is no longer considered first class nor tested. Actual support is not removed but people facing issues with it will have to come with fixes on their own.
 
-### Support for PDE Declarative Component Annotation progressing
+### Support for PDE Declarative Component Annotation processing
 
 One can enable either global or per project the generation of component xmls in PDE. Until now it was required for Tycho to still import the annotation package even though `classpath=true` was set, beside that one needs to check in the generated xmls.
 
@@ -86,38 +86,41 @@ Tycho now has improved support for this with the following:
 	</configuration>
 </plugin>
 ```
-If the `tycho-ds-plugin` is enabled for a project it generated the necessary xml files if not already present in the project.
+If the `tycho-ds-plugin` is enabled for a project it generates the necessary xml files if not already present in the project.
 
 ### Improved P2 transport for more efficiently http-cache handling and improved offline mode
 
 P2 default transport is more designed as a weak cache that assumes the user is always online.
-While for an IDE that might be sufficient as target resolution is only performed once in a while and updates are triggered by explicit user request, for tycho this does not work well:
+While for an IDE that might be sufficient as target resolution is only performed once in a while and updates are triggered by explicit user request, for Tycho this does not work well:
 
-- Builds are often trigger on each code change, requiring repeated target resolution
-- Builds might be asked to run in an offline mode
-- If there is a temporary server outrage one might to fallback to the previous state for this build instead of fail completely
-- Build times are often a rare resource one don't want to waste waiting for servers, bandwidth might even be limited or you have to pay for it
+- Builds are often trigger on each code change, requiring repeated target resolution.
+- Builds might be asked to run in an offline mode.
+- If there is a temporary server outage one might want to fall back to the previous state for this build instead of failing completely.
+- Build times are often a rare resource one doesn't want to waste waiting for servers, bandwidth might even be limited or you have to pay for it.
 
-Because of this, Tycho now includes a brand new caching P2 transport that allows advanced aching, offline handling and fallback to cache in case of server failures. The transport is enabled by default so nothing has to be done, just in case you want the old behavior you can set `-D=tycho.p2.transport=ecf` beside that the following properties might be interesting:
+Because of this, Tycho now includes a brand new caching P2 transport that allows advanced caching, offline handling and fallback to cache in case of server failures. The transport is enabled by default so nothing has to be done, just in case you want the old behavior you can set `-D=tycho.p2.transport=ecf` beside that the following properties might be interesting:
 
 #### Force cache-revalidation
-If you run maven with the `-U` switch Tycho revalidates the cache, this is useful if you have changed an updatesite in an unusual way (e.g. adding new index files) as tycho now also caches not found items to speed-up certain scenarios where many non existing files are queried.
+
+If you run maven with the `-U` switch Tycho revalidates the cache.
+This is useful if you have changed an updatesite in an unusual way (e.g. adding new index files) as tycho now also caches not found items to speed-up certain scenarios where many non existing files are queried.
 
 #### Configure minimum caching age
 
-Some servers don't provide you with sufficient caching information, for this purpose, tychy by default assumes a minimum caching age of one hour. You can switch this off, or configure a longer delay by using `-Dtycho.p2.transport.min-cache-minutes=<desired minimum in minutes>`.
-Choosing a sensible value could greatly improve your build times and lower banYdwith usage. If your build contains a mixture of released and 'snapshot' sites you have the following options:
+Some servers don't provide you with sufficient caching information. For this purpose, Tycho by default assumes a minimum caching age of one hour. You can switch this off, or configure a longer delay by using `-Dtycho.p2.transport.min-cache-minutes=<desired minimum in minutes>`.
+Choosing a sensible value could greatly improve your build times and lower bandwith usage.
+If your build contains a mixture of released and 'snapshot' sites you have the following options:
 
-1. Consider adding a mirror to your settings.xml for the snapshot page that point to a file-local copy (e.g. output of another build)
-2. Configure the webserver of your snapshot site with the `Cache-Control: must-revalidate` header in which case tycho ignores any minimum age
-3. Use `-Dtycho.p2.transport.min-cache-minutes=0` this will still improve the time to resolve the target
+1. Consider adding a mirror to your settings.xml for the snapshot page that points to a file-local copy (e.g. output of another build).
+2. Configure the webserver of your snapshot site with the `Cache-Control: must-revalidate` header in which case Tycho ignores any minimum age.
+3. Use `-Dtycho.p2.transport.min-cache-minutes=0`. This will still improve the time to resolve the target.
 
 
 ### Automatic generation of PDE source bundles for pom-first bundles
 
-PDE requires some special headers to detect a bundle as a "Source Bundle", there is now a new mojo `tycho-source-plugin:generate-pde-source-header` that support this, it requires the following configuration:
+PDE requires some special headers to detect a bundle as a "Source Bundle", there is now a new mojo `tycho-source-plugin:generate-pde-source-header` that supports this, it requires the following configuration:
 
-1. Enable the generation of a source-jar with the `maven-source-plugin`, please note that it needs to be explicitly bound to the `prepare-package` phase!
+1. Enable the generation of a source-jar with the `maven-source-plugin`. Please note that it needs to be bound to the `prepare-package` phase explicitly!
 ```
 <plugin>
 	<groupId>org.apache.maven.plugins</groupId>
@@ -133,7 +136,7 @@ PDE requires some special headers to detect a bundle as a "Source Bundle", there
 	</executions>
 </plugin>
 ```
-2. enable the generation of the appropriate PDE header
+2. Enable the generation of the appropriate PDE header:
 ```
 <plugin>
 	<groupId>org.eclipse.tycho</groupId>
@@ -149,7 +152,7 @@ PDE requires some special headers to detect a bundle as a "Source Bundle", there
 	</executions>
 </plugin>
 ```
-3. finally enable generation of P2 metadata so tycho can use the source bundle in the build (you can omit this step if you don't want to reference the source bundle in a product, update-site or feature).
+3. Finally enable generation of P2 metadata so Tycho can use the source bundle in the build (you can omit this step if you don't want to reference the source bundle in a product, update-site or feature).
 ```
 <plugin>
 	<groupId>org.eclipse.tycho</groupId>
@@ -175,30 +178,32 @@ PDE requires some special headers to detect a bundle as a "Source Bundle", there
 
 ### Limit the number of parallel test executions across the reactor
 
-You can specify a `<reactorConcurrencyLevel>` (default unlimited) for the `tycho-surefire:integration-test` and `tycho-surefire:test` that limits the number of concurrent running tests.
-This could be usefull if you like to execute the build with multiple threads (e.g. `-T1C`) but want to run the integration tests in a serial manner (e.g. because they are UI based).
+You can specify a `<reactorConcurrencyLevel>` (default unlimited) for `tycho-surefire:integration-test` and `tycho-surefire:test` that limits the number of concurrently running tests.
+This can be useful if you like to execute the build with multiple threads (e.g. `-T1C`) but want to run the integration tests in a serial manner (e.g. because they are UI based).
 
 ### Migration guide 2.x -> 3.x
 
-#### jgit-timestamp provider moved from org.eclipse.tych.extras to org.eclipse.tych
+#### jgit-timestamp provider moved from `org.eclipse.tycho.extras` to `org.eclipse.tycho`
 
-The `tycho-buildtimestamp-jgit` plugin is now moved to the `org.eclipse.tycho` group id.
+The `tycho-buildtimestamp-jgit` plugin has moved to the `org.eclipse.tycho` group id.
 
-#### Removal of deprecated eclipse-update-site and eclipse-application packaging types
+#### Removal of deprecated `eclipse-update-site` and `eclipse-application` packaging types
 
-This packaging types have been deprecate for long time as there is full featured replacement eclipse-repository.
+These packaging types have been deprecated since a long time and there is the replacement `eclipse-repository`.
 
-#### Removal of tycho-pomgenerator:generate-poms
+#### Removal of `tycho-pomgenerator:generate-poms`
 
-tycho-pomgenerator:generate-poms mojo is no longer supported as it was useful in the days where tycho-pomless was incomplete, today its usage is very limited and tycho-pomless is a much better (and supported) alternative now.
+The `tycho-pomgenerator:generate-poms` mojo is no longer supported as it was useful only in the days where tycho-pomless was incomplete.
+Today its usage is very limited and tycho-pomless is a much better (and supported) alternative now.
 
-#### Removal of tycho-source-feature:source-feature
+#### Removal of `tycho-source-feature:source-feature`
 
-This mojo is replaced by the tycho-source-plugin with execution feature-source which offers equivalent and even enhanced functionality.
+This mojo is replaced by the `tycho-source-plugin` with execution `feature-source` which offers equivalent and even enhanced functionality.
 
 #### Pack200
 
-Pack200 technology is obsolete and no longer supported after Java 13. Tycho removed all support for dealing with pack.gz files including pack200 specific plugins, various options in Mojos and support for resolving fetching in core. 
+Pack200 technology is obsolete and no longer supported after Java 13.
+Tycho removed all support for dealing with pack.gz files including pack200 specific plugins, various options in Mojos and support for resolving fetching in core. 
 
 Omit any pack200 specific plugins, options and in any other way dealing with ***.pack.gz** files.
 The following are removed:
@@ -206,48 +211,48 @@ The following are removed:
 	- tycho-pack200a-plugin
 	- tycho-pack200b-plugin
 - Mojo options
-	- TargetPlatformConfigurationMojo' includePackedArtifacts
-	- MirrorMojo's includePacked
-	- PublishFeaturesAndBundlesMojo reusePack200Files
+	- TargetPlatformConfigurationMojo' `includePackedArtifacts`
+	- MirrorMojo's `includePacked`
+	- PublishFeaturesAndBundlesMojo `reusePack200Files`
 	
-#### BuildQualifierMojo project.basedir option removed
+#### BuildQualifierMojo `project.basedir` option removed
 
 It was totally ignored in all latest versions.
 
-#### PublishProductMojo flavor option removed
+#### PublishProductMojo `flavor` option removed
 
 It was hardcoded to "tooling" always and had no practical meaning to change.
 
-#### EclipseRunMojo argLine and appArgLine options removed
+#### EclipseRunMojo `argLine` and `appArgLine` options removed
 
-Replaced by jvmArgs and applicationArgs respectively.
+Replaced by `jvmArgs` and `applicationArgs` respectively.
 
 ## 2.7.3
 Fixes:
--  p2-maven-site includes bundles in the repository #932 
+-  p2-maven-site includes bundles in the repository https://github.com/eclipse/tycho/issues/932 
 
 ## 2.7.2
 Fixes:
-- [2.7.1][regression] Neither raw version nor format was specified #876 
-- [2.7.1] 'includePackedArtifacts' must be automatically disabled when running with an incompatible vm #885 
-- Resolve DS classpath entry and generate component xmls #406
+- [2.7.1][regression] Neither raw version nor format was specified https://github.com/eclipse/tycho/issues/876 
+- [2.7.1] 'includePackedArtifacts' must be automatically disabled when running with an incompatible vm https://github.com/eclipse/tycho/issues/885 
+- Resolve DS classpath entry and generate component xmls https://github.com/eclipse/tycho/issues/406
 
 ## 2.7.1
 
 Fixes:
-- Access to the tycho .cache directory is not properly synchronized #663 
-- compare-versions-with-baseline failing (since 2.7) when executionEnvironment=none #707 
-- JGit packaging build fails with Tycho 2.7.0 #723 
-- Backport of #767
-- Maven artifacts deployed with Tycho 2.7 are resolved without transitive dependencies by Maven #781
-- Slicer warnings are to verboose #728 
-- Performance regression in classpath resolution #719
-- If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match #822 
-- Check Hashsums for local cached artifacts #692 
-- JAVA_HOME check is not OS independent #849 
-- Bug 571533 - tycho-compiler-plugin with useJDK=BREE and BREE==JavaSE-1.8 fails to find some EE packages #51 
-- Failed to resolve dependencies with Tycho 2.7.0 for custom repositories #697 
-- Feature restrictions are not taken into account when using emptyVersion #845 
+- Access to the Tycho .cache directory is not properly synchronized https://github.com/eclipse/tycho/issues/663 
+- compare-versions-with-baseline failing (since 2.7) when executionEnvironment=none https://github.com/eclipse/tycho/issues/707 
+- JGit packaging build fails with Tycho 2.7.0 https://github.com/eclipse/tycho/issues/723 
+- Backport of https://github.com/eclipse/tycho/issues/767
+- Maven artifacts deployed with Tycho 2.7 are resolved without transitive dependencies by Maven https://github.com/eclipse/tycho/issues/781
+- Slicer warnings are too verboose https://github.com/eclipse/tycho/issues/728 
+- Performance regression in classpath resolution https://github.com/eclipse/tycho/issues/719
+- If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match https://github.com/eclipse/tycho/issues/822 
+- Check Hashsums for local cached artifacts https://github.com/eclipse/tycho/issues/692 
+- JAVA_HOME check is not OS independent https://github.com/eclipse/tycho/issues/849 
+- Bug 571533 - tycho-compiler-plugin with useJDK=BREE and BREE==JavaSE-1.8 fails to find some EE packages https://github.com/eclipse/tycho/issues/51 
+- Failed to resolve dependencies with Tycho 2.7.0 for custom repositories https://github.com/eclipse/tycho/issues/697 
+- Feature restrictions are not taken into account when using emptyVersion https://github.com/eclipse/tycho/issues/845 
 
 ## 2.7.0
 
@@ -256,8 +261,7 @@ Fixes:
 Tycho pomless has started as a small experiment in tycho-extras. Over time it has grown to a fully-fledged solution to build pde-based artifacts with less effort and nearly zero additional configuration.
 
 Neverless, the name "pomless" was always a bit misleading, as actually we have reduced the number required poms to one 'main-pom' it is still not pomless and actually allows poms to be used where suitable.
-Because of this, an to not limit the usage to "pomless" with this version a new core-extension is available name 'tycho-build', that effectively does what tycho-extras-pomless does but in the context of 'core' and is open to further improvements 
-(maybe some time offering an option to not needing a pom at all).
+Because of this, and to not limit the usage to "pomless" with this version a new core-extension is available name 'tycho-build', that effectively does what tycho-extras-pomless does but in the context of 'core' and is open to further improvements (maybe at some time offering an option to not needing a pom at all).
 
 All that needs to be done is to replace the old 
 ```
@@ -277,6 +281,7 @@ with
 	<version>2.7.0</version>
 </extension>
 ```
+Notice the changed artifactId.
 
 ### Tycho-specific Maven GraphBuilder to support `--also-make` (`-am`) and `--also-make-dependents` (`-amd`)
 
