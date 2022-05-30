@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 SAP AG and others.
+ * Copyright (c) 2011, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import org.junit.Test;
 
 public class PomDependencyOnNonTychoArtifactTest extends AbstractTychoIntegrationTest {
 	private static final String POM_DEPENDENCY_BUNDLE_ID = "com.google.gson";
-	private static final String POM_DEPENDENCY_BUNDLE_VERSION = "1.6.0";
+	private static final String POM_DEPENDENCY_BUNDLE_VERSION = "2.8.9";
 	private static final String POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID = "org.eclipse.jdt.compiler.apt.source";
 	private static final String POM_DEPENDENCY_CLASSIFIER_BUNDLE_VERSION = "1.0.500.v20120423-0553";
 
