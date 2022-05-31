@@ -59,6 +59,9 @@ Please note that we use another new feature from Maven 3.8.5 here, where you can
 
 You can now control your Tycho version for `.mvn/extensions.xml` and your `pom.xml` in one place and still override it on the commandline with `-Dtycho-version=...`
 
+### Support for -Dtycho.mode=maven removed
+
+The property has never been properly documented and excluding tycho resolution is risky if one is not 100% sure what the effects are (e.g  using it with maven-dependency-plugin will result will many dependency not being listed at all). Clean phase is manually excluded by Tycho as we clearly know that it doesn't need resolution, if there is the need for more such exclusions they should be done similarly.
 
 ### Support for non-modular JVMs no longer top tier
 
