@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,6 @@ import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFa
  * Creates product installations for the products defined in the project.
  * </p>
  */
-// TODO 348586 should be called assemble-product
 @Mojo(name = "materialize-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class DirectorMojo extends AbstractProductMojo {
     private static final Object LOCK = new Object();
@@ -58,11 +57,8 @@ public final class DirectorMojo extends AbstractProductMojo {
     @Component
     private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
 
-    // TODO rename to profileName
     /**
-     * <p>
      * The name of the p2 profile to be created.
-     * </p>
      */
     @Parameter(defaultValue = "DefaultProfile")
     private String profile;
@@ -72,10 +68,8 @@ public final class DirectorMojo extends AbstractProductMojo {
     private List<ProfileName> profileNames;
 
     /**
-     * <p>
      * Include the feature JARs in installation. (Technically, this sets the property
      * <tt>org.eclipse.update.install.features</tt> to <tt>true</tt> in the p2 profile.)
-     * </p>
      */
     @Parameter(defaultValue = "true")
     private boolean installFeatures;
@@ -87,8 +81,7 @@ public final class DirectorMojo extends AbstractProductMojo {
     private Map<String, String> profileProperties;
 
     /**
-     * <p>
-     * Source repositories to be used in the director calls. Can be
+     * Source repositories to be used in the director calls. Can be:
      * <ul>
      * <li><code>targetPlatform</code> - to use the target platform as source (default)</li>
      * <li><code>repository</code> - to use the p2 repository in <tt>target/repository/</tt> as
@@ -100,8 +93,7 @@ public final class DirectorMojo extends AbstractProductMojo {
     private InstallationSource source;
 
     /**
-     * <p>
-     * Runtime in which the director application is executed. Can be
+     * Runtime in which the director application is executed. Can be:
      * <ul>
      * <li><code>internal</code> - to use the director application from Tycho's embedded OSGi
      * runtime (default)</li>
@@ -114,7 +106,6 @@ public final class DirectorMojo extends AbstractProductMojo {
     @Parameter(defaultValue = "internal")
     private DirectorRuntimeType directorRuntime;
 
-    // TODO extract methods
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
@@ -192,7 +183,6 @@ public final class DirectorMojo extends AbstractProductMojo {
     }
 
     private RepositoryReferences getBuildOutputRepository() {
-        // TODO share "repository" constant?
         File buildOutputRepository = getBuildDirectory().getChild("repository");
 
         RepositoryReferences result = new RepositoryReferences();
