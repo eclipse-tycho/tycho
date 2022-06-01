@@ -38,7 +38,13 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
+@Component(service = { ReactorRepositoryManager.class, ReactorRepositoryManagerFacade.class })
 public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
     private static final String PRELIMINARY_TARGET_PLATFORM_KEY = ReactorRepositoryManagerImpl.class.getName()
@@ -51,19 +57,23 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
     private TargetPlatformFactory tpFactory;
 
+    @Reference
     public void bindProvisioningAgentFactory(IProvisioningAgentProvider agentFactory) {
         this.agentFactory = agentFactory;
     }
 
+    @Reference
     public void bindP2ResolverFactory(P2ResolverFactory p2ResolverFactory) {
         tpFactory = p2ResolverFactory.getTargetPlatformFactory();
     }
 
+    @Activate
     public void activateManager() throws IOException, ProvisionException {
         agentDir = createTempDir("tycho_reactor_agent");
         agent = agentFactory.createAgent(agentDir.toURI());
     }
 
+    @Deactivate
     public void deactivateManager() {
         agent.stop();
         // TODO use IOUtils
