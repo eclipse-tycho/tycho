@@ -15,6 +15,7 @@ package org.eclipse.tycho.core.maven;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,9 +57,10 @@ import org.eclipse.tycho.resolver.TychoResolver;
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
     private static final String TYCHO_GROUPID = "org.eclipse.tycho";
-    private static final Set<String> TYCHO_PLUGIN_IDS = Set.of("tycho-maven-plugin", "tycho-p2-director-plugin",
-            "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin", "tycho-packaging-plugin",
-            "tycho-source-plugin", "tycho-surefire-plugin", "tycho-versions-plugin", "tycho-compiler-plugin");
+    private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<>(Arrays.asList("tycho-maven-plugin",
+            "tycho-p2-director-plugin", "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin",
+            "tycho-packaging-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
+            "tycho-versions-plugin", "tycho-compiler-plugin"));
     private static final String P2_USER_AGENT_KEY = "p2.userAgent";
     private static final String P2_USER_AGENT_VALUE = "tycho/";
 
@@ -266,7 +268,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     private boolean disableLifecycleParticipation(MavenSession session) {
         // command line property to disable Tycho lifecycle participant
-        return session.getUserProperties().containsKey("m2e.version")
+        return "maven".equals(session.getUserProperties().get("tycho.mode"))
+                || session.getUserProperties().containsKey("m2e.version")
                 // disable for 'clean-only' builds. Consider that Maven can be invoked without explicit goals, if default goals are specified
                 || (!session.getGoals().isEmpty() && CLEAN_PHASES.containsAll(session.getGoals()));
     }
