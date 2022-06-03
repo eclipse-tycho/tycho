@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP SE and others.
+ * Copyright (c) 2010, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,9 +36,7 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.plugins.tar.TarGzArchiver;
 
 /**
- * <p>
  * Creates archives with the product installations.
- * </p>
  */
 @Mojo(name = "archive-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class ProductArchiverMojo extends AbstractProductMojo {
@@ -48,8 +46,8 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     private static final String TAR_GZ_ARCHIVE_FORMAT = "tar.gz";
     private static final String TGZ_ARCHIVE_FORMAT = "tgz";
 
-    private abstract class ProductArchiver {
-        abstract Archiver getArchiver() throws ArchiverException;
+    private interface ProductArchiver {
+        Archiver getArchiver() throws ArchiverException;
     }
 
     /**
@@ -64,9 +62,11 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
      * For example, the following configuration will create tar.gz product archives for Linux
      * 
      * <pre>
-     * &lt;formats&gt;
-     *   &lt;linux&gt;tar.gz&lt;/linux&gt;
-     * &lt;/formats&gt;
+     * {@code
+     * <formats>
+     *   <linux>tar.gz</linux>
+     * </formats>
+     * }
      * </pre>
      * 
      * Supported formats
@@ -92,21 +92,13 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     public ProductArchiverMojo() {
         productArchivers = new HashMap<>();
 
-        productArchivers.put("zip", new ProductArchiver() {
-            @Override
-            Archiver getArchiver() {
-                return zipArchiver;
-            }
-        });
+        productArchivers.put("zip", () -> zipArchiver);
 
-        ProductArchiver tarGzArchiver = new ProductArchiver() {
-            @Override
-            Archiver getArchiver() throws ArchiverException {
-                tarArchiver.setCompression(TarCompressionMethod.gzip);
-                // avoid lots of long file path (> 100 chars) warnings
-                tarArchiver.setLongfile(TarLongFileMode.gnu);
-                return tarArchiver;
-            }
+        ProductArchiver tarGzArchiver = () -> {
+            tarArchiver.setCompression(TarCompressionMethod.gzip);
+            // avoid lots of long file path (> 100 chars) warnings
+            tarArchiver.setLongfile(TarLongFileMode.gnu);
+            return tarArchiver;
         };
         productArchivers.put(TAR_GZ_ARCHIVE_FORMAT, tarGzArchiver);
         productArchivers.put(TGZ_ARCHIVE_FORMAT, tarGzArchiver);
@@ -141,8 +133,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         ProductArchiver productArchiver = productArchivers.get(format);
         if (productArchiver == null) {
             String os = env != null ? "os=" + env.getOs() : "";
-            throw new MojoExecutionException(
-                    "Unknown or unsupported archive format " + os + " format=" + format);
+            throw new MojoExecutionException("Unknown or unsupported archive format " + os + " format=" + format);
         }
 
         File productArchive = new File(getProductsBuildDirectory(),
@@ -162,9 +153,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 archiver.addFileSet(fileSet);
                 archiver.createArchive();
             }
-        } catch (ArchiverException e) {
-            throw new MojoExecutionException("Error packing product", e);
-        } catch (IOException e) {
+        } catch (ArchiverException | IOException e) {
             throw new MojoExecutionException("Error packing product", e);
         }
 
