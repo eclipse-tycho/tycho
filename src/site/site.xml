@@ -16,6 +16,7 @@
 			<item name="Versions Plugin" href="tycho-release/tycho-versions-plugin/plugin-info.html" />
 			<item name="Properties">
 				<item name="Build Properties" href="BuildProperties.html" />
+				<item name="System Properties" href="SystemProperties.html" />
             	<item name="Tycho Properties" href="TychoProperties.html" />
 			</item>
 		</menu>
