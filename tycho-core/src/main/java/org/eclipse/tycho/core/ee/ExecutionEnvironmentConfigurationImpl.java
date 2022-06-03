@@ -106,7 +106,9 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             return false;
         }
         String profileName = getProfileName();
-        boolean profileExists = ExecutionEnvironmentUtils.getProfileNames().contains(profileName);
+        Collection<String> profileNames = ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger);
+        boolean profileExists = profileNames
+                .contains(profileName);
         if (!profileExists && ignoredByResolver) {
             throw new BuildFailureException(
                     "When using a custom execution environment profile, resolveWithExecutionEnvironmentConstraints must not be set to false");
@@ -162,7 +164,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
 
     @Override
     public Collection<ExecutionEnvironment> getAllKnownEEs() {
-        return ExecutionEnvironmentUtils.getProfileNames().stream() //
+        return ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger).stream() //
                 .map(profileName -> ExecutionEnvironmentUtils.getExecutionEnvironment(profileName, toolchainManager,
                         session, logger)) //
                 .collect(Collectors.toList());

@@ -13,8 +13,6 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
-import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -61,12 +59,8 @@ public class OsgiManifest {
         }
         String[] envs = new String[brees.length];
         for (int i = 0; i < brees.length; i++) {
-            String ee = brees[i].getValue();
-            if (ExecutionEnvironmentUtils.getProfileNames().contains(ee)) {
-                envs[i] = ee;
-            } else {
-                throw new OsgiManifestParserException(location, new UnknownEnvironmentException(ee));
-            }
+            //BREE already has no real meaning for modular vms so matching them here does not really offer much...
+            envs[i] = brees[i].getValue();
         }
         return envs;
     }
