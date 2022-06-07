@@ -110,6 +110,11 @@ public class OsgiManifestTest {
         assertArrayEquals(new String[0], manifest.getExecutionEnvironments());
     }
 
+    @Test(expected = OsgiManifestParserException.class)
+    public void testInvalidBREE() throws Exception {
+        parseManifest("invalidBree.mf");
+    }
+
     private OsgiManifest parseManifest(String manifestName) throws URISyntaxException {
         InputStream stream = getClass().getResourceAsStream("/manifests/" + manifestName);
         return OsgiManifest.parse(stream, "testLocation");

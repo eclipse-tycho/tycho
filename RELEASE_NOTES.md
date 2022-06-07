@@ -4,11 +4,6 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
-### Tycho no longer ships JVM profiles
-
-Because of modular VMs the profiles shipped by Tycho has never been complete and actually are already partly generated in regards to available packages.
-From now on, Tycho do not ship any profiles and thus you can use any VM in the toolchains or as a running VM and Tycho will generate a profile for it.
-
 ### Enhanced Support for Maven CI Friendly Versions
 
 Starting with Maven 3.8.5 Tycho now supports an enhanced form of the [Maven CI Friendly Versions](https://maven.apache.org/maven-ci-friendly.html) beside the standard properties names one could also use:
@@ -187,11 +182,6 @@ You can specify a `<reactorConcurrencyLevel>` (default unlimited) for `tycho-sur
 This can be useful if you like to execute the build with multiple threads (e.g. `-T1C`) but want to run the integration tests in a serial manner (e.g. because they are UI based).
 
 ### Migration guide 2.x -> 3.x
-
-#### publish-osgi-ee do not publish a fixed size of profiles anymore
-
-The `publish-osgi-ee` previously has published a fixes list of "usefull" execution environments maintained by Tycho.
-This is no longer true and Tycho do publish only those JavaSE profiles that are available to the build and have a version larger than 11 if not configured explicitly.
 
 #### jgit-timestamp provider moved from `org.eclipse.tycho.extras` to `org.eclipse.tycho`
 

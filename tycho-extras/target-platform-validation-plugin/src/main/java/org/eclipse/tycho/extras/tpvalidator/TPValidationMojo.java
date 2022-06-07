@@ -238,8 +238,7 @@ public class TPValidationMojo extends AbstractMojo {
 
                 @Override
                 public boolean isCustomProfile() {
-                    return !ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger)
-                            .contains(ee.getProfileName());
+                    return !ExecutionEnvironmentUtils.getProfileNames().contains(ee.getProfileName());
                 }
 
                 @Override

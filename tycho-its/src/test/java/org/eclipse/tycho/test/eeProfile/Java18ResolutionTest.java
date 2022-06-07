@@ -22,33 +22,31 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("unless java 18 jvm is aviable to tycho build")
 public class Java18ResolutionTest extends AbstractTychoIntegrationTest {
 
-	private static File buildResult;
+    private static File buildResult;
 
-	@BeforeClass
-	public static void setUp() throws Exception {
-		buildResult = new Java18ResolutionTest().runBuild();
-	}
+    @BeforeClass
+    public static void setUp() throws Exception {
+        buildResult = new Java18ResolutionTest().runBuild();
+    }
 
-	public File runBuild() throws Exception {
-		Verifier verifier = getVerifier("eeProfile.java18", false);
-		verifier.executeGoal("verify");
-		verifier.verifyErrorFreeLog();
-		return new File(verifier.getBasedir());
-	}
+    public File runBuild() throws Exception {
+        Verifier verifier = getVerifier("eeProfile.java18", false);
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+        return new File(verifier.getBasedir());
+    }
 
-	@Test
-	public void testProductBuildForJava18() throws Exception {
-		// a p2 repository that contains a product for Java 18
-		P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
-		List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
-		// we expect java 18
-		assertThat(jreUnitVersions, hasItem("18.0.0"));
-	}
+    @Test
+    public void testProductBuildForJava17() throws Exception {
+        // a p2 repository that contains a product for Java 18
+        P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
+        List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
+        // we expect java 18
+        assertThat(jreUnitVersions, hasItem("18.0.0"));
+    }
 
 }

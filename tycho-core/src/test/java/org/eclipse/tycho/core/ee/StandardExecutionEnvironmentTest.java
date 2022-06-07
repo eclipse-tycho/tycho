@@ -27,12 +27,14 @@ import org.junit.Test;
 
 public class StandardExecutionEnvironmentTest {
 
-    private StandardExecutionEnvironment runningJavaEnvironment;
+    private StandardExecutionEnvironment javaSE18Environment;
+    private StandardExecutionEnvironment javaSE17Environment;
+    private StandardExecutionEnvironment javaSE11Environment;
     private StandardExecutionEnvironment javaSE9Environment;
     private StandardExecutionEnvironment javaSE8Environment;
-    private StandardExecutionEnvironment javaSE7Environment;
-    private StandardExecutionEnvironment javaSE6Environment;
-    private StandardExecutionEnvironment j2SE5Environment;
+    private StandardExecutionEnvironment javaSE7Enviroment;
+    private StandardExecutionEnvironment javaSE6Enviroment;
+    private StandardExecutionEnvironment j2SE5Enviroment;
     private StandardExecutionEnvironment j2SE14Environment;
     private StandardExecutionEnvironment j2SE13Environment;
     private StandardExecutionEnvironment j2SE12Environment;
@@ -42,28 +44,32 @@ public class StandardExecutionEnvironmentTest {
     private StandardExecutionEnvironment osgiMin10Environment;
     private StandardExecutionEnvironment osgiMin11Environment;
     private StandardExecutionEnvironment osgiMin12Environment;
-    private StandardExecutionEnvironment javaSECompact1Environment;
-    private StandardExecutionEnvironment javaSECompact2Environment;
-    private StandardExecutionEnvironment javaSECompact3Environment;
+    private StandardExecutionEnvironment javaSECompact1Enviroment;
+    private StandardExecutionEnvironment javaSECompact2Enviroment;
+    private StandardExecutionEnvironment javaSECompact3Enviroment;
 
     @Before
     public void setUp() throws Exception {
-        javaSECompact1Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact1-1.8", null, null,
+        javaSECompact1Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact1-1.8", null, null,
                 new SilentLog());
-        javaSECompact2Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact2-1.8", null, null,
+        javaSECompact2Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact2-1.8", null, null,
                 new SilentLog());
-        javaSECompact3Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact3-1.8", null, null,
+        javaSECompact3Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact3-1.8", null, null,
                 new SilentLog());
-        runningJavaEnvironment = ExecutionEnvironmentUtils
-                .getExecutionEnvironment("JavaSE-" + Runtime.version().feature(), null, null, new SilentLog());
+        javaSE18Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-18", null, null,
+                new SilentLog());
+        javaSE17Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-17", null, null,
+                new SilentLog());
+        javaSE11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-11", null, null,
+                new SilentLog());
         javaSE9Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-9", null, null, new SilentLog());
         javaSE8Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.8", null, null,
                 new SilentLog());
-        javaSE7Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7", null, null,
+        javaSE7Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7", null, null,
                 new SilentLog());
-        javaSE6Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6", null, null,
+        javaSE6Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6", null, null,
                 new SilentLog());
-        j2SE5Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5", null, null, new SilentLog());
+        j2SE5Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5", null, null, new SilentLog());
         j2SE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog());
         j2SE13Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.3", null, null, new SilentLog());
         j2SE12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.2", null, null, new SilentLog());
@@ -82,12 +88,13 @@ public class StandardExecutionEnvironmentTest {
 
     @Test
     public void testNotNull() {
-        assertNotNull(runningJavaEnvironment);
+        assertNotNull(javaSE18Environment);
+        assertNotNull(javaSE17Environment);
         assertNotNull(javaSE9Environment);
         assertNotNull(javaSE8Environment);
-        assertNotNull(javaSE7Environment);
-        assertNotNull(javaSE6Environment);
-        assertNotNull(j2SE5Environment);
+        assertNotNull(javaSE7Enviroment);
+        assertNotNull(javaSE6Enviroment);
+        assertNotNull(j2SE5Enviroment);
         assertNotNull(j2SE14Environment);
         assertNotNull(j2SE12Environment);
         assertNotNull(jre11Environment);
@@ -96,19 +103,21 @@ public class StandardExecutionEnvironmentTest {
         assertNotNull(osgiMin10Environment);
         assertNotNull(osgiMin11Environment);
         assertNotNull(osgiMin12Environment);
-        assertNotNull(javaSECompact1Environment);
-        assertNotNull(javaSECompact2Environment);
-        assertNotNull(javaSECompact3Environment);
+        assertNotNull(javaSECompact1Enviroment);
+        assertNotNull(javaSECompact2Enviroment);
+        assertNotNull(javaSECompact3Enviroment);
     }
 
     @Test
     public void testGetProfileName() {
-        assertEquals("JavaSE-" + Runtime.version().feature(), runningJavaEnvironment.getProfileName());
+        assertEquals("JavaSE-18", javaSE18Environment.getProfileName());
+        assertEquals("JavaSE-17", javaSE17Environment.getProfileName());
+        assertEquals("JavaSE-11", javaSE11Environment.getProfileName());
         assertEquals("JavaSE-9", javaSE9Environment.getProfileName());
         assertEquals("JavaSE-1.8", javaSE8Environment.getProfileName());
-        assertEquals("JavaSE-1.7", javaSE7Environment.getProfileName());
-        assertEquals("JavaSE-1.6", javaSE6Environment.getProfileName());
-        assertEquals("J2SE-1.5", j2SE5Environment.getProfileName());
+        assertEquals("JavaSE-1.7", javaSE7Enviroment.getProfileName());
+        assertEquals("JavaSE-1.6", javaSE6Enviroment.getProfileName());
+        assertEquals("J2SE-1.5", j2SE5Enviroment.getProfileName());
         assertEquals("J2SE-1.4", j2SE14Environment.getProfileName());
         assertEquals("J2SE-1.3", j2SE13Environment.getProfileName());
         assertEquals("J2SE-1.2", j2SE12Environment.getProfileName());
@@ -118,9 +127,9 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("OSGi/Minimum-1.0", osgiMin10Environment.getProfileName());
         assertEquals("OSGi/Minimum-1.1", osgiMin11Environment.getProfileName());
         assertEquals("OSGi/Minimum-1.2", osgiMin12Environment.getProfileName());
-        assertEquals("JavaSE/compact1-1.8", javaSECompact1Environment.getProfileName());
-        assertEquals("JavaSE/compact2-1.8", javaSECompact2Environment.getProfileName());
-        assertEquals("JavaSE/compact3-1.8", javaSECompact3Environment.getProfileName());
+        assertEquals("JavaSE/compact1-1.8", javaSECompact1Enviroment.getProfileName());
+        assertEquals("JavaSE/compact2-1.8", javaSECompact2Enviroment.getProfileName());
+        assertEquals("JavaSE/compact3-1.8", javaSECompact3Enviroment.getProfileName());
     }
 
     @Test
@@ -134,16 +143,17 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("1.3", j2SE12Environment.getCompilerSourceLevelDefault());
         assertEquals("1.3", j2SE13Environment.getCompilerSourceLevelDefault());
         assertEquals("1.3", j2SE14Environment.getCompilerSourceLevelDefault());
-        assertEquals("1.5", j2SE5Environment.getCompilerSourceLevelDefault());
-        assertEquals("1.6", javaSE6Environment.getCompilerSourceLevelDefault());
-        assertEquals("1.7", javaSE7Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.5", j2SE5Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.6", javaSE6Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.7", javaSE7Enviroment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSE8Environment.getCompilerSourceLevelDefault());
         assertEquals("9", javaSE9Environment.getCompilerSourceLevelDefault());
-        assertEquals(String.valueOf(Runtime.version().feature()),
-                runningJavaEnvironment.getCompilerSourceLevelDefault());
-        assertEquals("1.8", javaSECompact1Environment.getCompilerSourceLevelDefault());
-        assertEquals("1.8", javaSECompact2Environment.getCompilerSourceLevelDefault());
-        assertEquals("1.8", javaSECompact3Environment.getCompilerSourceLevelDefault());
+        assertEquals("11", javaSE11Environment.getCompilerSourceLevelDefault());
+        assertEquals("17", javaSE17Environment.getCompilerSourceLevelDefault());
+        assertEquals("18", javaSE18Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.8", javaSECompact1Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.8", javaSECompact2Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.8", javaSECompact3Enviroment.getCompilerSourceLevelDefault());
     }
 
     @Test
@@ -157,16 +167,17 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("1.1", j2SE12Environment.getCompilerTargetLevelDefault());
         assertEquals("1.1", j2SE13Environment.getCompilerTargetLevelDefault());
         assertEquals("1.2", j2SE14Environment.getCompilerTargetLevelDefault());
-        assertEquals("1.5", j2SE5Environment.getCompilerTargetLevelDefault());
-        assertEquals("1.6", javaSE6Environment.getCompilerTargetLevelDefault());
-        assertEquals("1.7", javaSE7Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.5", j2SE5Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.6", javaSE6Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.7", javaSE7Enviroment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSE8Environment.getCompilerTargetLevelDefault());
         assertEquals("9", javaSE9Environment.getCompilerTargetLevelDefault());
-        assertEquals(String.valueOf(Runtime.version().feature()),
-                runningJavaEnvironment.getCompilerTargetLevelDefault());
-        assertEquals("1.8", javaSECompact1Environment.getCompilerTargetLevelDefault());
-        assertEquals("1.8", javaSECompact2Environment.getCompilerTargetLevelDefault());
-        assertEquals("1.8", javaSECompact3Environment.getCompilerTargetLevelDefault());
+        assertEquals("11", javaSE11Environment.getCompilerTargetLevelDefault());
+        assertEquals("17", javaSE17Environment.getCompilerTargetLevelDefault());
+        assertEquals("18", javaSE18Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.8", javaSECompact1Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.8", javaSECompact2Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.8", javaSECompact3Enviroment.getCompilerTargetLevelDefault());
     }
 
     @Test
@@ -176,18 +187,19 @@ public class StandardExecutionEnvironmentTest {
         assertFalse(j2SE14Environment.isCompatibleCompilerTargetLevel("1.3"));
 
         // version aliases
-        assertTrue(j2SE5Environment.isCompatibleCompilerTargetLevel("5"));
-        assertTrue(j2SE5Environment.isCompatibleCompilerTargetLevel("5.0"));
-        assertTrue(javaSE6Environment.isCompatibleCompilerTargetLevel("6"));
-        assertTrue(javaSE6Environment.isCompatibleCompilerTargetLevel("6.0"));
-        assertTrue(javaSE7Environment.isCompatibleCompilerTargetLevel("7"));
-        assertTrue(javaSE7Environment.isCompatibleCompilerTargetLevel("7.0"));
+        assertTrue(j2SE5Enviroment.isCompatibleCompilerTargetLevel("5"));
+        assertTrue(j2SE5Enviroment.isCompatibleCompilerTargetLevel("5.0"));
+        assertTrue(javaSE6Enviroment.isCompatibleCompilerTargetLevel("6"));
+        assertTrue(javaSE6Enviroment.isCompatibleCompilerTargetLevel("6.0"));
+        assertTrue(javaSE7Enviroment.isCompatibleCompilerTargetLevel("7"));
+        assertTrue(javaSE7Enviroment.isCompatibleCompilerTargetLevel("7.0"));
         assertTrue(javaSE8Environment.isCompatibleCompilerTargetLevel("8"));
         assertTrue(javaSE8Environment.isCompatibleCompilerTargetLevel("8.0"));
         assertTrue(javaSE9Environment.isCompatibleCompilerTargetLevel("9"));
         assertTrue(javaSE9Environment.isCompatibleCompilerTargetLevel("9.0"));
-        assertTrue(runningJavaEnvironment
-                .isCompatibleCompilerTargetLevel(String.valueOf(Runtime.version().feature()) + ".0"));
+        assertTrue(javaSE11Environment.isCompatibleCompilerTargetLevel("11.0"));
+        assertTrue(javaSE17Environment.isCompatibleCompilerTargetLevel("17.0"));
+        assertTrue(javaSE18Environment.isCompatibleCompilerTargetLevel("18.0"));
     }
 
     @Test(expected = UnknownEnvironmentException.class)
@@ -199,9 +211,9 @@ public class StandardExecutionEnvironmentTest {
     public void testCompare() throws Exception {
         List<StandardExecutionEnvironment> expectedList = new ArrayList<>(Arrays.asList(osgiMin10Environment,
                 osgiMin11Environment, osgiMin12Environment, cdc10Environment, cdc11Environment, jre11Environment,
-                j2SE12Environment, j2SE13Environment, j2SE14Environment, j2SE5Environment, javaSE6Environment,
-                javaSE7Environment, javaSECompact1Environment, javaSECompact2Environment, javaSECompact3Environment,
-                javaSE8Environment, javaSE9Environment, runningJavaEnvironment));
+                j2SE12Environment, j2SE13Environment, j2SE14Environment, j2SE5Enviroment, javaSE6Enviroment,
+                javaSE7Enviroment, javaSECompact1Enviroment, javaSECompact2Enviroment, javaSECompact3Enviroment,
+                javaSE8Environment, javaSE9Environment, javaSE11Environment, javaSE17Environment, javaSE18Environment));
         List<StandardExecutionEnvironment> actualList = new ArrayList<>(expectedList);
         Collections.shuffle(actualList);
         Collections.sort(actualList);
