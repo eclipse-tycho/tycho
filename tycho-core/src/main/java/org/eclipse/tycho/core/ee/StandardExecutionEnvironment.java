@@ -110,29 +110,56 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         this.logger = logger;
     }
 
-    private Set<String> readFromToolchains(Toolchain toolchain) {
+    static JavaInfo readFromToolchains(Toolchain toolchain, Logger logger) {
         if (toolchain == null) {
-            return Collections.emptySet();
+            return new JavaInfo(-1, Collections.emptySet());
         }
         String java = toolchain.findTool("java");
         if (java == null) {
-            return Collections.emptySet();
+            return new JavaInfo(-1, Collections.emptySet());
         }
         Set<String> res = new HashSet<>();
+        int version = -1;
         try {
             ProcessBuilder builder = new ProcessBuilder(java, "-jar",
                     getSystemPackagesCompanionJar().getAbsolutePath());
             try (BufferedReader reader = new BufferedReader(
                     new java.io.InputStreamReader(builder.start().getInputStream(), Charset.defaultCharset()))) {
-                String line = null;
+                String line = reader.readLine();
+                try {
+                    if (line != null) {
+                        //for old vms < java 9 we might get no response at all
+                        version = Integer.parseInt(line);
+                    }
+                } catch (NumberFormatException e) {
+                    StringBuilder sb = new StringBuilder(line);
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(System.lineSeparator());
+                        sb.append(line);
+                    }
+                    logger.debug("[ReadPackagesFromToolchains] Can't read java version for " + java
+                            + ", full output was: " + sb);
+                    return new JavaInfo(-1, List.of());
+                }
                 while ((line = reader.readLine()) != null) {
                     res.add(line);
                 }
             }
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            logger.error("[ReadPackagesFromToolchains] start JVM process for " + java + " failed: " + e);
         }
-        return res;
+        return new JavaInfo(version, res);
+    }
+
+    static final class JavaInfo {
+        final int version;
+        final Collection<String> packages;
+
+        private JavaInfo(int version, Collection<String> packages) {
+            this.version = version;
+            this.packages = Collections.unmodifiableCollection(packages);
+        }
+
     }
 
     static File getSystemPackagesCompanionJar() throws IOException {
@@ -226,7 +253,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
             } else if (toolchain != null) {
                 logger.debug(
                         "No system.packages in profile definition file for " + profileName + "; checking toolchain.");
-                this.systemPackages = readFromToolchains(toolchain).stream()
+                this.systemPackages = readFromToolchains(toolchain, logger).packages.stream()
                         .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
             } else if (Integer.parseInt(compilerSourceLevel) == Runtime.version().feature()) {
                 logger.debug("Currently running JRE matches source level for " + getProfileName()
