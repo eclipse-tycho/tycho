@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
+import java.lang.Runtime.Version;
+import java.lang.module.ModuleDescriptor.Exports;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -19,6 +21,12 @@ import java.util.stream.Collectors;
 public class ListSystemPackages {
 
     public static void main(String[] args) {
+        Version version = Runtime.version();
+        try {
+            System.out.println(version.feature());
+        } catch (NoSuchMethodError e) {
+            System.out.println("9");
+        }
         getCurrentJREPackages().forEach(System.out::println);
     }
 
@@ -26,10 +34,14 @@ public class ListSystemPackages {
         return ModuleLayer.boot().modules().stream().map(Module::getDescriptor) //
                 .flatMap(desc -> desc.isAutomatic() ? //
                         desc.packages().stream() : //
-                        desc.exports().stream()
-                                .filter(Predicate.not(java.lang.module.ModuleDescriptor.Exports::isQualified))
+                        desc.exports().stream().filter(not(java.lang.module.ModuleDescriptor.Exports::isQualified))
                                 .map(java.lang.module.ModuleDescriptor.Exports::source) //
                 ).collect(Collectors.toSet());
+    }
+
+    private static Predicate<? super Exports> not(Predicate<Exports> predicate) {
+        // java 9 compatible polyfill
+        return x -> !predicate.test(x);
     }
 
 }
