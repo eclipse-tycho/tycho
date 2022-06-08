@@ -13,8 +13,10 @@
 package org.eclipse.tycho.plugins.p2.publisher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -47,11 +49,10 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
      * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-17,
      * JavaSE-18.
      * 
-     * It is advised to keep this list as small as possible and the list must include the BREE used
-     * by the platform, last Java LTS and the latest Java release.
+     * If not given, all current available JavaSE profiles with version >= 11 are used.
      * </p>
      */
-    @Parameter(defaultValue = "JavaSE-11, JavaSE-17, JavaSE-18")
+    @Parameter
     private String profiles;
 
     @Parameter(defaultValue = "false")
@@ -72,7 +73,7 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
         PublisherService publisherService = publisherServiceFactory.createPublisher(getReactorProject(),
                 getEnvironments());
         Collection<DependencySeed> result = new ArrayList<>();
-        for (String profile : profiles.split(",")) {
+        for (String profile : getProfilesForPublish()) {
             try {
                 profile = profile.trim();
                 if (profile.isEmpty()) {
@@ -90,6 +91,15 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
             }
         }
         return result;
+    }
+
+    private Iterable<String> getProfilesForPublish() {
+        if (profiles != null && !profiles.isEmpty()) {
+            return Arrays.asList(profiles.split(","));
+        }
+        return ExecutionEnvironmentUtils.getProfileNames(toolchainManager, getSession(), logger).stream()
+                .filter(str -> str.startsWith("JavaSE-"))
+                .filter(profile -> ExecutionEnvironmentUtils.getVersion(profile) >= 11).collect(Collectors.toList());
     }
 
 }
