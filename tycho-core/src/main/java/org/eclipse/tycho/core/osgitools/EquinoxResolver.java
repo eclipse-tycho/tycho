@@ -242,7 +242,7 @@ public class EquinoxResolver {
             // ignoring EE by adding all known EEs
             StringJoiner allSystemPackages = new StringJoiner(",");
             StringJoiner allSystemCapabilities = new StringJoiner(",");
-            for (String profile : ExecutionEnvironmentUtils.getProfileNames()) {
+            for (String profile : ExecutionEnvironmentUtils.getProfileNames(toolchainManager, mavenSession, logger)) {
                 StandardExecutionEnvironment executionEnvironment = ExecutionEnvironmentUtils
                         .getExecutionEnvironment(profile, toolchainManager, mavenSession, logger);
                 String currentSystemPackages = (String) executionEnvironment.getProfileProperties()

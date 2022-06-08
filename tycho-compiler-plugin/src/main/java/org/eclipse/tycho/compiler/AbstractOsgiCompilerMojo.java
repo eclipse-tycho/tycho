@@ -392,7 +392,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                                     return null;
                                 }
                             }).filter(Objects::nonNull).collect(Collectors.toList());
-                    manifestBREEs = ExecutionEnvironmentUtils.getProfileNames().stream() //
+                    manifestBREEs = ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger)
+                            .stream() //
                             .map(name -> name.split("-")) //
                             .map(segments -> Map.of(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE,
                                     segments[0], "version", segments[1]))
