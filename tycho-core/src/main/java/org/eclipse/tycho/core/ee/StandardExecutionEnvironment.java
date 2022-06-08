@@ -333,4 +333,12 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         }
         return Version.parseVersion(target);
     }
+
+    Toolchain getToolchain() {
+        return toolchain;
+    }
+
+    Logger getLogger() {
+        return logger;
+    }
 }

@@ -14,12 +14,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
@@ -42,6 +44,8 @@ import org.osgi.framework.Constants;
 public class ExecutionEnvironmentUtils {
 
     private static Map<String, StandardExecutionEnvironment> executionEnvironmentsMap;
+
+    private static final Map<String, StandardExecutionEnvironment> surrogateExecutionEnvironmentsMap = new ConcurrentHashMap<String, StandardExecutionEnvironment>();
 
     private static Properties readProperties(final URL url) {
         Properties listProps = new Properties();
@@ -81,8 +85,8 @@ public class ExecutionEnvironmentUtils {
                     }).map(map::get).findFirst().orElse(null);
             if (higherEE != null) {
                 logger.warn("Using " + higherEE.getProfileName() + " to fulfill requested profile of " + profileName
-                        + " this might lead to faulty dependency resolution, consider define a suitable VM in the toolchains.");
-                return higherEE;
+                        + " this might lead to faulty dependency resolution, consider define a suitable JDK in the toolchains.xml");
+                return getSurrogate(profileName, higherEE);
             }
         }
         logger.debug("Unknown OSGi execution environment, EE currently known to the build:");
@@ -90,6 +94,20 @@ public class ExecutionEnvironmentUtils {
             logger.debug(knownEE.getProfileName());
         }
         throw new UnknownEnvironmentException(profileName);
+    }
+
+    private static StandardExecutionEnvironment getSurrogate(String profileName,
+            StandardExecutionEnvironment surrogateEE) {
+        return surrogateExecutionEnvironmentsMap.computeIfAbsent(surrogateEE.getProfileName() + " as " + profileName,
+                nil -> {
+                    List<String> packages = Arrays
+                            .stream(surrogateEE.getProfileProperties()
+                                    .getProperty("org.osgi.framework.system.packages", "").split(","))
+                            .map(String::trim).collect(Collectors.toList());
+                    Properties profileProperties = createProfileJvm(getVersion(profileName), packages);
+                    return new StandardExecutionEnvironment(profileProperties, surrogateEE.getToolchain(),
+                            surrogateEE.getLogger());
+                });
     }
 
     public static Collection<String> getProfileNames(ToolchainManager manager, MavenSession session, Logger logger) {
