@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class StandardExecutionEnvironmentTest {
 
-    private StandardExecutionEnvironment runningJavaEnvironment;
+    private static final int RUNNING_JAVA = Runtime.version().feature();
     private StandardExecutionEnvironment javaSE9Environment;
     private StandardExecutionEnvironment javaSE8Environment;
     private StandardExecutionEnvironment javaSE7Environment;
@@ -54,8 +54,6 @@ public class StandardExecutionEnvironmentTest {
                 new SilentLog());
         javaSECompact3Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact3-1.8", null, null,
                 new SilentLog());
-        runningJavaEnvironment = ExecutionEnvironmentUtils
-                .getExecutionEnvironment("JavaSE-" + Runtime.version().feature(), null, null, new SilentLog());
         javaSE9Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-9", null, null, new SilentLog());
         javaSE8Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.8", null, null,
                 new SilentLog());
@@ -82,7 +80,7 @@ public class StandardExecutionEnvironmentTest {
 
     @Test
     public void testNotNull() {
-        assertNotNull(runningJavaEnvironment);
+        assertNotNull(getStandardExecutionEnvironment(RUNNING_JAVA));
         assertNotNull(javaSE9Environment);
         assertNotNull(javaSE8Environment);
         assertNotNull(javaSE7Environment);
@@ -103,7 +101,7 @@ public class StandardExecutionEnvironmentTest {
 
     @Test
     public void testGetProfileName() {
-        assertEquals("JavaSE-" + Runtime.version().feature(), runningJavaEnvironment.getProfileName());
+        assertEquals("JavaSE-" + RUNNING_JAVA, getStandardExecutionEnvironment(RUNNING_JAVA).getProfileName());
         assertEquals("JavaSE-9", javaSE9Environment.getProfileName());
         assertEquals("JavaSE-1.8", javaSE8Environment.getProfileName());
         assertEquals("JavaSE-1.7", javaSE7Environment.getProfileName());
@@ -138,12 +136,14 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("1.6", javaSE6Environment.getCompilerSourceLevelDefault());
         assertEquals("1.7", javaSE7Environment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSE8Environment.getCompilerSourceLevelDefault());
-        assertEquals("9", javaSE9Environment.getCompilerSourceLevelDefault());
-        assertEquals(String.valueOf(Runtime.version().feature()),
-                runningJavaEnvironment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSECompact1Environment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSECompact2Environment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSECompact3Environment.getCompilerSourceLevelDefault());
+        assertEquals("9", javaSE9Environment.getCompilerSourceLevelDefault());
+        for (int version = 10; version <= RUNNING_JAVA; version++) {
+            assertEquals(String.valueOf(version),
+                    getStandardExecutionEnvironment(version).getCompilerSourceLevelDefault());
+        }
     }
 
     @Test
@@ -161,12 +161,14 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("1.6", javaSE6Environment.getCompilerTargetLevelDefault());
         assertEquals("1.7", javaSE7Environment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSE8Environment.getCompilerTargetLevelDefault());
-        assertEquals("9", javaSE9Environment.getCompilerTargetLevelDefault());
-        assertEquals(String.valueOf(Runtime.version().feature()),
-                runningJavaEnvironment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSECompact1Environment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSECompact2Environment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSECompact3Environment.getCompilerTargetLevelDefault());
+        assertEquals("9", javaSE9Environment.getCompilerTargetLevelDefault());
+        for (int version = 10; version <= RUNNING_JAVA; version++) {
+            StandardExecutionEnvironment environment = getStandardExecutionEnvironment(version);
+            assertEquals(String.valueOf(version), environment.getCompilerTargetLevelDefault());
+        }
     }
 
     @Test
@@ -186,8 +188,10 @@ public class StandardExecutionEnvironmentTest {
         assertTrue(javaSE8Environment.isCompatibleCompilerTargetLevel("8.0"));
         assertTrue(javaSE9Environment.isCompatibleCompilerTargetLevel("9"));
         assertTrue(javaSE9Environment.isCompatibleCompilerTargetLevel("9.0"));
-        assertTrue(runningJavaEnvironment
-                .isCompatibleCompilerTargetLevel(String.valueOf(Runtime.version().feature()) + ".0"));
+        for (int version = 10; version <= RUNNING_JAVA; version++) {
+            assertTrue(getStandardExecutionEnvironment(version)
+                    .isCompatibleCompilerTargetLevel(String.valueOf(version) + ".0"));
+        }
     }
 
     @Test(expected = UnknownEnvironmentException.class)
@@ -201,7 +205,7 @@ public class StandardExecutionEnvironmentTest {
                 osgiMin11Environment, osgiMin12Environment, cdc10Environment, cdc11Environment, jre11Environment,
                 j2SE12Environment, j2SE13Environment, j2SE14Environment, j2SE5Environment, javaSE6Environment,
                 javaSE7Environment, javaSECompact1Environment, javaSECompact2Environment, javaSECompact3Environment,
-                javaSE8Environment, javaSE9Environment, runningJavaEnvironment));
+                javaSE8Environment, javaSE9Environment, getStandardExecutionEnvironment(RUNNING_JAVA)));
         List<StandardExecutionEnvironment> actualList = new ArrayList<>(expectedList);
         Collections.shuffle(actualList);
         Collections.sort(actualList);
@@ -211,5 +215,9 @@ public class StandardExecutionEnvironmentTest {
     @Test
     public void testCompanionJar() throws IOException {
         assertTrue(StandardExecutionEnvironment.getSystemPackagesCompanionJar().isFile());
+    }
+
+    private StandardExecutionEnvironment getStandardExecutionEnvironment(int version) {
+        return ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-" + version, null, null, new SilentLog());
     }
 }
