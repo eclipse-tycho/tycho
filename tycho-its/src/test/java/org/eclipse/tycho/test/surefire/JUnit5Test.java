@@ -30,13 +30,12 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
-				"myFirstJUnit5Test(TestInfo)");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
-				"parameterizedJUnit5Test(String)[1]");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
-				"parameterizedJUnit5Test(String)[2]");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repeatedJUnit5Test", 3);
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "My 1st JUnit 5 test!");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "[1] one");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "[2] two");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 1 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 2 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 3 of 3");
 		// make sure test tagged as 'slow' was skipped
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 6);
 	}
@@ -49,8 +48,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test",
-				"myFirstJUnit54Test(TestInfo)");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test", "My 1st JUnit 5.4 test!");
 		// make sure test tagged as 'slow' was skipped
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
 	}
@@ -62,8 +60,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test",
-				"myFirstJUnit54Test(TestInfo)");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test", "My 1st JUnit 5.4 test!");
 		// make sure test tagged as 'slow' was skipped
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
 	}
@@ -75,8 +72,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit56Test",
-				"myFirstJUnit56Test(TestInfo)");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit56Test", "My 1st JUnit 5.6 test!");
 		// make sure test tagged as 'slow' was skipped
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit56Test", 1);
 	}

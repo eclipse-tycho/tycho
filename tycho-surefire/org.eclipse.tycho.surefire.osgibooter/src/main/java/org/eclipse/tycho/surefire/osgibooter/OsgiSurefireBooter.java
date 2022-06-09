@@ -37,6 +37,9 @@ import org.apache.maven.plugin.surefire.StartupReportConfiguration;
 import org.apache.maven.plugin.surefire.extensions.SurefireConsoleOutputReporter;
 import org.apache.maven.plugin.surefire.extensions.SurefireStatelessReporter;
 import org.apache.maven.plugin.surefire.extensions.SurefireStatelessTestsetInfoReporter;
+import org.apache.maven.plugin.surefire.extensions.junit5.JUnit5ConsoleOutputReporter;
+import org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoReporter;
+import org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter;
 import org.apache.maven.plugin.surefire.log.api.PrintStreamLogger;
 import org.apache.maven.plugin.surefire.report.ConsoleReporter;
 import org.apache.maven.plugin.surefire.report.DefaultReporterFactory;
@@ -70,6 +73,16 @@ import org.osgi.framework.wiring.BundleWiring;
 
 public class OsgiSurefireBooter {
     private static final String XSD = "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd";
+
+    /**
+     * Class name of the JUnitPlatform provider.
+     * <p>
+     * If this is the test provider the {@link StartupReportConfiguration} will be configured using
+     * the suggested configuration to support JUnit 5's {@code @DisplayName} as <a href=
+     * "https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html#surefire-extensions-and-reports-configuration-for-displayname">
+     * documented</a> by the Surefire plugin.
+     */
+    private static final String JUNIT_PLATFORM_PROVIDER = "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
 
     public static int run(String[] args, Properties testProps) throws Exception {
         boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
@@ -117,13 +130,11 @@ public class OsgiSurefireBooter {
                 new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
                 skipAfterFailureCount, Shutdown.DEFAULT, 30);
-        SurefireConsoleOutputReporter consoleOutputReporter = new SurefireConsoleOutputReporter();
-        //consoleOutputReporter.setDisable(true); // storing console output causes OOM, see https://github.com/eclipse/tycho/issues/879 & https://issues.apache.org/jira/browse/SUREFIRE-1845
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
                 ConsoleReporter.PLAIN, false, reportsDir, trimStackTrace, null, new File(reportsDir, "TESTHASH"), false,
                 rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(), false,
-                new SurefireStatelessReporter(disableXmlReport, null), consoleOutputReporter,
-                new SurefireStatelessTestsetInfoReporter());
+                getSurefireStatelessReporter(provider, disableXmlReport, null),
+                getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider));
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
                 new PrintStreamLogger(System.out));
         // API indicates we should use testClassLoader below but surefire also tries
@@ -215,6 +226,46 @@ public class OsgiSurefireBooter {
             }
         }
         return providerProps;
+    }
+
+    private static SurefireStatelessReporter getSurefireStatelessReporter(String provider, boolean disableXmlReport,
+            String version) {
+        if (provider.equals(JUNIT_PLATFORM_PROVIDER)) {
+            JUnit5Xml30StatelessReporter jUnit5Xml30StatelessReporter = new JUnit5Xml30StatelessReporter();
+            jUnit5Xml30StatelessReporter.setDisable(false);
+            jUnit5Xml30StatelessReporter.setVersion("3.0");
+            jUnit5Xml30StatelessReporter.setUsePhrasedFileName(false);
+            jUnit5Xml30StatelessReporter.setUsePhrasedTestCaseClassName(true);
+            jUnit5Xml30StatelessReporter.setUsePhrasedTestCaseMethodName(true);
+            jUnit5Xml30StatelessReporter.setUsePhrasedTestSuiteClassName(true);
+            return jUnit5Xml30StatelessReporter;
+        }
+        return new SurefireStatelessReporter(disableXmlReport, version);
+    }
+
+    private static SurefireConsoleOutputReporter getSurefireConsoleOutputReporter(String provider) {
+        if (provider.equals(JUNIT_PLATFORM_PROVIDER)) {
+            JUnit5ConsoleOutputReporter jUnit5ConsoleOutputReporter = new JUnit5ConsoleOutputReporter();
+            jUnit5ConsoleOutputReporter.setDisable(false);
+            jUnit5ConsoleOutputReporter.setEncoding("UTF-8");
+            jUnit5ConsoleOutputReporter.setUsePhrasedFileName(false);
+            return jUnit5ConsoleOutputReporter;
+        }
+        SurefireConsoleOutputReporter consoleOutputReporter = new SurefireConsoleOutputReporter();
+        //consoleOutputReporter.setDisable(true); // storing console output causes OOM, see https://github.com/eclipse/tycho/issues/879 & https://issues.apache.org/jira/browse/SUREFIRE-1845
+        return consoleOutputReporter;
+    }
+
+    private static SurefireStatelessTestsetInfoReporter getSurefireStatelessTestsetInfoReporter(String provider) {
+        if (provider.equals(JUNIT_PLATFORM_PROVIDER)) {
+            JUnit5StatelessTestsetInfoReporter jUnit5StatelessTestsetInfoReporter = new JUnit5StatelessTestsetInfoReporter();
+            jUnit5StatelessTestsetInfoReporter.setDisable(false);
+            jUnit5StatelessTestsetInfoReporter.setUsePhrasedFileName(false);
+            jUnit5StatelessTestsetInfoReporter.setUsePhrasedClassNameInRunning(true);
+            jUnit5StatelessTestsetInfoReporter.setUsePhrasedClassNameInTestCaseSummary(true);
+            return jUnit5StatelessTestsetInfoReporter;
+        }
+        return new SurefireStatelessTestsetInfoReporter();
     }
 
     private static File getTestProperties(String[] args) throws CoreException {
