@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 SAP AG and others.
+ * Copyright (c) 2011, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ public class ResourceUtil {
 		}
 
 		public URI getResolvedLocation() throws IllegalStateException {
-			if (path.startsWith("https:") || path.startsWith("http:")) {
+			if (path.startsWith("https:")) {
 				return URI.create(path);
 			}
 			return resolveTestResource("repositories/" + path).toURI();
