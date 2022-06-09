@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -118,7 +118,7 @@ public class ExecutionEnvironmentUtils {
     private static synchronized Map<String, StandardExecutionEnvironment> getExecutionEnvironmentsMap(
             ToolchainManager manager, MavenSession session, Logger logger) {
         if (executionEnvironmentsMap == null) {
-            executionEnvironmentsMap = new HashMap<String, StandardExecutionEnvironment>();
+            executionEnvironmentsMap = new LinkedHashMap<String, StandardExecutionEnvironment>();
             Properties listProps = readProperties(findInSystemBundle("profile.list"));
             //first read all profiles that are part of the system...
             for (String profileFile : listProps.getProperty("java.profiles").split(",")) {
@@ -155,7 +155,7 @@ public class ExecutionEnvironmentUtils {
         return executionEnvironmentsMap;
     }
 
-    private static Toolchain getToolchainFor(String profileName, ToolchainManager manager, MavenSession session,
+    public static Toolchain getToolchainFor(String profileName, ToolchainManager manager, MavenSession session,
             Logger logger) {
         if (manager != null) {
             logger.debug("Search profile " + profileName + " in ToolchainManager...");
