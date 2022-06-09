@@ -679,7 +679,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                             + getTargetExecutionEnvironment().getProfileName() + ").");
             toolchainId = getTargetExecutionEnvironment().getProfileName();
         }
-        DefaultJavaToolChain toolChain = toolchainProvider.findMatchingJavaToolChain(session, toolchainId);
+
+        DefaultJavaToolChain toolChain = (DefaultJavaToolChain) ExecutionEnvironmentUtils.getToolchainFor(toolchainId,
+                toolchainManager, session, logger);
         if (toolChain == null) {
             throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
                     + toolchainId + "' found. See https://maven.apache.org/guides/mini/guide-using-toolchains.html");
