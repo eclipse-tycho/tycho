@@ -34,7 +34,6 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -149,12 +148,12 @@ public class EclipseRunMojo extends AbstractMojo {
 	/**
 	 * List of JVM arguments set on the command line. Example:
 	 * 
-	 * <pre>
-	 * &lt;jvmArgs&gt;
-	 *   &lt;args&gt;-Xdebug&lt;/args&gt;
-	 *   &lt;args&gt;-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044&lt;/args&gt;
-	 * &lt;/jvmArgs&gt;
-	 * </pre>
+	 * {@code
+	 * <jvmArgs>
+	 *   <arg>-Xdebug<arg>
+	 *   <arg>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044</arg>
+	 * </jvmArgs>
+	 * }
 	 * 
 	 * @since 0.25.0
 	 */
@@ -170,12 +169,12 @@ public class EclipseRunMojo extends AbstractMojo {
 	/**
 	 * List of applications arguments set on the command line. Example:
 	 * 
-	 * <pre>
-	 * &lt;applicationsArgs&gt;
-	 *   &lt;args&gt;-buildfile&lt;/args&gt;
-	 *   &lt;args&gt;build-test.xml&lt;/args&gt;
-	 * &lt;/applicationsArgs&gt;
-	 * </pre>
+	 * {@code
+	 * <applicationsArgs>
+	 *   <arg>-buildfile</arg>
+	 *   <arg>build-test.xml</arg>
+	 * </applicationsArgs>
+	 * }
 	 * 
 	 * @since 0.24.0
 	 */
@@ -403,8 +402,8 @@ public class EclipseRunMojo extends AbstractMojo {
 		addProgramArgs(cli, "-data", workspace.getAbsolutePath());
 
 		if (applicationsArgs != null) {
-			for (String args : applicationsArgs) {
-				cli.addProgramArguments(splitArgLine(args));
+			for (String arg : applicationsArgs) {
+				cli.addProgramArguments(arg);
 			}
 		}
 
@@ -413,14 +412,6 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 
 		return cli;
-	}
-
-	private String[] splitArgLine(String argumentLine) throws MojoExecutionException {
-		try {
-			return CommandLineUtils.translateCommandline(argumentLine);
-		} catch (Exception e) {
-			throw new MojoExecutionException("Error parsing commandline: " + e.getMessage(), e);
-		}
 	}
 
 	private void addProgramArgs(EquinoxLaunchConfiguration cli, String... arguments) {
