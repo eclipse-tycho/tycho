@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -107,8 +107,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         }
         String profileName = getProfileName();
         Collection<String> profileNames = ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger);
-        boolean profileExists = profileNames
-                .contains(profileName);
+        boolean profileExists = profileNames.contains(profileName);
         if (!profileExists && ignoredByResolver) {
             throw new BuildFailureException(
                     "When using a custom execution environment profile, resolveWithExecutionEnvironmentConstraints must not be set to false");
@@ -124,10 +123,15 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
                     "Cannot set full specification when a standard execution environment is configured");
         }
         if (this.customExecutionEnvironment != null) {
-            throw new IllegalStateException("Cannot set full specification for a custom profile more than once");
+            var tempEE = new CustomExecutionEnvironment(getProfileName(), systemCapabilities);
+            if (!tempEE.getProfileName().equals(customExecutionEnvironment.getProfileName())
+                    || !tempEE.getProfileProperties().equals(customExecutionEnvironment.getProfileProperties())
+                    || !tempEE.getSystemPackages().equals(customExecutionEnvironment.getSystemPackages()))
+                // fail only if the EE to be created will not match the existing custom EE
+                throw new IllegalStateException("Cannot set full specification for a custom profile more than once");
+        } else {
+            this.customExecutionEnvironment = new CustomExecutionEnvironment(getProfileName(), systemCapabilities);
         }
-
-        this.customExecutionEnvironment = new CustomExecutionEnvironment(getProfileName(), systemCapabilities);
     }
 
     @Override

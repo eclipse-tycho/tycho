@@ -21,6 +21,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
+import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,7 @@ import org.junit.Test;
 public class ExecutionEnvironmentConfigurationTest {
 
     private static final String DUMMY_ORIGIN = null;
-    private static final List<SystemCapability> DUMMY_CUSTOM_PROFILE_SPEC = Collections.<SystemCapability> emptyList();
+    private static final List<SystemCapability> DUMMY_CUSTOM_PROFILE_SPEC = Collections.emptyList();
 
     private static final String CUSTOM_PROFILE = "Custom-1.5";
     private static final String STANDARD_PROFILE = "OSGi/Minimum-1.1";
@@ -124,7 +125,7 @@ public class ExecutionEnvironmentConfigurationTest {
     public void disallowMultipleSetCustomProfileSpecification() throws Exception {
         subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
         subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
-        subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
+        subject.setFullSpecificationForCustomProfile(List.of(new SystemCapability(Type.OSGI_EE, "dummy", "0.0.0")));
     }
 
     @Test(expected = IllegalStateException.class)
