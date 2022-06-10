@@ -233,9 +233,12 @@ It was totally ignored in all latest versions.
 
 It was hardcoded to "tooling" always and had no practical meaning to change.
 
-#### EclipseRunMojo `argLine` and `appArgLine` options removed
+#### EclipseRunMojo `argLine` and `appArgLine` options removed / `applicationArgs` option fixed
 
-Replaced by `jvmArgs` and `applicationArgs` respectively.
+`argLine` and `appArgLine` have been replaced by list-based `jvmArgs` and `applicationArgs` respectively.
+
+`applicationArgs` (previously known as `applicationsArgs`) has been corrected to not perform any
+interpretation of whitepace and quotes anymore. Individual arguments are now used literally (just like `jvmArgs`).
 
 ## 2.7.3
 Fixes:
