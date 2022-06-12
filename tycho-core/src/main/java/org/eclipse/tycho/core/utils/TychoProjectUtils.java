@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
@@ -40,6 +41,12 @@ public class TychoProjectUtils {
             throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
         }
         return resolvedDependencies;
+    }
+
+    public static Optional<DependencyArtifacts> getOptionalDependencyArtifacts(ReactorProject project) {
+        DependencyArtifacts resolvedDependencies = (DependencyArtifacts) project
+                .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
+        return Optional.ofNullable(resolvedDependencies);
     }
 
     /**
