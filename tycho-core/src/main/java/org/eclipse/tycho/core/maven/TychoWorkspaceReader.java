@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.LegacySupport;
@@ -25,6 +26,7 @@ import org.apache.maven.repository.internal.MavenWorkspaceReader;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.WorkspaceReader;
@@ -96,24 +98,27 @@ public class TychoWorkspaceReader implements WorkspaceReader, MavenWorkspaceRead
             }
         }
 
-        MavenProject currentProject = legacySupport.getSession().getCurrentProject();
-        ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
+        MavenSession session = legacySupport.getSession();
+        if (session != null) {
+            MavenProject currentProject = session.getCurrentProject();
+            ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
 
-        Optional<DependencyArtifacts> dependencyMetadata = TychoProjectUtils
-                .getOptionalDependencyArtifacts(reactorProject);
-        if (dependencyMetadata.isPresent()) {
-            P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
-            logger.debug("Attempt to resolve " + artifact + " for project " + currentProject + " ...");
-            for (ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
-                MavenDependencyDescriptor dependencyDescriptor = factory.resolveDependencyDescriptor(descriptor);
-                if (dependencyDescriptor != null) {
-                    if (dependencyDescriptor.getGroupId().equals(artifact.getGroupId())
-                            && dependencyDescriptor.getArtifactId().equals(artifact.getArtifactId())) {
-                        ArtifactKey artifactKey = descriptor.getKey();
-                        if (dependencyDescriptor.getVersion().equals(artifact.getVersion())
-                                || artifactKey.getVersion().equals(artifact.getVersion())) {
-                            //we have a match!
-                            return descriptor.getLocation(true);
+            Optional<DependencyArtifacts> dependencyMetadata = TychoProjectUtils
+                    .getOptionalDependencyArtifacts(reactorProject);
+            if (dependencyMetadata.isPresent()) {
+                P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
+                logger.debug("Attempt to resolve " + artifact + " for project " + currentProject + " ...");
+                for (ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
+                    MavenDependencyDescriptor dependencyDescriptor = factory.resolveDependencyDescriptor(descriptor);
+                    if (dependencyDescriptor != null) {
+                        if (dependencyDescriptor.getGroupId().equals(artifact.getGroupId())
+                                && dependencyDescriptor.getArtifactId().equals(artifact.getArtifactId())) {
+                            ArtifactKey artifactKey = descriptor.getKey();
+                            if (dependencyDescriptor.getVersion().equals(artifact.getVersion())
+                                    || artifactKey.getVersion().equals(artifact.getVersion())) {
+                                //we have a match!
+                                return descriptor.getLocation(true);
+                            }
                         }
                     }
                 }
@@ -123,7 +128,8 @@ public class TychoWorkspaceReader implements WorkspaceReader, MavenWorkspaceRead
     }
 
     protected File getFileForArtifact(Artifact artifact) {
-        LocalRepository localRepository = legacySupport.getRepositorySession().getLocalRepository();
+        RepositorySystemSession repositorySession = legacySupport.getRepositorySession();
+        LocalRepository localRepository = repositorySession.getLocalRepository();
         File basedir = localRepository.getBasedir();
         File cachedFile = new File(basedir, "p2/osgi/bundle/" + artifact.getArtifactId() + "/" + artifact.getVersion()
                 + "/" + artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getExtension());
