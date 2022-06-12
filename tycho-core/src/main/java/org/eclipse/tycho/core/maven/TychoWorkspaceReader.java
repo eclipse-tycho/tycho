@@ -11,16 +11,22 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.internal.MavenWorkspaceReader;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
@@ -28,13 +34,14 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 @Component(role = WorkspaceReader.class, hint = "TychoWorkspaceReader")
-public class TychoWorkspaceReader implements WorkspaceReader {
+public class TychoWorkspaceReader implements WorkspaceReader, MavenWorkspaceReader {
 
     private WorkspaceRepository repository;
 
@@ -47,8 +54,10 @@ public class TychoWorkspaceReader implements WorkspaceReader {
     @Requirement
     private Logger logger;
 
+    @Requirement
+    private ModelWriter modelWriter;
+
     public TychoWorkspaceReader() {
-        //TODO this requires https://issues.apache.org/jira/browse/MNG-7400
         repository = new WorkspaceRepository("tycho", null);
     }
 
@@ -60,12 +69,33 @@ public class TychoWorkspaceReader implements WorkspaceReader {
     @Override
     public File findArtifact(Artifact artifact) {
         if ("pom".equals(artifact.getExtension())) {
-            //TODO we have not a pom yet but we probably want to generate one, otherwise maven tries to download 
-            //it from the repository and would not find it resulting in
-            //[WARNING] The POM for org.eclipse.equinox:org.eclipse.equinox.preferences:jar:3.9.0.v20210726-0943 is missing, 
-            //  no dependency information available
+            if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
+                //TODO Maven should actually call the findModel instead see: https://issues.apache.org/jira/browse/MNG-7496
+                logger.debug("Find the pom for " + artifact);
+                File pomFile = getFileForArtifact(artifact);
+                if (pomFile.isFile()) {
+                    return pomFile;
+                }
+                Model findModel = findModel(artifact);
+                if (findModel != null) {
+                    try {
+                        pomFile.getParentFile().mkdirs();
+                        modelWriter.write(pomFile, new HashMap<String, Object>(), findModel);
+                        return pomFile;
+                    } catch (IOException e) {
+                        logger.debug("Can't write model!", e);
+                    }
+                }
+            }
             return null;
         }
+        if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
+            File cachedFile = getFileForArtifact(artifact);
+            if (cachedFile.isFile()) {
+                return cachedFile;
+            }
+        }
+
         MavenProject currentProject = legacySupport.getSession().getCurrentProject();
         ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
 
@@ -92,9 +122,36 @@ public class TychoWorkspaceReader implements WorkspaceReader {
         return null;
     }
 
+    protected File getFileForArtifact(Artifact artifact) {
+        LocalRepository localRepository = legacySupport.getRepositorySession().getLocalRepository();
+        File basedir = localRepository.getBasedir();
+        File cachedFile = new File(basedir, "p2/osgi/bundle/" + artifact.getArtifactId() + "/" + artifact.getVersion()
+                + "/" + artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getExtension());
+        return cachedFile;
+    }
+
     @Override
     public List<String> findVersions(Artifact artifact) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Model findModel(Artifact artifact) {
+        if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
+            logger.debug("Find the model for: " + artifact);
+            Model model = new Model();
+            model.setModelVersion("4.0.0");
+            model.setArtifactId(artifact.getArtifactId());
+            model.setGroupId(artifact.getGroupId());
+            model.setVersion(artifact.getVersion());
+            model.setPackaging(artifact.getProperty("packaging", null));
+            if (model.getPackaging() == null) {
+                model.setPackaging(
+                        artifact.getGroupId().substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-'));
+            }
+            return model;
+        }
+        return null;
     }
 
 }
