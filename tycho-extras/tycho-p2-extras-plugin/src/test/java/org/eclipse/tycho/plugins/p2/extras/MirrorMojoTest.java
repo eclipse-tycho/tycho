@@ -15,6 +15,11 @@ package org.eclipse.tycho.plugins.p2.extras;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
@@ -47,10 +51,36 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         initLegacySupport(projects, project);
         mirrorDestinationDir = new File(project.getFile().getParent(), "target/repository").getCanonicalFile();
-        FileUtils.deleteDirectory(mirrorDestinationDir);
+        if (mirrorDestinationDir.exists()) {
+            deleteFolder(mirrorDestinationDir.toPath());
+        }
         mirrorMojo = lookupMojo("mirror", project.getFile());
         setVariableValueToObject(mirrorMojo, "destination", mirrorDestinationDir);
         setVariableValueToObject(mirrorMojo, "project", project);
+    }
+
+    private static void deleteFolder(final Path path) throws IOException {
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+                return FileVisitResult.TERMINATE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(final Path dir, final IOException e) throws IOException {
+                if (e != null) {
+                    return FileVisitResult.TERMINATE;
+                }
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     @Override
