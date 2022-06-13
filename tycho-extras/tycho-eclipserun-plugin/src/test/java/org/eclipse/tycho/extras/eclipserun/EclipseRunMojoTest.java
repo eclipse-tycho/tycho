@@ -79,10 +79,10 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 		assertTrue(vmArgs.contains("-DoptionWith=\"A space in the value\""));
 	}
 
-	public void testCreateCommandlineWithApplicationsArgs() throws IllegalAccessException, MojoExecutionException {
+	public void testCreateCommandlineWithApplicationArgs() throws IllegalAccessException, MojoExecutionException {
 		List<String> args = Arrays.asList("arg1", "literal arg with spaces",
 				"argument'with'literalquotes");
-		setVariableValueToObject(runMojo, "applicationsArgs", args);
+		setVariableValueToObject(runMojo, "applicationArgs", args);
 		LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
 		List<String> programArgs = Arrays.asList(commandLine.getProgramArguments());
 		assertTrue(programArgs.contains("arg1"));
