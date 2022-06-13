@@ -170,16 +170,16 @@ public class EclipseRunMojo extends AbstractMojo {
 	 * List of applications arguments set on the command line. Example:
 	 * 
 	 * {@code
-	 * <applicationsArgs>
+	 * <applicationArgs>
 	 *   <arg>-buildfile</arg>
 	 *   <arg>build-test.xml</arg>
-	 * </applicationsArgs>
+	 * </applicationArgs>
 	 * }
 	 * 
 	 * @since 0.24.0
 	 */
-	@Parameter
-	private List<String> applicationsArgs;
+	@Parameter(alias = "applicationsArgs")
+	private List<String> applicationArgs;
 
 	/**
 	 * Kill the forked process after a certain number of seconds. If set to 0, wait
@@ -254,7 +254,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	public EclipseRunMojo(File work, boolean clearWorkspaceBeforeLaunch, MavenProject project,
 			List<Dependency> dependencies, boolean addDefaultDependencies, String executionEnvironment,
 			List<Repository> repositories, MavenSession session, List<String> jvmArgs, boolean skip,
-			List<String> applicationsArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
+			List<String> applicationArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
 			EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
 			ToolchainProvider toolchainProvider, EquinoxServiceFactory equinox, Logger logger,
 			ToolchainManager toolchainManager) {
@@ -268,7 +268,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		this.session = session;
 		this.jvmArgs = jvmArgs;
 		this.skip = skip;
-		this.applicationsArgs = applicationsArgs;
+		this.applicationArgs = applicationArgs;
 		this.forkedProcessTimeoutInSeconds = forkedProcessTimeoutInSeconds;
 		this.environmentVariables = environmentVariables;
 		this.installationFactory = installationFactory;
@@ -401,8 +401,8 @@ public class EclipseRunMojo extends AbstractMojo {
 		File workspace = new File(work, "data");
 		addProgramArgs(cli, "-data", workspace.getAbsolutePath());
 
-		if (applicationsArgs != null) {
-			for (String arg : applicationsArgs) {
+		if (applicationArgs != null) {
+			for (String arg : applicationArgs) {
 				cli.addProgramArguments(arg);
 			}
 		}
