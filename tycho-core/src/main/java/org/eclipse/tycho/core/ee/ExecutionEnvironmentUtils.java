@@ -24,6 +24,8 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
@@ -67,8 +69,8 @@ public class ExecutionEnvironmentUtils {
      * @throws UnknownEnvironmentException
      *             if profileName is unknown.
      */
-    public static StandardExecutionEnvironment getExecutionEnvironment(String profileName, ToolchainManager manager,
-            MavenSession session, Logger logger) throws UnknownEnvironmentException {
+    public static @Nonnull StandardExecutionEnvironment getExecutionEnvironment(String profileName,
+            ToolchainManager manager, MavenSession session, Logger logger) throws UnknownEnvironmentException {
         Map<String, StandardExecutionEnvironment> map = getExecutionEnvironmentsMap(manager, session, logger);
         StandardExecutionEnvironment ee = map.get(profileName);
         if (ee != null) {

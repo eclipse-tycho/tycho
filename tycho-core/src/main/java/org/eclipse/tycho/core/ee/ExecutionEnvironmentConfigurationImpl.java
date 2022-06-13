@@ -106,14 +106,16 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             return false;
         }
         String profileName = getProfileName();
-        Collection<String> profileNames = ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger);
-        boolean profileExists = profileNames
-                .contains(profileName);
-        if (!profileExists && ignoredByResolver) {
-            throw new BuildFailureException(
-                    "When using a custom execution environment profile, resolveWithExecutionEnvironmentConstraints must not be set to false");
+        try {
+            ExecutionEnvironmentUtils.getExecutionEnvironment(profileName, toolchainManager, session, logger);
+            return false;
+        } catch (UnknownEnvironmentException ex) {
+            if (ignoredByResolver) {
+                throw new BuildFailureException(
+                        "When using a custom execution environment profile, resolveWithExecutionEnvironmentConstraints must not be set to false");
+            }
+            return true;
         }
-        return !profileExists;
     }
 
     @Override
