@@ -143,7 +143,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
-			<version>1.4.0</version>
+			<version>1.4.100</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
