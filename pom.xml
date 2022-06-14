@@ -89,7 +89,7 @@
 		<!-- Stick to 3.0.0-M5 because of https://github.com/eclipse/tycho/issues/879 / https://issues.apache.org/jira/projects/SUREFIRE/issues/SUREFIRE-2072 -->
 		<surefire-version>3.0.0-M5</surefire-version>
 
-		<equinoxVersion>3.17.200</equinoxVersion>
+		<equinoxVersion>3.18.0</equinoxVersion>
 		<ecjVersion>3.29.0</ecjVersion>
 
 		<!-- version of Tycho used by this build -->
