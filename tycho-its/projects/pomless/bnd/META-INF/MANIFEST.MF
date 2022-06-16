@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: This Bundle uses BND to generate some metadata
+Bundle-SymbolicName: plugin.project.using.bnd
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: plugin.project.using.bnd
+Bundle-RequiredExecutionEnvironment: JavaSE-11
