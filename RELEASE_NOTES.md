@@ -4,6 +4,13 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Support for BND in tycho-build extension (aka pomless builds)
+
+The Tycho Build Extension (aka pomless build) now detects bnd.bnd files in the root of a pomless bundle and automatically generates an appropriate maven execution automatically.
+This can be used to generate any content by the BND plugin, e.g. declarative service xml or JPMS infos see here for an example:
+
+https://github.com/eclipse/tycho/tree/master/tycho-its/projects/pomless/bnd
+
 ### Tycho no longer ships JVM profiles
 
 Because of modular VMs the profiles shipped by Tycho has never been complete and actually are already partly generated in regards to available packages.
