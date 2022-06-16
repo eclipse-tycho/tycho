@@ -1,0 +1,1 @@
+-jpms-module-info: ${project.artifactId};access='OPEN'

@@ -19,14 +19,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.io.ModelParseException;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Component(role = Mapping.class, hint = TychoBundleMapping.PACKAGING)
@@ -101,6 +106,36 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         if (description != null) {
             model.setDescription(description);
         }
+        File bndFile = new File(bundleRoot, "bnd.bnd");
+        if (bndFile.exists()) {
+            createBndPlugin(model);
+        }
+
+    }
+
+    private static Plugin createBndPlugin(Model model) {
+        //See https://github.com/bndtools/bnd/blob/master/maven/bnd-maven-plugin/README.md#bnd-process-goal 
+        Build build = model.getBuild();
+        if (build == null) {
+            model.setBuild(build = new Build());
+        }
+        Plugin plugin = new Plugin();
+        plugin.setGroupId("biz.aQute.bnd");
+        plugin.setArtifactId("bnd-maven-plugin");
+        build.addPlugin(plugin);
+        PluginExecution process = new PluginExecution();
+        process.setId("bnd-process");
+        process.setGoals(Arrays.asList("bnd-process"));
+        plugin.addExecution(process);
+        Xpp3Dom config = new Xpp3Dom("configuration");
+        process.setConfiguration(config = new Xpp3Dom("configuration"));
+        Xpp3Dom packagingTypes = new Xpp3Dom("packagingTypes");
+        packagingTypes.setValue(model.getPackaging());
+        config.addChild(packagingTypes);
+        Xpp3Dom manifestPath = new Xpp3Dom("manifestPath");
+        manifestPath.setValue("${project.build.directory}/BND.MF");
+        config.addChild(manifestPath);
+        return plugin;
     }
 
     private Attributes readManifestHeaders(File manifestFile) throws IOException {
