@@ -4,7 +4,13 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 2.7.3
 Fixes:
--  p2-maven-site includes bundles in the repository #932 
+- Support bnd processing in pomless builds
+- The official maven keyserver is just to slow
+- Update to 2022-06 release
+
+## 2.7.3
+Fixes:
+- p2-maven-site includes bundles in the repository #932 
 
 ## 2.7.2
 Fixes:

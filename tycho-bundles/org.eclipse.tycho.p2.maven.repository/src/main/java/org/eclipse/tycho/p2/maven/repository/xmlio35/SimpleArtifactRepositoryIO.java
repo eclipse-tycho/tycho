@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2019 IBM Corporation and others.
+ * Copyright (c) 2007, 2022 IBM Corporation and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,6 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
@@ -48,7 +47,6 @@ import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -69,17 +67,9 @@ public class SimpleArtifactRepositoryIO {
      * closes the stream when finished.
      */
     public void write(SimpleArtifactRepository repository, OutputStream output) {
-        OutputStream bufferedOutput = null;
-        try {
-            try {
-                bufferedOutput = new BufferedOutputStream(output);
-                Writer repositoryWriter = new Writer(bufferedOutput);
-                repositoryWriter.write(repository);
-            } finally {
-                if (bufferedOutput != null) {
-                    bufferedOutput.close();
-                }
-            }
+        try (OutputStream bufferedOutput = new BufferedOutputStream(output)) {
+            Writer repositoryWriter = new Writer(bufferedOutput);
+            repositoryWriter.write(repository);
         } catch (IOException ioe) {
             // TODO shouldn't this throw a core exception?
             ioe.printStackTrace();
@@ -92,38 +82,30 @@ public class SimpleArtifactRepositoryIO {
      * 
      * This method performs buffering, and closes the stream when finished.
      */
-    public IArtifactRepository read(URL location, InputStream input, IProgressMonitor monitor)
-            throws ProvisionException {
-        BufferedInputStream bufferedInput = null;
-        try {
-            try {
-                bufferedInput = new BufferedInputStream(input);
-                Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
-                repositoryParser.parse(input);
-                IStatus result = repositoryParser.getStatus();
-                switch (result.getSeverity()) {
-                case IStatus.CANCEL:
-                    throw new OperationCanceledException();
-                case IStatus.ERROR:
-                    throw new ProvisionException(result);
-                case IStatus.WARNING:
-                case IStatus.INFO:
-                    LogHelper.log(result);
-                    break;
-                case IStatus.OK:
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown serverity value: " + result.getSeverity()); //$NON-NLS-1$
-                }
-                SimpleArtifactRepository repository = repositoryParser.getRepository();
-                if (repository == null)
-                    throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
-                            ProvisionException.REPOSITORY_FAILED_READ, Messages.io_parseError, null));
-                return repository;
-            } finally {
-                if (bufferedInput != null)
-                    bufferedInput.close();
+    public IArtifactRepository read(URL location, InputStream input) throws ProvisionException {
+        try (BufferedInputStream bufferedInput = new BufferedInputStream(input)) {
+            Parser repositoryParser = new Parser(Activator.ID);
+            repositoryParser.parse(input);
+            IStatus result = repositoryParser.getStatus();
+            switch (result.getSeverity()) {
+            case IStatus.CANCEL:
+                throw new OperationCanceledException();
+            case IStatus.ERROR:
+                throw new ProvisionException(result);
+            case IStatus.WARNING:
+            case IStatus.INFO:
+                LogHelper.log(result);
+                break;
+            case IStatus.OK:
+                break;
+            default:
+                throw new IllegalStateException("Unknown serverity value: " + result.getSeverity()); //$NON-NLS-1$
             }
+            SimpleArtifactRepository repository = repositoryParser.getRepository();
+            if (repository == null)
+                throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
+                        ProvisionException.REPOSITORY_FAILED_READ, Messages.io_parseError, null));
+            return repository;
         } catch (IOException ioe) {
             String msg = NLS.bind(Messages.io_failedRead, location);
             throw new ProvisionException(
@@ -143,8 +125,6 @@ public class SimpleArtifactRepositoryIO {
 
         // Constants for processing instructions
         public static final String PI_REPOSITORY_TARGET = "artifactRepository"; //$NON-NLS-1$
-        public static XMLWriter.ProcessingInstruction[] PI_DEFAULTS = new XMLWriter.ProcessingInstruction[] {
-                XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(PI_REPOSITORY_TARGET, CURRENT_VERSION) };
 
         // Constants for artifact repository elements
         public static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
@@ -167,6 +147,8 @@ public class SimpleArtifactRepositoryIO {
 
     // XML writer for a SimpleArtifactRepository
     public static class Writer extends XMLWriter implements XMLConstants {
+        public static XMLWriter.ProcessingInstruction[] PI_DEFAULTS = {
+                XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(PI_REPOSITORY_TARGET, CURRENT_VERSION) };
 
         public Writer(OutputStream output) throws IOException {
             super(output, PI_DEFAULTS);
@@ -245,8 +227,8 @@ public class SimpleArtifactRepositoryIO {
 
         private SimpleArtifactRepository theRepository = null;
 
-        public Parser(BundleContext context, String bundleId) {
-            super(context, bundleId);
+        public Parser(String bundleId) {
+            super(bundleId);
         }
 
         public synchronized void parse(InputStream stream) throws IOException {
@@ -261,9 +243,7 @@ public class SimpleArtifactRepositoryIO {
                 if (isValidXML()) {
                     theRepository = repositoryHandler.getRepository();
                 }
-            } catch (SAXException e) {
-                throw new IOException(e.getMessage());
-            } catch (ParserConfigurationException e) {
+            } catch (SAXException | ParserConfigurationException e) {
                 throw new IOException(e.getMessage());
             } finally {
                 stream.close();
@@ -304,8 +284,8 @@ public class SimpleArtifactRepositoryIO {
 
         private final class RepositoryHandler extends RootHandler {
 
-            private final String[] required = new String[] { NAME_ATTRIBUTE, TYPE_ATTRIBUTE, VERSION_ATTRIBUTE };
-            private final String[] optional = new String[] { DESCRIPTION_ATTRIBUTE, PROVIDER_ATTRIBUTE };
+            private final String[] required = { NAME_ATTRIBUTE, TYPE_ATTRIBUTE, VERSION_ATTRIBUTE };
+            private final String[] optional = { DESCRIPTION_ATTRIBUTE, PROVIDER_ATTRIBUTE };
 
             private String[] attrValues = new String[required.length + optional.length];
 
@@ -384,8 +364,7 @@ public class SimpleArtifactRepositoryIO {
 
         protected class MappingRuleHandler extends AbstractHandler {
 
-            private final String[] required = new String[] { MAPPING_RULE_FILTER_ATTRIBUTE,
-                    MAPPING_RULE_OUTPUT_ATTRIBUTE };
+            private final String[] required = { MAPPING_RULE_FILTER_ATTRIBUTE, MAPPING_RULE_OUTPUT_ATTRIBUTE };
 
             public MappingRuleHandler(AbstractHandler parentHandler, Attributes attributes,
                     List<String[]> mappingRules) {
@@ -425,8 +404,7 @@ public class SimpleArtifactRepositoryIO {
 
         protected class ArtifactHandler extends AbstractHandler {
 
-            private final String[] required = new String[] { ARTIFACT_CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE,
-                    VERSION_ATTRIBUTE };
+            private final String[] required = { ARTIFACT_CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE, VERSION_ATTRIBUTE };
 
             private Set<IArtifactDescriptor> artifacts;
             ArtifactDescriptor currentArtifact = null;
@@ -512,8 +490,8 @@ public class SimpleArtifactRepositoryIO {
 
         protected class ProcessingStepHandler extends AbstractHandler {
 
-            private final String[] required = new String[] { ID_ATTRIBUTE, STEP_REQUIRED_ATTRIBUTE };
-            private final String[] optional = new String[] { STEP_DATA_ATTRIBUTE };
+            private final String[] required = { ID_ATTRIBUTE, STEP_REQUIRED_ATTRIBUTE };
+            private final String[] optional = { STEP_DATA_ATTRIBUTE };
 
             public ProcessingStepHandler(AbstractHandler parentHandler, Attributes attributes,
                     List<ProcessingStepDescriptor> processingSteps) {
@@ -533,12 +511,6 @@ public class SimpleArtifactRepositoryIO {
         @Override
         protected String getErrorMessage() {
             return Messages.io_parseError;
-        }
-
-        @Override
-        public String toString() {
-            // TODO:
-            return super.toString();
         }
 
     }
