@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -35,7 +35,6 @@ import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.repository.util.internal.BundleConstants;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -73,7 +72,7 @@ public class MetadataIO {
         private List<InstallableUnitDescription> units;
 
         public Parser(PARSER_MODE mode) {
-            super(Activator.getContext(), BundleConstants.BUNDLE_ID);
+            super(BundleConstants.BUNDLE_ID);
             this.mode = mode;
         }
 
