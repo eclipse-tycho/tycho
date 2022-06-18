@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="324">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="Target platform for Tycho's bundles" sequenceNumber="324">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
@@ -39,6 +41,11 @@
 				<type>jar</type>
 			</dependency>
 		</dependencies>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+		<repository location="https://download.eclipse.org/eclipse/updates/4.24/R-4.24-202206070700/"/>
+		<unit id="org.eclipse.equinox.p2.director" version="2.5.300.v20220421-0708"/>
+		<unit id="org.eclipse.equinox.p2.repository.tools" version="2.3.100.v20220504-1755"/>
 	</location>
 </locations>
 </target>
