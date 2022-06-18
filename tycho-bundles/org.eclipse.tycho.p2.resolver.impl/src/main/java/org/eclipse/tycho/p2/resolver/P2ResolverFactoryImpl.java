@@ -229,6 +229,11 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
                         @Override
                         public String getType() {
+                            String type = properties.get(TychoConstants.PROP_TYPE);
+                            if (type != null && !type.isBlank()) {
+                                return type;
+                            }
+                            //fallback for older repository formats
                             return properties.get(TychoConstants.PROP_EXTENSION);
                         }
 
