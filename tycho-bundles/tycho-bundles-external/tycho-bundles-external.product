@@ -81,12 +81,6 @@
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.eclipse.tycho.noopsecurity"/>
-      <plugin id="org.osgi.service.prefs"/>
-      <plugin id="org.osgi.util.function"/>
-      <plugin id="org.osgi.util.measurement"/>
-      <plugin id="org.osgi.util.position"/>
-      <plugin id="org.osgi.util.promise"/>
-      <plugin id="org.osgi.util.xml"/>
       <plugin id="org.sat4j.core"/>
       <plugin id="org.sat4j.pb"/>
       <plugin id="org.slf4j.api"/>

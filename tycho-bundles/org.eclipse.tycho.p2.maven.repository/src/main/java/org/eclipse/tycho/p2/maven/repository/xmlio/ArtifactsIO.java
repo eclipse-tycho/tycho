@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,8 +24,10 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio35.SimpleArtifactRepositoryIO;
 import org.eclipse.tycho.repository.util.internal.BundleConstants;
+import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -51,8 +53,8 @@ public class ArtifactsIO {
 
         private Set<IArtifactDescriptor> artifacts;
 
-        public Parser35M7(String bundleId) {
-            super(bundleId);
+        public Parser35M7(BundleContext context, String bundleId) {
+            super(context, bundleId);
         }
 
         @Override
@@ -114,7 +116,7 @@ public class ArtifactsIO {
     }
 
     public Set<IArtifactDescriptor> readXML(InputStream is) throws IOException {
-        Parser35M7 parser = new Parser35M7(BundleConstants.BUNDLE_ID);
+        Parser35M7 parser = new Parser35M7(Activator.getContext(), BundleConstants.BUNDLE_ID);
 
         parser.parse(is);
 
