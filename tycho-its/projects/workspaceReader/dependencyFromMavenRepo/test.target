@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="test">
+<locations>
+    <location includeMode="planner" includeAllPlatforms="true" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
+      <unit id="org.osgi.util.promise" version="0.0.0"/>
+      <repository location="https://download.eclipse.org/releases/2022-06/202206151000"/>
+    </location>
+   </locations>
+</target>

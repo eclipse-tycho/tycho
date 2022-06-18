@@ -65,8 +65,9 @@ public final class MavenBundlesArtifactRepository extends ArtifactRepositoryBase
         GAVArtifactDescriptor descriptorForRepository = new GAVArtifactDescriptor(baseDescriptor,
                 repositoryCoordinates);
 
-        File requiredArtifactLocation = new File(getBaseDir(),
-                descriptorForRepository.getMavenCoordinates().getLocalRepositoryPath(mavenContext));
+        MavenRepositoryCoordinates mavenCoordinates = descriptorForRepository.getMavenCoordinates();
+        File baseDir = getBaseDir();
+        File requiredArtifactLocation = new File(baseDir, mavenCoordinates.getLocalRepositoryPath(mavenContext));
         File actualArtifactLocation = mavenArtifact.getLocation();
         if (!equivalentPaths(requiredArtifactLocation, actualArtifactLocation)) {
             throw new AssertionFailedException(

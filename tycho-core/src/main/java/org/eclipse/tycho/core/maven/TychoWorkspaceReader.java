@@ -92,37 +92,47 @@ public class TychoWorkspaceReader implements WorkspaceReader, MavenWorkspaceRead
             return null;
         }
         if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
+            //For now, only take P2 items into account ...
             File cachedFile = getFileForArtifact(artifact);
             if (cachedFile.isFile()) {
                 return cachedFile;
             }
-        }
+            MavenSession session = legacySupport.getSession();
+            if (session != null) {
+                MavenProject currentProject = session.getCurrentProject();
+                ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
 
-        MavenSession session = legacySupport.getSession();
-        if (session != null) {
-            MavenProject currentProject = session.getCurrentProject();
-            ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
-
-            Optional<DependencyArtifacts> dependencyMetadata = TychoProjectUtils
-                    .getOptionalDependencyArtifacts(reactorProject);
-            if (dependencyMetadata.isPresent()) {
-                P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
-                logger.debug("Attempt to resolve " + artifact + " for project " + currentProject + " ...");
-                for (ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
-                    MavenDependencyDescriptor dependencyDescriptor = factory.resolveDependencyDescriptor(descriptor);
-                    if (dependencyDescriptor != null) {
-                        if (dependencyDescriptor.getGroupId().equals(artifact.getGroupId())
-                                && dependencyDescriptor.getArtifactId().equals(artifact.getArtifactId())) {
-                            ArtifactKey artifactKey = descriptor.getKey();
-                            if (dependencyDescriptor.getVersion().equals(artifact.getVersion())
-                                    || artifactKey.getVersion().equals(artifact.getVersion())) {
-                                //we have a match!
-                                return descriptor.getLocation(true);
+                Optional<DependencyArtifacts> dependencyMetadata = TychoProjectUtils
+                        .getOptionalDependencyArtifacts(reactorProject);
+                if (dependencyMetadata.isPresent()) {
+                    P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
+                    logger.debug("Attempt to resolve " + artifact + " for project " + currentProject + " ...");
+                    for (ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
+                        MavenDependencyDescriptor dependencyDescriptor = factory
+                                .resolveDependencyDescriptor(descriptor);
+                        if (dependencyDescriptor != null) {
+                            if (dependencyDescriptor.getGroupId().equals(artifact.getGroupId())
+                                    && dependencyDescriptor.getArtifactId().equals(artifact.getArtifactId())) {
+                                ArtifactKey artifactKey = descriptor.getKey();
+                                if (dependencyDescriptor.getVersion().equals(artifact.getVersion())
+                                        || artifactKey.getVersion().equals(artifact.getVersion())) {
+                                    //we have a match!
+                                    return descriptor.getLocation(true);
+                                }
                             }
                         }
                     }
                 }
             }
+        } else {
+            // TODO This is a "standard" maven artifact, but we probably still know it from P2!
+            // it would be good to reuse the P2 item as it might be signed but that must be
+            // considered carefully as P2 items have a different location so we must relocate them.
+            // But if we do so, this might confuse standard maven if it finds things not matching what is in central...
+            // What should work quite good is to first ask all remote repositories for the file and then fall back to P2...
+            // The main issue here is the pom=consider that requires special filename mapping while maven is happy with a different path as well.
+            // So another approach might be to adjust the pom=consider to ignore dependencies added by tycho itself!
+
         }
         return null;
     }
