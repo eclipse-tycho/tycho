@@ -2,6 +2,12 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 2.7.4
+Fixes:
+- Tycho reports wrong type in case of maven GAV restored from UI
+- Support bnd processing in pomless builds
+- The official maven keyserver is just to slow use ubuntu as an alternative mirror first
+
 ## 2.7.3
 Fixes:
 -  p2-maven-site includes bundles in the repository #932 
