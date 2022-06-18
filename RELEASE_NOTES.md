@@ -10,6 +10,7 @@ Fixes:
 - [Maven-Target] Consider extra-repositories when fetching source-jars
 - DS generation fails with latest eclipse release for UI bundles
 - PomDependencyCollector uses a wrong type for pom declared feature dependencies
+- Not all (direct) requirements of a feature are considered when building an update-site
 
 ## 2.7.3
 Fixes:
