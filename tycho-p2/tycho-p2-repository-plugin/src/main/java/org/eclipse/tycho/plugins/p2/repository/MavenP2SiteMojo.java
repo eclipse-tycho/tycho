@@ -123,7 +123,10 @@ public class MavenP2SiteMojo extends AbstractMojo {
     //See GpgSigner.SIGNATURE_EXTENSION
     private static final String SIGNATURE_EXTENSION = ".asc";
 
-    private static final String MAVEN_CENTRAL_KEY_SERVER = "http://pgp.mit.edu/pks/lookup?op=get&search={0}";
+    public static final String MAVEN_CENTRAL_KEY_SERVER = "http://pgp.mit.edu/pks/lookup?op=get&search={0}";
+    public static final String UBUNTU_KEY_SERVER = "https://keyserver.ubuntu.com/pks/lookup?op=get&search={0}";
+
+    private static final List<String> DEFAULT_KEY_SERVER = List.of(UBUNTU_KEY_SERVER, MAVEN_CENTRAL_KEY_SERVER);
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -201,10 +204,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
     protected File buildDirectory;
 
     /**
-     * Configures the key server that is used to fetch the public keys
+     * Configures the key servers that are used to fetch the public keys, if not specified,
+     * {@value #UBUNTU_KEY_SERVER} and {@value #MAVEN_CENTRAL_KEY_SERVER} are used in this order.
      */
-    @Parameter(defaultValue = MAVEN_CENTRAL_KEY_SERVER)
-    private String keyServerUrl = MAVEN_CENTRAL_KEY_SERVER;
+    @Parameter
+    private List<String> keyServerUrls;
 
     /**
      * Key servers are sometimes busy, this configures the maximum amount of retries to fetch the
@@ -227,8 +231,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
         logger.debug("includeManaged =      " + includeManaged);
         logger.debug("includeReactor =      " + includeReactor);
         logger.debug("includeTransitive =   " + includeTransitiveDependencies);
+        List<String> keyServers = getKeyServers();
         if (includePGPSignature) {
-            logger.debug("keyServerUrl =        " + keyServerUrl);
+            logger.debug("keyServerUrl =        " + keyServers.stream().collect(Collectors.joining(", ")));
             logger.debug("keyServerRetry =      " + keyServerRetry);
         }
 
@@ -312,7 +317,26 @@ public class MavenP2SiteMojo extends AbstractMojo {
                         for (int i = 0; i < list.size(); i++) {
                             PGPSignature signature = list.get(i);
                             long keyID = signature.getKeyID();
-                            loadPublicKey(keyID, publicKeys);
+                            if (!publicKeys.containsKey(keyID)) {
+                                List<Exception> errors = new ArrayList<Exception>();
+                                for (String keyServer : keyServers) {
+                                    try {
+                                        loadPublicKey(keyID, publicKeys, keyServer);
+                                        break;
+                                    } catch (IOException | PGPException e) {
+                                        errors.add(e);
+                                    }
+                                }
+                                if (!errors.isEmpty()) {
+                                    MojoFailureException exception = new MojoFailureException(
+                                            "Loading key from any server failed");
+                                    for (Exception e : errors) {
+                                        exception.addSuppressed(e);
+                                    }
+                                    throw exception;
+                                }
+                            }
+
                         }
                     }
                 } catch (IOException e) {
@@ -374,42 +398,42 @@ public class MavenP2SiteMojo extends AbstractMojo {
         try {
             archiver.createArchive();
         } catch (IOException e) {
-            throw new MojoExecutionException("failed to createa archive", e);
+            throw new MojoExecutionException("failed to create archive", e);
         }
         projectHelper.attachArtifact(project, "zip", "p2site", destFile);
     }
 
-    private void loadPublicKey(long keyID, Map<Long, PGPPublicKeyRing> publicKeys) throws MojoExecutionException {
-        if (publicKeys.containsKey(keyID)) {
-            return;
+    private List<String> getKeyServers() {
+        if (keyServerUrls != null && !keyServerUrls.isEmpty()) {
+            return keyServerUrls;
         }
+        return DEFAULT_KEY_SERVER;
+    }
+
+    private void loadPublicKey(long keyID, Map<Long, PGPPublicKeyRing> publicKeys, String keyServerUrl)
+            throws MojoExecutionException, IOException, PGPException {
         String hexKey = "0x" + Long.toHexString(keyID).toUpperCase();
         logger.info("Fetching PGP key with id " + hexKey + "...");
-        try {
-            File localRepoRoot = new File(session.getLocalRepository().getBasedir());
-            File keyCacheFile = new File(new File(localRepoRoot, CACHE_RELPATH), hexKey + ".pub");
-            InputStream keyStream;
-            if (keyCacheFile.isFile()) {
-                logger.debug("Fetching key from cache: " + keyCacheFile.getAbsolutePath());
-                keyStream = new FileInputStream(keyCacheFile);
-            } else {
-                URL url = new URL(MessageFormat.format(keyServerUrl, hexKey));
-                logger.debug("Fetching key from url: " + url);
-                InputStream urlStream = openStream(url, keyServerRetry);
-                FileUtils.copyInputStreamToFile(urlStream, keyCacheFile);
-                keyStream = new FileInputStream(keyCacheFile);
-            }
-            PGPPublicKeyRingCollection publicKeyRing = new BcPGPPublicKeyRingCollection(
-                    PGPUtil.getDecoderStream(keyStream));
-            PGPPublicKeyRing publicKey = publicKeyRing.getPublicKeyRing(keyID);
-            if (publicKey != null) {
-                publicKeys.put(keyID, publicKey);
-            }
-            keyStream.close();
-        } catch (IOException | PGPException e) {
-            //pgp key is required by P2, so we must fail here...
-            throw new MojoExecutionException("Fetching  PGP key failed: " + e, e);
+        File localRepoRoot = new File(session.getLocalRepository().getBasedir());
+        File keyCacheFile = new File(new File(localRepoRoot, CACHE_RELPATH), hexKey + ".pub");
+        InputStream keyStream;
+        if (keyCacheFile.isFile()) {
+            logger.debug("Fetching key from cache: " + keyCacheFile.getAbsolutePath());
+            keyStream = new FileInputStream(keyCacheFile);
+        } else {
+            URL url = new URL(MessageFormat.format(keyServerUrl, hexKey));
+            logger.debug("Fetching key from url: " + url);
+            InputStream urlStream = openStream(url, keyServerRetry);
+            FileUtils.copyInputStreamToFile(urlStream, keyCacheFile);
+            keyStream = new FileInputStream(keyCacheFile);
         }
+        PGPPublicKeyRingCollection publicKeyRing = new BcPGPPublicKeyRingCollection(
+                PGPUtil.getDecoderStream(keyStream));
+        PGPPublicKeyRing publicKey = publicKeyRing.getPublicKeyRing(keyID);
+        if (publicKey != null) {
+            publicKeys.put(keyID, publicKey);
+        }
+        keyStream.close();
 
     }
 
