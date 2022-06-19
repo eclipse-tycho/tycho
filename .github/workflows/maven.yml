@@ -36,9 +36,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven27-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-maven274-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
-          ${{ runner.os }}-maven27-
+          ${{ runner.os }}-maven274-
     - name: Build Tycho
       run: | 
         cp toolchains-gh.xml ~/.m2/toolchains.xml

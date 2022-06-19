@@ -7,6 +7,7 @@ Fixes:
 - Tycho reports wrong type in case of maven GAV restored from UI
 - Support bnd processing in pomless builds
 - The official maven keyserver is just to slow use ubuntu as an alternative mirror first
+- [Maven-Target] Consider extra-repositories when fetching source-jars
 
 ## 2.7.3
 Fixes:
