@@ -54,7 +54,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -64,13 +64,12 @@ import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.target.ee.NoExecutionEnvironmentResolutionHints;
-import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
-import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
-import org.eclipse.tycho.p2.util.resolution.ResolverException;
+import org.eclipse.tycho.p2maven.InstallableUnitSlicer;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -93,6 +92,9 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 	@Requirement(role = Mapping.class)
 	private Map<String, Mapping> polyglotMappings;
+
+	@Requirement
+	private InstallableUnitSlicer slicer;
 
 	@Override
 	public Result<ProjectDependencyGraph> build(MavenSession session) {
@@ -317,18 +319,12 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 				MavenProject project = entry.getKey();
 				logger.debug("Resolve dependencies for project " + project.getName() + "...");
 				try {
-					ProjectorResolutionStrategy resolutionStrategy = new ProjectorResolutionStrategy(logger);
-					ResolutionDataImpl data = new ResolutionDataImpl(NoExecutionEnvironmentResolutionHints.INSTANCE);
-					data.setFailOnMissing(false);
-					data.setAvailableIUs(Collections.unmodifiableCollection(availableIUs));
-					data.setRootIUs(Collections.unmodifiableCollection(projectUnits));
-					data.setSlicerPredicate(always -> true);
-					resolutionStrategy.setData(data);
-					Collection<IInstallableUnit> resolve = resolutionStrategy.resolve(new HashMap<String, String>(),
-							new NullProgressMonitor());
-					resolve.removeAll(projectUnits);
-					return resolve;
-				} catch (ResolverException e) {
+					IQueryResult<IInstallableUnit> result = slicer.resolve(projectUnits,
+							new CollectionResult<IInstallableUnit>(availableIUs));
+					Set<IInstallableUnit> resolved = result.toSet();
+					resolved.removeAll(projectUnits);
+					return resolved;
+				} catch (CoreException e) {
 					problems.add(new DefaultModelProblem(
 							"can't resolve " + project.getPackaging() + " project @ " + project.getBasedir(),
 							Severity.ERROR, null, null, 0, 0, e));
