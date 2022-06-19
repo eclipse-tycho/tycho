@@ -75,6 +75,22 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testAlsoMakeSite() throws Exception {
+		verifier.addCliOption("-am");
+		verifier.addCliOption("-pl site");
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testAlsoMakeProduct() throws Exception {
+		verifier.addCliOption("-am");
+		verifier.addCliOption("-pl product");
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
 	public void testAlsoMakeWithIndirectDependencies() throws Exception {
 		// REACTOR_MAKE_UPSTREAM
 		verifier.addCliOption("-am");
