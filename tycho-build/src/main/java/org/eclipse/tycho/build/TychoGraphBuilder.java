@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.build;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,34 +53,19 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherResult;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
-import org.eclipse.equinox.p2.publisher.eclipse.Feature;
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2maven.InstallableUnitSlicer;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Component(role = GraphBuilder.class, hint = GraphBuilder.HINT)
 public class TychoGraphBuilder extends DefaultGraphBuilder {
-
-	public static final String TYPE_ECLIPSE_PLUGIN = "eclipse-plugin";
-	public static final String TYPE_ECLIPSE_TEST_PLUGIN = "eclipse-test-plugin";
-	public static final String TYPE_ECLIPSE_FEATURE = "eclipse-feature";
-	public static final String TYPE_ECLIPSE_REPOSITORY = "eclipse-repository";
-	public static final String TYPE_ECLIPSE_TARGET_DEFINITION = "eclipse-target-definition";
 
 	@Requirement
 	private Logger log;
@@ -95,6 +78,9 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 	@Requirement
 	private InstallableUnitSlicer slicer;
+
+	@Requirement
+	private InstallableUnitGenerator generator;
 
 	@Override
 	public Result<ProjectDependencyGraph> build(MavenSession session) {
@@ -246,7 +232,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			// needed if referenced inside projects we might be more selective and choose
 			// target projects depending on project configuration
 			for (MavenProject mavenProject : projects) {
-				if (TYPE_ECLIPSE_TARGET_DEFINITION.equals(mavenProject.getPackaging())) {
+				if (PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION.equals(mavenProject.getPackaging())) {
 					selectedProjects.add(mavenProject);
 				}
 
@@ -265,49 +251,14 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 	private Function<MavenProject, Collection<IInstallableUnit>> computeProjectUnits(List<ModelProblem> problems) {
 		return project -> {
-			PublisherInfo publisherInfo = new PublisherInfo();
-			publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-			if (TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())
-					|| TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging())) {
-				try {
-					BundleDescription bundleDescription = BundlesAction.createBundleDescription(project.getBasedir());
-					IArtifactKey descriptor = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
-							bundleDescription.getVersion().toString());
-					IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, descriptor, publisherInfo);
-					return Collections.singletonList(iu);
-				} catch (IOException | BundleException e) {
-					problems.add(new DefaultModelProblem(
-							"can't read " + project.getPackaging() + " project @ " + project.getBasedir(),
-							Severity.ERROR, null, null, 0, 0, e));
-				}
-			} else if (TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
-				FeatureParser parser = new FeatureParser();
-				File basedir = project.getBasedir();
-				Feature feature = parser.parse(basedir);
-				Map<IInstallableUnit, Feature> featureMap = new HashMap<>();
-				FeaturesAction action = new FeaturesAction(new Feature[] { feature }) {
-					@Override
-					protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU,
-							IPublisherInfo publisherInfo) {
-						// so not call super as we don't wan't to copy anything --> Bug in P2 with
-						// IPublisherInfo.A_INDEX option
-						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=578380
-					}
-
-					@Override
-					protected IInstallableUnit generateFeatureJarIU(Feature feature, IPublisherInfo publisherInfo) {
-						IInstallableUnit iu = super.generateFeatureJarIU(feature, publisherInfo);
-						featureMap.put(iu, feature);
-						return iu;
-					}
-				};
-				PublisherResult results = new PublisherResult();
-				action.perform(publisherInfo, results, null);
-				Set<IInstallableUnit> result = results.query(QueryUtil.ALL_UNITS, null).toSet();
-				return result;
-
+			try {
+				return generator.getInstallableUnits(project, true);
+			} catch (CoreException e) {
+				problems.add(new DefaultModelProblem(
+						"can't read " + project.getPackaging() + " project @ " + project.getBasedir(), Severity.ERROR,
+						null, null, 0, 0, e));
+				return Collections.emptyList();
 			}
-			return Collections.emptyList();
 		};
 	}
 

@@ -1,30 +1,36 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>tycho-its-project.reactor.makeBehaviour</groupId>
-  <artifactId>parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+	<groupId>tycho-its-project.reactor.makeBehaviour</groupId>
+	<artifactId>parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-  <modules>
-    <module>feature1</module>
-    <module>feature2</module>
-    <module>bundle1</module>
-    <module>bundle1a</module>
-    <module>bundle1b</module>
-    <module>bundle2</module>
-  </modules>
+	<properties>
+		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
+	</properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <extensions>true</extensions>
-      </plugin>
-    </plugins>
-  </build>
+	<modules>
+		<module>feature1</module>
+		<module>feature2</module>
+		<module>feature3</module>
+		<module>bundle1</module>
+		<module>bundle1a</module>
+		<module>bundle1b</module>
+		<module>bundle2</module>
+		<module>site</module>
+		<module>product</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
