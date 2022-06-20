@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.TargetEnvironment;
 
 @SuppressWarnings("restriction")
 public abstract class AbstractSiteDependenciesAction extends AbstractDependenciesAction {

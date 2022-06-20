@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.TargetEnvironment;
 
 public interface PublisherServiceFactory {
 

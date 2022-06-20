@@ -35,10 +35,10 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MockMavenContext;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;

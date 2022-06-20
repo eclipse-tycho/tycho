@@ -10,13 +10,11 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.shared;
+package org.eclipse.tycho;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
-
-import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 
 public final class TargetEnvironment {
     private static final String OSGI_OS = "osgi.os";

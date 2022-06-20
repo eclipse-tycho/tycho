@@ -22,11 +22,11 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.junit.Assert;
 import org.junit.Test;
 

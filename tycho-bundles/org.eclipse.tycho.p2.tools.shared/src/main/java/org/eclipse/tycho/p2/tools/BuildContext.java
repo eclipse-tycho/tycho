@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.TargetEnvironment;
 
 public class BuildContext {
     private final ReactorProjectIdentities project;

@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.TargetEnvironment;
 
 public class EclipseInstallationTool {
 
@@ -28,8 +28,8 @@ public class EclipseInstallationTool {
 
     public static EclipseInstallationTool forInstallationInEclipseRepositoryTarget(File projectRootFolder,
             String productId, TargetEnvironment env, String pathInArchive) {
-        File installationRoot = new File(projectRootFolder, "target/products/" + productId + "/" + env.getOs() + "/"
-                + env.getWs() + "/" + env.getArch());
+        File installationRoot = new File(projectRootFolder,
+                "target/products/" + productId + "/" + env.getOs() + "/" + env.getWs() + "/" + env.getArch());
         if (pathInArchive != null) {
             installationRoot = new File(installationRoot, pathInArchive);
         }

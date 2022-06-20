@@ -9,7 +9,7 @@
  *     Andrew Niefer - IBM Corporation - initial API and implementation
  *     Sonatype Inc. - ongoing development
  *******************************************************************************/
-package org.eclipse.tycho.core.resolver.shared;
+package org.eclipse.tycho;
 
 import java.util.Properties;
 
