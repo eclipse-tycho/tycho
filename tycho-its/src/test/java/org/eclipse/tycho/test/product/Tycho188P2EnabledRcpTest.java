@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.IOUtil;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ArchiveContentUtil;
 import org.eclipse.tycho.test.util.EclipseInstallationTool;

@@ -13,8 +13,8 @@ package org.eclipse.tycho.core;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 /**
  * tycho-specific behaviour associated with MavenProject instances. stateless.

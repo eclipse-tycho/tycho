@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.junit.Before;

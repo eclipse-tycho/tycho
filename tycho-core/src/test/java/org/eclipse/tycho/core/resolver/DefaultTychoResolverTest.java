@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
+import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

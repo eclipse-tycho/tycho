@@ -27,8 +27,8 @@ import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 @SuppressWarnings("restriction")
 public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {

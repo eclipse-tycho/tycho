@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 
 /**
  * Value object for the configuration of this Maven plug-in. Used to select products to be

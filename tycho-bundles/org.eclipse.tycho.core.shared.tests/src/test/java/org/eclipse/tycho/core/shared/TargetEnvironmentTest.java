@@ -17,6 +17,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.Map;
 
+import org.eclipse.tycho.TargetEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 

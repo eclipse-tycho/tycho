@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.surefire;
 import java.util.List;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;

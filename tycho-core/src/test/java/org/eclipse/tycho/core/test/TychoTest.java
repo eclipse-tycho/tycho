@@ -23,6 +23,7 @@ import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
@@ -31,7 +32,6 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class TychoTest extends AbstractTychoMojoTestCase {

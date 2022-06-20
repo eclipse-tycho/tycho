@@ -11,8 +11,8 @@
 package org.eclipse.tycho.core.osgitools;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 public abstract class AbstractArtifactBasedProject extends AbstractTychoProject {
     // this is stricter than Artifact.SNAPSHOT_VERSION

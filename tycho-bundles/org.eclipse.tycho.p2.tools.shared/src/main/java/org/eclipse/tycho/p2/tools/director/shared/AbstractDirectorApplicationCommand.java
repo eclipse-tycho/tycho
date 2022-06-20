@@ -22,8 +22,8 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 /**
  * Base class for calling a p2 director via command line arguments.
