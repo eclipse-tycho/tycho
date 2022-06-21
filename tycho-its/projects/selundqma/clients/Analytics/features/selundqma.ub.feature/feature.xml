@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.selundqma.ub.feature"
+      label="UB"
+      version="22.7.1.qualifier"
+      provider-name="selundqma">
+
+   <description url="https://software.selundqma.com/">
+      User Behaviour
+   </description>
+
+   <copyright>
+      selundqma
+   </copyright>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="com.selundqma.cs.generic"/>
+
+   </requires>
+
+   <plugin
+         id="com.selundqma.ub.ga.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

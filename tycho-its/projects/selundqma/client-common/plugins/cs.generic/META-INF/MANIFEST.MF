@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Generics
+Bundle-SymbolicName: com.selundqma.cs.generic;singleton:=true
+Bundle-Version: 22.7.1.qualifier
+Bundle-Vendor: selundqma
+Export-Package: com.selundqma.cs.generic.security
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: com.selundqma.cs.generic
