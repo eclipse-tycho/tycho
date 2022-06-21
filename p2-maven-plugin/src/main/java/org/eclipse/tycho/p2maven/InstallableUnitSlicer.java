@@ -46,7 +46,7 @@ public class InstallableUnitSlicer {
 	 * @return the result of the slicing
 	 * @throws CoreException if there is any
 	 */
-	public IQueryResult<IInstallableUnit> resolve(Collection<IInstallableUnit> rootIus,
+	public IQueryResult<IInstallableUnit> computeDependencies(Collection<IInstallableUnit> rootIus,
 			IQueryable<IInstallableUnit> avaiableIUs)
 			throws CoreException {
 		boolean includeOptionalDependencies = true;

@@ -12,29 +12,20 @@
  *******************************************************************************/
 package org.eclipse.tycho.build;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.Future;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
@@ -53,13 +44,13 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.CollectionResult;
-import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
-import org.eclipse.tycho.p2maven.InstallableUnitSlicer;
+import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
+import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.osgi.framework.BundleContext;
 import org.sonatype.maven.polyglot.mapping.Mapping;
@@ -77,10 +68,10 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 	private Map<String, Mapping> polyglotMappings;
 
 	@Requirement
-	private InstallableUnitSlicer slicer;
+	private InstallableUnitGenerator generator;
 
 	@Requirement
-	private InstallableUnitGenerator generator;
+	private MavenProjectDependencyProcessor dependencyProcessor;
 
 	@Override
 	public Result<ProjectDependencyGraph> build(MavenSession session) {
@@ -122,67 +113,37 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		}
 		ProjectDependencyGraph graph = graphResult.get();
 		List<MavenProject> projects = graph.getAllProjects();
-		List<ModelProblem> problems = new CopyOnWriteArrayList<>();
 		int degreeOfConcurrency = request.getDegreeOfConcurrency();
-		boolean failFast = MavenExecutionRequest.REACTOR_FAIL_FAST.equals(request.getReactorFailureBehavior());
 		Optional<ExecutorService> executor;
 		if (degreeOfConcurrency > 1) {
 			executor = Optional.of(new ForkJoinPool(degreeOfConcurrency));
 		} else {
 			executor = Optional.empty();
 		}
-		BooleanSupplier hasFailures = () -> failFast && !problems.isEmpty();
 		Set<MavenProject> selectedProjects = ConcurrentHashMap.newKeySet();
 		try {
-			Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = new ConcurrentHashMap<>();
+			ProjectDependencyClosure dependencyClosure;
 			try {
-				var projectUnits = computeProjectUnits(problems);
-				runStream(projects.stream(), p -> projectIUMap.put(p, projectUnits.apply(p)), hasFailures, executor);
-			} catch (ExecutionException e) {
-				log.error("Can't read projects", e);
-				return Result.error(graph);
-			}
-			Map<MavenProject, Collection<IInstallableUnit>> projectDependenciesMap = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
-			try {
-				Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
-						.collect(Collectors.toSet());
-				var projectDependencies = computeProjectDependencies(availableIUs, problems, loggerAdapter);
-				runStream(projectIUMap.entrySet().stream(),
-						entry -> projectDependenciesMap.put(entry.getKey(), projectDependencies.apply(entry)),
-						hasFailures, executor);
-			} catch (ExecutionException e) {
+				dependencyClosure = dependencyProcessor.computeProjectDependencyClosure(projects);
+			} catch (CoreException e) {
 				log.error("Can't resolve projects", e);
-				return Result.error(graph);
+				return Result.error(graph, toProblems(e.getStatus(), new ArrayList<>()));
 			}
-			if (hasFailures.getAsBoolean()) {
-				if (loggerAdapter.isExtendedDebugEnabled()) {
-					for (ModelProblem modelProblem : problems) {
-						loggerAdapter.error(modelProblem.getMessage(), modelProblem.getException());
-					}
-				}
-				return Result.error(graph, problems);
-			}
-			Map<IInstallableUnit, MavenProject> iuProjectMap = new HashMap<IInstallableUnit, MavenProject>();
-			for (var entry : projectIUMap.entrySet()) {
-				MavenProject mavenProject = entry.getKey();
-				for (IInstallableUnit iu : entry.getValue()) {
-					iuProjectMap.put(iu, mavenProject);
-				}
-			}
+
 			if (loggerAdapter.isExtendedDebugEnabled()) {
-				for (Entry<MavenProject, Collection<IInstallableUnit>> entry : projectDependenciesMap.entrySet()) {
-					MavenProject project = entry.getKey();
-					Collection<IInstallableUnit> depends = entry.getValue();
+				for (MavenProject project : projects) {
+					Collection<IInstallableUnit> depends = dependencyClosure.getProjectDependecies(project);
 					if (depends.isEmpty()) {
 						continue;
 					}
 					loggerAdapter.debug("[[ project " + project.getName() + " depends on: ]]");
 					for (IInstallableUnit dependency : depends) {
-						MavenProject mavenProject = iuProjectMap.get(dependency);
-						if (mavenProject == null) {
+						Optional<MavenProject> mavenProject = dependencyClosure.getProject(dependency);
+						if (mavenProject.isEmpty()) {
 							loggerAdapter.debug(" IU: " + dependency);
 						} else {
-							loggerAdapter.debug(" IU: " + dependency + " [of project " + mavenProject.getName() + "]");
+							loggerAdapter
+									.debug(" IU: " + dependency + " [of project " + mavenProject.get().getName() + "]");
 						}
 					}
 				}
@@ -196,25 +157,19 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 				ProjectRequest projectRequest = queue.poll();
 				if (selectedProjects.add(projectRequest.mavenProject)) {
 					if (projectRequest.requestUpstream) {
-						Collection<IInstallableUnit> depends = projectDependenciesMap
-								.getOrDefault(projectRequest.mavenProject, Collections.emptyList());
-						depends.stream()//
-								.map(iuProjectMap::get)//
-								.filter(Objects::nonNull)//
-								.distinct()//
-								.peek(project -> loggerAdapter.debug(" + add upstream project '" + project.getName()
-										+ "' of project '" + projectRequest.mavenProject.getName() + "'..."))//
-								// make behaviors are both false here as projectDependenciesMap includes
-								// transitive already
-								.forEach(project -> queue
-										.add(new ProjectRequest(project, false, false, projectRequest)));
+						dependencyClosure.getDependencyProjects(projectRequest.mavenProject).forEach(project -> {
+							loggerAdapter.debug(" + add upstream project '" + project.getName() + "' of project '"
+									+ projectRequest.mavenProject.getName() + "'...");
+							// make behaviors are both false here as projectDependenciesMap includes
+							// transitive already
+							queue.add(new ProjectRequest(project, false, false, projectRequest));
+						});
 					}
 					if (projectRequest.requestDownstream) {
-						projectDependenciesMap.entrySet().stream()//
+						dependencyClosure.dependencies()//
 								.filter(entry -> {
 									return entry.getValue().stream()//
-											.map(iuProjectMap::get)//
-											.filter(Objects::nonNull)//
+											.flatMap(dependency -> dependencyClosure.getProject(dependency).stream())//
 											.anyMatch(projectRequest::matches);
 								})//
 								.map(Entry::getKey)//
@@ -249,61 +204,31 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		}
 	}
 
-	private Function<MavenProject, Collection<IInstallableUnit>> computeProjectUnits(List<ModelProblem> problems) {
-		return project -> {
-			try {
-				return generator.getInstallableUnits(project, true);
-			} catch (CoreException e) {
-				problems.add(new DefaultModelProblem(
-						"can't read " + project.getPackaging() + " project @ " + project.getBasedir(), Severity.ERROR,
-						null, null, 0, 0, e));
-				return Collections.emptyList();
-			}
-		};
-	}
-
-	private Function<Entry<MavenProject, Collection<IInstallableUnit>>, Collection<IInstallableUnit>> computeProjectDependencies(
-			Collection<IInstallableUnit> availableIUs, List<ModelProblem> problems, MavenLogger logger) {
-		return entry -> {
-			Collection<IInstallableUnit> projectUnits = entry.getValue();
-			if (!projectUnits.isEmpty()) {
-				MavenProject project = entry.getKey();
-				logger.debug("Resolve dependencies for project " + project.getName() + "...");
-				try {
-					IQueryResult<IInstallableUnit> result = slicer.resolve(projectUnits,
-							new CollectionResult<IInstallableUnit>(availableIUs));
-					Set<IInstallableUnit> resolved = result.toSet();
-					resolved.removeAll(projectUnits);
-					return resolved;
-				} catch (CoreException e) {
-					problems.add(new DefaultModelProblem(
-							"can't resolve " + project.getPackaging() + " project @ " + project.getBasedir(),
-							Severity.ERROR, null, null, 0, 0, e));
-				}
-			}
-			return Collections.emptyList();
-		};
-	}
-
-	private static <T> void runStream(Stream<T> stream, Consumer<? super T> consumer, BooleanSupplier hasFailures,
-			Optional<ExecutorService> service) throws ExecutionException {
-		if (hasFailures.getAsBoolean()) {
-			// short-cut
-			return;
+	private List<ModelProblem> toProblems(IStatus status, List<ModelProblem> problems) {
+		int severity = status.getSeverity();
+		if (severity == IStatus.OK || severity == IStatus.INFO) {
+			return problems;
 		}
-		Predicate<T> takeWhile = nil -> !hasFailures.getAsBoolean();
-		if (service.isEmpty()) {
-			stream.unordered().takeWhile(takeWhile).forEach(consumer);
+		Throwable throwable = status.getException();
+		Exception exception;
+		if (throwable == null) {
+			exception = null;
+		} else if (throwable instanceof Exception) {
+			exception = (Exception) throwable;
 		} else {
-			Future<?> future = service.get().submit(() -> {
-				stream.unordered().parallel().takeWhile(takeWhile).forEach(consumer);
-			});
-			try {
-				future.get();
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
+			exception = new ExecutionException(throwable);
 		}
+		Severity serv;
+		if (severity == IStatus.WARNING || severity == IStatus.CANCEL) {
+			serv = Severity.WARNING;
+		} else {
+			serv = Severity.ERROR;
+		}
+		problems.add(new DefaultModelProblem(status.getMessage(), serv, null, null, 0, 0, exception));
+		for (IStatus child : status.getChildren()) {
+			toProblems(child, problems);
+		}
+		return problems;
 	}
 
 	private static final class ProjectRequest {
