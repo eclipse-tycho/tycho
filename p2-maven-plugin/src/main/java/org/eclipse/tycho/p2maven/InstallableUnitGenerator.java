@@ -21,11 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
@@ -55,6 +58,37 @@ import org.xml.sax.SAXException;
 public class InstallableUnitGenerator {
 
 	private static final String KEY_UNITS = "InstallableUnitGenerator.units";
+
+	/**
+	 * Computes the {@link IInstallableUnit}s for a collection of projects.
+	 * 
+	 * @param projects the projects to compute InstallableUnits for
+	 * @return a map from the passed project to the InstallebalUnits
+	 * @throws CoreException if computation for any project failed
+	 */
+	public Map<MavenProject, Collection<IInstallableUnit>> getInstallableUnits(Collection<MavenProject> projects)
+			throws CoreException {
+		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
+		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
+		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
+			try {
+				result.put(project, getInstallableUnits(project, false));
+			} catch (CoreException e) {
+				errors.add(e);
+			}
+
+		});
+		if (errors.isEmpty()) {
+			return result;
+		}
+		if (errors.size() == 1) {
+			throw errors.get(0);
+		}
+		MultiStatus multiStatus = new MultiStatus(InstallableUnitGenerator.class, IStatus.ERROR,
+				"computing installable unit units failed");
+		errors.forEach(e -> multiStatus.add(e.getStatus()));
+		throw new CoreException(multiStatus);
+	}
 
 	/**
 	 * Computes the {@link IInstallableUnit}s for the given project, the computation
