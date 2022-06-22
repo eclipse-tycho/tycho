@@ -203,31 +203,27 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
         List<ClasspathEntry> classpath = projectType.getClasspath(DefaultReactorProject.adapt(b02));
 
-        assertEquals(5, classpath.size());
+        assertClasspathContains(classpath, canonicalFile(
+                "target/local-repo/.cache/tycho/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar/launcher.properties"));
+        assertClasspathContains(classpath,
+                canonicalFile("target/projects/extraclasspath/b01/target/lib/nested.jar-classes"));
+        assertClasspathContains(classpath, canonicalFile(
+                "src/test/resources/targetplatforms/basic/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar"));
+        assertClasspathContains(classpath, new File(basedir, "b02/classes"));
+        assertClasspathContains(classpath, canonicalFile("target/projects/extraclasspath/b02/target/classes"));
+    }
 
-        // reference to external bundle entry not on classpath
-        assertEquals(1, classpath.get(0).getLocations().size());
-        assertEquals(canonicalFile(
-                "target/local-repo/.cache/tycho/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar/launcher.properties"),
-                classpath.get(0).getLocations().get(0).getCanonicalFile());
-        // reference to reactor project entry
-        assertEquals(1, classpath.get(1).getLocations().size());
-        assertEquals(canonicalFile("target/projects/extraclasspath/b01/target/lib/nested.jar-classes"),
-                classpath.get(1).getLocations().get(0).getCanonicalFile());
+    private void assertClasspathContains(List<ClasspathEntry> classpath, File file) throws IOException {
+        for (ClasspathEntry cpe : classpath) {
+            for (File cpfile : cpe.getLocations()) {
+                if (cpfile.getCanonicalFile().equals(file.getCanonicalFile())) {
+                    return;
+                }
+            }
+        }
 
-        // reference to external bundle
-        assertEquals(1, classpath.get(2).getLocations().size());
-        assertEquals(canonicalFile(
-                "src/test/resources/targetplatforms/basic/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar"),
-                classpath.get(2).getLocations().get(0).getCanonicalFile());
-        // reference to project local folder
-        assertEquals(1, classpath.get(3).getLocations().size());
-        assertEquals(new File(basedir, "b02/classes").getCanonicalFile(),
-                classpath.get(3).getLocations().get(0).getCanonicalFile());
-        // this bundle
-        assertEquals(1, classpath.get(4).getLocations().size());
-        assertEquals(canonicalFile("target/projects/extraclasspath/b02/target/classes"),
-                classpath.get(4).getLocations().get(0).getCanonicalFile());
+        fail("File " + file + " not found on the classpath");
+
     }
 
     public void testImplicitTargetEnvironment() throws Exception {

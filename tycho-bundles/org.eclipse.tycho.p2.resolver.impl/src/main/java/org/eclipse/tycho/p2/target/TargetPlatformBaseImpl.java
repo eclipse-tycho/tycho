@@ -14,6 +14,7 @@
 package org.eclipse.tycho.p2.target;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -104,6 +105,14 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         }
         if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(type)) {
             return new DefaultArtifactKey(type, id, resolvedUnit.getVersion().toString());
+        }
+        Collection<IArtifactKey> artifacts = resolvedUnit.getArtifacts();
+        if (artifacts.size() == 1) {
+            IArtifactKey key = artifacts.iterator().next();
+            if ("osgi.bundle".equals(key.getClassifier())) {
+                return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, resolvedUnit.getId(),
+                        resolvedUnit.getVersion().toString());
+            }
         }
         return new DefaultArtifactKey(type, resolvedUnit.getId(), resolvedUnit.getVersion().toString());
     }
