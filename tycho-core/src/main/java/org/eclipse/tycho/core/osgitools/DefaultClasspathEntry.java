@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -80,8 +81,8 @@ public class DefaultClasspathEntry implements ClasspathEntry {
 
     public DefaultClasspathEntry(ReactorProject project, ArtifactKey key, List<File> locations,
             Collection<AccessRule> rules) {
+        this.key = Objects.requireNonNull(key);
         this.project = project;
-        this.key = key;
         this.locations = locations;
         this.rules = rules;
     }
@@ -104,5 +105,29 @@ public class DefaultClasspathEntry implements ClasspathEntry {
     @Override
     public ReactorProject getMavenProject() {
         return project;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("DefaultClasspathEntry [key=");
+        builder.append(key);
+        builder.append("[" + key.getClass().getSimpleName() + "], ");
+        if (project != null) {
+            builder.append("project=");
+            builder.append(project.getId());
+            builder.append(", ");
+        }
+        if (locations != null) {
+            builder.append("locations=");
+            builder.append(locations);
+            builder.append(", ");
+        }
+        if (rules != null) {
+            builder.append("rules=");
+            builder.append(rules);
+        }
+        builder.append("]");
+        return builder.toString();
     }
 }
