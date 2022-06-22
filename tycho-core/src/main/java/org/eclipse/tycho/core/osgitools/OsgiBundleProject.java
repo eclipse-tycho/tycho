@@ -22,15 +22,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -204,6 +207,14 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return mf.toArtifactKey();
     }
 
+    public ArtifactKey readOrCreateArtifactKey(File location, Supplier<ArtifactKey> supplier) {
+        try {
+            return readArtifactKey(location);
+        } catch (OsgiManifestParserException e) {
+            return supplier.get();
+        }
+    }
+
     @Override
     public String getManifestValue(String key, MavenProject project) {
         return getManifest(DefaultReactorProject.adapt(project)).getValue(key);
@@ -275,7 +286,92 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<AccessRule> bootClasspathExtraAccessRules = dependencyComputer.computeBootClasspathExtraAccessRules(state);
 
         addPDESourceRoots(project);
-        return new BundleClassPath(classpath, strictBootClasspathAccessRules, bootClasspathExtraAccessRules);
+        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream()
+                .collect(Collectors.groupingBy(cpe -> cpe.getArtifactKey(), LinkedHashMap::new, Collectors.toList()));
+        if (logger.isDebugEnabled()) {
+            for (var entry : classpathMap.entrySet()) {
+                List<ClasspathEntry> list = entry.getValue();
+                if (list.size() > 1) {
+                    logger.info("The following classpath entries are not unique for the artifact key " + entry.getKey()
+                            + " and will be merged:");
+                    for (ClasspathEntry cpe : list) {
+                        logger.info("\tLocations: " + cpe.getLocations());
+                        Collection<AccessRule> rules = cpe.getAccessRules();
+                        logger.info("\tRules: " + (rules == null ? "-access all-" : rules.toString()));
+                    }
+                }
+            }
+        }
+        List<ClasspathEntry> uniqueClasspath = classpathMap.entrySet().stream().flatMap(entry -> {
+            List<ClasspathEntry> list = entry.getValue();
+            if (list.isEmpty()) {
+                return Stream.empty();
+            }
+            if (list.size() == 1) {
+                return list.stream();
+            }
+            ArtifactKey key = entry.getKey();
+            ReactorProject compositeProject = findProjectForKey(reactorProject, key);
+            List<File> compositeFiles = list.stream().flatMap(cpe -> cpe.getLocations().stream())
+                    .collect(Collectors.toList());
+            Collection<AccessRule> compositeRules = mergeRules(list);
+            return Stream.of(new ClasspathEntry() {
+
+                @Override
+                public ArtifactKey getArtifactKey() {
+                    return key;
+                }
+
+                @Override
+                public ReactorProject getMavenProject() {
+                    return compositeProject;
+                }
+
+                @Override
+                public List<File> getLocations() {
+                    return compositeFiles;
+                }
+
+                @Override
+                public Collection<AccessRule> getAccessRules() {
+                    return compositeRules;
+                }
+
+                @Override
+                public String toString() {
+                    ReactorProject mavenProject = getMavenProject();
+                    return "MergedClasspathEntry [key=" + getArtifactKey() + ", project="
+                            + (mavenProject != null ? mavenProject.getId() : "null") + ", locations=" + getLocations()
+                            + ", rules=" + getAccessRules() + "]";
+                }
+
+            });
+        }).collect(Collectors.toList());
+        return new BundleClassPath(uniqueClasspath, strictBootClasspathAccessRules, bootClasspathExtraAccessRules);
+    }
+
+    private Collection<AccessRule> mergeRules(List<ClasspathEntry> list) {
+        Set<AccessRule> joinedRules = new LinkedHashSet<ClasspathEntry.AccessRule>();
+        for (ClasspathEntry cpe : list) {
+            Collection<AccessRule> rules = cpe.getAccessRules();
+            if (rules == null) {
+                //according to API null means = export all packages...
+                return null;
+            }
+            joinedRules.addAll(rules);
+        }
+        return joinedRules;
+    }
+
+    private ReactorProject findProjectForKey(ReactorProject root, ArtifactKey key) {
+        MavenSession mavenSession = getMavenSession(root);
+        for (MavenProject p : mavenSession.getProjects()) {
+            ReactorProject rp = DefaultReactorProject.adapt(p);
+            if (rp.getContextValue(CTX_ARTIFACT_KEY) == key) {
+                return rp;
+            }
+        }
+        return null;
     }
 
     private Collection<ClasspathEntry> computeExtraTestClasspath(ReactorProject reactorProject) {
@@ -295,7 +391,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     for (Entry entry : resolutionResult.getArtifacts()) {
                         logger.debug("Resolved " + entry.getId() + "::" + entry.getVersion() + "...");
                         File location = entry.getLocation(true);
-                        list.add(new DefaultClasspathEntry(reactorProject, entry, Collections.singletonList(location),
+                        list.add(new DefaultClasspathEntry(null, entry, Collections.singletonList(location),
                                 Collections.singletonList(new DefaultAccessRule("**/*", false))));
                     }
                 }
@@ -503,18 +599,18 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (ProjectClasspathEntry entry : pdeProject.getClasspathEntries()) {
             if (entry instanceof LibraryClasspathEntry) {
                 LibraryClasspathEntry libraryClasspathEntry = (LibraryClasspathEntry) entry;
-                ArtifactKey projectKey = getArtifactKey(project);
-                classpath.add(new DefaultClasspathEntry(project, projectKey,
-                        Collections.singletonList(libraryClasspathEntry.getLibraryPath()), null));
+                File path = libraryClasspathEntry.getLibraryPath();
+                classpath.add(new DefaultClasspathEntry(null, readOrCreateArtifactKey(path, () -> {
+                    return new DefaultArtifactKey("jar", path.getAbsolutePath());
+                }), Collections.singletonList(path), null));
             }
         }
         //Fragments are like embedded depdnecies...
         for (ArtifactDescriptor fragment : artifacts.getFragments()) {
-            ArtifactKey projectKey = getArtifactKey(project);
             File location = fragment.getLocation(true);
             if (location != null) {
-                classpath
-                        .add(new DefaultClasspathEntry(project, projectKey, Collections.singletonList(location), null));
+                classpath.add(new DefaultClasspathEntry(null, readArtifactKey(location),
+                        Collections.singletonList(location), null));
             }
         }
         try {
@@ -530,8 +626,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 logger.debug("Resolved declarative service specification " + specificationVersion + " to "
                         + dsJar.getId() + " " + dsJar.getVersion() + " " + location);
                 DefaultAccessRule rule = new DefaultAccessRule("org/osgi/service/component/annotations/*", false);
-                classpath.add(new DefaultClasspathEntry(project, getArtifactKey(project),
-                        Collections.singletonList(location), List.of(rule)));
+                classpath.add(
+                        new DefaultClasspathEntry(null, dsJar, Collections.singletonList(location), List.of(rule)));
             }
         } catch (IOException e) {
             logger.warn("Can't read Declarative Services Configuration: " + e.getMessage(), e);

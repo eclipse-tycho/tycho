@@ -64,6 +64,8 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
@@ -770,14 +772,17 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 }
 
                 for (Artifact b : result.getArtifacts()) {
-                    MavenProject bProject = null;
+                    ReactorProject bProject = null;
                     if (b instanceof ProjectArtifact) {
-                        bProject = ((ProjectArtifact) b).getProject();
+                        bProject = DefaultReactorProject.adapt(((ProjectArtifact) b).getProject());
                     }
                     ArrayList<File> bLocations = new ArrayList<>();
                     bLocations.add(b.getFile()); // TODO properly handle multiple project locations maybe
-                    classpath.add(
-                            new DefaultClasspathEntry(DefaultReactorProject.adapt(bProject), null, bLocations, null));
+                    classpath.add(new DefaultClasspathEntry(bProject,
+                            ((OsgiBundleProject) getBundleProject()).readOrCreateArtifactKey(b.getFile(), () -> {
+                                return new DefaultArtifactKey(b.getType(), b.getGroupId() + "." + b.getArtifactId(),
+                                        b.getVersion());
+                            }), bLocations, null));
                 }
             }
         }
