@@ -9,6 +9,7 @@ Fixes:
 - The official maven keyserver is just to slow use ubuntu as an alternative mirror first
 - [Maven-Target] Consider extra-repositories when fetching source-jars
 - DS generation fails with latest eclipse release for UI bundles
+- PomDependencyCollector uses a wrong type for pom declared feature dependencies
 
 ## 2.7.3
 Fixes:
