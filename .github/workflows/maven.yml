@@ -38,7 +38,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.3
+      uses: stCarolas/setup-maven@v4.4
       with:
         maven-version: 3.8.6
     - name: Build Tycho
