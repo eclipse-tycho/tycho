@@ -8,6 +8,7 @@ Fixes:
 - Support bnd processing in pomless builds
 - The official maven keyserver is just to slow use ubuntu as an alternative mirror first
 - [Maven-Target] Consider extra-repositories when fetching source-jars
+- DS generation fails with latest eclipse release for UI bundles
 
 ## 2.7.3
 Fixes:
