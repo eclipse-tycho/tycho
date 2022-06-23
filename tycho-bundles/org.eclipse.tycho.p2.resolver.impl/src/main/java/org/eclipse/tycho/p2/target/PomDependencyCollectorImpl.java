@@ -189,8 +189,14 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     public ArtifactKey getArtifactKey(IArtifactFacade facade) {
         IArtifactDescriptor artifactDescriptor = descriptorMap.get(facade);
         if (artifactDescriptor == null) {
-            return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, facade.getArtifactId(),
-                    facade.getVersion());
+            //TODO should we simply use the packaging type here??
+            String type = ArtifactType.TYPE_ECLIPSE_PLUGIN;
+            if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(facade.getPackagingType())) {
+                type = ArtifactType.TYPE_ECLIPSE_FEATURE;
+            } else {
+                type = ArtifactType.TYPE_ECLIPSE_PLUGIN;
+            }
+            return new DefaultArtifactKey(type, facade.getArtifactId(), facade.getVersion());
         }
         IArtifactKey artifactKey = artifactDescriptor.getArtifactKey();
         return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, artifactKey.getId(),
