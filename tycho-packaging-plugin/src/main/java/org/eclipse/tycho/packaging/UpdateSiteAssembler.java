@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -185,7 +185,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
         ZipUnArchiver unzip;
         FileLockService fileLockService;
         try {
-            unzip = (ZipUnArchiver) session.lookup(ZipUnArchiver.ROLE, "zip");
+			unzip = session.lookup(ZipUnArchiver.class, "zip");
             fileLockService = (FileLockService) session.lookup(FileLockService.class.getName());
         } catch (ComponentLookupException e) {
             throw new RuntimeException("Could not lookup required component", e);
@@ -241,7 +241,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
     private void packDir(File sourceDir, File targetZip) {
         ZipArchiver archiver;
         try {
-            archiver = (ZipArchiver) session.lookup(ZipArchiver.ROLE, "zip");
+			archiver = session.lookup(ZipArchiver.class, "zip");
         } catch (ComponentLookupException e) {
             throw new RuntimeException("Unable to resolve ZipArchiver", e);
         }
