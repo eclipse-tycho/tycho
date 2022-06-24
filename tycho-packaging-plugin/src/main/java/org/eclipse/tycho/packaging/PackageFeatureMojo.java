@@ -34,7 +34,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -260,7 +259,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     private JarArchiver getJarArchiver() throws MojoExecutionException {
         try {
-            return (JarArchiver) plexus.lookup(Archiver.ROLE, "jar");
+			return plexus.lookup(JarArchiver.class, "jar");
         } catch (ComponentLookupException e) {
             throw new MojoExecutionException("Unable to get JarArchiver", e);
         }

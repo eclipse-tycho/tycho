@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -384,7 +384,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     private void createProductArchive(File target, String classifier) throws MojoExecutionException {
         ZipArchiver zipper;
         try {
-            zipper = (ZipArchiver) plexus.lookup(ZipArchiver.ROLE, "zip");
+			zipper = plexus.lookup(ZipArchiver.class, "zip");
         } catch (ComponentLookupException e) {
             throw new MojoExecutionException("Unable to resolve ZipArchiver", e);
         }
