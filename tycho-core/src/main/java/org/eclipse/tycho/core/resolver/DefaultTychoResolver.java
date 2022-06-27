@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +67,6 @@ public class DefaultTychoResolver implements TychoResolver {
     public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
     public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
     public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
-    public static final String PROPERTY_PREFIX = "pom.model.property.";
 
     @Override
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
@@ -97,7 +93,6 @@ public class DefaultTychoResolver implements TychoResolver {
         reactorProject.setContextValue(TychoConstants.CTX_MERGED_PROPERTIES, properties);
 
         setTychoEnvironmentProperties(properties, project);
-        setBuildProperties(project);
 
         TargetPlatformConfiguration configuration = configurationReader.getTargetPlatformConfiguration(session,
                 project);
@@ -195,29 +190,4 @@ public class DefaultTychoResolver implements TychoResolver {
         project.getProperties().put(TYCHO_ENV_OSGI_OS, os);
         project.getProperties().put(TYCHO_ENV_OSGI_ARCH, arch);
     }
-
-    protected void setBuildProperties(MavenProject project) {
-        File pomfile = project.getFile();
-        if (pomfile != null) {
-            File buildPropertiesFile = new File(pomfile.getParentFile(), "build.properties");
-            if (buildPropertiesFile.isFile() && buildPropertiesFile.length() > 0) {
-                Properties buildProperties = new Properties();
-                try {
-                    try (FileInputStream stream = new FileInputStream(buildPropertiesFile)) {
-                        buildProperties.load(stream);
-                    }
-                    Properties projectProperties = project.getProperties();
-                    buildProperties.stringPropertyNames().forEach(key -> {
-                        if (key.startsWith(PROPERTY_PREFIX)) {
-                            projectProperties.setProperty(key.substring(PROPERTY_PREFIX.length()),
-                                    buildProperties.getProperty(key));
-                        }
-                    });
-                } catch (IOException e) {
-                    logger.warn("reading build.properties from project " + project.getName() + " failed", e);
-                }
-            }
-        }
-    }
-
 }

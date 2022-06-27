@@ -277,15 +277,18 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         String location = PolyglotModelUtil.getLocation(options);
         File file = new File(location);
         try {
-            if (file.isDirectory()) {
-                return getBuildProperties(file);
-            } else if (file.isFile()) {
-                return getBuildProperties(file.getParentFile());
-            }
+            return getEnhancementProperties(file);
         } catch (IOException e) {
             logger.warn("reading EnhancementProperties encountered a problem and was skipped for this reason", e);
         }
         return null;
+    }
+
+    protected Properties getEnhancementProperties(File file) throws IOException {
+        if (file.isDirectory()) {
+            return getBuildProperties(file);
+        }
+        return getBuildProperties(file.getParentFile());
     }
 
     private static void setLocation(Model model, File modelSource) {
