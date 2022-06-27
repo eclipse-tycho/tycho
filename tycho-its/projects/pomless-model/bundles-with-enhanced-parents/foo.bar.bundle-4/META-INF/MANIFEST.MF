@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plugin
+Bundle-SymbolicName: foo.bar.bundle-4
+Bundle-Version: 1.0.0
+Automatic-Module-Name: foo.bar.plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-11
