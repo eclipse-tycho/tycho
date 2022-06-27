@@ -11,6 +11,7 @@ Fixes:
 - DS generation fails with latest eclipse release for UI bundles
 - PomDependencyCollector uses a wrong type for pom declared feature dependencies
 - Not all (direct) requirements of a feature are considered when building an update-site
+- Fix Mojo Configuration of DS Plugin is ignored
 
 ## 2.7.3
 Fixes:
