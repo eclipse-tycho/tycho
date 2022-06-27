@@ -37,6 +37,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -66,7 +67,7 @@ public final class MavenDependencyInjector {
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
             DependencyArtifacts testDependencies, BundleReader bundleReader,
             Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger,
-            RepositorySystem repositorySystem) {
+            RepositorySystem repositorySystem, Settings settings) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
@@ -97,7 +98,11 @@ public final class MavenDependencyInjector {
                             + reference.getUrl() + ", existing URL = " + artifactRepository.getUrl());
                 }
             }
-            project.setRemoteArtifactRepositories(new ArrayList<>(repositoryMap.values()));
+            List<ArtifactRepository> artifactRepositories = new ArrayList<>(repositoryMap.values());
+            repositorySystem.injectMirror(artifactRepositories, settings.getMirrors());
+            repositorySystem.injectProxy(artifactRepositories, settings.getProxies());
+            repositorySystem.injectAuthentication(artifactRepositories, settings.getServers());
+            project.setRemoteArtifactRepositories(artifactRepositories);
         }
     }
 

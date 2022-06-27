@@ -100,6 +100,9 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
         } else {
             request.setRemoteRepositories(mavenSession.getCurrentProject().getRemoteArtifactRepositories());
         }
+        repositorySystem.injectMirror(request.getRemoteRepositories(), mavenSession.getSettings().getMirrors());
+        repositorySystem.injectProxy(request.getRemoteRepositories(), mavenSession.getSettings().getProxies());
+        repositorySystem.injectAuthentication(request.getRemoteRepositories(), mavenSession.getSettings().getServers());
         ArtifactResolutionResult result = repositorySystem.resolve(request);
         if (result.hasExceptions()) {
             throw new DependencyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
