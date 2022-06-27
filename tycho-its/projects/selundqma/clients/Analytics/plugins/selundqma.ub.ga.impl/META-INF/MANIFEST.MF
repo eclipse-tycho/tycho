@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Google Analytics Implementation
+Bundle-SymbolicName: com.selundqma.ub.ga.impl
+Bundle-Version: 22.7.1.qualifier
+Bundle-Vendor: selundqma
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.eclipse.core.runtime
+Import-Package: com.selundqma.cs.generic.security
+Bundle-Activator: com.selundqma.ub.ga.impl.Activator
+Automatic-Module-Name: com.selundqma.ub.ga.impl

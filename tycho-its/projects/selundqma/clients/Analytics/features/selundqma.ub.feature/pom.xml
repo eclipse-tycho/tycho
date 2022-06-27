@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.selundqma.client.bord</groupId>
+    <artifactId>com.selundqma.ub.parent</artifactId>
+    <version>22.7.1-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>com.selundqma.ub.feature</artifactId>
+  <packaging>eclipse-feature</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.selundqma.client.client-common</groupId>
+      <artifactId>com.selundqma.cs.generic</artifactId>
+      <version>22.7.1-SNAPSHOT</version>
+    </dependency>
+	
+  </dependencies>
+
+	<!-- Allow mismatch between Maven and OSGI version of a plugin. To handle SNAPSHOT timestamps -->
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-packaging-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<strictVersions>false</strictVersions>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

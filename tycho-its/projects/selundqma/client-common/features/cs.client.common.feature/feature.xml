@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.selundqma.cs.client.common.feature"
+      label="Client Common"
+      version="22.7.1.qualifier"
+      provider-name="selundqma">
+
+   <copyright>
+      selundqma
+   </copyright>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+   </requires>
+
+</feature>

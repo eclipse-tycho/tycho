@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.selundqma.client</groupId>
+    <artifactId>client-parent</artifactId>
+    <version>22.7.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <!--tycho-version>2.7.3</tycho-version-->
+        <target-platform-version>22.7.1-SNAPSHOT</target-platform-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
+        <maven-dependency-plugin-version>3.1.2</maven-dependency-plugin-version>
+		<tycho-version>2.7.3</tycho-version>
+    </properties>
+
+    <modules>
+        <!-- Modules in other gits -->
+        <module>client-common</module>
+        <module>client-target-platform</module>
+        <module>clients</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>4.3</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <extensions>true</extensions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-versions-plugin</artifactId>
+                <version>${tycho-version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-compiler-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                    <!-- Remove below if project settings from eclipse shall be used by Tycho -->
+                    <useProjectSettings>false</useProjectSettings>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>compiletests</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                    <pomDependencies>consider</pomDependencies>
+                    <target>
+                        <artifact>
+                            <groupId>com.selundqma.client.client-target-platform</groupId>
+                            <artifactId>2022-03</artifactId>
+                            <version>${target-platform-version}</version>
+                        </artifact>
+                    </target>
+                    <executionEnvironment>JavaSE-${maven.compiler.source}</executionEnvironment>
+                    <environments>
+                        <environment>
+                            <os>win32</os>
+                            <ws>win32</ws>
+                            <arch>x86_64</arch>
+                        </environment>
+                        <environment>
+                            <os>macosx</os>
+                            <ws>cocoa</ws>
+                            <arch>x86_64</arch>
+                        </environment>
+                    </environments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
