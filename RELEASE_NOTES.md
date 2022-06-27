@@ -12,6 +12,7 @@ Fixes:
 - PomDependencyCollector uses a wrong type for pom declared feature dependencies
 - Not all (direct) requirements of a feature are considered when building an update-site
 - Fix Mojo Configuration of DS Plugin is ignored
+- Check that components declared in the manifest exits
 
 ## 2.7.3
 Fixes:
