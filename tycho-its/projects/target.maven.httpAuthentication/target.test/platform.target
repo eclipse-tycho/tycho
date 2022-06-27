@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+<target name="platform">
+  <locations>
+
+		<location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="DSA 3pps" missingManifest="generate" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>test</groupId>
+					<artifactId>bundle</artifactId>
+					<version>1.0.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+			<repositories>
+				<repository>
+					<id>test-server</id>
+					<url>https://nexusext.app.corp.dsa.de/repository/sfp-alp-eal-group-releases/</url>
+				</repository>
+			</repositories>
+		</location>
+  </locations>
+</target>
