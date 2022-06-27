@@ -25,4 +25,10 @@ public interface DeclarativeServicesConfiguration {
      */
     Version getSpecificationVersion();
 
+    /**
+     * 
+     * @return the path where generated data should be placed
+     */
+    String getPath();
+
 }
