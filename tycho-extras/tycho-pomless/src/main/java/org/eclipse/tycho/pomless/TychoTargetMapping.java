@@ -16,13 +16,11 @@
 package org.eclipse.tycho.pomless;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
-import org.apache.maven.model.io.ModelParseException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
@@ -50,33 +48,28 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
         if (file.exists()) {
             return file;
         }
-        File[] listFiles = dir.listFiles((FileFilter) file1 -> file1.getName().endsWith(TARGET_EXTENSION)
-                && !file1.getName().startsWith(".polyglot.") && file1.isFile());
-        if (listFiles != null && listFiles.length > 0) {
-            if (listFiles.length == 1) {
-                return listFiles[0];
-            } else {
-                String sb = Arrays.stream(listFiles).map(File::getName).collect(Collectors.joining(", "));
+        try (var targetFiles = filesWithExtension(dir.toPath(), TARGET_EXTENSION)) {
+            List<File> files = targetFiles.collect(Collectors.toList());
+            if (files.size() == 1) {
+                return files.get(0);
+            } else if (files.size() > 1) {
+                String sb = files.stream().map(File::getName).collect(Collectors.joining(", "));
                 throw new IllegalArgumentException("only one " + TARGET_EXTENSION
                         + " file is allowed per target project, or target must be named like the folder (<foldername>"
                         + TARGET_EXTENSION + "), the following targets where found: " + sb);
             }
+        } catch (IOException e) { // ignore
         }
         return null;
     }
 
     @Override
-    protected void initModelFromXML(Model model, Element xml, File artifactFile)
-            throws ModelParseException, IOException {
+    protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
         String fileName = artifactFile.getName();
         String artifactId = fileName.substring(0, fileName.length() - TARGET_EXTENSION.length());
         model.setArtifactId(artifactId);
         String name = getXMLAttributeValue(xml, "name");
-        if (name != null) {
-            model.setName(NAME_PREFIX + name);
-        } else {
-            model.setName(NAME_PREFIX + artifactId);
-        }
+        model.setName(NAME_PREFIX + (name != null ? name : artifactId));
     }
 
 }

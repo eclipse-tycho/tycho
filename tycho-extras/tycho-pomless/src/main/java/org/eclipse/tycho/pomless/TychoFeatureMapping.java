@@ -16,14 +16,12 @@
 package org.eclipse.tycho.pomless;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
-import org.apache.maven.model.io.ModelParseException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
@@ -36,48 +34,22 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
     public static final String PACKAGING = "eclipse-feature";
 
     @Override
-    protected void initModelFromXML(Model model, Element xml, File artifactFile)
-            throws ModelParseException, IOException {
+    protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
         model.setArtifactId(getRequiredXMLAttributeValue(xml, "id"));
         model.setVersion(getPomVersion(getRequiredXMLAttributeValue(xml, "version")));
-        Properties featureProperties = new Properties();
-        loadFeatureProperties(artifactFile, featureProperties);
-        String label = getExternalizedXMLAtttributeValue(xml, featureProperties, "label");
-        if (label != null) {
-            model.setName(NAME_PREFIX + label);
-        } else {
-            model.setName(NAME_PREFIX + model.getArtifactId());
-        }
-        String provider = getExternalizedXMLAtttributeValue(xml, featureProperties, "provider-name");
+
+        File featureProperties = new File(artifactFile.getParentFile(), "feature.properties");
+        Supplier<Properties> properties = getPropertiesSupplier(featureProperties);
+
+        String label = localizedValue(getXMLAttributeValue(xml, "label"), properties);
+        model.setName(NAME_PREFIX + (label != null ? label : model.getArtifactId()));
+
+        String provider = localizedValue(getXMLAttributeValue(xml, "provider-name"), properties);
         if (provider != null) {
             Organization organization = new Organization();
             organization.setName(provider);
             model.setOrganization(organization);
         }
-    }
-
-    private void loadFeatureProperties(File artifactFile, Properties externalized) {
-        File featureProperties = new File(artifactFile.getParentFile(), "feature.properties");
-        if (featureProperties.exists()) {
-            try (InputStream stream = new FileInputStream(featureProperties)) {
-                externalized.load(stream);
-            } catch (IOException e) {
-                // ignore externalzied data
-            }
-        }
-    }
-
-    private String getExternalizedXMLAtttributeValue(Element element, Properties properties, String attributeName) {
-        String attribute = getXMLAttributeValue(element, attributeName);
-        if (attribute != null && !attribute.isEmpty() && attribute.startsWith("%")) {
-            //load value from feature properties
-            String translation = properties.getProperty(attribute.substring(1));
-            if (translation != null && !translation.isEmpty()) {
-                return translation;
-            }
-        }
-        return attribute;
-
     }
 
     @Override

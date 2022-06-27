@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.model.Build;
@@ -43,7 +45,7 @@ import org.w3c.dom.Element;
 public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     private static final String ARCHIVE_PRODUCTS_ID = "archive-products";
     private static final String MATERIALIZE_PRODUCTS_ID = "materialize-products";
-    private static final String[] PRODUCT_EXECUTIONS = { ARCHIVE_PRODUCTS_ID, MATERIALIZE_PRODUCTS_ID };
+    private static final List<String> PRODUCT_EXECUTIONS = List.of(ARCHIVE_PRODUCTS_ID, MATERIALIZE_PRODUCTS_ID);
     private static final String PRODUCT_NAME_PREFIX = "[product] ";
     private static final String PRODUCT_NAME_ATTRIBUTE = "name";
     private static final String PRODUCT_VERSION_ATTRIBUTE = "version";
@@ -59,38 +61,36 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected void initModel(Model model, Reader artifactReader, File artifactFile)
-            throws ModelParseException, IOException {
+    protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
         if (artifactFile.getName().endsWith(PRODUCT_EXTENSION)) {
             File projectRoot = artifactFile.getParentFile();
-            File[] products = listProducts(projectRoot);
-            if (products.length > 1) {
-                //multiple products must inherit version from parent but get the artifact-id from the parent-folder
-                model.setArtifactId(projectRoot.getName());
-                Plugin directorPlugin = createDirectorPlugin(model);
-                List<String> names = new ArrayList<>();
-                for (File file : products) {
-                    Element productXml = parseXML(new FileReader(file, getPrimaryArtifactCharset()),
-                            file.toURI().toASCIIString());
-                    String baseName = FilenameUtils.getBaseName(file.getName());
-                    String name = getXMLAttributeValue(productXml, PRODUCT_NAME_ATTRIBUTE);
-                    if (name == null) {
-                        names.add(baseName);
-                    } else {
-                        names.add(name);
+            try (var files = filesWithExtension(projectRoot.toPath(), PRODUCT_EXTENSION)) {
+                List<File> products = files.collect(Collectors.toList());
+                if (products.size() > 1) {
+                    //multiple products must inherit version from parent but get the artifact-id from the parent-folder
+                    model.setArtifactId(projectRoot.getName());
+                    Plugin directorPlugin = createDirectorPlugin(model);
+                    List<String> names = new ArrayList<>();
+                    for (File file : products) {
+                        Element productXml;
+                        try (FileReader reader = new FileReader(file, getPrimaryArtifactCharset())) {
+                            productXml = parseXML(reader, file.toURI().toASCIIString());
+                        }
+                        String baseName = FilenameUtils.getBaseName(file.getName());
+                        String name = getXMLAttributeValue(productXml, PRODUCT_NAME_ATTRIBUTE);
+                        names.add(null == name ? baseName : name);
+                        addProduct(directorPlugin, productXml, baseName);
                     }
-                    addProduct(directorPlugin, productXml, baseName);
+                    model.setName(PRODUCT_NAME_PREFIX + String.join(", ", names));
+                    return;
                 }
-                model.setName(PRODUCT_NAME_PREFIX + String.join(", ", names));
-                return;
             }
         }
         super.initModel(model, artifactReader, artifactFile);
     }
 
     @Override
-    protected void initModelFromXML(Model model, Element xml, File artifactFile)
-            throws ModelParseException, IOException {
+    protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
         if (artifactFile.getName().endsWith(PRODUCT_EXTENSION)) {
             model.setArtifactId(getRequiredXMLAttributeValue(xml, PRODUCT_UID_ATTRIBUTE));
             String version = getXMLAttributeValue(xml, PRODUCT_VERSION_ATTRIBUTE);
@@ -98,18 +98,14 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
                 model.setVersion(getPomVersion(version));
             }
             String name = getXMLAttributeValue(xml, PRODUCT_NAME_ATTRIBUTE);
-            if (name != null) {
-                model.setName(PRODUCT_NAME_PREFIX + name);
-            } else {
-                model.setName(PRODUCT_NAME_PREFIX + model.getArtifactId());
-            }
+            model.setName(PRODUCT_NAME_PREFIX + (name != null ? name : model.getArtifactId()));
             addProduct(createDirectorPlugin(model), xml, null);
         } else {
-            initFromCategory(model, xml, artifactFile);
+            initFromCategory(model, artifactFile);
         }
     }
 
-    private void initFromCategory(Model model, Element xml, File categoryXml) {
+    private static void initFromCategory(Model model, File categoryXml) {
         String name = categoryXml.getParentFile().getName();
         if (!name.endsWith(UPDATE_SITE_SUFFIX)) {
             name = name + UPDATE_SITE_SUFFIX;
@@ -125,22 +121,16 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
 
     @Override
     protected File getPrimaryArtifact(File projectRoot) {
-        File[] productFiles = listProducts(projectRoot);
-        if (productFiles.length > 0) {
-            for (File file : productFiles) {
-                if (file.isFile()) {
-                    return file;
-                }
-            }
+        Optional<File> repoFile;
+        try (var files = filesWithExtension(projectRoot.toPath(), PRODUCT_EXTENSION)) {
+            repoFile = files.findFirst();
+        } catch (IOException e) {
+            repoFile = Optional.empty();// ignore
         }
-        File category = new File(projectRoot, CATEGORY_XML);
-        if (category.exists()) {
-            return category;
-        }
-        return null;
+        return repoFile.or(() -> Optional.of(new File(projectRoot, CATEGORY_XML)).filter(File::exists)).orElse(null);
     }
 
-    public static void addProduct(Plugin directorPlugin, Element productXml, String attachId)
+    private static void addProduct(Plugin directorPlugin, Element productXml, String attachId)
             throws ModelParseException {
         Map<String, PluginExecution> map = directorPlugin.getExecutionsAsMap();
         for (String executionId : PRODUCT_EXECUTIONS) {
@@ -168,7 +158,7 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
         }
     }
 
-    public static Plugin createDirectorPlugin(Model model) {
+    private static Plugin createDirectorPlugin(Model model) {
         Build build = model.getBuild();
         if (build == null) {
             model.setBuild(build = new Build());
@@ -187,14 +177,4 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
         plugin.addExecution(archive);
         return plugin;
     }
-
-    public static File[] listProducts(File projectRoot) {
-        File[] productFiles = projectRoot.listFiles(
-                (File dir, String name) -> name.endsWith(PRODUCT_EXTENSION) && !name.startsWith(".polyglot"));
-        if (productFiles == null) {
-            return new File[0];
-        }
-        return productFiles;
-    }
-
 }
