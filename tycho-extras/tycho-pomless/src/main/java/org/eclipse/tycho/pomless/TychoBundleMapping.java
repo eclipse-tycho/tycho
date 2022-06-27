@@ -113,6 +113,12 @@ public class TychoBundleMapping extends AbstractTychoMapping {
 
     }
 
+    @Override
+    protected Properties getEnhancementProperties(File file) throws IOException {
+        //Look up build.properties in the project's root. The passed file points to the 'META-INF' folder.
+        return getBuildProperties(file.getParentFile());
+    }
+
     private static Plugin createBndPlugin(Model model) {
         //See https://github.com/bndtools/bnd/blob/master/maven/bnd-maven-plugin/README.md#bnd-process-goal 
         Build build = model.getBuild();
