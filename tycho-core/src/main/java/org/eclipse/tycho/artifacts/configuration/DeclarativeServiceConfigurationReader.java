@@ -28,11 +28,14 @@ import org.osgi.framework.Version;
 @Component(role = DeclarativeServiceConfigurationReader.class)
 public class DeclarativeServiceConfigurationReader {
 
+    private static final String DS_PLUGIN = "org.eclipse.tycho:tycho-ds-plugin";
     public static final String DEFAULT_ADD_TO_CLASSPATH = "true";
     public static final String DEFAULT_DS_VERSION = "1.3";
+    public static final String DEFAULT_PATH = "OSGI-INF";
     private static final String PROPERTY_CLASSPATH = "classpath";
     private static final String PROPERTY_DS_VERSION = "dsVersion";
     private static final String PROPERTY_ENABLED = "enabled";
+    private static final String PROPERTY_PATH = "path";
 
     private static final String PDE_DS_ANNOTATIONS_PREFS = ".settings/org.eclipse.pde.ds.annotations.prefs";
 
@@ -58,6 +61,11 @@ public class DeclarativeServiceConfigurationReader {
                     }
                     return Version.parseVersion(property);
                 }
+
+                @Override
+                public String getPath() {
+                    return settings.getProperty(PROPERTY_PATH, DEFAULT_PATH);
+                }
             };
         }
         return null;
@@ -74,12 +82,13 @@ public class DeclarativeServiceConfigurationReader {
                         + System.lineSeparator() + properties);
             }
         }
+        logger.debug("Project configuration for " + mavenProject + ": " + properties);
         return properties;
     }
 
     private static Properties getMojoSettings(MavenProject project, Logger logger) {
         Properties properties = new Properties();
-        Plugin plugin = project.getPlugin("org.eclipse.tycho:tycho-ds-plugin");
+        Plugin plugin = project.getPlugin(DS_PLUGIN);
         if (plugin != null) {
             Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
             if (configuration != null) {
@@ -87,17 +96,26 @@ public class DeclarativeServiceConfigurationReader {
                     logger.debug("declarative-services mojo configuration for " + project.toString() + ":"
                             + System.lineSeparator() + configuration.toString());
                 }
-                setProperty(properties, PROPERTY_CLASSPATH, configuration.getAttribute(PROPERTY_CLASSPATH));
-                setProperty(properties, PROPERTY_DS_VERSION, configuration.getAttribute(PROPERTY_DS_VERSION));
-                setProperty(properties, PROPERTY_ENABLED, configuration.getAttribute(PROPERTY_ENABLED));
+                setProperty(properties, PROPERTY_CLASSPATH, configuration.getChild(PROPERTY_CLASSPATH));
+                setProperty(properties, PROPERTY_DS_VERSION, configuration.getChild(PROPERTY_DS_VERSION));
+                setProperty(properties, PROPERTY_ENABLED, configuration.getChild(PROPERTY_ENABLED));
+                setProperty(properties, PROPERTY_PATH, configuration.getChild(PROPERTY_PATH));
+                logger.debug("Mojo configuration for " + project + ": " + properties);
+            } else {
+                logger.debug("DS Plugin " + DS_PLUGIN + " has no useable configuration.");
             }
+        } else {
+            logger.debug("DS Plugin " + DS_PLUGIN + " not found");
         }
         return properties;
     }
 
-    private static void setProperty(Properties properties, String key, String attribute) {
-        if (attribute != null && !attribute.isEmpty()) {
-            properties.setProperty(key, attribute);
+    private static void setProperty(Properties properties, String key, Xpp3Dom xpp3Dom) {
+        if (xpp3Dom != null) {
+            String value = xpp3Dom.getValue();
+            if (value != null && !value.isBlank()) {
+                properties.setProperty(key, value);
+            }
         }
     }
 }

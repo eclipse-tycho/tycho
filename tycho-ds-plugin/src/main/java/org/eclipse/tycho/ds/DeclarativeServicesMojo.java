@@ -71,7 +71,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	/**
 	 * The desired path where to place component definitions
 	 */
-	@Parameter(property = "tycho.ds.path", defaultValue = "OSGI-INF")
+	@Parameter(property = "tycho.ds.path", defaultValue = DeclarativeServiceConfigurationReader.DEFAULT_PATH)
 	private String path = "OSGI-INF";
 
 	@Parameter(property = "project", readonly = true)
@@ -97,8 +97,9 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					return;
 				}
 				File outputDirectory = new File(project.getBuild().getOutputDirectory());
-				File targetDirectory = new File(outputDirectory, path);
-				File projectBaseDir = new File(project.getBasedir(), path);
+				String childPath = configuration.getPath();
+				File targetDirectory = new File(outputDirectory, childPath);
+				File projectBaseDir = new File(project.getBasedir(), childPath);
 				try (Jar mavenProjectJar = new Jar(project.getName(), outputDirectory, null);
 						Analyzer analyzer = new Analyzer(mavenProjectJar)) {
 					Map<String, Resource> directory = analyzer.getJar().getDirectory("OSGI-INF");
