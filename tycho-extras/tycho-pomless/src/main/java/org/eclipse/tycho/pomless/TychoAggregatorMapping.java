@@ -14,24 +14,24 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
+
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.apache.maven.model.Model;
-import org.apache.maven.model.io.ModelParseException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
@@ -75,16 +75,9 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
                 }
                 if (!modules.isEmpty()) {
                     file.deleteOnExit();
+                    Stream<CharSequence> lines = concat(of(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER), modules.stream());
                     try {
-                        try (BufferedWriter writer = new BufferedWriter(
-                                new OutputStreamWriter(new FileOutputStream(file), getPrimaryArtifactCharset()))) {
-                            writer.write(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER);
-                            writer.newLine();
-                            for (String module : modules) {
-                                writer.write(module);
-                                writer.newLine();
-                            }
-                        }
+                        Files.write(file.toPath(), lines::iterator, getPrimaryArtifactCharset());
                     } catch (IOException e) {
                         throw new RuntimeException("writing modules file failed", e);
                     }
@@ -103,15 +96,12 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
     }
 
     @Override
-    protected void initModel(Model model, Reader artifactReader, File artifactFile)
-            throws ModelParseException, IOException {
+    protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
         logger.debug("Generate aggregator pom for " + artifactFile);
         try (BufferedReader reader = new BufferedReader(artifactReader)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("#") || line.trim().isEmpty()) {
-                    continue;
-                }
+            Stream<String> lines = reader.lines().filter(l -> !l.startsWith("#") && !l.isBlank()).map(String::strip);
+            for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
+                String line = iterator.next();
                 logger.debug("Adding module " + line);
                 model.getModules().add(line);
             }
@@ -126,14 +116,10 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
     }
 
     private boolean isCurrent(File file) {
-        try {
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(file), getPrimaryArtifactCharset()),
-                    TYCHO_AUTOMATIC_GENERATED_FILE_HEADER.length() * 2)) {
-                String readLine = reader.readLine();
-                return readLine == null || !readLine.startsWith(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER_PREFIX)
-                        || readLine.equals(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER);
-            }
+        try (var lines = Files.lines(file.toPath(), getPrimaryArtifactCharset())) {
+            String firstLine = lines.findFirst().orElse(null);
+            return firstLine == null || !firstLine.startsWith(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER_PREFIX)
+                    || firstLine.equals(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER);
         } catch (IOException e) {
             //can't be sure, assume it is not stale then...
         }

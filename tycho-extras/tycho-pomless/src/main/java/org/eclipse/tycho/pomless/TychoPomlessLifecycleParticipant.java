@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -42,9 +41,8 @@ public class TychoPomlessLifecycleParticipant extends AbstractMavenLifecyclePart
         File moduleProjectDirectory = session.getRequest().getMultiModuleProjectDirectory();
         if (moduleProjectDirectory != null) {
             File extensionsFile = new File(moduleProjectDirectory, ".mvn/extensions.xml");
-            CoreExtensionsXpp3Reader parser = new CoreExtensionsXpp3Reader();
-            try (InputStream is = new BufferedInputStream(new FileInputStream(extensionsFile))) {
-                List<CoreExtension> extensions = parser.read(is).getExtensions();
+            try (InputStream is = new FileInputStream(extensionsFile)) {
+                List<CoreExtension> extensions = new CoreExtensionsXpp3Reader().read(is).getExtensions();
                 for (CoreExtension coreExtension : extensions) {
                     if ("org.eclipse.tycho.extras".equals(coreExtension.getGroupId())
                             && "tycho-pomless".equals(coreExtension.getArtifactId())) {

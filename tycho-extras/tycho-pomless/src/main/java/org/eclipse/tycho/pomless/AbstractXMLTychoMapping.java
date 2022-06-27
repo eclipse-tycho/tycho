@@ -17,6 +17,10 @@ package org.eclipse.tycho.pomless;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -40,13 +44,11 @@ public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
     private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
     @Override
-    protected void initModel(Model model, Reader artifactReader, File artifactFile)
-            throws ModelParseException, IOException {
+    protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
         initModelFromXML(model, parseXML(artifactReader, artifactFile.toURI().toASCIIString()), artifactFile);
     }
 
-    protected abstract void initModelFromXML(Model model, Element xml, File artifactFile)
-            throws ModelParseException, IOException;
+    protected abstract void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException;
 
     protected static Element parseXML(Reader artifactReader, String documentURI) throws IOException {
         try {
@@ -95,5 +97,12 @@ public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
     @Override
     public float getPriority() {
         return 1;
+    }
+
+    protected static Stream<File> filesWithExtension(Path directory, String extension) throws IOException {
+        Predicate<String> nameFilter = n -> !n.startsWith(".polyglot.") && n.endsWith(extension);
+        return Files.walk(directory, 1) //
+                .filter(p -> nameFilter.test(p.getFileName().toString())) // 
+                .filter(Files::isRegularFile).map(Path::toFile);
     }
 }
