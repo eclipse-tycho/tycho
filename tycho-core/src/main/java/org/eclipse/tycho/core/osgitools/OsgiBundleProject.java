@@ -351,7 +351,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private Collection<AccessRule> mergeRules(List<ClasspathEntry> list) {
-        Set<AccessRule> joinedRules = new LinkedHashSet<ClasspathEntry.AccessRule>();
+        Set<AccessRule> joinedRules = new LinkedHashSet<>();
         for (ClasspathEntry cpe : list) {
             Collection<AccessRule> rules = cpe.getAccessRules();
             if (rules == null) {
@@ -376,7 +376,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     private Collection<ClasspathEntry> computeExtraTestClasspath(ReactorProject reactorProject) {
 
-        List<ClasspathEntry> list = new ArrayList<ClasspathEntry>();
+        List<ClasspathEntry> list = new ArrayList<>();
         Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(reactorProject).getClasspathEntries();
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry) {

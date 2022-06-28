@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP SE and others.
+ * Copyright (c) 2011, 2022 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,6 +66,7 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
         return parse(baseDir, null);
     }
 
+    @Override
     public BuildProperties parse(File baseDir, Interpolator interpolator) {
         File propsFile = new File(baseDir, BUILD_PROPERTIES);
         long lastModified = propsFile.lastModified();
@@ -88,16 +89,8 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
     protected static Properties readProperties(File propsFile) {
         Properties properties = new Properties();
         if (propsFile.canRead()) {
-            InputStream is = null;
-            try {
-                try {
-                    is = new FileInputStream(propsFile);
-                    properties.load(is);
-                } finally {
-                    if (is != null) {
-                        is.close();
-                    }
-                }
+            try (InputStream is = new FileInputStream(propsFile)) {
+                properties.load(is);
             } catch (IOException e) {
                 // ignore
             }
