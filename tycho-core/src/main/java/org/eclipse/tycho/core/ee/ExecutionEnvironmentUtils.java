@@ -47,7 +47,7 @@ public class ExecutionEnvironmentUtils {
 
     private static Map<String, StandardExecutionEnvironment> executionEnvironmentsMap;
 
-    private static final Map<String, StandardExecutionEnvironment> surrogateExecutionEnvironmentsMap = new ConcurrentHashMap<String, StandardExecutionEnvironment>();
+    private static final Map<String, StandardExecutionEnvironment> surrogateExecutionEnvironmentsMap = new ConcurrentHashMap<>();
 
     private static Properties readProperties(final URL url) {
         Properties listProps = new Properties();
@@ -120,7 +120,7 @@ public class ExecutionEnvironmentUtils {
     private static synchronized Map<String, StandardExecutionEnvironment> getExecutionEnvironmentsMap(
             ToolchainManager manager, MavenSession session, Logger logger) {
         if (executionEnvironmentsMap == null) {
-            executionEnvironmentsMap = new LinkedHashMap<String, StandardExecutionEnvironment>();
+            executionEnvironmentsMap = new LinkedHashMap<>();
             Properties listProps = readProperties(findInSystemBundle("profile.list"));
             //first read all profiles that are part of the system...
             for (String profileFile : listProps.getProperty("java.profiles").split(",")) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -154,7 +154,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         // this tells framework to use our classloader as parent, so it can see classes that we see
         platformProperties.put("osgi.parentClassloader", "fwk");
 
-        if (extraSystemPackages.size() > 0) {
+        if (!extraSystemPackages.isEmpty()) {
             String extraPackages = String.join(",", extraSystemPackages);
             // make the system bundle export the given packages and load them from the parent class loader
             platformProperties.put("org.osgi.framework.system.packages.extra", extraPackages);

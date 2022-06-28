@@ -277,9 +277,8 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
 
         ArrayList<File> plugins = new ArrayList<>();
 
-        BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(bundlesInfo)));
         String line;
-        try {
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(bundlesInfo)))) {
             while ((line = r.readLine()) != null) {
                 if (line.startsWith("#")) //$NON-NLS-1$
                     continue;
@@ -299,8 +298,6 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
 
                 plugins.add(parsePlatformURL(pool, location));
             }
-        } finally {
-            r.close();
         }
 
         return plugins;

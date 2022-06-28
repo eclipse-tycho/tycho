@@ -40,7 +40,7 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
      */
     private static final Map<ArtifactDescriptor, ArtifactDescriptor> ARTIFACT_CACHE = new ConcurrentHashMap<>();
 
-    protected final List<ArtifactDescriptor> fragments = new ArrayList<ArtifactDescriptor>();
+    protected final List<ArtifactDescriptor> fragments = new ArrayList<>();
 
     /**
      * 'this' project, i.e. the project the dependencies were resolved for. can be null.

@@ -43,7 +43,7 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 @Component(role = WorkspaceReader.class, hint = "TychoWorkspaceReader")
-public class TychoWorkspaceReader implements WorkspaceReader, MavenWorkspaceReader {
+public class TychoWorkspaceReader implements MavenWorkspaceReader {
 
     private WorkspaceRepository repository;
 
@@ -82,7 +82,7 @@ public class TychoWorkspaceReader implements WorkspaceReader, MavenWorkspaceRead
                 if (findModel != null) {
                     try {
                         pomFile.getParentFile().mkdirs();
-                        modelWriter.write(pomFile, new HashMap<String, Object>(), findModel);
+                        modelWriter.write(pomFile, new HashMap<>(), findModel);
                         return pomFile;
                     } catch (IOException e) {
                         logger.debug("Can't write model!", e);

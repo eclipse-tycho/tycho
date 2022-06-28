@@ -90,7 +90,7 @@ public final class MavenDependencyInjector {
                             + reference.getUrl() + ", existing URL = " + artifactRepository.getUrl());
                 }
             }
-            project.setRemoteArtifactRepositories(new ArrayList<ArtifactRepository>(repositoryMap.values()));
+            project.setRemoteArtifactRepositories(new ArrayList<>(repositoryMap.values()));
         }
     }
 
