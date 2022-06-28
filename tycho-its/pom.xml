@@ -204,11 +204,6 @@
 			<version>2.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.maven.shared</groupId>
-			<artifactId>maven-shared-utils</artifactId>
-			<version>3.3.4</version>
-		</dependency>
-		<dependency>
 			<groupId>org.sonatype.sisu</groupId>
 			<artifactId>sisu-inject-plexus</artifactId>
 			<version>2.6.0</version>

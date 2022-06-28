@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 		File indexFile = new File(localRepository, FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
 		String[] bundles = { "org.eclipse.swt", "com.google.guava" };
 		if (indexFile.exists()) {
-			List<String> lines = FileUtils.readLines(indexFile, StandardCharsets.UTF_8);
+			List<String> lines = Files.readAllLines(indexFile.toPath(), StandardCharsets.UTF_8);
 			FileUtils.writeLines(indexFile, lines.stream().filter(line -> {
 				for (String bundle : bundles) {
 					if (line.contains("p2.osgi.bundle:" + bundle)) {
