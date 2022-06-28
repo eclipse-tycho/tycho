@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Modifier API
+Bundle-SymbolicName: tycho-its-project.issue1052.api
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: tycho-its-project.issue1052.api
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: issue1052.api;version="1.0.0"

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+    http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+    <modelVersion>4.0.0</modelVersion>
+	<groupId>tycho-its-project.issue1052</groupId>
+	<artifactId>tycho-its-project.issue1052.parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>tycho-snapshots</id>
+			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+    <properties>
+        <bnd.version>6.3.0</bnd.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
+    </properties>
+	
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <extensions>true</extensions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-packaging-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+				</configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                    <environments>
+                        <environment>
+                            <os>win32</os>
+                            <ws>win32</ws>
+                            <arch>x86_64</arch>
+                        </environment>
+                    </environments>
+
+					<target>
+						<artifact>
+							<groupId>tycho-its-project.issue1052</groupId>
+							<artifactId>tycho-its-project.issue1052.target</artifactId>
+							<version>${project.version}</version>
+						</artifact>
+					</target>
+
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+	
+	<modules>
+		<!-- PDE Target Definition -->
+		<module>tycho-its-project.issue1052.target</module>
+		
+		<!-- OSGi Services (API & Impl) -->
+		<module>tycho-its-project.issue1052.api</module>
+		<module>tycho-its-project.issue1052.impl</module>
+		
+		<!-- JAX-RS Whiteboard Application -->
+		<module>tycho-its-project.issue1052.jaxrs.product</module>
+	</modules>
+</project> 

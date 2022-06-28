@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="tycho-its-project.issue1052.jaxrs.product" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-console
+      </programArgs>
+      <vmArgs>-Declipse.ignoreApp=true -Dosgi.noShutdown=true -Dorg.osgi.service.http.port=8282
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="com.sun.activation.javax.activation"/>
+      <plugin id="jakarta.annotation-api"/>
+      <plugin id="jakarta.servlet-api"/>
+      <plugin id="jakarta.xml.bind-api"/>
+      <plugin id="org.apache.aries.javax.jax.rs-api"/>
+      <plugin id="org.apache.aries.jax.rs.whiteboard"/>
+      <plugin id="org.apache.felix.gogo.command"/>
+      <plugin id="org.apache.felix.gogo.runtime"/>
+      <plugin id="org.apache.felix.gogo.shell"/>
+      <plugin id="org.apache.felix.http.jetty"/>
+      <plugin id="org.apache.felix.http.servlet-api"/>
+      <plugin id="org.apache.felix.scr"/>
+      <plugin id="org.apache.servicemix.specs.annotation-api-1.3"/>
+      <plugin id="org.apache.servicemix.specs.jaxws-api-2.2"/>
+      <plugin id="org.apache.servicemix.specs.saaj-api-1.3"/>
+      <plugin id="org.eclipse.equinox.console"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="tycho-its-project.issue1052.api"/>
+      <plugin id="tycho-its-project.issue1052.impl"/>
+      <plugin id="org.osgi.service.jaxrs"/>
+      <plugin id="org.osgi.util.function"/>
+      <plugin id="org.osgi.util.promise"/>
+      <plugin id="org.slf4j.api"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="org.apache.aries.jax.rs.whiteboard" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.felix.http.jetty" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="0" />
+   </configurations>
+
+</product>
