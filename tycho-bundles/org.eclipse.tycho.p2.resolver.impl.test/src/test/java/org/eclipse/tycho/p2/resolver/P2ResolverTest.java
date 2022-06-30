@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -121,8 +121,6 @@ public class P2ResolverTest extends P2ResolverTestBase {
         for (File project : projects) {
             assertContainLocation(result, project);
         }
-        // TODO the eclipse-update-site module itself is not in the resolution result; is this needed?
-
         // conflicting dependency mode only collects included artifacts - the referenced non-reactor unit
         // org.eclipse.osgi is not included
         assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), not(hasItem(unitWithId("org.eclipse.osgi"))));
@@ -138,12 +136,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         // TODO 353889 make the duplicate detection work without having the current project IUs in the target platform
         reactorProjects.add(projectToResolve);
 
-        try {
-            impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve);
-            fail();
-        } catch (DuplicateReactorIUsException e) {
-            // TODO proper assertion
-        }
+        assertThrows(DuplicateReactorIUsException.class,
+                () -> impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
     }
 
     @SuppressWarnings("unchecked")
