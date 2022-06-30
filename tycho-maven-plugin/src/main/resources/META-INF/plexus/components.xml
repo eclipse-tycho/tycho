@@ -205,55 +205,6 @@
       </configuration>
     </component>
 
-
-    <component>
-      <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
-      <role-hint>eclipse-application</role-hint>
-      <implementation>
-        org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
-      </implementation>
-      <configuration>
-        <lifecycles>
-          <lifecycle>
-            <id>default</id>
-            <phases>
-              <validate>
-                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier
-              </validate>
-              <initialize>
-             	org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform
-              </initialize>
-              <package>
-                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:product-export
-              </package>
-              <install>
-                org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install
-              </install>
-              <deploy>
-                org.apache.maven.plugins:maven-deploy-plugin:${deploy-plugin.version}:deploy
-              </deploy>
-            </phases>
-          </lifecycle>
-        </lifecycles>
-      </configuration>
-    </component>
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>eclipse-application</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>zip</extension>
-        <type>eclipse-application</type>
-        <packaging>eclipse-application</packaging>
-        <language>java</language>
-        <addedToClasspath>false</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
-      </configuration>
-    </component>
-
-
     <component>
       <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
       <role-hint>eclipse-repository</role-hint>

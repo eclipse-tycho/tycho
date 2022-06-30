@@ -286,7 +286,7 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-bundles-external</artifactId>
 			<version>${tycho-build-version}</version>
-			<type>eclipse-application</type>
+			<type>eclipse-repository</type>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
