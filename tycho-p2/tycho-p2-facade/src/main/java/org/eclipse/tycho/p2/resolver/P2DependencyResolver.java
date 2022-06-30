@@ -145,7 +145,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 OptionalResolutionAction.OPTIONAL);
         Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
         for (DependencyMetadataType type : DependencyMetadataType.values()) {
-            typeMap.put(type, new LinkedHashSet<Object>());
+            typeMap.put(type, new LinkedHashSet<>());
         }
         for (IDependencyMetadata metadata : metadataMap.values()) {
             for (Entry<DependencyMetadataType, Set<Object>> map : typeMap.entrySet()) {
@@ -240,12 +240,13 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 typeMap.computeIfAbsent(type, t -> new LinkedHashSet<>()).addAll(value.getDependencyMetadata(type));
             }
         }
-        ReactorProject reactorProjet = new DefaultReactorProject(project) {
+        return new DefaultReactorProject(project) {
             @Override
             public Set<?> getDependencyMetadata(DependencyMetadataType type) {
                 return typeMap.get(type);
             }
 
+            @Override
             public Object getContextValue(String key) {
                 Object value = super.getContextValue(key);
                 if (value == null) {
@@ -254,13 +255,13 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 return value;
             }
 
+            @Override
             public void setContextValue(String key, Object value) {
                 super.setContextValue(key, value);
                 DefaultReactorProject.adapt(project).setContextValue(key, value);
             }
 
         };
-        return reactorProjet;
     }
 
     @SuppressWarnings("deprecation")
@@ -275,7 +276,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
 
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-        Map<String, ReactorProject> nonTychoReactorProjects = new HashMap<String, ReactorProject>();
+        Map<String, ReactorProject> nonTychoReactorProjects = new HashMap<>();
         Set<String> projectIds = new HashSet<>();
         for (ReactorProject p : reactorProjects) {
             String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
