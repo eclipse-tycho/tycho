@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lifecycleMappingMetadata>
+  <pluginExecutions>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>attach-artifacts</goal>
+          <goal>publish-ee-profile</goal>
+          <goal>publish-osgi-ee</goal>
+          <goal>publish-products</goal>
+          <goal>publish-categories</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <ignore />
+      </action>
+    </pluginExecution>
+  </pluginExecutions>
+</lifecycleMappingMetadata>

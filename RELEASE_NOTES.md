@@ -4,6 +4,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Eclipse M2E lifecycle-mapping metadata included
+
+All Tycho plugins are now shipped with embedded M2E lifecycle-mapping-metadata files.
+Therefore M2E now knows by default how to handle them and it is not necessary anymore to install any connector (usually `org.sonatype.tycho.m2e` was used) for them.
+
 ### Support for BND in tycho-build extension (aka pomless builds)
 
 The Tycho Build Extension (aka pomless build) now detects bnd.bnd files in the root of a pomless bundle and automatically generates an appropriate maven execution automatically.
