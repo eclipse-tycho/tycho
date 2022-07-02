@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lifecycleMappingMetadata>
+  <pluginExecutions>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>update-site-p2-metadata</goal>
+          <goal>p2-metadata</goal>
+          <goal>category-p2-metadata</goal>
+          <goal>update-local-index</goal>
+          <goal>feature-p2-metadata</goal>
+          <goal>p2-metadata-default</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <ignore />
+      </action>
+    </pluginExecution>
+  </pluginExecutions>
+</lifecycleMappingMetadata>

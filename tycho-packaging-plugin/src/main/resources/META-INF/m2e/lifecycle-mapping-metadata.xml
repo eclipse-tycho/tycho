@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lifecycleMappingMetadata>
+  <pluginExecutions>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>build-qualifier-aggregator</goal>
+          <goal>package-plugin</goal>
+          <goal>package-feature</goal>
+          <goal>validate-version</goal>
+          <goal>build-qualifier</goal>
+          <goal>validate-id</goal>
+          <goal>package-iu</goal>
+          <goal>update-consumer-pom</goal>
+          <goal>package-target-definition</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <ignore />
+      </action>
+    </pluginExecution>
+  </pluginExecutions>
+</lifecycleMappingMetadata>
