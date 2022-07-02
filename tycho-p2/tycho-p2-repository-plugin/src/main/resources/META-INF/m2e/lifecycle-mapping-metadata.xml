@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lifecycleMappingMetadata>
+  <pluginExecutions>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>archive-repository</goal>
+          <goal>assemble-maven-repository</goal>
+          <goal>fix-artifacts-metadata</goal>
+          <goal>verify-repository</goal>
+          <goal>remap-artifacts-to-m2-repo</goal>
+          <goal>assemble-repository</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <ignore />
+      </action>
+    </pluginExecution>
+  </pluginExecutions>
+</lifecycleMappingMetadata>
