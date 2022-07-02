@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>${tycho-version}</tycho.version>
+		<tycho.version>2.7.4-SNAPSHOT</tycho.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<custom.user.property>the-default-value</custom.user.property>
 	</properties>
@@ -84,6 +84,13 @@
 							</goals>
 							<phase>none</phase>
 						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-p2-repository-plugin</artifactId>
+					<version>${tycho.version}</version>
+					<executions>
 						<execution>
 							<id>default-assemble-repository</id>
 							<goals>
