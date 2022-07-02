@@ -3,6 +3,7 @@
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
 ## 2.7.4
+
 Fixes:
 - Tycho reports wrong type in case of maven GAV restored from UI
 - Support bnd processing in pomless builds
@@ -13,6 +14,12 @@ Fixes:
 - Not all (direct) requirements of a feature are considered when building an update-site
 - Fix Mojo Configuration of DS Plugin is ignored
 - Check that components declared in the manifest exits
+
+### Eclipse M2E lifecycle-mapping metadata embedded
+
+All Tycho plugins are now shipped with embedded M2E lifecycle-mapping-metadata files.
+Therefore M2E now knows by default how to handle them and it is not necessary anymore to install any connector (usually `org.sonatype.tycho.m2e` was used) for them.
+
 
 ## 2.7.3
 Fixes:
