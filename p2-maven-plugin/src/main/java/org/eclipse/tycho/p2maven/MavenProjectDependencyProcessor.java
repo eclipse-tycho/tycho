@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,11 +32,15 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.CollectionResult;
-import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 /**
  * THis component computes dependencies between projects
@@ -88,6 +95,18 @@ public class MavenProjectDependencyProcessor {
 				return projectDependenciesMap.entrySet().stream();
 			}
 
+			@Override
+			public boolean isFragment(MavenProject mavenProject) {
+				Collection<IInstallableUnit> collection = projectIUMap.get(mavenProject);
+				if (collection != null) {
+					for (IInstallableUnit unit : availableIUs) {
+						if (MavenProjectDependencyProcessor.isFragment(unit)) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
 
 		};
 	}
@@ -101,8 +120,8 @@ public class MavenProjectDependencyProcessor {
 	 * @return a Map from the passed projects to their dependencies
 	 * @throws CoreException if computation failed
 	 */
-	public Map<MavenProject, Collection<IInstallableUnit>> computeProjectDependencies(
-			Collection<MavenProject> projects, IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+	public Map<MavenProject, Collection<IInstallableUnit>> computeProjectDependencies(Collection<MavenProject> projects,
+			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
 		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
 		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
@@ -140,10 +159,83 @@ public class MavenProjectDependencyProcessor {
 		if (projectUnits.isEmpty()) {
 			return Collections.emptyList();
 		}
-		IQueryResult<IInstallableUnit> result = slicer.computeDependencies(projectUnits, avaiableIUs);
-		Set<IInstallableUnit> resolved = result.toSet();
+		Set<IInstallableUnit> resolved = new LinkedHashSet<IInstallableUnit>(
+				slicer.computeDependencies(projectUnits, avaiableIUs).toSet());
 		resolved.removeAll(projectUnits);
+		// TODO maybe contribute this part to P2 Slicer?
+		if (!resolved.isEmpty()) {
+			// we now need to attach all fragments to resolved units
+			List<IInstallableUnit> dependentFragments = new ArrayList<IInstallableUnit>();
+			List<IRequiredCapability> hosts = projectUnits.stream()
+					.flatMap(iu -> getFragmentHostRequirement(iu)).collect(Collectors.toList());
+			CollectionResult<IInstallableUnit> collectionResult;
+			if (hosts.isEmpty()) {
+				collectionResult = new CollectionResult<IInstallableUnit>(resolved);
+			} else {
+				// TODO is this maybe covered already by the lat check for filtering fragments
+				// of host?
+				// we must filter out our host here, as otherwise we pull in other fragments as
+				// dependencies and produce a cycle...
+				List<IInstallableUnit> filtered = resolved.stream().filter(iu -> {
+					for (IRequiredCapability host : hosts) {
+						if (host.isMatch(iu)) {
+							return false;
+						}
+					}
+					return true;
+				}).collect(Collectors.toList());
+				collectionResult = new CollectionResult<IInstallableUnit>(filtered);
+			}
+			for (IInstallableUnit unit : avaiableIUs.query(QueryUtil.ALL_UNITS, null)) {
+				if (isFragment(unit) && !projectUnits.contains(unit)) {
+					Set<IInstallableUnit> fragmentsResult = slicer
+							.computeDependencies(Collections.singleton(unit), collectionResult).toSet();
+					if (fragmentsResult.size() > 1) {
+						// at least one of the resolved items depend on the fragment
+						dependentFragments.add(unit);
+					}
+				}
+			}
+			resolved.addAll(dependentFragments);
+		}
+		// now we need to filter all fragments that we are a host!
+		resolved.removeIf(iu -> {
+			return getFragmentHostRequirement(iu).anyMatch(req -> {
+				for (IInstallableUnit projectUnit : projectUnits) {
+					if (req.isMatch(projectUnit)) {
+						return true;
+					}
+				}
+				return false;
+			});
+		});
 		return resolved;
+	}
+
+	private static boolean isFragment(IInstallableUnit installableUnit) {
+		return getFragmentCapability(installableUnit).findAny().isPresent();
+	}
+
+	private static Stream<IProvidedCapability> getFragmentCapability(IInstallableUnit installableUnit) {
+
+		return installableUnit.getProvidedCapabilities().stream().filter(cap -> {
+			return BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(cap.getNamespace());
+		});
+	}
+
+	private static Stream<IRequiredCapability> getFragmentHostRequirement(IInstallableUnit installableUnit) {
+		return getFragmentCapability(installableUnit).map(provided -> {
+			String hostName = provided.getName();
+			for (IRequirement requirement : installableUnit.getRequirements()) {
+				if (requirement instanceof IRequiredCapability) {
+					IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
+					if (hostName.equals(requiredCapability.getName())) {
+						return requiredCapability;
+					}
+				}
+			}
+			return null;
+		}).filter(Objects::nonNull);
 	}
 
 	public static interface ProjectDependencyClosure {
@@ -176,9 +268,16 @@ public class MavenProjectDependencyProcessor {
 		 */
 		default Collection<MavenProject> getDependencyProjects(MavenProject mavenProject) {
 			return getProjectDependecies(mavenProject).stream().flatMap(dependency -> getProject(dependency).stream())
-					.distinct()
-					.collect(Collectors.toList());
+					.distinct().collect(Collectors.toList());
 		}
+
+		/**
+		 * Check if the given unit is a fragment
+		 * 
+		 * @param installableUnit the unit to check
+		 * @return <code>true</code> if this is a fragment, <code>false</code> otherwise
+		 */
+		boolean isFragment(MavenProject mavenProject);
 
 	}
 }

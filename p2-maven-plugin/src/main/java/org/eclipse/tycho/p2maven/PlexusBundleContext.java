@@ -15,14 +15,19 @@ package org.eclipse.tycho.p2maven;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Dictionary;
+import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.BundleListener;
@@ -38,6 +43,14 @@ import org.osgi.framework.ServiceRegistration;
 //FIXME this should not be necessary at all see https://bugs.eclipse.org/bugs/show_bug.cgi?id=578387
 @Component(role = BundleContext.class, hint = "plexus")
 public class PlexusBundleContext implements BundleContext, Initializable, Disposable {
+
+	@Requirement
+	private Logger log;
+
+	private List<BundleActivator> legacyActivators = List.of(
+			// see https://github.com/eclipse-equinox/p2/issues/100
+			new org.eclipse.pde.internal.publishing.Activator() //
+	);
 
 	@Override
 	public String getProperty(String key) {
@@ -127,12 +140,12 @@ public class PlexusBundleContext implements BundleContext, Initializable, Dispos
 
 	@Override
 	public ServiceReference<?>[] getServiceReferences(String clazz, String filter) throws InvalidSyntaxException {
-		throw new IllegalStateException("this is not OSGi!");
+		return new ServiceReference<?>[0];
 	}
 
 	@Override
 	public ServiceReference<?>[] getAllServiceReferences(String clazz, String filter) throws InvalidSyntaxException {
-		throw new IllegalStateException("this is not OSGi!");
+		return new ServiceReference<?>[0];
 	}
 
 	@Override
@@ -148,7 +161,7 @@ public class PlexusBundleContext implements BundleContext, Initializable, Dispos
 	@Override
 	public <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> clazz, String filter)
 			throws InvalidSyntaxException {
-		throw new IllegalStateException("this is not OSGi!");
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -183,11 +196,24 @@ public class PlexusBundleContext implements BundleContext, Initializable, Dispos
 
 	@Override
 	public void initialize() throws InitializationException {
-
+		for (BundleActivator bundleActivator : legacyActivators) {
+			try {
+				bundleActivator.start(this);
+			} catch (Exception e) {
+				log.warn("Can't init " + bundleActivator.getClass() + "! (" + e + ")");
+			}
+		}
 	}
 
 	@Override
 	public void dispose() {
+		for (BundleActivator bundleActivator : legacyActivators) {
+			try {
+				bundleActivator.stop(this);
+			} catch (Exception e) {
+				log.warn("Can't init " + bundleActivator.getClass() + "! (" + e + ")");
+			}
+		}
 	}
 
 }
