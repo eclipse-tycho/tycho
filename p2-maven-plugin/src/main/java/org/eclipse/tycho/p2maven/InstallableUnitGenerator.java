@@ -26,6 +26,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -45,9 +47,11 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.p2maven.actions.AuthoredIUAction;
 import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
+import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
 /**
@@ -57,7 +61,14 @@ import org.xml.sax.SAXException;
 @Component(role = InstallableUnitGenerator.class)
 public class InstallableUnitGenerator {
 
+	@Requirement
+	private Logger log;
+
 	private static final String KEY_UNITS = "InstallableUnitGenerator.units";
+
+	// this requirement is here to bootstrap P2 service access
+	@Requirement(hint = "plexus")
+	private BundleContext bundleContext;
 
 	/**
 	 * Computes the {@link IInstallableUnit}s for a collection of projects.
@@ -108,7 +119,10 @@ public class InstallableUnitGenerator {
 			if (!forceUpdate) {
 				Object contextValue = project.getContextValue(KEY_UNITS);
 				if (contextValue instanceof Collection<?>) {
-					return (Collection<IInstallableUnit>) contextValue;
+					Collection<IInstallableUnit> collection = (Collection<IInstallableUnit>) contextValue;
+					if (isCompatible(collection)) {
+						return collection;
+					}
 				}
 			}
 			List<IPublisherAction> actions = new ArrayList<>();
@@ -162,14 +176,22 @@ public class InstallableUnitGenerator {
 						try {
 							IProductDescriptor productDescriptor = new ProductFile2(f.getAbsolutePath());
 							actions.add(new ProductDependenciesAction(productDescriptor));
+						} catch (CoreException e) {
+							throw e;
 						} catch (Exception e) {
-							throw new CoreException(Status.error("Error reading " + f.getAbsolutePath()));
+							throw new CoreException(Status.error("Error reading " + f.getAbsolutePath() + ": " + e, e));
 						}
 					}
 				}
 				break;
 			}
+			case PackagingType.TYPE_P2_IU: {
+				actions.add(new AuthoredIUAction(basedir));
+				break;
+			}
 			default:
+				log.debug("Can't generate any InstallableUnit for packaging type " + project.getPackaging() + " for "
+						+ project);
 				return Collections.emptyList();
 			}
 			if (actions.isEmpty()) {
@@ -192,6 +214,20 @@ public class InstallableUnitGenerator {
 			return result;
 
 		}
+	}
+
+	private boolean isCompatible(Collection<?> collection) {
+		// TODO currently causes errors if called from different classloaders!
+		// Check how we properly export p2 artifacts to the build!
+		if (collection.isEmpty()) {
+			return true;
+		}
+		for (Object unit : collection) {
+			if (!IInstallableUnit.class.isInstance(unit)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
