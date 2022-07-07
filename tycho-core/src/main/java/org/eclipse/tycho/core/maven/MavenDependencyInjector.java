@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -133,9 +135,29 @@ public final class MavenDependencyInjector {
                 ? collectProjectDependencies(artifact, scope) //
                 : collectExternalDependencies(artifact, scope);
         Model model = project.getModel();
+        Set<String> existing = model.getDependencies().stream().map(dep -> getKey(dep))
+                .collect(Collectors.toCollection(HashSet::new));
         for (Dependency dependency : dependencyList) {
-            model.addDependency(dependency);
+            if (existing.add(getKey(dependency))) {
+                model.addDependency(dependency);
+            }
         }
+        Map<String, MavenProject> projectReferences = project.getProjectReferences();
+        ReactorProject mavenProject = artifact.getMavenProject();
+        if (mavenProject != null && DefaultReactorProject.adapt(project) != mavenProject) {
+            String key = new StringBuilder().append(mavenProject.getGroupId()).append(':')
+                    .append(mavenProject.getArtifactId()).append(':').append(mavenProject.getVersion()).toString();
+            if (!projectReferences.containsKey(key)) {
+                logger.debug("Found a P2 dependency (" + artifact
+                        + ") that is not reflected in the maven model project references");
+            }
+        }
+    }
+
+    private static String getKey(Dependency dependency) {
+
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getType() + ":"
+                + Objects.requireNonNullElse(dependency.getClassifier(), "");
     }
 
     private List<Dependency> collectExternalDependencies(ArtifactDescriptor artifact, String scope) {
@@ -284,7 +306,8 @@ public final class MavenDependencyInjector {
         dependency.setArtifactId(dependentReactorProject.getArtifactId());
         dependency.setGroupId(dependentReactorProject.getGroupId());
         dependency.setVersion(dependentReactorProject.getVersion());
-        dependency.setType(dependentReactorProject.getPackaging());
+        String type = dependentReactorProject.getPackaging();
+        dependency.setType(type);
         dependency.setScope(scope);
         return dependency;
     }
@@ -301,7 +324,8 @@ public final class MavenDependencyInjector {
         @Override
         public String toString() {
             return "ArtifactDescriptorDependency {descriptor=" + getDescriptor() + ", groupId=" + getGroupId()
-                    + ", artifactId=" + getArtifactId() + ", version=" + getVersion() + ", type=" + getType() + "}";
+                    + ", artifactId=" + getArtifactId() + ", version=" + getVersion() + ", type=" + getType()
+                    + ", classifier=" + getClassifier() + "}";
         }
 
         public ArtifactDescriptor getDescriptor() {

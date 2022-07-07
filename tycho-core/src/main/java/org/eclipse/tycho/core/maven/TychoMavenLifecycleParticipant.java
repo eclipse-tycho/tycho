@@ -14,6 +14,7 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,19 +23,18 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
-import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
@@ -42,25 +42,31 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.utils.TychoVersion;
+import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
+import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
+    static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump") || Boolean.getBoolean("tycho.p2.dump.model");
+
+    static final boolean USE_OLD_RESOLVER = Boolean.getBoolean("tycho.resolver.classic");
+
     private static final String TYCHO_GROUPID = "org.eclipse.tycho";
-    private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<>(Arrays.asList("tycho-maven-plugin",
-            "tycho-p2-director-plugin", "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin",
-            "tycho-packaging-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
-            "tycho-versions-plugin", "tycho-compiler-plugin"));
+    private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<>(
+            Arrays.asList("tycho-maven-plugin", "tycho-p2-director-plugin", "tycho-p2-plugin",
+                    "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin", "tycho-packaging-plugin",
+                    "tycho-source-plugin", "tycho-surefire-plugin", "tycho-versions-plugin", "tycho-compiler-plugin"));
     private static final String P2_USER_AGENT_KEY = "p2.userAgent";
     private static final String P2_USER_AGENT_VALUE = "tycho/";
 
@@ -78,6 +84,12 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    MavenProjectDependencyProcessor dependencyProcessor;
+
+    @Requirement
+    private ModelWriter modelWriter;
 
     public TychoMavenLifecycleParticipant() {
         // needed for plexus
@@ -110,13 +122,64 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 reactorProject.setContextValue(ReactorProject.CTX_BUILDPROPERTIESPARSER, buildPropertiesParser);
                 resolver.setupProject(session, project, reactorProject);
             }
-
-            resolveProjects(session, projects);
+            if (USE_OLD_RESOLVER) {
+                for (MavenProject project : projects) {
+                    resolver.resolveMavenProject(session, project, projects);
+                    if (DUMP_DATA) {
+                        try {
+                            modelWriter.write(new File(project.getBasedir(), "pom-model-classic.xml"), Map.of(),
+                                    project.getModel());
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+            } else {
+                try {
+                    ProjectDependencyClosure closure = dependencyProcessor.computeProjectDependencyClosure(projects,
+                            session);
+                    for (MavenProject project : projects) {
+                        Model model = project.getModel();
+                        Set<String> existingDependencies = model.getDependencies().stream().map(dep -> getKey(dep))
+                                .collect(Collectors.toCollection(HashSet::new));
+                        for (MavenProject dependencyProject : closure.getDependencyProjects(project)) {
+                            Dependency dependency = new Dependency();
+                            dependency.setArtifactId(dependencyProject.getArtifactId());
+                            dependency.setGroupId(dependencyProject.getGroupId());
+                            dependency.setVersion(dependencyProject.getVersion());
+                            String packaging = dependencyProject.getPackaging();
+                            dependency.setType(packaging);
+                            if (closure.isFragment(dependencyProject)) {
+                                dependency.setScope(Artifact.SCOPE_PROVIDED);
+                                dependency.setOptional(true);
+                            } else {
+                                dependency.setScope(Artifact.SCOPE_COMPILE);
+                            }
+                            if (existingDependencies.add(getKey(dependency))) {
+                                model.addDependency(dependency);
+                            }
+                        }
+                        if (DUMP_DATA) {
+                            try {
+                                modelWriter.write(new File(project.getBasedir(), "pom-model.xml"), Map.of(), model);
+                            } catch (IOException e) {
+                            }
+                        }
+                    }
+                } catch (CoreException e) {
+                    throw new MavenExecutionException(e.getMessage(), e);
+                }
+            }
         } catch (BuildFailureException e) {
             // build failure is not an internal (unexpected) error, so avoid printing a stack
             // trace by wrapping it in MavenExecutionException   
             throw new MavenExecutionException(e.getMessage(), e);
         }
+    }
+
+    private static String getKey(Dependency dependency) {
+
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getType() + ":"
+                + Objects.requireNonNullElse(dependency.getClassifier(), "");
     }
 
     @Override
@@ -139,77 +202,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private void validate(List<MavenProject> projects) throws MavenExecutionException {
         validateConsistentTychoVersion(projects);
         validateUniqueBaseDirs(projects);
-    }
-
-    private void resolveProjects(MavenSession session, List<MavenProject> projects) {
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-
-        MavenExecutionRequest request = session.getRequest();
-        boolean failFast = MavenExecutionRequest.REACTOR_FAIL_FAST.equals(request.getReactorFailureBehavior());
-        Map<MavenProject, BuildFailureException> resolutionErrors = new ConcurrentHashMap<>();
-        Consumer<MavenProject> resolveProject = project -> {
-            if (failFast && !resolutionErrors.isEmpty()) {
-                //short circuit
-                return;
-            }
-            try {
-                MavenSession clone = session.clone();
-                resolver.resolveProject(clone, project, reactorProjects);
-            } catch (BuildFailureException e) {
-                resolutionErrors.put(project, e);
-                if (failFast) {
-                    throw e;
-                }
-            }
-        };
-
-        int degreeOfConcurrency = request.getDegreeOfConcurrency();
-        Predicate<MavenProject> takeWhile = Predicate.not(p -> failFast && !resolutionErrors.isEmpty());
-        if (degreeOfConcurrency > 1) {
-            ForkJoinPool executor = new ForkJoinPool(degreeOfConcurrency);
-            ForkJoinTask<?> future = executor.submit(() -> {
-                projects.parallelStream().takeWhile(takeWhile).forEach(resolveProject);
-            });
-            try {
-                future.get();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof RuntimeException) {
-                    throw (RuntimeException) cause;
-                }
-                throw new RuntimeException("resolve dependencies failed", cause);
-            } finally {
-                executor.shutdown();
-            }
-
-        } else {
-            projects.stream().takeWhile(takeWhile).forEach(resolveProject);
-        }
-
-        reportResolutionErrors(resolutionErrors, projects, failFast);
-    }
-
-    private void reportResolutionErrors(Map<MavenProject, BuildFailureException> resolutionErrors,
-            List<MavenProject> projects, boolean failFast) {
-        if (resolutionErrors.isEmpty()) {
-            return;
-        }
-
-        if (resolutionErrors.size() == 1 || failFast) {
-            //The idea is if user want to fail-fast he would expect to get exactly one error (the first one),
-            //while if parallel execution is enabled it might report an (incomplete) list of other failures that happened due to the parallel processing.
-            throw resolutionErrors.values().iterator().next();
-        }
-
-        DependencyResolutionException exception = new DependencyResolutionException(
-                String.format("Cannot resolve dependencies of %d/%d projects, see log for details",
-                        resolutionErrors.size(), projects.size()));
-        resolutionErrors.values().forEach(exception::addSuppressed);
-        resolutionErrors.forEach((project, error) -> log.error(project.getName() + ": " + error.getMessage()));
-
-        throw exception;
     }
 
     protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {

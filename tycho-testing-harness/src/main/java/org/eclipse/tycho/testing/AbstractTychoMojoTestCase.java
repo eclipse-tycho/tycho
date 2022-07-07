@@ -34,6 +34,7 @@ import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugin.descriptor.Parameter;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.MavenSettingsBuilder;
 import org.apache.maven.settings.Settings;
@@ -42,12 +43,14 @@ import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.tycho.resolver.TychoResolver;
 
 public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
     protected Maven maven;
     private MavenSettingsBuilder settingsBuilder;
     private MavenExecutionRequestPopulator requestPopulator;
+    private TychoResolver tychoResolver;
 
     @Override
     protected void setUp() throws Exception {
@@ -55,6 +58,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         maven = lookup(Maven.class);
         settingsBuilder = lookup(MavenSettingsBuilder.class);
         requestPopulator = lookup(MavenExecutionRequestPopulator.class);
+        tychoResolver = lookup(TychoResolver.class);
     }
 
     @Override
@@ -135,7 +139,8 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
             throws Exception {
         File pom = new File(basedir, "pom.xml");
         MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
+        ProjectBuildingRequest projectBuildingRequest = request.getProjectBuildingRequest();
+        projectBuildingRequest.setProcessPlugins(false);
         request.setLocalRepository(getLocalRepository());
         if (platform != null) {
             request.getUserProperties().put("tycho.test.targetPlatform", platform.getAbsolutePath());
@@ -147,7 +152,20 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         if (result.hasExceptions()) {
             throw new CompoundRuntimeException(result.getExceptions());
         }
-        return result.getTopologicallySortedProjects();
+        List<MavenProject> projects = result.getTopologicallySortedProjects();
+        for (MavenProject mavenProject : projects) {
+            DefaultMavenExecutionResult executionResult = new DefaultMavenExecutionResult();
+            MavenSession session = new MavenSession(getContainer(), request, executionResult, projects);
+            try {
+                tychoResolver.resolveMavenProject(session, mavenProject, projects);
+            } catch (RuntimeException e) {
+                result.addException(e);
+            }
+        }
+        if (result.hasExceptions()) {
+            throw new CompoundRuntimeException(result.getExceptions());
+        }
+        return projects;
     }
 
     protected MavenSession newMavenSession(MavenProject project, List<MavenProject> projects) throws Exception {
