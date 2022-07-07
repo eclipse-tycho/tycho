@@ -2,12 +2,18 @@
 
 <extension>
   <exportedPackages>
+  	<!-- Tycho / OSGi -->
     <exportedPackage>org.eclipse.tycho</exportedPackage>
     <exportedPackage>org.osgi</exportedPackage>
     <exportedPackage>org.eclipse.osgi</exportedPackage>
     <exportedPackage>org.eclipse.sisu.equinox</exportedPackage>
     <exportedPackage>org.eclipse.tycho.p2.resolver</exportedPackage>
-    
+    <!-- P2 Stuff TODO add more? -->
+    <exportedPackage>org.eclipse.equinox.p2.metadata</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.p2.publisher</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.p2.publisher.eclipse</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.p2.query</exportedPackage>
+    <!-- other  -->
     <exportedPackage>de.pdark.decentxml</exportedPackage>
   </exportedPackages>
 

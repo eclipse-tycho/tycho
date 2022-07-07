@@ -17,21 +17,24 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
@@ -39,18 +42,19 @@ import org.eclipse.equinox.internal.p2.updatesite.CategoryParser;
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.p2maven.actions.AuthoredIUAction;
 import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
+import org.eclipse.tycho.p2maven.actions.FeatureDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
+import org.eclipse.tycho.p2maven.helper.MavenSessionHelper;
+import org.eclipse.tycho.p2maven.helper.MavenSessionHelper.AutoCloseableSession;
+import org.eclipse.tycho.p2maven.helper.MavenSessionHelper.ThreadSession;
+import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
+import org.eclipse.tycho.p2maven.io.MetadataIO;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
@@ -61,6 +65,8 @@ import org.xml.sax.SAXException;
 @Component(role = InstallableUnitGenerator.class)
 public class InstallableUnitGenerator {
 
+	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump.project.units");
+
 	@Requirement
 	private Logger log;
 
@@ -69,6 +75,21 @@ public class InstallableUnitGenerator {
 	// this requirement is here to bootstrap P2 service access
 	@Requirement(hint = "plexus")
 	private BundleContext bundleContext;
+
+	@Requirement(role = InstallableUnitProvider.class)
+	private Map<String, InstallableUnitProvider> additionalUnitProviders;
+
+	@Requirement
+	private MavenSessionHelper sessionHelper;
+
+	@Requirement
+	private PluginRealmHelper pluginRealmHelper;
+
+	@Requirement
+	private InstallableUnitPublisher publisher;
+
+	@Requirement
+	private PlexusContainer plexus;
 
 	/**
 	 * Computes the {@link IInstallableUnit}s for a collection of projects.
@@ -79,10 +100,11 @@ public class InstallableUnitGenerator {
 	 */
 	public Map<MavenProject, Collection<IInstallableUnit>> getInstallableUnits(Collection<MavenProject> projects)
 			throws CoreException {
+		ThreadSession threadSession = sessionHelper.createThreadSession();
 		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
 		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
-			try {
+			try (AutoCloseableSession session = threadSession.attatch(project)) {
 				result.put(project, getInstallableUnits(project, false));
 			} catch (CoreException e) {
 				errors.add(e);
@@ -115,23 +137,29 @@ public class InstallableUnitGenerator {
 	@SuppressWarnings("unchecked")
 	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, boolean forceUpdate)
 			throws CoreException {
+		log.debug("Computing installable units for " + project + ", force update = " + forceUpdate);
 		synchronized (project) {
 			if (!forceUpdate) {
 				Object contextValue = project.getContextValue(KEY_UNITS);
 				if (contextValue instanceof Collection<?>) {
 					Collection<IInstallableUnit> collection = (Collection<IInstallableUnit>) contextValue;
 					if (isCompatible(collection)) {
+						log.debug("Using cached value for " + project);
 						return collection;
+					} else {
+						log.debug("Can't use cached value for " + project
+								+ " because of incompatible classloaders, update is forced!");
 					}
 				}
 			}
 			List<IPublisherAction> actions = new ArrayList<>();
-
 			File basedir = project.getBasedir();
 			if (basedir == null || !basedir.isDirectory()) {
+				log.warn("No valid basedir for " + project + "!");
 				return Collections.emptyList();
 			}
-			switch (project.getPackaging()) {
+			String packaging = project.getPackaging();
+			switch (packaging) {
 			case PackagingType.TYPE_ECLIPSE_TEST_PLUGIN:
 			case PackagingType.TYPE_ECLIPSE_PLUGIN: {
 				actions.add(new BundlesAction(new File[] { basedir }));
@@ -140,23 +168,8 @@ public class InstallableUnitGenerator {
 			case PackagingType.TYPE_ECLIPSE_FEATURE: {
 				FeatureParser parser = new FeatureParser();
 				Feature feature = parser.parse(basedir);
-				Map<IInstallableUnit, Feature> featureMap = new HashMap<>();
-				FeaturesAction action = new FeaturesAction(new Feature[] { feature }) {
-					@Override
-					protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU,
-							IPublisherInfo publisherInfo) {
-						// so not call super as we don't wan't to copy anything --> Bug in P2 with
-						// IPublisherInfo.A_INDEX option
-						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=578380
-					}
-
-					@Override
-					protected IInstallableUnit generateFeatureJarIU(Feature feature, IPublisherInfo publisherInfo) {
-						IInstallableUnit iu = super.generateFeatureJarIU(feature, publisherInfo);
-						featureMap.put(iu, feature);
-						return iu;
-					}
-				};
+				feature.setLocation(basedir.getAbsolutePath());
+				FeatureDependenciesAction action = new FeatureDependenciesAction(feature);
 				actions.add(action);
 				break;
 			}
@@ -190,33 +203,53 @@ public class InstallableUnitGenerator {
 				break;
 			}
 			default:
-				log.debug("Can't generate any InstallableUnit for packaging type " + project.getPackaging() + " for "
-						+ project);
-				return Collections.emptyList();
 			}
-			if (actions.isEmpty()) {
-				List<IInstallableUnit> list = Collections.emptyList();
-				project.setContextValue(KEY_UNITS, list);
-				return list;
+			Collection<IInstallableUnit> publishedUnits = publisher.publishMetadata(actions);
+			for (InstallableUnitProvider unitProvider : getProvider(project, sessionHelper.getSession())) {
+				log.info("Asking: " + unitProvider + " for additional units for " + project + "...");
+				Collection<IInstallableUnit> installableUnits = unitProvider.getInstallableUnits(project);
+				log.info("Provider " + unitProvider + " generated " + installableUnits.size() + " (" + installableUnits
+						+ ") units for " + project);
+				publishedUnits.addAll(installableUnits);
 			}
-			PublisherInfo publisherInfo = new PublisherInfo();
-			publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-			PublisherResult results = new PublisherResult();
-			for (IPublisherAction action : actions) {
-				IStatus status = action.perform(publisherInfo, results, new NullProgressMonitor());
-				if (status.matches(IStatus.ERROR)) {
-					throw new CoreException(status);
+			Collection<IInstallableUnit> result = Collections.unmodifiableCollection(publishedUnits);
+			if (DUMP_DATA) {
+				File file = new File(project.getBasedir(), "project-units.xml");
+				try {
+					new MetadataIO().writeXML(result, file);
+				} catch (IOException e) {
 				}
 			}
-			Set<IInstallableUnit> result = Collections
-					.unmodifiableSet(results.query(QueryUtil.ALL_UNITS, null).toSet());
+			if (result.isEmpty()) {
+				log.debug("Can't generate any InstallableUnit for packaging type '" + packaging + "' for " + project);
+			}
 			project.setContextValue(KEY_UNITS, result);
 			return result;
 
 		}
 	}
 
-	private boolean isCompatible(Collection<?> collection) {
+	private Collection<InstallableUnitProvider> getProvider(MavenProject project, MavenSession mavenSession)
+			throws CoreException {
+		Set<InstallableUnitProvider> unitProviders = new HashSet<InstallableUnitProvider>(
+				additionalUnitProviders.values());
+		try {
+			pluginRealmHelper.execute(mavenSession, project, () -> {
+				try {
+					for (InstallableUnitProvider provider : plexus.lookupList(InstallableUnitProvider.class)) {
+						unitProviders.add(provider);
+					}
+				} catch (ComponentLookupException e) {
+					// ignore, nothing was found...
+				}
+			}, InstallableUnitGenerator::hasPluginDependency);
+		} catch (Exception e) {
+			throw new CoreException(Status.error("Can't lookup InstallableUnitProviders", e));
+		}
+		return unitProviders;
+	}
+
+	private static boolean isCompatible(Collection<?> collection) {
 		// TODO currently causes errors if called from different classloaders!
 		// Check how we properly export p2 artifacts to the build!
 		if (collection.isEmpty()) {
@@ -228,6 +261,14 @@ public class InstallableUnitGenerator {
 			}
 		}
 		return true;
+	}
+
+	private static boolean hasPluginDependency(PluginDescriptor pluginDescriptor) {
+		if (pluginDescriptor.getArtifactMap().containsKey(P2Plugin.KEY)) {
+			return true;
+		}
+		return pluginDescriptor.getDependencies().stream().filter(dep -> P2Plugin.GROUP_ID.equals(dep.getGroupId()))
+				.filter(dep -> P2Plugin.ARTIFACT_ID.equals(dep.getArtifactId())).findAny().isPresent();
 	}
 
 }

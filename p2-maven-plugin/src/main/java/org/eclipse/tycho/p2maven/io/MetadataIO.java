@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,11 +37,11 @@ import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.tycho.p2maven.P2Plugin;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-@SuppressWarnings("restriction")
 public class MetadataIO {
     private static class Writer extends MetadataWriter {
 
@@ -48,7 +49,7 @@ public class MetadataIO {
             super(output, null);
         }
 
-        public void write(Set<IInstallableUnit> units) {
+		public void write(Collection<? extends IInstallableUnit> units) {
             start(INSTALLABLE_UNITS_ELEMENT);
 
             attribute(COLLECTION_SIZE_ATTRIBUTE, units.size());
@@ -72,7 +73,7 @@ public class MetadataIO {
         private List<InstallableUnitDescription> units;
 
         public Parser(PARSER_MODE mode) {
-			super(SAXParserFactory.newInstance(), "org.eclipse.tycho.p2maven");
+			super(SAXParserFactory.newInstance(), P2Plugin.BUNDLE_ID);
             this.mode = mode;
         }
 
@@ -185,11 +186,12 @@ public class MetadataIO {
         return units;
     }
 
-    public void writeXML(Set<IInstallableUnit> units, OutputStream os) throws IOException {
+	public void writeXML(Collection<? extends IInstallableUnit> units, OutputStream os) throws IOException {
         new Writer(os).write(units);
     }
 
-    public void writeXML(Set<IInstallableUnit> units, File file) throws IOException {
+	public void writeXML(Collection<? extends IInstallableUnit> units, File file) throws IOException {
+		file.getParentFile().mkdirs();
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             writeXML(units, os);
         }

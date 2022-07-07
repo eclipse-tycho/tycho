@@ -24,12 +24,12 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.p2maven.P2Plugin;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-@SuppressWarnings("restriction")
 public class ArtifactsIO {
 
     private static class Writer35M7 extends SimpleArtifactRepositoryIO.Writer {
@@ -49,8 +49,8 @@ public class ArtifactsIO {
 
         private Set<IArtifactDescriptor> artifacts;
 
-        public Parser35M7(String bundleId) {
-			super(bundleId);
+		public Parser35M7() {
+			super(P2Plugin.BUNDLE_ID);
         }
 
         @Override
@@ -112,7 +112,7 @@ public class ArtifactsIO {
     }
 
     public Set<IArtifactDescriptor> readXML(InputStream is) throws IOException {
-		Parser35M7 parser = new Parser35M7("org.eclipse.tycho.p2maven");
+		Parser35M7 parser = new Parser35M7();
 
         parser.parse(is);
 

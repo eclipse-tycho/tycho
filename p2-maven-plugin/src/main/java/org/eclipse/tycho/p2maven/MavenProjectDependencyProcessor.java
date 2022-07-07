@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,6 +43,10 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.p2maven.helper.MavenSessionHelper;
+import org.eclipse.tycho.p2maven.helper.MavenSessionHelper.AutoCloseableSession;
+import org.eclipse.tycho.p2maven.helper.MavenSessionHelper.ThreadSession;
+import org.eclipse.tycho.p2maven.io.MetadataIO;
 
 /**
  * THis component computes dependencies between projects
@@ -49,11 +55,16 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 @Component(role = MavenProjectDependencyProcessor.class)
 public class MavenProjectDependencyProcessor {
 
+	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump.project.dependencies");
+
 	@Requirement
 	private InstallableUnitGenerator generator;
 
 	@Requirement
 	private InstallableUnitSlicer slicer;
+
+	@Requirement
+	private MavenSessionHelper sessionHelper;
 
 	/**
 	 * Computes the {@link ProjectDependencyClosure} of the given collection of
@@ -122,10 +133,11 @@ public class MavenProjectDependencyProcessor {
 	 */
 	public Map<MavenProject, Collection<IInstallableUnit>> computeProjectDependencies(Collection<MavenProject> projects,
 			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+		ThreadSession threadSession = sessionHelper.createThreadSession();
 		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
 		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
-			try {
+			try (AutoCloseableSession attatch = threadSession.attatch(project)) {
 				result.put(project, computeProjectDependencies(project, avaiableIUs));
 			} catch (CoreException e) {
 				errors.add(e);
@@ -166,13 +178,13 @@ public class MavenProjectDependencyProcessor {
 		if (!resolved.isEmpty()) {
 			// we now need to attach all fragments to resolved units
 			List<IInstallableUnit> dependentFragments = new ArrayList<IInstallableUnit>();
-			List<IRequiredCapability> hosts = projectUnits.stream()
-					.flatMap(iu -> getFragmentHostRequirement(iu)).collect(Collectors.toList());
+			List<IRequiredCapability> hosts = projectUnits.stream().flatMap(iu -> getFragmentHostRequirement(iu))
+					.collect(Collectors.toList());
 			CollectionResult<IInstallableUnit> collectionResult;
 			if (hosts.isEmpty()) {
 				collectionResult = new CollectionResult<IInstallableUnit>(resolved);
 			} else {
-				// TODO is this maybe covered already by the lat check for filtering fragments
+				// TODO is this maybe covered already by the last check for filtering fragments
 				// of host?
 				// we must filter out our host here, as otherwise we pull in other fragments as
 				// dependencies and produce a cycle...
@@ -209,6 +221,14 @@ public class MavenProjectDependencyProcessor {
 				return false;
 			});
 		});
+		if (DUMP_DATA) {
+			Collection<IInstallableUnit> result = Collections.unmodifiableCollection(resolved);
+			File file = new File(project.getBasedir(), "project-dependencies.xml");
+			try {
+				new MetadataIO().writeXML(result, file);
+			} catch (IOException e) {
+			}
+		}
 		return resolved;
 	}
 
