@@ -12,7 +12,8 @@ Bundle-Description: Tycho integrates Maven with Eclipse and OSGi
 Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.shared
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: %providerName
-Import-Package: org.eclipse.tycho,
+Import-Package: org.eclipse.equinox.p2.metadata;version="2.4.0",
+ org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.resolver.shared,

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP AG and others.
+ * Copyright (c) 2011, 2022 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@
 package org.eclipse.tycho.p2.target.facade;
 
 import java.util.Map;
-
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
@@ -30,7 +30,7 @@ public interface PomDependencyCollector {
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
 
-    Map<?/* IInstallableUnit */, IArtifactFacade> getMavenInstallableUnits();
+    Map<IInstallableUnit, IArtifactFacade> getMavenInstallableUnits();
 
     ArtifactKey getArtifactKey(IArtifactFacade facade);
 
