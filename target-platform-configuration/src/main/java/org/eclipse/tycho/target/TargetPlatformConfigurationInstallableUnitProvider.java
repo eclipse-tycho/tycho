@@ -15,6 +15,7 @@ package org.eclipse.tycho.target;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.p2maven.InstallableUnitProvider;
 
@@ -53,8 +55,15 @@ public class TargetPlatformConfigurationInstallableUnitProvider implements Insta
     @Requirement
     private Logger logger;
 
+    @Requirement(role = TychoProject.class)
+    private Map<String, TychoProject> projectTypes;
+
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project) throws CoreException {
+        if (projectTypes.get(project.getPackaging()) == null) {
+            //not a tycho project...
+            return Collections.emptyList();
+        }
         TargetPlatformConfiguration configuration = configurationReader
                 .getTargetPlatformConfiguration(legacySupport.getSession(), project);
         List<IRequirement> extraRequirements = configuration.getExtraRequirements().stream().map(key -> {

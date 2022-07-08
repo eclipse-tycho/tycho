@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.tycho;
 
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -147,6 +148,7 @@ public class PlatformPropertiesUtils {
     public static final String WS_UNKNOWN = "unknown";//$NON-NLS-1$
 
     public static String getWS(Properties properties) {
+        Objects.requireNonNull(properties);
         String ws = properties.getProperty(OSGI_WS);
         if (ws != null)
             return ws;
@@ -172,10 +174,10 @@ public class PlatformPropertiesUtils {
     }
 
     public static String getOS(Properties properties) {
+        Objects.requireNonNull(properties);
         String os = properties.getProperty(OSGI_OS);
         if (os != null)
             return os;
-
         String osName = System.getProperties().getProperty("os.name"); //$NON-NLS-1$
         if (osName.regionMatches(true, 0, Constants.OS_WIN32, 0, 3))
             return Constants.OS_WIN32;
@@ -199,6 +201,7 @@ public class PlatformPropertiesUtils {
     }
 
     public static String getArch(Properties properties) {
+        Objects.requireNonNull(properties);
         String arch = properties.getProperty(OSGI_ARCH);
         if (arch != null)
             return arch;

@@ -37,6 +37,7 @@ import org.apache.maven.model.building.DefaultModelProblem;
 import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.building.ModelProblem.Severity;
 import org.apache.maven.model.building.Result;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.DuplicateProjectException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -72,6 +73,9 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 	@Requirement
 	private MavenProjectDependencyProcessor dependencyProcessor;
+
+	@Requirement
+	private LegacySupport legacySupport;
 
 	@Override
 	public Result<ProjectDependencyGraph> build(MavenSession session) {
@@ -121,7 +125,9 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			executor = Optional.empty();
 		}
 		Set<MavenProject> selectedProjects = ConcurrentHashMap.newKeySet();
+		MavenSession oldMavenSession = legacySupport.getSession();
 		try {
+			legacySupport.setSession(session);
 			ProjectDependencyClosure dependencyClosure;
 			try {
 				dependencyClosure = dependencyProcessor.computeProjectDependencyClosure(projects);
@@ -193,6 +199,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 			}
 		} finally {
+			legacySupport.setSession(oldMavenSession);
 			executor.ifPresent(ExecutorService::shutdownNow);
 		}
 

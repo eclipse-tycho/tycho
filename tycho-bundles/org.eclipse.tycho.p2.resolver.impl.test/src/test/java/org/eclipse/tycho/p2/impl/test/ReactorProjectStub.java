@@ -46,6 +46,8 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
 
     private Set<?> secondaryDependencyMetadata = new LinkedHashSet<>();
 
+    private Set<?> initialMetadata;
+
     public ReactorProjectStub(File basedir, String groupId, String artifactId, String version, String packagingType) {
         this.basedir = basedir;
         this.groupId = groupId;
@@ -101,6 +103,8 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
             return dependencyMetadata;
         case RESOLVE:
             return secondaryDependencyMetadata;
+        case INITIAL:
+            return initialMetadata;
         default:
             return Collections.emptySet();
         }
@@ -111,14 +115,25 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
                 dependencyMetadata.getDependencyMetadata(DependencyMetadataType.SEED));
         this.secondaryDependencyMetadata = new LinkedHashSet<>(
                 dependencyMetadata.getDependencyMetadata(DependencyMetadataType.RESOLVE));
+        LinkedHashSet<Object> initial = new LinkedHashSet<>();
+        initial.addAll(this.dependencyMetadata);
+        initial.addAll(this.secondaryDependencyMetadata);
+        this.initialMetadata = initial;
     }
 
     @Override
     public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
-        if (type == DependencyMetadataType.SEED)
+        switch (type) {
+        case SEED:
             this.dependencyMetadata = new LinkedHashSet<>(units);
-        else if (type == DependencyMetadataType.RESOLVE)
+            break;
+        case RESOLVE:
             this.secondaryDependencyMetadata = new LinkedHashSet<>(units);
+            break;
+        case INITIAL:
+            this.initialMetadata = new LinkedHashSet<>(units);
+            break;
+        }
     }
 
     // TODO share with real implementation?

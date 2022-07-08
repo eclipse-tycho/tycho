@@ -59,13 +59,15 @@ public class DefaultReactorProject implements ReactorProject {
         if (project == null) {
             return null;
         }
-
-        ReactorProject reactorProject = (ReactorProject) project.getContextValue(CTX_REACTOR_PROJECT);
-        if (reactorProject == null) {
-            reactorProject = new DefaultReactorProject(project);
-            project.setContextValue(CTX_REACTOR_PROJECT, reactorProject);
+        synchronized (project) {
+            ReactorProject reactorProject = (ReactorProject) project.getContextValue(CTX_REACTOR_PROJECT);
+            if (reactorProject == null) {
+                reactorProject = new DefaultReactorProject(project);
+                project.setContextValue(CTX_REACTOR_PROJECT, reactorProject);
+            }
+            return reactorProject;
         }
-        return reactorProject;
+
     }
 
     public static List<ReactorProject> adapt(MavenSession session) {
@@ -232,4 +234,5 @@ public class DefaultReactorProject implements ReactorProject {
     public String getName() {
         return project.getName();
     }
+
 }
