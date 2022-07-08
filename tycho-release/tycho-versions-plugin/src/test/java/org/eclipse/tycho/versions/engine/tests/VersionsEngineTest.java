@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine.tests;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 
 import org.eclipse.tycho.testing.TestUtil;
@@ -316,13 +318,9 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         VersionsEngine engine = newEngine(basedir);
 
         engine.addVersionChange(artifactId, "1.0.1-01");
-        try {
-            engine.apply();
-            fail();
-        } catch (IllegalVersionChangeException e) {
-            // not a valid osgi version
-            assertEquals(1, e.getErrors().size());
-        }
+        IllegalVersionChangeException e = assertThrows(IllegalVersionChangeException.class, () -> engine.apply());
+        // not a valid osgi version
+        assertEquals(1, e.getErrors().size());
     }
 
     public void testNonOsgiVersionNonOsgiProject() throws Exception {

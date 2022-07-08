@@ -16,6 +16,7 @@ package org.eclipse.tycho.surefire.provider.impl;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.eclipse.tycho.surefire.provider.impl.AbstractJUnitProviderTest.classPath;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.util.Collections;
@@ -98,32 +99,20 @@ public class ProviderHelperTest extends PlexusTestCase {
     }
 
     public void testSelectWithNonExistingHint() {
-        try {
-            providerHelper.selectProvider(classPath(), new Properties(), "NON_EXISTING");
-            fail();
-        } catch (MojoExecutionException e) {
-            // expected
-        }
+        assertThrows(MojoExecutionException.class,
+                () -> providerHelper.selectProvider(classPath(), new Properties(), "NON_EXISTING"));
     }
 
     public void testNoProviderFound() {
-        try {
-            providerHelper.selectProvider(classPath("foo:1.0", "test:2.0"), new Properties(), null);
-            fail();
-        } catch (MojoExecutionException e) {
-            // expected
-        }
+        assertThrows(MojoExecutionException.class,
+                () -> providerHelper.selectProvider(classPath("foo:1.0", "test:2.0"), new Properties(), null));
     }
 
     public void testParallelModeNotSupported() {
-        try {
-            Properties providerProperties = new Properties();
-            providerProperties.setProperty("parallel", "methods");
-            providerHelper.selectProvider(classPath("org.junit:4.6"), providerProperties, null);
-            fail();
-        } catch (MojoExecutionException e) {
-            // expected
-        }
+        Properties providerProperties = new Properties();
+        providerProperties.setProperty("parallel", "methods");
+        assertThrows(MojoExecutionException.class,
+                () -> providerHelper.selectProvider(classPath("org.junit:4.6"), providerProperties, null));
     }
 
     public void testMultipleProviderTypesFound() throws Exception {
@@ -163,22 +152,16 @@ public class ProviderHelperTest extends PlexusTestCase {
         container.addComponent(anotherProvider, TestFrameworkProvider.class, "another_test_fwk");
         ProviderHelper providerSelector = container.lookup(ProviderHelper.class);
         try {
-            providerSelector.selectProvider(classPath("org.junit:4.8.1"), new Properties(), null);
-            fail();
-        } catch (MojoExecutionException e) {
-            // expected
+            assertThrows(MojoExecutionException.class,
+                    () -> providerSelector.selectProvider(classPath("org.junit:4.8.1"), new Properties(), null));
         } finally {
             container.release(anotherProvider);
         }
     }
 
     public void testFilterTestFrameworkBundlesNotFound() {
-        try {
-            providerHelper.filterTestFrameworkBundles(new JUnit3Provider(), asList(createMockArtifact("test", "test")));
-            fail();
-        } catch (MojoExecutionException e) {
-            // expected
-        }
+        assertThrows(MojoExecutionException.class, () -> providerHelper.filterTestFrameworkBundles(new JUnit3Provider(),
+                asList(createMockArtifact("test", "test"))));
     }
 
     public void testFilterTestFrameworkBundlesJUnit3() throws MojoExecutionException {

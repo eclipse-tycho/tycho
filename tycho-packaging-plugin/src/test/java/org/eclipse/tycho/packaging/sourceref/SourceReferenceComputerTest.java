@@ -13,6 +13,8 @@
 
 package org.eclipse.tycho.packaging.sourceref;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.jar.Manifest;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -48,13 +50,10 @@ public class SourceReferenceComputerTest extends PlexusTestCase {
     }
 
     public void testAddSourceReferenceNoProvider() {
-        try {
+		assertThrows(MojoExecutionException.class,
+				() ->
             sourceRefComputer.addSourceReferenceHeader(manifest, createSourceRefConfig(true, null),
-                    createProjectStub("scm:unknown:foo"));
-            fail();
-        } catch (MojoExecutionException e) {
-            // expected
-        }
+				createProjectStub("scm:unknown:foo")));
     }
 
     private String getSourceRefsHeaderValue() {
