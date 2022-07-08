@@ -151,9 +151,12 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 map.getValue().addAll(metadata.getDependencyMetadata(map.getKey()));
             }
         }
+        Set<Object> initial = new HashSet<>();
         for (Entry<DependencyMetadataType, Set<Object>> entry : typeMap.entrySet()) {
             reactorProject.setDependencyMetadata(entry.getKey(), entry.getValue());
+            initial.addAll(entry.getValue());
         }
+        reactorProject.setDependencyMetadata(DependencyMetadataType.INITIAL, initial);
     }
 
     protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,

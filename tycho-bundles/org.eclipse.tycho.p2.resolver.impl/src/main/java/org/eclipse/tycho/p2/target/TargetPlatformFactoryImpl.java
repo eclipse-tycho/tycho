@@ -46,6 +46,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -386,14 +387,15 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         for (ReactorProject project : reactorProjects) {
             @SuppressWarnings("unchecked")
-            Set<IInstallableUnit> projectIUs = (Set<IInstallableUnit>) project.getDependencyMetadata();
+            Set<IInstallableUnit> projectIUs = (Set<IInstallableUnit>) project
+                    .getDependencyMetadata(DependencyMetadataType.INITIAL);
+
             if (projectIUs == null)
                 continue;
-
             for (IInstallableUnit iu : projectIUs) {
-                ReactorProjectIdentities otherOrigin = reactorUIs.put(iu, project.getIdentities());
-
-                if (otherOrigin != null && !otherOrigin.equals(project.getIdentities())) {
+                ReactorProjectIdentities identities = project.getIdentities();
+                ReactorProjectIdentities otherOrigin = reactorUIs.put(iu, identities);
+                if (otherOrigin != null && !otherOrigin.equals(identities)) {
                     Set<File> duplicateLocations = duplicateReactorUIs.get(iu);
                     if (duplicateLocations == null) {
                         duplicateLocations = new LinkedHashSet<>();
