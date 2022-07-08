@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -213,36 +215,24 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
         BuildQualifierMojo mojo = createMojoWithProject(project);
         mojo.setFormat("yyyyMMdd HHmm");
-        try {
-            mojo.execute();
-            fail();
-        } catch (MojoFailureException e) {
-			assertTrue(e.getMessage().contains("Invalid build qualifier"));
-        }
+		MojoFailureException e = assertThrows(MojoFailureException.class, () -> mojo.execute());
+		assertTrue(e.getMessage().contains("Invalid build qualifier"));
     }
 
     public void testWithInvalidForcedQualifier() throws Exception {
         MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
         BuildQualifierMojo mojo = createMojoWithProject(project);
         setVariableValueToObject(mojo, "forceContextQualifier", "invalid:Qualifier");
-        try {
-            mojo.execute();
-            fail();
-        } catch (MojoFailureException e) {
-			assertTrue(e.getMessage().contains("Invalid build qualifier"));
-        }
+		MojoFailureException e = assertThrows(MojoFailureException.class, () -> mojo.execute());
+		assertTrue(e.getMessage().contains("Invalid build qualifier"));
     }
 
     public void testInvalidQualifierDisplaysInErrorMessage() throws Exception {
         MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
         BuildQualifierMojo mojo = createMojoWithProject(project);
         mojo.setFormat("'This qualifier should be in error message'");
-        try {
-            mojo.execute();
-            fail();
-        } catch (MojoFailureException e) {
-			assertTrue(e.getMessage().contains("This qualifier should be in error message"));
-        }
+		MojoFailureException e = assertThrows(MojoFailureException.class, () -> mojo.execute());
+		assertTrue(e.getMessage().contains("This qualifier should be in error message"));
     }
 
     private BuildQualifierMojo createMojoWithProject(MavenProject project) throws IOException, Exception {

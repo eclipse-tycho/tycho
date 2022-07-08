@@ -136,60 +136,46 @@ public class TychoModelReaderTest extends PlexusTestCase {
     @Test
     public void testIllFormedFeature() throws Exception {
         File featureXml = new File(getTestResourcesDir(), "modelreader/features/illFormed/feature.xml");
-        try {
-            getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml, createReaderOptions(featureXml));
-            fail();
-        } catch (ModelParseException e) {
-            // expected
-        }
+        assertThrows(ModelParseException.class, () -> getTychoModelReader(TychoFeatureMapping.PACKAGING)
+                .read(featureXml, createReaderOptions(featureXml)));
     }
 
     @Test
     public void testFeatureWithoutId() throws Exception {
         File featureXml = new File(getTestResourcesDir(), "modelreader/features/missingId/feature.xml");
-        try {
-            getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml, createReaderOptions(featureXml));
-            fail();
-        } catch (ModelParseException e) {
-            assertTrue(e.getMessage().contains("missing or empty 'id' attribute in element 'feature'"));
-        }
+        ModelParseException e = assertThrows(ModelParseException.class,
+                () -> getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml,
+                        createReaderOptions(featureXml)));
+        assertTrue(e.getMessage().contains("missing or empty 'id' attribute in element 'feature'"));
     }
 
     @Test
     public void testFeatureWithoutVersion() throws Exception {
         File featureXml = new File(getTestResourcesDir(), "modelreader/features/missingVersion/feature.xml");
-        try {
-            getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml, createReaderOptions(featureXml));
-            fail();
-        } catch (ModelParseException e) {
-            assertTrue(e.getMessage().contains("missing or empty 'version' attribute in element 'feature'"));
-        }
+        ModelParseException e = assertThrows(ModelParseException.class,
+                () -> getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml,
+                        createReaderOptions(featureXml)));
+        assertTrue(e.getMessage().contains("missing or empty 'version' attribute in element 'feature'"));
     }
 
     @Test
     public void testBundleWithoutSymbolicName() throws Exception {
         File buildProperties = new File(getTestResourcesDir(),
                 "modelreader/plugins/missingBsn/" + TychoBundleMapping.META_INF_DIRECTORY);
-        try {
-            getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
-                    createReaderOptions(buildProperties));
-            fail();
-        } catch (ModelParseException e) {
-            assertTrue(e.getMessage().contains("Bundle-SymbolicName missing in"));
-        }
+        ModelParseException e = assertThrows(ModelParseException.class,
+                () -> getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                        createReaderOptions(buildProperties)));
+        assertTrue(e.getMessage().contains("Bundle-SymbolicName missing in"));
     }
 
     @Test
     public void testBundleWithoutVersion() throws Exception {
         File buildProperties = new File(getTestResourcesDir(),
                 "modelreader/plugins/missingVersion/" + TychoBundleMapping.META_INF_DIRECTORY);
-        try {
-            getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
-                    createReaderOptions(buildProperties));
-            fail();
-        } catch (ModelParseException e) {
-            assertTrue(e.getMessage().contains("Bundle-Version missing in"));
-        }
+        ModelParseException e = assertThrows(ModelParseException.class,
+                () -> getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                        createReaderOptions(buildProperties)));
+        assertTrue(e.getMessage().contains("Bundle-Version missing in"));
     }
 
     @Test
@@ -235,13 +221,11 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testProductWithoutUid() throws IOException, ComponentLookupException {
-        try {
-            File product = new File(getTestResourcesDir(), "modelreader/products/missingUid/myproduct.product");
-            getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(product, createReaderOptions(product));
-            fail();
-        } catch (ModelParseException e) {
-            assertTrue(e.getMessage().contains("missing or empty 'uid' attribute in element 'product'"));
-        }
+        File product = new File(getTestResourcesDir(), "modelreader/products/missingUid/myproduct.product");
+        ModelParseException e = assertThrows(ModelParseException.class,
+                () -> getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(product,
+                        createReaderOptions(product)));
+        assertTrue(e.getMessage().contains("missing or empty 'uid' attribute in element 'product'"));
     }
 
     @Test
@@ -253,12 +237,8 @@ public class TychoModelReaderTest extends PlexusTestCase {
     @Test()
     public void testIllFormedProduct() throws Exception {
         File product = new File(getTestResourcesDir(), "modelreader/products/illFormed/myproduct.product");
-        try {
-            getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(product, createReaderOptions(product));
-            fail();
-        } catch (ModelParseException e) {
-            //expected
-        }
+        assertThrows(ModelParseException.class, () -> getTychoModelReader(TychoRepositoryMapping.PACKAGING)
+                .read(product, createReaderOptions(product)));
     }
 
     @Test
