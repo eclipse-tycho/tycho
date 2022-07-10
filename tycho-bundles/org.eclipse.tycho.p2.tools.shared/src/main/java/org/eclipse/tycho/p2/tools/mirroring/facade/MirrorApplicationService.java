@@ -48,6 +48,8 @@ public interface MirrorApplicationService {
      *            environment specific installable units
      * @param includeAllDependencies
      *            Whether to include all transitive dependencies
+     * @param includeAllSource
+     *            Whether to include all possible sources
      * @param filterProperties
      *            additional filter properties to be set in the p2 slicing options. May be
      *            <code>null</code>
@@ -56,7 +58,7 @@ public interface MirrorApplicationService {
      */
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> seeds, BuildContext context, boolean includeAllDependencies,
-            Map<String, String> filterProperties) throws FacadeException;
+            boolean includeAllSource, Map<String, String> filterProperties) throws FacadeException;
 
     /**
      * recreates the metadata of an existing repository e.g. to account for changes in the contained

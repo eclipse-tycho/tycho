@@ -86,6 +86,15 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     /**
      * <p>
+     * By default, only explicitly mentioned sources are included. Set this parameter to
+     * <code>true</code> to include all sources that are available and included in this repository.
+     * </p>
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeAllSources;
+
+    /**
+     * <p>
      * Compress the repository index files <tt>content.xml</tt> and <tt>artifacts.xml</tt>.
      * </p>
      */
@@ -167,7 +176,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
                         !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryRefrences);
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                        includeAllDependencies, profileProperties);
+                        includeAllDependencies, includeAllSources, profileProperties);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Could not assemble p2 repository", e);
             }

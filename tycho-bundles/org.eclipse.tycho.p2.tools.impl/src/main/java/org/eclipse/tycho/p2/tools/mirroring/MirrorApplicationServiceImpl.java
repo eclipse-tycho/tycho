@@ -143,7 +143,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     @Override
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
-            Map<String, String> filterProperties) throws FacadeException {
+            boolean includeAllSource, Map<String, String> filterProperties) throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
@@ -151,6 +151,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             // mirror scope: seed units...
             mirrorApp.setSourceIUs(
                     toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(), sources));
+            mirrorApp.setIncludeSources(includeAllSource);
 
             // TODO the p2 mirror tool should support mirroring multiple environments at once
             for (TargetEnvironment environment : context.getEnvironments()) {
