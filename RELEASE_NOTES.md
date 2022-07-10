@@ -4,6 +4,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Support for inclusion of all source bundles in an update-site
+
+The [tycho-p2-repository-plugin:2.7.0:assemble-repository](https://www.eclipse.org/tycho/sitedocs/tycho-p2/tycho-p2-repository-plugin/assemble-repository-mojo.html) now support a new property `includeAllSources` that,
+when enabled, includes any available source bundle in the resulting repository.
+
 ### Support for Eclipse-Products with mixed Features and Plugins
 
 Tycho now supports building _mixed_ Products. In mixed Products both the listed features and listed plug-ins are installed.
