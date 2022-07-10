@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -50,9 +51,6 @@ import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.FeatureDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
-import org.eclipse.tycho.p2maven.helper.MavenSessionHelper;
-import org.eclipse.tycho.p2maven.helper.MavenSessionHelper.AutoCloseableSession;
-import org.eclipse.tycho.p2maven.helper.MavenSessionHelper.ThreadSession;
 import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
 import org.osgi.framework.BundleContext;
@@ -65,7 +63,8 @@ import org.xml.sax.SAXException;
 @Component(role = InstallableUnitGenerator.class)
 public class InstallableUnitGenerator {
 
-	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump.project.units");
+	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
+			|| Boolean.getBoolean("tycho.p2.dump.units");
 
 	@Requirement
 	private Logger log;
@@ -78,9 +77,6 @@ public class InstallableUnitGenerator {
 
 	@Requirement(role = InstallableUnitProvider.class)
 	private Map<String, InstallableUnitProvider> additionalUnitProviders;
-
-	@Requirement
-	private MavenSessionHelper sessionHelper;
 
 	@Requirement
 	private PluginRealmHelper pluginRealmHelper;
@@ -98,14 +94,15 @@ public class InstallableUnitGenerator {
 	 * @return a map from the passed project to the InstallebalUnits
 	 * @throws CoreException if computation for any project failed
 	 */
-	public Map<MavenProject, Collection<IInstallableUnit>> getInstallableUnits(Collection<MavenProject> projects)
+	public Map<MavenProject, Collection<IInstallableUnit>> getInstallableUnits(Collection<MavenProject> projects,
+			MavenSession session)
 			throws CoreException {
-		ThreadSession threadSession = sessionHelper.createThreadSession();
+		Objects.requireNonNull(session);
 		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
 		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
-			try (AutoCloseableSession session = threadSession.attatch(project)) {
-				result.put(project, getInstallableUnits(project, false));
+			try {
+				result.put(project, getInstallableUnits(project, session, false));
 			} catch (CoreException e) {
 				errors.add(e);
 			}
@@ -129,14 +126,17 @@ public class InstallableUnitGenerator {
 	 * regenerated from scratch.
 	 * 
 	 * @param project     the project to examine
+	 * @param session
 	 * @param forceUpdate if cached data is fine
 	 * @return a (possibly empty) collection of {@link IInstallableUnit}s for the
 	 *         given {@link MavenProject}
 	 * @throws CoreException if anything goes wrong
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, boolean forceUpdate)
+	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session,
+			boolean forceUpdate)
 			throws CoreException {
+		Objects.requireNonNull(session);
 		log.debug("Computing installable units for " + project + ", force update = " + forceUpdate);
 		synchronized (project) {
 			if (!forceUpdate) {
@@ -205,10 +205,10 @@ public class InstallableUnitGenerator {
 			default:
 			}
 			Collection<IInstallableUnit> publishedUnits = publisher.publishMetadata(actions);
-			for (InstallableUnitProvider unitProvider : getProvider(project, sessionHelper.getSession())) {
-				log.info("Asking: " + unitProvider + " for additional units for " + project + "...");
-				Collection<IInstallableUnit> installableUnits = unitProvider.getInstallableUnits(project);
-				log.info("Provider " + unitProvider + " generated " + installableUnits.size() + " (" + installableUnits
+			for (InstallableUnitProvider unitProvider : getProvider(project, session)) {
+				log.debug("Asking: " + unitProvider + " for additional units for " + project + "...");
+				Collection<IInstallableUnit> installableUnits = unitProvider.getInstallableUnits(project, session);
+				log.debug("Provider " + unitProvider + " generated " + installableUnits.size() + " (" + installableUnits
 						+ ") units for " + project);
 				publishedUnits.addAll(installableUnits);
 			}

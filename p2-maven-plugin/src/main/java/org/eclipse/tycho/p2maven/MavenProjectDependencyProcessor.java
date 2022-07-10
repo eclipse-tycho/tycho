@@ -28,6 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -43,9 +44,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.tycho.p2maven.helper.MavenSessionHelper;
-import org.eclipse.tycho.p2maven.helper.MavenSessionHelper.AutoCloseableSession;
-import org.eclipse.tycho.p2maven.helper.MavenSessionHelper.ThreadSession;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
 
 /**
@@ -55,7 +53,8 @@ import org.eclipse.tycho.p2maven.io.MetadataIO;
 @Component(role = MavenProjectDependencyProcessor.class)
 public class MavenProjectDependencyProcessor {
 
-	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump.project.dependencies");
+	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
+			|| Boolean.getBoolean("tycho.p2.dump.dependencies");
 
 	@Requirement
 	private InstallableUnitGenerator generator;
@@ -63,25 +62,24 @@ public class MavenProjectDependencyProcessor {
 	@Requirement
 	private InstallableUnitSlicer slicer;
 
-	@Requirement
-	private MavenSessionHelper sessionHelper;
-
 	/**
 	 * Computes the {@link ProjectDependencyClosure} of the given collection of
 	 * projects.
 	 * 
 	 * @param projects the projects to include in the closure
+	 * @param session
 	 * @return the computed {@link ProjectDependencyClosure}
 	 * @throws CoreException if computation failed
 	 */
-	public ProjectDependencyClosure computeProjectDependencyClosure(Collection<MavenProject> projects)
+	public ProjectDependencyClosure computeProjectDependencyClosure(Collection<MavenProject> projects,
+			MavenSession session)
 			throws CoreException {
-
-		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects);
+		Objects.requireNonNull(session);
+		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
 		Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
 				.collect(Collectors.toSet());
 		Map<MavenProject, Collection<IInstallableUnit>> projectDependenciesMap = computeProjectDependencies(projects,
-				new CollectionResult<IInstallableUnit>(availableIUs));
+				new CollectionResult<IInstallableUnit>(availableIUs), session);
 		Map<IInstallableUnit, MavenProject> iuProjectMap = new HashMap<IInstallableUnit, MavenProject>();
 		for (var entry : projectIUMap.entrySet()) {
 			MavenProject mavenProject = entry.getKey();
@@ -132,13 +130,12 @@ public class MavenProjectDependencyProcessor {
 	 * @throws CoreException if computation failed
 	 */
 	public Map<MavenProject, Collection<IInstallableUnit>> computeProjectDependencies(Collection<MavenProject> projects,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
-		ThreadSession threadSession = sessionHelper.createThreadSession();
+			IQueryable<IInstallableUnit> avaiableIUs, MavenSession session) throws CoreException {
 		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
 		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
-			try (AutoCloseableSession attatch = threadSession.attatch(project)) {
-				result.put(project, computeProjectDependencies(project, avaiableIUs));
+			try {
+				result.put(project, computeProjectDependencies(project, avaiableIUs, session));
 			} catch (CoreException e) {
 				errors.add(e);
 			}
@@ -166,8 +163,8 @@ public class MavenProjectDependencyProcessor {
 	 * @throws CoreException if computation failed
 	 */
 	public Collection<IInstallableUnit> computeProjectDependencies(MavenProject project,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
-		Collection<IInstallableUnit> projectUnits = generator.getInstallableUnits(project, false);
+			IQueryable<IInstallableUnit> avaiableIUs, MavenSession session) throws CoreException {
+		Collection<IInstallableUnit> projectUnits = generator.getInstallableUnits(project, session, false);
 		if (projectUnits.isEmpty()) {
 			return Collections.emptyList();
 		}

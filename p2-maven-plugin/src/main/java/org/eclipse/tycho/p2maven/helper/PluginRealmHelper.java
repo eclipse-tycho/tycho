@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.helper;
 
+import java.util.Objects;
+
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.lifecycle.internal.LifecyclePluginResolver;
@@ -88,6 +90,9 @@ public class PluginRealmHelper {
 	public void execute(MavenSession session, MavenProject project, Runnable runnable, PluginFilter filter)
 			throws PluginVersionResolutionException, PluginDescriptorParsingException, InvalidPluginDescriptorException,
 			PluginResolutionException, PluginManagerException {
+		Objects.requireNonNull(session);
+		MavenSession executeSession = session.clone();
+		executeSession.setCurrentProject(project);
 		for (Plugin plugin : project.getBuildPlugins()) {
 			if (plugin.isExtensions()) {
 				// due to maven classloading model limitations, build extensions plugins cannot
@@ -98,11 +103,12 @@ public class PluginRealmHelper {
 				// https://cwiki.apache.org/MAVEN/maven-3x-class-loading.html
 				continue;
 			}
-			lifecyclePluginResolver.resolveMissingPluginVersions(project, session);
+			lifecyclePluginResolver.resolveMissingPluginVersions(project, executeSession);
 			PluginDescriptor pluginDescriptor;
 			try {
 				pluginDescriptor = mavenPluginManager.getPluginDescriptor(plugin, project.getRemotePluginRepositories(),
-						session.getRepositorySession()); // compatibilityHelper.getPluginDescriptor(plugin, project,
+						executeSession.getRepositorySession()); // compatibilityHelper.getPluginDescriptor(plugin,
+																// project,
 															// session);
 			} catch (PluginResolutionException e) {
 				// if the plugin really does not exist, the Maven build will fail later on
@@ -113,14 +119,7 @@ public class PluginRealmHelper {
 
 			if (pluginDescriptor != null) {
 				if (filter == null || filter.accept(pluginDescriptor)) {
-					ClassRealm pluginRealm;
-					MavenProject oldCurrentProject = session.getCurrentProject();
-					session.setCurrentProject(project);
-					try {
-						pluginRealm = buildPluginManager.getPluginRealm(session, pluginDescriptor);
-					} finally {
-						session.setCurrentProject(oldCurrentProject);
-					}
+					ClassRealm pluginRealm = buildPluginManager.getPluginRealm(executeSession, pluginDescriptor);
 					if (pluginRealm != null) {
 						ClassLoader origTCCL = Thread.currentThread().getContextClassLoader();
 						try {

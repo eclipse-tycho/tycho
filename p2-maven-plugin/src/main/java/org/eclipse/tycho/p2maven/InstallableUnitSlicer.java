@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -47,18 +48,10 @@ public class InstallableUnitSlicer {
 	 * @throws CoreException if there is any
 	 */
 	public IQueryResult<IInstallableUnit> computeDependencies(Collection<IInstallableUnit> rootIus,
-			IQueryable<IInstallableUnit> avaiableIUs)
-			throws CoreException {
-		boolean includeOptionalDependencies = true;
-		boolean everythingGreedy = true;
-		boolean evalFilterTo = true;
-		boolean strictDependency = false;
-		boolean onlyFilteredRequirements = false;
+			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
 		NullProgressMonitor monitor = new NullProgressMonitor();
-		PermissiveSlicer slicer = new PermissiveSlicer(avaiableIUs, new HashMap<String, String>(), includeOptionalDependencies, everythingGreedy, evalFilterTo,
-				strictDependency, onlyFilteredRequirements);
-		IQueryable<IInstallableUnit> slice = slicer.slice(rootIus.toArray(IInstallableUnit[]::new),
-				monitor);
+		PermissiveSlicer slicer = new TychoSlicer(avaiableIUs);
+		IQueryable<IInstallableUnit> slice = slicer.slice(rootIus.toArray(IInstallableUnit[]::new), monitor);
 		IStatus sliceStatus = slicer.getStatus();
 		if (sliceStatus.matches(IStatus.ERROR)) {
 			throw new CoreException(sliceStatus);
@@ -67,6 +60,30 @@ public class InstallableUnitSlicer {
 			log.debug("There are warnings from the slicer: " + sliceStatus);
 		}
 		return slice.query(QueryUtil.createIUAnyQuery(), monitor);
+	}
+
+	private final class TychoSlicer extends PermissiveSlicer {
+		private TychoSlicer(IQueryable<IInstallableUnit> input) {
+			super(input, new HashMap<String, String>(), //
+					true, // includeOptionalDependencies
+					true, // everythingGreedy
+					true, // evalFilterTo
+					false, // considerOnlyStrictDependency
+					false // onlyFilteredRequirements
+			);
+		}
+
+		@Override
+		protected boolean isApplicable(IInstallableUnit unit, IRequirement requirement) {
+			if (requirement.isMatch(unit)) {
+				// a bundle might import its exported packages, in such a case we ignore the
+				// requirement
+				log.debug("The requirement " + requirement + " is already satisfied by the unit " + unit
+						+ " itself, ignoring it.");
+				return false;
+			}
+			return super.isApplicable(unit, requirement);
+		}
 	}
 
 }
