@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -105,6 +106,13 @@ public class DefaultTychoResolver implements TychoResolver {
 
         DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
         resolver.setupProjects(session, project, reactorProject);
+    }
+
+    @Override
+    public void resolveMavenProject(MavenSession session, MavenProject project, List<MavenProject> mavenProjects) {
+        List<ReactorProject> reactorProjects = mavenProjects.stream().map(DefaultReactorProject::adapt)
+                .collect(Collectors.toList());
+        resolveProject(session, project, reactorProjects);
     }
 
     @Override

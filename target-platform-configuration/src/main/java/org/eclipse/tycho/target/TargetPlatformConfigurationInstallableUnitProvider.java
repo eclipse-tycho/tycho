@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -50,22 +50,20 @@ public class TargetPlatformConfigurationInstallableUnitProvider implements Insta
     private DefaultTargetPlatformConfigurationReader configurationReader;
 
     @Requirement
-    private LegacySupport legacySupport;
-
-    @Requirement
     private Logger logger;
 
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
     @Override
-    public Collection<IInstallableUnit> getInstallableUnits(MavenProject project) throws CoreException {
+    public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
+            throws CoreException {
         if (projectTypes.get(project.getPackaging()) == null) {
             //not a tycho project...
             return Collections.emptyList();
         }
-        TargetPlatformConfiguration configuration = configurationReader
-                .getTargetPlatformConfiguration(legacySupport.getSession(), project);
+        TargetPlatformConfiguration configuration = configurationReader.getTargetPlatformConfiguration(session,
+                project);
         List<IRequirement> extraRequirements = configuration.getExtraRequirements().stream().map(key -> {
             return createRequirementFor(key.getType(), key.getId(), new VersionRange(key.getVersion()));
         }).filter(Objects::nonNull).collect(Collectors.toList());

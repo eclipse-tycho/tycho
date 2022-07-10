@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -56,7 +57,8 @@ public class SourceInstallableUnitProvider implements InstallableUnitProvider {
     private Map<String, TychoProject> projectTypes;
 
     @Override
-    public Collection<IInstallableUnit> getInstallableUnits(MavenProject project) throws CoreException {
+    public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
+            throws CoreException {
         if (SourceFeatureMojo.isEnabledForProject(project)) {
             try {
                 //TODO even though we do not know the exact we might want to still fill in more infos here?

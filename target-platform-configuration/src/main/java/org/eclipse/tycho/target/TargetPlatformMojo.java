@@ -43,8 +43,6 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFaca
 
 @Mojo(name = "target-platform", threadSafe = true)
 public class TargetPlatformMojo extends AbstractMojo {
-    private static final Object LOCK = new Object();
-
     // TODO site doc (including steps & parameters handled in afterProjectsRead?)
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
@@ -63,24 +61,22 @@ public class TargetPlatformMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            ReactorRepositoryManagerFacade repositoryManager = osgiServices
-                    .getService(ReactorRepositoryManagerFacade.class);
-            List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects();
-            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            MavenSession session = legacySupport.getSession();
-            DependencyResolver dependencyResolver = dependencyResolverLocator.lookupDependencyResolver(project);
-            PomDependencyCollector pomDependenciesCollector = dependencyResolver.resolvePomDependencies(session,
-                    project);
-            repositoryManager.computeFinalTargetPlatform(reactorProject, upstreamProjects, pomDependenciesCollector);
-        }
+        MavenSession session = legacySupport.getSession();
+        ReactorRepositoryManagerFacade repositoryManager = osgiServices
+                .getService(ReactorRepositoryManagerFacade.class);
+        List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects();
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        DependencyResolver dependencyResolver = dependencyResolverLocator.lookupDependencyResolver(project);
+        PomDependencyCollector pomDependenciesCollector = dependencyResolver.resolvePomDependencies(session, project);
+        repositoryManager.computeFinalTargetPlatform(reactorProject, upstreamProjects, pomDependenciesCollector);
     }
 
     private List<ReactorProjectIdentities> getReferencedTychoProjects() throws MojoExecutionException {
         List<ReactorProjectIdentities> result = new ArrayList<>();
         HashSet<GAV> considered = new HashSet<>();
-
-        getTransitivelyReferencedTychoProjects(project.getProjectReferences().values(), considered, result);
+        //TODO instead of using the MavenProject here, we should fetch the DependencyArtifacts from project type and then use the ArtifactDescriptor!
+        Collection<MavenProject> values = project.getProjectReferences().values();
+        getTransitivelyReferencedTychoProjects(values, considered, result);
 
         return result;
     }
@@ -106,8 +102,8 @@ public class TargetPlatformMojo extends AbstractMojo {
             verifyIndexFileLocations(tychoReactorProject, metadataXml, artifactXml);
             result.add(tychoReactorProject.getIdentities());
 
-            getTransitivelyReferencedTychoProjects(reactorProject.getProjectReferences().values(), consideredProjects,
-                    result);
+            Collection<MavenProject> values = reactorProject.getProjectReferences().values();
+            getTransitivelyReferencedTychoProjects(values, consideredProjects, result);
         }
     }
 
