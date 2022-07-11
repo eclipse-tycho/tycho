@@ -72,8 +72,7 @@ public class MavenProjectDependencyProcessor {
 	 * @throws CoreException if computation failed
 	 */
 	public ProjectDependencyClosure computeProjectDependencyClosure(Collection<MavenProject> projects,
-			MavenSession session)
-			throws CoreException {
+			MavenSession session) throws CoreException {
 		Objects.requireNonNull(session);
 		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
 		Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
@@ -172,51 +171,19 @@ public class MavenProjectDependencyProcessor {
 				slicer.computeDependencies(projectUnits, avaiableIUs).toSet());
 		resolved.removeAll(projectUnits);
 		// TODO maybe contribute this part to P2 Slicer?
-		if (!resolved.isEmpty()) {
+		if (!resolved.isEmpty() && !projectUnits.stream().anyMatch(iu -> isFragment(iu))) {
 			// we now need to attach all fragments to resolved units
 			List<IInstallableUnit> dependentFragments = new ArrayList<IInstallableUnit>();
-			List<IRequiredCapability> hosts = projectUnits.stream().flatMap(iu -> getFragmentHostRequirement(iu))
-					.collect(Collectors.toList());
-			CollectionResult<IInstallableUnit> collectionResult;
-			if (hosts.isEmpty()) {
-				collectionResult = new CollectionResult<IInstallableUnit>(resolved);
-			} else {
-				// TODO is this maybe covered already by the last check for filtering fragments
-				// of host?
-				// we must filter out our host here, as otherwise we pull in other fragments as
-				// dependencies and produce a cycle...
-				List<IInstallableUnit> filtered = resolved.stream().filter(iu -> {
-					for (IRequiredCapability host : hosts) {
-						if (host.isMatch(iu)) {
-							return false;
-						}
-					}
-					return true;
-				}).collect(Collectors.toList());
-				collectionResult = new CollectionResult<IInstallableUnit>(filtered);
-			}
 			for (IInstallableUnit unit : avaiableIUs.query(QueryUtil.ALL_UNITS, null)) {
-				if (isFragment(unit) && !projectUnits.contains(unit)) {
-					Set<IInstallableUnit> fragmentsResult = slicer
-							.computeDependencies(Collections.singleton(unit), collectionResult).toSet();
-					if (fragmentsResult.size() > 1) {
-						// at least one of the resolved items depend on the fragment
-						dependentFragments.add(unit);
-					}
+				if (hasAnyHost(unit, resolved)) {
+					dependentFragments.add(unit);
 				}
 			}
 			resolved.addAll(dependentFragments);
 		}
 		// now we need to filter all fragments that we are a host!
 		resolved.removeIf(iu -> {
-			return getFragmentHostRequirement(iu).anyMatch(req -> {
-				for (IInstallableUnit projectUnit : projectUnits) {
-					if (req.isMatch(projectUnit)) {
-						return true;
-					}
-				}
-				return false;
-			});
+			return hasAnyHost(iu, projectUnits);
 		});
 		if (DUMP_DATA) {
 			Collection<IInstallableUnit> result = Collections.unmodifiableCollection(resolved);
@@ -227,6 +194,17 @@ public class MavenProjectDependencyProcessor {
 			}
 		}
 		return resolved;
+	}
+
+	private static boolean hasAnyHost(IInstallableUnit unit, Iterable<IInstallableUnit> collection) {
+		return getFragmentHostRequirement(unit).anyMatch(req -> {
+			for (IInstallableUnit iu : collection) {
+				if (req.isMatch(iu)) {
+					return true;
+				}
+			}
+			return false;
+		});
 	}
 
 	private static boolean isFragment(IInstallableUnit installableUnit) {
