@@ -60,7 +60,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump") || Boolean.getBoolean("tycho.p2.dump.model");
 
-    static final boolean USE_OLD_RESOLVER = Boolean.getBoolean("tycho.resolver.classic");
+    static final boolean USE_OLD_RESOLVER = Boolean.parseBoolean(System.getProperty("tycho.resolver.classic", "true"));
 
     private static final String TYCHO_GROUPID = "org.eclipse.tycho";
     private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<>(
