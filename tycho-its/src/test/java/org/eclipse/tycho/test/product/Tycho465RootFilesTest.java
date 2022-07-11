@@ -37,12 +37,12 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	public void testProductBuild() throws Exception {
 		Verifier verifier = getVerifier("product.rootFiles", true);
 
-		verifier.addCliOption("-DforceContextQualifier=" + Tycho465RootFilesTest.QUALIFIER.toString());
+		verifier.addCliOption("-DforceContextQualifier=" + QUALIFIER.toString());
 
 		verifier.executeGoal("install");
 		verifier.verifyErrorFreeLog();
 
-		File targetDir = new File(verifier.getBasedir(), Tycho465RootFilesTest.MODULE + "/target");
+		File targetDir = new File(verifier.getBasedir(), MODULE + "/target");
 		File repositoryTargetDirectory = new File(targetDir, "repository");
 
 		Document contentXml = openMetadataRepositoryDocument(repositoryTargetDirectory);
@@ -60,8 +60,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		Verifier eclipseRepoProjectVerifier = getVerifier("product.rootFiles/eclipse-repository", true,
 				ignoreLocallyInstalledArtifacts);
 
-		eclipseRepoProjectVerifier
-				.addCliOption("-DforceContextQualifier=" + Tycho465RootFilesTest.QUALIFIER.toString());
+		eclipseRepoProjectVerifier.addCliOption("-DforceContextQualifier=" + QUALIFIER.toString());
 
 		eclipseRepoProjectVerifier.executeGoal("verify");
 		eclipseRepoProjectVerifier.verifyErrorFreeLog();
@@ -72,16 +71,15 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	}
 
 	private void assertBuildProductAndRepository(File targetDir, File repositoryTargetDirectory, Document contentXml) {
-		Tycho465RootFilesTest.assertCategoryIU(contentXml, Tycho465RootFilesTest.QUALIFIER + ".category.id",
-				"prf.feature.feature.group");
-		Tycho465RootFilesTest.assertFeatureIU(contentXml, repositoryTargetDirectory, "prf.feature");
+		assertCategoryIU(contentXml, QUALIFIER + ".category.id", "prf.feature.feature.group");
+		assertFeatureIU(contentXml, repositoryTargetDirectory, "prf.feature");
 
-		Tycho465RootFilesTest.assertRootIuMetaData(contentXml);
-		Tycho465RootFilesTest.assertInstalledWinConfigRootFile(targetDir);
-		Tycho465RootFilesTest.assertInstalledLinuxConfigRootFile(targetDir);
+		assertRootIuMetaData(contentXml);
+		assertInstalledWinConfigRootFile(targetDir);
+		assertInstalledLinuxConfigRootFile(targetDir);
 
-		Tycho465RootFilesTest.assertRootIuPermissionsMetaData(contentXml);
-		Tycho465RootFilesTest.assertRootIuLinksMetaData(contentXml);
+		assertRootIuPermissionsMetaData(contentXml);
+		assertRootIuLinksMetaData(contentXml);
 	}
 
 	static String getFileNotExistsInDirMsg(String fileRootRelPath, File dir) {
@@ -114,7 +112,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		assertTrue(Util.iuHasAllRequirements(featureIu, requiredIus));
 
 		String featureArtifactPrefix = featureId + "_1.0.0";
-		Tycho465RootFilesTest.assertContainsEntry(new File(assembledRepoDir, "features/"), featureArtifactPrefix);
+		assertContainsEntry(new File(assembledRepoDir, "features/"), featureArtifactPrefix);
 	}
 
 	static void assertCategoryIU(Document contentXml, String categoryIuId, String featureIuId) {
@@ -135,29 +133,29 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		File mainWinConfigProductDir = new File(targetDir, "products/main.product.id/win32/win32/x86_64");
 		File rootFile = new File(mainWinConfigProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		File mainLinuxConfigProductDir = new File(targetDir, "products/main.product.id/linux/gtk/x86_64");
 		rootFile = new File(mainLinuxConfigProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 	}
 
 	static void assertConfigIndependentRootFiles(File mainProductDir) {
 		String relRootFilePath = "rootFile.txt";
 		File rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		relRootFilePath = "file5.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		relRootFilePath = "dir/file6.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 	}
 
 	static void assertInstalledLinuxConfigRootFile(File targetDir) {
@@ -165,15 +163,15 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		String relRootFilePath = "file1.txt";
 		File rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		relRootFilePath = "dir/file2.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		// without config specified root files => included all config specific products
-		Tycho465RootFilesTest.assertConfigIndependentRootFiles(mainProductDir);
+		assertConfigIndependentRootFiles(mainProductDir);
 	}
 
 	static void assertInstalledWinConfigRootFile(File targetDir) {
@@ -181,25 +179,25 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		String relRootFilePath = "file1.txt";
 		File rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		relRootFilePath = "file2.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		relRootFilePath = "dir1/file3.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		relRootFilePath = "dir1/dir2/file4.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(Tycho465RootFilesTest.getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
 
 		// without config specified root files => included all config specific products
-		Tycho465RootFilesTest.assertConfigIndependentRootFiles(mainProductDir);
+		assertConfigIndependentRootFiles(mainProductDir);
 	}
 
 	static void assertRootIuMetaData(Document contentXml) {
