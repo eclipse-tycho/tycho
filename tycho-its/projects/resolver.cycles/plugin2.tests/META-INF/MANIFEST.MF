@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: plugin2.tests
+Bundle-Version: 0.0.1.qualifier
+Fragment-Host: plugin2
+Automatic-Module-Name: plugin2.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: plugin1
