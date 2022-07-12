@@ -178,9 +178,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testAccessRules() throws Exception {
         File basedir = getBasedir("projects/accessrules");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject project = projects.get(4);
-        assertEquals("p002", project.getName());
+        MavenProject project = getProjectWithName(getSortedProjects(basedir), "p002");
         List<DependencyEntry> dependencies = computeDependencies(project);
         assertEquals(3, dependencies.size());
         assertArrayEquals(new String[] { "p001/*" }, getAccessRulePatterns(dependencies, "p001"));
@@ -191,9 +189,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testReexportAccessRules() throws Exception {
         File basedir = getBasedir("projects/reexport");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject project = projects.get(4);
-        assertEquals("p002", project.getName());
+        MavenProject project = getProjectWithName(getSortedProjects(basedir), "p002");
         List<DependencyEntry> dependencies = computeDependencies(project);
         assertEquals(3, dependencies.size());
         assertArrayEquals(new String[] { "p001/*" }, getAccessRulePatterns(dependencies, "p001"));
@@ -205,8 +201,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragments() throws Exception {
         File basedir = getBasedir("projects/eeProfile.resolution.fragments");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject jface = projects.get(3);
+        MavenProject jface = getProjectWithArtifactId(getSortedProjects(basedir), "org.eclipse.jface.databinding");
         assertEquals("org.eclipse.jface.databinding", jface.getArtifactId());
         Collection<DependencyEntry> deps = computeDependenciesIgnoringEE(jface);
         assertTrue(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("org.eclipse.swt.gtk.linux.x86")) //
@@ -220,9 +215,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragmentsImportClassProvidedByFragmentFromPackageExportedByHost() throws Exception {
         File basedir = getBasedir("projects/fragment-import-class-provided-by-fragment-from-package-exported-by-host");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject bundle2 = projects.get(2);
-        assertEquals("bundle2", bundle2.getArtifactId());
+        MavenProject bundle2 = getProjectWithArtifactId(getSortedProjects(basedir), "bundle2");
         Collection<DependencyEntry> deps = computeDependenciesIgnoringEE(bundle2);
         assertThat(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle1.fragment")) //
                 .flatMap(entry -> entry.rules.stream()) //
@@ -234,9 +227,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragmentSplitPackage() throws Exception {
         File basedir = getBasedir("projects/fragment-split-package");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject bundleTest = projects.get(3);
-        assertEquals("bundle.tests", bundleTest.getArtifactId());
+        MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "bundle.tests");
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
         assertTrue(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle")) //
                 .flatMap(entry -> entry.rules.stream()) //
@@ -255,9 +246,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragmentSplitPackageMandatory() throws Exception {
         File basedir = getBasedir("projects/fragment-split-mandatory");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject bundleTest = projects.get(3);
-        assertEquals("bundle.tests", bundleTest.getArtifactId());
+        MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "bundle.tests");
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
         assertTrue(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle")) //
                 .flatMap(entry -> entry.rules.stream()) //
@@ -276,9 +265,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testImportVsRequire() throws Exception {
         File basedir = getBasedir("projects/importVsRequire");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject bundleTest = projects.get(2);
-        assertEquals("A", bundleTest.getArtifactId());
+        MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "A");
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
         Collection<String> patterns = deps.stream().filter(entry -> entry.module.getSymbolicName().equals("B")) //
                 .flatMap(entry -> entry.rules.stream()) //
@@ -292,9 +279,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testDeepReexportBundle() throws Exception {
         File basedir = getBasedir("projects/deepReexport");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject bundleTest = projects.get(4);
-        assertEquals("D", bundleTest.getArtifactId());
+        MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "D");
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
         Collection<String> patterns = deps.stream() //
                 .flatMap(entry -> entry.rules.stream()) //
@@ -318,8 +303,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testFragmentRequiredBundle() throws Exception {
         File basedir = getBasedir("projects/fragment");
-        List<MavenProject> projects = getSortedProjects(basedir);
-        MavenProject fragment = projects.stream().filter(p -> p.getArtifactId().equals("fragment")).findAny().get();
+        MavenProject fragment = getProjectWithArtifactId(getSortedProjects(basedir), "fragment");
         Collection<DependencyEntry> deps = computeDependencies(fragment);
         assertTrue(deps.stream().filter(dep -> dep.module.getSymbolicName().equals("dep")) //
                 .flatMap(dep -> dep.rules.stream()) //
