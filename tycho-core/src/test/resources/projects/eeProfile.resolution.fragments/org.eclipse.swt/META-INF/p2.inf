@@ -1,0 +1,4 @@
+requires.4.namespace = org.eclipse.equinox.p2.iu
+requires.4.name = org.eclipse.swt.gtk.linux.x86
+requires.4.range = [$version$,$version$]
+requires.4.filter = (&(osgi.os=linux)(osgi.ws=gtk)(osgi.arch=x86_64)(!(org.eclipse.swt.buildtime=true)))
