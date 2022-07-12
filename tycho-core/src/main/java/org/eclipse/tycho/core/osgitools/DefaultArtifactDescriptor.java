@@ -58,7 +58,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     @Override
     public File getLocation(boolean fetch) {
-        if (location == null && locationSupplier != null && fetch) {
+        if (fetch && locationSupplier != null && (location == null || !location.exists())) {
             File file = locationSupplier.apply(this);
             if (file != null) {
                 location = ArtifactCollection.normalizeLocation(file);

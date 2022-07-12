@@ -148,12 +148,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                             dependency.setVersion(dependencyProject.getVersion());
                             String packaging = dependencyProject.getPackaging();
                             dependency.setType(packaging);
-                            if (closure.isFragment(dependencyProject)) {
-                                dependency.setScope(Artifact.SCOPE_PROVIDED);
-                                dependency.setOptional(true);
-                            } else {
-                                dependency.setScope(Artifact.SCOPE_COMPILE);
-                            }
+                            dependency.setScope(Artifact.SCOPE_COMPILE);
+                            dependency.setOptional(false);
                             if (existingDependencies.add(getKey(dependency))) {
                                 model.addDependency(dependency);
                             }
