@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.maven.Maven;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -186,6 +187,21 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         }
 
         throw new IllegalArgumentException("No project with artifactId " + artifactId);
+    }
+
+    protected MavenProject getProjectWithArtifactId(List<MavenProject> projects, String artifactId)
+            throws AssertionError, Exception {
+        return projects.stream().filter(p -> artifactId.equals(p.getArtifactId())).findFirst()
+                .orElseThrow(() -> new AssertionError(
+                        "Project with artifactId " + artifactId + " not found, projects discovered are: "
+                                + projects.stream().map(p -> p.getArtifactId()).collect(Collectors.joining(", "))));
+    }
+
+    protected MavenProject getProjectWithName(List<MavenProject> projects, String name)
+            throws AssertionError, Exception {
+        return projects.stream().filter(p -> name.equals(p.getName())).findFirst().orElseThrow(
+                () -> new AssertionError("Project with name " + name + " not found, projects discovered are: "
+                        + projects.stream().map(p -> p.getName()).collect(Collectors.joining(", "))));
     }
 
     /**
