@@ -18,6 +18,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
+import java.util.List;
 
 public class MavenCompilerPluginTest extends AbstractTychoIntegrationTest {
 
@@ -37,6 +38,14 @@ public class MavenCompilerPluginTest extends AbstractTychoIntegrationTest {
     public void testAdditionalBundles() throws Exception {
         Verifier verifier = getVerifier("compiler.additional.bundles", true);
         verifier.executeGoal("compile");
+        verifier.verifyErrorFreeLog();
+    }
+
+
+    @Test
+    public void testAdditionalBundles2() throws Exception {
+        Verifier verifier = getVerifier("compiler.additional.bundles2", false, false);
+        verifier.executeGoals(List.of("clean","install"));
         verifier.verifyErrorFreeLog();
     }
 
