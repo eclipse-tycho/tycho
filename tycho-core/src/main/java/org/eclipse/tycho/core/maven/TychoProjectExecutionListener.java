@@ -20,6 +20,7 @@ import org.apache.maven.execution.ProjectExecutionEvent;
 import org.apache.maven.execution.ProjectExecutionListener;
 import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.model.io.ModelWriter;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -36,6 +37,9 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
     @Requirement
     private ModelWriter modelWriter;
 
+    @Requirement
+    private LegacySupport legacySupport;
+
     @Override
     public void beforeProjectExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
         if (TychoMavenLifecycleParticipant.USE_OLD_RESOLVER) {
@@ -44,7 +48,13 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
         MavenProject mavenProject = event.getProject();
         MavenSession mavenSession = event.getSession();
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(mavenSession);
-        resolver.resolveProject(mavenSession, mavenProject, reactorProjects);
+        MavenSession oldSession = legacySupport.getSession();
+        try {
+            legacySupport.setSession(mavenSession);
+            resolver.resolveProject(mavenSession, mavenProject, reactorProjects);
+        } finally {
+            legacySupport.setSession(oldSession);
+        }
         if (TychoMavenLifecycleParticipant.DUMP_DATA) {
             try {
                 modelWriter.write(new File(mavenProject.getBasedir(), "pom-model-final.xml"), Map.of(),
