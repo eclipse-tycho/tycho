@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundletest
+Bundle-SymbolicName: surefire.requireBundle.coretest
+Bundle-Version: 0.0.1.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Import-Package: org.junit.jupiter.api
+Require-Bundle: surefire.requireBundle.core;bundle-version="[1,2)";resolution:=optional,
+ surefire.requireBundle.core;bundle-version="[2,3)";resolution:=optional

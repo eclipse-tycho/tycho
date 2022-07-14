@@ -28,4 +28,12 @@ public class RequireBundleTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 	}
 
+	@Test
+	public void requireMultipleVersionsOfABundle() throws Exception {
+		Verifier verifier = getVerifier("/surefire.requireBundle.multipleVersions", false, true);
+		verifier.addCliOption("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+	}
+
 }
