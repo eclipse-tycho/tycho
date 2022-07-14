@@ -159,7 +159,7 @@ public final class MavenDependencyInjector {
     private static String getKey(Dependency dependency) {
 
         return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getType() + ":"
-                + Objects.requireNonNullElse(dependency.getClassifier(), "");
+                + dependency.getVersion() + ":" + Objects.requireNonNullElse(dependency.getClassifier(), "");
     }
 
     private List<Dependency> collectExternalDependencies(ArtifactDescriptor artifact, String scope,
