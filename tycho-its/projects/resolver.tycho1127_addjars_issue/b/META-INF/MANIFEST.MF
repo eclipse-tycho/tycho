@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: b
+Bundle-ManifestVersion: 2
+Bundle-Name: b
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: b; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: a
+Bundle-RequiredExecutionEnvironment: JavaSE-11
