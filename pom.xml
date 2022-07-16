@@ -74,14 +74,10 @@
 		<min.jdk.version>11</min.jdk.version>
 
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
-		<classWorldsVersion>2.2.3</classWorldsVersion>
-		<commonsCliVersion>1.2</commonsCliVersion>
 		<commonsCompressVersion>1.21</commonsCompressVersion>
 		<plexusVersion>2.1.1</plexusVersion>
 		<plexusUtilsVersion>3.4.2</plexusUtilsVersion>
 		<cipherVersion>2.0</cipherVersion>
-		<modelloVersion>1.4</modelloVersion>
-		<jxpathVersion>1.3</jxpathVersion>
 		<pluginToolsVersion>3.6.4</pluginToolsVersion>
 		<jgit-version>6.2.0.202206071550-r</jgit-version>
 		<maven-version>3.8.6</maven-version>
@@ -93,7 +89,7 @@
 		<ecjVersion>3.30.0</ecjVersion>
 
 		<!-- version of Tycho used by this build -->
-		<tychoBootstrapVersion>2.7.3</tychoBootstrapVersion>
+		<tychoBootstrapVersion>2.7.4</tychoBootstrapVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -270,6 +266,11 @@
 				<artifactId>maven-verifier</artifactId>
 				<version>1.7.2</version>
 			</dependency>
+			<dependency>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>biz.aQute.bndlib</artifactId>
+				<version>6.3.1</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -380,7 +381,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.3.0</version>
+					<version>3.4.1</version>
 					<configuration>
 						<tarLongFileMode>gnu</tarLongFileMode>
 					</configuration>
@@ -406,7 +407,7 @@
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>5.1.6</version>
+					<version>5.1.7</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -427,6 +428,11 @@
 					<configuration>
 						<relativizeDecorationLinks>false</relativizeDecorationLinks>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>biz.aQute.bnd</groupId>
+					<artifactId>bnd-maven-plugin</artifactId>
+					<version>6.3.1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

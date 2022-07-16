@@ -19,12 +19,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.zip.ZipException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -43,6 +46,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 
 public final class MavenDependencyInjector {
@@ -131,55 +135,88 @@ public final class MavenDependencyInjector {
     void addDependency(ArtifactDescriptor artifact, String scope) {
         List<Dependency> dependencyList = artifact.getMavenProject() != null //
                 ? collectProjectDependencies(artifact, scope) //
-                : collectExternalDependencies(artifact, scope);
+                : collectExternalDependencies(artifact, scope, true);
         Model model = project.getModel();
+        Set<String> existing = model.getDependencies().stream().map(dep -> getKey(dep))
+                .collect(Collectors.toCollection(HashSet::new));
         for (Dependency dependency : dependencyList) {
-            model.addDependency(dependency);
+            if (existing.add(getKey(dependency))) {
+                model.addDependency(dependency);
+            }
+        }
+        Map<String, MavenProject> projectReferences = project.getProjectReferences();
+        ReactorProject mavenProject = artifact.getMavenProject();
+        if (mavenProject != null && DefaultReactorProject.adapt(project) != mavenProject) {
+            String key = new StringBuilder().append(mavenProject.getGroupId()).append(':')
+                    .append(mavenProject.getArtifactId()).append(':').append(mavenProject.getVersion()).toString();
+            if (!projectReferences.containsKey(key)) {
+                logger.debug("Found a P2 dependency (" + artifact
+                        + ") that is not reflected in the maven model project references");
+            }
         }
     }
 
-    private List<Dependency> collectExternalDependencies(ArtifactDescriptor artifact, String scope) {
+    private static String getKey(Dependency dependency) {
+
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getType() + ":"
+                + dependency.getVersion() + ":" + Objects.requireNonNullElse(dependency.getClassifier(), "");
+    }
+
+    private List<Dependency> collectExternalDependencies(ArtifactDescriptor artifact, String scope,
+            boolean retryFailed) {
         File location = artifact.getLocation(fetch);
-        if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
-            if (location == null || !location.isFile() || !location.canRead()) {
-                if (location != null && location.isDirectory()) {
-                    logger.warn("Exploded plugin at location " + location
-                            + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins.");
-                    return Collections.emptyList();
-                } else {
-                    Dependency p2Dependency = createP2Dependency(artifact, location, scope);
-                    if (p2Dependency == null) {
-                        logger.warn(artifact
+        try {
+            if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
+                if (location == null || !location.isFile() || !location.canRead()) {
+                    if (location != null && location.isDirectory()) {
+                        logger.warn("Exploded plugin at location " + location
                                 + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins.");
                         return Collections.emptyList();
+                    } else {
+                        Dependency p2Dependency = createP2Dependency(artifact, location, scope);
+                        if (p2Dependency == null) {
+                            logger.warn(artifact
+                                    + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins.");
+                            return Collections.emptyList();
+                        }
+                        return Collections.singletonList(p2Dependency);
                     }
-                    return Collections.singletonList(p2Dependency);
                 }
-            }
-            List<Dependency> result = new ArrayList<>();
-            for (String classpathElement : getClasspathElements(location)) {
-                if (".".equals(classpathElement)) {
-                    result.add(createP2Dependency(artifact, location, scope));
-                } else {
-                    File nestedJarOrDir = bundleReader.getEntry(location, classpathElement);
-                    if (nestedJarOrDir != null) {
-                        if (nestedJarOrDir.isFile()) {
-                            Dependency nestedJarDependency = createP2Dependency(artifact, nestedJarOrDir,
-                                    Artifact.SCOPE_SYSTEM);
-                            nestedJarDependency.setClassifier(classpathElement);
-                            result.add(nestedJarDependency);
-                        } else if (nestedJarOrDir.isDirectory()) {
-                            // system-scoped dependencies on directories are not supported
-                            logger.debug("Dependency from " + project.getBasedir()
-                                    + " to nested directory classpath entry " + nestedJarOrDir
-                                    + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
+                List<Dependency> result = new ArrayList<>();
+                for (String classpathElement : getClasspathElements(location)) {
+                    if (".".equals(classpathElement)) {
+                        result.add(createP2Dependency(artifact, location, scope));
+                    } else {
+                        File nestedJarOrDir = bundleReader.getEntry(location, classpathElement);
+                        if (nestedJarOrDir != null) {
+                            if (nestedJarOrDir.isFile()) {
+                                Dependency nestedJarDependency = createP2Dependency(artifact, nestedJarOrDir,
+                                        Artifact.SCOPE_SYSTEM);
+                                nestedJarDependency.setClassifier(classpathElement);
+                                result.add(nestedJarDependency);
+                            } else if (nestedJarOrDir.isDirectory()) {
+                                // system-scoped dependencies on directories are not supported
+                                logger.debug("Dependency from " + project.getBasedir()
+                                        + " to nested directory classpath entry " + nestedJarOrDir
+                                        + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
+                            }
                         }
                     }
                 }
+                return result;
+            } else {
+                return Collections.singletonList(createP2Dependency(artifact, location, scope));
             }
-            return result;
-        } else {
-            return Collections.singletonList(createP2Dependency(artifact, location, scope));
+        } catch (OsgiManifestParserException e) {
+            if (location != null && retryFailed && location.isFile()) {
+                if (e.getCause() instanceof ZipException) {
+                    logger.warn("Artifact " + artifact + " located at " + location
+                            + " seems corrupted! Will attempt to redownload it ...");
+                    location.delete();
+                    return collectExternalDependencies(artifact, scope, false);
+                }
+            }
+            throw e;
         }
     }
 
@@ -284,7 +321,8 @@ public final class MavenDependencyInjector {
         dependency.setArtifactId(dependentReactorProject.getArtifactId());
         dependency.setGroupId(dependentReactorProject.getGroupId());
         dependency.setVersion(dependentReactorProject.getVersion());
-        dependency.setType(dependentReactorProject.getPackaging());
+        String type = dependentReactorProject.getPackaging();
+        dependency.setType(type);
         dependency.setScope(scope);
         return dependency;
     }
@@ -301,7 +339,8 @@ public final class MavenDependencyInjector {
         @Override
         public String toString() {
             return "ArtifactDescriptorDependency {descriptor=" + getDescriptor() + ", groupId=" + getGroupId()
-                    + ", artifactId=" + getArtifactId() + ", version=" + getVersion() + ", type=" + getType() + "}";
+                    + ", artifactId=" + getArtifactId() + ", version=" + getVersion() + ", type=" + getType()
+                    + ", classifier=" + getClassifier() + "}";
         }
 
         public ArtifactDescriptor getDescriptor() {

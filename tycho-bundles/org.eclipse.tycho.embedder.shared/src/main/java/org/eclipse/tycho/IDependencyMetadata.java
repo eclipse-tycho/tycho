@@ -18,7 +18,7 @@ import java.util.Set;
 public interface IDependencyMetadata {
 
     enum DependencyMetadataType {
-        SEED, RESOLVE;
+        INITIAL, SEED, RESOLVE;
     }
 
     Set<? /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type);

@@ -12,15 +12,17 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
-import org.apache.maven.shared.utils.io.DirectoryScanner;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
@@ -189,31 +191,31 @@ public abstract class AbstractTychoIntegrationTest {
     protected File[] assertFileExists(File baseDir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(baseDir);
-        ds.setIncludes(pattern);
+        ds.setIncludes(new String[] { pattern });
         ds.scan();
         File[] includedFiles = Arrays.stream(ds.getIncludedFiles()).map(file -> new File(baseDir, file))
                 .toArray(File[]::new);
-        Assert.assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 1, includedFiles.length);
-        Assert.assertTrue(baseDir.getAbsolutePath() + "/" + pattern, includedFiles[0].canRead());
+        assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 1, includedFiles.length);
+        assertTrue(baseDir.getAbsolutePath() + "/" + pattern, includedFiles[0].canRead());
         return includedFiles;
     }
 
     protected void assertDirectoryExists(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
-        ds.setIncludes(pattern);
+        ds.setIncludes(new String[] { pattern });
         ds.scan();
-        Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedDirectories().length);
-        Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
+        assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedDirectories().length);
+        assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
                 new File(targetdir, ds.getIncludedDirectories()[0]).exists());
     }
 
     protected void assertFileDoesNotExist(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
-        ds.setIncludes(pattern);
+        ds.setIncludes(new String[] { pattern });
         ds.scan();
-        Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedFiles().length);
+        assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedFiles().length);
     }
 
     protected String toURI(File file) throws IOException {

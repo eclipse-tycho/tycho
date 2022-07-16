@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
@@ -51,34 +52,25 @@ public class ValidateIdTest extends AbstractTychoMojoTestCase {
     public void testFailIfNonMatchingIdBundle() throws MojoExecutionException, Exception {
         File basedir = getBasedir("projects/nonMatchingIds/bundle");
         ValidateIdMojo mojo = getMojo(basedir);
-        assertMojoExecutionExceptionThrown(mojo);
+		assertThrows(MojoExecutionException.class, () -> mojo.execute());
     }
 
     public void testFailIfNonMatchingIdTestPlugin() throws MojoExecutionException, Exception {
         File basedir = getBasedir("projects/nonMatchingIds/test-plugin");
         ValidateIdMojo mojo = getMojo(basedir);
-        assertMojoExecutionExceptionThrown(mojo);
+		assertThrows(MojoExecutionException.class, () -> mojo.execute());
     }
 
     public void testFailIfNonMatchingIdFeature() throws MojoExecutionException, Exception {
         File basedir = getBasedir("projects/nonMatchingIds/feature");
         ValidateIdMojo mojo = getMojo(basedir);
-        assertMojoExecutionExceptionThrown(mojo);
+		assertThrows(MojoExecutionException.class, () -> mojo.execute());
     }
 
     public void testFailIfNonMatchingIdIU() throws MojoExecutionException, Exception {
         File basedir = getBasedir("projects/nonMatchingIds/iu");
         ValidateIdMojo mojo = getMojo(basedir);
-        assertMojoExecutionExceptionThrown(mojo);
-    }
-
-    private void assertMojoExecutionExceptionThrown(ValidateIdMojo mojo) throws MojoFailureException {
-        try {
-            mojo.execute();
-            fail();
-        } catch (MojoExecutionException e) {
-            // expected
-        }
+		assertThrows(MojoExecutionException.class, () -> mojo.execute());
     }
 
     private ValidateIdMojo getMojo(File basedir) throws Exception {

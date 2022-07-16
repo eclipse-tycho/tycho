@@ -30,6 +30,7 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -46,6 +47,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.AbstractScanner;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.PackagingType;
@@ -289,7 +291,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     static File getSourcesFeatureOutputDir(MavenProject project) {
         File dir = new File(project.getBuild().getDirectory(), GEN_DIR);
         dir.mkdirs();
-        // TODO why is this needed?
+        // TODO see https://github.com/eclipse-equinox/p2/issues/101
         new File(dir, "p2.inf").delete();
         return dir;
     }
@@ -670,5 +672,28 @@ public class SourceFeatureMojo extends AbstractMojo {
         fileSet.setExcludes(allExcludes.toArray(new String[allExcludes.size()]));
 
         return fileSet;
+    }
+
+    static boolean isEnabledForProject(MavenProject project) {
+        if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
+            return false;
+        }
+        Plugin plugin = project.getPlugin("org.eclipse.tycho:tycho-source-plugin");
+        if (plugin != null) {
+            PluginExecution execution = plugin.getExecutions().stream()
+                    .filter(e -> e.getGoals().contains(SourceFeatureMojo.GOAL)).findFirst().orElse(null);
+            if (execution == null) {
+                return false;
+            }
+            Object configuration = execution.getConfiguration();
+            if (configuration instanceof Xpp3Dom) {
+                Xpp3Dom dom = (Xpp3Dom) configuration;
+                Xpp3Dom child = dom.getChild("skip");
+                if (child != null && Boolean.valueOf(child.getValue())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

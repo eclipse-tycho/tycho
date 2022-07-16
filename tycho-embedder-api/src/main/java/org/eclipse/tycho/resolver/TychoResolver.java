@@ -22,6 +22,8 @@ public interface TychoResolver {
     // TODO project and reactorProject represent the same thing!? -> should be one paramenter
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject);
 
+    public void resolveMavenProject(MavenSession session, MavenProject project, List<MavenProject> mavenProjects);
+
     public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects);
 
 }

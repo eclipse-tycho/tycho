@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -117,6 +118,7 @@ public class EquinoxResolver {
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
+        Objects.requireNonNull(artifacts, "DependencyArtifacts can't be null!");
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(THREAD_COUNT);
         try {
             Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);

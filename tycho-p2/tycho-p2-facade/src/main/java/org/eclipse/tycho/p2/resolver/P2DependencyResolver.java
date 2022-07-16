@@ -36,7 +36,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.maven.MavenExecutionException;
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -75,7 +74,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
-import org.eclipse.tycho.core.maven.utils.PluginRealmHelper;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
@@ -100,6 +98,7 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
@@ -152,9 +151,12 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 map.getValue().addAll(metadata.getDependencyMetadata(map.getKey()));
             }
         }
+        Set<Object> initial = new HashSet<>();
         for (Entry<DependencyMetadataType, Set<Object>> entry : typeMap.entrySet()) {
             reactorProject.setDependencyMetadata(entry.getKey(), entry.getValue());
+            initial.addAll(entry.getValue());
         }
+        reactorProject.setDependencyMetadata(DependencyMetadataType.INITIAL, initial);
     }
 
     protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
@@ -180,7 +182,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                     // have not found anything
                 }
             }, this::isTychoP2Plugin);
-        } catch (MavenExecutionException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 

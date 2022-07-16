@@ -4,6 +4,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Eclipse M2E lifecycle-mapping metadata embedded
+
+All Tycho plugins are now shipped with embedded M2E lifecycle-mapping-metadata files.
+Therefore M2E now knows by default how to handle them and it is not necessary anymore to install any connector (usually `org.sonatype.tycho.m2e` was used) for them.
+
 ### Support for BND in tycho-build extension (aka pomless builds)
 
 The Tycho Build Extension (aka pomless build) now detects bnd.bnd files in the root of a pomless bundle and automatically generates an appropriate maven execution automatically.
@@ -246,6 +251,24 @@ It was hardcoded to "tooling" always and had no practical meaning to change.
 
 `applicationArgs` (previously known as `applicationsArgs`) has been corrected to not perform any
 interpretation of whitepace and quotes anymore. Individual arguments are now used literally (just like `jvmArgs`).
+
+## 2.7.4
+
+Fixes:
+- Tycho reports wrong type in case of maven GAV restored from UI
+- Support bnd processing in pomless builds
+- The official maven keyserver is just to slow use ubuntu as an alternative mirror first
+- [Maven-Target] Consider extra-repositories when fetching source-jars
+- DS generation fails with latest eclipse release for UI bundles
+- PomDependencyCollector uses a wrong type for pom declared feature dependencies
+- Not all (direct) requirements of a feature are considered when building an update-site
+- Fix Mojo Configuration of DS Plugin is ignored
+- Check that components declared in the manifest exits
+
+### Eclipse M2E lifecycle-mapping metadata embedded
+
+All Tycho plugins are now shipped with embedded M2E lifecycle-mapping-metadata files.
+Therefore M2E now knows by default how to handle them and it is not necessary anymore to install any connector (usually `org.sonatype.tycho.m2e` was used) for them.
 
 ## 2.7.3
 Fixes:

@@ -13,11 +13,9 @@
 
 package org.eclipse.tycho.surefire.provider.impl;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDependency;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -36,7 +34,7 @@ public class JUnit58WithVintageProvider extends AbstractJUnitProvider {
 
     @Override
     protected Set<String> getJUnitBundleNames() {
-        return new HashSet<>(asList("org.junit.jupiter.api"));
+        return Set.of("org.junit.jupiter.api" /* legacy Orbit bundle */, "junit-jupiter-api");
     }
 
     @Override

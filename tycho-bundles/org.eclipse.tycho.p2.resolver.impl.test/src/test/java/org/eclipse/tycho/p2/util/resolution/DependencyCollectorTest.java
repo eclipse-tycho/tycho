@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.util.resolution;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,23 +63,20 @@ public class DependencyCollectorTest {
 
         DependencyCollector dc = new DependencyCollector(logVerifier.getLogger());
         dc.setData(data);
-        try {
-            dc.resolve(Collections.<String, String> emptyMap(), new NullProgressMonitor());
-            Assert.fail();
-        } catch (RuntimeException e) {
-            Throwable cause = e.getCause();
+        RuntimeException e = assertThrows(RuntimeException.class,
+                () -> dc.resolve(Collections.emptyMap(), new NullProgressMonitor()));
+        Throwable cause = e.getCause();
 
-            Assert.assertTrue(cause instanceof ProvisionException);
+        Assert.assertTrue(cause instanceof ProvisionException);
 
-            ProvisionException pe = (ProvisionException) cause;
+        ProvisionException pe = (ProvisionException) cause;
 
-            Assert.assertTrue(pe.getStatus().isMultiStatus());
+        Assert.assertTrue(pe.getStatus().isMultiStatus());
 
-            MultiStatus status = (MultiStatus) pe.getStatus();
+        MultiStatus status = (MultiStatus) pe.getStatus();
 
-            Assert.assertEquals(1, status.getChildren().length);
+        Assert.assertEquals(1, status.getChildren().length);
 
-            Assert.assertTrue(e.toString().contains("this.is.a.missing.iu"));
-        }
+        Assert.assertTrue(e.toString().contains("this.is.a.missing.iu"));
     }
 }

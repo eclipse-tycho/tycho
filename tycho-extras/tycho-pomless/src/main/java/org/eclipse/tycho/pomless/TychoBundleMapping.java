@@ -17,10 +17,10 @@ package org.eclipse.tycho.pomless;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.function.Supplier;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -48,21 +48,15 @@ public class TychoBundleMapping extends AbstractTychoMapping {
 
     @Override
     protected boolean isValidLocation(String location) {
-        File polyglotArtifactFile = new File(location);
-        if (polyglotArtifactFile.isDirectory() && polyglotArtifactFile.getName().equals(META_INF_DIRECTORY)) {
-            return new File(polyglotArtifactFile, MANIFEST_MF).exists();
-        }
-        return false;
+        File polyglotFile = new File(location);
+        return polyglotFile.getName().equals(META_INF_DIRECTORY) && new File(polyglotFile, MANIFEST_MF).isFile();
     }
 
     @Override
     protected File getPrimaryArtifact(File dir) {
         File metaInfDirectory = new File(dir, META_INF_DIRECTORY);
-        if (metaInfDirectory.isDirectory()) {
-            File manifestFile = new File(metaInfDirectory, MANIFEST_MF);
-            if (manifestFile.isFile()) {
-                return metaInfDirectory;
-            }
+        if (new File(metaInfDirectory, MANIFEST_MF).isFile()) {
+            return metaInfDirectory;
         }
         return null;
     }
@@ -73,8 +67,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     }
 
     @Override
-    protected void initModel(Model model, Reader artifactReader, File artifactFile)
-            throws ModelParseException, IOException {
+    protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
         File bundleRoot = artifactFile.getParentFile();
         File manifestFile = new File(artifactFile, MANIFEST_MF);
         Attributes manifestHeaders = readManifestHeaders(manifestFile);
@@ -84,25 +77,25 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         String bundleVersion = getRequiredHeaderValue("Bundle-Version", manifestHeaders, manifestFile);
         model.setVersion(getPomVersion(bundleVersion));
         String prefix;
-        if (isTestBundle(bundleSymbolicName, manifestHeaders, bundleRoot)) {
+        if (isTestBundle(bundleSymbolicName, bundleRoot)) {
             model.setPackaging(PACKAGING_TEST);
             prefix = NAME_PREFIX_TEST;
         } else {
             prefix = NAME_PREFIX;
         }
-        String bundleName = getManifestAttributeValue(manifestHeaders, "Bundle-Name", manifestFile);
-        if (bundleName != null) {
-            model.setName(prefix + bundleName);
-        } else {
-            model.setName(prefix + bundleSymbolicName);
-        }
-        String vendorName = getManifestAttributeValue(manifestHeaders, "Bundle-Vendor", manifestFile);
+        File l10nFile = getBundleLocalizationPropertiesFile(manifestHeaders, manifestFile);
+        Supplier<Properties> properties = getPropertiesSupplier(l10nFile);
+
+        String bundleName = getManifestAttributeValue(manifestHeaders, "Bundle-Name", properties);
+        model.setName(prefix + (bundleName != null ? bundleName : bundleSymbolicName));
+
+        String vendorName = getManifestAttributeValue(manifestHeaders, "Bundle-Vendor", properties);
         if (vendorName != null) {
             Organization organization = new Organization();
             organization.setName(vendorName);
             model.setOrganization(organization);
         }
-        String description = getManifestAttributeValue(manifestHeaders, "Bundle-Description", manifestFile);
+        String description = getManifestAttributeValue(manifestHeaders, "Bundle-Description", properties);
         if (description != null) {
             model.setDescription(description);
         }
@@ -115,8 +108,12 @@ public class TychoBundleMapping extends AbstractTychoMapping {
 
     @Override
     protected Properties getEnhancementProperties(File file) throws IOException {
-        //Look up build.properties in the project's root. The passed file points to the 'META-INF' folder.
-        return getBuildProperties(file.getParentFile());
+        if (file.getName().equals(META_INF_DIRECTORY) && file.isDirectory()) {
+            //Look up build.properties in the project's root. The given file points to the 'META-INF' folder.
+            return getBuildProperties(file.getParentFile());
+        } else {
+            return super.getEnhancementProperties(file);
+        }
     }
 
     private static Plugin createBndPlugin(Model model) {
@@ -134,7 +131,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         process.setGoals(Arrays.asList("bnd-process"));
         plugin.addExecution(process);
         Xpp3Dom config = new Xpp3Dom("configuration");
-        process.setConfiguration(config = new Xpp3Dom("configuration"));
+        process.setConfiguration(config);
         Xpp3Dom packagingTypes = new Xpp3Dom("packagingTypes");
         packagingTypes.setValue(model.getPackaging());
         config.addChild(packagingTypes);
@@ -171,49 +168,33 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         return value;
     }
 
-    private boolean isTestBundle(String bundleSymbolicName, Attributes manifestHeaders, File bundleRoot)
-            throws IOException {
+    private boolean isTestBundle(String bundleSymbolicName, File bundleRoot) throws IOException {
         Properties buildProperties = getBuildProperties(bundleRoot);
         String property = buildProperties.getProperty("tycho.pomless.testbundle");
         if (property != null) {
             //if property is given it take precedence over our guesses...
             return Boolean.valueOf(property);
         }
-        if (bundleSymbolicName.endsWith(".tests") || bundleSymbolicName.endsWith(".test")) {
-            //TODO can we improve this? maybe also if the import/require bundle contains junit we should assume its a test bundle?
-            // or should we search for Test classes annotations? 
-            return true;
-        }
-        return false;
+        return bundleSymbolicName.endsWith(".tests") || bundleSymbolicName.endsWith(".test");
+        //TODO can we improve this? maybe also if the import/require bundle contains junit we should assume it's a test bundle?
+        // or should we search for Test classes annotations?
     }
 
-    private static String getManifestAttributeValue(Attributes headers, String attributeName, File manifestFile)
-            throws IOException {
+    private static String getManifestAttributeValue(Attributes headers, String attributeName,
+            Supplier<Properties> localizationProperties) throws IOException {
+        String rawValue = headers.getValue(attributeName);
+
+        String localizedValue = localizedValue(rawValue, localizationProperties);
+        return localizedValue != null && !localizedValue.isBlank() ? localizedValue : null;
+    }
+
+    private static File getBundleLocalizationPropertiesFile(Attributes headers, File manifestFile) {
         String location = headers.getValue("Bundle-Localization");
         if (location == null || location.isEmpty()) {
             location = "OSGI-INF/l10n/bundle";
         }
-        String rawValue = headers.getValue(attributeName);
-        if (rawValue != null && !rawValue.isEmpty()) {
-            if (rawValue.startsWith("%")) {
-                String key = rawValue.substring(1);
-                //we always use the default here to have consistent build regardless of locale settings
-                File l10nFile = new File(manifestFile.getParentFile().getParentFile(), location + ".properties");
-                if (l10nFile.exists()) {
-                    Properties properties = new Properties();
-                    try (InputStream stream = new FileInputStream(l10nFile)) {
-                        properties.load(stream);
-                    }
-                    String translation = properties.getProperty(key);
-                    if (translation != null && !translation.isEmpty()) {
-                        return translation;
-                    }
-                }
-                return key;
-            }
-            return rawValue;
-        }
-        return null;
+        //we always use the default here to have consistent build regardless of locale settings
+        return new File(manifestFile.getParentFile().getParentFile(), location + ".properties");
     }
 
 }

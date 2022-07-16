@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -75,6 +76,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 	@Override
 	public Result<ProjectDependencyGraph> build(MavenSession session) {
+		Objects.requireNonNull(session);
 		// Tell the polyglot mappings that we are in extension mode
 		for (Mapping mapping : polyglotMappings.values()) {
 			if (mapping instanceof AbstractTychoMapping) {
@@ -124,7 +126,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		try {
 			ProjectDependencyClosure dependencyClosure;
 			try {
-				dependencyClosure = dependencyProcessor.computeProjectDependencyClosure(projects);
+				dependencyClosure = dependencyProcessor.computeProjectDependencyClosure(projects, session);
 			} catch (CoreException e) {
 				log.error("Can't resolve projects", e);
 				return Result.error(graph, toProblems(e.getStatus(), new ArrayList<>()));

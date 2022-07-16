@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plugin2
+Bundle-SymbolicName: plugin2
+Bundle-Version: 0.0.1.qualifier
+Automatic-Module-Name: plugin2
+Bundle-RequiredExecutionEnvironment: JavaSE-11
