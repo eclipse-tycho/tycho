@@ -252,7 +252,7 @@ public final class MavenDependencyInjector {
             dependency.setGroupId(groupId);
             dependency.setArtifactId(artifactKey.getId());
             dependency.setVersion(artifactKey.getVersion());
-            dependency.setScope(Artifact.SCOPE_SYSTEM);
+            dependency.setScope(Artifact.SCOPE_COMPILE);
             dependency.setType(artifactKey.getType());
         }
         if (Artifact.SCOPE_SYSTEM.equals(dependency.getScope())) {

@@ -10,8 +10,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -22,6 +28,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -45,7 +52,7 @@ public class InstallableUnitSlicer {
 	 * @param avaiableIUs the {@link IQueryable} of all units that could be used for
 	 *                    the slice
 	 * @return the result of the slicing
-	 * @throws CoreException if there is any
+	 * @throws CoreException if there is anything goes wrong
 	 */
 	public IQueryResult<IInstallableUnit> computeDependencies(Collection<IInstallableUnit> rootIus,
 			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
@@ -60,6 +67,43 @@ public class InstallableUnitSlicer {
 			log.debug("There are warnings from the slicer: " + sliceStatus);
 		}
 		return slice.query(QueryUtil.createIUAnyQuery(), monitor);
+	}
+
+	/**
+	 * Computes all the direct requirements of a collection of root IUs given a set
+	 * of units
+	 * 
+	 * @param rootIus     the root units that are inspected for this operation
+	 * @param avaiableIUs the {@link IQueryable} of all units that could be used for
+	 *                    resolve the requirements
+	 * @return the result of the computation
+	 * @throws CoreException if there is anything goes wrong
+	 */
+	public IQueryResult<IInstallableUnit> computeDirectDependencies(Collection<IInstallableUnit> rootIus,
+			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+		Collection<IInstallableUnit> result = new LinkedHashSet<>();
+		List<IRequirement> rootRequirements = rootIus.stream().flatMap(iu -> iu.getRequirements().stream())
+				.filter(req -> {
+			for (IInstallableUnit unit : rootIus) {
+				if (unit.satisfies(req)) {
+					// self full filled requirement
+					return false;
+				}
+			}
+			return true;
+		}).collect(Collectors.toCollection(ArrayList::new));
+		Set<IInstallableUnit> allIus = avaiableIUs.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet();
+		allIus.removeAll(rootIus);
+		outer: for (IInstallableUnit iu : allIus) {
+			for (Iterator<IRequirement> iterator = rootRequirements.iterator(); iterator.hasNext();) {
+				if (iu.satisfies(iterator.next())) {
+					result.add(iu);
+					iterator.remove();
+					continue outer;
+				}
+			}
+		}
+		return new CollectionResult<IInstallableUnit>(result);
 	}
 
 	private final class TychoSlicer extends PermissiveSlicer {

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,7 +142,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                         Model model = project.getModel();
                         Set<String> existingDependencies = model.getDependencies().stream().map(dep -> getKey(dep))
                                 .collect(Collectors.toCollection(HashSet::new));
-                        for (MavenProject dependencyProject : closure.getDependencyProjects(project)) {
+                        Collection<MavenProject> projectDependencies = closure.getDependencyProjects(project);
+                        for (MavenProject dependencyProject : projectDependencies) {
                             Dependency dependency = new Dependency();
                             dependency.setArtifactId(dependencyProject.getArtifactId());
                             dependency.setGroupId(dependencyProject.getGroupId());

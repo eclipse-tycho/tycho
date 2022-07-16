@@ -72,12 +72,15 @@ public class MavenProjectDependencyProcessor {
 	public ProjectDependencyClosure computeProjectDependencyClosure(Collection<MavenProject> projects,
 			MavenSession session) throws CoreException {
 		Objects.requireNonNull(session);
-		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects,
-				session);
+		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
 		Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
 				.collect(Collectors.toSet());
+
+		List<String> goals = session.getGoals();
+		boolean onlyDirect = goals.size() == 1 && "dependency:tree".equals(goals.get(0));
+
 		Map<MavenProject, Collection<IInstallableUnit>> projectDependenciesMap = computeProjectDependencies(projects,
-				new CollectionResult<IInstallableUnit>(availableIUs), projectIUMap);
+				new CollectionResult<IInstallableUnit>(availableIUs), projectIUMap, onlyDirect);
 		Map<IInstallableUnit, MavenProject> iuProjectMap = new HashMap<IInstallableUnit, MavenProject>();
 		for (var entry : projectIUMap.entrySet()) {
 			MavenProject mavenProject = entry.getKey();
@@ -131,13 +134,13 @@ public class MavenProjectDependencyProcessor {
 	 */
 	private Map<MavenProject, Collection<IInstallableUnit>> computeProjectDependencies(
 			Collection<MavenProject> projects, IQueryable<IInstallableUnit> avaiableIUs,
-			Map<MavenProject, Collection<IInstallableUnit>> projectIUMap) throws CoreException {
+			Map<MavenProject, Collection<IInstallableUnit>> projectIUMap, boolean direct) throws CoreException {
 		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
 		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
 			try {
 				Collection<IInstallableUnit> projectDependencies = computeProjectDependencies(projectIUMap.get(project),
-						avaiableIUs);
+						avaiableIUs, direct);
 				result.put(project, projectDependencies);
 				if (DUMP_DATA) {
 					File file = new File(project.getBasedir(), "project-dependencies.xml");
@@ -173,13 +176,18 @@ public class MavenProjectDependencyProcessor {
 	 * @throws CoreException if computation failed
 	 */
 	private Collection<IInstallableUnit> computeProjectDependencies(Collection<IInstallableUnit> projectUnits,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+			IQueryable<IInstallableUnit> avaiableIUs, boolean direct) throws CoreException {
 		if (projectUnits.isEmpty()) {
 			return Collections.emptyList();
 		}
-		Set<IInstallableUnit> resolved = new LinkedHashSet<IInstallableUnit>(
-				slicer.computeDependencies(projectUnits, avaiableIUs).toSet());
-		resolved.removeAll(projectUnits);
+		Set<IInstallableUnit> resolved;
+		if (direct) {
+			resolved = slicer.computeDirectDependencies(projectUnits, avaiableIUs).toSet();
+		} else {
+			resolved = new LinkedHashSet<IInstallableUnit>(
+					slicer.computeDependencies(projectUnits, avaiableIUs).toSet());
+			resolved.removeAll(projectUnits);
+		}
 		// now we need to filter all fragments that we are a host!
 		// for example SWT creates an explicit requirement to its fragments and we don't
 		// want them here as we already have resolved them earlier!

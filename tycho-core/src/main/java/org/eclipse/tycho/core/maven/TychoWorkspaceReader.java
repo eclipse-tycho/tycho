@@ -34,6 +34,7 @@ import org.eclipse.aether.repository.WorkspaceRepository;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
@@ -164,6 +165,25 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
             if (model.getPackaging() == null) {
                 model.setPackaging(
                         artifact.getGroupId().substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-'));
+            }
+            MavenSession session = legacySupport.getSession();
+            if (session != null) {
+                MavenProject currentProject = session.getCurrentProject();
+                ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
+                Optional<DependencyArtifacts> dependencyMetadata = TychoProjectUtils
+                        .getOptionalDependencyArtifacts(reactorProject);
+                if (dependencyMetadata.isPresent()) {
+                    List<ArtifactDescriptor> artifacts = dependencyMetadata.get()
+                            .getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+                    for (ArtifactDescriptor descriptor : artifacts) {
+                        ReactorProject mavenProject = descriptor.getMavenProject();
+                        if (mavenProject == null) {
+                            File location = descriptor.getLocation(true);
+                        } else {
+                            //TODO handle reactor projects!
+                        }
+                    }
+                }
             }
             return model;
         }
