@@ -209,9 +209,24 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * the design-time equivalent to the equinox runtime option
      * <a href="https://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
      * >osgi.compatibility.bootdelegation</a>.
+     * 
+     * @deprecated OSGI requires all packages to be imported and support for
+     *             osgi.compatibility.bootdelegation will be removed in one of the next Tycho
+     *             releases.
+     * @see #requireJavaPackageImports
+     */
+    @Parameter()
+    @Deprecated
+    private Boolean requireJREPackageImports;
+
+    /**
+     * Since OSGi R7 it is
+     * <a href="https://blog.osgi.org/2018/02/osgi-r7-highlights-java-9-support.html">allowed to
+     * import java.* packages</a> as well and considered good practice. This option controls if
+     * Tycho enforces this rule.
      */
     @Parameter(defaultValue = "false")
-    private boolean requireJREPackageImports;
+    private boolean requireJavaPackageImports;
 
     /**
      * If set to <code>false</code> (the default) issue a warning if effective compiler target level
@@ -642,7 +657,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             throws MojoExecutionException {
         List<AccessRule> accessRules = new ArrayList<>();
 
-        if (requireJREPackageImports) {
+        if (requireJREPackageImports != null) {
+            logger.warn(
+                    "Configuration option requireJREPackageImports is deprecated and will be removed in a future Tycho version!");
+        }
+        if (requireJREPackageImports == null || requireJREPackageImports) {
+            if (!requireJavaPackageImports) {
+                accessRules.add(new DefaultAccessRule("java/**", false));
+            }
             accessRules.addAll(getStrictBootClasspathAccessRules());
         } else {
             accessRules.add(new DefaultAccessRule("java/**", false));
