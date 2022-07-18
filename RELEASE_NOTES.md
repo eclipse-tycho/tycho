@@ -4,6 +4,15 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Deprecated Features
+
+The `tycho-compiler:compile` and `tycho-compiler:testCompile` option `requireJREPackageImports` is deprecated now and will produce a warning when used, bundles currently rely on this option should migrate to proper importing packages from the non java.* namespace.
+
+### Tycho compiler support for java.* imports
+
+The `tycho-compiler:compile` and `tycho-compiler:testCompile` has a new option `requireJavaPackageImports` (defaults to `false`) that allows to assert importing of packages from the `java.*` namespace. 
+This is [allowed since OSGi R7](https://blog.osgi.org/2018/02/osgi-r7-highlights-java-9-support.html) and considered  ǵood practice since the evolving of modular VMs there is no guarantee what packages a JVM offers,
+
 ### Eclipse M2E lifecycle-mapping metadata embedded
 
 All Tycho plugins are now shipped with embedded M2E lifecycle-mapping-metadata files.
