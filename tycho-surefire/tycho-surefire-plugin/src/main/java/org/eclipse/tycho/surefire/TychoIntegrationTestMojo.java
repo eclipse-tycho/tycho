@@ -180,7 +180,7 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         File testPluginJar = createTestPluginJar(reactorProject);
         ArtifactKey bundleArtifactKey = getBundleArtifactKey(testPluginJar);
-        testRuntime.addBundle(bundleArtifactKey, testPluginJar, true);
+        testRuntime.addBundle(bundleArtifactKey.getId(), bundleArtifactKey.getVersion(), testPluginJar);
         String bsn = bundleArtifactKey.getId();
         List<ClasspathEntry> testClasspath = osgiBundle.getTestClasspath(reactorProject, false);
         //here we add the whole (test) classpath as a dev-entry to the runtime fragment, this is required to optionally load any test-scoped class that is not imported and not available as an OSGi bundle

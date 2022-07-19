@@ -26,9 +26,9 @@ import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.utils.TychoVersion;
-import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.rules.TemporaryFolder;
 

@@ -13,6 +13,7 @@
 package org.eclipse.tycho.testing;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 
 @Component(role = EquinoxRuntimeLocator.class, hint = "stub")

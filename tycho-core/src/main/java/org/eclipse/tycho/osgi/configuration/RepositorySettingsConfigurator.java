@@ -31,7 +31,7 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "RepositorySettingsConfigurator")
-public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
+public class RepositorySettingsConfigurator implements EquinoxLifecycleListener {
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);

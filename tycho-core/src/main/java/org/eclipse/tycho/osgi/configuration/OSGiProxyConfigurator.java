@@ -24,7 +24,7 @@ import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.shared.ProxyServiceFacade;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "P2ProxyConfigurator")
-public class OSGiProxyConfigurator extends EquinoxLifecycleListener {
+public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
 
     @Requirement
     protected Logger logger;

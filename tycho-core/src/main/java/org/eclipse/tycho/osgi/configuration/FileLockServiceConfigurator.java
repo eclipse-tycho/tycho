@@ -18,7 +18,7 @@ import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.locking.facade.FileLockService;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "FileLockServiceConfigurator")
-public class FileLockServiceConfigurator extends EquinoxLifecycleListener {
+public class FileLockServiceConfigurator implements EquinoxLifecycleListener {
 
     @Requirement
     private FileLockService fileLockService;

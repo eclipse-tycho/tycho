@@ -38,7 +38,7 @@ import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "MavenProtocolHandler")
-public class MavenProtocolHandler extends EquinoxLifecycleListener {
+public class MavenProtocolHandler implements EquinoxLifecycleListener {
 
     @Requirement
     private LegacySupport context;

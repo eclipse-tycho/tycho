@@ -18,7 +18,7 @@ import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.BuildPropertiesParser;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "BuildPropertiesReaderConfigurator")
-public class BuildPropertiesParserConfigurator extends EquinoxLifecycleListener {
+public class BuildPropertiesParserConfigurator implements EquinoxLifecycleListener {
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;

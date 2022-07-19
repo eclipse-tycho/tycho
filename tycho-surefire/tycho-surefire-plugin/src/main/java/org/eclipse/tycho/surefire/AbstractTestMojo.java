@@ -70,6 +70,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -96,7 +97,6 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
-import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.surefire.provider.impl.ProviderHelper;
@@ -640,9 +640,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      * <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchain</a> if
      * configured in pom.xml)</li>
      * <li>BREE: use MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code> to lookup the
-     * JDK from
-     * <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>.
-     * The value of BREE will be matched against the id of the toolchain elements in
+     * JDK from <a href=
+     * "https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>. The
+     * value of BREE will be matched against the id of the toolchain elements in
      * toolchains.xml.</li>
      * </ul>
      *
@@ -860,22 +860,26 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             ReactorProject otherProject = artifact.getMavenProject();
             if (otherProject != null) {
                 if (otherProject.sameProject(project)) {
-                    testRuntime.addBundle(artifact.getKey(), project.getBasedir());
+                    addBundle(testRuntime, artifact.getKey(), project.getBasedir());
                     continue;
                 }
                 File file = otherProject.getArtifact(artifact.getClassifier());
                 if (file != null) {
-                    testRuntime.addBundle(artifact.getKey(), file);
+                    addBundle(testRuntime, artifact.getKey(), file);
                     continue;
                 }
             }
-            testRuntime.addBundle(artifact);
+            addBundle(testRuntime, artifact.getKey(), artifact.getLocation(true));
         }
 
         setupTestBundles(provider, testRuntime);
 
         getReportsDirectory().mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
+    }
+
+    private void addBundle(EquinoxInstallationDescription runtime, ArtifactKey artifact, File file) {
+        runtime.addBundle(artifact.getId(), artifact.getVersion(), file);
     }
 
     protected void setupTestBundles(TestFrameworkProvider provider, EquinoxInstallationDescription testRuntime)
@@ -885,12 +889,12 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             DevBundleInfo devInfo = workspaceState.getBundleInfo(session, artifact.getGroupId(),
                     artifact.getArtifactId(), artifact.getVersion(), project.getPluginArtifactRepositories());
             if (devInfo != null) {
-                testRuntime.addBundle(devInfo.getArtifactKey(), devInfo.getLocation(), true);
+                addBundle(testRuntime, devInfo.getArtifactKey(), devInfo.getLocation());
                 testRuntime.addDevEntries(devInfo.getSymbolicName(), devInfo.getDevEntries());
             } else {
                 File bundleLocation = artifact.getFile();
                 ArtifactKey bundleArtifactKey = getBundleArtifactKey(bundleLocation);
-                testRuntime.addBundle(bundleArtifactKey, bundleLocation, true);
+                addBundle(testRuntime, bundleArtifactKey, bundleLocation);
             }
         }
 
@@ -929,7 +933,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
         // see also P2ResolverImpl.addDependenciesForTests()
         result.add(newBundleDependency("org.eclipse.osgi"));
-        result.add(newBundleDependency(EquinoxInstallationDescription.EQUINOX_LAUNCHER));
+        result.add(newBundleDependency(DefaultEquinoxInstallationDescription.EQUINOX_LAUNCHER));
         if (useUIHarness) {
             result.add(newBundleDependency("org.eclipse.ui.ide.application"));
         } else {

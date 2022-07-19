@@ -41,16 +41,15 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
@@ -304,7 +303,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	private void addDefaultDependencies(P2Resolver resolver) {
 		if (addDefaultDependencies) {
 			addDefaultDependency(resolver, "org.eclipse.osgi");
-			addDefaultDependency(resolver, EquinoxInstallationDescription.EQUINOX_LAUNCHER);
+			addDefaultDependency(resolver, DefaultEquinoxInstallationDescription.EQUINOX_LAUNCHER);
 			addDefaultDependency(resolver, "org.eclipse.core.runtime");
 		}
 	}
@@ -335,9 +334,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		for (P2ResolutionResult result : resolver.resolveTargetDependencies(targetPlatform, null).values()) {
 			for (Entry entry : result.getArtifacts()) {
 				if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
-					installationDesc.addBundle(
-							new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getId(), entry.getVersion()),
-							entry.getLocation(true));
+					installationDesc.addBundle(entry.getId(), entry.getVersion(), entry.getLocation(true));
 				}
 			}
 		}

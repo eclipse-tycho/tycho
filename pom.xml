@@ -469,7 +469,7 @@
 	<modules>
 		<module>tycho-bundles</module>
 
-		<module>sisu-equinox</module>
+		<module>sisu-osgi</module>
 
 		<module>p2-maven-plugin</module>
 
