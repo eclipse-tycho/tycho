@@ -45,9 +45,9 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
 
     private static final String TYCHO_POM = "pom.tycho";
 
-    private static final Set<String> COMMON_NAMES = new HashSet<>(Arrays.asList(
-            System.getProperty("tycho.pomless.aggregator.names", "bundles,plugins,tests,features,sites,products,releng")
-                    .split(",")));
+    private static final Set<String> COMMON_NAMES = new HashSet<>(
+            Arrays.asList(System.getProperty(TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY,
+                    "bundles,plugins,tests,features,sites,products,releng").split(",")));
 
     @Override
     protected boolean isValidLocation(String location) {

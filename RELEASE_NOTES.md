@@ -241,6 +241,15 @@ This can be useful if you like to execute the build with multiple threads (e.g. 
 
 ### Migration guide 2.x -> 3.x
 
+#### Remove `tycho.pomless.testbundle` switch from `build.properties` in favor of specification of project's packaging-type
+
+The boolean property `tycho.pomless.testbundle`, which allowed to specify in the `buid.properties` if a Plug-in is a Test-Plugin or not, has been removed.
+Instead one can specify the packaging-type of that Maven-project directly. To migrate simply apply the following replacements in the `build.properties`:<br>
+`tycho.pomless.testbundle = true` -> `pom.model.packaging = eclipse-test-plugin`<br>
+`tycho.pomless.testbundle = false` ->`pom.model.packaging = eclipse-plugin`
+
+This already works in the Tycho 2.7.x stream (but the generated artifactId does not yet have a 'test'-prefix).
+
 #### sisu-equinox is now sisu-osgi
 
 The sisu-equinox module is now cleaned up and made more generic so it could be used in a wider area of use case, therefore the equinox part is stripped and some API enhancements are performed.

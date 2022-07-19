@@ -52,8 +52,11 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
  */
 public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
-    private static final String TYCHO_POMLESS_PARENT = "tycho.pomless.parent";
-    private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT, "..");
+    // All build.properties entries specifically considered by Tycho. Extends the list in Mapping interface
+    protected static final String TYCHO_POMLESS_PARENT_PROPERTY = "tycho.pomless.parent";
+    protected static final String TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY = "tycho.pomless.aggregator.names";
+
+    private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, "..");
     private static final String QUALIFIER_SUFFIX = ".qualifier";
     private static final String MODEL_PARENT = "TychoMapping.model.parent";
 
@@ -168,7 +171,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         }
         Properties buildProperties = getBuildProperties(projectRoot);
         // assumption parent pom must be physically located in parent directory if not given by build.properties
-        String parentRef = buildProperties.getProperty(TYCHO_POMLESS_PARENT, PARENT_POM_DEFAULT_VALUE);
+        String parentRef = buildProperties.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, PARENT_POM_DEFAULT_VALUE);
         File fileOrFolder = new File(projectRoot, parentRef).getCanonicalFile();
         PomReference parentPom;
         if (fileOrFolder.isFile()) {
