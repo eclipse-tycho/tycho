@@ -49,7 +49,7 @@ import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "MavenDependenciesResolver")
-public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListener implements MavenDependenciesResolver {
+public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver, EquinoxLifecycleListener {
 
     @Requirement
     private Logger logger;

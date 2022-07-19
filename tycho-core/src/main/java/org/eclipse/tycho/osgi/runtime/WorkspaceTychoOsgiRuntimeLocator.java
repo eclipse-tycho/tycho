@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator.EquinoxRuntimeDescription;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.model.BundleConfiguration;

@@ -47,7 +47,7 @@ import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "MavenContextConfigurator")
-public class MavenContextConfigurator extends EquinoxLifecycleListener {
+public class MavenContextConfigurator implements EquinoxLifecycleListener {
 
     @Requirement
     private Logger logger;

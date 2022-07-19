@@ -209,6 +209,11 @@ This can be useful if you like to execute the build with multiple threads (e.g. 
 
 ### Migration guide 2.x -> 3.x
 
+#### sisu-equinox is now sisu-osgi
+
+The sisu-equinox module is now cleaned up and made more generic so it could be used in a wider area of use case, therefore the equinox part is stripped and some API enhancements are performed.
+As sisu-equinox is a separate module used inside Tycho, users of Tycho itself are usually not affected, but plugin developers might need to adjust there code to conform to the changed API contracts.
+
 #### publish-osgi-ee do not publish a fixed size of profiles anymore
 
 The `publish-osgi-ee` previously has published a fixes list of "usefull" execution environments maintained by Tycho.

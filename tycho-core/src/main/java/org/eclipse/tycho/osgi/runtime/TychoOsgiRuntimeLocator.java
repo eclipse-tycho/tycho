@@ -34,6 +34,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.locking.facade.FileLockService;
@@ -67,7 +68,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
             "org.eclipse.tycho.p2.tools.publisher.facade", //
             "org.eclipse.tycho.p2.tools.mirroring.facade", //
             "org.eclipse.tycho.p2.tools.verifier.facade", //
-            "org.eclipse.tycho.repository.registry.facade",//
+            "org.eclipse.tycho.repository.registry.facade", //
             "org.eclipse.tycho.p2.tools.baseline.facade" };
 
     @Requirement
@@ -168,8 +169,8 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
         Artifact artifact = resolveDependency(session, dependency);
 
         if ("zip".equals(dependency.getType())) {
-            File artifactFile = new File(session.getLocalRepository().getBasedir(), session.getLocalRepository()
-                    .pathOf(artifact));
+            File artifactFile = new File(session.getLocalRepository().getBasedir(),
+                    session.getLocalRepository().pathOf(artifact));
             File eclipseDir = new File(artifactFile.getParentFile(), "eclipse");
 
             FileLocker locker = fileLockService.getFileLocker(artifactFile);
@@ -191,8 +192,8 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
                         try {
                             unArchiver.extract();
                         } catch (ArchiverException e) {
-                            throw new MavenExecutionException("Failed to unpack Tycho's OSGi runtime: "
-                                    + e.getMessage(), e);
+                            throw new MavenExecutionException(
+                                    "Failed to unpack Tycho's OSGi runtime: " + e.getMessage(), e);
                         }
 
                         eclipseDir.setLastModified(artifact.getFile().lastModified());
