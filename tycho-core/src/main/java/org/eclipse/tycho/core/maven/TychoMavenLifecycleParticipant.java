@@ -25,11 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -46,6 +53,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -123,16 +131,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 resolver.setupProject(session, project, reactorProject);
             }
             if (USE_OLD_RESOLVER) {
-                for (MavenProject project : projects) {
-                    resolver.resolveMavenProject(session, project, projects);
-                    if (DUMP_DATA) {
-                        try {
-                            modelWriter.write(new File(project.getBasedir(), "pom-model-classic.xml"), Map.of(),
-                                    project.getModel());
-                        } catch (IOException e) {
-                        }
-                    }
-                }
+                resolveProjects(session, projects);
             } else {
                 try {
                     ProjectDependencyClosure closure = dependencyProcessor.computeProjectDependencyClosure(projects,
@@ -198,6 +197,85 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private void validate(List<MavenProject> projects) throws MavenExecutionException {
         validateConsistentTychoVersion(projects);
         validateUniqueBaseDirs(projects);
+    }
+
+    private void resolveProjects(MavenSession session, List<MavenProject> projects) {
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+
+        MavenExecutionRequest request = session.getRequest();
+        boolean failFast = MavenExecutionRequest.REACTOR_FAIL_FAST.equals(request.getReactorFailureBehavior());
+        Map<MavenProject, BuildFailureException> resolutionErrors = new ConcurrentHashMap<>();
+        Consumer<MavenProject> resolveProject = project -> {
+            if (failFast && !resolutionErrors.isEmpty()) {
+                //short circuit
+                return;
+            }
+            try {
+                MavenSession clone = session.clone();
+                clone.setCurrentProject(project);
+                resolver.resolveProject(clone, project, reactorProjects);
+                if (DUMP_DATA) {
+                    try {
+                        modelWriter.write(new File(project.getBasedir(), "pom-model-classic.xml"), Map.of(),
+                                project.getModel());
+                    } catch (IOException e) {
+                    }
+                }
+            } catch (BuildFailureException e) {
+                resolutionErrors.put(project, e);
+                if (failFast) {
+                    throw e;
+                }
+            }
+        };
+
+        int degreeOfConcurrency = request.getDegreeOfConcurrency();
+        Predicate<MavenProject> takeWhile = Predicate.not(p -> failFast && !resolutionErrors.isEmpty());
+        if (degreeOfConcurrency > 1) {
+            ForkJoinPool executor = new ForkJoinPool(degreeOfConcurrency);
+            ForkJoinTask<?> future = executor.submit(() -> {
+                projects.parallelStream().takeWhile(takeWhile).forEach(resolveProject);
+            });
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                }
+                throw new RuntimeException("resolve dependencies failed", cause);
+            } finally {
+                executor.shutdown();
+            }
+
+        } else {
+            projects.stream().takeWhile(takeWhile).forEach(resolveProject);
+        }
+
+        reportResolutionErrors(resolutionErrors, projects, failFast);
+    }
+
+    private void reportResolutionErrors(Map<MavenProject, BuildFailureException> resolutionErrors,
+            List<MavenProject> projects, boolean failFast) {
+        if (resolutionErrors.isEmpty()) {
+            return;
+        }
+
+        if (resolutionErrors.size() == 1 || failFast) {
+            //The idea is if user want to fail-fast he would expect to get exactly one error (the first one),
+            //while if parallel execution is enabled it might report an (incomplete) list of other failures that happened due to the parallel processing.
+            throw resolutionErrors.values().iterator().next();
+        }
+
+        DependencyResolutionException exception = new DependencyResolutionException(
+                String.format("Cannot resolve dependencies of %d/%d projects, see log for details",
+                        resolutionErrors.size(), projects.size()));
+        resolutionErrors.values().forEach(exception::addSuppressed);
+        resolutionErrors.forEach((project, error) -> log.error(project.getName() + ": " + error.getMessage()));
+
+        throw exception;
     }
 
     protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
