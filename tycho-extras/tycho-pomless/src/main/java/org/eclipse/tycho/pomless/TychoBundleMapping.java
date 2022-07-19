@@ -170,10 +170,12 @@ public class TychoBundleMapping extends AbstractTychoMapping {
 
     private boolean isTestBundle(String bundleSymbolicName, File bundleRoot) throws IOException {
         Properties buildProperties = getBuildProperties(bundleRoot);
-        String property = buildProperties.getProperty("tycho.pomless.testbundle");
-        if (property != null) {
-            //if property is given it take precedence over our guesses...
-            return Boolean.valueOf(property);
+        // Although user defined packaging-type takes precedence, check it to have a corresponding artifactId
+        String packagingProperty = buildProperties.getProperty(PACKAGING_PROPERTY);
+        if (PACKAGING.equalsIgnoreCase(packagingProperty)) {
+            return false;
+        } else if (PACKAGING_TEST.equalsIgnoreCase(packagingProperty)) {
+            return true;
         }
         return bundleSymbolicName.endsWith(".tests") || bundleSymbolicName.endsWith(".test");
         //TODO can we improve this? maybe also if the import/require bundle contains junit we should assume it's a test bundle?

@@ -33,6 +33,43 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testPomlessTestPluginDetection() throws Exception {
+
+		Verifier verifier = getVerifier("pomless-tests", false, true);
+		verifier.executeGoals(List.of("clean", "test"));
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("");
+
+		Map<Path, ModelData> projectData = extractPomModelProperties(verifier);
+
+		assertPackagingTypeData("tests/foo.checks", projectData, //
+				"foo.checks", "eclipse-plugin");
+		assertPackagingTypeData("tests/foo.not.tests", projectData, //
+				"foo.not.tests", "eclipse-plugin");
+		assertPackagingTypeData("tests/foo.test", projectData, //
+				"foo.test", "eclipse-test-plugin");
+		assertPackagingTypeData("tests/foo.tests", projectData, //
+				"foo.tests", "eclipse-test-plugin");
+		assertPackagingTypeData("tests/foo.tests.topic", projectData, //
+				"foo.tests.topic", "eclipse-test-plugin");
+
+		assertPackagingTypeData(".", projectData, //
+				"simple", "pom");
+		assertPackagingTypeData("tests", projectData, //
+				"tests", "pom");
+
+		assertThat(projectData, is(aMapWithSize(0))); // Ensure no more projects are found
+	}
+
+	private static void assertPackagingTypeData(String path, Map<Path, ModelData> projectData, String artifactId,
+			String packaingType) {
+		String expectedGAV = "foo.bar:" + artifactId + ":1.0.0:" + packaingType;
+		ModelData data = projectData.remove(Path.of(path));
+		assertEquals(1, data.properties.size(), "Unexpected number of model properties");
+		assertEquals(expectedGAV, data.properties.get("GAV"));
+	}
+
+	@Test
 	public void testPomlessModel() throws Exception {
 		// This methods tests:
 		// - build.properties (pom.model attributes and properties) are read for:
@@ -44,7 +81,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 
-		Map<Path, ModelData> projectData = extractPomModelProperties(Path.of(verifier.getBasedir()));
+		Map<Path, ModelData> projectData = extractPomModelProperties(verifier);
 
 		assertProjectData("bundles/foo.bar.bundle", projectData, //
 				"foo.bar:foo.bar.bundle:1.0.0:eclipse-plugin", "Bundle 1 pomless", "bundle1-pomless");
@@ -95,7 +132,17 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		assertThat(projectData, is(aMapWithSize(0))); // Ensure no more projects are found
 	}
 
-	private static Map<Path, ModelData> extractPomModelProperties(Path buildRootDir) throws IOException {
+	private static void assertProjectData(String path, Map<Path, ModelData> projectData, String expectedGAV,
+			String expectedName, String expectedProperty) {
+		ModelData data = projectData.remove(Path.of(path));
+		assertEquals(3, data.properties.size(), "Unexpected number of model properties");
+		assertEquals(expectedGAV, data.properties.get("GAV"));
+		assertEquals(expectedName, data.properties.get("project.name"));
+		assertEquals(expectedProperty, data.properties.get("custom.user.property"));
+	}
+
+	private Map<Path, ModelData> extractPomModelProperties(Verifier verifier) throws IOException {
+		Path buildRootDir = Path.of(verifier.getBasedir());
 		Map<Path, ModelData> projectData = new HashMap<>();
 		try (var paths = Files.walk(buildRootDir).filter(Files::isRegularFile)) {
 			var files = paths.filter(p -> "pommodel.data".equals(p.getFileName().toString()));
@@ -107,14 +154,6 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		return projectData;
 	}
 
-	private static void assertProjectData(String path, Map<Path, ModelData> projectData, String expectedGAV,
-			String expectedName, String expectedProperty) {
-		ModelData data = projectData.remove(Path.of(path));
-		assertEquals(expectedGAV, data.gav);
-		assertEquals(expectedName, data.name);
-		assertEquals(expectedProperty, data.propertyValue);
-	}
-
 	private static final class ModelData {
 
 		static ModelData extract(Path file, Path basedir) throws IOException {
@@ -124,23 +163,16 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 			try (var in = Files.newInputStream(file)) {
 				properties.load(in);
 			}
-			assertEquals(3, properties.size(), "Unexpected number of model properties");
-			String gav = properties.getProperty("GAV");
-			String name = properties.getProperty("project.name");
-			String propertyValue = properties.getProperty("custom.user.property");
-			return new ModelData(relativePath != null ? relativePath : Path.of("."), gav, name, propertyValue);
+			return new ModelData(relativePath != null ? relativePath : Path.of("."), properties);
 		}
 
 		final Path path;
-		final String gav;
-		final String name;
-		final String propertyValue;
+		final Map<String, String> properties;
 
-		public ModelData(Path path, String gav, String name, String propertyValue) {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public ModelData(Path path, Properties properties) {
 			this.path = path;
-			this.gav = gav;
-			this.name = name;
-			this.propertyValue = propertyValue;
+			this.properties = (Map) properties;
 		}
 	}
 }

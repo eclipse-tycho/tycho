@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>foo.bar</groupId>
+	<artifactId>simple</artifactId>
+	<version>1.0.0</version>
+
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho.version>${tycho-version}</tycho.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<!-- 
+	This case tests demonstrates Tycho's capabilities to enhance the pom-model via build.properties.
+	The Plugin projects are stripped down to the minimum to keep this case small 
+	and are therefore not a good examples for real life projects.
+	-->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>display-project-packaging-type</id>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<target>
+								<echo message="GAV=${project.groupId}:${project.artifactId}:${project.version}:${project.packaging}${line.separator}" file="${project.build.directory}/pommodel.data" append="false" />
+							</target>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<modules>
+		<module>tests</module>
+	</modules>
+</project>
