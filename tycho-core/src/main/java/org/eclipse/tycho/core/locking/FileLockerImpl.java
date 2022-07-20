@@ -14,8 +14,11 @@ package org.eclipse.tycho.core.locking;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.locking.facade.LockTimeoutException;
 
@@ -23,10 +26,14 @@ public class FileLockerImpl implements FileLocker {
 
     private static final String LOCKFILE_SUFFIX = ".tycholock";
 
-    private final Location lockFileLocation;
     final File lockMarkerFile;
 
-    public FileLockerImpl(File file, Location anyLocation) {
+    private FileLock lock;
+
+    private File file;
+
+    public FileLockerImpl(File file) {
+        this.file = file;
         try {
             if (file.isDirectory()) {
                 this.lockMarkerFile = new File(file, LOCKFILE_SUFFIX).getCanonicalFile();
@@ -38,11 +45,9 @@ public class FileLockerImpl implements FileLocker {
                 throw new RuntimeException("Lock marker file " + lockMarkerFile + " already exists and is a directory");
             }
             File parentDir = lockMarkerFile.getParentFile();
-            if (!parentDir.isDirectory() && !parentDir.mkdirs()) {
+            if (!parentDir.mkdirs() && !parentDir.isDirectory()) {
                 throw new RuntimeException("Could not create parent directory " + parentDir + " of lock marker file");
             }
-            this.lockFileLocation = anyLocation.createLocation(null, null, false);
-            this.lockFileLocation.set(lockMarkerFile.toURL(), false, lockMarkerFile.getAbsolutePath());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -60,52 +65,64 @@ public class FileLockerImpl implements FileLocker {
         if (timeout < 0) {
             throw new IllegalArgumentException("timeout must not be negative");
         }
-        boolean success = false;
+        if (lock != null) {
+            throw new LockTimeoutException("already locked file " + file.getAbsolutePath());
+        }
+        lock = aquireLock(timeout);
+
+    }
+
+    private FileLock aquireLock(long timeout) {
         final long waitInterval = 50L;
         long maxTries = (timeout / waitInterval) + 1;
-        IOException ioException = null;
+        FileChannel channel = null;
         for (long i = 0; i < maxTries; i++) {
-            ioException = null;
             try {
-                success = lockFileLocation.lock();
+                if (channel == null) {
+                    Path path = lockMarkerFile.toPath();
+                    channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+                }
+                FileLock fileLock = channel.tryLock();
+                if (fileLock != null) {
+                    return fileLock;
+                }
             } catch (IOException ioe) {
-                // keep trying (and re-throw eventually)
-                ioException = ioe;
-            }
-            if (success) {
-                return;
             }
             try {
                 Thread.sleep(waitInterval);
             } catch (InterruptedException e) {
-                // ignore
+                Thread.currentThread().interrupt();
+                throw new LockTimeoutException("Interrupted", e);
             }
         }
-        String message = "lock timeout: Could not acquire lock on file " + lockFileLocation.getURL() + " for " + timeout
-                + " msec";
-        if (ioException != null) {
-            throw new LockTimeoutException(message, ioException);
-        } else {
-            throw new LockTimeoutException(message);
+        if (channel != null) {
+            try {
+                channel.close();
+            } catch (IOException e1) {
+            } finally {
+                channel = null;
+            }
         }
+        throw new LockTimeoutException("lock timeout: Could not acquire lock on file "
+                + lockMarkerFile.getAbsolutePath() + " for " + timeout + " msec");
     }
 
     @Override
-    public void release() {
-        lockFileLocation.release();
-        if (lockMarkerFile.isFile() && !lockMarkerFile.delete()) {
-            // this can happen if another process already holds the lock again
-            lockMarkerFile.deleteOnExit();
+    public synchronized void release() {
+        if (lock != null) {
+            try {
+                lock.acquiredBy().close();
+            } catch (Exception e) {
+            }
+            lock = null;
+            if (!lockMarkerFile.delete()) {
+                lockMarkerFile.deleteOnExit();
+            }
         }
     }
 
-    @Override
-    public boolean isLocked() {
-        try {
-            return lockFileLocation.isLocked();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public synchronized boolean isLocked() {
+        return lock != null;
     }
 
 }
