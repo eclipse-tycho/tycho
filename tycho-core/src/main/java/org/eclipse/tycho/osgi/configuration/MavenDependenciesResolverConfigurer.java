@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
-import static org.apache.maven.artifact.Artifact.SCOPE_COMPILE;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -77,8 +75,8 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         MavenSession mavenSession = getMavenSession(session);
         request.setResolveRoot(true);
         request.setOffline(mavenSession.isOffline());
+        request.setCollectionFilter(a -> isValidScope(a, scopes));
         request.setResolutionFilter(new ArtifactFilter() {
-
             @Override
             public boolean include(Artifact a) {
                 List<String> trail = a.getDependencyTrail();
@@ -86,10 +84,7 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
                     logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, scopes) + "][" + a
                             + "][" + trail.stream().collect(Collectors.joining(" >> ")) + "]");
                 }
-                if (trail.size() <= depth) {
-                    return isValidScope(a, scopes);
-                }
-                return false;
+                return trail.size() <= depth && isValidScope(a, scopes);
             }
         });
         request.setLocalRepository(mavenSession.getLocalRepository());
@@ -121,7 +116,7 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         //compile is the default scope if not specified see
         // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#dependency-scope
         if (scopes == null || scopes.isEmpty()) {
-            return SCOPE_COMPILE.equalsIgnoreCase(artifactScope);
+            return Artifact.SCOPE_COMPILE.equalsIgnoreCase(artifactScope);
         }
         for (String scope : scopes) {
             if (artifactScope.equals(scope)) {
