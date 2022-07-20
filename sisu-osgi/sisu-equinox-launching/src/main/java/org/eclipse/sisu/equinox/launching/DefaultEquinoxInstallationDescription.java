@@ -27,10 +27,13 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
+import org.eclipse.sisu.osgi.launching.BundleReference;
+import org.eclipse.sisu.osgi.launching.BundleStartLevel;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationDescription;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.osgi.framework.Version;
 
-public class DefaultEquinoxInstallationDescription implements EquinoxInstallationDescription {
+public class DefaultEquinoxInstallationDescription implements FrameworkInstallationDescription {
     public static final String ANY_QUALIFIER = "qualifier";
     public static final Version EQUINOX_VERSION_3_3_0 = Version.parseVersion("3.3.0");
 

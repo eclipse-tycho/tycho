@@ -10,11 +10,11 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.embedder;
+package org.eclipse.sisu.osgi.embedder;
 
 import java.io.File;
 
-public interface EquinoxRuntimeDescription {
+public interface FrameworkRuntimeDescription {
     public void addInstallation(File location);
 
     public void addBundle(File location);

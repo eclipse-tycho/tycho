@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching;
+package org.eclipse.sisu.osgi.launching;
 
 import java.io.File;
 

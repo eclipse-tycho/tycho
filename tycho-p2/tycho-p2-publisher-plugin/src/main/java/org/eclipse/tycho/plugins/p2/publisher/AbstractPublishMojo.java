@@ -17,7 +17,7 @@ import java.util.Collection;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -31,7 +31,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
     private RepositoryReferenceTool repositoryReferenceTool;
 
     @Component
-    private EquinoxServiceFactory osgiServices;
+    private OSGiServiceFactory osgiServices;
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {

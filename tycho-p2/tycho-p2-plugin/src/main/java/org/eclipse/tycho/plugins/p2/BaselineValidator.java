@@ -38,7 +38,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
@@ -69,7 +69,7 @@ public class BaselineValidator {
     private ArtifactComparator zipComparator;
 
     @Requirement
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     public Map<String, IP2Artifact> validateAndReplace(MavenProject project, MojoExecution execution,
             Map<String, IP2Artifact> reactorMetadata, List<Repository> baselineRepositories, BaselineMode baselineMode,

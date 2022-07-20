@@ -14,23 +14,23 @@ package org.eclipse.tycho.surefire.provisioning;
 
 import java.io.File;
 
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.internal.EquinoxInstallationLaunchConfiguration;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationLaunchConfiguration;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallation;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationDescription;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 
 /**
- * This class provides an implementation of an {@link EquinoxInstallation} which represents an RCP
+ * This class provides an implementation of an {@link FrameworkInstallation} which represents an RCP
  * application which has been provisioned using p2 director.
  * 
  * @author mistria
  */
-public class ProvisionedEquinoxInstallation implements EquinoxInstallation {
+public class ProvisionedEquinoxInstallation implements FrameworkInstallation {
 
     private File location;
     private File launcherJar;
     private File configurationLocation;
-    private EquinoxInstallationDescription description;
+    private FrameworkInstallationDescription description;
 
     public ProvisionedEquinoxInstallation(File location, BundleReader bundleReader) {
         this.location = location;
@@ -62,7 +62,7 @@ public class ProvisionedEquinoxInstallation implements EquinoxInstallation {
     }
 
     @Override
-    public EquinoxInstallationDescription getInstallationDescription() {
+    public FrameworkInstallationDescription getInstallationDescription() {
         return description;
     }
 

@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.embedder.internal;
+package org.eclipse.sisu.equinox.embedder;
 
 /**
  * An <code>EquinoxEmbedderException</code> is thrown if something in the otherwise transparent

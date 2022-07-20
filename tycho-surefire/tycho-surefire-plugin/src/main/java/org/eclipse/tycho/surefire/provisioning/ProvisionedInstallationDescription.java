@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
-import org.eclipse.sisu.equinox.launching.BundleReference;
-import org.eclipse.sisu.equinox.launching.BundleStartLevel;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
+import org.eclipse.sisu.osgi.launching.BundleReference;
+import org.eclipse.sisu.osgi.launching.BundleStartLevel;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationDescription;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -32,7 +32,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
  * A "read-only" equinox installation (no bundles can be added, nothing configured). All
  * installation and configuration operations must handled separately, e.g. using p2 director.
  */
-public class ProvisionedInstallationDescription implements EquinoxInstallationDescription {
+public class ProvisionedInstallationDescription implements FrameworkInstallationDescription {
 
     private File location;
     private BundleReference systemBundleDescriptor;

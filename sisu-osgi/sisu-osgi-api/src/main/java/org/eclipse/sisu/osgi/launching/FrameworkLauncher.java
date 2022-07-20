@@ -10,16 +10,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox;
+package org.eclipse.sisu.osgi.launching;
 
-
-/**
- * Interface to access OSGi services in an Equinox runtime.
- */
-public interface EquinoxServiceFactory {
-
-    public <T> T getService(Class<T> clazz);
-
-    public <T> T getService(Class<T> clazz, String filter);
-
+public interface FrameworkLauncher {
+    public int execute(LaunchConfiguration configuration, int forkedProcessTimeoutInSeconds);
 }

@@ -13,12 +13,12 @@ package org.eclipse.tycho.osgi.configuration;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.sisu.osgi.embedder.EmbeddedFramework;
+import org.eclipse.sisu.osgi.embedder.FrameworkLifecycleListener;
 import org.eclipse.tycho.BuildPropertiesParser;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "BuildPropertiesReaderConfigurator")
-public class BuildPropertiesParserConfigurator implements EquinoxLifecycleListener {
+@Component(role = FrameworkLifecycleListener.class, hint = "BuildPropertiesReaderConfigurator")
+public class BuildPropertiesParserConfigurator implements FrameworkLifecycleListener {
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
@@ -28,7 +28,7 @@ public class BuildPropertiesParserConfigurator implements EquinoxLifecycleListen
      * used from OSGi too.
      */
     @Override
-    public void afterFrameworkStarted(EmbeddedEquinox framework) {
+    public void afterFrameworkStarted(EmbeddedFramework framework) {
         framework.registerService(BuildPropertiesParser.class, buildPropertiesParser);
     }
 

@@ -64,14 +64,14 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
-import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
-import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
-import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
-import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
+import org.eclipse.sisu.equinox.launching.EquinoxLaunchConfiguration;
+import org.eclipse.sisu.osgi.launching.BundleStartLevel;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallation;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationDescription;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationFactory;
+import org.eclipse.sisu.osgi.launching.FrameworkLauncher;
+import org.eclipse.sisu.osgi.launching.LaunchConfiguration;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -452,13 +452,13 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private Map<String, TychoProject> projectTypes;
 
     @Component
-    private EquinoxInstallationFactory installationFactory;
+    private FrameworkInstallationFactory installationFactory;
 
     @Component
     private ProvisionedInstallationBuilderFactory provisionedInstallationBuilderFactory;
 
     @Component
-    private EquinoxLauncher launcher;
+    private FrameworkLauncher launcher;
 
     @Component(role = TychoProject.class, hint = "eclipse-plugin")
     protected OsgiBundleProject osgiBundle;
@@ -696,7 +696,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             return;
         }
         if (shouldRun()) {
-            EquinoxInstallation equinoxTestRuntime;
+            FrameworkInstallation equinoxTestRuntime;
             synchronized (AbstractTestMojo.class) {
                 if ("p2Installed".equals(testRuntime)) {
                     equinoxTestRuntime = createProvisionedInstallation();
@@ -745,7 +745,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return DefaultReactorProject.adapt(session);
     }
 
-    private EquinoxInstallation createProvisionedInstallation() throws MojoExecutionException, MojoFailureException {
+    private FrameworkInstallation createProvisionedInstallation() throws MojoExecutionException, MojoFailureException {
         ScanResult scanResult = scanForTests();
         if (scanResult.size() == 0) {
             handleNoTestsFound(); //this might throw an exception...
@@ -806,7 +806,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return (BundleProject) projectTypes.get(project.getPackaging());
     }
 
-    private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException, MojoFailureException {
+    private FrameworkInstallation createEclipseInstallation() throws MojoExecutionException, MojoFailureException {
         ScanResult scanResult = scanForTests();
         if (scanResult.size() == 0) {
             handleNoTestsFound(); //this might throw an exception...
@@ -842,7 +842,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
         work.mkdirs();
 
-        EquinoxInstallationDescription testRuntime = new DefaultEquinoxInstallationDescription();
+        FrameworkInstallationDescription testRuntime = new DefaultEquinoxInstallationDescription();
         testRuntime.setDefaultBundleStartLevel(defaultStartLevel);
         testRuntime.addBundlesToExplode(getBundlesToExplode());
         testRuntime.addFrameworkExtensions(getFrameworkExtensions());
@@ -878,11 +878,11 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return installationFactory.createInstallation(testRuntime, work);
     }
 
-    private void addBundle(EquinoxInstallationDescription runtime, ArtifactKey artifact, File file) {
+    private void addBundle(FrameworkInstallationDescription runtime, ArtifactKey artifact, File file) {
         runtime.addBundle(artifact.getId(), artifact.getVersion(), file);
     }
 
-    protected void setupTestBundles(TestFrameworkProvider provider, EquinoxInstallationDescription testRuntime)
+    protected void setupTestBundles(TestFrameworkProvider provider, FrameworkInstallationDescription testRuntime)
             throws MojoExecutionException {
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {
@@ -1066,7 +1066,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         }
     }
 
-    private void runTest(EquinoxInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
+    private void runTest(FrameworkInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
         int result;
         File logFile = new File(osgiDataDirectory, ".metadata/.log");
         LaunchConfiguration cli;
@@ -1177,7 +1177,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return toolChain;
     }
 
-    private EquinoxLaunchConfiguration createCommandLine(EquinoxInstallation testRuntime)
+    private EquinoxLaunchConfiguration createCommandLine(FrameworkInstallation testRuntime)
             throws MalformedURLException, MojoExecutionException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(testRuntime);
 
@@ -1330,7 +1330,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         }
     }
 
-    private String getTestApplication(EquinoxInstallationDescription testRuntime) {
+    private String getTestApplication(FrameworkInstallationDescription testRuntime) {
         if (useUIHarness) {
             return "org.eclipse.tycho.surefire.osgibooter.uitest";
         } else {

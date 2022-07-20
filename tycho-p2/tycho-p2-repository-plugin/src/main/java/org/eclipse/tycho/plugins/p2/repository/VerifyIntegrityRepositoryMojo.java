@@ -22,7 +22,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
@@ -39,7 +39,7 @@ public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements Log
     private Logger logger;
 
     @Component
-    private EquinoxServiceFactory p2;
+    private OSGiServiceFactory p2;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,14 +23,13 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.Commandline;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
-import org.eclipse.sisu.equinox.launching.BundleStartLevel;
-import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
-import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.osgi.embedder.FrameworkRuntimeDescription;
+import org.eclipse.sisu.osgi.embedder.FrameworkRuntimeLocator;
+import org.eclipse.sisu.osgi.launching.BundleStartLevel;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallation;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationDescription;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationFactory;
+import org.eclipse.sisu.osgi.launching.FrameworkLauncher;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TychoProject;
@@ -47,13 +46,13 @@ public class P2ApplicationLauncher {
     private Logger logger;
 
     @Requirement
-    private EquinoxInstallationFactory installationFactory;
+    private FrameworkInstallationFactory installationFactory;
 
     @Requirement
-    private EquinoxLauncher launcher;
+    private FrameworkLauncher launcher;
 
     @Requirement
-    private EquinoxRuntimeLocator runtimeLocator;
+    private FrameworkRuntimeLocator runtimeLocator;
 
     @Requirement(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
     private OsgiBundleProject osgiBundle;
@@ -87,9 +86,9 @@ public class P2ApplicationLauncher {
             File installationFolder = newTemporaryFolder();
 
             try {
-                final EquinoxInstallationDescription description = new DefaultEquinoxInstallationDescription();
+                final FrameworkInstallationDescription description = new DefaultEquinoxInstallationDescription();
 
-                runtimeLocator.locateRuntime(new EquinoxRuntimeDescription() {
+                runtimeLocator.locateRuntime(new FrameworkRuntimeDescription() {
                     @Override
                     public void addPlatformProperty(String property, String value) {
                         description.addPlatformProperty(property, value);
@@ -117,7 +116,7 @@ public class P2ApplicationLauncher {
                     }
                 }, true);
 
-                EquinoxInstallation installation = installationFactory.createInstallation(description,
+                FrameworkInstallation installation = installationFactory.createInstallation(description,
                         installationFolder);
 
                 EquinoxLaunchConfiguration launchConfiguration = new EquinoxLaunchConfiguration(installation);
@@ -154,7 +153,7 @@ public class P2ApplicationLauncher {
         }
     }
 
-    private void addBundle(EquinoxInstallationDescription description, File file) {
+    private void addBundle(FrameworkInstallationDescription description, File file) {
         ArtifactKey key = osgiBundle.readArtifactKey(file);
         if (key != null) {
             description.addBundle(key.getId(), key.getVersion(), file);

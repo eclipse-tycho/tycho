@@ -31,7 +31,7 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.MavenDependencyDescriptor;
@@ -51,7 +51,7 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
     private LegacySupport legacySupport;
 
     @Requirement
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     @Requirement
     private Logger logger;

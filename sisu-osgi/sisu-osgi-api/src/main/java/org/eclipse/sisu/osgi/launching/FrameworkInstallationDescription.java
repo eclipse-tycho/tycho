@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching;
+package org.eclipse.sisu.osgi.launching;
 
 import java.io.File;
 import java.util.Collection;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface EquinoxInstallationDescription {
+public interface FrameworkInstallationDescription {
 
     public Collection<BundleReference> getBundles();
 

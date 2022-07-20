@@ -27,9 +27,9 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
+import org.eclipse.sisu.osgi.embedder.EmbeddedFramework;
+import org.eclipse.sisu.osgi.embedder.FrameworkLifecycleListener;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -37,14 +37,14 @@ import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "MavenProtocolHandler")
-public class MavenProtocolHandler implements EquinoxLifecycleListener {
+@Component(role = FrameworkLifecycleListener.class, hint = "MavenProtocolHandler")
+public class MavenProtocolHandler implements FrameworkLifecycleListener {
 
     @Requirement
     private LegacySupport context;
 
     @Override
-    public void afterFrameworkStarted(EmbeddedEquinox framework) {
+    public void afterFrameworkStarted(EmbeddedFramework framework) {
 
         Hashtable<String, Object> properties = new Hashtable<>();
         properties.put(URLConstants.URL_HANDLER_PROTOCOL, new String[] { "mvn" });
@@ -55,10 +55,10 @@ public class MavenProtocolHandler implements EquinoxLifecycleListener {
 
     private class MvnProtocolHandlerService extends AbstractURLStreamHandlerService {
 
-        private EquinoxServiceFactory serviceFactory;
+        private OSGiServiceFactory serviceFactory;
         private MavenSession mavenSession;
 
-        public MvnProtocolHandlerService(EquinoxServiceFactory serviceFactory, MavenSession mavenSession) {
+        public MvnProtocolHandlerService(OSGiServiceFactory serviceFactory, MavenSession mavenSession) {
             this.serviceFactory = serviceFactory;
             this.mavenSession = mavenSession;
         }

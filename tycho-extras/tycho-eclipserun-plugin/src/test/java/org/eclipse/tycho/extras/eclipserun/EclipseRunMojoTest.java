@@ -24,9 +24,9 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
-import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallation;
+import org.eclipse.sisu.osgi.launching.FrameworkLauncher;
+import org.eclipse.sisu.osgi.launching.LaunchConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
@@ -35,7 +35,7 @@ import org.junit.rules.TemporaryFolder;
 public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 
 	private EclipseRunMojo runMojo;
-	private EquinoxInstallation installation;
+	private FrameworkInstallation installation;
 	private TemporaryFolder temporaryFolder;
 	private File workFolder;
 
@@ -49,7 +49,7 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 		MavenSession mavenSession = newMavenSession(mock(MavenProject.class));
 		configureMojoWithDefaultConfiguration(runMojo, mavenSession, "eclipse-run");
 
-		installation = mock(EquinoxInstallation.class);
+		installation = mock(FrameworkInstallation.class);
 		temporaryFolder = new TemporaryFolder();
 		temporaryFolder.create();
 		MavenProject project = mock(MavenProject.class);
@@ -58,7 +58,7 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 		setVariableValueToObject(runMojo, "toolchainProvider", toolchainProvider);
 		workFolder = new File(temporaryFolder.getRoot(), "work");
 		setVariableValueToObject(runMojo, "work", workFolder);
-		setVariableValueToObject(runMojo, "launcher", mock(EquinoxLauncher.class));
+		setVariableValueToObject(runMojo, "launcher", mock(FrameworkLauncher.class));
 		when(installation.getLocation()).thenReturn(new File("installpath"));
 	}
 

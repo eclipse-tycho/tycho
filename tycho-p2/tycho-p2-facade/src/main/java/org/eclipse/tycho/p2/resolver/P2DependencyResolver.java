@@ -55,7 +55,7 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -108,7 +108,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     public static final String ROLE_HINT = "p2";
 
     @Requirement
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     @Requirement
     private BundleReader bundleReader;

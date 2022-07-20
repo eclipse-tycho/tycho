@@ -10,10 +10,21 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching;
+package org.eclipse.sisu.osgi.launching;
 
 import java.io.File;
+import java.util.Map;
 
-public interface EquinoxInstallationFactory {
-    public EquinoxInstallation createInstallation(EquinoxInstallationDescription description, File location);
+public interface LaunchConfiguration {
+    public Map<String, String> getEnvironment();
+
+    public String getJvmExecutable();
+
+    public File getWorkingDirectory();
+
+    public String[] getProgramArguments();
+
+    public String[] getVMArguments();
+
+    public File getLauncherJar();
 }

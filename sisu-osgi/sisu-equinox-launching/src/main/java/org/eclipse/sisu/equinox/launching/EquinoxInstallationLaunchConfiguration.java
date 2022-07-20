@@ -10,7 +10,7 @@
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
+import org.eclipse.sisu.osgi.launching.LaunchConfiguration;
 
 /**
  * Launch configuration for an Equinox installation in the standard Eclipse installation layout.

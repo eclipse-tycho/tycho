@@ -34,15 +34,15 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
-import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
-import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
-import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
+import org.eclipse.sisu.equinox.launching.EquinoxLaunchConfiguration;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
+import org.eclipse.sisu.osgi.launching.BundleStartLevel;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallation;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationDescription;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationFactory;
+import org.eclipse.sisu.osgi.launching.FrameworkLauncher;
+import org.eclipse.sisu.osgi.launching.LaunchConfiguration;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -226,16 +226,16 @@ public class EclipseRunMojo extends AbstractMojo {
 	private BundleStartLevel defaultStartLevel;
 
 	@Component
-	private EquinoxInstallationFactory installationFactory;
+	private FrameworkInstallationFactory installationFactory;
 
 	@Component
-	private EquinoxLauncher launcher;
+	private FrameworkLauncher launcher;
 
 	@Component
 	private ToolchainProvider toolchainProvider;
 
 	@Component
-	private EquinoxServiceFactory equinox;
+	private OSGiServiceFactory equinox;
 
 	@Component
 	private Logger logger;
@@ -254,8 +254,8 @@ public class EclipseRunMojo extends AbstractMojo {
 			List<Dependency> dependencies, boolean addDefaultDependencies, String executionEnvironment,
 			List<Repository> repositories, MavenSession session, List<String> jvmArgs, boolean skip,
 			List<String> applicationArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
-			EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
-			ToolchainProvider toolchainProvider, EquinoxServiceFactory equinox, Logger logger,
+			FrameworkInstallationFactory installationFactory, FrameworkLauncher launcher,
+			ToolchainProvider toolchainProvider, OSGiServiceFactory equinox, Logger logger,
 			ToolchainManager toolchainManager) {
 		this.work = work;
 		this.clearWorkspaceBeforeLaunch = clearWorkspaceBeforeLaunch;
@@ -284,7 +284,7 @@ public class EclipseRunMojo extends AbstractMojo {
 			getLog().debug("skipping mojo execution");
 			return;
 		}
-		EquinoxInstallation installation;
+		FrameworkInstallation installation;
 		synchronized (CREATE_LOCK) {
 			installation = createEclipseInstallation();
 		}
@@ -308,7 +308,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 	}
 
-	private EquinoxInstallation createEclipseInstallation() throws MojoFailureException {
+	private FrameworkInstallation createEclipseInstallation() throws MojoFailureException {
 		P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
 		TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
 		// we want to resolve from remote repos only
@@ -330,7 +330,7 @@ public class EclipseRunMojo extends AbstractMojo {
 			}
 		}
 		addDefaultDependencies(resolver);
-		EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
+		FrameworkInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
 		for (P2ResolutionResult result : resolver.resolveTargetDependencies(targetPlatform, null).values()) {
 			for (Entry entry : result.getArtifacts()) {
 				if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
@@ -347,7 +347,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		return installationFactory.createInstallation(installationDesc, work);
 	}
 
-	void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException {
+	void runEclipse(FrameworkInstallation runtime) throws MojoExecutionException {
 		try {
 			File workspace = new File(work, "data").getAbsoluteFile();
 			synchronized (WORKSPACE_LOCKS.computeIfAbsent(workspace.getAbsolutePath(), k -> new Object())) {
@@ -368,7 +368,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 	}
 
-	LaunchConfiguration createCommandLine(EquinoxInstallation runtime) throws MojoExecutionException {
+	LaunchConfiguration createCommandLine(FrameworkInstallation runtime) throws MojoExecutionException {
 		EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(runtime);
 
 		String executable = null;

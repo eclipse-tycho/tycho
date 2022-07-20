@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
-import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
-import org.eclipse.sisu.equinox.launching.internal.EquinoxInstallationLaunchConfiguration;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationLaunchConfiguration;
+import org.eclipse.sisu.osgi.launching.FrameworkLauncher;
+import org.eclipse.sisu.osgi.launching.LaunchConfiguration;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
@@ -32,11 +32,11 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 public class StandaloneDirectorRuntime implements DirectorRuntime {
 
     private final File runtimeLocation;
-    private final EquinoxLauncher launchHelper;
+    private final FrameworkLauncher launchHelper;
     private Logger logger;
     private final int forkedProcessTimeoutInSeconds;
 
-    StandaloneDirectorRuntime(File runtimeLocation, EquinoxLauncher launchHelper, int forkedProcessTimeoutInSeconds,
+    StandaloneDirectorRuntime(File runtimeLocation, FrameworkLauncher launchHelper, int forkedProcessTimeoutInSeconds,
             Logger logger) {
         this.runtimeLocation = runtimeLocation;
         this.launchHelper = launchHelper;

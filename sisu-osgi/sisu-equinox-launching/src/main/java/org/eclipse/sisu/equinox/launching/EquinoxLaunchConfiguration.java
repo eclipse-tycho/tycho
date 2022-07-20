@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.plexus.util.cli.Commandline.Argument;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallation;
+import org.eclipse.sisu.osgi.launching.LaunchConfiguration;
 
 public class EquinoxLaunchConfiguration implements LaunchConfiguration {
     private String jvmExecutable;
@@ -33,9 +33,9 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
 
     private final List<Argument> vmargs = new ArrayList<>();
 
-    private final EquinoxInstallation installation;
+    private final FrameworkInstallation installation;
 
-    public EquinoxLaunchConfiguration(EquinoxInstallation installation) {
+    public EquinoxLaunchConfiguration(FrameworkInstallation installation) {
         this.installation = installation;
     }
 

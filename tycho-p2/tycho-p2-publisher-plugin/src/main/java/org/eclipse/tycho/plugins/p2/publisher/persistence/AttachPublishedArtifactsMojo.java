@@ -23,8 +23,8 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
@@ -45,7 +45,7 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     private MavenProjectHelper projectHelper;
 
     @Component
-    private EquinoxServiceFactory osgiServices;
+    private OSGiServiceFactory osgiServices;
 
     @Component
     private Logger logger;

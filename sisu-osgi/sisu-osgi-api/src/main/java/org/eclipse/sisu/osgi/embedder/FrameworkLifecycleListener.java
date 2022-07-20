@@ -10,22 +10,13 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.embedder;
-
-import java.util.Dictionary;
-
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+package org.eclipse.sisu.osgi.embedder;
 
 /**
- * Interface to configure an embedded Equinox runtime. Implement an {@link EquinoxLifecycleListener}
- * component to be notified about instances of this type.
+ * Listener interface for events of {@link EmbeddedFramework} instances.
  */
-public interface EmbeddedEquinox {
+public interface FrameworkLifecycleListener {
 
-    EquinoxServiceFactory getServiceFactory();
-
-    public <T> void registerService(Class<T> clazz, T service);
-
-    public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties);
+    void afterFrameworkStarted(EmbeddedFramework framework);
 
 }

@@ -22,7 +22,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
+import org.eclipse.sisu.equinox.launching.P2ApplicationLauncher;
 
 /**
  * Convenience wrapper around FeaturesAndBundlesPublisher to help with bundle jars not available
@@ -73,10 +73,10 @@ public class BundlesPublisher {
         launcher.setWorkingDirectory(workingDir);
         launcher.setApplicationName("org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher");
         launcher.addArguments("-artifactRepository", targetDirectory.toURI().toString(), //
-                "-metadataRepository", targetDirectory.toURI().toString(),//
+                "-metadataRepository", targetDirectory.toURI().toString(), //
                 "-compress", //
-                "-publishArtifacts",//
-                "-source",//
+                "-publishArtifacts", //
+                "-source", //
                 targetDirectory.toString());
         int result = launcher.execute(timeoutInSeconds);
         if (result != 0) {

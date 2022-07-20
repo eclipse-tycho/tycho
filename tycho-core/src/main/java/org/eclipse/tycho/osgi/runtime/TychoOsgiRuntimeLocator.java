@@ -34,18 +34,18 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
+import org.eclipse.sisu.osgi.embedder.FrameworkRuntimeDescription;
+import org.eclipse.sisu.osgi.embedder.FrameworkRuntimeLocator;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
 /**
- * Implementation of {@link org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator} for Tycho's
+ * Implementation of {@link org.eclipse.sisu.osgi.embedder.FrameworkRuntimeLocator} for Tycho's
  * OSGi runtime.
  */
-@Component(role = EquinoxRuntimeLocator.class)
-public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
+@Component(role = FrameworkRuntimeLocator.class)
+public class TychoOsgiRuntimeLocator implements FrameworkRuntimeLocator {
     /**
      * List of packages exported by the shared bundles. The shared bundles are loaded by the Maven
      * class loader (see transitive dependencies of <code>tycho-maven-plugin</code>) but their
@@ -96,7 +96,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
     private DevWorkspaceResolver workspaceState;
 
     @Override
-    public void locateRuntime(EquinoxRuntimeDescription description, boolean forked) throws MavenExecutionException {
+    public void locateRuntime(FrameworkRuntimeDescription description, boolean forked) throws MavenExecutionException {
         WorkspaceTychoOsgiRuntimeLocator workspaceLocator = WorkspaceTychoOsgiRuntimeLocator
                 .getResolver(this.workspaceState);
 
@@ -123,7 +123,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
     }
 
     public void addAdditionalRuntimeArtifacts(WorkspaceTychoOsgiRuntimeLocator workspaceLocator, MavenSession session,
-            EquinoxRuntimeDescription description) throws MavenExecutionException {
+            FrameworkRuntimeDescription description) throws MavenExecutionException {
         for (Map.Entry<String, TychoOsgiRuntimeArtifacts> entry : runtimeArtifacts.entrySet()) {
             if (TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK.equals(entry.getKey())) {
                 continue;
@@ -136,7 +136,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
     }
 
     private void addRuntimeArtifacts(WorkspaceTychoOsgiRuntimeLocator workspaceLocator,
-            EquinoxRuntimeDescription description, MavenSession session, TychoOsgiRuntimeArtifacts framework)
+            FrameworkRuntimeDescription description, MavenSession session, TychoOsgiRuntimeArtifacts framework)
             throws MavenExecutionException {
         for (Dependency dependency : framework.getRuntimeArtifacts()) {
             if (workspaceLocator != null) {
@@ -164,7 +164,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
         }
     }
 
-    private void addRuntimeArtifact(EquinoxRuntimeDescription description, MavenSession session, Dependency dependency)
+    private void addRuntimeArtifact(FrameworkRuntimeDescription description, MavenSession session, Dependency dependency)
             throws MavenExecutionException {
         Artifact artifact = resolveDependency(session, dependency);
 

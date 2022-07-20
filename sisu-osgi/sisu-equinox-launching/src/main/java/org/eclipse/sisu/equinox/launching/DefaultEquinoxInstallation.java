@@ -10,25 +10,24 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.sisu.equinox.launching.BundleReference;
-import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
+import org.eclipse.sisu.osgi.launching.BundleReference;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallation;
+import org.eclipse.sisu.osgi.launching.FrameworkInstallationDescription;
 import org.osgi.framework.Version;
 
-public class DefaultEquinoxInstallation implements EquinoxInstallation {
+public class DefaultEquinoxInstallation implements FrameworkInstallation {
     private final File location;
 
     private final File configurationLocation;
 
-    private final EquinoxInstallationDescription description;
+    private final FrameworkInstallationDescription description;
 
-    public DefaultEquinoxInstallation(EquinoxInstallationDescription installationDescription, File location,
+    public DefaultEquinoxInstallation(FrameworkInstallationDescription installationDescription, File location,
             File configurationLocation) {
         this.description = installationDescription;
         this.location = location;
@@ -69,7 +68,7 @@ public class DefaultEquinoxInstallation implements EquinoxInstallation {
     }
 
     @Override
-    public EquinoxInstallationDescription getInstallationDescription() {
+    public FrameworkInstallationDescription getInstallationDescription() {
         return description;
     }
 

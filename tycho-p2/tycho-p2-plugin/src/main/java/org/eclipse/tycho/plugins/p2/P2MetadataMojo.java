@@ -36,7 +36,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
@@ -65,7 +65,7 @@ public class P2MetadataMojo extends AbstractMojo {
     protected MavenProjectHelper projectHelper;
 
     @Component
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     /**
      * Project types which this plugin supports.

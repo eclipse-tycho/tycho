@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,12 +25,11 @@ import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
-import org.eclipse.sisu.equinox.launching.EquinoxLaunchingException;
-import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
+import org.eclipse.sisu.osgi.launching.FrameworkLauncher;
+import org.eclipse.sisu.osgi.launching.LaunchConfiguration;
 
-@Component(role = EquinoxLauncher.class)
-public class DefaultEquinoxLauncher implements EquinoxLauncher {
+@Component(role = FrameworkLauncher.class)
+public class DefaultEquinoxLauncher implements FrameworkLauncher {
     @Requirement
     private Logger log;
 

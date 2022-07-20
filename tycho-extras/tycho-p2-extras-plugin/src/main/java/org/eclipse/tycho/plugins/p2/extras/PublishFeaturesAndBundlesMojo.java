@@ -25,7 +25,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
+import org.eclipse.sisu.equinox.launching.P2ApplicationLauncher;
 
 /**
  * This goal invokes the feature and bundle publisher on a folder.

@@ -17,7 +17,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.osgi.OSGiServiceFactory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 
@@ -30,7 +30,7 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 public class RemapArtifactToMavenRepositoriesMojo extends AbstractRepositoryMojo {
 
     @Component
-    private EquinoxServiceFactory p2;
+    private OSGiServiceFactory p2;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
