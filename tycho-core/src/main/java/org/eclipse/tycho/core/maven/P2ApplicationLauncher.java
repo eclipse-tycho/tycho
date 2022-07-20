@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.osgi.launching.equinox;
+package org.eclipse.tycho.core.maven;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,10 +26,12 @@ import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.sisu.equinox.embedder.FrameworkRuntimeDescription;
 import org.eclipse.sisu.equinox.embedder.FrameworkRuntimeLocator;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
-import org.eclipse.sisu.equinox.launching.FrameworkInstallationFactory;
-import org.eclipse.sisu.equinox.launching.FrameworkLauncher;
 import org.eclipse.sisu.equinox.launching.FrameworkInstallation;
 import org.eclipse.sisu.equinox.launching.FrameworkInstallationDescription;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallationFactory;
+import org.eclipse.sisu.equinox.launching.FrameworkLauncher;
+import org.eclipse.sisu.osgi.launching.equinox.DefaultEquinoxInstallationDescription;
+import org.eclipse.sisu.osgi.launching.equinox.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TychoProject;

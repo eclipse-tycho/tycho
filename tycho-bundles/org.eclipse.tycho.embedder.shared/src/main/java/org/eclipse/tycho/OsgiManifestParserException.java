@@ -1,4 +1,4 @@
-package org.eclipse.tycho.core.osgitools;
+package org.eclipse.tycho;
 
 /**
  * Exception signaling an invalid or non-existing OSGi manifest. It's unchecked because we generally

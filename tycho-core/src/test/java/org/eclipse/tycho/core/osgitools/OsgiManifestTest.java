@@ -9,6 +9,9 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
+import org.eclipse.tycho.InvalidOSGiManifestException;
+import org.eclipse.tycho.OsgiManifest;
+import org.eclipse.tycho.OsgiManifestParserException;
 import org.junit.Test;
 
 public class OsgiManifestTest {

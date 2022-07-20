@@ -30,6 +30,8 @@ import java.util.zip.ZipFile;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.eclipse.tycho.OsgiManifest;
+import org.eclipse.tycho.OsgiManifestParserException;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 

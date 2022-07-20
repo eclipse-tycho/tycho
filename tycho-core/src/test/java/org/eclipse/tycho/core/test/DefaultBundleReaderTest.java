@@ -13,10 +13,10 @@ package org.eclipse.tycho.core.test;
 import java.io.File;
 
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.tycho.OsgiManifest;
+import org.eclipse.tycho.OsgiManifestParserException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {

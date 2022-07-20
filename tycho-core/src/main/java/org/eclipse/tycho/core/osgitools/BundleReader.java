@@ -12,6 +12,10 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 
+import org.eclipse.tycho.InvalidOSGiManifestException;
+import org.eclipse.tycho.OsgiManifest;
+import org.eclipse.tycho.OsgiManifestParserException;
+
 /**
  * Cache for OSGi manifest files and bundle classpath entries.
  */

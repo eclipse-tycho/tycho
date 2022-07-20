@@ -18,8 +18,8 @@ import java.io.File;
 import java.io.FileFilter;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 

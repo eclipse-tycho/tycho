@@ -1,4 +1,4 @@
-package org.eclipse.tycho.core.osgitools;
+package org.eclipse.tycho;
 
 /**
  * Exception signaling an otherwise valid MANIFEST does not have valid mandatory OSGi headers

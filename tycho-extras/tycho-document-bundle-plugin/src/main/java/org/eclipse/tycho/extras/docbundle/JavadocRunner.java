@@ -29,8 +29,8 @@ import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.DefaultConsumer;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.core.osgitools.OsgiManifest;
 
 public class JavadocRunner {
 	private File output;

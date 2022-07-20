@@ -38,13 +38,12 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.sisu.equinox.launching.BundleReference;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
-import org.eclipse.sisu.equinox.launching.FrameworkInstallationFactory;
 import org.eclipse.sisu.equinox.launching.FrameworkInstallation;
 import org.eclipse.sisu.equinox.launching.FrameworkInstallationDescription;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallationFactory;
+import org.eclipse.tycho.OsgiManifest;
+import org.eclipse.tycho.OsgiManifestParserException;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 
 @Component(role = FrameworkInstallationFactory.class)
 public class DefaultEquinoxInstallationFactory implements FrameworkInstallationFactory {
@@ -52,10 +51,9 @@ public class DefaultEquinoxInstallationFactory implements FrameworkInstallationF
     private PlexusContainer plexus;
 
     @Requirement
-    private BundleReader manifestReader;
-
-    @Requirement
     private Logger log;
+
+    private ManifestReader reader = new ManifestReader();
 
     public DefaultEquinoxInstallationFactory() {
         // for plexus
@@ -81,7 +79,7 @@ public class DefaultEquinoxInstallationFactory implements FrameworkInstallationF
             File file = artifact.getLocation();
             OsgiManifest mf;
             try {
-                mf = manifestReader.loadManifest(file);
+                mf = reader.loadManifest(file);
             } catch (OsgiManifestParserException e) {
                 throw new EquinoxLaunchingException("can't parse manifest for " + artifact.getId() + ":"
                         + artifact.getVersion() + ":" + artifact.getLocation(), e);
@@ -209,7 +207,7 @@ public class DefaultEquinoxInstallationFactory implements FrameworkInstallationF
         List<String> bundleNames = new ArrayList<>();
 
         for (File bundleFile : frameworkExtensions) {
-            OsgiManifest mf = manifestReader.loadManifest(bundleFile);
+            OsgiManifest mf = reader.loadManifest(bundleFile);
             bundleNames.add(mf.getBundleSymbolicName());
 
             File bundleDir = new File(location, "plugins/" + mf.getBundleSymbolicName() + "_" + mf.getBundleVersion());

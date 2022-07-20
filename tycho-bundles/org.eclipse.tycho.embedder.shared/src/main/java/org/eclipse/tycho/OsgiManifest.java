@@ -1,4 +1,4 @@
-package org.eclipse.tycho.core.osgitools;
+package org.eclipse.tycho;
 
 import static org.osgi.framework.Constants.BUNDLE_CLASSPATH;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
@@ -9,10 +9,8 @@ import java.util.Map;
 
 import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
 import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
+import org.eclipse.osgi.framework.util.Headers;
 import org.eclipse.osgi.util.ManifestElement;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.DefaultArtifactKey;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -142,7 +140,7 @@ public class OsgiManifest {
         return isDirectoryShape;
     }
 
-    static OsgiManifest parse(InputStream stream, String location) throws OsgiManifestParserException {
+    public static OsgiManifest parse(InputStream stream, String location) throws OsgiManifestParserException {
         return new OsgiManifest(stream, location);
     }
 

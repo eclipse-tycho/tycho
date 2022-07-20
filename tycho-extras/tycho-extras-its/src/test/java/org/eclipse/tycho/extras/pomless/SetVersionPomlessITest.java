@@ -15,8 +15,8 @@ package org.eclipse.tycho.extras.pomless;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.extras.its.AbstractTychoExtrasIntegrationTest;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.versions.pom.PomFile;
