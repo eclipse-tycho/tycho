@@ -29,6 +29,7 @@
 		<module>sisu-osgi-api</module>
 		<module>sisu-equinox-embedder</module>
 		<module>sisu-equinox-launching</module>
+		<module>sisu-osgi-connect</module>
 	</modules>
 
 </project>
