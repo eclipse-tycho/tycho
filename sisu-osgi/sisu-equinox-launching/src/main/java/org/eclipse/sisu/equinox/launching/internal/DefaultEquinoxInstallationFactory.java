@@ -14,11 +14,13 @@ package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.ArchiverException;
@@ -41,19 +45,15 @@ import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
-import org.eclipse.sisu.equinox.launching.EquinoxLaunchingException;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
+import org.osgi.framework.Constants;
 
 @Component(role = EquinoxInstallationFactory.class)
 public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFactory {
     @Requirement
     private PlexusContainer plexus;
 
-    @Requirement
-    private BundleReader manifestReader;
+    private final Map<String, Manifest> manifestCache = new HashMap<>();
 
     @Requirement
     private Logger log;
@@ -76,35 +76,28 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             defaultBundleStartLevel = new BundleStartLevel(null, 4, false);
         }
 
-        Map<BundleReference, File> effective = new LinkedHashMap<>();
-
-        for (BundleReference artifact : description.getBundles()) {
-            File file = artifact.getLocation();
-            OsgiManifest mf;
-            try {
-                mf = manifestReader.loadManifest(file);
-            } catch (OsgiManifestParserException e) {
-                throw new EquinoxLaunchingException("can't parse manifest for " + artifact.getId() + ":"
-                        + artifact.getVersion() + ":" + artifact.getLocation(), e);
-            }
-
-            boolean directoryShape = bundlesToExplode.contains(artifact.getId()) || mf.isDirectoryShape();
-
-            if (!file.isDirectory() && directoryShape) {
-                String filename = artifact.getId() + "_" + artifact.getVersion();
-                File unpacked = new File(location, "plugins/" + filename);
-
-                unpacked.mkdirs();
-
-                unpack(file, unpacked);
-
-                effective.put(artifact, unpacked);
-            } else {
-                effective.put(artifact, file);
-            }
-        }
-
         try {
+
+            Map<BundleReference, File> effective = new LinkedHashMap<>();
+
+            for (BundleReference artifact : description.getBundles()) {
+                File file = artifact.getLocation();
+                Manifest mf = getManifest(file);
+                boolean directoryShape = bundlesToExplode.contains(artifact.getId()) || isDirectoryShape(mf);
+
+                if (!file.isDirectory() && directoryShape) {
+                    String filename = artifact.getId() + "_" + artifact.getVersion();
+                    File unpacked = new File(location, "plugins/" + filename);
+
+                    unpacked.mkdirs();
+
+                    unpack(file, unpacked);
+
+                    effective.put(artifact, unpacked);
+                } else {
+                    effective.put(artifact, file);
+                }
+            }
             location.mkdirs();
 
             Properties p = new Properties();
@@ -170,6 +163,31 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         }
     }
 
+    private boolean isDirectoryShape(Manifest mf) {
+
+        String value = mf.getMainAttributes().getValue("Eclipse-BundleShape");
+        return "dir".equals(value);
+    }
+
+    private Manifest getManifest(File file) throws IOException {
+        String key = file.getAbsolutePath();
+        Manifest manifest = manifestCache.get(key);
+        if (manifest != null) {
+            return manifest;
+        }
+        if (file.isDirectory()) {
+            try (FileInputStream stream = new FileInputStream(new File(file, JarFile.MANIFEST_NAME))) {
+                manifest = new Manifest(stream);
+            }
+        } else {
+            try (JarFile jarFile = new JarFile(file)) {
+                manifest = jarFile.getManifest();
+            }
+        }
+        manifestCache.put(key, manifest);
+        return manifest;
+    }
+
     /**
      * See
      * 
@@ -210,17 +228,17 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         List<String> bundleNames = new ArrayList<>();
 
         for (File bundleFile : frameworkExtensions) {
-            OsgiManifest mf = manifestReader.loadManifest(bundleFile);
-            bundleNames.add(mf.getBundleSymbolicName());
-
-            File bundleDir = new File(location, "plugins/" + mf.getBundleSymbolicName() + "_" + mf.getBundleVersion());
+            Manifest mf = getManifest(bundleFile);
+            String symbolicName = mf.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+            String version = mf.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+            bundleNames.add(symbolicName);
+            File bundleDir = new File(location, "plugins/" + symbolicName + "_" + version);
             if (bundleFile.isFile()) {
                 unpack(bundleFile, bundleDir);
             } else {
                 FileUtils.copyDirectoryStructure(bundleFile, bundleDir);
             }
         }
-
         return bundleNames;
     }
 

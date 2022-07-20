@@ -22,7 +22,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
+import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
 
 public abstract class AbstractP2MetadataMojo extends AbstractMojo {
 
