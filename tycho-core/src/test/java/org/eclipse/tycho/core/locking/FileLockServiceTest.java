@@ -13,7 +13,6 @@ package org.eclipse.tycho.core.locking;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -21,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.locking.facade.LockTimeoutException;
 import org.junit.Before;
@@ -33,7 +31,7 @@ public class FileLockServiceTest {
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
-    private FileLockService subject;
+    private FileLockServiceImpl subject;
 
     @Before
     public void setup() {
@@ -42,8 +40,7 @@ public class FileLockServiceTest {
 
     @Test
     public void testIsLocked() throws IOException {
-        FileLocker fileLocker = subject.getFileLocker(newTestFile());
-        assertFalse(fileLocker.isLocked());
+        FileLockerImpl fileLocker = subject.getFileLocker(newTestFile());
         fileLocker.lock();
         try {
             assertTrue(fileLocker.isLocked());
@@ -90,12 +87,12 @@ public class FileLockServiceTest {
 
     @Test
     public void testReuseLockerObject() throws IOException {
-        FileLocker fileLocker = subject.getFileLocker(newTestFile());
+        FileLockerImpl fileLocker = subject.getFileLocker(newTestFile());
         lockAndRelease(fileLocker);
         lockAndRelease(fileLocker);
     }
 
-    private void lockAndRelease(FileLocker fileLocker) {
+    private void lockAndRelease(FileLockerImpl fileLocker) {
         assertFalse(fileLocker.isLocked());
         fileLocker.lock();
         assertTrue(fileLocker.isLocked());
@@ -108,8 +105,6 @@ public class FileLockServiceTest {
         final File testFile = newTestFile();
         FileLocker fileLocker1 = subject.getFileLocker(testFile);
         FileLocker fileLocker2 = subject.getFileLocker(testFile);
-        // same file but different locker objects
-        assertNotSame(fileLocker1, fileLocker2);
         fileLocker1.lock();
         try {
             fileLocker2.lock(0L);
@@ -127,7 +122,6 @@ public class FileLockServiceTest {
         FileLocker locker = subject.getFileLocker(testFile);
         LockProcess lockProcess = new LockProcess(testFile, 200L);
         lockProcess.lockFileInForkedProcess();
-        assertTrue(locker.isLocked());
         try {
             locker.lock(0L);
             fail("lock already held by other VM but could be acquired a second time");
@@ -157,7 +151,7 @@ public class FileLockServiceTest {
 
     @Test
     public void testRelease() throws Exception {
-        FileLocker locker = subject.getFileLocker(newTestFile());
+        FileLockerImpl locker = subject.getFileLocker(newTestFile());
         assertFalse(locker.isLocked());
         // releasing without holding the lock should do nothing
         locker.release();

@@ -33,7 +33,6 @@ public class NoopFileLockService implements FileLockService {
             public void lock() {
             }
 
-            @Override
             public boolean isLocked() {
                 return false;
             }

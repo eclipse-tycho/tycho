@@ -12,31 +12,27 @@
 package org.eclipse.tycho.core.locking;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.osgi.internal.framework.EquinoxConfiguration.ConfigValues;
-import org.eclipse.osgi.internal.framework.EquinoxContainer;
-import org.eclipse.osgi.internal.location.BasicLocation;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.locking.facade.FileLocker;
 
 @Component(role = FileLockService.class)
 public class FileLockServiceImpl implements FileLockService {
 
-    private Location anyLocation;
-
-    public FileLockServiceImpl() {
-        anyLocation = new BasicLocation(null, null, false, null,
-                new ConfigValues(new HashMap<String, String>(), new HashMap<>()), new EquinoxContainer(null, null),
-                new AtomicBoolean(false));
-    }
+    private final Map<String, FileLockerImpl> lockers = new ConcurrentHashMap<>();
 
     @Override
-    public synchronized FileLocker getFileLocker(File file) {
-        return new FileLockerImpl(file, anyLocation);
+    public FileLockerImpl getFileLocker(File file) {
+        String key;
+        try {
+            key = file.getCanonicalPath();
+        } catch (IOException e) {
+            key = file.getAbsolutePath();
+        }
+        return lockers.computeIfAbsent(key, k -> new FileLockerImpl(file));
     }
 
 }
