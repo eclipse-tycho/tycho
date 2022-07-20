@@ -34,9 +34,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml', '**/*.target') }}
+        key: ${{ runner.os }}-maven-1-${{ hashFiles('**/pom.xml', '**/*.target') }}
         restore-keys: |
-          ${{ runner.os }}-maven-
+          ${{ runner.os }}-maven-1
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.4
       with:
