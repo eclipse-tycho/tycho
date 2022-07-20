@@ -10,13 +10,14 @@
  * Contributors:
  *    Bachmann electronic GmbH - initial API and implementation
  ******************************************************************************/
-package org.eclipse.sisu.equinox.launching.internal;
+package org.eclipse.sisu.osgi.launching.equinox;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.sisu.osgi.launching.equinox.EquinoxLaunchConfiguration;
 import org.junit.jupiter.api.Test;
 
 class EquinoxLaunchConfigurationTest {

@@ -16,7 +16,7 @@ import java.io.File;
 
 import org.eclipse.sisu.equinox.launching.FrameworkInstallation;
 import org.eclipse.sisu.equinox.launching.FrameworkInstallationDescription;
-import org.eclipse.sisu.equinox.launching.internal.EquinoxInstallationLaunchConfiguration;
+import org.eclipse.sisu.osgi.launching.equinox.EquinoxInstallationLaunchConfiguration;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 
 /**

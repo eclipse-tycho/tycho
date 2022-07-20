@@ -24,7 +24,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.launching.FrameworkInstallation;
-import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
+import org.eclipse.sisu.osgi.launching.equinox.P2ApplicationLauncher;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;

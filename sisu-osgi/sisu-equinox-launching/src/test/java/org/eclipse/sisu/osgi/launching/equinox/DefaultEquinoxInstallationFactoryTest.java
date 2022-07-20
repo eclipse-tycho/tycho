@@ -10,7 +10,7 @@
  * Contributors:
  *    Bachmann electronic GmbH - initial API and implementation
  ******************************************************************************/
-package org.eclipse.sisu.equinox.launching.internal;
+package org.eclipse.sisu.osgi.launching.equinox;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -26,6 +26,8 @@ import java.util.Map;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.BundleReference;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
+import org.eclipse.sisu.osgi.launching.equinox.DefaultEquinoxInstallationDescription;
+import org.eclipse.sisu.osgi.launching.equinox.DefaultEquinoxInstallationFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

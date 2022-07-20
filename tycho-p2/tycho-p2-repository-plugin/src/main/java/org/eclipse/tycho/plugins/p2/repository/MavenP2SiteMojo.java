@@ -70,7 +70,7 @@ import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.OSGiServiceFactory;
-import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
+import org.eclipse.sisu.osgi.launching.equinox.P2ApplicationLauncher;
 import org.eclipse.tycho.TychoConstants;
 
 /**

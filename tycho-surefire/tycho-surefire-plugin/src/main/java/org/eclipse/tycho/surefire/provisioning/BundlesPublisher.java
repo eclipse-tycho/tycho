@@ -22,7 +22,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
+import org.eclipse.sisu.osgi.launching.equinox.P2ApplicationLauncher;
 
 /**
  * Convenience wrapper around FeaturesAndBundlesPublisher to help with bundle jars not available
