@@ -1,0 +1,46 @@
+#################################################
+# This contains a list of bundles that should   #
+# be included in the connect osgi framework     #
+# and if these should be started                #
+# Bundles are started in the given order        #
+#################################################
+
+org.apache.felix.scr,true
+org.eclipse.equinox.common,true
+org.eclipse.ecf,true
+org.eclipse.ecf.filetransfer,true
+org.eclipse.ecf.identity,true
+org.eclipse.ecf.provider.filetransfer,true
+org.eclipse.equinox.p2.core,true
+org.eclipse.equinox.p2.artifact.repository,true
+org.eclipse.equinox.p2.director,true
+org.eclipse.equinox.p2.engine,true
+org.eclipse.equinox.p2.jarprocessor,true
+org.eclipse.equinox.p2.metadata,true
+org.eclipse.equinox.p2.metadata.repository,true
+org.eclipse.equinox.p2.publisher,true
+org.eclipse.equinox.p2.publisher.eclipse,true
+org.eclipse.equinox.p2.repository,true
+org.eclipse.equinox.p2.transport.ecf,true
+org.eclipse.equinox.p2.updatesite,true
+org.eclipse.osgi.compatibility.state
+org.eclipse.core.jobs
+org.eclipse.equinox.app
+org.eclipse.equinox.concurrent
+org.eclipse.equinox.frameworkadmin
+org.eclipse.equinox.frameworkadmin.equinox
+org.eclipse.equinox.preferences
+org.eclipse.equinox.registry,true
+org.eclipse.equinox.security
+org.eclipse.equinox.simpleconfigurator
+org.eclipse.equinox.simpleconfigurator.manipulator
+org.osgi.namespace.extender
+org.osgi.service.component
+org.osgi.service.prefs
+org.osgi.util.function
+org.osgi.util.promise
+org.sat4j.core
+org.sat4j.pb
+org.tukaani.xz
+bcpg
+bcprov

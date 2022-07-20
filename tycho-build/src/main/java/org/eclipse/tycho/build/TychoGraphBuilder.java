@@ -49,11 +49,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
-import org.osgi.framework.BundleContext;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Component(role = GraphBuilder.class, hint = GraphBuilder.HINT)
@@ -62,14 +60,8 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 	@Requirement
 	private Logger log;
 
-	@Requirement(hint = "plexus")
-	private BundleContext bundleContext;
-
 	@Requirement(role = Mapping.class)
 	private Map<String, Mapping> polyglotMappings;
-
-	@Requirement
-	private InstallableUnitGenerator generator;
 
 	@Requirement
 	private MavenProjectDependencyProcessor dependencyProcessor;

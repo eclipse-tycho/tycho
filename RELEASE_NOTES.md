@@ -4,6 +4,38 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### new sisu-osgi-connect
+
+The new sisu-osgi-connect provides an implementation for plexus according to the [Connect Specification](http://docs.osgi.org/specification/osgi.core/8.0.0/framework.connect.html#framework.connect) that allows to run an embedded OSGi Framework from the classpath of a maven-plugin.
+As both, the maven plugin and the embedded framework, share the same classlaoder you can use the best of both worlds and interact seamless with them. 
+
+This can be used in the following way:
+
+```
+@Component(role = MyPlexusComponent.class)
+public class MyPlexusComponent {
+	@Requirement(hint = "connect")
+	private EquinoxServiceFactory serviceFactory;
+	
+	public void helloConnect() {
+		serviceFactory.getService(HelloWorldService.class).sayHello();
+	}
+}
+```
+
+For the setup you need to do the following:
+
+1. include any bundle you like to make up your plexus-osgi-connect framework as a dependency of your maven plugin
+2. include a file `META-INF/sisu-connect.bundles` that list all your bundles you like to have installed in the format `bsn[,true]`, where `bsn` is the symbolid name and optionally you can control if your bundle has to be started or not
+3. include the following additional dependency
+```
+<dependency>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>sisu-osgi-connect</artifactId>
+	<version>${tycho-version}</version>
+</dependency>
+```
+
 ### Deprecated Features
 
 The `tycho-compiler:compile` and `tycho-compiler:testCompile` option `requireJREPackageImports` is deprecated now and will produce a warning when used, bundles currently rely on this option should migrate to proper importing packages from the non java.* namespace.
