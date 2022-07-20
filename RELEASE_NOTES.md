@@ -7,6 +7,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 Fixes:
 
 - [reverted] Not all (direct) requirements of a feature are considered when building an update-site
+- [backport] Fix MavenLocation scope filtering
 
 ## 2.7.4
 

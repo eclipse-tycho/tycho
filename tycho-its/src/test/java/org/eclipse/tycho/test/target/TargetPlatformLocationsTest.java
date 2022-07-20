@@ -122,4 +122,10 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 	}
 
+	@Test
+	public void testMavenLocationTransitiveFeature() throws Exception {
+		Verifier verifier = getVerifier("target.maven-deps", false, true);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
 }
