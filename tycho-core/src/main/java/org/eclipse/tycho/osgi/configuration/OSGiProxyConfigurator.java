@@ -19,12 +19,12 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.sisu.equinox.embedder.EmbeddedFramework;
+import org.eclipse.sisu.equinox.embedder.FrameworkLifecycleListener;
 import org.eclipse.tycho.core.shared.ProxyServiceFacade;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "P2ProxyConfigurator")
-public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
+@Component(role = FrameworkLifecycleListener.class, hint = "P2ProxyConfigurator")
+public class OSGiProxyConfigurator implements FrameworkLifecycleListener {
 
     @Requirement
     protected Logger logger;
@@ -35,10 +35,13 @@ public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
     protected SettingsDecrypterHelper decrypter;
 
     @Override
-    public void afterFrameworkStarted(EmbeddedEquinox framework) {
+    public void afterFrameworkStarted(EmbeddedFramework framework) {
         MavenSession session = context.getSession();
 
         ProxyServiceFacade proxyService = framework.getServiceFactory().getService(ProxyServiceFacade.class);
+        if (proxyService == null) {
+            return;
+        }
 
         // make sure there is no old state from previous aborted builds
         clearProxyConfiguration(proxyService);

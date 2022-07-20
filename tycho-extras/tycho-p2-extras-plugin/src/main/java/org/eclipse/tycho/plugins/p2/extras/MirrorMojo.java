@@ -29,7 +29,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -57,7 +57,7 @@ public class MirrorMojo extends AbstractMojo {
     private MavenSession session;
 
     @Component
-    private EquinoxServiceFactory p2;
+    private OSGiServiceFactory p2;
 
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;

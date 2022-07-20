@@ -28,25 +28,25 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
+import org.eclipse.sisu.equinox.embedder.EmbeddedFramework;
+import org.eclipse.sisu.equinox.embedder.FrameworkLifecycleListener;
+import org.eclipse.sisu.equinox.embedder.FrameworkRuntimeDescription;
+import org.eclipse.sisu.equinox.embedder.FrameworkRuntimeLocator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-@Component(role = EquinoxServiceFactory.class)
+@Component(role = OSGiServiceFactory.class)
 public class DefaultEquinoxEmbedder extends AbstractLogEnabled
-        implements EquinoxServiceFactory, EmbeddedEquinox, Disposable {
-    @Requirement(role = EquinoxLifecycleListener.class)
-    private Map<String, EquinoxLifecycleListener> lifecycleListeners;
+        implements OSGiServiceFactory, EmbeddedFramework, Disposable {
+    @Requirement(role = FrameworkLifecycleListener.class)
+    private Map<String, FrameworkLifecycleListener> lifecycleListeners;
 
     @Requirement
-    private EquinoxRuntimeLocator equinoxLocator;
+    private FrameworkRuntimeLocator equinoxLocator;
 
     private BundleContext frameworkContext;
 
@@ -79,7 +79,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         final List<String> extraSystemPackages = new ArrayList<>();
         final Map<String, String> platformProperties = new LinkedHashMap<>();
 
-        equinoxLocator.locateRuntime(new EquinoxRuntimeDescription() {
+        equinoxLocator.locateRuntime(new FrameworkRuntimeDescription() {
             @Override
             public void addExtraSystemPackage(String systemPackage) {
                 if (systemPackage == null || systemPackage.isEmpty()) {
@@ -175,7 +175,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         frameworkContext = EclipseStarter.getSystemBundleContext();
         activateBundlesInWorkingOrder();
 
-        for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
+        for (FrameworkLifecycleListener listener : lifecycleListeners.values()) {
             listener.afterFrameworkStarted(this);
         }
     }
@@ -332,7 +332,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
     }
 
     @Override
-    public EquinoxServiceFactory getServiceFactory() {
+    public OSGiServiceFactory getServiceFactory() {
         return this;
     }
 }

@@ -47,7 +47,7 @@ import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -125,7 +125,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private ToolchainManager toolchainManager;
 
     @Requirement
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     @Requirement
     private DeclarativeServiceConfigurationReader dsConfigReader;

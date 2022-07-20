@@ -37,7 +37,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.surefire.api.util.ScanResult;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallationDescription;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
@@ -160,7 +160,7 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     }
 
     @Override
-    protected void setupTestBundles(TestFrameworkProvider provider, EquinoxInstallationDescription testRuntime)
+    protected void setupTestBundles(TestFrameworkProvider provider, FrameworkInstallationDescription testRuntime)
             throws MojoExecutionException {
         List<Dependency> dependencies = pluginDescriptor.getPlugin().getDependencies();
         if (dependencies.isEmpty()) {

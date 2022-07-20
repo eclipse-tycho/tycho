@@ -26,7 +26,6 @@ import java.util.Map;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.BundleReference;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
-import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

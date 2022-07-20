@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching;
+package org.eclipse.sisu.equinox.launching.internal;
 
 public class EquinoxLaunchingException extends RuntimeException {
     private static final long serialVersionUID = -2582656444738672521L;

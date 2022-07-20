@@ -23,7 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallation;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -101,7 +101,7 @@ public class ProvisionedInstallationBuilder {
         this.installFeatures = installFeatures;
     }
 
-    public EquinoxInstallation install() throws MojoFailureException, MojoExecutionException, IOException {
+    public FrameworkInstallation install() throws MojoFailureException, MojoExecutionException, IOException {
         validate();
         publishPlainBundleJars();
         executeDirector();

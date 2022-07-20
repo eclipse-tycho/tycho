@@ -12,7 +12,15 @@
  *******************************************************************************/
 package org.eclipse.sisu.equinox.launching;
 
-public interface EquinoxLauncher {
-    public int execute(LaunchConfiguration configuration, int forkedProcessTimeoutInSeconds)
-            throws EquinoxLaunchingException;
+import java.io.File;
+
+public interface FrameworkInstallation {
+    public File getLauncherJar();
+
+    public File getLocation();
+
+    public File getConfigurationLocation();
+
+    public FrameworkInstallationDescription getInstallationDescription();
+
 }

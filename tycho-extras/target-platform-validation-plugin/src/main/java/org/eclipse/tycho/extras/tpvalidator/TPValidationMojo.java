@@ -32,7 +32,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
@@ -108,7 +108,7 @@ public class TPValidationMojo extends AbstractMojo {
     private String executionEnvironment;
 
     @Component
-    protected EquinoxServiceFactory equinox;
+    protected OSGiServiceFactory equinox;
 
     @Component
     private Logger logger;

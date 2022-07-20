@@ -31,7 +31,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -92,7 +92,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
 
     @Requirement
     @Component
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     @Component
     private Logger plexusLogger;

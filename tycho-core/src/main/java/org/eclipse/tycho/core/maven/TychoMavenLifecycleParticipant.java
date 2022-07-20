@@ -43,7 +43,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -180,9 +180,9 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Override
     public void afterSessionEnd(MavenSession session) throws MavenExecutionException {
-        if (plexus.hasComponent(EquinoxServiceFactory.class)) {
+        if (plexus.hasComponent(OSGiServiceFactory.class)) {
             try {
-                EquinoxServiceFactory factory = plexus.lookup(EquinoxServiceFactory.class);
+                OSGiServiceFactory factory = plexus.lookup(OSGiServiceFactory.class);
                 // do not use plexus.dispose() as this only works once and we
                 // want to reuse the factory multiple times but make sure the
                 // equinox framework is fully recreated

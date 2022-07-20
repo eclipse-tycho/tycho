@@ -26,7 +26,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
@@ -48,7 +48,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
     private Logger log;
 
     @Requirement
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     private DependencyMetadataGenerator generator;
 

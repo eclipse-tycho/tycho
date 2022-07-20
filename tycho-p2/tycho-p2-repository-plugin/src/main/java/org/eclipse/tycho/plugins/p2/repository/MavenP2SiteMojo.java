@@ -69,7 +69,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 import org.eclipse.tycho.TychoConstants;
 
@@ -182,7 +182,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
     private File destination;
 
     @Component
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     @Component
     private Logger logger;

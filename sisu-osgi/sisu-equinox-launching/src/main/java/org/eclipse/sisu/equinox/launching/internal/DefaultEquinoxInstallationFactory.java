@@ -38,17 +38,16 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.sisu.equinox.launching.BundleReference;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
-import org.eclipse.sisu.equinox.launching.EquinoxLaunchingException;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallationFactory;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallation;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallationDescription;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 
-@Component(role = EquinoxInstallationFactory.class)
-public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFactory {
+@Component(role = FrameworkInstallationFactory.class)
+public class DefaultEquinoxInstallationFactory implements FrameworkInstallationFactory {
     @Requirement
     private PlexusContainer plexus;
 
@@ -67,7 +66,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
     }
 
     @Override
-    public EquinoxInstallation createInstallation(EquinoxInstallationDescription description, File location) {
+    public FrameworkInstallation createInstallation(FrameworkInstallationDescription description, File location) {
         Set<String> bundlesToExplode = description.getBundlesToExplode();
         Collection<File> frameworkExtensions = description.getFrameworkExtensions();
         Map<String, BundleStartLevel> startLevel = description.getBundleStartLevel();
@@ -224,7 +223,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         return bundleNames;
     }
 
-    private String copySystemBundle(EquinoxInstallationDescription description, File location) throws IOException {
+    private String copySystemBundle(FrameworkInstallationDescription description, File location) throws IOException {
         BundleReference bundle = description.getSystemBundle();
         File srcFile = bundle.getLocation();
         File dstFile = new File(location, "plugins/" + srcFile.getName());

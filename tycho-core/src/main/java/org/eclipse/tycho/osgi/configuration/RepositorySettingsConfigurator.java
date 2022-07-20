@@ -25,13 +25,13 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.sisu.equinox.embedder.EmbeddedFramework;
+import org.eclipse.sisu.equinox.embedder.FrameworkLifecycleListener;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "RepositorySettingsConfigurator")
-public class RepositorySettingsConfigurator implements EquinoxLifecycleListener {
+@Component(role = FrameworkLifecycleListener.class, hint = "RepositorySettingsConfigurator")
+public class RepositorySettingsConfigurator implements FrameworkLifecycleListener {
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
@@ -53,7 +53,7 @@ public class RepositorySettingsConfigurator implements EquinoxLifecycleListener 
     private MirrorSelector mirrorSelector;
 
     @Override
-    public void afterFrameworkStarted(EmbeddedEquinox framework) {
+    public void afterFrameworkStarted(EmbeddedFramework framework) {
         framework.registerService(MavenRepositorySettings.class, new MavenRepositorySettingsProvider());
     }
 

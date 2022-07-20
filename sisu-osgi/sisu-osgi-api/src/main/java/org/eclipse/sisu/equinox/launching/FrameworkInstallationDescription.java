@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface EquinoxInstallationDescription {
+public interface FrameworkInstallationDescription {
 
     public Collection<BundleReference> getBundles();
 

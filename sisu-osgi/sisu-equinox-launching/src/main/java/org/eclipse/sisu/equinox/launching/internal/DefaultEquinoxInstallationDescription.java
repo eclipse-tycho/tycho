@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Bug 572420 - Tycho-Surefire should be executable for eclipse-plugin package type
  *******************************************************************************/
-package org.eclipse.sisu.equinox.launching;
+package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,10 +27,13 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
+import org.eclipse.sisu.equinox.launching.BundleReference;
+import org.eclipse.sisu.equinox.launching.BundleStartLevel;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallationDescription;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.osgi.framework.Version;
 
-public class DefaultEquinoxInstallationDescription implements EquinoxInstallationDescription {
+public class DefaultEquinoxInstallationDescription implements FrameworkInstallationDescription {
     public static final String ANY_QUALIFIER = "qualifier";
     public static final Version EQUINOX_VERSION_3_3_0 = Version.parseVersion("3.3.0");
 

@@ -48,7 +48,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -216,7 +216,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     private LicenseFeatureHelper licenseFeatureHelper;
 
     @Component
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     @Component
     private Logger logger;

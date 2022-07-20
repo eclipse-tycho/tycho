@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
+import org.eclipse.sisu.equinox.embedder.FrameworkRuntimeDescription;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.model.BundleConfiguration;
@@ -45,7 +45,7 @@ class WorkspaceTychoOsgiRuntimeLocator {
         stateLocation = workspaceState.getStateLocation();
     }
 
-    public boolean addProduct(EquinoxRuntimeDescription result, Artifact pom) throws MavenExecutionException {
+    public boolean addProduct(FrameworkRuntimeDescription result, Artifact pom) throws MavenExecutionException {
         ProductConfiguration product;
         try {
             product = ProductConfiguration
@@ -91,7 +91,7 @@ class WorkspaceTychoOsgiRuntimeLocator {
         return new WorkspaceTychoOsgiRuntimeLocator(workspaceResolver);
     }
 
-    public boolean addBundle(EquinoxRuntimeDescription result, Artifact pom) {
+    public boolean addBundle(FrameworkRuntimeDescription result, Artifact pom) {
         DevBundleInfo bundleInfo = workspaceState.getBundleInfo(pom.getFile().getParentFile());
         if (bundleInfo == null) {
             return false;
@@ -100,14 +100,14 @@ class WorkspaceTychoOsgiRuntimeLocator {
         return true;
     }
 
-    private void addBundle(EquinoxRuntimeDescription result, DevBundleInfo bundleInfo) {
+    private void addBundle(FrameworkRuntimeDescription result, DevBundleInfo bundleInfo) {
         result.addBundle(bundleInfo.getLocation());
         if (bundleInfo.getDevEntries() != null) {
             this.deventries.put(bundleInfo.getSymbolicName(), bundleInfo.getDevEntries());
         }
     }
 
-    public void addPlatformProperties(EquinoxRuntimeDescription result) throws MavenExecutionException {
+    public void addPlatformProperties(FrameworkRuntimeDescription result) throws MavenExecutionException {
         result.addPlatformProperty("osgi.install.area", stateLocation.getAbsolutePath());
 
         File devproperties = new File(stateLocation, "dev.properties");

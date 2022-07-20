@@ -29,7 +29,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
@@ -46,7 +46,7 @@ import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 @Component(role = P2MetadataProvider.class, hint = "org.eclipse.tycho.extras.custombundle.CustomBundleP2MetadataProvider")
 public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initializable {
     @Requirement
-    private EquinoxServiceFactory equinox;
+    private OSGiServiceFactory equinox;
 
     private DependencyMetadataGenerator generator;
 

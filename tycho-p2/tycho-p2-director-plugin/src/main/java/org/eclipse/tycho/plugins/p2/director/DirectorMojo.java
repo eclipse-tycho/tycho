@@ -22,7 +22,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
@@ -49,7 +49,7 @@ public final class DirectorMojo extends AbstractProductMojo {
     }
 
     @Component
-    private EquinoxServiceFactory osgiServices;
+    private OSGiServiceFactory osgiServices;
 
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;

@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TychoConstants;
@@ -48,7 +48,7 @@ public class TargetPlatformMojo extends AbstractMojo {
     private MavenProject project;
 
     @Component
-    private EquinoxServiceFactory osgiServices;
+    private OSGiServiceFactory osgiServices;
 
     @Component
     private Logger logger;

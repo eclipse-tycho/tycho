@@ -14,6 +14,6 @@ package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 
-public interface EquinoxInstallationFactory {
-    public EquinoxInstallation createInstallation(EquinoxInstallationDescription description, File location);
+public interface FrameworkInstallationFactory {
+    public FrameworkInstallation createInstallation(FrameworkInstallationDescription description, File location);
 }

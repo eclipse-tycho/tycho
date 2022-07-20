@@ -24,7 +24,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
@@ -52,7 +52,7 @@ public class RepositoryReferenceTool {
     public static int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
     @Requirement
-    private EquinoxServiceFactory osgiServices;
+    private OSGiServiceFactory osgiServices;
 
     @Requirement
     private DefaultDependencyResolverFactory dependencyResolverLocator;

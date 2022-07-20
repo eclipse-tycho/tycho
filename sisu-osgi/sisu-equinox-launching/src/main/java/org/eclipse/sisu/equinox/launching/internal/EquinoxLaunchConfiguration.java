@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.plexus.util.cli.Commandline.Argument;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.FrameworkInstallation;
 import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 
 public class EquinoxLaunchConfiguration implements LaunchConfiguration {
@@ -33,9 +33,9 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
 
     private final List<Argument> vmargs = new ArrayList<>();
 
-    private final EquinoxInstallation installation;
+    private final FrameworkInstallation installation;
 
-    public EquinoxLaunchConfiguration(EquinoxInstallation installation) {
+    public EquinoxLaunchConfiguration(FrameworkInstallation installation) {
         this.installation = installation;
     }
 

@@ -14,15 +14,15 @@ package org.eclipse.sisu.equinox.embedder;
 
 import java.util.Dictionary;
 
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 
 /**
- * Interface to configure an embedded Equinox runtime. Implement an {@link EquinoxLifecycleListener}
+ * Interface to configure an embedded Equinox runtime. Implement an {@link FrameworkLifecycleListener}
  * component to be notified about instances of this type.
  */
-public interface EmbeddedEquinox {
+public interface EmbeddedFramework {
 
-    EquinoxServiceFactory getServiceFactory();
+    OSGiServiceFactory getServiceFactory();
 
     public <T> void registerService(Class<T> clazz, T service);
 

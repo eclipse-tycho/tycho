@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2021 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -10,16 +10,14 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox;
+package org.eclipse.sisu.equinox.embedder;
 
+public interface FrameworkRuntimeLocator {
 
-/**
- * Interface to access OSGi services in an Equinox runtime.
- */
-public interface EquinoxServiceFactory {
+    default void locateRuntime(FrameworkRuntimeDescription description) throws Exception {
+        locateRuntime(description, false);
+    }
 
-    public <T> T getService(Class<T> clazz);
-
-    public <T> T getService(Class<T> clazz, String filter);
+    public void locateRuntime(FrameworkRuntimeDescription description, boolean forked) throws Exception;
 
 }

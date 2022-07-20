@@ -10,13 +10,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.embedder;
+package org.eclipse.sisu.equinox.launching;
 
-/**
- * Listener interface for events of {@link EmbeddedEquinox} instances.
- */
-public interface EquinoxLifecycleListener {
-
-    void afterFrameworkStarted(EmbeddedEquinox framework);
-
+public interface FrameworkLauncher {
+    public int execute(LaunchConfiguration configuration, int forkedProcessTimeoutInSeconds);
 }

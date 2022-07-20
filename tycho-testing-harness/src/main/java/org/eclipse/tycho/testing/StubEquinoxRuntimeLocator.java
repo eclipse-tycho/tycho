@@ -13,13 +13,13 @@
 package org.eclipse.tycho.testing;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
+import org.eclipse.sisu.equinox.embedder.FrameworkRuntimeDescription;
+import org.eclipse.sisu.equinox.embedder.FrameworkRuntimeLocator;
 
-@Component(role = EquinoxRuntimeLocator.class, hint = "stub")
-public class StubEquinoxRuntimeLocator implements EquinoxRuntimeLocator {
+@Component(role = FrameworkRuntimeLocator.class, hint = "stub")
+public class StubEquinoxRuntimeLocator implements FrameworkRuntimeLocator {
     @Override
-    public void locateRuntime(EquinoxRuntimeDescription description, boolean forked) throws Exception {
+    public void locateRuntime(FrameworkRuntimeDescription description, boolean forked) throws Exception {
         throw new UnsupportedOperationException();
     }
 }

@@ -21,7 +21,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.OSGiServiceFactory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
@@ -62,7 +62,7 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
     private boolean keepNonXzIndexFiles;
 
     @Component
-    private EquinoxServiceFactory p2;
+    private OSGiServiceFactory p2;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

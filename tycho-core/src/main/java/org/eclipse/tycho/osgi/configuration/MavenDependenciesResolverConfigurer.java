@@ -40,16 +40,16 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.sisu.equinox.embedder.EmbeddedFramework;
+import org.eclipse.sisu.equinox.embedder.FrameworkLifecycleListener;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "MavenDependenciesResolver")
-public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver, EquinoxLifecycleListener {
+@Component(role = FrameworkLifecycleListener.class, hint = "MavenDependenciesResolver")
+public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver, FrameworkLifecycleListener {
 
     @Requirement
     private Logger logger;
@@ -144,7 +144,7 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
     }
 
     @Override
-    public void afterFrameworkStarted(EmbeddedEquinox framework) {
+    public void afterFrameworkStarted(EmbeddedFramework framework) {
         framework.registerService(MavenDependenciesResolver.class, this);
     }
 
