@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sisu.equinox.embedder.internal;
+package org.eclipse.sisu.osgi.embedder.equinox;
 
 import java.io.File;
 import java.io.IOException;
