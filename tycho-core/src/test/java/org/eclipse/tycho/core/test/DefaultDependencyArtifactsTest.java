@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.test;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.project.MavenProject;
@@ -89,7 +92,7 @@ public class DefaultDependencyArtifactsTest {
         tp.addArtifactFile(new DefaultArtifactKey("foo", "canonical", "1"), canonical.getAbsoluteFile(), null);
 
         Assert.assertNotNull(tp.getArtifact(relative.getAbsoluteFile()));
-        Assert.assertNotNull(tp.getArtifact(canonical));
+        Assert.assertNotNull(getArtifactMapForLocation(canonical, tp));
     }
 
     @Test
@@ -132,7 +135,7 @@ public class DefaultDependencyArtifactsTest {
         DefaultDependencyArtifacts tpB = new DefaultDependencyArtifacts();
         tpB.addArtifactFile(key, location, asSet("a", "b"));
 
-        MultiEnvironmentDependencyArtifacts tp = new MultiEnvironmentDependencyArtifacts();
+        MultiEnvironmentDependencyArtifacts tp = new MultiEnvironmentDependencyArtifacts(null);
 
         tp.addPlatform(new TargetEnvironment("a", "a", "a"), tpA);
         tp.addPlatform(new TargetEnvironment("b", "b", "b"), tpB);
@@ -184,9 +187,18 @@ public class DefaultDependencyArtifactsTest {
         tp2.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, asSet(new FunnyEquals("id", "b"))));
 
         Assert.assertEquals("a", //
-                ((FunnyEquals) tp1.getArtifact(location).get(null).getInstallableUnits().iterator().next()).getData());
+                ((FunnyEquals) getArtifactMapForLocation(location, tp1).get(null).getInstallableUnits().iterator()
+                        .next()).getData());
         Assert.assertEquals("b", //
-                ((FunnyEquals) tp2.getArtifact(location).get(null).getInstallableUnits().iterator().next()).getData());
+                ((FunnyEquals) getArtifactMapForLocation(location, tp2).get(null).getInstallableUnits().iterator()
+                        .next()).getData());
+    }
+
+    private Map<String, ArtifactDescriptor> getArtifactMapForLocation(File location,
+            DefaultDependencyArtifacts dependencyArtifacts) {
+        Map<String, ArtifactDescriptor> map = dependencyArtifacts.getArtifact(location);
+        assertNotNull("No artifacts found for location " + location.getAbsolutePath(), map);
+        return map;
     }
 
     private static final class FunnyEquals {
