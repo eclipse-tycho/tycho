@@ -43,16 +43,24 @@ public class DefaultReactorProject implements ReactorProject {
      */
     private static final String CTX_DEPENDENCY_METADATA_PREFIX = "tycho.dependency-metadata-";
 
-    public final MavenProject project;
+    final MavenProject project;
 
     private final Map<String, Object> context = new ConcurrentHashMap<>();
+
+    private File basedir;
 
     public DefaultReactorProject(MavenProject project) {
         if (project == null) {
             throw new NullPointerException();
         }
-
         this.project = project;
+        ReactorProject reactorProject = (ReactorProject) project.getContextValue(CTX_REACTOR_PROJECT);
+        if (reactorProject != null) {
+            this.basedir = reactorProject.getBasedir();
+        } else {
+            //we store the basedir here, just in case it gets modified e.g. by plugins setting a different pom file
+            this.basedir = project.getBasedir();
+        }
     }
 
     public static ReactorProject adapt(MavenProject project) {
@@ -85,6 +93,9 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public File getBasedir() {
+        if (basedir != null) {
+            return basedir;
+        }
         return project.getBasedir();
     }
 
