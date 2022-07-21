@@ -56,6 +56,7 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildProperties;
@@ -144,17 +145,17 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         List<TargetEnvironment> environments = configuration.getEnvironments();
         Map<String, IDependencyMetadata> metadataMap = getDependencyMetadata(session, project, environments,
                 OptionalResolutionAction.OPTIONAL);
-        Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
+        Map<DependencyMetadataType, Set<IInstallableUnit>> typeMap = new TreeMap<>();
         for (DependencyMetadataType type : DependencyMetadataType.values()) {
             typeMap.put(type, new LinkedHashSet<>());
         }
         for (IDependencyMetadata metadata : metadataMap.values()) {
-            for (Entry<DependencyMetadataType, Set<Object>> map : typeMap.entrySet()) {
+            for (Entry<DependencyMetadataType, Set<IInstallableUnit>> map : typeMap.entrySet()) {
                 map.getValue().addAll(metadata.getDependencyMetadata(map.getKey()));
             }
         }
-        Set<Object> initial = new HashSet<>();
-        for (Entry<DependencyMetadataType, Set<Object>> entry : typeMap.entrySet()) {
+        Set<IInstallableUnit> initial = new HashSet<>();
+        for (Entry<DependencyMetadataType, Set<IInstallableUnit>> entry : typeMap.entrySet()) {
             reactorProject.setDependencyMetadata(entry.getKey(), entry.getValue());
             initial.addAll(entry.getValue());
         }
@@ -237,7 +238,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 .getOptionalResolutionAction();
         Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
                 optionalAction);
-        Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
+        Map<DependencyMetadataType, Set<IInstallableUnit>> typeMap = new TreeMap<>();
         for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
             IDependencyMetadata value = entry.getValue();
             for (DependencyMetadataType type : DependencyMetadataType.values()) {
@@ -246,7 +247,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
         return new DefaultReactorProject(project) {
             @Override
-            public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+            public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
                 return typeMap.get(type);
             }
 
@@ -342,9 +343,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         if (dependencyArtifacts instanceof ArtifactCollection) {
             //enhance the dependency set
             ArtifactCollection collection = (ArtifactCollection) dependencyArtifacts;
-            Map<?, IArtifactFacade> mavenInstallableUnits = dependencyCollector.getMavenInstallableUnits();
+            Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = dependencyCollector
+                    .getMavenInstallableUnits();
             for (var entry : mavenInstallableUnits.entrySet()) {
-                Object key = entry.getKey();
+                IInstallableUnit key = entry.getKey();
                 IArtifactFacade val = entry.getValue();
                 ArtifactKey artifactKey = dependencyCollector.getArtifactKey(val);
                 File location = val.getLocation();

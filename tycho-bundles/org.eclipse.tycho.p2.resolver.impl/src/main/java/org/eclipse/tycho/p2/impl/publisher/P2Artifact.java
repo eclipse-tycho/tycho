@@ -25,13 +25,13 @@ import org.eclipse.tycho.p2.metadata.IP2Artifact;
 public class P2Artifact implements IP2Artifact {
 
     private final File location;
-    private final Set<Object> installableUnits;
-    private final Object artifactDescriptor;
+    private final Set<IInstallableUnit> installableUnits;
+    private final IArtifactDescriptor artifactDescriptor;
 
     public P2Artifact(File location, Collection<IInstallableUnit> installableUnits,
             IArtifactDescriptor artifactDescriptor) {
         this.location = location;
-        this.installableUnits = Collections.unmodifiableSet(toRawSet(installableUnits));
+        this.installableUnits = Collections.unmodifiableSet(new LinkedHashSet<>(installableUnits));
         this.artifactDescriptor = artifactDescriptor;
     }
 
@@ -41,16 +41,13 @@ public class P2Artifact implements IP2Artifact {
     }
 
     @Override
-    public Set<Object> getInstallableUnits() {
+    public Set<IInstallableUnit> getInstallableUnits() {
         return installableUnits;
     }
 
     @Override
-    public Object getArtifactDescriptor() {
+    public IArtifactDescriptor getArtifactDescriptor() {
         return artifactDescriptor;
     }
 
-    private static <T> Set<Object> toRawSet(Collection<T> set) {
-        return new LinkedHashSet<>(set);
-    }
 }

@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.FeatureDescription;
@@ -25,7 +26,7 @@ public class DefaultFeatureDescription extends DefaultArtifactDescriptor impleme
     private FeatureRef featureRef;
 
     public DefaultFeatureDescription(ArtifactKey key, File location, ReactorProject project, String classifier,
-            Feature feature, FeatureRef featureRef, Set<Object> installableUnits) {
+            Feature feature, FeatureRef featureRef, Set<IInstallableUnit> installableUnits) {
         super(key, location, project, classifier, installableUnits);
         this.feature = feature;
         this.featureRef = featureRef;

@@ -117,7 +117,7 @@ public class PublishProductToolTest {
         assertEquals(1, seeds.size());
         DependencySeed seed = seeds.iterator().next();
 
-        Set<Object> publishedUnits = outputRepository.getInstallableUnits();
+        Set<IInstallableUnit> publishedUnits = outputRepository.getInstallableUnits();
         assertThat(publishedUnits, hasItem(seed.getInstallableUnit()));
 
         // test for launcher artifact

@@ -36,6 +36,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
@@ -189,7 +190,7 @@ public class P2MetadataMojo extends AbstractMojo {
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
-            Set<Object> installableUnits = new LinkedHashSet<>();
+            Set<IInstallableUnit> installableUnits = new LinkedHashSet<>();
             for (Map.Entry<String, IP2Artifact> entry : generatedMetadata.entrySet()) {
                 String classifier = entry.getKey();
                 IP2Artifact p2artifact = entry.getValue();

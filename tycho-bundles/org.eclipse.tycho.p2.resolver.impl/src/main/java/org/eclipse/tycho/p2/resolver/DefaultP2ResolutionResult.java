@@ -169,7 +169,7 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
     }
 
     @Override
-    public Set<?> getNonReactorUnits() {
+    public Set<IInstallableUnit> getNonReactorUnits() {
         return nonReactorUnits;
     }
 

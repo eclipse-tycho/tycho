@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
 
 public interface P2ResolutionResult {
@@ -32,14 +33,14 @@ public interface P2ResolutionResult {
          */
         public File getLocation(boolean fetch);
 
-        public Set<Object> getInstallableUnits();
+        public Set<IInstallableUnit> getInstallableUnits();
 
         public String getClassifier();
     }
 
     public Collection<Entry> getArtifacts();
 
-    public Set<?> getNonReactorUnits();
+    public Set<IInstallableUnit> getNonReactorUnits();
 
     /**
      * 

@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -78,7 +79,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         ArtifactKey key = artifact.getKey();
         ReactorProject project = artifact.getMavenProject();
         String classifier = artifact.getClassifier();
-        Set<Object> installableUnits = artifact.getInstallableUnits();
+        Set<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
 
         DefaultFeatureDescription description = new DefaultFeatureDescription(key, location, project, classifier,
                 feature, featureRef, installableUnits);
@@ -202,7 +203,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             File location = artifact.getLocation(true);
             ReactorProject project = artifact.getMavenProject();
             String classifier = artifact.getClassifier();
-            Set<Object> installableUnits = artifact.getInstallableUnits();
+            Set<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
 
             PluginDescription description = new DefaultPluginDescription(key, location, project, classifier, ref,
                     installableUnits);

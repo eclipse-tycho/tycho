@@ -36,6 +36,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -363,7 +364,7 @@ public final class MavenDependencyInjector {
         }
 
         @Override
-        public Set<Object> getInstallableUnits() {
+        public Set<IInstallableUnit> getInstallableUnits() {
             return getDescriptor().getInstallableUnits();
         }
 

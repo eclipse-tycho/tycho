@@ -26,25 +26,25 @@ import org.eclipse.tycho.IDependencyMetadata;
 
 public class DependencyMetadata implements IDependencyMetadata {
 
-    private Map<DependencyMetadataType, Set<Object>> typeMap = new TreeMap<>();
+    private Map<DependencyMetadataType, Set<IInstallableUnit>> typeMap = new TreeMap<>();
     private Set<IArtifactDescriptor> artifacts;
 
     @Override
-    public Set<Object /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type) {
+    public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
         return typeMap.getOrDefault(type, Collections.emptySet());
     }
 
     @Override
-    public Set<Object /* IInstallableUnit */> getDependencyMetadata() {
-        LinkedHashSet<Object> result = new LinkedHashSet<>();
+    public Set<IInstallableUnit> getDependencyMetadata() {
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
         result.addAll(getDependencyMetadata(DependencyMetadataType.SEED));
         result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
-    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<IInstallableUnit> units) {
 
-        typeMap.put(type, new LinkedHashSet<Object>(units));
+        typeMap.put(type, new LinkedHashSet<>(units));
     }
 
     public void setArtifacts(Collection<IArtifactDescriptor> artifacts) {

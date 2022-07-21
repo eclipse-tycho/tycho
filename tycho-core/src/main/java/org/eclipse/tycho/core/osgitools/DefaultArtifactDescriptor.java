@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -31,10 +32,10 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     private final String classifier;
 
-    private final Set<Object> installableUnits;
+    private final Set<IInstallableUnit> installableUnits;
 
     public DefaultArtifactDescriptor(ArtifactKey key, File location, ReactorProject project, String classifier,
-            Set<Object> installableUnits) {
+            Set<IInstallableUnit> installableUnits) {
         this.key = key;
         this.location = ArtifactCollection.normalizeLocation(location);
         this.project = project;
@@ -43,7 +44,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     }
 
     public DefaultArtifactDescriptor(ArtifactKey key, Function<ArtifactDescriptor, File> location,
-            ReactorProject project, String classifier, Set<Object> installableUnits) {
+            ReactorProject project, String classifier, Set<IInstallableUnit> installableUnits) {
         this.key = key;
         this.locationSupplier = location;
         this.project = project;
@@ -84,7 +85,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     }
 
     @Override
-    public Set<Object> getInstallableUnits() {
+    public Set<IInstallableUnit> getInstallableUnits() {
         return installableUnits;
     }
 

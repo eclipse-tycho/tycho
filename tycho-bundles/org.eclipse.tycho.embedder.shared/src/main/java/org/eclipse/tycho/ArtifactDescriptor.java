@@ -15,6 +15,8 @@ package org.eclipse.tycho;
 import java.io.File;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 /**
  * An artifact (i.e. a file) in project build target platform.
  */
@@ -57,5 +59,5 @@ public interface ArtifactDescriptor {
      * @TODO this should probably be Map<String,Set<IInstallableUnit>>
      * @TODO is this dependency-only or final metadata?
      */
-    public Set<Object/* IInstallableUnit */> getInstallableUnits();
+    public Set<IInstallableUnit> getInstallableUnits();
 }
