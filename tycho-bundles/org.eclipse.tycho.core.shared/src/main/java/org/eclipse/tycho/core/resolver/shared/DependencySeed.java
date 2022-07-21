@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver.shared;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactType;
 
 /**
@@ -27,7 +28,7 @@ public class DependencySeed {
 //    private final String version;
 
     // TODO 372780 disallow null; the UI should be obtained as well when looking up the version
-    private final Object installableUnit;
+    private final IInstallableUnit installableUnit;
 
     private final Filter addOnFilter;
 
@@ -43,7 +44,7 @@ public class DependencySeed {
      *            The seed unit as IInstallableUnit, which contains the dependency information. May
      *            be <code>null</code>.
      */
-    public DependencySeed(String type, String id, /* String version, */Object installableUnit) {
+    public DependencySeed(String type, String id, /* String version, */IInstallableUnit installableUnit) {
         this(type, id, installableUnit, null);
     }
 
@@ -61,7 +62,7 @@ public class DependencySeed {
      * @param isAddOnFor
      *            Filter used to answer calls to {@link #isAddOnFor(String, String)}
      */
-    public DependencySeed(String type, String id, /* String version, */Object installableUnit, Filter isAddOnFor) {
+    public DependencySeed(String type, String id, /* String version, */IInstallableUnit installableUnit, Filter isAddOnFor) {
         this.type = type;
         this.id = id;
         this.installableUnit = installableUnit;
@@ -93,7 +94,7 @@ public class DependencySeed {
     /**
      * @return the seed unit as IInstallableUnit. May be <code>null</code>.
      */
-    public/* IInstallableUnit */Object getInstallableUnit() {
+    public IInstallableUnit getInstallableUnit() {
         return installableUnit;
     }
 

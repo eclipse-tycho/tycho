@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.IDependencyMetadata;
@@ -42,11 +43,11 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
 
     private Map<String, Object> contextValues = new HashMap<>();
 
-    private Set<?> dependencyMetadata = new LinkedHashSet<>();
+    private Set<IInstallableUnit> dependencyMetadata = new LinkedHashSet<>();
 
-    private Set<?> secondaryDependencyMetadata = new LinkedHashSet<>();
+    private Set<IInstallableUnit> secondaryDependencyMetadata = new LinkedHashSet<>();
 
-    private Set<?> initialMetadata;
+    private Set<IInstallableUnit> initialMetadata;
 
     public ReactorProjectStub(File basedir, String groupId, String artifactId, String version, String packagingType) {
         this.basedir = basedir;
@@ -97,7 +98,7 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     @Override
-    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
+    public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
         switch (type) {
         case SEED:
             return dependencyMetadata;
@@ -115,14 +116,14 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
                 dependencyMetadata.getDependencyMetadata(DependencyMetadataType.SEED));
         this.secondaryDependencyMetadata = new LinkedHashSet<>(
                 dependencyMetadata.getDependencyMetadata(DependencyMetadataType.RESOLVE));
-        LinkedHashSet<Object> initial = new LinkedHashSet<>();
+        LinkedHashSet<IInstallableUnit> initial = new LinkedHashSet<>();
         initial.addAll(this.dependencyMetadata);
         initial.addAll(this.secondaryDependencyMetadata);
         this.initialMetadata = initial;
     }
 
     @Override
-    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<IInstallableUnit> units) {
         switch (type) {
         case SEED:
             this.dependencyMetadata = new LinkedHashSet<>(units);
@@ -138,9 +139,9 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
 
     // TODO share with real implementation?
     @Override
-    public Set<?> getDependencyMetadata() {
-        Set<?> primary = getDependencyMetadata(DependencyMetadataType.SEED);
-        Set<?> secondary = getDependencyMetadata(DependencyMetadataType.RESOLVE);
+    public Set<IInstallableUnit> getDependencyMetadata() {
+        Set<IInstallableUnit> primary = getDependencyMetadata(DependencyMetadataType.SEED);
+        Set<IInstallableUnit> secondary = getDependencyMetadata(DependencyMetadataType.RESOLVE);
 
         if (primary == null) {
             return secondary;
@@ -148,7 +149,7 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
             return primary;
         }
 
-        LinkedHashSet<Object> result = new LinkedHashSet<>(primary);
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>(primary);
         result.addAll(secondary);
         return result;
     }

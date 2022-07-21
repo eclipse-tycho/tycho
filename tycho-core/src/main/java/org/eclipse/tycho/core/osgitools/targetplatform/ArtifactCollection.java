@@ -28,6 +28,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -58,11 +59,11 @@ public class ArtifactCollection {
         return new ArrayList<>(artifacts.values());
     }
 
-    public void addArtifactFile(ArtifactKey key, File location, Set<Object> installableUnits) {
+    public void addArtifactFile(ArtifactKey key, File location, Set<IInstallableUnit> installableUnits) {
         addArtifact(new DefaultArtifactDescriptor(key, location, null, null, installableUnits));
     }
 
-    public void addArtifactFile(ArtifactKey key, Supplier<File> location, Set<Object> installableUnits) {
+    public void addArtifactFile(ArtifactKey key, Supplier<File> location, Set<IInstallableUnit> installableUnits) {
         addArtifact(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
     }
 
@@ -79,7 +80,7 @@ public class ArtifactCollection {
 
         ArtifactDescriptor original = artifacts.get(key);
 
-        Set<Object> units = null;
+        Set<IInstallableUnit> units = null;
 
         if (original != null) {
             // can't use DefaultArtifactDescriptor.equals because artifact.location is not normalized
@@ -228,7 +229,7 @@ public class ArtifactCollection {
     }
 
     public void addReactorArtifact(ArtifactKey key, ReactorProject project, String classifier,
-            Set<Object> installableUnits) {
+            Set<IInstallableUnit> installableUnits) {
         DefaultArtifactDescriptor artifact = new DefaultArtifactDescriptor(key, project.getBasedir(), project,
                 classifier, installableUnits);
         addArtifact(artifact);

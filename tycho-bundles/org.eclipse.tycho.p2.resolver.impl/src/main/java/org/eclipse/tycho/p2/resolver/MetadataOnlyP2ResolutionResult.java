@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
@@ -38,7 +39,7 @@ public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
      * @param version
      *            is Eclipse/OSGi artifact version
      */
-    public void addArtifact(String type, String id, String version, Object installableUnit) {
+    public void addArtifact(String type, String id, String version, IInstallableUnit installableUnit) {
         // (type,id,version) is unique and not null
 
         List<String> key = newKey(type, id, version);
@@ -51,7 +52,6 @@ public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
         } else {
             throw new IllegalArgumentException("Conflicting results for artifact with (type,id,version)=" + key);
         }
-
         entry.addInstallableUnit(installableUnit);
     }
 
@@ -69,7 +69,7 @@ public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
     }
 
     @Override
-    public Set<?> getNonReactorUnits() {
+    public Set<IInstallableUnit> getNonReactorUnits() {
         return Collections.emptySet();
     }
 

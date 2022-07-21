@@ -89,7 +89,7 @@ public class PublisherServiceTest {
         assertEquals(1, seeds.size());
         DependencySeed seed = seeds.iterator().next();
 
-        Set<Object> publishedUnits = outputRepository.getInstallableUnits();
+        Set<IInstallableUnit> publishedUnits = outputRepository.getInstallableUnits();
         assertTrue(publishedUnits.contains(seed.getInstallableUnit()));
     }
 

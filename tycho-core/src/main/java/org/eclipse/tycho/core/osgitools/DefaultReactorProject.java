@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -170,20 +171,21 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     @Override
-    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<IInstallableUnit> units) {
         setContextValue(getDependencyMetadataKey(type), units);
     }
 
     @Override
-    public Set<?> getDependencyMetadata() {
-        LinkedHashSet<Object> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataType.SEED));
+    public Set<IInstallableUnit> getDependencyMetadata() {
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>(
+                getDependencyMetadata(DependencyMetadataType.SEED));
         result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
     @Override
-    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
-        return Objects.requireNonNullElse((Set<?>) getContextValue(getDependencyMetadataKey(type)),
+    public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
+        return Objects.requireNonNullElse((Set<IInstallableUnit>) getContextValue(getDependencyMetadataKey(type)),
                 Collections.emptySet());
     }
 

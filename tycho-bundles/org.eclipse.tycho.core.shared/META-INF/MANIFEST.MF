@@ -10,5 +10,6 @@ Export-Package: org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.shared,
  org.eclipse.tycho.locking.facade
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Import-Package: org.eclipse.tycho
+Import-Package: org.eclipse.equinox.p2.metadata;version="2.4.0",
+ org.eclipse.tycho
 Automatic-Module-Name: org.eclipse.tycho.core.shared

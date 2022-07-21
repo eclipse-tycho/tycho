@@ -15,6 +15,9 @@ package org.eclipse.tycho.p2.metadata;
 import java.io.File;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+
 /**
  * Encapsulates an artifact, i.e. a File, and associated p2 metadata.
  * 
@@ -23,7 +26,7 @@ import java.util.Set;
 public interface IP2Artifact {
     public File getLocation();
 
-    public Set<Object /* IInstallableUnit */> getInstallableUnits();
+    public Set<IInstallableUnit> getInstallableUnits();
 
-    public Object/* IArtifactDescriptor */getArtifactDescriptor();
+    public IArtifactDescriptor getArtifactDescriptor();
 }

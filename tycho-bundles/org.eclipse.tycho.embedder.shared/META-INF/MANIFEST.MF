@@ -7,3 +7,4 @@ Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.eclipse.tycho;version="3.0.0"
 Automatic-Module-Name: org.eclipse.tycho.embedder.shared
+Import-Package: org.eclipse.equinox.p2.metadata;version="2.4.0"

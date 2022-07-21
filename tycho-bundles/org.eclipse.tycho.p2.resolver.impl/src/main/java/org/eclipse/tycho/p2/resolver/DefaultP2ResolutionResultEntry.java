@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry {
@@ -26,7 +27,7 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     private String version;
 
-    private Set<Object> installableUnits;
+    private Set<IInstallableUnit> installableUnits;
 
     private String classifier;
 
@@ -76,11 +77,11 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
     }
 
     @Override
-    public Set<Object> getInstallableUnits() {
+    public Set<IInstallableUnit> getInstallableUnits() {
         return installableUnits;
     }
 
-    void addInstallableUnit(Object installableUnit) {
+    void addInstallableUnit(IInstallableUnit installableUnit) {
         if (installableUnits == null) {
             installableUnits = new LinkedHashSet<>();
         }

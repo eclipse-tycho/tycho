@@ -41,6 +41,7 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.container.Module;
 import org.eclipse.osgi.container.ModuleContainer;
@@ -154,7 +155,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     File location = artifact.getLocation(true);
                     ReactorProject project = artifact.getMavenProject();
                     String classifier = artifact.getClassifier();
-                    Set<Object> installableUnits = artifact.getInstallableUnits();
+                    Set<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
 
                     PluginDescription plugin = new DefaultPluginDescription(key, location, project, classifier, null,
                             installableUnits);

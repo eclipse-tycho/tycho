@@ -15,7 +15,7 @@
 package org.eclipse.tycho.p2.target.facade;
 
 import java.util.Map;
-
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
@@ -30,7 +30,7 @@ public interface PomDependencyCollector {
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
 
-    Map<?/* IInstallableUnit */, IArtifactFacade> getMavenInstallableUnits();
+    Map<IInstallableUnit, IArtifactFacade> getMavenInstallableUnits();
 
     ArtifactKey getArtifactKey(IArtifactFacade facade);
 

@@ -16,6 +16,8 @@ import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 /**
  * Representation of the p2 repositories that receive the artifacts produced by the build.
  * <p>
@@ -36,7 +38,7 @@ public interface PublishingRepositoryFacade {
     /**
      * Returns the <code>IInstallableUnit</code>s in the publishing repository.
      */
-    Set<Object> getInstallableUnits();
+    Set<IInstallableUnit> getInstallableUnits();
 
     // TODO also store published seed IUs in the publishing repository?
     // currently in org.eclipse.tycho.plugins.p2.publisher.AbstractPublishMojo.postPublishedIUs(Collection<?>)

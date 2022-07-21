@@ -13,12 +13,12 @@
 package org.eclipse.tycho.repository.module;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
@@ -54,10 +54,8 @@ public class PublishingRepositoryImpl implements PublishingRepository {
     }
 
     @Override
-    public Set<Object> getInstallableUnits() {
-        Set<Object> result = new HashSet<>();
-        result.addAll(getMetadataRepository().query(QueryUtil.ALL_UNITS, null).toSet());
-        return result;
+    public Set<IInstallableUnit> getInstallableUnits() {
+        return getMetadataRepository().query(QueryUtil.ALL_UNITS, null).toSet();
     }
 
     @Override

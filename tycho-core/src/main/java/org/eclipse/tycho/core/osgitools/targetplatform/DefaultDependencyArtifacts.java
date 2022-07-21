@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -51,7 +52,7 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
      * Set of installable unit in the target platform of the module that do not come from the local
      * reactor.
      */
-    protected final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<>();
+    protected final Set<IInstallableUnit> nonReactorUnits = new LinkedHashSet<>();
 
     public DefaultDependencyArtifacts() {
         this(null);
@@ -74,13 +75,13 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
     }
 
     @Override
-    public Set<?/* IInstallableUnit */> getNonReactorUnits() {
+    public Set<IInstallableUnit> getNonReactorUnits() {
         return nonReactorUnits;
     }
 
     @Override
-    public Set<?/* IInstallableUnit */> getInstallableUnits() {
-        Set<Object> units = new LinkedHashSet<>();
+    public Set<IInstallableUnit> getInstallableUnits() {
+        Set<IInstallableUnit> units = new LinkedHashSet<>();
         for (ArtifactDescriptor artifact : artifacts.values()) {
             if (project == null || !project.equals(artifact.getMavenProject())) {
                 units.addAll(artifact.getInstallableUnits());
@@ -90,11 +91,11 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
         return Collections.unmodifiableSet(units);
     }
 
-    public void addNonReactorUnits(Set<?/* IInstallableUnit */> installableUnits) {
+    public void addNonReactorUnits(Set<IInstallableUnit> installableUnits) {
         this.nonReactorUnits.addAll(installableUnits);
     }
 
-    public void addFragment(ArtifactKey key, Supplier<File> location, Set<Object> installableUnits) {
+    public void addFragment(ArtifactKey key, Supplier<File> location, Set<IInstallableUnit> installableUnits) {
         fragments.add(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
     }
 
