@@ -114,7 +114,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			p.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "6");
 			ServiceLoader<ConnectFrameworkFactory> sl = ServiceLoader.load(ConnectFrameworkFactory.class, classloader);
 			ConnectFrameworkFactory factory = sl.iterator().next();
-			PlexusModuleConnector connector = new PlexusModuleConnector(classloader, factory);
+			PlexusModuleConnector connector = new PlexusModuleConnector(factory);
 			Framework osgiFramework = factory.newFramework(p, connector);
 			PlexusConnectFramework connectFramework = new PlexusConnectFramework(osgiFramework, log, this);
 			osgiFramework.init(new FrameworkListener() {

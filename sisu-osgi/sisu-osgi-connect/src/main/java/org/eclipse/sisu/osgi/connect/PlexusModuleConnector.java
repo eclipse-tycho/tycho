@@ -59,8 +59,6 @@ final class PlexusModuleConnector implements ModuleConnector {
 
 	private static final String MAVEN_EXTENSION_DESCRIPTOR = "META-INF/maven/extension.xml";
 
-	private ClassLoader classloader;
-
 	private Map<String, PlexusConnectContent> modulesMap = new HashMap<>();
 
 	private File storage;
@@ -69,8 +67,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 
 	private String frameworkBundle;
 
-	public PlexusModuleConnector(ClassLoader classloader, ConnectFrameworkFactory factory) {
-		this.classloader = classloader;
+	public PlexusModuleConnector(ConnectFrameworkFactory factory) {
 		frameworkBundle = PlexusFrameworkUtilHelper.getLocationFromClass(factory.getClass());
 	}
 
@@ -138,7 +135,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 					logger.debug("Discovered bundle " + bundleSymbolicName + " @ " + file);
 					String location = file.getAbsolutePath();
 					modulesMap.put(location,
-							new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), classloader));
+							new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), realm));
 					if (installBundle(bundleContext, location, logger) != null) {
 						installed.add(location);
 					}
@@ -176,7 +173,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 				headers.put(Constants.BUNDLE_SYMBOLICNAME, bsn);
 				headers.put(Constants.BUNDLE_VERSION, "1.0.0." + System.identityHashCode(classRealm));
 				headers.put(Constants.EXPORT_PACKAGE, coreExports.stream().collect(Collectors.joining(",")));
-				modulesMap.put(bsn, new PlexusConnectContent(null, headers, classloader));
+				modulesMap.put(bsn, new PlexusConnectContent(null, headers, classRealm));
 				logger.debug("Installing " + bsn + " exporting core packages " + coreExports);
 				if (installBundle(bundleContext, bsn, logger) != null) {
 					installed.add(bsn);
