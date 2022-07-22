@@ -42,7 +42,7 @@ public class MavenReactorProjectIdentities extends ReactorProjectIdentities {
 
     @Override
     public File getBasedir() {
-        return project.getBasedir();
+        return DefaultReactorProject.adapt(project).getBasedir();
     }
 
     @Override
