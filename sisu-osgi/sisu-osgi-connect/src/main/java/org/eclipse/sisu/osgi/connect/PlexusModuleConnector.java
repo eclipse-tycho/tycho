@@ -45,16 +45,13 @@ final class PlexusModuleConnector implements ModuleConnector {
 
 	private Map<String, PlexusConnectContent> modulesMap = new HashMap<>();
 
-	private Logger logger;
-
 	private File storage;
 
-	public PlexusModuleConnector(ClassLoader classloader, Logger logger) {
+	public PlexusModuleConnector(ClassLoader classloader) {
 		this.classloader = classloader;
-		this.logger = logger;
 	}
 
-	public void installBundles(BundleContext bundleContext, Predicate<String> filter) {
+	public void installBundles(BundleContext bundleContext, Predicate<String> filter, Logger logger) {
 		Enumeration<URL> resources;
 		try {
 			resources = classloader.getResources(JarFile.MANIFEST_NAME);
@@ -62,6 +59,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 			logger.error("Can't load resources for classloader " + classloader);
 			return;
 		}
+		Map<String, String> installed = new HashMap<String, String>();
 		while (resources.hasMoreElements()) {
 			String location = resources.nextElement().toExternalForm();
 			logger.debug("Scan " + location + " for bundle data...");
@@ -82,6 +80,13 @@ final class PlexusModuleConnector implements ModuleConnector {
 								logger.debug("Ignore bundle " + bundleSymbolicName
 										+ " as it is not included in the bundle list.");
 							}
+							jarFile.close();
+							continue;
+						}
+						String existingLocation = installed.putIfAbsent(bundleSymbolicName, name);
+						if (existingLocation != null) {
+							logger.warn("Skip duplicate bundle " + bundleSymbolicName + "\r\n\texisting location: "
+									+ existingLocation + "\r\n\tskipped location: " + name);
 							jarFile.close();
 							continue;
 						}

@@ -20,7 +20,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,11 +28,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.codehaus.plexus.classworlds.ClassWorld;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -41,15 +41,12 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.connect.ConnectFrameworkFactory;
 import org.osgi.framework.launch.Framework;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
@@ -69,17 +66,26 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 
 	private static final StackWalker WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
-	static PlexusFrameworkConnectServiceFactory instance;
-
 	@Requirement
 	private Logger log;
 
-	final Map<ClassLoader, Framework> frameworkMap = new HashMap<ClassLoader, Framework>();
+	final Map<ClassLoader, PlexusConnectFramework> frameworkMap = new HashMap<>();
 
 	@Requirement(role = EquinoxLifecycleListener.class)
 	private Map<String, EquinoxLifecycleListener> lifecycleListeners;
 
-	private Map<Class<?>, ServiceTracker<?, ?>> trackerMap = new ConcurrentHashMap<Class<?>, ServiceTracker<?, ?>>();
+	private final String name;
+
+	public PlexusFrameworkConnectServiceFactory() {
+		ClassLoader classLoader = getClass().getClassLoader();
+		if (classLoader instanceof ClassRealm) {
+			@SuppressWarnings("resource")
+			ClassRealm classRealm = (ClassRealm) classLoader;
+			name = classRealm.getId();
+		} else {
+			name = classLoader.toString();
+		}
+	}
 
 	/**
 	 * 
@@ -89,75 +95,73 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	 * @return get (or creates) the Framework that is made of the given classloader
 	 * @throws BundleException if creation of the framework failed
 	 */
-	synchronized Framework getFramework(ClassLoader classloader) throws BundleException {
-		Framework framework = frameworkMap.get(classloader);
-		if (framework != null) {
-			return framework;
-		}
-		Map<String, Boolean> bundleStartMap = readBundles(classloader);
-		Map<String, String> p = new HashMap<>();
-		p.put(Constants.FRAMEWORK_STORAGE,
-				System.getProperty("java.io.tmpdir") + File.separator + "plexus.osgi." + UUID.randomUUID());
-		p.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "6");
-		ServiceLoader<ConnectFrameworkFactory> sl = ServiceLoader.load(ConnectFrameworkFactory.class, classloader);
-		ConnectFrameworkFactory factory = sl.iterator().next();
-		PlexusModuleConnector connector = new PlexusModuleConnector(classloader, log);
-		Framework osgiFramework = factory.newFramework(p, connector);
-		osgiFramework.init(new FrameworkListener() {
-
-			@Override
-			public void frameworkEvent(FrameworkEvent event) {
-				log.info(event.toString());
+	synchronized PlexusConnectFramework getFramework(ClassLoader classloader) throws BundleException {
+		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread().setContextClassLoader(classloader);
+			PlexusConnectFramework framework = frameworkMap.get(classloader);
+			if (framework != null) {
+				return framework;
 			}
-		});
-		frameworkMap.put(classloader, osgiFramework);
-		connector.installBundles(osgiFramework.getBundleContext(), bsn -> bundleStartMap.containsKey(bsn));
-		osgiFramework.start();
-		Map<String, List<Bundle>> bundles = Arrays.stream(osgiFramework.getBundleContext().getBundles())
-				.collect(Collectors.groupingBy(Bundle::getSymbolicName));
-		for (Entry<String, Boolean> entry : bundleStartMap.entrySet()) {
-			List<Bundle> list = bundles.get(entry.getKey());
-			if (list == null) {
-				log.warn("Bundle " + entry.getKey() + " was not found in the framework!");
-			} else if (entry.getValue()) {
-				for (Bundle bundle : list) {
-					try {
-						bundle.start();
-					} catch (BundleException e) {
-						log.warn("Can't start bundle " + bundle.getSymbolicName() + " " + bundle.getVersion() + ": ",
-								e);
+			log.debug("Create framework for " + this + " with classloader " + classloader);
+			Map<String, Boolean> bundleStartMap = readBundles(classloader, new PlexusConnectFramework(null, log, this));
+			Map<String, String> p = new HashMap<>();
+			p.put("osgi.framework.useSystemProperties", "false");
+			p.put("osgi.parentClassloader", "fwk");
+			p.put(Constants.FRAMEWORK_STORAGE,
+					System.getProperty("java.io.tmpdir") + File.separator + "plexus.osgi." + UUID.randomUUID());
+			p.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "6");
+			ServiceLoader<ConnectFrameworkFactory> sl = ServiceLoader.load(ConnectFrameworkFactory.class, classloader);
+			ConnectFrameworkFactory factory = sl.iterator().next();
+			PlexusModuleConnector connector = new PlexusModuleConnector(classloader);
+			Framework osgiFramework = factory.newFramework(p, connector);
+			PlexusConnectFramework connectFramework = new PlexusConnectFramework(osgiFramework, log, this);
+			osgiFramework.init(new FrameworkListener() {
+
+				@Override
+				public void frameworkEvent(FrameworkEvent event) {
+					connectFramework.info(event.toString());
+				}
+			});
+			frameworkMap.put(classloader, connectFramework);
+			connector.installBundles(osgiFramework.getBundleContext(), bsn -> bundleStartMap.containsKey(bsn),
+					connectFramework);
+			osgiFramework.start();
+			Map<String, List<Bundle>> bundles = Arrays.stream(osgiFramework.getBundleContext().getBundles())
+					.collect(Collectors.groupingBy(Bundle::getSymbolicName));
+			for (Entry<String, Boolean> entry : bundleStartMap.entrySet()) {
+				List<Bundle> list = bundles.get(entry.getKey());
+				if (list == null) {
+					connectFramework.warn("Bundle " + entry.getKey() + " was not found in the framework!");
+				} else if (entry.getValue()) {
+					for (Bundle bundle : list) {
+						try {
+							bundle.start();
+						} catch (BundleException e) {
+							if (log.isDebugEnabled()) {
+								connectFramework.warn("Can't start bundle " + bundle.getSymbolicName() + " "
+										+ bundle.getVersion() + ": ", e);
+							} else {
+								connectFramework.warn("Can't start bundle " + bundle.getSymbolicName() + " "
+										+ bundle.getVersion() + ": " + e);
+							}
+						}
 					}
 				}
 			}
-		}
-		EmbeddedEquinox embeddedEquinox = new EmbeddedEquinox() {
-
-			@Override
-			public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties) {
-				// TODO better return the service reference here!
-				osgiFramework.getBundleContext().registerService(clazz, service, properties);
+			for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
+				listener.afterFrameworkStarted(connectFramework);
 			}
-
-			@Override
-			public <T> void registerService(Class<T> clazz, T service) {
-				registerService(clazz, service, null);
+			if (log.isDebugEnabled()) {
+				printFrameworkState(osgiFramework, connectFramework);
 			}
-
-			@Override
-			public EquinoxServiceFactory getServiceFactory() {
-				return PlexusFrameworkConnectServiceFactory.this;
-			}
-		};
-		for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
-			listener.afterFrameworkStarted(embeddedEquinox);
+			return connectFramework;
+		} finally {
+			Thread.currentThread().setContextClassLoader(tccl);
 		}
-		if (log.isDebugEnabled()) {
-			printFrameworkState(osgiFramework);
-		}
-		return osgiFramework;
 	}
 
-	private Map<String, Boolean> readBundles(ClassLoader classloader) {
+	private static Map<String, Boolean> readBundles(ClassLoader classloader, Logger logger) {
 		Enumeration<URL> resources;
 		try {
 			resources = classloader.getResources("META-INF/sisu-connect.bundles");
@@ -167,6 +171,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		LinkedHashMap<String, Boolean> map = new LinkedHashMap<>();
 		while (resources.hasMoreElements()) {
 			URL url = resources.nextElement();
+			logger.debug("Reading Bundles from " + url);
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
 				reader.lines().forEachOrdered(line -> {
 					if (line.startsWith("#") || line.isBlank()) {
@@ -182,13 +187,13 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 					map.put(split[0], start);
 				});
 			} catch (IOException e) {
-				log.warn("Can't read bundle infos from url " + url);
+				logger.warn("Can't read bundle infos from url " + url);
 			}
 		}
 		return map;
 	}
 
-	private void printFrameworkState(Framework framework) {
+	private static void printFrameworkState(Framework framework, Logger log) {
 		Bundle[] bundles = framework.getBundleContext().getBundles();
 		log.info("============ Framework Bundles ==================");
 		Comparator<Bundle> bySymbolicName = Comparator.comparing(Bundle::getSymbolicName,
@@ -217,13 +222,15 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 								log.info(toComponentState(dto.state) + " | " + dto.description.name);
 							}
 						});
+			} else {
+				log.info("No service component runtime installed (or started) in this framework!");
 			}
 		} finally {
 			st.close();
 		}
 	}
 
-	private String toComponentState(int state) {
+	private static String toComponentState(int state) {
 		switch (state) {
 		case ComponentConfigurationDTO.ACTIVE:
 			return "ACTIVE     ";
@@ -239,7 +246,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		}
 	}
 
-	private String toBundleState(int state) {
+	private static String toBundleState(int state) {
 		switch (state) {
 		case Bundle.ACTIVE:
 			return "ACTIVE   ";
@@ -258,7 +265,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 
 	@Override
 	public void dispose() {
-		frameworkMap.values().forEach(fw -> {
+		frameworkMap.values().forEach(connect -> {
+			Framework fw = connect.getFramework();
 			String storage = fw.getBundleContext().getProperty(Constants.FRAMEWORK_STORAGE);
 			try {
 				fw.stop();
@@ -273,45 +281,43 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			}
 		});
 		frameworkMap.clear();
-		instance = null;
+		PlexusFrameworkUtilHelper.factories.remove(this);
 	}
 
 	@Override
 	public void initialize() throws InitializationException {
-		instance = this;
+
+		log.debug("Init instance " + this + " [" + getClass().getClassLoader() + "]");
+		PlexusFrameworkUtilHelper.factories.add(this);
 	}
 
 	@Override
 	public <T> T getService(Class<T> clazz) {
-		return getService(clazz, null);
+		return locateClass(clazz, null, WALKER.getCallerClass());
 	}
 
 	@Override
 	public <T> T getService(Class<T> clazz, String filter) {
-		Class<?> callerClass = WALKER.getCallerClass();
+		return locateClass(clazz, filter, WALKER.getCallerClass());
+	}
+
+	private <T> T locateClass(Class<T> clazz, String filter, Class<?> callerClass) {
+		if (clazz == null || callerClass == null) {
+			return null;
+		}
 		try {
-			Framework framework = getFramework(callerClass.getClassLoader());
-			try {
-				ServiceTracker<?, ?> serviceTracker = trackerMap.computeIfAbsent(clazz, cls -> {
-					ServiceTracker<?, ?> tracker = new ServiceTracker<>(framework.getBundleContext(), cls, null);
-					tracker.open();
-					return tracker;
-				});
-				if (filter == null) {
-					return clazz.cast(serviceTracker.getService());
-				}
-				Filter f = framework.getBundleContext().createFilter(filter);
-				for (var entry : serviceTracker.getTracked().entrySet()) {
-					if (f.match(entry.getKey())) {
-						return clazz.cast(entry.getValue());
-					}
-				}
-				return null;
-			} catch (InvalidSyntaxException e) {
-				throw new IllegalArgumentException(e.getMessage(), e);
-			}
+			return getFramework(callerClass.getClassLoader()).getService(clazz, filter);
 		} catch (BundleException e) {
 			throw new RuntimeException("can't acquire the framework!", e);
 		}
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return getName();
 	}
 }
