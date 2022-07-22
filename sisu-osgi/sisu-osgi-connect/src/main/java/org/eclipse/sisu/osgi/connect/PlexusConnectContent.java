@@ -15,11 +15,8 @@ package org.eclipse.sisu.osgi.connect;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -33,21 +30,16 @@ import org.osgi.framework.connect.ConnectModule;
  *
  */
 class PlexusConnectContent implements ConnectContent, ConnectModule {
-	private ClassLoader classLoader;
-	private Optional<Map<String, String>> header;
+	private final ClassLoader classLoader;
+	private final Optional<Map<String, String>> header;
+	private final String location;
 	private JarFile jarFile;
-	private String location;
 
-	public PlexusConnectContent(JarFile jarFile, ClassLoader classLoader) throws IOException {
+	public PlexusConnectContent(JarFile jarFile, Map<String, String> header, ClassLoader classLoader) {
 		this.jarFile = jarFile;
-		this.location = jarFile.getName();
+		this.location = jarFile == null ? null : jarFile.getName();
 		this.classLoader = classLoader;
-		Attributes attributes = jarFile.getManifest().getMainAttributes();
-		Map<String, String> headers = new LinkedHashMap<String, String>();
-		for (Entry<Object, Object> entry : attributes.entrySet()) {
-			headers.put(entry.getKey().toString(), entry.getValue().toString());
-		}
-		this.header = Optional.of(Collections.unmodifiableMap(headers));
+		this.header = Optional.of(header);
 	}
 
 	@Override
@@ -57,11 +49,17 @@ class PlexusConnectContent implements ConnectContent, ConnectModule {
 
 	@Override
 	public Iterable<String> getEntries() throws IOException {
+		if (jarFile == null) {
+			return Collections.emptyList();
+		}
 		return jarFile.stream().map(JarEntry::getName).collect(Collectors.toList());
 	}
 
 	@Override
 	public Optional<ConnectEntry> getEntry(String path) {
+		if (jarFile == null) {
+			return Optional.empty();
+		}
 		final ZipEntry entry = jarFile.getEntry(path);
 		if (entry == null) {
 			return Optional.empty();
@@ -76,7 +74,7 @@ class PlexusConnectContent implements ConnectContent, ConnectModule {
 
 	@Override
 	public void open() throws IOException {
-		if (jarFile == null) {
+		if (jarFile == null && location != null) {
 			jarFile = new JarFile(location);
 		}
 	}
