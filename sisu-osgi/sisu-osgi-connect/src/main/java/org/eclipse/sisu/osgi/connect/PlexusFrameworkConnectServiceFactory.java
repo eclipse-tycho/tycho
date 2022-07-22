@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -32,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -103,6 +103,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			if (framework != null) {
 				return framework;
 			}
+			List<ClassRealm> realms = collectRealms(getRealm(classloader));
 			log.debug("Create framework for " + this + " with classloader " + classloader);
 			Map<String, Boolean> bundleStartMap = readBundles(classloader, new PlexusConnectFramework(null, log, this));
 			Map<String, String> p = new HashMap<>();
@@ -113,7 +114,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			p.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "6");
 			ServiceLoader<ConnectFrameworkFactory> sl = ServiceLoader.load(ConnectFrameworkFactory.class, classloader);
 			ConnectFrameworkFactory factory = sl.iterator().next();
-			PlexusModuleConnector connector = new PlexusModuleConnector(classloader);
+			PlexusModuleConnector connector = new PlexusModuleConnector(classloader, factory);
 			Framework osgiFramework = factory.newFramework(p, connector);
 			PlexusConnectFramework connectFramework = new PlexusConnectFramework(osgiFramework, log, this);
 			osgiFramework.init(new FrameworkListener() {
@@ -124,8 +125,9 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 				}
 			});
 			frameworkMap.put(classloader, connectFramework);
-			connector.installBundles(osgiFramework.getBundleContext(), bsn -> bundleStartMap.containsKey(bsn),
-					connectFramework);
+			for (ClassRealm realm : realms) {
+				connector.scanRealm(realm, osgiFramework.getBundleContext(), connectFramework);
+			}
 			osgiFramework.start();
 			Map<String, List<Bundle>> bundles = Arrays.stream(osgiFramework.getBundleContext().getBundles())
 					.collect(Collectors.groupingBy(Bundle::getSymbolicName));
@@ -159,6 +161,19 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		} finally {
 			Thread.currentThread().setContextClassLoader(tccl);
 		}
+	}
+
+	private static List<ClassRealm> collectRealms(ClassRealm realm) {
+		ArrayList<ClassRealm> result = new ArrayList<ClassRealm>(realm.getImportRealms());
+		result.add(realm);
+		return result;
+	}
+
+	protected ClassRealm getRealm(ClassLoader classloader) throws BundleException {
+		if (classloader instanceof ClassRealm) {
+			return (ClassRealm) classloader;
+		}
+		throw new BundleException("Not called from a ClassRealm");
 	}
 
 	private static Map<String, Boolean> readBundles(ClassLoader classloader, Logger logger) {

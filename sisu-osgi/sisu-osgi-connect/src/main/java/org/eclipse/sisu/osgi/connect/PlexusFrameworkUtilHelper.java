@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.connect.FrameworkUtilHelper;
 
 /**
@@ -35,24 +36,30 @@ public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 		String location = getLocationFromClass(classFromBundle);
 		if (location != null) {
 			for (PlexusFrameworkConnectServiceFactory factory : factories) {
-				PlexusConnectFramework connect = factory.frameworkMap.get(classFromBundle.getClassLoader());
+				ClassLoader classLoader = classFromBundle.getClassLoader();
+				PlexusConnectFramework connect = factory.frameworkMap.get(classLoader);
 				if (connect != null) {
 					connect.debug(" Use framework" + connect.getName());
-					for (Bundle bundle : connect.getFramework().getBundleContext().getBundles()) {
+					BundleContext bundleContext = connect.getFramework().getBundleContext();
+					Bundle[] bundles = bundleContext.getBundles();
+					for (Bundle bundle : bundles) {
 						String bundleLocation = bundle.getLocation();
 						if (locationsMatch(location, bundleLocation)) {
-							connect.info("Return bundle " + bundle.getSymbolicName() + " for location " + location);
+							connect.debug("Return bundle " + bundle.getSymbolicName() + " for location " + location);
 							return Optional.of(bundle);
 						}
 					}
-					connect.info("No bundle matched " + location);
+					if (classLoader == BundleContext.class.getClassLoader()) {
+						return Optional.of(bundleContext.getBundle(0));
+					}
+					connect.debug("No bundle matched " + location);
 				}
 			}
 		}
 		return Optional.empty();
 	}
 
-	private String getLocationFromClass(Class<?> classFromBundle) {
+	static String getLocationFromClass(Class<?> classFromBundle) {
 		ProtectionDomain domain = classFromBundle.getProtectionDomain();
 		if (domain == null) {
 			return null;
@@ -68,7 +75,7 @@ public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 		return url.toString();
 	}
 
-	private static boolean locationsMatch(String classLocation, String bundleLocation) {
+	static boolean locationsMatch(String classLocation, String bundleLocation) {
 		return classLocation.endsWith(bundleLocation);
 	}
 
