@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
@@ -38,11 +39,14 @@ class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceF
 	private String uuid = UUID.randomUUID().toString();
 	private PlexusFrameworkConnectServiceFactory factory;
 	private Map<Class<?>, ServiceTracker<?, ?>> trackerMap = new ConcurrentHashMap<Class<?>, ServiceTracker<?, ?>>();
+	private ClassRealm realm;
 
-	PlexusConnectFramework(Framework framework, Logger logger, PlexusFrameworkConnectServiceFactory factory) {
+	PlexusConnectFramework(Framework framework, Logger logger, PlexusFrameworkConnectServiceFactory factory,
+			ClassRealm realm) {
 		this.framework = framework;
 		this.logger = logger;
 		this.factory = factory;
+		this.realm = realm;
 	}
 
 	public String getUuid() {
@@ -64,7 +68,7 @@ class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceF
 	}
 
 	private String format(String message) {
-		return String.format("[%s][%s] %s", getUuid(), factory.getName(), message);
+		return String.format("[%s][%s] %s", getUuid(), realm.getId(), message);
 	}
 
 	@Override
@@ -149,7 +153,7 @@ class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceF
 
 	@Override
 	public String getName() {
-		return String.format("%s (%s)", uuid, factory.getName());
+		return String.format("%s (realm = %s, factory = %s)", uuid, realm.getId(), factory);
 	}
 
 	@Override

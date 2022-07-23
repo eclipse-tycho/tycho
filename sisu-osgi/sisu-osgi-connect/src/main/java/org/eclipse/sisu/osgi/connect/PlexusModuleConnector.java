@@ -12,9 +12,11 @@
  *******************************************************************************/
 package org.eclipse.sisu.osgi.connect;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,8 +31,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -57,7 +61,7 @@ import org.osgi.framework.connect.ModuleConnector;
  */
 final class PlexusModuleConnector implements ModuleConnector {
 
-	private static final String MAVEN_EXTENSION_DESCRIPTOR = "META-INF/maven/extension.xml";
+	static final String MAVEN_EXTENSION_DESCRIPTOR = "META-INF/maven/extension.xml";
 
 	private Map<String, PlexusConnectContent> modulesMap = new HashMap<>();
 
@@ -97,7 +101,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 		return storage;
 	}
 
-	public synchronized void scanRealm(ClassRealm realm, BundleContext bundleContext, Logger logger) {
+	public synchronized void installRealm(ClassRealm realm, BundleContext bundleContext, Logger logger) {
 		Objects.requireNonNull(realm);
 		if (realmBundles.containsKey(realm)) {
 			// already scanned!
@@ -106,12 +110,40 @@ final class PlexusModuleConnector implements ModuleConnector {
 		logger.debug("Scan realm " + realm.getId());
 		ClassRealm parentRealm = realm.getParentRealm();
 		if (parentRealm != null) {
-			scanRealm(parentRealm, bundleContext, logger);
+			// first install the parent realm...
+			installRealm(parentRealm, bundleContext, logger);
 		}
-		URL[] urLs = realm.getURLs();
+		// make the realm available as a bundle exporting any packages it provides...
 		List<String> installed = new ArrayList<String>();
 		realmBundles.put(realm, installed);
-		for (URL url : urLs) {
+		RealmExports realmExports = readCoreExports(logger, realm);
+		LinkedHashMap<String, String> headers = new LinkedHashMap<>();
+		headers.put("Manifest-Version", "1.0");
+		headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
+		String realmBundleName = getRealmBundle(realm);
+		headers.put(Constants.BUNDLE_SYMBOLICNAME, realmBundleName);
+		headers.put(Constants.BUNDLE_VERSION, "1.0.0." + System.identityHashCode(realm));
+		if (!realmExports.packages.isEmpty()) {
+			headers.put(Constants.EXPORT_PACKAGE, realmExports.packages.stream().collect(Collectors.joining(",")));
+		}
+		Collection<ClassRealm> importRealms = realm.getImportRealms();
+		if (!importRealms.isEmpty()) {
+			headers.put(Constants.REQUIRE_BUNDLE,
+					importRealms.stream().map(PlexusModuleConnector::getRealmBundle).collect(Collectors.joining(",")));
+		}
+		modulesMap.put(realmBundleName, new PlexusConnectContent(null, headers, realm));
+		logger.debug("Installing " + realmBundleName + " exporting with packages " + realmExports.packages);
+		if (installBundle(bundleContext, realmBundleName, logger) != null) {
+			installed.add(realmBundleName);
+		}
+		boolean isExtensionRealm = !realmExports.artifacts.isEmpty() || !realmExports.artifacts.isEmpty()
+				|| !realmExports.bundleStartMap.isEmpty();
+		if (isExtensionRealm && realmExports.artifacts.isEmpty() && realmExports.bundleStartMap.isEmpty()) {
+			// nothing more to do...
+			return;
+		}
+		// now scan the URLs
+		for (URL url : realm.getURLs()) {
 			File file = getFile(logger, url);
 			if (file == null) {
 				logger.warn("Can't open convert url " + url + " to file!");
@@ -127,6 +159,20 @@ final class PlexusModuleConnector implements ModuleConnector {
 						continue;
 					}
 					String bundleSymbolicName = getBsn(mainAttributes.getValue(Constants.BUNDLE_SYMBOLICNAME));
+					if (isExtensionRealm && !realmExports.bundleStartMap.containsKey(bundleSymbolicName)) {
+						String artifactKey = getArtifactKey(jarFile);
+						if (artifactKey == null || !realmExports.artifacts.contains(artifactKey)) {
+							String identifier = artifactKey == null ? file.getName() : artifactKey;
+							if (bundleSymbolicName != null) {
+								identifier += " (" + bundleSymbolicName + ")";
+							}
+							logger.debug("Skip " + identifier + " as it is not exported by the extension realm.");
+							jarFile.close();
+							continue;
+						} else {
+							logger.debug("Checking exported artifact " + artifactKey + "...");
+						}
+					}
 					if (bundleSymbolicName == null) {
 						logger.debug("File " + file + " is not a bundle...");
 						jarFile.close();
@@ -134,10 +180,16 @@ final class PlexusModuleConnector implements ModuleConnector {
 					}
 					logger.debug("Discovered bundle " + bundleSymbolicName + " @ " + file);
 					String location = file.getAbsolutePath();
-					modulesMap.put(location,
-							new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), realm));
-					if (installBundle(bundleContext, location, logger) != null) {
+					modulesMap.put(location, new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), realm));
+					Bundle bundle = installBundle(bundleContext, location, logger);
+					if (bundle != null) {
 						installed.add(location);
+						if (realmExports.bundleStartMap.getOrDefault(bundleSymbolicName, false)) {
+							try {
+								bundle.start();
+							} catch (BundleException e) {
+							}
+						}
 					}
 				} catch (IOException e) {
 					logger.warn("Can't process jar at " + file, e);
@@ -147,39 +199,41 @@ final class PlexusModuleConnector implements ModuleConnector {
 				logger.warn("Can't open jar at " + file, e);
 			}
 		}
-		Collection<ClassRealm> importRealms = realm.getImportRealms();
-		// TODO it would be better if plexus would expose the packages from the
-		// classrealm!
-		for (ClassRealm classRealm : importRealms) {
-			Set<String> coreExports = new HashSet<String>();
-			try {
-				Enumeration<URL> resources = classRealm.getResources(MAVEN_EXTENSION_DESCRIPTOR);
-				while (resources.hasMoreElements()) {
-					URL url = resources.nextElement();
-					try (InputStream stream = url.openStream()) {
-						parseCoreExports(stream, coreExports);
-					} catch (IOException e) {
-						logger.warn("Can't process extension descriptor from " + url, e);
-					}
-				}
-			} catch (IOException e) {
-				logger.warn("Can't process extension descriptors", e);
-			}
-			if (!coreExports.isEmpty()) {
-				LinkedHashMap<String, String> headers = new LinkedHashMap<>();
-				headers.put("Manifest-Version", "1.0");
-				headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
-				String bsn = "plexus.realm." + classRealm.getId();
-				headers.put(Constants.BUNDLE_SYMBOLICNAME, bsn);
-				headers.put(Constants.BUNDLE_VERSION, "1.0.0." + System.identityHashCode(classRealm));
-				headers.put(Constants.EXPORT_PACKAGE, coreExports.stream().collect(Collectors.joining(",")));
-				modulesMap.put(bsn, new PlexusConnectContent(null, headers, classRealm));
-				logger.debug("Installing " + bsn + " exporting core packages " + coreExports);
-				if (installBundle(bundleContext, bsn, logger) != null) {
-					installed.add(bsn);
+	}
+
+	private static String getRealmBundle(ClassRealm realm) {
+		return "sisu.connect.realm." + realm.getId().replace('>', '.').replace(':', '.');
+	}
+
+	private static String getArtifactKey(JarFile jarFile) throws IOException {
+		Enumeration<JarEntry> entries = jarFile.entries();
+		while (entries.hasMoreElements()) {
+			JarEntry jarEntry = entries.nextElement();
+			String name = jarEntry.getName();
+			if (name.startsWith("META-INF/maven/") && name.endsWith("pom.properties")) {
+				try (InputStream stream = jarFile.getInputStream(jarEntry)) {
+					Properties properties = new Properties();
+					properties.load(stream);
+					return properties.getProperty("groupId") + ":" + properties.getProperty("artifactId");
 				}
 			}
 		}
+		return null;
+	}
+
+	protected RealmExports readCoreExports(Logger logger, ClassRealm classRealm) {
+		RealmExports exports = new RealmExports();
+		Enumeration<URL> resources = classRealm.loadResourcesFromSelf(MAVEN_EXTENSION_DESCRIPTOR);
+		while (resources != null && resources.hasMoreElements()) {
+			URL url = resources.nextElement();
+			try (InputStream stream = url.openStream()) {
+				parseCoreExports(stream, exports);
+			} catch (IOException e) {
+				logger.warn("Can't process extension descriptor from " + url, e);
+			}
+		}
+		readBundles(classRealm, exports.bundleStartMap, logger);
+		return exports;
 	}
 
 	protected Bundle installBundle(BundleContext bundleContext, String location, Logger logger) {
@@ -210,7 +264,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 		return null;
 	}
 
-	private void parseCoreExports(InputStream stream, Set<String> coreExports) throws IOException {
+	private void parseCoreExports(InputStream stream, RealmExports exports) throws IOException {
 		try {
 			Xpp3Dom dom = Xpp3DomBuilder.build(ReaderFactory.newXmlReader(stream));
 			if (!"extension".equals(dom.getName())) {
@@ -224,7 +278,18 @@ final class PlexusModuleConnector implements ModuleConnector {
 					if (value.endsWith(".*")) {
 						value = value.substring(0, value.length() - 2);
 					}
-					coreExports.add(value);
+					exports.packages.add(value);
+				}
+			}
+			Xpp3Dom exportedArtifacts = dom.getChild("exportedArtifacts");
+			if (exportedArtifacts != null) {
+				Xpp3Dom[] children = exportedArtifacts.getChildren("exportedArtifact");
+				for (Xpp3Dom child : children) {
+					String value = child.getValue();
+					if (value.endsWith(".*")) {
+						value = value.substring(0, value.length() - 2);
+					}
+					exports.artifacts.add(value);
 				}
 			}
 		} catch (XmlPullParserException e) {
@@ -293,6 +358,37 @@ final class PlexusModuleConnector implements ModuleConnector {
 			}
 		}
 		return null;
+	}
+
+	private static final class RealmExports {
+		final Set<String> packages = new HashSet<String>();
+		final Set<String> artifacts = new HashSet<String>();
+		final Map<String, Boolean> bundleStartMap = new LinkedHashMap<String, Boolean>();
+	}
+
+	private static void readBundles(ClassRealm realm, Map<String, Boolean> map, Logger logger) {
+		Enumeration<URL> resources = realm.loadResourcesFromSelf("META-INF/sisu/connect.bundles");
+		while (resources != null && resources.hasMoreElements()) {
+			URL url = resources.nextElement();
+			logger.info("Reading extra bundles from " + url);
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
+				reader.lines().forEachOrdered(line -> {
+					if (line.startsWith("#") || line.isBlank()) {
+						return;
+					}
+					String[] split = line.split(",", 2);
+					boolean start;
+					if (split.length == 2) {
+						start = Boolean.parseBoolean(split[1]);
+					} else {
+						start = false;
+					}
+					map.put(split[0], start);
+				});
+			} catch (IOException e) {
+				logger.warn("Can't read bundle infos from url " + url);
+			}
+		}
 	}
 
 }
