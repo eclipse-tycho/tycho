@@ -184,7 +184,15 @@ final class PlexusModuleConnector implements ModuleConnector {
 
 	protected Bundle installBundle(BundleContext bundleContext, String location, Logger logger) {
 		try {
-			return bundleContext.installBundle(location);
+			Bundle bundle = bundleContext.installBundle(location);
+			String policy = bundle.getHeaders("").get(Constants.BUNDLE_ACTIVATIONPOLICY);
+			if (Constants.ACTIVATION_LAZY.equals(policy)) {
+				try {
+					bundle.start();
+				} catch (BundleException e) {
+				}
+			}
+			return bundle;
 		} catch (BundleException e) {
 			if (logger.isDebugEnabled()) {
 				logger.warn("Can't install bundle at " + location, e);

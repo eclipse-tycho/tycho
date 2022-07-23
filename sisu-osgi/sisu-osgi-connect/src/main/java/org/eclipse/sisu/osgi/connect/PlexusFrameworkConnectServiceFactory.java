@@ -15,6 +15,7 @@ package org.eclipse.sisu.osgi.connect;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +54,7 @@ import org.osgi.framework.launch.Framework;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.component.runtime.dto.ComponentConfigurationDTO;
 import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
+import org.osgi.service.component.runtime.dto.UnsatisfiedReferenceDTO;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -106,7 +109,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			List<ClassRealm> realms = collectRealms(getRealm(classloader));
 			log.debug("Create framework for " + this + " with classloader " + classloader);
 			Map<String, Boolean> bundleStartMap = readBundles(classloader, new PlexusConnectFramework(null, log, this));
-			Map<String, String> p = new HashMap<>();
+
+			Map<String, String> p = readProperties(classloader, new PlexusConnectFramework(null, log, this));
 			p.put("osgi.framework.useSystemProperties", "false");
 			p.put("osgi.parentClassloader", "fwk");
 			p.put(Constants.FRAMEWORK_STORAGE,
@@ -176,6 +180,35 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		throw new BundleException("Not called from a ClassRealm");
 	}
 
+	private static Map<String, String> readProperties(ClassLoader classloader, Logger logger) {
+		Map<String, String> frameworkProperties = new HashMap<String, String>();
+		Enumeration<URL> resources;
+		try {
+			resources = classloader.getResources("META-INF/sisu-connect.properties");
+		} catch (IOException e1) {
+			return frameworkProperties;
+		}
+		while (resources.hasMoreElements()) {
+			URL url = resources.nextElement();
+			logger.debug("Reading properties from " + url);
+			Properties properties = new Properties();
+			try (InputStream stream = url.openStream()) {
+				properties.load(stream);
+			} catch (IOException e) {
+				logger.warn("Can't read properties from url " + url);
+			}
+			for (String property : properties.stringPropertyNames()) {
+				String existing = frameworkProperties.get(property);
+				if (existing == null) {
+					frameworkProperties.put(property, properties.getProperty(property));
+				} else {
+					frameworkProperties.put(property, existing + "," + properties.getProperty(property));
+				}
+			}
+		}
+		return frameworkProperties;
+	}
+
 	private static Map<String, Boolean> readBundles(ClassLoader classloader, Logger logger) {
 		Enumeration<URL> resources;
 		try {
@@ -215,7 +248,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 				String.CASE_INSENSITIVE_ORDER);
 		Comparator<Bundle> byState = Comparator.comparingInt(Bundle::getState);
 		Arrays.stream(bundles).sorted(byState.thenComparing(bySymbolicName)).forEachOrdered(bundle -> {
-			log.info(toBundleState(bundle.getState()) + " | " + bundle.getSymbolicName());
+			log.info(toBundleState(bundle.getState()) + " | " + bundle.getSymbolicName() + " (" + bundle.getVersion()
+					+ ")");
 		});
 		ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime> st = new ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime>(
 				framework.getBundleContext(), ServiceComponentRuntime.class, null);
@@ -235,6 +269,10 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 										+ dto.failure);
 							} else {
 								log.info(toComponentState(dto.state) + " | " + dto.description.name);
+							}
+							for (int i = 0; i < dto.unsatisfiedReferences.length; i++) {
+								UnsatisfiedReferenceDTO ref = dto.unsatisfiedReferences[i];
+								log.info("\t" + ref.name + " is missing");
 							}
 						});
 			} else {
