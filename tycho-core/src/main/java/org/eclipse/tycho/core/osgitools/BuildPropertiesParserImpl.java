@@ -23,7 +23,6 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.LegacySupport;
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.BuildProperties;
@@ -34,12 +33,6 @@ import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 
 @Component(role = BuildPropertiesParser.class)
 public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposable {
-
-//    @Requirement
-//    private LegacySupport legacySupport;
-
-    @Requirement
-    private Logger logger;
 
     private final Map<String, BuildPropertiesImpl> cache = new HashMap<>();
 
@@ -53,8 +46,6 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
      * @param legacySupport
      */
     protected BuildPropertiesParserImpl(LegacySupport legacySupport, Logger logger) {
-//        this.legacySupport = legacySupport;
-        this.logger = logger;
     }
 
     @Override
