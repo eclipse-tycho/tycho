@@ -132,7 +132,8 @@ final class PlexusModuleConnector implements ModuleConnector {
 					importRealms.stream().map(PlexusModuleConnector::getRealmBundle).collect(Collectors.joining(",")));
 		}
 		modulesMap.put(realmBundleName, new PlexusConnectContent(null, headers, realm));
-		logger.debug("Installing " + realmBundleName + " exporting with packages " + realmExports.packages);
+		logger.debug("Installing " + realmBundleName + " with headers " + headers.entrySet().stream()
+				.map(entry -> entry.getKey() + ": " + entry.getValue()).collect(Collectors.joining("\r\n")));
 		if (installBundle(bundleContext, realmBundleName, logger) != null) {
 			installed.add(realmBundleName);
 		}
@@ -370,7 +371,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 		Enumeration<URL> resources = realm.loadResourcesFromSelf("META-INF/sisu/connect.bundles");
 		while (resources != null && resources.hasMoreElements()) {
 			URL url = resources.nextElement();
-			logger.info("Reading extra bundles from " + url);
+			logger.debug("Reading extra bundles from " + url);
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
 				reader.lines().forEachOrdered(line -> {
 					if (line.startsWith("#") || line.isBlank()) {

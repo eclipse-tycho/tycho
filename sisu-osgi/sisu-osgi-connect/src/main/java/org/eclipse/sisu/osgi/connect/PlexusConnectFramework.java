@@ -34,19 +34,21 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceFactory {
 
-	private Framework framework;
-	private Logger logger;
-	private String uuid = UUID.randomUUID().toString();
-	private PlexusFrameworkConnectServiceFactory factory;
-	private Map<Class<?>, ServiceTracker<?, ?>> trackerMap = new ConcurrentHashMap<Class<?>, ServiceTracker<?, ?>>();
-	private ClassRealm realm;
+	private final Framework framework;
+	private final Logger logger;
+	private final String uuid = UUID.randomUUID().toString();
+	private final Map<Class<?>, ServiceTracker<?, ?>> trackerMap = new ConcurrentHashMap<Class<?>, ServiceTracker<?, ?>>();
+	private final ClassRealm realm;
+	final PlexusFrameworkConnectServiceFactory factory;
+	final boolean foreign;
 
 	PlexusConnectFramework(Framework framework, Logger logger, PlexusFrameworkConnectServiceFactory factory,
-			ClassRealm realm) {
+			ClassRealm realm, boolean foreign) {
 		this.framework = framework;
 		this.logger = logger;
 		this.factory = factory;
 		this.realm = realm;
+		this.foreign = foreign;
 	}
 
 	public String getUuid() {

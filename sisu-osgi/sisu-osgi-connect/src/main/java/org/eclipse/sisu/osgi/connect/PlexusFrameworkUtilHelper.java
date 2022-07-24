@@ -12,13 +12,13 @@
  *******************************************************************************/
 package org.eclipse.sisu.osgi.connect;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.connect.FrameworkUtilHelper;
@@ -29,31 +29,46 @@ import org.osgi.framework.connect.FrameworkUtilHelper;
  */
 public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 
-	static Set<PlexusFrameworkConnectServiceFactory> factories = ConcurrentHashMap.newKeySet();
-
 	@Override
 	public Optional<Bundle> getBundle(Class<?> classFromBundle) {
+		ClassLoader loader = classFromBundle.getClassLoader();
+		if (loader instanceof ClassRealm) {
+			@SuppressWarnings("resource")
+			ClassRealm realm = (ClassRealm) loader;
+			Class<?> thisHelper = PlexusFrameworkUtilHelper.class;
+			Class<?> realmHelper = realm.loadClassFromSelf(thisHelper.getName());
+			if (realmHelper != null && thisHelper != realmHelper) {
+				try {
+					Object object = realmHelper.getConstructor().newInstance();
+					if (object instanceof FrameworkUtilHelper) {
+						FrameworkUtilHelper helper = (FrameworkUtilHelper) object;
+						Optional<Bundle> bundle = helper.getBundle(classFromBundle);
+						return bundle;
+					}
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				}
+			}
+		}
 		String location = getLocationFromClass(classFromBundle);
 		if (location != null) {
-			for (PlexusFrameworkConnectServiceFactory factory : factories) {
-				ClassLoader classLoader = classFromBundle.getClassLoader();
-				PlexusConnectFramework connect = factory.frameworkMap.get(classLoader);
-				if (connect != null) {
-					connect.debug(" Use framework" + connect.getName());
-					BundleContext bundleContext = connect.getFramework().getBundleContext();
-					Bundle[] bundles = bundleContext.getBundles();
-					for (Bundle bundle : bundles) {
-						String bundleLocation = bundle.getLocation();
-						if (locationsMatch(location, bundleLocation)) {
-							connect.debug("Return bundle " + bundle.getSymbolicName() + " for location " + location);
-							return Optional.of(bundle);
-						}
+			ClassLoader classLoader = classFromBundle.getClassLoader();
+			PlexusConnectFramework connect = PlexusFrameworkConnectServiceFactory.frameworkMap.get(classLoader);
+			if (connect != null) {
+				connect.debug(" Use framework" + connect.getName());
+				BundleContext bundleContext = connect.getFramework().getBundleContext();
+				Bundle[] bundles = bundleContext.getBundles();
+				for (Bundle bundle : bundles) {
+					String bundleLocation = bundle.getLocation();
+					if (locationsMatch(location, bundleLocation)) {
+						connect.debug("Return bundle " + bundle.getSymbolicName() + " for location " + location);
+						return Optional.of(bundle);
 					}
-					if (classLoader == BundleContext.class.getClassLoader()) {
-						return Optional.of(bundleContext.getBundle(0));
-					}
-					connect.debug("No bundle matched " + location);
 				}
+				if (classLoader == BundleContext.class.getClassLoader()) {
+					return Optional.of(bundleContext.getBundle(0));
+				}
+				connect.debug("No bundle matched " + location);
 			}
 		}
 		return Optional.empty();
