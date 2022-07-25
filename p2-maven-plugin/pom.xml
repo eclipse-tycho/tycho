@@ -134,6 +134,21 @@
 		    <artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>
 		    <version>1.2.300</version>
 		</dependency>
+		<dependency>
+		  <groupId>org.eclipse.platform</groupId>
+		  <artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
+		  <version>1.4.400</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.eclipse.platform</groupId>
+		  <artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>
+		  <version>2.3.200</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.eclipse.platform</groupId>
+		  <artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>
+		  <version>1.2.0</version>
+		</dependency>
 		<!-- Equinox -->
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>

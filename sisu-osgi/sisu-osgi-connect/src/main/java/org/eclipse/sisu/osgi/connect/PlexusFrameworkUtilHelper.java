@@ -53,12 +53,13 @@ public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 				if (spiHelperClass == thisClass) {
 					// register our instance here...
 					helpers.add(helper);
+				} else {
+					invokeForeignMethod(spiHelperClass, "registerHelper", helper);
 				}
-				invokeForeignMethod(spiHelperClass, "registerHelper", helper);
+				break;
 			}
 		}
 	}
-
 
 	public static void unregisterHelper(FrameworkUtilHelper helper) {
 		for (FrameworkUtilHelper spi : ServiceLoader.load(FrameworkUtilHelper.class,
@@ -69,8 +70,10 @@ public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 				if (spiHelperClass == thisClass) {
 					// register our instance here...
 					helpers.add(helper);
+				} else {
+					invokeForeignMethod(spiHelperClass, "unregisterHelper", helper);
 				}
-				invokeForeignMethod(spiHelperClass, "unregisterHelper", helper);
+				break;
 			}
 		}
 	}
@@ -81,7 +84,6 @@ public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 			method.invoke(null, parameter);
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			System.err.println(e);
 		}
 	}
 

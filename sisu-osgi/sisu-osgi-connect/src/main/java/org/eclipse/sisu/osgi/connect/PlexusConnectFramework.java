@@ -28,6 +28,8 @@ import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.connect.FrameworkUtilHelper;
 import org.osgi.framework.launch.Framework;
@@ -39,7 +41,8 @@ import org.osgi.util.tracker.ServiceTracker;
  * created by plexus
  *
  */
-class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceFactory, FrameworkUtilHelper {
+class PlexusConnectFramework
+		implements Logger, EmbeddedEquinox, EquinoxServiceFactory, FrameworkUtilHelper, FrameworkListener {
 
 	private final Framework framework;
 	private final Logger logger;
@@ -254,5 +257,12 @@ class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceF
 	@Override
 	public String toString() {
 		return format(getClass().getSimpleName());
+	}
+
+	@Override
+	public void frameworkEvent(FrameworkEvent event) {
+		if (event.getType() == FrameworkEvent.ERROR) {
+			error(event.getBundle().getSymbolicName(), event.getThrowable());
+		}
 	}
 }

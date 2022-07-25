@@ -49,8 +49,6 @@ import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.connect.ConnectFrameworkFactory;
 import org.osgi.framework.launch.Framework;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
@@ -75,6 +73,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	private Logger log;
 
 	private static final Map<ClassRealm, PlexusConnectFramework> frameworkMap = new HashMap<>();
+	
+	private static final Map<ClassLoader, ClassRealm> loaderMap = new HashMap<>();
 
 	@Requirement(role = EquinoxLifecycleListener.class)
 	private Map<String, EquinoxLifecycleListener> lifecycleListeners;
@@ -135,23 +135,9 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		Framework osgiFramework = factory.newFramework(p, connector);
 		PlexusConnectFramework connectFramework = new PlexusConnectFramework(osgiFramework, log, this, realm, false);
 		PlexusFrameworkUtilHelper.registerHelper(connectFramework);
-		osgiFramework.init(new FrameworkListener() {
-
-			@Override
-			public void frameworkEvent(FrameworkEvent event) {
-				connectFramework.info(event.toString());
-			}
-		});
+		osgiFramework.init(connectFramework);
 		frameworkMap.put(realm, connectFramework);
-		osgiFramework.getBundleContext().addFrameworkListener(new FrameworkListener() {
-
-			@Override
-			public void frameworkEvent(FrameworkEvent event) {
-				if (event.getType() == FrameworkEvent.ERROR) {
-					log.error(event.getBundle().getSymbolicName(), event.getThrowable());
-				}
-			}
-		});
+		osgiFramework.getBundleContext().addFrameworkListener(connectFramework);
 		for (ClassRealm r : realms) {
 			connector.installRealm(r, osgiFramework.getBundleContext(), connectFramework);
 		}
@@ -212,7 +198,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		if (classloader instanceof ClassRealm) {
 			return (ClassRealm) classloader;
 		}
-		throw new BundleException("Not called from a ClassRealm");
+		return loaderMap.computeIfAbsent(classloader,
+				cl -> new DummyClassRealm("Not called from a ClassRealm", cl, log));
 	}
 
 	private static Map<String, String> readProperties(ClassLoader classloader, Logger logger) {
@@ -345,6 +332,9 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 					return;
 				}
 				Framework fw = connect.getFramework();
+				// TODO currently creates nasty error on shutdown see
+				// https://github.com/eclipse-equinox/equinox/pull/91
+				fw.getBundleContext().removeFrameworkListener(connect);
 				String storage = fw.getBundleContext().getProperty(Constants.FRAMEWORK_STORAGE);
 				try {
 					fw.stop();
