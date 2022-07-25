@@ -36,6 +36,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.metadata.MetadataSerializable;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
@@ -51,7 +52,7 @@ public class RepositoryReferenceTool {
      */
     public static int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
-    @Requirement
+    @Requirement(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory osgiServices;
 
     @Requirement
@@ -114,8 +115,7 @@ public class RepositoryReferenceTool {
                 MetadataSerializable serializer = osgiServices.getService(MetadataSerializable.class);
 
                 ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-                TargetPlatform targetPlatform = TychoProjectUtils
-                        .getTargetPlatform(reactorProject);
+                TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
 
                 DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
 

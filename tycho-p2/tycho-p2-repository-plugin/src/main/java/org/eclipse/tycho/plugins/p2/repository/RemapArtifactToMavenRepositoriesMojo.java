@@ -18,6 +18,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 
@@ -29,7 +30,7 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 @Mojo(name = "remap-artifacts-to-m2-repo", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class RemapArtifactToMavenRepositoriesMojo extends AbstractRepositoryMojo {
 
-    @Component
+	@Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory p2;
 
     @Override

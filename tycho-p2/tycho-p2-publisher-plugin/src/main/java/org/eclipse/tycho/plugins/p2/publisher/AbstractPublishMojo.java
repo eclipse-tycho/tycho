@@ -21,6 +21,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
@@ -30,7 +31,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory osgiServices;
 
     @Override

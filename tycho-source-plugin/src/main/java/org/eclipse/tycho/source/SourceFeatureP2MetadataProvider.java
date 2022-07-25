@@ -32,6 +32,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -47,7 +48,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
     @Requirement
     private Logger log;
 
-    @Requirement
+    @Requirement(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory equinox;
 
     private DependencyMetadataGenerator generator;

@@ -72,6 +72,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 
 /**
  * <p>
@@ -181,7 +182,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/repository")
     private File destination;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory equinox;
 
     @Component

@@ -50,6 +50,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
@@ -234,7 +235,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Component
 	private ToolchainProvider toolchainProvider;
 
-	@Component
+	@Component(hint = TychoServiceFactory.HINT)
 	private EquinoxServiceFactory equinox;
 
 	@Component

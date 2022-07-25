@@ -26,6 +26,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -35,7 +36,7 @@ import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 @Component(role = P2MetadataProvider.class, hint = "SourcesP2MetadataProvider")
 public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializable {
 
-    @Requirement
+	@Requirement(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory equinox;
 
     private DependencyMetadataGenerator sourcesGenerator;

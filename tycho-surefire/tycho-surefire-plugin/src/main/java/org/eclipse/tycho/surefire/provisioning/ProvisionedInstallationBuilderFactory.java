@@ -18,6 +18,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
 @Component(role = ProvisionedInstallationBuilderFactory.class)
@@ -26,7 +27,7 @@ public class ProvisionedInstallationBuilderFactory {
     @Requirement
     private BundleReader bundleReader;
 
-    @Requirement
+    @Requirement(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory osgiServices;
 
     @Requirement

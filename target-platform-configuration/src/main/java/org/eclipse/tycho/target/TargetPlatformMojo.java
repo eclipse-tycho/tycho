@@ -37,6 +37,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
@@ -47,7 +48,7 @@ public class TargetPlatformMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory osgiServices;
 
     @Component

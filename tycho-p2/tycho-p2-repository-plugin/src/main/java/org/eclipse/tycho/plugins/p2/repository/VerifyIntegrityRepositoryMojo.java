@@ -24,6 +24,7 @@ import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
 
@@ -38,7 +39,7 @@ public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements Log
     private static final Object LOCK = new Object();
     private Logger logger;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory p2;
 
     @Override

@@ -29,7 +29,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
@@ -40,6 +39,7 @@ import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
@@ -90,8 +90,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter(property = "onIllegalVersion", defaultValue = "fail")
     private ReportBehavior onIllegalVersion;
 
-    @Requirement
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory equinox;
 
     @Component
