@@ -42,6 +42,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.tools.baseline.facade.BaselineService;
 import org.eclipse.tycho.zipcomparator.internal.CompoundArtifactDelta;
@@ -68,7 +69,7 @@ public class BaselineValidator {
     @Requirement(hint = "zip")
     private ArtifactComparator zipComparator;
 
-    @Requirement
+    @Requirement(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory equinox;
 
     public Map<String, IP2Artifact> validateAndReplace(MavenProject project, MojoExecution execution,

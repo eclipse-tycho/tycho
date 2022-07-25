@@ -42,6 +42,7 @@ import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
@@ -64,7 +65,7 @@ public class P2MetadataMojo extends AbstractMojo {
     @Component
     protected MavenProjectHelper projectHelper;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory equinox;
 
     /**
@@ -181,8 +182,10 @@ public class P2MetadataMojo extends AbstractMojo {
             File contentsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_METADATA);
             File artifactsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_ARTIFACTS);
             p2generator.persistMetadata(generatedMetadata, contentsXml, artifactsXml);
-            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA, TychoConstants.CLASSIFIER_P2_METADATA, contentsXml);
-            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS, TychoConstants.CLASSIFIER_P2_ARTIFACTS, artifactsXml);
+            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA,
+                    TychoConstants.CLASSIFIER_P2_METADATA, contentsXml);
+            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS,
+                    TychoConstants.CLASSIFIER_P2_ARTIFACTS, artifactsXml);
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
@@ -253,7 +256,8 @@ public class P2MetadataMojo extends AbstractMojo {
             if (entry.getKey() == null) {
                 outputProperties.put(TychoConstants.KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
             } else {
-                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath());
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(),
+                        entry.getValue().getAbsolutePath());
             }
         }
 

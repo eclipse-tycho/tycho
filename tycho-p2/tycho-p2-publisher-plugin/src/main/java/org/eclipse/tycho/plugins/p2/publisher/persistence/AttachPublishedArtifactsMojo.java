@@ -27,6 +27,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
@@ -44,7 +45,7 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     @Component
     private MavenProjectHelper projectHelper;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory osgiServices;
 
     @Component

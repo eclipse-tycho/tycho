@@ -33,6 +33,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -56,7 +57,7 @@ public class MirrorMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory p2;
 
     @Component

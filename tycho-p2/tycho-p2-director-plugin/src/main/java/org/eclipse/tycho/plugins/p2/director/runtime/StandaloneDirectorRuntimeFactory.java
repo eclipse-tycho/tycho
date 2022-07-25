@@ -27,6 +27,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoVersion;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
@@ -36,7 +37,7 @@ public class StandaloneDirectorRuntimeFactory {
     @Requirement
     private RepositorySystem repositorySystem;
 
-    @Requirement
+    @Requirement(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory osgiServices;
 
     @Requirement

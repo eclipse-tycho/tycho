@@ -22,6 +22,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -33,7 +34,7 @@ public class UpdateLocalIndexMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true, required = true)
     private MavenProject project;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory serviceFactory;
 
     @Override

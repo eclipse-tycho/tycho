@@ -88,6 +88,7 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
@@ -124,7 +125,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     @Requirement
     private ToolchainManager toolchainManager;
 
-    @Requirement
+    @Requirement(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory equinox;
 
     @Requirement

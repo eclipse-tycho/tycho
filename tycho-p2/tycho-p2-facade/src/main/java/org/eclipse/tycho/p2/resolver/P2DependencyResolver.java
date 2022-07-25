@@ -87,6 +87,7 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -108,7 +109,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     public static final String ROLE_HINT = "p2";
 
-    @Requirement
+    @Requirement(hint = TychoServiceFactory.HINT)
     private EquinoxServiceFactory equinox;
 
     @Requirement

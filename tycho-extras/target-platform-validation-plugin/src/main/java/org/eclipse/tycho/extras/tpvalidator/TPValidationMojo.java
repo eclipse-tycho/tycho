@@ -41,6 +41,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
@@ -107,7 +108,7 @@ public class TPValidationMojo extends AbstractMojo {
     @Parameter
     private String executionEnvironment;
 
-    @Component
+    @Component(hint = TychoServiceFactory.HINT)
     protected EquinoxServiceFactory equinox;
 
     @Component
