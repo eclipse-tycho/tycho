@@ -56,4 +56,11 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		assertFalse(new File(generated, "tycho.ds.TestComponent2.xml").isFile());
 	}
 
+	@Test
+	public void testOSGiAnnotations() throws Exception {
+		Verifier verifier = getVerifier("compiler.annotations", false, true);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+	}
+
 }

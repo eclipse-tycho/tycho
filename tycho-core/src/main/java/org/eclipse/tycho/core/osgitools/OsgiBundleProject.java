@@ -97,10 +97,13 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.Version;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
 
+    private static final Collection<String> OSGI_ANNOTATION_PACKAGES = List.of("org.osgi.annotation.bundle",
+            "org.osgi.annotation.versioning");
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/osgiBundle";
     private static final String CTX_ARTIFACT_KEY = CTX_OSGI_BUNDLE_BASENAME + "/artifactKey";
     private static final String CTX_MAVEN_SESSION = CTX_OSGI_BUNDLE_BASENAME + "/mavenSession";
@@ -606,7 +609,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 }), Collections.singletonList(path), null));
             }
         }
-        //Fragments are like embedded depdnecies...
+        //Fragments are like embedded dependencies...
         for (ArtifactDescriptor fragment : artifacts.getFragments()) {
             File location = fragment.getLocation(true);
             if (location != null) {
@@ -614,26 +617,42 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         Collections.singletonList(location), null));
             }
         }
-        try {
-            DeclarativeServicesConfiguration configuration = dsConfigReader.getConfiguration(getMavenProject(project));
-            if (configuration != null && configuration.isAddToClasspath()) {
-                TargetPlatform tp = TychoProjectUtils.getTargetPlatform(project);
-                org.osgi.framework.Version specificationVersion = configuration.getSpecificationVersion();
-                ArtifactKey dsJar = tp.resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
-                        "org.osgi.service.component.annotations",
-                        "[" + specificationVersion + "," + (specificationVersion.getMajor() + 1) + ".0.0)");
-                File location = tp.getArtifactLocation(
-                        new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, dsJar.getId(), dsJar.getVersion()));
-                logger.debug("Resolved declarative service specification " + specificationVersion + " to "
-                        + dsJar.getId() + " " + dsJar.getVersion() + " " + location);
-                DefaultAccessRule rule = new DefaultAccessRule("org/osgi/service/component/annotations/*", false);
-                classpath.add(
-                        new DefaultClasspathEntry(null, dsJar, Collections.singletonList(location), List.of(rule)));
+        TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(project);
+        if (tp != null) {
+            try {
+                DeclarativeServicesConfiguration configuration = dsConfigReader
+                        .getConfiguration(getMavenProject(project));
+                if (configuration != null && configuration.isAddToClasspath()) {
+                    org.osgi.framework.Version specificationVersion = configuration.getSpecificationVersion();
+                    ArtifactKey dsJar = tp.resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
+                            "org.osgi.service.component.annotations",
+                            "[" + specificationVersion + "," + (specificationVersion.getMajor() + 1) + ".0.0)");
+                    File location = tp.getArtifactLocation(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                            dsJar.getId(), dsJar.getVersion()));
+                    logger.debug("Resolved declarative service specification " + specificationVersion + " to "
+                            + dsJar.getId() + " " + dsJar.getVersion() + " " + location);
+                    DefaultAccessRule rule = new DefaultAccessRule("org/osgi/service/component/annotations/*", false);
+                    classpath.add(
+                            new DefaultClasspathEntry(null, dsJar, Collections.singletonList(location), List.of(rule)));
+                }
+            } catch (IOException e) {
+                logger.warn("Can't read Declarative Services Configuration: " + e.getMessage(), e);
+            } catch (IllegalArtifactReferenceException | DependencyResolutionException e) {
+                logger.warn("Can't find declarative service specification in target platform: " + e.getMessage(), e);
             }
-        } catch (IOException e) {
-            logger.warn("Can't read Declarative Services Configuration: " + e.getMessage(), e);
-        } catch (IllegalArtifactReferenceException | DependencyResolutionException e) {
-            logger.warn("Can't find declarative service specification in target platform: " + e.getMessage(), e);
+            for (String annotationPackage : OSGI_ANNOTATION_PACKAGES) {
+                try {
+                    ArtifactKey annotationJar = tp.resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
+                            annotationPackage, Version.emptyVersion.toString());
+                    File location = tp.getArtifactLocation(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                            annotationJar.getId(), annotationJar.getVersion()));
+                    DefaultAccessRule rule = new DefaultAccessRule(annotationPackage.replace('.', '/') + "/*", false);
+                    classpath.add(new DefaultClasspathEntry(null, annotationJar, Collections.singletonList(location),
+                            List.of(rule)));
+                } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
+                    logger.debug("Can't find package " + annotationPackage + " in target platform");
+                }
+            }
         }
     }
 
