@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Annotations
+Bundle-SymbolicName: compiler.annotations
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: test.osgi.annotations
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: test.osgi.annotations;version="1.5.10"    
+X-Test: MyValue
+X-Test2: MyValue2
