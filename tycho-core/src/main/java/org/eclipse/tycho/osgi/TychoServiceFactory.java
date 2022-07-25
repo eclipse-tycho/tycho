@@ -22,7 +22,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 public class TychoServiceFactory implements EquinoxServiceFactory {
 
     public static final String HINT = "tycho-core";
-    @Requirement
+    @Requirement(hint = "connect")
     EquinoxServiceFactory delegate;
 
     @Override

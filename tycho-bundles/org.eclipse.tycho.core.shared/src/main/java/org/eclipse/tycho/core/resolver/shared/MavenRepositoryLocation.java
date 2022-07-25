@@ -34,4 +34,21 @@ public class MavenRepositoryLocation {
         return location;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("MavenRepositoryLocation [");
+        if (id != null) {
+            builder.append("id=");
+            builder.append(id);
+            builder.append(", ");
+        }
+        if (location != null) {
+            builder.append("location=");
+            builder.append(location);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

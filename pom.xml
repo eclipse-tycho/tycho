@@ -273,7 +273,7 @@
 				<exclusions>
 					<exclusion>
 						<groupId>org.osgi</groupId>
-						<artifactId>org.osgi.service.log</artifactId>
+						<artifactId>*</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>

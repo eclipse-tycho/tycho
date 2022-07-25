@@ -4,12 +4,18 @@
 # and if these should be started                #
 #################################################
 
+org.osgi.service.component
+org.eclipse.equinox.preferences,true
 org.apache.felix.scr,true
 org.eclipse.equinox.common,true
 org.eclipse.ecf,true
 org.eclipse.ecf.filetransfer,true
 org.eclipse.ecf.identity,true
 org.eclipse.ecf.provider.filetransfer,true
+biz.aQute.bndlib
+biz.aQute.bnd.util
+
+org.eclipse.tycho.p2.tools.impl,true
 org.eclipse.equinox.p2.core,true
 org.eclipse.equinox.p2.artifact.repository,true
 org.eclipse.equinox.p2.director,true
@@ -25,6 +31,21 @@ org.eclipse.equinox.p2.updatesite,true
 org.eclipse.equinox.p2.touchpoint.natives,true
 org.eclipse.equinox.p2.touchpoint.eclipse,true
 org.eclipse.equinox.p2.garbagecollector,true
+org.eclipse.tycho.noopsecurity,true
+
+org.eclipse.tycho.p2.tools.shared
+org.eclipse.tycho.p2.resolver.shared
+org.eclipse.tycho.embedder.shared
+org.eclipse.tycho.embedder-api
+org.eclipse.tycho.core.shared
+
+org.eclipse.tycho.p2.maven.repository,true
+org.eclipse.tycho.embedder-api,true
+org.eclipse.tycho.p2.maven.repository,true
+org.eclipse.tycho.p2.resolver.impl,true
+org.eclipse.equinox.security,true
+org.eclipse.core.net,true
+
 org.eclipse.osgi.compatibility.state
 org.eclipse.core.jobs
 org.eclipse.equinox.app
@@ -46,3 +67,13 @@ org.sat4j.pb
 org.tukaani.xz
 bcpg
 bcprov
+
+org.apache.commons.commons-codec
+org.apache.commons.commons-io
+
+org.eclipse.core.runtime
+org.eclipse.core.contenttype
+org.eclipse.equinox.p2.director.app
+org.eclipse.equinox.p2.repository.tools
+
+org.osgi.service.repository

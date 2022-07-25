@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -70,6 +71,8 @@ final class PlexusModuleConnector implements ModuleConnector {
 	private Map<ClassRealm, List<String>> realmBundles = new HashMap<>();
 
 	private String frameworkBundle;
+
+	private Set<String> installedSingletons = new HashSet<String>();
 
 	public PlexusModuleConnector(ConnectFrameworkFactory factory) {
 		frameworkBundle = PlexusConnectFramework.getLocationFromClass(factory.getClass());
@@ -147,7 +150,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 		for (URL url : realm.getURLs()) {
 			File file = getFile(logger, url);
 			if (file == null) {
-				logger.warn("Can't open convert url " + url + " to file!");
+				logger.debug("Can't convert url " + url + " to file!");
 				continue;
 			}
 			try {
@@ -179,10 +182,23 @@ final class PlexusModuleConnector implements ModuleConnector {
 						jarFile.close();
 						continue;
 					}
-					logger.debug("Discovered bundle " + bundleSymbolicName + " @ " + file);
+					String bundleVersion = mainAttributes.getValue(Constants.BUNDLE_VERSION);
+					logger.debug("Discovered bundle " + bundleSymbolicName + " (" + bundleVersion + ") @ " + file);
 					String location = file.getAbsolutePath();
-					modulesMap.put(location, new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), realm));
-					Bundle bundle = installBundle(bundleContext, location, logger);
+					Bundle bundle;
+					if (modulesMap.containsKey(location)) {
+						bundle = bundleContext.getBundle(location);
+					} else if (isSingleton(mainAttributes) && !installedSingletons.add(bundleSymbolicName)) {
+						bundle = Arrays.stream(bundleContext.getBundles())
+								.filter(b -> b.getSymbolicName().equals(bundleSymbolicName)).findFirst().orElse(null);
+						logger.debug("More than one singleton bundle found for smybolic name " + bundleSymbolicName
+								+ " one with path " + location + " and one with path "
+								+ (bundle == null ? "???" : bundle.getLocation()));
+					} else {
+						modulesMap.put(location,
+								new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), realm));
+						bundle = installBundle(bundleContext, location, logger);
+					}
 					if (bundle != null) {
 						installed.add(location);
 						if (realmExports.bundleStartMap.getOrDefault(bundleSymbolicName, false)) {
@@ -200,6 +216,11 @@ final class PlexusModuleConnector implements ModuleConnector {
 				logger.warn("Can't open jar at " + file, e);
 			}
 		}
+	}
+
+	private static boolean isSingleton(Attributes mainAttributes) {
+		String bsn = mainAttributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
+		return bsn != null && bsn.contains("singleton:=true");
 	}
 
 	private static String getRealmBundle(ClassRealm realm) {
