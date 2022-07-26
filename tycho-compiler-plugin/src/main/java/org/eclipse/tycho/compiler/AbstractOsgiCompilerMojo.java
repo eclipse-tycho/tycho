@@ -484,9 +484,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     @Override
     public List<String> getClasspathElements() throws MojoExecutionException {
         final List<String> classpath = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
         for (ClasspathEntry cpe : getClasspath()) {
             for (File location : cpe.getLocations()) {
-                classpath.add(location.getAbsolutePath() + toString(cpe.getAccessRules()));
+                String entry = location.getAbsolutePath() + toString(cpe.getAccessRules());
+                if (seen.add(entry)) {
+                    classpath.add(entry);
+                }
             }
         }
         if (session != null) {
@@ -497,7 +501,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 for (ProjectClasspathEntry cpe : classpathEntries) {
                     if (cpe instanceof M2ClasspathVariable) {
                         M2ClasspathVariable cpv = (M2ClasspathVariable) cpe;
-                        classpath.add(new File(basedir, cpv.getRepositoryPath()).getAbsolutePath());
+                        String entry = new File(basedir, cpv.getRepositoryPath()).getAbsolutePath();
+                        if (seen.add(entry)) {
+                            classpath.add(entry);
+                        }
                     }
                 }
             }
