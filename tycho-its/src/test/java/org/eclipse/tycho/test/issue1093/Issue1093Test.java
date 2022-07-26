@@ -10,9 +10,9 @@
 
 package org.eclipse.tycho.test.issue1093;
 
-import java.util.List;
-
 import static org.junit.Assert.fail;
+
+import java.util.List;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -21,15 +21,15 @@ import org.junit.Test;
 
 public class Issue1093Test extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("issue1093", false);
-        try {
-        	verifier.executeGoals(List.of("clean", "verify"));
-            fail();
-        } catch (VerificationException e) {
-            // expected
-            verifier.verifyTextInLog("non-existing-file.txt does not exist");
-        }
-    }
+	@Test
+	public void test() throws Exception {
+		Verifier verifier = getVerifier("issue1093", false);
+		try {
+			verifier.executeGoals(List.of("clean", "verify"));
+			fail();
+		} catch (VerificationException e) {
+			// expected
+			verifier.verifyTextInLog("bin.includes value(s) [non-existing-file.txt] do not match any files");
+		}
+	}
 }
