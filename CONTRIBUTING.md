@@ -130,6 +130,30 @@ Then the locally built Tycho SNAPSHOT includes the patched p2 version.
 
 Note: Tycho always allows references to locally built artifacts, even if they are not part of the target platform. Therefore you may want to clear the list of locally built artifacts (in the local Maven repository in .meta/p2-local-metadata.properties) after you have finished your trials with the patched p2 version.
 
+### Running with a locally build version of jdt compiler
+
+Tycho internally calls the Eclipse Java Compiler, therefore it might be usefull to try you patches to ECJ without waiting for a new release, or even just the next nightly build. With the following steps it is possible to run a Tycho build with a locally built version of ECJ;
+
+1. Get the sources from https://github.com/eclipse-jdt/eclipse.jdt.core
+2. Make changes in the ecj sources, **(!) don't forget to increase the version of that bundle otherwise your changes will be overwritten with the current release version (!)**
+3. Build the `eclipse.jdt.core/org.eclipse.jdt.core` module with `mvn clean package -Pbuild-individual-bundles -Dtycho.localArtifacts=ignore -DskipTests`
+4. Install the result in your local maven repository under a new version `mvn install:install-file -Dfile=<path to>/eclipse.jdt.core/org.eclipse.jdt.core/target/org.eclipse.jdt.core-<version>-batch-compiler.jar -DgroupId=org.eclipse.jdt -DartifactId=ecj -Dversion=<yournewversion> -Dpackaging=jar`
+5. Now edit the `pom.xml` of your project you like to test and either edit or insert
+```
+<plugin>
+  <groupId>org.eclipse.tycho</groupId>
+  <artifactId>tycho-compiler-plugin</artifactId>
+  <version>${tycho-version}</version>
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.jdt</groupId>
+      <artifactId>ecj</artifactId>
+      <version><yournewversion></version>
+    </dependency>
+  </dependencies>
+</plugin>
+```
+
 ### Updating the Equinox and JDT dependencies of Tycho
 
 Tycho has Maven dependencies to Equinox and JDT, so these artifact are used from  Maven  Central repository.
