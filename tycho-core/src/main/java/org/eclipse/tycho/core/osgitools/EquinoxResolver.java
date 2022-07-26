@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -81,31 +80,7 @@ import org.osgi.framework.wiring.BundleRevision;
 @Component(role = EquinoxResolver.class)
 public class EquinoxResolver {
 
-    //The following properties are not supported for general usage and intended to experimental testing when developing Tycho, so use with care
-
-    /**
-     * If set to true this keep the 'uses' constraints of a package, this will make it more hard for
-     * the resolver or even let him fail to compute a solution if different package providers are
-     * present
-     */
-    private static final boolean KEEP_USES = Boolean.getBoolean("tycho.equinox.resolver.uses");
-    /**
-     * Keep the default batch size, but allow to override this if necessary, if 'uses' constrains
-     * are kept, do not restrict the batch size as this potentially fails the resolve
-     */
-    private static final String BATCH_SIZE = System.getProperty("tycho.equinox.resolver.batch.size",
-            KEEP_USES ? null : "1");
-    /**
-     * Set the batch timeout to an acceptable timeout before fallback to resolve one bundle at a
-     * time, but allow to override this if necessary
-     */
-    private static final String BATCH_TIMEOUT = System.getProperty("tycho.equinox.resolver.batch.timeout",
-            String.valueOf(TimeUnit.SECONDS.toMillis(30)));
-
-    /**
-     * Allow to adjust the default thread count used in resolver operations
-     */
-    private static final int THREAD_COUNT = Integer.getInteger("tycho.equinox.resolver.executor.threads", 1);
+    private static final String FORCE_KEEP_USES = "First attempt at resolving bundle failed. Trying harder by keeping `uses` information... This may drastically slow down your build!";
 
     @Requirement
     private BundleReader manifestReader;
@@ -118,11 +93,16 @@ public class EquinoxResolver {
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
+        return newResolvedState(project, mavenSession, ee, artifacts, new EquinoxResolverConfiguration());
+    }
+
+    private ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
+            DependencyArtifacts artifacts, EquinoxResolverConfiguration config) throws BundleException {
         Objects.requireNonNull(artifacts, "DependencyArtifacts can't be null!");
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(THREAD_COUNT);
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(EquinoxResolverConfiguration.THREAD_COUNT);
         try {
             Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);
-            ModuleContainer container = newState(artifacts, properties, mavenSession, executorService);
+            ModuleContainer container = newState(artifacts, properties, mavenSession, executorService, config);
             ResolutionReport report = container.resolve(null, false);
             Module module = container.getModule(getNormalizedPath(project.getBasedir()));
             if (module == null) {
@@ -194,15 +174,24 @@ public class EquinoxResolver {
             return container;
         } finally {
             executorService.shutdownNow();
+            if (!config.keepUses) {
+                logger.info(FORCE_KEEP_USES);
+                return newResolvedState(project, mavenSession, ee, artifacts, new EquinoxResolverConfiguration(config, true));
+            }
         }
     }
 
     public ModuleContainer newResolvedState(File basedir, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(THREAD_COUNT);
+        return newResolvedState(basedir, mavenSession, ee, artifacts, new EquinoxResolverConfiguration());
+    }
+
+    private ModuleContainer newResolvedState(File basedir, MavenSession mavenSession, ExecutionEnvironment ee,
+            DependencyArtifacts artifacts, EquinoxResolverConfiguration config) throws BundleException {
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(EquinoxResolverConfiguration.THREAD_COUNT);
         try {
             Properties properties = getPlatformProperties(new Properties(), mavenSession, null, ee);
-            ModuleContainer container = newState(artifacts, properties, mavenSession, executorService);
+            ModuleContainer container = newState(artifacts, properties, mavenSession, executorService, config);
             ResolutionReport report = container.resolve(null, false);
 
             ModuleRevision bundleDescription = container.getModule(getNormalizedPath(basedir)).getCurrentRevision();
@@ -211,6 +200,10 @@ public class EquinoxResolver {
             return container;
         } finally {
             executorService.shutdownNow();
+            if (!config.keepUses) {
+                logger.info(FORCE_KEEP_USES);
+                return newResolvedState(basedir, mavenSession, ee, artifacts, new EquinoxResolverConfiguration(config, true));
+            }
         }
     }
 
@@ -265,7 +258,7 @@ public class EquinoxResolver {
     }
 
     protected ModuleContainer newState(DependencyArtifacts artifacts, Properties properties, MavenSession mavenSession,
-            ScheduledExecutorService executorService) throws BundleException {
+            ScheduledExecutorService executorService, EquinoxResolverConfiguration config) throws BundleException {
         ModuleContainer[] moduleContainerAccessor = new ModuleContainer[1];
         ModuleContainerAdaptor moduleContainerAdaptor = new ModuleContainerAdaptor() {
 
@@ -274,9 +267,9 @@ public class EquinoxResolver {
                 // see https://github.com/eclipse/tycho/issues/213#issuecomment-912547700 for details about what these does
                 switch (key) {
                 case "equinox.resolver.revision.batch.size":
-                    return BATCH_SIZE;
+                    return config.batchSize;
                 case "equinox.resolver.batch.timeout":
-                    return BATCH_TIMEOUT;
+                    return EquinoxResolverConfiguration.BATCH_TIMEOUT;
                 }
                 return super.getProperty(key);
             }
@@ -412,25 +405,28 @@ public class EquinoxResolver {
         ModuleRevisionBuilder systemBundleRevisionBuilder = OSGiManifestBuilderFactory.createBuilder(
                 systemBundleManifest, Constants.SYSTEM_BUNDLE_SYMBOLICNAME,
                 properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES), systemExtraCapabilities);
-        install(moduleContainer, null, Constants.SYSTEM_BUNDLE_LOCATION, systemBundleRevisionBuilder, systemBundleInfo);
+        install(moduleContainer, null, Constants.SYSTEM_BUNDLE_LOCATION, systemBundleRevisionBuilder, systemBundleInfo,
+                config);
 
         for (Map.Entry<File, OsgiManifest> external : externalBundles.entrySet()) {
             install(moduleContainer, null, external.getKey().getAbsolutePath(),
-                    OSGiManifestBuilderFactory.createBuilder(external.getValue().getHeaders()), external.getKey());
+                    OSGiManifestBuilderFactory.createBuilder(external.getValue().getHeaders()), external.getKey(),
+                    config);
         }
         for (Map.Entry<File, OsgiManifest> entry : projects.entrySet()) {
             // make sure reactor projects override anything from the target platform
             // that has the same bundle symbolic name
             Map<String, String> headers = entry.getValue().getHeaders();
             ModuleRevisionBuilder builder = OSGiManifestBuilderFactory.createBuilder(headers);
-            install(moduleContainer, null, entry.getKey().getAbsolutePath(), builder, entry.getKey());
+            install(moduleContainer, null, entry.getKey().getAbsolutePath(), builder, entry.getKey(), config);
         }
         return moduleContainer;
     }
 
     private static Module install(ModuleContainer moduleContainer, Module origin, String location,
-            ModuleRevisionBuilder builder, Object revisionInfo) throws BundleException {
-        if (!KEEP_USES) {
+            ModuleRevisionBuilder builder, Object revisionInfo, EquinoxResolverConfiguration configuration)
+            throws BundleException {
+        if (!configuration.keepUses) {
             List<GenericInfo> capabilities = builder.getCapabilities();
             for (GenericInfo genericInfo : capabilities) {
                 genericInfo.getDirectives().remove("uses");

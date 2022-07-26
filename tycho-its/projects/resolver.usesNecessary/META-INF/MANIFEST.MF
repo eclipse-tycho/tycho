@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test Plugin
+Bundle-SymbolicName: test.plugin;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Test Vendor
+Automatic-Module-Name: test
+Require-Bundle: org.eclipse.platform;bundle-version="4.22.0",
+ org.eclipse.lsp4j,
+ org.eclipse.tm4e.core
