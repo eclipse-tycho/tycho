@@ -8,6 +8,7 @@ Fixes:
 
 - [reverted] Not all (direct) requirements of a feature are considered when building an update-site
 - [backport] Fix MavenLocation scope filtering
+- org.eclipse.tycho:tycho-packaging-plugin:2.7.3:package-plugin issuing error <<pluginname>>/target/classes does not exist
 
 ## 2.7.4
 
