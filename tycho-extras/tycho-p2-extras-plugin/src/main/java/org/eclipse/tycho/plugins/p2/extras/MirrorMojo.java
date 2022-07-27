@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -221,7 +222,8 @@ public class MirrorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        final MirrorApplicationService mirrorService = p2.getService(MirrorApplicationService.class);
+        final MirrorApplicationService mirrorService = Objects.requireNonNull(
+                p2.getService(MirrorApplicationService.class), "MirrorApplicationService is not available");
 
         RepositoryReferences sourceDescriptor = null;
         if (this.projectTypes.containsKey(project.getPackaging()) && this.repositoryReferenceTool != null
