@@ -270,6 +270,12 @@
 				<groupId>biz.aQute.bnd</groupId>
 				<artifactId>biz.aQute.bndlib</artifactId>
 				<version>6.3.1</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.osgi</groupId>
+						<artifactId>org.osgi.service.log</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
