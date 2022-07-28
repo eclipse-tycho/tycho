@@ -41,9 +41,13 @@ public class MultiplatformProductTest extends AbstractTychoIntegrationTest {
 				.canRead());
 
 		// assert product zip was created for each target environment
-		assertTrue(new File(targetdir, "products/tychodemo-linux.gtk.x86_64.zip").canRead());
-		assertTrue(new File(targetdir, "products/tychodemo-macosx.cocoa.x86_64.zip").canRead());
-		assertTrue(new File(targetdir, "products/tychodemo-win32.win32.x86_64.zip").canRead());
+		assertFile(new File(targetdir, "products/tychodemo-linux.gtk.x86_64.tar.gz"));
+		assertFile(new File(targetdir, "products/tychodemo-macosx.cocoa.x86_64.tar.gz"));
+		assertFile(new File(targetdir, "products/tychodemo-win32.win32.x86_64.zip"));
+	}
+
+	private void assertFile(File file) {
+		assertTrue(file.getAbsolutePath() + " is not a file", file.isFile());
 	}
 
 }
