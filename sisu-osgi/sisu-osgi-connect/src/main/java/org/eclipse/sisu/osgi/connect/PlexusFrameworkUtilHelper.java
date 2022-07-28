@@ -13,14 +13,13 @@
 package org.eclipse.sisu.osgi.connect;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
+import java.lang.reflect.Method;
 import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.connect.FrameworkUtilHelper;
 
 /**
@@ -29,69 +28,61 @@ import org.osgi.framework.connect.FrameworkUtilHelper;
  */
 public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 
+	private static Set<FrameworkUtilHelper> helpers = ConcurrentHashMap.newKeySet();
+
 	@Override
 	public Optional<Bundle> getBundle(Class<?> classFromBundle) {
 		ClassLoader loader = classFromBundle.getClassLoader();
-		if (loader instanceof ClassRealm) {
-			@SuppressWarnings("resource")
-			ClassRealm realm = (ClassRealm) loader;
-			Class<?> thisHelper = PlexusFrameworkUtilHelper.class;
-			Class<?> realmHelper = realm.loadClassFromSelf(thisHelper.getName());
-			if (realmHelper != null && thisHelper != realmHelper) {
-				try {
-					Object object = realmHelper.getConstructor().newInstance();
-					if (object instanceof FrameworkUtilHelper) {
-						FrameworkUtilHelper helper = (FrameworkUtilHelper) object;
-						Optional<Bundle> bundle = helper.getBundle(classFromBundle);
-						return bundle;
-					}
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+		if (loader != null) {
+			for (FrameworkUtilHelper helper : helpers) {
+				Optional<Bundle> bundle = helper.getBundle(classFromBundle);
+				if (bundle.isPresent()) {
+					return bundle;
 				}
-			}
-		}
-		String location = getLocationFromClass(classFromBundle);
-		if (location != null) {
-			ClassLoader classLoader = classFromBundle.getClassLoader();
-			PlexusConnectFramework connect = PlexusFrameworkConnectServiceFactory.frameworkMap.get(classLoader);
-			if (connect != null) {
-				connect.debug(" Use framework" + connect.getName());
-				BundleContext bundleContext = connect.getFramework().getBundleContext();
-				Bundle[] bundles = bundleContext.getBundles();
-				for (Bundle bundle : bundles) {
-					String bundleLocation = bundle.getLocation();
-					if (locationsMatch(location, bundleLocation)) {
-						connect.debug("Return bundle " + bundle.getSymbolicName() + " for location " + location);
-						return Optional.of(bundle);
-					}
-				}
-				if (classLoader == BundleContext.class.getClassLoader()) {
-					return Optional.of(bundleContext.getBundle(0));
-				}
-				connect.debug("No bundle matched " + location);
 			}
 		}
 		return Optional.empty();
 	}
 
-	static String getLocationFromClass(Class<?> classFromBundle) {
-		ProtectionDomain domain = classFromBundle.getProtectionDomain();
-		if (domain == null) {
-			return null;
+	public static void registerHelper(FrameworkUtilHelper helper) {
+		for (FrameworkUtilHelper spi : ServiceLoader.load(FrameworkUtilHelper.class,
+				FrameworkUtilHelper.class.getClassLoader())) {
+			Class<? extends FrameworkUtilHelper> spiHelperClass = spi.getClass();
+			Class<PlexusFrameworkUtilHelper> thisClass = PlexusFrameworkUtilHelper.class;
+			if (spiHelperClass.getName().equals(thisClass.getName())) {
+				if (spiHelperClass == thisClass) {
+					// register our instance here...
+					helpers.add(helper);
+				}
+				invokeForeignMethod(spiHelperClass, "registerHelper", helper);
+			}
 		}
-		CodeSource codeSource = domain.getCodeSource();
-		if (codeSource == null) {
-			return null;
-		}
-		URL url = codeSource.getLocation();
-		if (url == null) {
-			return null;
-		}
-		return url.toString();
 	}
 
-	static boolean locationsMatch(String classLocation, String bundleLocation) {
-		return classLocation.endsWith(bundleLocation);
+
+	public static void unregisterHelper(FrameworkUtilHelper helper) {
+		for (FrameworkUtilHelper spi : ServiceLoader.load(FrameworkUtilHelper.class,
+				FrameworkUtilHelper.class.getClassLoader())) {
+			Class<? extends FrameworkUtilHelper> spiHelperClass = spi.getClass();
+			Class<PlexusFrameworkUtilHelper> thisClass = PlexusFrameworkUtilHelper.class;
+			if (spiHelperClass.getName().equals(thisClass.getName())) {
+				if (spiHelperClass == thisClass) {
+					// register our instance here...
+					helpers.add(helper);
+				}
+				invokeForeignMethod(spiHelperClass, "unregisterHelper", helper);
+			}
+		}
+	}
+
+	private static void invokeForeignMethod(Class<?> clazz, String methodName, Object parameter) {
+		try {
+			Method method = clazz.getMethod(methodName, FrameworkUtilHelper.class);
+			method.invoke(null, parameter);
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			System.err.println(e);
+		}
 	}
 
 }
