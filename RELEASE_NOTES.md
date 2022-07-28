@@ -241,6 +241,27 @@ This can be useful if you like to execute the build with multiple threads (e.g. 
 
 ### Migration guide 2.x -> 3.x
 
+#### Default value for archive-products has changed
+
+Previously Tycho uses `zip` for all platforms when packaging a product, now `.tar.gz` is used for linux+mac. If you want you can restore old behaviour by:
+
+```
+<execution>
+	<id>archive-products</id>
+	<goals>
+		<goal>archive-products</goal>
+	</goals>
+	<phase>install</phase>
+	<configuration>
+		<formats>
+			<linux>zip</linux>
+			<macosx>zip</macosx>
+		</formats>
+	</configuration>
+</execution>
+
+```
+
 #### Remove `tycho.pomless.testbundle` switch from `build.properties` in favor of specification of project's packaging-type
 
 The boolean property `tycho.pomless.testbundle`, which allowed to specify in the `buid.properties` if a Plug-in is a Test-Plugin or not, has been removed.

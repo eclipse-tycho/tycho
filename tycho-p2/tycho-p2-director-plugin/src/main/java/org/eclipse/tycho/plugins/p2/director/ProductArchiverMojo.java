@@ -16,7 +16,6 @@ package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -28,10 +27,15 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.bzip2.BZip2Archiver;
+import org.codehaus.plexus.archiver.gzip.GZipArchiver;
+import org.codehaus.plexus.archiver.snappy.SnappyArchiver;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.tar.TarArchiver.TarCompressionMethod;
 import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.codehaus.plexus.archiver.xz.XZArchiver;
+import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.plugins.tar.TarGzArchiver;
 
@@ -40,31 +44,56 @@ import org.eclipse.tycho.plugins.tar.TarGzArchiver;
  */
 @Mojo(name = "archive-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class ProductArchiverMojo extends AbstractProductMojo {
-    private static final Object LOCK = new Object();
 
-    private static final String DEFAULT_ARCHIVE_FORMAT = "zip";
+    private static final String ZIP_ARCHIVE_FORMAT = "zip";
     private static final String TAR_GZ_ARCHIVE_FORMAT = "tar.gz";
     private static final String TGZ_ARCHIVE_FORMAT = "tgz";
-
-    private interface ProductArchiver {
-        Archiver getArchiver() throws ArchiverException;
-    }
+    private static final String BZIP2_ARCHIVE_FORMAT = "bzip2";
+    private static final String GZIP_ARCHIVE_FORMAT = "gzip";
+    private static final String SNAPPY_ARCHIVE_FORMAT = "snappy";
+    private static final String XZ_ARCHIVE_FORMAT = "xz";
 
     /**
      * Maps archive type to ProductArchiver
      */
-    private final Map<String, ProductArchiver> productArchivers;
+    private static final Map<String, ThreadLocal<Archiver>> productArchivers;
+
+    static {
+        ThreadLocal<Archiver> zipFormat = ThreadLocal.withInitial(() -> new ZipArchiver());
+        ThreadLocal<Archiver> tgzFormat = ThreadLocal.withInitial(() -> {
+            TarArchiver tar = new TarArchiver();
+            tar.setCompression(TarCompressionMethod.gzip);
+            // avoid lots of long file path (> 100 chars) warnings
+            tar.setLongfile(TarLongFileMode.gnu);
+            return tar;
+        });
+        ThreadLocal<Archiver> bzip2Format = ThreadLocal.withInitial(() -> new BZip2Archiver());
+        ThreadLocal<Archiver> gzipFormat = ThreadLocal.withInitial(() -> new GZipArchiver());
+        ThreadLocal<Archiver> snappyFormat = ThreadLocal.withInitial(() -> new SnappyArchiver());
+        ThreadLocal<Archiver> xzFormat = ThreadLocal.withInitial(() -> new XZArchiver());
+
+        productArchivers = Map.of(ZIP_ARCHIVE_FORMAT, zipFormat, //
+                TAR_GZ_ARCHIVE_FORMAT, tgzFormat, //
+                TGZ_ARCHIVE_FORMAT, tgzFormat, //
+                BZIP2_ARCHIVE_FORMAT, bzip2Format, //
+                GZIP_ARCHIVE_FORMAT, gzipFormat, //
+                SNAPPY_ARCHIVE_FORMAT, snappyFormat, //
+                XZ_ARCHIVE_FORMAT, xzFormat //
+        );
+
+    }
 
     /**
      * <p>
-     * Maps os to format. By default a zip file will be created.
+     * Maps os to format. By default a zip file will be created for windows, and tar.gz for
+     * linux/mac.
      * 
-     * For example, the following configuration will create tar.gz product archives for Linux
+     * For example, the following configuration will create zip product archives for Linux
      * 
      * <pre>
      * {@code
      * <formats>
-     *   <linux>tar.gz</linux>
+     *   <linux>zip</linux>
      * </formats>
      * }
      * </pre>
@@ -72,57 +101,39 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
      * Supported formats
      * 
      * <ul>
-     * <li>zip</li>
-     * <li>tar.gz</li>
+     * <li>{@value #ZIP_ARCHIVE_FORMAT}</li>
+     * <li>{@value #TAR_GZ_ARCHIVE_FORMAT}</li>
+     * <li>{@value #TGZ_ARCHIVE_FORMAT}</li>
+     * <li>{@value #BZIP2_ARCHIVE_FORMAT}</li>
+     * <li>{@value #GZIP_ARCHIVE_FORMAT}</li>
+     * <li>{@value #SNAPPY_ARCHIVE_FORMAT}</li>
+     * <li>{@value #SNAPPY_ARCHIVE_FORMAT}</li>
+     * <li>{@value #XZ_ARCHIVE_FORMAT}</li>
      * </ul>
      * </p>
      */
     @Parameter
     private Map<String, String> formats;
 
-    @Component(role = Archiver.class, hint = "zip")
-    private Archiver zipArchiver;
-
-    @Component(role = Archiver.class, hint = "tar")
-    private TarArchiver tarArchiver;
-
     @Component
     private MavenProjectHelper helper;
 
-    public ProductArchiverMojo() {
-        productArchivers = new HashMap<>();
-
-        productArchivers.put("zip", () -> zipArchiver);
-
-        ProductArchiver tarGzArchiver = () -> {
-            tarArchiver.setCompression(TarCompressionMethod.gzip);
-            // avoid lots of long file path (> 100 chars) warnings
-            tarArchiver.setLongfile(TarLongFileMode.gnu);
-            return tarArchiver;
-        };
-        productArchivers.put(TAR_GZ_ARCHIVE_FORMAT, tarGzArchiver);
-        productArchivers.put(TGZ_ARCHIVE_FORMAT, tarGzArchiver);
-
-    }
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            ProductConfig config = getProductConfig();
-            if (!config.uniqueAttachIds()) {
-                throw new MojoFailureException("Artifact file names for the archived products are not unique. "
-                        + "Configure the attachId or select a subset of products. Current configuration: "
-                        + config.getProducts());
-            }
+        ProductConfig config = getProductConfig();
+        if (!config.uniqueAttachIds()) {
+            throw new MojoFailureException("Artifact file names for the archived products are not unique. "
+                    + "Configure the attachId or select a subset of products. Current configuration: "
+                    + config.getProducts());
+        }
 
-            for (Product product : config.getProducts()) {
-                File bundlePool = getProductBundlePoolDirectory(product);
-                if (bundlePool != null) {
-                    materialize(product, null);
-                } else {
-                    for (TargetEnvironment env : getEnvironments()) {
-                        materialize(product, env);
-                    }
+        for (Product product : config.getProducts()) {
+            File bundlePool = getProductBundlePoolDirectory(product);
+            if (bundlePool != null) {
+                materialize(product, null);
+            } else {
+                for (TargetEnvironment env : getEnvironments()) {
+                    materialize(product, env);
                 }
             }
         }
@@ -130,7 +141,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
     private void materialize(Product product, TargetEnvironment env) throws MojoExecutionException {
         String format = getArchiveFormat(product, env);
-        ProductArchiver productArchiver = productArchivers.get(format);
+        ThreadLocal<Archiver> productArchiver = productArchivers.get(format);
         if (productArchiver == null) {
             String os = env != null ? "os=" + env.getOs() : "";
             throw new MojoExecutionException("Unknown or unsupported archive format " + os + " format=" + format);
@@ -146,7 +157,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 getLog().debug("Using commons-compress tar");
                 createCommonsCompressTarGz(productArchive, sourceDir);
             } else {
-                Archiver archiver = productArchiver.getArchiver();
+                Archiver archiver = productArchiver.get();
                 archiver.setDestFile(productArchive);
                 DefaultFileSet fileSet = new DefaultFileSet(sourceDir);
                 fileSet.setUsingDefaultExcludes(false);
@@ -170,21 +181,24 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     }
 
     private String getArchiveFormat(Product product, TargetEnvironment env) {
-        String format = DEFAULT_ARCHIVE_FORMAT;
         if (formats != null) {
+            String format;
             if (product.isMultiPlatformPackage()) {
                 format = formats.get("multiPlatformPackage");
             } else {
-                format = formats.get(env.getOs());
+                format = env != null ? formats.get(env.getOs()) : null;
+            }
+            if (format != null && !format.trim().isBlank()) {
+                return format.trim();
             }
         }
-        if (format != null) {
-            format = format.trim();
+        if (product.isMultiPlatformPackage()) {
+            return ZIP_ARCHIVE_FORMAT;
         }
-        if (format == null || format.isEmpty()) {
-            format = DEFAULT_ARCHIVE_FORMAT;
+        if (env != null && ("linux".equals(env.getOs()) || "macosx".equals(env.getOs()))) {
+            return TAR_GZ_ARCHIVE_FORMAT;
         }
-        return format;
+        return ZIP_ARCHIVE_FORMAT;
     }
 
     static String getArchiveFileName(Product product) {
