@@ -12,8 +12,12 @@
  *******************************************************************************/
 package org.eclipse.sisu.osgi.connect;
 
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.Dictionary;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,8 +25,11 @@ import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.connect.FrameworkUtilHelper;
 import org.osgi.framework.launch.Framework;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -32,7 +39,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * created by plexus
  *
  */
-class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceFactory {
+class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceFactory, FrameworkUtilHelper {
 
 	private final Framework framework;
 	private final Logger logger;
@@ -201,4 +208,51 @@ class PlexusConnectFramework implements Logger, EmbeddedEquinox, EquinoxServiceF
 		}
 	}
 
+	@Override
+	public Optional<Bundle> getBundle(Class<?> classFromBundle) {
+		String location = getLocationFromClass(classFromBundle);
+		if (location != null) {
+			debug("Searching bundle for class " + classFromBundle + " and location " + location);
+			BundleContext bundleContext = getFramework().getBundleContext();
+			Bundle[] bundles = bundleContext.getBundles();
+			for (Bundle bundle : bundles) {
+				String bundleLocation = bundle.getLocation();
+				if (locationsMatch(location, bundleLocation)) {
+					debug("Return bundle " + bundle.getSymbolicName() + " for location " + location);
+					return Optional.of(bundle);
+				}
+			}
+			if (classFromBundle.getClassLoader() == BundleContext.class.getClassLoader()) {
+				// TODO should this really happen? This is not unique!
+				return Optional.of(bundleContext.getBundle(0));
+			}
+			debug("No bundle matched for " + location);
+		}
+		return Optional.empty();
+	}
+
+	static String getLocationFromClass(Class<?> classFromBundle) {
+		ProtectionDomain domain = classFromBundle.getProtectionDomain();
+		if (domain == null) {
+			return null;
+		}
+		CodeSource codeSource = domain.getCodeSource();
+		if (codeSource == null) {
+			return null;
+		}
+		URL url = codeSource.getLocation();
+		if (url == null) {
+			return null;
+		}
+		return url.toString();
+	}
+
+	static boolean locationsMatch(String classLocation, String bundleLocation) {
+		return classLocation.endsWith(bundleLocation);
+	}
+
+	@Override
+	public String toString() {
+		return format(getClass().getSimpleName());
+	}
 }

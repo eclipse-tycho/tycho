@@ -72,7 +72,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 	private String frameworkBundle;
 
 	public PlexusModuleConnector(ConnectFrameworkFactory factory) {
-		frameworkBundle = PlexusFrameworkUtilHelper.getLocationFromClass(factory.getClass());
+		frameworkBundle = PlexusConnectFramework.getLocationFromClass(factory.getClass());
 	}
 
 	private String getBsn(String value) {
@@ -155,7 +155,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 				try {
 					Attributes mainAttributes = getAttributes(jarFile);
 					if (mainAttributes == null
-							|| PlexusFrameworkUtilHelper.locationsMatch(frameworkBundle, file.getAbsolutePath())) {
+							|| PlexusConnectFramework.locationsMatch(frameworkBundle, file.getAbsolutePath())) {
 						jarFile.close();
 						continue;
 					}

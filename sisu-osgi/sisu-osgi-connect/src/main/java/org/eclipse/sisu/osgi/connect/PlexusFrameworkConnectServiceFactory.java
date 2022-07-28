@@ -74,7 +74,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	@Requirement
 	private Logger log;
 
-	static final Map<ClassRealm, PlexusConnectFramework> frameworkMap = new HashMap<>();
+	private static final Map<ClassRealm, PlexusConnectFramework> frameworkMap = new HashMap<>();
 
 	@Requirement(role = EquinoxLifecycleListener.class)
 	private Map<String, EquinoxLifecycleListener> lifecycleListeners;
@@ -121,6 +121,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		log.debug("Create framework for " + this + " with realm " + realm);
 		Logger fwLogger = new PlexusConnectFramework(null, log, this, realm, false);
 		Map<String, String> p = readProperties(realm, fwLogger);
+		p.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
+				"javax.security.auth.x500;version=\"1.3.0\", org.slf4j;version=\"1.7.37\"");
 		p.put("osgi.framework.useSystemProperties", "false");
 		p.put("osgi.parentClassloader", "fwk");
 		p.put(Constants.FRAMEWORK_STORAGE,
@@ -129,10 +131,10 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		ServiceLoader<ConnectFrameworkFactory> sl = ServiceLoader.load(ConnectFrameworkFactory.class,
 				getClass().getClassLoader());
 		ConnectFrameworkFactory factory = sl.iterator().next();
-		connect(factory);
 		PlexusModuleConnector connector = new PlexusModuleConnector(factory);
 		Framework osgiFramework = factory.newFramework(p, connector);
 		PlexusConnectFramework connectFramework = new PlexusConnectFramework(osgiFramework, log, this, realm, false);
+		PlexusFrameworkUtilHelper.registerHelper(connectFramework);
 		osgiFramework.init(new FrameworkListener() {
 
 			@Override
@@ -164,19 +166,6 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			printFrameworkState(osgiFramework, connectFramework);
 		}
 		return connectFramework;
-
-	}
-
-	private void connect(ConnectFrameworkFactory factory) {
-		try {
-			Class<?> connectHelperClass = factory.getClass().getClassLoader()
-					.loadClass("org.eclipse.sisu.osgi.connect.PlexusFrameworkUtilHelper");
-			if (connectHelperClass != PlexusFrameworkUtilHelper.class) {
-				// TODO we must connect...
-			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
 
 	}
 
@@ -365,6 +354,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 					fw.waitForStop(TimeUnit.SECONDS.toMillis(10));
 				} catch (InterruptedException e) {
 				}
+				PlexusFrameworkUtilHelper.unregisterHelper(connect);
 				if (storage != null) {
 					FileUtils.deleteQuietly(new File(storage));
 				}
@@ -416,7 +406,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	public static Framework getForeignFramework(ClassRealm realm) {
 		Class<?> thisClass = PlexusFrameworkConnectServiceFactory.class;
 		Class<?> foreignFactoryClass = realm.loadClassFromSelf(thisClass.getName());
-		if (foreignFactoryClass != thisClass) {
+		if (foreignFactoryClass != null && foreignFactoryClass != thisClass) {
 			try {
 				Method method = foreignFactoryClass.getMethod("getOsgiFramework", ClassRealm.class);
 				return (Framework) method.invoke(null, realm);
