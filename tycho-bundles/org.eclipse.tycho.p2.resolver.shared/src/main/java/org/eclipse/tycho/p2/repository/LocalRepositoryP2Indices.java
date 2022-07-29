@@ -14,6 +14,7 @@
 package org.eclipse.tycho.p2.repository;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.tycho.core.shared.MavenContext;
 
@@ -29,5 +30,7 @@ public interface LocalRepositoryP2Indices {
     public File getBasedir();
 
     MavenContext getMavenContext();
+
+    public void add(GAV gav) throws IOException;
 
 }
