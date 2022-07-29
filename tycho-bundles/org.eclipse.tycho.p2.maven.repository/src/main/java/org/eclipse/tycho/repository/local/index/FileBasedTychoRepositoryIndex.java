@@ -111,7 +111,7 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     }
 
     @Override
-    public void save() throws IOException {
+    public synchronized void save() throws IOException {
         File parentDir = indexFile.getParentFile();
         if (!parentDir.isDirectory()) {
             parentDir.mkdirs();

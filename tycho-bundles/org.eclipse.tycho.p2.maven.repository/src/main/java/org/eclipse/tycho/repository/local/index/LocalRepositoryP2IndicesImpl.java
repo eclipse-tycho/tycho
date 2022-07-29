@@ -14,9 +14,11 @@
 package org.eclipse.tycho.repository.local.index;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
@@ -85,6 +87,19 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
     @Override
     public MavenContext getMavenContext() {
         return mavenContext;
+    }
+
+    @Override
+    public synchronized void add(GAV gav) throws IOException {
+        TychoRepositoryIndex artifactsIndex = getArtifactsIndex();
+        TychoRepositoryIndex metadataIndex = getMetadataIndex();
+        addGavAndSave(gav, artifactsIndex);
+        addGavAndSave(gav, metadataIndex);
+    }
+
+    private static void addGavAndSave(GAV gav, TychoRepositoryIndex index) throws IOException {
+        index.addGav(gav);
+        index.save();
     }
 
 }
