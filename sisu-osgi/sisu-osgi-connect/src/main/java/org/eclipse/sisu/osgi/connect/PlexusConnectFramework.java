@@ -26,14 +26,20 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.connect.FrameworkUtilHelper;
 import org.osgi.framework.launch.Framework;
+import org.osgi.service.log.LogEntry;
+import org.osgi.service.log.LogListener;
+import org.osgi.service.log.LogReaderService;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * 
@@ -42,7 +48,8 @@ import org.osgi.util.tracker.ServiceTracker;
  *
  */
 class PlexusConnectFramework
-		implements Logger, EmbeddedEquinox, EquinoxServiceFactory, FrameworkUtilHelper, FrameworkListener {
+		implements Logger, EmbeddedEquinox, EquinoxServiceFactory, FrameworkUtilHelper, FrameworkListener, LogListener,
+		BundleActivator {
 
 	private final Framework framework;
 	private final Logger logger;
@@ -51,6 +58,7 @@ class PlexusConnectFramework
 	private final ClassRealm realm;
 	final PlexusFrameworkConnectServiceFactory factory;
 	final boolean foreign;
+	private ServiceTracker<LogReaderService, LogReaderService> serviceTracker;
 
 	PlexusConnectFramework(Framework framework, Logger logger, PlexusFrameworkConnectServiceFactory factory,
 			ClassRealm realm, boolean foreign) {
@@ -264,5 +272,66 @@ class PlexusConnectFramework
 		if (event.getType() == FrameworkEvent.ERROR) {
 			error(event.getBundle().getSymbolicName(), event.getThrowable());
 		}
+		if (event.getType() == FrameworkEvent.WARNING) {
+			warn(event.getBundle().getSymbolicName(), event.getThrowable());
+		}
+		if (event.getType() == FrameworkEvent.INFO) {
+			info(event.getBundle().getSymbolicName(), event.getThrowable());
+		}
+	}
+
+	@Override
+	public void logged(LogEntry entry) {
+		switch (entry.getLogLevel()) {
+		case AUDIT:
+		case ERROR:
+			error(entry.getMessage(), entry.getException());
+			break;
+		case WARN:
+			warn(entry.getMessage(), entry.getException());
+			break;
+		case INFO:
+			info(entry.getMessage(), entry.getException());
+			break;
+		case TRACE:
+		case DEBUG:
+			debug(entry.getMessage(), entry.getException());
+			break;
+		}
+	}
+
+	@Override
+	public void start(BundleContext context) {
+		context.addFrameworkListener(this);
+		serviceTracker = new ServiceTracker<LogReaderService, LogReaderService>(
+				context, LogReaderService.class, new ServiceTrackerCustomizer<LogReaderService, LogReaderService>() {
+
+					@Override
+					public LogReaderService addingService(ServiceReference<LogReaderService> reference) {
+						LogReaderService service = context.getService(reference);
+						if (service != null) {
+							service.addLogListener(PlexusConnectFramework.this);
+						}
+						return service;
+					}
+
+					@Override
+					public void modifiedService(ServiceReference<LogReaderService> reference,
+							LogReaderService service) {
+					}
+
+					@Override
+					public void removedService(ServiceReference<LogReaderService> reference, LogReaderService service) {
+						service.removeLogListener(PlexusConnectFramework.this);
+						context.ungetService(reference);
+					}
+				});
+		serviceTracker.open();
+	}
+
+	@Override
+	public void stop(BundleContext context) {
+		context.removeFrameworkListener(this);
+		serviceTracker.close();
 	}
 }
