@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 /**
  * Represents a p2 metadata repository. Facade only exposes serialized form (content.xml).
  * 
@@ -27,5 +29,5 @@ public interface MetadataSerializable {
      * Writes the given set of installable units to the given output stream in standard p2 metadata
      * repository format. The caller is responsible for closing the stream.
      */
-    void serialize(OutputStream stream, Set<?> installableUnits) throws IOException;
+    void serialize(OutputStream stream, Set<IInstallableUnit> installableUnits) throws IOException;
 }
