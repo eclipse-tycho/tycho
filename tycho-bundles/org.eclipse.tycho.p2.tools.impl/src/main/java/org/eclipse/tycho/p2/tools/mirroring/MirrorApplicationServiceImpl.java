@@ -206,7 +206,12 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         descriptor.setAppend(true);
         descriptor.setFormat(null);
         descriptor.setKind("artifact"); //$NON-NLS-1$
-        descriptor.setLocation(destination.getLocation().toURI());
+        File location = destination.getLocation();
+        File artifactsXz = new File(location, "artifacts.xml.xz");
+        if (artifactsXz.exists()) {
+            artifactsXz.delete();
+        }
+        descriptor.setLocation(location.toURI());
 
         RecreateRepositoryApplication application = new RecreateRepositoryApplication();
         application.setArtifactRepository(descriptor.getRepoLocation());
