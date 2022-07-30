@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
@@ -19,12 +22,24 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.core.internal.net.Activator;
+import org.eclipse.core.internal.net.ProxyData;
+import org.eclipse.core.net.proxy.IProxyData;
+import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.tycho.core.shared.ProxyServiceFacade;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
+//TODO this should aktually be part of the p2 maven plugin!
 @Component(role = EquinoxLifecycleListener.class, hint = "P2ProxyConfigurator")
 public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
+
+    private static final String MAVEN_SETTINGS_SOURCE = "MAVEN_SETTINGS";
+
+    private static final Pattern NON_PROXY_DELIMITERS = Pattern.compile("\\s*[|,]\\s*");
 
     @Requirement
     protected Logger logger;
@@ -38,13 +53,12 @@ public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
 
-        ProxyServiceFacade proxyService = framework.getServiceFactory().getService(ProxyServiceFacade.class);
+        IProxyService proxyService = framework.getServiceFactory().getService(IProxyService.class);
         if (proxyService == null) {
             return;
         }
-
         // make sure there is no old state from previous aborted builds
-        clearProxyConfiguration(proxyService);
+        clearPersistentProxySettings();
 
         for (Proxy proxy : session.getSettings().getProxies()) {
             if (proxy.isActive()) {
@@ -53,12 +67,7 @@ public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
         }
     }
 
-    private void clearProxyConfiguration(ProxyServiceFacade proxyService) {
-        logger.debug("Clearing proxy settings in OSGi runtime");
-        proxyService.clearPersistentProxySettings();
-    }
-
-    private void setProxy(ProxyServiceFacade proxyService, Proxy proxy) {
+    private void setProxy(IProxyService proxyService, Proxy proxy) {
         String protocol = proxy.getProtocol();
 
         if (isSupportedProtocol(protocol)) {
@@ -67,7 +76,7 @@ public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
             proxy = result.getProxy();
             logger.debug("Configuring proxy for protocol " + protocol + ": host=" + proxy.getHost() + ", port="
                     + proxy.getPort() + ", nonProxyHosts=" + proxy.getNonProxyHosts());
-            proxyService.configureProxy(protocol, proxy.getHost(), proxy.getPort(), proxy.getUsername(),
+            configureProxy(proxyService, protocol, proxy.getHost(), proxy.getPort(), proxy.getUsername(),
                     proxy.getPassword(), proxy.getNonProxyHosts());
 
         } else {
@@ -85,6 +94,78 @@ public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
             return true;
         }
         return false;
+    }
+
+    private void configureProxy(IProxyService proxyService, String protocol, String host, int port, String user,
+            String password, String nonProxyHosts) {
+        ProxyData proxyData = new ProxyData(getProxyType(protocol));
+        proxyData.setHost(host);
+        proxyData.setPort(port);
+        proxyData.setUserid(user);
+        proxyData.setPassword(password);
+        proxyData.setSource(MAVEN_SETTINGS_SOURCE);
+        try {
+            proxyService.setProxyData(new IProxyData[] { proxyData });
+            if (nonProxyHosts != null && !nonProxyHosts.trim().isEmpty()) {
+                proxyService.setNonProxiedHosts(NON_PROXY_DELIMITERS.split(nonProxyHosts.trim()));
+            }
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+        // have to register authenticator manually as this is provided as extension point in
+        // org.eclipse.ui.net only ...
+        registerAuthenticator(user, password);
+        proxyService.setProxiesEnabled(true);
+        // disable the eclipse native proxy providers
+        proxyService.setSystemProxiesEnabled(false);
+    }
+
+    private void registerAuthenticator(final String user, final String password) {
+        if (user == null || password == null) {
+            return;
+        }
+        Authenticator authenticator = new Authenticator() {
+
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(user, password.toCharArray());
+            }
+
+        };
+        // not exactly pretty but this is how org.eclipse.core.net does it
+        Authenticator.setDefault(authenticator);
+    }
+
+    private static String getProxyType(String protocol) {
+        protocol = protocol.trim().toLowerCase(Locale.ENGLISH);
+        String type;
+        if ("http".equals(protocol)) {
+            type = IProxyData.HTTP_PROXY_TYPE;
+        } else if ("https".equals(protocol)) {
+            type = IProxyData.HTTPS_PROXY_TYPE;
+        } else if ("socks4".equals(protocol) || "socks_5".equals(protocol)) {
+            type = IProxyData.SOCKS_PROXY_TYPE;
+        } else {
+            throw new IllegalArgumentException("unknown proxy protocol: " + protocol);
+        }
+        return type;
+    }
+
+    private void clearPersistentProxySettings() {
+        Preferences netPreferences = ConfigurationScope.INSTANCE.getNode(Activator.ID);
+        try {
+            recursiveClear(netPreferences);
+            netPreferences.flush();
+        } catch (BackingStoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void recursiveClear(Preferences preferences) throws BackingStoreException {
+        for (String child : preferences.childrenNames()) {
+            recursiveClear(preferences.node(child));
+        }
+        preferences.clear();
     }
 
 }
