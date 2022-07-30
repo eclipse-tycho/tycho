@@ -1,8 +1,5 @@
 target/
 bin/
-.project
-.classpath
-.settings/
 *.iml
 .idea/
 .tycho-consumer-pom.xml
