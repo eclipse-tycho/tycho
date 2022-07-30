@@ -93,118 +93,101 @@ public class EquinoxResolver {
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
-        return newResolvedState(project, mavenSession, ee, artifacts, new EquinoxResolverConfiguration());
+        Objects.requireNonNull(artifacts, "DependencyArtifacts can't be null!");
+        ScheduledExecutorService executorService = Executors
+                .newScheduledThreadPool(EquinoxResolverConfiguration.THREAD_COUNT);
+        try {
+            return newResolvedState(project, mavenSession, ee, artifacts, executorService,
+                    new EquinoxResolverConfiguration());
+        } finally {
+            executorService.shutdownNow();
+        }
     }
 
     private ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
-            DependencyArtifacts artifacts, EquinoxResolverConfiguration config) throws BundleException {
-        Objects.requireNonNull(artifacts, "DependencyArtifacts can't be null!");
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(EquinoxResolverConfiguration.THREAD_COUNT);
-        try {
-            Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);
-            ModuleContainer container = newState(artifacts, properties, mavenSession, executorService, config);
-            ResolutionReport report = container.resolve(null, false);
-            Module module = container.getModule(getNormalizedPath(project.getBasedir()));
-            if (module == null) {
-                Module systemModule = container.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
-                if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
-                    module = systemModule;
-                }
+            DependencyArtifacts artifacts, ScheduledExecutorService executorService,
+            EquinoxResolverConfiguration config) throws BundleException {
+        Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);
+        ModuleContainer container = newState(artifacts, properties, mavenSession, executorService, config);
+        ResolutionReport report = container.resolve(null, false);
+        Module module = container.getModule(getNormalizedPath(project.getBasedir()));
+        if (module == null) {
+            Module systemModule = container.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
+            if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
+                module = systemModule;
             }
-            ModuleRevision moduleRevision = module.getCurrentRevision();
-            if (report.getEntries().isEmpty()) {
-                Collection<org.eclipse.osgi.container.Module> toUninstall = null;
-                if ((moduleRevision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
-                    // other fragments for the same host
-                    toUninstall = moduleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE)
-                            .stream().map(ModuleWire::getProvider) //
-                            .flatMap(host -> host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)
-                                    .stream())
-                            .map(ModuleWire::getRequirer) //
-                            .filter(Predicate.not(moduleRevision::equals)) //
-                            .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
-                            .map(revision -> revision.getRevisions().getModule()) //
-                            .collect(Collectors.toSet());
-                } else {
-                    // fragments for the host
-                    toUninstall = moduleRevision.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE)
-                            .stream().map(ModuleWire::getRequirer) //
-                            .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
-                            .map(revision -> revision.getRevisions().getModule()) //
-                            .collect(Collectors.toSet());
-                }
-                if (!toUninstall.isEmpty()) {
-                    for (Module uninstall : toUninstall) {
-                        try {
-                            container.uninstall(uninstall);
-                        } catch (BundleException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
+        }
+        ModuleRevision moduleRevision = module.getCurrentRevision();
+        if (report.getEntries().isEmpty()) {
+            Collection<org.eclipse.osgi.container.Module> toUninstall = null;
+            if ((moduleRevision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
+                // other fragments for the same host
+                toUninstall = moduleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                        .map(ModuleWire::getProvider) //
+                        .flatMap(host -> host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream())
+                        .map(ModuleWire::getRequirer) //
+                        .filter(Predicate.not(moduleRevision::equals)) //
+                        .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
+                        .map(revision -> revision.getRevisions().getModule()) //
+                        .collect(Collectors.toSet());
+            } else {
+                // fragments for the host
+                toUninstall = moduleRevision.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
+                        .map(ModuleWire::getRequirer) //
+                        .filter(fragment -> (fragment.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) //
+                        .map(revision -> revision.getRevisions().getModule()) //
+                        .collect(Collectors.toSet());
+            }
+            if (!toUninstall.isEmpty()) {
+                for (Module uninstall : toUninstall) {
+                    try {
+                        container.uninstall(uninstall);
+                    } catch (BundleException e) {
                     }
-                    report = container.refresh(null);
                 }
+                report = container.refresh(null);
             }
-            if (logger.isDebugEnabled()) {
-                Set<Module> unresolvedModules = container.getModules().stream()
-                        .filter(m -> m.getState() != State.RESOLVED).collect(Collectors.toSet());
-                if (!unresolvedModules.isEmpty()) {
-                    logger.warn("OSGi state has " + unresolvedModules.size() + " unresolved module(s):");
-                    logger.debug("The following modules are used to build the current state:");
-                    for (Module m : container.getModules()) {
-                        State state = m.getState();
-                        ModuleRevision revision = m.getCurrentRevision();
-                        boolean unresolved = unresolvedModules.contains(m);
-                        String message = "| " + state + " | " + revision.getSymbolicName() + " ("
-                                + revision.getVersion() + ") @ " + m.getLocation();
-                        if (unresolved) {
-                            logger.warn(message);
-                            String reportMessage = report.getResolutionReportMessage(revision);
-                            String[] lines = reportMessage.split("\r?\n");
-                            for (int i = 1; i < lines.length; i++) {
-                                logger.warn("            " + lines[i]);
-                            }
-                        } else {
-                            logger.debug("   " + message);
+        }
+        if (logger.isDebugEnabled()) {
+            Set<Module> unresolvedModules = container.getModules().stream().filter(m -> m.getState() != State.RESOLVED)
+                    .collect(Collectors.toSet());
+            if (!unresolvedModules.isEmpty()) {
+                logger.warn("OSGi state has " + unresolvedModules.size() + " unresolved module(s):");
+                logger.debug("The following modules are used to build the current state:");
+                for (Module m : container.getModules()) {
+                    State state = m.getState();
+                    ModuleRevision revision = m.getCurrentRevision();
+                    boolean unresolved = unresolvedModules.contains(m);
+                    String message = "| " + state + " | " + revision.getSymbolicName() + " (" + revision.getVersion()
+                            + ") @ " + m.getLocation();
+                    if (unresolved) {
+                        logger.warn(message);
+                        String reportMessage = report.getResolutionReportMessage(revision);
+                        String[] lines = reportMessage.split("\r?\n");
+                        for (int i = 1; i < lines.length; i++) {
+                            logger.warn("            " + lines[i]);
                         }
+                    } else {
+                        logger.debug("   " + message);
                     }
                 }
             }
-            assertResolved(report, moduleRevision);
-            return container;
-        } finally {
-            executorService.shutdownNow();
-            if (!config.keepUses) {
-                logger.info(FORCE_KEEP_USES);
-                return newResolvedState(project, mavenSession, ee, artifacts, new EquinoxResolverConfiguration(config, true));
-            }
         }
-    }
-
-    public ModuleContainer newResolvedState(File basedir, MavenSession mavenSession, ExecutionEnvironment ee,
-            DependencyArtifacts artifacts) throws BundleException {
-        return newResolvedState(basedir, mavenSession, ee, artifacts, new EquinoxResolverConfiguration());
-    }
-
-    private ModuleContainer newResolvedState(File basedir, MavenSession mavenSession, ExecutionEnvironment ee,
-            DependencyArtifacts artifacts, EquinoxResolverConfiguration config) throws BundleException {
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(EquinoxResolverConfiguration.THREAD_COUNT);
-        try {
-            Properties properties = getPlatformProperties(new Properties(), mavenSession, null, ee);
-            ModuleContainer container = newState(artifacts, properties, mavenSession, executorService, config);
-            ResolutionReport report = container.resolve(null, false);
-
-            ModuleRevision bundleDescription = container.getModule(getNormalizedPath(basedir)).getCurrentRevision();
-            assertResolved(report, bundleDescription);
-
+        if (moduleRevision.getRevisions().getModule().getState() == State.RESOLVED || report == null
+                || report.getEntries() == null || report.getEntries().isEmpty()) {
             return container;
-        } finally {
-            executorService.shutdownNow();
-            if (!config.keepUses) {
-                logger.info(FORCE_KEEP_USES);
-                return newResolvedState(basedir, mavenSession, ee, artifacts, new EquinoxResolverConfiguration(config, true));
-            }
         }
+        List<Entry> errors = report.getEntries().get(moduleRevision);
+        if (errors == null || errors.isEmpty()) {
+            return container;
+        }
+        if (!config.keepUses) {
+            logger.info(FORCE_KEEP_USES);
+            return newResolvedState(project, mavenSession, ee, artifacts, executorService,
+                    new EquinoxResolverConfiguration(config, true));
+        }
+        throw new BundleException("Bundle " + moduleRevision.getSymbolicName() + " cannot be resolved:"
+                + report.getResolutionReportMessage(moduleRevision));
     }
 
     protected Properties getPlatformProperties(ReactorProject project, MavenSession mavenSession,
@@ -515,18 +498,6 @@ public class EquinoxResolver {
             throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation);
         }
         return manifestReader.loadManifest(bundleLocation);
-    }
-
-    public void assertResolved(ResolutionReport report, ModuleRevision desc) throws BundleException {
-        if (desc.getRevisions().getModule().getState() == State.RESOLVED || report == null
-                || report.getEntries() == null || report.getEntries().isEmpty()) {
-            return;
-        }
-        List<Entry> errors = report.getEntries().get(desc);
-        if (errors != null && !errors.isEmpty()) {
-            throw new BundleException("Bundle " + desc.getSymbolicName() + " cannot be resolved:"
-                    + report.getResolutionReportMessage(desc));
-        }
     }
 
 }
