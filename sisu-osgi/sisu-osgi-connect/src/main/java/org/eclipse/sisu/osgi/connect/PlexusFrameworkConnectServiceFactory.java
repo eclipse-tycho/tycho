@@ -137,7 +137,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		PlexusFrameworkUtilHelper.registerHelper(connectFramework);
 		osgiFramework.init(connectFramework);
 		frameworkMap.put(realm, connectFramework);
-		osgiFramework.getBundleContext().addFrameworkListener(connectFramework);
+		connectFramework.start(osgiFramework.getBundleContext());
 		for (ClassRealm r : realms) {
 			connector.installRealm(r, osgiFramework.getBundleContext(), connectFramework);
 		}
@@ -332,9 +332,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 					return;
 				}
 				Framework fw = connect.getFramework();
-				// TODO currently creates nasty error on shutdown see
-				// https://github.com/eclipse-equinox/equinox/pull/91
-				fw.getBundleContext().removeFrameworkListener(connect);
+				connect.stop(fw.getBundleContext());
 				String storage = fw.getBundleContext().getProperty(Constants.FRAMEWORK_STORAGE);
 				try {
 					fw.stop();

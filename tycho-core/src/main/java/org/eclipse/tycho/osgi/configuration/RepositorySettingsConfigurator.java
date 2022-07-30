@@ -29,6 +29,7 @@ import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
+import org.eclipse.tycho.p2maven.SettingsDecrypterHelper;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "RepositorySettingsConfigurator")
 public class RepositorySettingsConfigurator implements EquinoxLifecycleListener {
