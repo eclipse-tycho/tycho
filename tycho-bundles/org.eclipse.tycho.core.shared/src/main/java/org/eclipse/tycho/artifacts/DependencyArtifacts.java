@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -91,7 +92,7 @@ public interface DependencyArtifacts {
      * 
      * @return Set&lt;IInstallableUnit&gt; or null
      */
-    public Set<?/* IInstallableUnit */> getNonReactorUnits();
+    public Set<IInstallableUnit> getNonReactorUnits();
 
     /**
      * Collection of dependency metadata (p2 installable units). Includes metadata associated with
@@ -102,7 +103,7 @@ public interface DependencyArtifacts {
      * 
      * @return Set&lt;IInstallableUnit&gt; or null
      */
-    public Collection<?/* IInstallableUnit */> getInstallableUnits();
+    public Collection<IInstallableUnit> getInstallableUnits();
 
     /**
      * For debug purposes only, do not use.

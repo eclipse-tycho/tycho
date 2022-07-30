@@ -24,6 +24,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
@@ -130,7 +131,8 @@ public class RepositoryReferenceTool {
                 dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
 
                 // this contains dependency-only metadata for 'this' project
-                Set<Object> targetPlatformInstallableUnits = new HashSet<>(dependencyArtifacts.getInstallableUnits());
+                Set<IInstallableUnit> targetPlatformInstallableUnits = new HashSet<>(
+                        dependencyArtifacts.getInstallableUnits());
 
                 for (ArtifactDescriptor artifact : dependencyArtifacts.getArtifacts()) {
                     ReactorProject otherProject = artifact.getMavenProject();
