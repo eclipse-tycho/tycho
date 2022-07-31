@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 

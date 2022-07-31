@@ -67,6 +67,8 @@ import org.osgi.util.tracker.ServiceTracker;
 @Component(role = EquinoxServiceFactory.class, hint = "connect")
 public class PlexusFrameworkConnectServiceFactory implements Initializable, Disposable, EquinoxServiceFactory {
 
+	private static final boolean PRINT_FRAMEWORK = Boolean.getBoolean("sisu.connect.printFramework");
+
 	private static final StackWalker WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
 	@Requirement
@@ -148,7 +150,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			connectFramework.debug("Calling " + listener + "...");
 			listener.afterFrameworkStarted(connectFramework);
 		}
-		if (log.isDebugEnabled()) {
+		if (log.isDebugEnabled() || PRINT_FRAMEWORK) {
 			printFrameworkState(osgiFramework, connectFramework);
 		}
 		return connectFramework;

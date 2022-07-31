@@ -14,12 +14,22 @@ package org.eclipse.tycho.p2.remote.testutil;
 
 import java.net.URI;
 
-import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
+import org.eclipse.tycho.IRepositoryIdManager;
 
 public class NoopRepositoryIdManager implements IRepositoryIdManager {
 
     @Override
     public void addMapping(String id, URI location) {
+    }
+
+    @Override
+    public URI getEffectiveLocation(URI location) {
+        return location;
+    }
+
+    @Override
+    public URI getEffectiveLocationAndPrepareLoad(URI location) {
+        return location;
     }
 
 }

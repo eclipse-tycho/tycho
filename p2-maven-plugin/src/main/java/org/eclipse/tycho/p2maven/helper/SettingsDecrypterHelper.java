@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.osgi.configuration;
+package org.eclipse.tycho.p2maven.helper;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.building.SettingsProblem;

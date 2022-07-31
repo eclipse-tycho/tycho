@@ -10,13 +10,19 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho.p2maven.repository;
 
 import java.net.URI;
 import java.util.Map;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -26,27 +32,28 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.IRepositoryIdManager;
 
-class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
+@Component(role = IMetadataRepositoryManager.class)
+public class DefaultMetadataRepositoryManager implements IMetadataRepositoryManager, Initializable {
 
-    private final IMetadataRepositoryManager delegate;
-    private final RemoteRepositoryLoadingHelper loadingHelper;
-    private final MavenLogger logger;
+	@Requirement
+	private IProvisioningAgent agent;
 
-    RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, RemoteRepositoryLoadingHelper loadingHelper,
-            MavenLogger logger) {
-        this.delegate = delegate;
-        this.loadingHelper = loadingHelper;
-        this.logger = logger;
-    }
+	@Requirement
+	private Logger logger;
 
-    private URI translate(URI location) {
-        return loadingHelper.getEffectiveLocation(location);
+	@Requirement
+	private IRepositoryIdManager repositoryIdManager;
+
+	private IMetadataRepositoryManager delegate;
+
+	private URI translate(URI location) {
+        return repositoryIdManager.getEffectiveLocation(location);
     }
 
     private URI translateAndPrepareLoad(URI location) throws ProvisionException {
-        return loadingHelper.getEffectiveLocationAndPrepareLoad(location);
+        return repositoryIdManager.getEffectiveLocationAndPrepareLoad(location);
     }
 
     @Override
@@ -147,5 +154,10 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
     public void setRepositoryProperty(URI location, String key, String value) {
         delegate.setRepositoryProperty(translate(location), key, value);
     }
+
+	@Override
+	public void initialize() throws InitializationException {
+		delegate = new MetadataRepositoryManager(agent);
+	}
 
 }

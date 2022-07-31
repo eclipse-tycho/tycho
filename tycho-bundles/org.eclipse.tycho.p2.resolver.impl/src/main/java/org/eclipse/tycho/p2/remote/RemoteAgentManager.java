@@ -15,18 +15,18 @@ package org.eclipse.tycho.p2.remote;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Manager for {@link RemoteAgent} instances used to access remote p2 repositories. The instance are
  * shared within a reactor because they cache the loaded p2 repositories.
  */
+@Component(service = { RemoteAgentManager.class })
 public class RemoteAgentManager {
 
     private MavenContext mavenContext;
-
-    private MavenRepositorySettings mavenRepositorySettings;
 
     /**
      * Cached provisioning agent instance.
@@ -36,18 +36,10 @@ public class RemoteAgentManager {
 
     private IProxyService proxyService;
 
-    public RemoteAgentManager(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
-    }
-
-    // constructor for DS
-    public RemoteAgentManager() {
-    }
-
     public synchronized IProvisioningAgent getProvisioningAgent() throws ProvisionException {
         if (cachedAgent == null) {
             boolean disableP2Mirrors = getDisableP2MirrorsConfiguration();
-            cachedAgent = new RemoteAgent(mavenContext, proxyService, mavenRepositorySettings, disableP2Mirrors);
+            cachedAgent = new RemoteAgent(mavenContext, proxyService, disableP2Mirrors);
         }
         return cachedAgent;
     }
@@ -64,15 +56,12 @@ public class RemoteAgentManager {
         return disableP2Mirrors;
     }
 
-    // setters for DS
+    @Reference
     public void setMavenContext(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
     }
 
-    public void setMavenRepositorySettings(MavenRepositorySettings mavenRepositorySettings) {
-        this.mavenRepositorySettings = mavenRepositorySettings;
-    }
-
+    @Reference
     public void setProxyService(IProxyService proxyService) {
         this.proxyService = proxyService;
     }

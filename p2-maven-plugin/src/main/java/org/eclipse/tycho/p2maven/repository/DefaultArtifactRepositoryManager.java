@@ -10,12 +10,17 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho.p2maven.repository;
 
 import java.net.URI;
 import java.util.Map;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -24,23 +29,23 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.tycho.IRepositoryIdManager;
 
-class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
+@Component(role = IArtifactRepositoryManager.class)
+public class DefaultArtifactRepositoryManager implements IArtifactRepositoryManager, Initializable {
 
+	@Requirement
+	private IProvisioningAgent agent;
+	@Requirement
+	private IRepositoryIdManager repositoryIdManager;
     private IArtifactRepositoryManager delegate;
-    private final RemoteRepositoryLoadingHelper loadingHelper;
-
-    RemoteArtifactRepositoryManager(IArtifactRepositoryManager delegate, RemoteRepositoryLoadingHelper loadingHelper) {
-        this.delegate = delegate;
-        this.loadingHelper = loadingHelper;
-    }
 
     private URI translate(URI location) {
-        return loadingHelper.getEffectiveLocation(location);
+        return repositoryIdManager.getEffectiveLocation(location);
     }
 
     private URI translateAndPrepareLoad(URI location) throws ProvisionException {
-        return loadingHelper.getEffectiveLocationAndPrepareLoad(location);
+        return repositoryIdManager.getEffectiveLocationAndPrepareLoad(location);
     }
 
     @Override
@@ -129,5 +134,11 @@ class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
     public void setRepositoryProperty(URI location, String key, String value) {
         delegate.setRepositoryProperty(translate(location), key, value);
     }
+
+	@Override
+	public void initialize() throws InitializationException {
+		delegate = new ArtifactRepositoryManager(agent);
+
+	}
 
 }

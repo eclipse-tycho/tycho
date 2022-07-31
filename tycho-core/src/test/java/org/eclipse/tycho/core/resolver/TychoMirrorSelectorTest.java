@@ -16,6 +16,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.settings.Mirror;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.p2maven.repository.TychoMirrorSelector;
 import org.junit.Assert;
 import org.junit.Test;
 

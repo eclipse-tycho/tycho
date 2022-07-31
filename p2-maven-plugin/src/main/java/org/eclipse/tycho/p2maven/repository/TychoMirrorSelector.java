@@ -8,15 +8,15 @@
  * Contributors:
  *    Bachmann electronic GmbH. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.resolver;
+package org.eclipse.tycho.p2maven.repository;
 
 import java.util.List;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.repository.DefaultMirrorSelector;
-import org.apache.maven.repository.MirrorSelector;
+import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.StringUtils;
 
 /**
@@ -44,13 +44,15 @@ import org.codehaus.plexus.util.StringUtils;
  * (see #501809)
  *
  */
-@Component(role = MirrorSelector.class, hint = "tycho")
-public class TychoMirrorSelector extends DefaultMirrorSelector {
+@Component(role = TychoMirrorSelector.class)
+public class TychoMirrorSelector {
 
-    @Override
+	@Requirement
+	private RepositorySystem repositorySystem;
+
     public Mirror getMirror(ArtifactRepository repository, List<Mirror> mirrors) {
         // if we find a mirror the default way (the maven way) we will use that mirror
-        Mirror mavenMirror = super.getMirror(repository, mirrors);
+		Mirror mavenMirror = repositorySystem.getMirror(repository, mirrors);
         if (mavenMirror != null || mirrors == null) {
             return mavenMirror;
         }

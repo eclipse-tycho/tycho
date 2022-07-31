@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.sisu.equinox.embedder;
 
-import java.util.Dictionary;
+import java.util.Map;
 
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 
@@ -26,6 +26,6 @@ public interface EmbeddedEquinox {
 
     public <T> void registerService(Class<T> clazz, T service);
 
-    public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties);
+    <T> void registerService(Class<T> clazz, T service, Map<String, ?> properties);
 
 }

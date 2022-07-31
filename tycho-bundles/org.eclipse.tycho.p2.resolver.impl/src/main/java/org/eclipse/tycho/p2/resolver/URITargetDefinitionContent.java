@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
+import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.p2.target.TargetDefinitionContent;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.repository.p2base.artifact.repository.LazyArtifactRepository;

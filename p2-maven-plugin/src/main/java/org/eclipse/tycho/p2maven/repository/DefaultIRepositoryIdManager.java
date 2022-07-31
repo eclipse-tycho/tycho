@@ -11,7 +11,7 @@
  *    SAP AG - initial API and implementation
  *    Christoph Läubrich - Issue #797 - Implement a caching P2 transport  
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho.p2maven.repository;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,26 +19,26 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
-import org.eclipse.tycho.core.shared.MavenLogger;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.MavenRepositorySettings;
 
 /**
  * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the
  * settings.xml-configured mirrors and setting passwords.
  */
-class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
+@Component(role = IRepositoryIdManager.class)
+public class DefaultIRepositoryIdManager implements IRepositoryIdManager {
 
-    private final MavenRepositorySettings settings;
-    private final MavenLogger logger;
+	@Requirement
+	private MavenRepositorySettings settings;
+	@Requirement
+	private Logger logger;
 
     private Map<URI, String> knownMavenRepositoryIds = new ConcurrentHashMap<>();
-
-    public RemoteRepositoryLoadingHelper(MavenRepositorySettings settings, MavenLogger logger) {
-        this.settings = settings;
-        this.logger = logger;
-    }
 
     @Override
     public void addMapping(String mavenRepositoryId, URI location) {
@@ -69,7 +69,8 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
         }
     }
 
-    public URI getEffectiveLocation(URI location) {
+    @Override
+	public URI getEffectiveLocation(URI location) {
         if (certainlyNoRemoteURL(location)) {
             return location;
         }
@@ -78,13 +79,13 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
         return effectiveLocation.getURL();
     }
 
-    public URI getEffectiveLocationAndPrepareLoad(URI location) throws ProvisionException {
+	@Override
+	public URI getEffectiveLocationAndPrepareLoad(URI location) {
         if (certainlyNoRemoteURL(location)) {
             return location;
         }
-
         MavenRepositoryLocation effectiveLocation = effectiveLocationFor(location, true);
-        setPasswordForLoading(effectiveLocation);
+		setPasswordForLoading(effectiveLocation);
         return effectiveLocation.getURL();
     }
 
@@ -120,7 +121,7 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
      * specify all children in the Maven settings. This feature can easily break if repositories are
      * loaded in parallel. If this shall be supported, a lock is needed here (TODO).
      */
-    private void setPasswordForLoading(MavenRepositoryLocation location) throws ProvisionException {
+	private void setPasswordForLoading(MavenRepositoryLocation location) {
         MavenRepositorySettings.Credentials credentials = settings.getCredentials(location);
         if (credentials != null) {
             if (logger.isDebugEnabled()) {

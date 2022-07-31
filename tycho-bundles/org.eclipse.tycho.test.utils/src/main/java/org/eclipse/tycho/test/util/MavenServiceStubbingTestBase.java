@@ -14,11 +14,9 @@ package org.eclipse.tycho.test.util;
 
 import org.eclipse.core.internal.net.ProxyManager;
 import org.eclipse.core.net.proxy.IProxyService;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.p2.remote.testutil.MavenRepositorySettingsStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -38,9 +36,6 @@ public class MavenServiceStubbingTestBase {
     @Rule
     public StubServiceRegistration<MavenContext> mavenContextRegistration = new StubServiceRegistration<>(
             MavenContext.class);
-    @Rule
-    public StubServiceRegistration<MavenRepositorySettings> repositorySettingsRegistration = new StubServiceRegistration<>(
-            MavenRepositorySettings.class, new MavenRepositorySettingsStub());
     @Rule
     public StubServiceRegistration<FileLockService> fileLockServiceRegistration = new StubServiceRegistration<>(
             FileLockService.class, new NoopFileLockService());

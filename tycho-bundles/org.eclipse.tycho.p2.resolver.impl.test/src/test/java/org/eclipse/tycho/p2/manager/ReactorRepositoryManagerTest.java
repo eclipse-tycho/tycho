@@ -22,10 +22,10 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;

@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho;
 
 import java.net.URI;
 
@@ -19,5 +19,9 @@ public interface IRepositoryIdManager {
     String SERVICE_NAME = IRepositoryIdManager.class.getName();
 
     void addMapping(String id, URI location);
+
+    URI getEffectiveLocation(URI location);
+
+    URI getEffectiveLocationAndPrepareLoad(URI location);
 
 }

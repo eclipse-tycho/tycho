@@ -13,18 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
@@ -34,65 +28,35 @@ public class RemoteAgent implements IProvisioningAgent {
 
     private IProvisioningAgent delegate;
 
-    public RemoteAgent(MavenContext mavenContext, IProxyService proxyService,
-            MavenRepositorySettings mavenRepositorySettings, boolean disableMirrors) throws ProvisionException {
-        this.delegate = createConfiguredProvisioningAgent(mavenContext, proxyService, disableMirrors,
-                mavenRepositorySettings);
+    public RemoteAgent(MavenContext mavenContext, IProxyService proxyService, boolean disableMirrors)
+            throws ProvisionException {
+        this.delegate = createConfiguredProvisioningAgent(mavenContext, proxyService, disableMirrors);
     }
 
     // constructor for tests
     RemoteAgent(MavenContext mavenContext, boolean disableP2Mirrors) throws ProvisionException {
-        this(mavenContext, null, null, disableP2Mirrors);
+        this(mavenContext, null, disableP2Mirrors);
     }
 
     // constructor for tests
     public RemoteAgent(MavenContext mavenContext) throws ProvisionException {
-        this(mavenContext, null, null, false);
+        this(mavenContext, null, false);
     }
 
     private static IProvisioningAgent createConfiguredProvisioningAgent(MavenContext mavenContext,
-            IProxyService proxyService, boolean disableP2Mirrors, MavenRepositorySettings mavenRepositorySettings)
-            throws ProvisionException {
+            IProxyService proxyService, boolean disableP2Mirrors) throws ProvisionException {
         // TODO set a temporary folder as persistence location
-        AgentBuilder agent = new AgentBuilder(Activator.newProvisioningAgent());
-        if (!"ecf".equalsIgnoreCase(System.getProperty("tycho.p2.transport"))) {
-            TychoRepositoryTransport tychoRepositoryTransport = new TychoRepositoryTransport(mavenContext, proxyService,
-                    uri -> {
-                        if (mavenRepositorySettings == null) {
-                            return null;
-                        }
-                        IRepositoryIdManager repositoryIdManager = agent.getService(IRepositoryIdManager.class);
-                        Stream<MavenRepositoryLocation> locations = mavenContext.getMavenRepositoryLocations();
-                        if (repositoryIdManager instanceof RemoteRepositoryLoadingHelper) {
-                            RemoteRepositoryLoadingHelper repositoryLoadingHelper = (RemoteRepositoryLoadingHelper) repositoryIdManager;
-                            locations = Stream.concat(locations,
-                                    repositoryLoadingHelper.getKnownMavenRepositoryLocations());
-                        }
-                        String requestUri = uri.normalize().toASCIIString();
-                        return locations.sorted((loc1, loc2) -> {
-                            //we wan't the longest prefix match, so first sort all uris by their length ...
-                            String s1 = loc1.getURL().normalize().toASCIIString();
-                            String s2 = loc2.getURL().normalize().toASCIIString();
-                            return Long.compare(s2.length(), s1.length());
-                        }).filter(loc -> {
-                            String prefix = loc.getURL().normalize().toASCIIString();
-                            return requestUri.startsWith(prefix);
-                        }).map(mavenRepositorySettings::getCredentials).filter(Objects::nonNull).findFirst()
-                                .orElse(null);
-                    });
-            agent.getAgent().registerService(CacheManager.SERVICE_NAME,
-                    new TychoRepositoryTransportCacheManager(tychoRepositoryTransport, mavenContext));
-            agent.getAgent().registerService(Transport.SERVICE_NAME, tychoRepositoryTransport);
-        } else {
+        IProvisioningAgent provisioningAgent = Activator.newProvisioningAgent();
+        AgentBuilder agent = new AgentBuilder(provisioningAgent);
+        if ("ecf".equalsIgnoreCase(System.getProperty("tycho.p2.transport"))) {
             // suppress p2.index access
             final Transport transport;
             if (mavenContext.isOffline()) {
                 transport = new OfflineTransport(mavenContext);
-                agent.registerService(Transport.class, transport);
             } else {
-                transport = agent.getService(Transport.class);
+                transport = new org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport(provisioningAgent);
             }
-
+            agent.registerService(Transport.class, transport);
             // cache indices of p2 repositories in the local Maven repository
             RemoteRepositoryCacheManager cacheMgr = new RemoteRepositoryCacheManager(transport, mavenContext);
             agent.registerService(CacheManager.class, cacheMgr);
@@ -100,10 +64,6 @@ public class RemoteAgent implements IProvisioningAgent {
 
         if (disableP2Mirrors) {
             addP2MirrorDisablingRepositoryManager(agent, mavenContext.getLogger());
-        }
-
-        if (mavenRepositorySettings != null) {
-            addMavenAwareRepositoryManagers(agent, mavenRepositorySettings, mavenContext.getLogger());
         }
 
         makeCompositeRepositoryLoadingAtomicByDefault();
@@ -117,27 +77,6 @@ public class RemoteAgent implements IProvisioningAgent {
         IArtifactRepositoryManager mirrorDisablingRepoManager = new P2MirrorDisablingArtifactRepositoryManager(
                 plainRepoManager, mavenLogger);
         agent.registerService(IArtifactRepositoryManager.class, mirrorDisablingRepoManager);
-    }
-
-    private static void addMavenAwareRepositoryManagers(AgentBuilder agent,
-            MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
-
-        // register service which stores mapping between URLs and IDs (used by Maven)
-        RemoteRepositoryLoadingHelper loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings,
-                logger);
-        agent.registerService(IRepositoryIdManager.class, loadingHelper);
-
-        // wrap metadata repository manager
-        IMetadataRepositoryManager plainMetadataRepoManager = agent.getService(IMetadataRepositoryManager.class);
-        IMetadataRepositoryManager remoteMetadataRepoManager = new RemoteMetadataRepositoryManager(
-                plainMetadataRepoManager, loadingHelper, logger);
-        agent.registerService(IMetadataRepositoryManager.class, remoteMetadataRepoManager);
-
-        // wrap artifact repository manager
-        IArtifactRepositoryManager plainArtifactRepoManager = agent.getService(IArtifactRepositoryManager.class);
-        RemoteArtifactRepositoryManager remoteArtifactRepoManager = new RemoteArtifactRepositoryManager(
-                plainArtifactRepoManager, loadingHelper);
-        agent.registerService(IArtifactRepositoryManager.class, remoteArtifactRepoManager);
     }
 
     private static void makeCompositeRepositoryLoadingAtomicByDefault() {

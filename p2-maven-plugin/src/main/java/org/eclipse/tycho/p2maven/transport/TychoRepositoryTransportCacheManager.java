@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho.p2maven.transport;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,21 +21,26 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
 @SuppressWarnings("restriction")
-public class TychoRepositoryTransportCacheManager extends CacheManager {
+public class TychoRepositoryTransportCacheManager extends CacheManager implements IAgentServiceFactory {
+	// TODO rethink location... should we use one location for the agent/cache?
+	// Currently the agent uses a temp directory...
+	public static final String CACHE_RELPATH = ".cache/tycho/p2-repository-metadata";
 
     private static final List<String> EXTENSIONS = List.of(".jar", ".xml");
 
-    private MavenContext mavenContext;
     private TychoRepositoryTransport transport;
 
-    public TychoRepositoryTransportCacheManager(TychoRepositoryTransport transport, MavenContext mavenContext) {
+	private File cacheFolder;
+
+	public TychoRepositoryTransportCacheManager(TychoRepositoryTransport transport, File cacheFolder) {
         super(null, transport);
         this.transport = transport;
-        this.mavenContext = mavenContext;
+		this.cacheFolder = cacheFolder;
     }
 
     @Override
@@ -71,7 +76,12 @@ public class TychoRepositoryTransportCacheManager extends CacheManager {
 
     @Override
     protected File getCacheDirectory() {
-        return new File(mavenContext.getLocalRepositoryRoot(), RemoteRepositoryCacheManager.CACHE_RELPATH);
+		return new File(cacheFolder, CACHE_RELPATH);
     }
+
+	@Override
+	public Object createService(IProvisioningAgent agent) {
+		return this;
+	}
 
 }

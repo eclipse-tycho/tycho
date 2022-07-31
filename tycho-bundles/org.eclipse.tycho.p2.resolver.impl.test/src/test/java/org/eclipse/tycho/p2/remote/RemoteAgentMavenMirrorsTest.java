@@ -24,10 +24,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
-import org.eclipse.tycho.p2.remote.testutil.MavenRepositorySettingsStub;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
@@ -46,7 +46,6 @@ public class RemoteAgentMavenMirrorsTest {
     @Rule
     public HttpServer localServer = new HttpServer();
 
-    private MavenRepositorySettingsStub mavenRepositorySettings;
     private IProvisioningAgent subject;
 
     @Before
@@ -59,9 +58,7 @@ public class RemoteAgentMavenMirrorsTest {
                 return true;
             }
         };
-
-        mavenRepositorySettings = new MavenRepositorySettingsStub();
-        subject = new RemoteAgent(mavenContext, null, mavenRepositorySettings, OFFLINE);
+        subject = new RemoteAgent(mavenContext, null, OFFLINE);
     }
 
     @Test
@@ -81,8 +78,6 @@ public class RemoteAgentMavenMirrorsTest {
         URI originalUrl = URI.create(localServer.addServlet("original", noContent())); // will fail if used
         URI mirroredUrl = URI
                 .create(localServer.addServlet("mirrored", ResourceUtil.resourceFile("repositories/e342")));
-        prepareMavenMirrorConfiguration(repositoryId, mirroredUrl);
-
         Repositories repos = loadRepositories(repositoryId, originalUrl);
 
         assertNotNull(repos.getMetadataRepository());
@@ -96,16 +91,10 @@ public class RemoteAgentMavenMirrorsTest {
                 .create(localServer.addServlet("mirrored", ResourceUtil.resourceFile("repositories/e342")));
         String repositoryFallbackId = originalUrl.toString();
         assertFalse("self-test: fallback ID shall be URL without trailing slash", repositoryFallbackId.endsWith("/"));
-        prepareMavenMirrorConfiguration(repositoryFallbackId, mirroredUrl);
-
         Repositories repos = loadRepositories(null, originalUrl);
 
         assertNotNull(repos.getMetadataRepository());
         assertNotNull(repos.getArtifactRepository());
-    }
-
-    private void prepareMavenMirrorConfiguration(String id, URI mirrorUrl) {
-        mavenRepositorySettings.addMirror(id, mirrorUrl);
     }
 
     private File noContent() throws Exception {
