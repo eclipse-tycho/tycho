@@ -17,7 +17,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 17
@@ -34,9 +38,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml', '**/*.target') }}
+        key: ${{ runner.os }}-maven-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
         restore-keys: |
-          ${{ runner.os }}-maven-
+          ${{ runner.os }}-maven-${{ matrix.os }}-
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.4
       with:
@@ -51,7 +55,7 @@ jobs:
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
       with:
-        name: test-results
+        name: test-results-${{ matrix.os }}
         if-no-files-found: error
         path: |
           ${{ github.workspace }}/tycho-its/target/surefire-reports/*.xml
