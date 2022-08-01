@@ -15,8 +15,9 @@ package org.eclipse.tycho.p2.target;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.List;
@@ -76,11 +77,12 @@ public class TestResolverFactory implements P2ResolverFactory {
                 File file = new File(getLocalRepositoryLocation(), relativePath);
                 try {
                     file.getParentFile().mkdirs();
-                    Files.copy(Path.of(FileLocator
-                            .toFileURL(
-                                    getClass().getResource("/resources/targetresolver/stubMavenRepo/" + relativePath))
-                            .getFile()), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
+
+                    URL resourceUrl = FileLocator.toFileURL(
+                            getClass().getResource("/resources/targetresolver/stubMavenRepo/" + relativePath));
+                    File resourceFile = new File(resourceUrl.toURI());
+                    Files.copy(resourceFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } catch (URISyntaxException | IOException e) {
                     throw new DependencyResolutionException(e.getMessage(), List.of(e));
                 }
                 return List.of(new ArtifactMock(file, groupId, artifactId, version, "jar"));
