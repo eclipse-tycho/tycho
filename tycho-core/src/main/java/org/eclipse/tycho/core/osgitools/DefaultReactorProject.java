@@ -37,7 +37,8 @@ public class DefaultReactorProject implements ReactorProject {
     /**
      * Conventional key used to store ReactorProject in MavenProject.context
      */
-    private static final String CTX_REACTOR_PROJECT = "tycho.reactor-project";
+    private static final String CTX_REACTOR_PROJECT = "tycho.reactor-project."
+            + System.identityHashCode(ReactorProject.class);
 
     /**
      * Conventional key used to store dependency metadata in MavenProject.context
@@ -55,7 +56,7 @@ public class DefaultReactorProject implements ReactorProject {
             throw new NullPointerException();
         }
         this.project = project;
-        ReactorProject reactorProject = (ReactorProject) project.getContextValue(CTX_REACTOR_PROJECT);
+        ReactorProject reactorProject = getCachedValue(project);
         if (reactorProject != null) {
             this.basedir = reactorProject.getBasedir();
         } else {
@@ -69,7 +70,7 @@ public class DefaultReactorProject implements ReactorProject {
             return null;
         }
         synchronized (project) {
-            ReactorProject reactorProject = (ReactorProject) project.getContextValue(CTX_REACTOR_PROJECT);
+            ReactorProject reactorProject = getCachedValue(project);
             if (reactorProject == null) {
                 reactorProject = new DefaultReactorProject(project);
                 project.setContextValue(CTX_REACTOR_PROJECT, reactorProject);
@@ -77,6 +78,14 @@ public class DefaultReactorProject implements ReactorProject {
             return reactorProject;
         }
 
+    }
+
+    protected static ReactorProject getCachedValue(MavenProject project) {
+        Object cachedValue = project.getContextValue(CTX_REACTOR_PROJECT);
+        if (cachedValue instanceof ReactorProject) {
+            return (ReactorProject) cachedValue;
+        }
+        return null;
     }
 
     public static List<ReactorProject> adapt(MavenSession session) {
