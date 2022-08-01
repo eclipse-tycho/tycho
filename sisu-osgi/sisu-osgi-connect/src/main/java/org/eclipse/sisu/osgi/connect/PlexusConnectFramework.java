@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.sisu.osgi.connect;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
@@ -221,7 +224,7 @@ class PlexusConnectFramework
 
 	@Override
 	public Optional<Bundle> getBundle(Class<?> classFromBundle) {
-		String location = getLocationFromClass(classFromBundle);
+		URI location = getLocationFromClass(classFromBundle);
 		if (location != null) {
 			debug("Searching bundle for class " + classFromBundle + " and location " + location);
 			BundleContext bundleContext = getFramework().getBundleContext();
@@ -242,7 +245,7 @@ class PlexusConnectFramework
 		return Optional.empty();
 	}
 
-	static String getLocationFromClass(Class<?> classFromBundle) {
+	static URI getLocationFromClass(Class<?> classFromBundle) {
 		ProtectionDomain domain = classFromBundle.getProtectionDomain();
 		if (domain == null) {
 			return null;
@@ -255,11 +258,18 @@ class PlexusConnectFramework
 		if (url == null) {
 			return null;
 		}
-		return url.toString();
+		try {
+			return url.toURI().normalize();
+		} catch (URISyntaxException e) {
+			return null;
+		}
 	}
 
-	static boolean locationsMatch(String classLocation, String bundleLocation) {
-		return classLocation.endsWith(bundleLocation);
+	static boolean locationsMatch(URI location, String bundleLocation) {
+		if (bundleLocation == null) {
+			return false;
+		}
+		return location.equals(new File(bundleLocation).toURI().normalize());
 	}
 
 	@Override

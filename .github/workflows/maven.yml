@@ -50,7 +50,7 @@ jobs:
         cp toolchains-gh.xml ~/.m2/toolchains.xml
         mvn -U -V -e -B -ntp clean install --file pom.xml -T1C
     - name: Run Integration Tests
-      run: mvn -U -V -e -B -ntp -Pits -Dmaven.test.failure.ignore=true clean install --file tycho-its/pom.xml
+      run: mvn -U -V -e -B -ntp -Pits -D maven.test.failure.ignore=true clean install --file tycho-its/pom.xml
       if: github.event.pull_request.draft == false
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
@@ -60,3 +60,4 @@ jobs:
         path: |
           ${{ github.workspace }}/tycho-its/target/surefire-reports/*.xml
       if: github.event.pull_request.draft == false
+
