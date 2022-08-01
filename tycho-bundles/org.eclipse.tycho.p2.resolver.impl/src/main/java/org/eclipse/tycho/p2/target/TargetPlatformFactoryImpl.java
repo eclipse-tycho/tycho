@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,7 +112,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
 
         this.remoteAgent = remoteAgent;
-        this.remoteRepositoryIdManager = remoteAgent.getService(IRepositoryIdManager.class);
+        this.remoteRepositoryIdManager = Objects.requireNonNull(remoteAgent.getService(IRepositoryIdManager.class),
+                "IRepositoryIdManager not registered with agent " + remoteAgent + "!");
         this.offline = mavenContext.isOffline();
 
         this.remoteMetadataRepositoryManager = remoteAgent.getService(IMetadataRepositoryManager.class);
