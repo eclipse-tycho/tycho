@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 
 	private Map<ClassRealm, List<String>> realmBundles = new HashMap<>();
 
-	private String frameworkBundle;
+	private URI frameworkBundle;
 
 	private Set<String> installedSingletons = new HashSet<String>();
 
