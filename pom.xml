@@ -505,6 +505,7 @@
 		<module>tycho-gpg-plugin</module>
 		<module>tycho-extras</module>
 		<module>tycho-build</module>
+		<module>tycho-apitools-plugin</module>
 	</modules>
 
 	<profiles>
