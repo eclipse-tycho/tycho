@@ -34,10 +34,15 @@ public class IncludeLaunchersTest extends AbstractTychoIntegrationTest {
 
 		File targetdir = new File(verifier.getBasedir(), "target");
 		File binaryDir = new File(targetdir, "repository/binary/");
-		File file = new File(binaryDir, "includedLauncher.executable.gtk.linux.x86_64_1.0.0");
+		String executable;
+		if (SystemUtils.IS_OS_WINDOWS) {
+			executable = "includedLauncher.executable.win32.win32.x86_64_1.0.0";
+		} else {
+			executable = "includedLauncher.executable.gtk.linux.x86_64_1.0.0";
+		}
+		File file = new File(binaryDir, executable);
 		assertTrue("Directory " + binaryDir.getAbsolutePath() + " is not a directory", binaryDir.isDirectory());
-		assertTrue("File " + file.getAbsolutePath() + " do not exits, but " + listFiles(binaryDir) + " (is windows="
-				+ SystemUtils.IS_OS_WINDOWS + ", is linux =" + SystemUtils.IS_OS_LINUX + ")", file.isFile());
+		assertTrue("File " + file.getAbsolutePath() + " do not exits, but " + listFiles(binaryDir), file.isFile());
 
 	}
 
