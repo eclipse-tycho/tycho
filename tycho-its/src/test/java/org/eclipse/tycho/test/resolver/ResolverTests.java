@@ -13,7 +13,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -44,7 +47,16 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("resolver.usesConstraintViolations");
 		verifier.executeGoal("compile");
-		verifier.verifyErrorFreeLog();
+		List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+
+		for (int i = 0; i < lines.size(); i++) {
+			String line = lines.get(i);
+			// A hack to keep stupid velocity resource loader errors from triggering failure
+			if (Verifier.stripAnsi(line).contains("[ERROR]")) {
+				throw new VerificationException("Error in execution: "
+						+ IntStream.range(i, lines.size()).mapToObj(lines::get).collect(Collectors.joining("\r\n")));
+			}
+		}
 	}
 
 	/**
