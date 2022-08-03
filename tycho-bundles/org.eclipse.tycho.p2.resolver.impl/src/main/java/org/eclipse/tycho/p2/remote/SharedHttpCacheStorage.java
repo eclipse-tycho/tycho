@@ -161,8 +161,8 @@ public class SharedHttpCacheStorage {
     }
 
     private synchronized CacheLine getCacheLine(URI uri) {
-        File file = new File(cacheConfig.location,
-                uri.normalize().toASCIIString().replace(':', '/').replaceAll("/+", "/"));
+        File file = new File(cacheConfig.location, uri.normalize().toASCIIString().replace(':', '/').replace('?', '/')
+                .replace('&', '/').replaceAll("/+", "/"));
         File location;
         try {
             location = file.getCanonicalFile();
