@@ -56,6 +56,7 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -68,7 +69,6 @@ import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
-import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
@@ -104,7 +104,7 @@ import org.osgi.framework.Version;
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
 
     private static final Collection<String> OSGI_ANNOTATION_PACKAGES = List.of("org.osgi.annotation.bundle",
-            "org.osgi.annotation.versioning");
+            "org.osgi.annotation.versioning", "org.osgi.service.component.annotations");
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/osgiBundle";
     private static final String CTX_ARTIFACT_KEY = CTX_OSGI_BUNDLE_BASENAME + "/artifactKey";
     private static final String CTX_MAVEN_SESSION = CTX_OSGI_BUNDLE_BASENAME + "/mavenSession";
@@ -618,43 +618,63 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         Collections.singletonList(location), null));
             }
         }
+        for (var entry : getAnnotationArtifacts(project).entrySet()) {
+            String pkg = entry.getKey();
+            ResolvedArtifactKey artifactKey = entry.getValue();
+            DefaultAccessRule rule = new DefaultAccessRule(pkg.replace('.', '/') + "/*", false);
+            logger.debug("Resolved " + pkg + " to " + artifactKey.getId() + " " + artifactKey.getVersion() + " "
+                    + artifactKey.getLocation());
+            classpath.add(new DefaultClasspathEntry(null, artifactKey,
+                    Collections.singletonList(artifactKey.getLocation()), List.of(rule)));
+        }
+    }
+
+    /**
+     * Resolves the default OSGi annotation artifacts for this project depending on the projects
+     * target platform
+     * 
+     * @param project
+     *            the project to resolve the annotation artifacts for
+     * @return a mapping of a package name to a resolved artifactkey
+     */
+    public Map<String, ResolvedArtifactKey> getAnnotationArtifacts(ReactorProject project) {
+        Map<String, ResolvedArtifactKey> map = new LinkedHashMap<>();
         TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(project);
         if (tp != null) {
-            try {
-                DeclarativeServicesConfiguration configuration = dsConfigReader
-                        .getConfiguration(getMavenProject(project));
-                if (configuration != null && configuration.isAddToClasspath()) {
-                    org.osgi.framework.Version specificationVersion = configuration.getSpecificationVersion();
-                    ArtifactKey dsJar = tp.resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
-                            "org.osgi.service.component.annotations",
-                            "[" + specificationVersion + "," + (specificationVersion.getMajor() + 1) + ".0.0)");
-                    File location = tp.getArtifactLocation(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
-                            dsJar.getId(), dsJar.getVersion()));
-                    logger.debug("Resolved declarative service specification " + specificationVersion + " to "
-                            + dsJar.getId() + " " + dsJar.getVersion() + " " + location);
-                    DefaultAccessRule rule = new DefaultAccessRule("org/osgi/service/component/annotations/*", false);
-                    classpath.add(
-                            new DefaultClasspathEntry(null, dsJar, Collections.singletonList(location), List.of(rule)));
-                }
-            } catch (IOException e) {
-                logger.warn("Can't read Declarative Services Configuration: " + e.getMessage(), e);
-            } catch (IllegalArtifactReferenceException | DependencyResolutionException e) {
-                logger.warn("Can't find declarative service specification in target platform: " + e.getMessage(), e);
-            }
             for (String annotationPackage : OSGI_ANNOTATION_PACKAGES) {
                 try {
                     ArtifactKey annotationJar = tp.resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
                             annotationPackage, Version.emptyVersion.toString());
                     File location = tp.getArtifactLocation(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
                             annotationJar.getId(), annotationJar.getVersion()));
-                    DefaultAccessRule rule = new DefaultAccessRule(annotationPackage.replace('.', '/') + "/*", false);
-                    classpath.add(new DefaultClasspathEntry(null, annotationJar, Collections.singletonList(location),
-                            List.of(rule)));
+                    map.put(annotationPackage, new ResolvedArtifactKey() {
+
+                        @Override
+                        public String getVersion() {
+                            return annotationJar.getVersion();
+                        }
+
+                        @Override
+                        public String getType() {
+                            return annotationJar.getType();
+                        }
+
+                        @Override
+                        public String getId() {
+                            return annotationJar.getId();
+                        }
+
+                        @Override
+                        public File getLocation() {
+                            return location;
+                        }
+                    });
                 } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
                     logger.debug("Can't find package " + annotationPackage + " in target platform");
                 }
             }
         }
+        return map;
     }
 
     protected DefaultClasspathEntry addBundleToClasspath(ArtifactDescriptor matchingBundle, String path) {
