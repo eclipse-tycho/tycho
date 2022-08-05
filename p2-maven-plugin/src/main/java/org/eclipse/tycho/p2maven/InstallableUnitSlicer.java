@@ -12,6 +12,9 @@ package org.eclipse.tycho.p2maven;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -22,6 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -60,6 +64,29 @@ public class InstallableUnitSlicer {
 			log.debug("There are warnings from the slicer: " + sliceStatus);
 		}
 		return slice.query(QueryUtil.createIUAnyQuery(), monitor);
+	}
+
+	public IQueryResult<IInstallableUnit> computeDirectDependencies(Collection<IInstallableUnit> rootIus,
+			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+		Collection<IInstallableUnit> result = new LinkedHashSet<>();
+		List<IRequirement> collect = rootIus.stream().flatMap(iu -> iu.getRequirements().stream()).filter(req -> {
+			for (IInstallableUnit unit : rootIus) {
+				if (unit.satisfies(req)) {
+					// self full filled requirement
+					return false;
+				}
+			}
+			return true;
+		}).collect(Collectors.toList());
+		outer: for (IInstallableUnit iu : avaiableIUs.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet()) {
+			for (IRequirement requirement : collect) {
+				if (iu.satisfies(requirement)) {
+					result.add(iu);
+					continue outer;
+				}
+			}
+		}
+		return new CollectionResult<IInstallableUnit>(result);
 	}
 
 	private final class TychoSlicer extends PermissiveSlicer {
