@@ -16,6 +16,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -49,7 +52,7 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 	public void testDSComponents() throws Exception {
 		Verifier verifier = getVerifier("tycho-ds", false, true);
 		verifier.setSystemProperty("repo-url", EnvironmentUtil.ECLIPSE_LATEST);
-		verifier.executeGoal("package");
+		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		File generated = new File(verifier.getBasedir(), "target/classes/OSGI-INF");
 		assertTrue(new File(generated, "tycho.ds.TestComponent.xml").isFile());
@@ -59,8 +62,19 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testOSGiAnnotations() throws Exception {
 		Verifier verifier = getVerifier("compiler.annotations", false, true);
-		verifier.executeGoal("package");
+		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
+		File dependencies = new File(verifier.getBasedir(), "target/dependencies-list.txt");
+		assertTrue(dependencies.getAbsoluteFile() + " not found!", dependencies.isFile());
+		List<String> lines = Files.readAllLines(dependencies.toPath());
+		String collect = lines.stream().collect(Collectors.joining(",\r\n"));
+		// TODO we should possibly accept others that supply the ds annotations here?
+		assertTrue("org.eclipse.osgi.services not found in dependencies: " + collect,
+				lines.stream().anyMatch(s -> s.contains("org.eclipse.osgi.services")));
+		assertTrue("org.osgi.annotation.bundle not found in dependencies: " + collect,
+				lines.stream().anyMatch(s -> s.contains("org.osgi.annotation.bundle")));
+		assertTrue("org.osgi.annotation.versioning not found in dependencies: " + collect,
+				lines.stream().anyMatch(s -> s.contains("org.osgi.annotation.versioning")));
 	}
 
 }

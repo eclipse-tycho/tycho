@@ -13,9 +13,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
@@ -24,6 +30,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 
 @SuppressWarnings("restriction")
@@ -41,9 +48,27 @@ public class ArtifactMatcher {
         IQueryResult<IInstallableUnit> matchingIUs = query.perform(candidateUnits.iterator());
         if (matchingIUs.isEmpty()) {
             return null;
-        } else {
-            return matchingIUs.iterator().next();
         }
+        Set<IInstallableUnit> ius = matchingIUs.toSet();
+        if (ius.size() == 1) {
+            return ius.iterator().next();
+        }
+        if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(type)) {
+            return ius.stream().flatMap(iu -> getPackageVersion(iu, id).map(v -> new SimpleEntry<>(iu, v)).stream())
+                    .max((o1, o2) -> {
+                        return o1.getValue().compareTo(o2.getValue());
+                    }).map(Entry::getKey).orElse(null);
+        } else {
+            return ius.iterator().next();
+        }
+    }
+
+    private static Optional<Version> getPackageVersion(IInstallableUnit unit, String packageName) {
+
+        return unit.getProvidedCapabilities().stream()
+                .filter(capability -> PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(capability.getNamespace()))
+                .filter(capability -> packageName.equals(capability.getName())).map(IProvidedCapability::getVersion)
+                .max(Comparator.naturalOrder());
     }
 
     public static Version parseAsOSGiVersion(String version) throws IllegalArtifactReferenceException {
