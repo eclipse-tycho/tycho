@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src/main/java/"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry exported="true" kind="lib" path="jars/surefire-booter-3.0.0-M5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/surefire-api-3.0.0-M5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/surefire-logger-api-3.0.0-M5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/surefire-extensions-api-3.0.0-M5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/common-java5-3.0.0-M5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/maven-surefire-common-3.0.0-M5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/maven-failsafe-plugin-3.0.0-M5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/surefire-shared-utils-3.0.0-M5.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

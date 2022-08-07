@@ -3,3 +3,10 @@ bin/
 *.iml
 .idea/
 .tycho-consumer-pom.xml
+## Debug files created by tycho
+pom-model.xml
+pom-model-final.xml
+pom-model-classic.xml
+project-dependencies.xml
+project-units.xml
+requirements.txt
