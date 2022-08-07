@@ -13,10 +13,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +54,8 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
@@ -140,7 +146,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                         Model model = project.getModel();
                         Set<String> existingDependencies = model.getDependencies().stream().map(dep -> getKey(dep))
                                 .collect(Collectors.toCollection(HashSet::new));
-                        for (MavenProject dependencyProject : closure.getDependencyProjects(project)) {
+                        Collection<MavenProject> dependencyProjects = closure.getDependencyProjects(project);
+                        for (MavenProject dependencyProject : dependencyProjects) {
                             Dependency dependency = new Dependency();
                             dependency.setArtifactId(dependencyProject.getArtifactId());
                             dependency.setGroupId(dependencyProject.getGroupId());
@@ -155,7 +162,14 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                         }
                         if (DUMP_DATA) {
                             try {
+                                Set<MavenProject> visited = new HashSet<>();
                                 modelWriter.write(new File(project.getBasedir(), "pom-model.xml"), Map.of(), model);
+                                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                                        new FileOutputStream(new File(project.getBasedir(), "requirements.txt"))))) {
+                                    writer.write(project.getId() + ":\r\n");
+                                    dumpProjectRequirements(project, writer, closure, dependencyProjects, "\t",
+                                            visited);
+                                }
                             } catch (IOException e) {
                             }
                         }
@@ -168,6 +182,27 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             // build failure is not an internal (unexpected) error, so avoid printing a stack
             // trace by wrapping it in MavenExecutionException   
             throw new MavenExecutionException(e.getMessage(), e);
+        }
+    }
+
+    private void dumpProjectRequirements(MavenProject project, BufferedWriter writer, ProjectDependencyClosure closure,
+            Collection<MavenProject> dependencyProjects, String indent, Set<MavenProject> visited) throws IOException {
+        if (visited.add(project)) {
+            List<IRequirement> projectRequirements = closure.getProjectUnits(project).stream()
+                    .flatMap(iu -> iu.getRequirements().stream()).collect(Collectors.toList());
+            String indent2 = indent + "\t";
+            for (MavenProject dependency : dependencyProjects) {
+                writer.write(indent + " depends on " + dependency.getId() + ":\r\n");
+                for (IRequirement requirement : projectRequirements) {
+                    List<IInstallableUnit> satisfies = closure.getProjectUnits(dependency).stream()
+                            .filter(iu -> iu.satisfies(requirement)).collect(Collectors.toList());
+                    for (IInstallableUnit satIU : satisfies) {
+                        writer.write(indent2 + "provides " + satIU + " that satisfies " + requirement + "\r\n");
+                    }
+                }
+                dumpProjectRequirements(dependency, writer, closure, closure.getDependencyProjects(dependency), indent2,
+                        visited);
+            }
         }
     }
 

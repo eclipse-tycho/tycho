@@ -178,7 +178,7 @@ public class MavenProjectDependencyProcessor {
 			return Collections.emptyList();
 		}
 		Set<IInstallableUnit> resolved = new LinkedHashSet<IInstallableUnit>(
-				slicer.computeDependencies(projectUnits, avaiableIUs).toSet());
+				slicer.computeDirectDependencies(projectUnits, avaiableIUs).toSet());
 		resolved.removeAll(projectUnits);
 		// now we need to filter all fragments that we are a host!
 		// for example SWT creates an explicit requirement to its fragments and we don't
