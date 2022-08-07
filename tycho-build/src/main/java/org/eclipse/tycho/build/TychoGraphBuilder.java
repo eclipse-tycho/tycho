@@ -13,7 +13,7 @@
 package org.eclipse.tycho.build;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,6 +50,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
+import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencies;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.sonatype.maven.polyglot.mapping.Mapping;
@@ -151,12 +152,12 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 			if (loggerAdapter.isExtendedDebugEnabled()) {
 				for (MavenProject project : projects) {
-					Collection<IInstallableUnit> depends = dependencyClosure.getProjectDependecies(project);
-					if (depends.isEmpty()) {
+					ProjectDependencies depends = dependencyClosure.getProjectDependecies(project);
+					if (depends.getDependencies().isEmpty()) {
 						continue;
 					}
 					loggerAdapter.debug("[[ project " + project.getName() + " depends on: ]]");
-					for (IInstallableUnit dependency : depends) {
+					for (IInstallableUnit dependency : depends.getDependencies()) {
 						Optional<MavenProject> mavenProject = dependencyClosure.getProject(dependency);
 						if (mavenProject.isEmpty()) {
 							loggerAdapter.debug(" IU: " + dependency);
@@ -215,6 +216,14 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		}
 
 		try {
+			log.debug("=============== SELECTED PROJECTS ==================");
+
+			selectedProjects.stream()
+					.sorted(Comparator.comparing(MavenProject::getGroupId, String.CASE_INSENSITIVE_ORDER)
+							.thenComparing(MavenProject::getArtifactId, String.CASE_INSENSITIVE_ORDER))
+					.forEachOrdered(p -> {
+						log.debug(p.getId());
+					});
 			return Result.success(new DefaultProjectDependencyGraph(projects, selectedProjects));
 		} catch (DuplicateProjectException | CycleDetectedException e) {
 			log.error("Can't compute project dependency graph", e);
