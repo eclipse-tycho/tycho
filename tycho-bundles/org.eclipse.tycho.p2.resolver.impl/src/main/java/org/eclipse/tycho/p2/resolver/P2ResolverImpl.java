@@ -236,7 +236,7 @@ public class P2ResolverImpl implements P2Resolver {
             newState = strategy.resolve(environment, monitor);
             if (pomDependencies != PomDependencies.ignore) {
                 Collection<IRequirement> missingRequirements = data.getMissingRequirements();
-                if (missingRequirements.size() > 0) {
+                if (!missingRequirements.isEmpty()) {
                     logger.info(
                             "The following requirements are not satisfied yet and must be provided through pom dependencies:");
                     for (IRequirement requirement : missingRequirements) {
