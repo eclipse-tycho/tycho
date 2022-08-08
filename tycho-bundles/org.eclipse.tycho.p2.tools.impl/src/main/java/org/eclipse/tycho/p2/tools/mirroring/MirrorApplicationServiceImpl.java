@@ -291,7 +291,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                 result.addAll(querySourceIus(Collections.singletonList(new IUDescription(unitId, null)),
                         sourceRepository, sourceRepositoryNames));
             } else {
-                result.add((IInstallableUnit) seed.getInstallableUnit());
+                result.add(seed.getInstallableUnit());
             }
         }
 

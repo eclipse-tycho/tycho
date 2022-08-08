@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -110,7 +110,7 @@ public class BaselineServiceImpl implements BaselineService {
         Map<String, IP2Artifact> result = new LinkedHashMap<>();
 
         for (Map.Entry<String, IP2Artifact> reactorArtifact : reactor.entrySet()) {
-            IArtifactDescriptor descriptor = (IArtifactDescriptor) reactorArtifact.getValue().getArtifactDescriptor();
+            IArtifactDescriptor descriptor = reactorArtifact.getValue().getArtifactDescriptor();
 
             IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(baselineArtifacts, descriptor);
             if (baselineDescriptor == null) {
@@ -148,9 +148,7 @@ public class BaselineServiceImpl implements BaselineService {
             }
 
             List<IInstallableUnit> units = new ArrayList<>();
-            for (Object _unit : reactorArtifact.getValue().getInstallableUnits()) {
-                IInstallableUnit unit = (IInstallableUnit) _unit;
-
+            for (IInstallableUnit unit : reactorArtifact.getValue().getInstallableUnits()) {
                 IInstallableUnit baselineUnit = getBaselineUnit(baselineUnits, unit.getId(), unit.getVersion());
                 if (baselineUnit != null) {
                     units.add(baselineUnit);

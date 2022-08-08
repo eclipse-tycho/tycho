@@ -208,7 +208,6 @@ public class P2ResolverImpl implements P2Resolver {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     protected P2ResolutionResult resolveDependencies(Collection<IInstallableUnit> rootUIs, ReactorProject project,
             AbstractResolutionStrategy strategy, TargetEnvironment environment, P2TargetPlatform targetPlatform,
             Set<IInstallableUnit> usedTargetPlatformUnits) {
@@ -216,8 +215,8 @@ public class P2ResolverImpl implements P2Resolver {
 
         Set<IInstallableUnit> availableUnits = targetPlatform.getInstallableUnits();
         if (project != null) {
-            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(DependencyMetadataType.SEED));
-            Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
+            data.setRootIUs(project.getDependencyMetadata(DependencyMetadataType.SEED));
+            Collection<IInstallableUnit> projectSecondaryIUs = project
                     .getDependencyMetadata(DependencyMetadataType.RESOLVE);
             if (!projectSecondaryIUs.isEmpty()) {
                 availableUnits = new LinkedHashSet<>(availableUnits);
@@ -369,12 +368,11 @@ public class P2ResolverImpl implements P2Resolver {
                 + ", required is " + P2TargetPlatform.class);
     }
 
-    @SuppressWarnings("unchecked")
     private static Set<IInstallableUnit> getProjectUnits(ReactorProject project) {
         if (project == null) {
             return Collections.emptySet();
         } else {
-            return (Set<IInstallableUnit>) project.getDependencyMetadata();
+            return project.getDependencyMetadata();
         }
     }
 
