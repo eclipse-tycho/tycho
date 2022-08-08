@@ -433,7 +433,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                     || reactorIUIDs.contains(unit.getId())) {
                 // TODO debug log output?
                 iter.remove();
-                continue;
             }
         }
 
