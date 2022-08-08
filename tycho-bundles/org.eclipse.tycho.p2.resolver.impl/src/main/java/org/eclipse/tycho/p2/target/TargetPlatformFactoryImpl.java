@@ -447,7 +447,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     private static boolean isPartialIU(IInstallableUnit iu) {
-        return Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue();
+        return Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU));
     }
 
     static int countElements(Iterator<?> iterator) {
