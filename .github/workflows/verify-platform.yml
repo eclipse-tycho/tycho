@@ -61,6 +61,7 @@ jobs:
       run: >- 
         mvn -U -V -e -B -ntp
         --global-toolchains ${{ github.workspace }}/tycho/toolchains-gh.xml
-        --file pom.xml
+        --file pom.xml ${{ github.workspace }}/tycho/.github/settings.xml
+        --settings 
         -DskipTests
         clean verify

@@ -1,0 +1,12 @@
+<server>
+  <id>central</id>
+  <configuration>
+    <httpConfiguration>
+      <all>
+        <connectionTimeout>120000</connectionTimeout>
+        <readTimeout>120000</readTimeout>
+      </all>
+    </httpConfiguration>
+  </configuration>
+</server>
+
