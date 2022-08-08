@@ -184,9 +184,11 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
 		Verifier verifier = getVerifier("newattachedartifact", baselineRepo);
 
 		verifier.addCliOption("-Dtycho.baseline=failCommon");
-
-		verifier.executeGoals(List.of("clean", "package"));
-
+		try {
+			verifier.executeGoals(List.of("clean", "package"));
+		} catch (VerificationException expected) {
+			//
+		}
 		verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
 	}
 
