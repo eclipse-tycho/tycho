@@ -388,9 +388,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<>();
 
         for (ReactorProject project : reactorProjects) {
-            @SuppressWarnings("unchecked")
-            Set<IInstallableUnit> projectIUs = (Set<IInstallableUnit>) project
-                    .getDependencyMetadata(DependencyMetadataType.INITIAL);
+            Set<IInstallableUnit> projectIUs = project.getDependencyMetadata(DependencyMetadataType.INITIAL);
 
             if (projectIUs == null)
                 continue;
