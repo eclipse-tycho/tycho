@@ -120,8 +120,24 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                 // skip packed artifacts
                 continue;
             }
-            var file = new File(repository,
-                    "plugins/" + artifact.getAttribute("id") + '_' + artifact.getAttribute("version") + ".jar");
+            /*
+             * Different types of artifact have different locations in the repo. So we need to check
+             * the classifier to correctly get the location of the jar file.
+             * 
+             * Could potentially do this dynamically based on the mappings attribute with the repo.
+             */
+            String subDir = null;
+            switch (artifact.getAttribute("classifier")) {
+            case "osgi.bundle":
+                subDir = "plugins";
+                break;
+            case "org.eclipse.update.feature": //Not yet signing features
+            case "binary": //Not yet signing binaries
+            default:
+                continue; // Skip signing
+            }
+            var file = new File(repository, subDir + File.separator + artifact.getAttribute("id") + '_'
+                    + artifact.getAttribute("version") + ".jar");
             if (!file.canRead()) {
                 continue;
             }
