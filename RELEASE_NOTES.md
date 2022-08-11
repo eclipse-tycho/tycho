@@ -6,6 +6,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Migration guide 3.x > 4.x
 
+#### Properties for tycho-surefire-plugin's 'useUIThread' and 'useUIHarness' parameters
+
+The configuration parameters `useUIThread` and `useUIHarness` parameter of the `tycho-surefire-plugin` can now be set via the properties `tycho.surefire.useUIHarness` respectively `tycho.surefire.useUIThread`.
+
 #### Minimum version for running integration/plugin tests
 
 Previously the `osgibooter` has claimed to be Java 1.5 compatible but as such old JVMs are hard to find/test against already some newer code was slipping in. It was therefore decided to raise the minimum requirement to Java 1.8 what implicitly makes it the lowest bound for running integration/plugin tests with Tycho.

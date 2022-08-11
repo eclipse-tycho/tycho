@@ -107,7 +107,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     private static final String SYSTEM_JDK = "jdk";
 
-    private static String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, signals start with 1
+    private static final String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, signals start with 1
             "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL", "SIGUSR1",
             "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
             "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH",
@@ -310,13 +310,13 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     /**
      * Run tests using UI (true) or headless (false) test harness.
      */
-    @Parameter(defaultValue = "false")
+    @Parameter(property = "tycho.surefire.useUIHarness", defaultValue = "false")
     private boolean useUIHarness;
 
     /**
      * Run tests in UI (true) or background (false) thread. Only applies to UI test harness.
      */
-    @Parameter(defaultValue = "true")
+    @Parameter(property = "tycho.surefire.useUIThread", defaultValue = "true")
     private boolean useUIThread;
 
     /**
