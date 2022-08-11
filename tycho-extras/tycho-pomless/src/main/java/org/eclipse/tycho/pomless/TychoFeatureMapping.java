@@ -17,6 +17,7 @@ package org.eclipse.tycho.pomless;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.function.Supplier;
 
@@ -32,6 +33,18 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
     private static final String NAME_PREFIX = "[feature] ";
     private static final String FEATURE_XML = "feature.xml";
     public static final String PACKAGING = "eclipse-feature";
+
+    @Override
+    protected String getPackaging() {
+        return PACKAGING;
+    }
+
+    @Override
+    public float getPriority() {
+        // It is important that this mapping has a higher priority than the 'XmlMapping' provided by polyglot. 
+        // Otherwise it can happen that the the pom.xml reader is used to read the feature.xml which will break the build!
+        return +1;
+    }
 
     @Override
     protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
@@ -54,7 +67,7 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
 
     @Override
     protected boolean isValidLocation(String location) {
-        return location.endsWith(FEATURE_XML);
+        return Path.of(location).endsWith(FEATURE_XML);
     }
 
     @Override
@@ -64,11 +77,6 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
             return featureXml;
         }
         return null;
-    }
-
-    @Override
-    protected String getPackaging() {
-        return PACKAGING;
     }
 
 }

@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -36,9 +38,8 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 	public void testPomlessTestPluginDetection() throws Exception {
 
 		Verifier verifier = getVerifier("pomless-tests", false, true);
-		verifier.executeGoals(List.of("clean", "test"));
+		verifier.executeGoals(List.of("clean", "compile"));
 		verifier.verifyErrorFreeLog();
-		verifier.verifyTextInLog("");
 
 		Map<Path, ModelData> projectData = extractPomModelProperties(verifier);
 
@@ -76,6 +77,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		// -> Plug-ins, Features, Products(Repos), Targets, Aggregators
 		// - tycho.pomless.parent is considered
 		// - explicit pom.xml is always preferred
+		// - arbitrary aggregator directories are supported without special setup
 
 		Verifier verifier = getVerifier("pomless-model", false, true);
 		verifier.executeGoals(List.of("clean", "package"));
@@ -130,6 +132,21 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 				"aggregator3-pomless");
 
 		assertThat(projectData, is(aMapWithSize(0))); // Ensure no more projects are found
+
+		// Ensure that only those aggregator-directories that are listed as modules in
+		// the parent (and don't have a pom) are scanned for nested modules.
+		List<String> logLines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+		String logPrefix = "\\[\\w*] *";
+		Pattern scaned = Pattern.compile(logPrefix + "Scanning folder (.*) for modules");
+		Pattern skipped = Pattern.compile(logPrefix + "Skip nested folder while scanning for modules (.*)");
+		assertMentionedDirectories(List.of("bundles", "bundles-with-enhanced-parents"), scaned, logLines);
+		assertMentionedDirectories(List.of("target", "otherFolder", "target"), skipped, logLines);
+	}
+
+	private void assertMentionedDirectories(List<String> expected, Pattern filePattern, List<String> lines) {
+		List<String> scanned = lines.stream().map(filePattern::matcher).filter(Matcher::matches).map(m -> m.group(1))
+				.map(f -> new File(f).getName()).toList();
+		assertEquals(expected, scanned);
 	}
 
 	private static void assertProjectData(String path, Map<Path, ModelData> projectData, String expectedGAV,

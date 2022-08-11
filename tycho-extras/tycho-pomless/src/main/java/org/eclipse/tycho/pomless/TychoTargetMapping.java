@@ -38,6 +38,11 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
+    public float getPriority() {
+        return -2;
+    }
+
+    @Override
     protected boolean isValidLocation(String location) {
         return location.endsWith(TARGET_EXTENSION);
     }

@@ -54,7 +54,6 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     // All build.properties entries specifically considered by Tycho. Extends the list in Mapping interface
     protected static final String TYCHO_POMLESS_PARENT_PROPERTY = "tycho.pomless.parent";
-    protected static final String TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY = "tycho.pomless.aggregator.names";
 
     private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, "..");
     private static final String QUALIFIER_SUFFIX = ".qualifier";
@@ -231,11 +230,6 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         } catch (ComponentLookupException e) {
         }
         return reference;
-    }
-
-    @Override
-    public float getPriority() {
-        return 0;
     }
 
     @Override

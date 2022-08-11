@@ -61,6 +61,11 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
+    public float getPriority() {
+        return -1;
+    }
+
+    @Override
     protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
         if (artifactFile.getName().endsWith(PRODUCT_EXTENSION)) {
             File projectRoot = artifactFile.getParentFile();

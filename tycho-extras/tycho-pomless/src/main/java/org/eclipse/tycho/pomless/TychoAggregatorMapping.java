@@ -23,8 +23,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,14 +44,22 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
 
     private static final String TYCHO_POM = "pom.tycho";
 
-    private static final Set<String> COMMON_NAMES = new HashSet<>(
-            Arrays.asList(System.getProperty(TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY,
-                    "bundles,plugins,tests,features,sites,products,releng").split(",")));
+    @Override
+    protected String getPackaging() {
+        return "pom";
+    }
+
+    @Override
+    public float getPriority() {
+        return -10f;
+    }
 
     @Override
     protected boolean isValidLocation(String location) {
-        return location.endsWith(TYCHO_POM);
+        return Path.of(location).endsWith(TYCHO_POM);
     }
+
+    private static final ThreadLocal<Boolean> IS_FIRST = ThreadLocal.withInitial(() -> true);
 
     @Override
     protected File getPrimaryArtifact(File dir) {
@@ -60,7 +67,8 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
         if (file.exists() && isCurrent(file)) {
             return file;
         }
-        if (COMMON_NAMES.contains(dir.getName().toLowerCase())) {
+        if (IS_FIRST.get().booleanValue()) {
+            IS_FIRST.set(false);
             logger.debug("Scanning folder " + dir + " for modules");
             File[] subFolders = dir.listFiles((FileFilter) File::isDirectory);
             if (subFolders != null) {
@@ -73,6 +81,7 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
                         logger.debug("Found pom " + reference.getPomFile().getName() + " in subfolder " + name);
                     }
                 }
+                IS_FIRST.remove();
                 if (!modules.isEmpty()) {
                     file.deleteOnExit();
                     Stream<CharSequence> lines = concat(of(TYCHO_AUTOMATIC_GENERATED_FILE_HEADER), modules.stream());
@@ -85,14 +94,11 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
                 }
             }
         } else {
-            logger.debug("Skip folder " + dir + " because it does not match any common name " + COMMON_NAMES);
+            // For performance reasons only scan for directly nested (non-aggregator) modules.
+            // Otherwise folders without projects in an aggr-folder are fully traversed (e.g. a 'target'-folder within the aggregator).
+            logger.debug("Skip nested folder while scanning for modules " + dir);
         }
         return null;
-    }
-
-    @Override
-    protected String getPackaging() {
-        return "pom";
     }
 
     @Override
@@ -108,11 +114,6 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
             model.setArtifactId(artifactFile.getParentFile().getName());
             model.setName("[aggregator] " + model.getArtifactId());
         }
-    }
-
-    @Override
-    public float getPriority() {
-        return -10f;
     }
 
     private boolean isCurrent(File file) {
