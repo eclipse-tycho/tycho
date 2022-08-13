@@ -35,6 +35,7 @@ import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.model.ProductConfiguration.ProductType;
 import org.eclipse.tycho.model.UpdateSite;
 
 public abstract class AbstractArtifactDependencyWalker implements ArtifactDependencyWalker {
@@ -43,11 +44,11 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
     private final TargetEnvironment[] environments;
 
-    public AbstractArtifactDependencyWalker(DependencyArtifacts artifacts) {
+    protected AbstractArtifactDependencyWalker(DependencyArtifacts artifacts) {
         this(artifacts, null);
     }
 
-    public AbstractArtifactDependencyWalker(DependencyArtifacts artifacts, TargetEnvironment[] environments) {
+    protected AbstractArtifactDependencyWalker(DependencyArtifacts artifacts, TargetEnvironment[] environments) {
         this.artifacts = artifacts;
         this.environments = environments;
     }
@@ -114,11 +115,13 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
     protected void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor,
             WalkbackPath visited) {
-        if (product.useFeatures()) {
+        ProductType type = product.getType();
+        if (type == ProductType.FEATURES || type == ProductType.MIXED) {
             for (FeatureRef ref : product.getFeatures()) {
                 traverseFeature(ref, visitor, visited);
             }
-        } else {
+        }
+        if (type == ProductType.BUNDLES || type == ProductType.MIXED) {
             for (PluginRef ref : product.getPlugins()) {
                 traversePlugin(ref, visitor, visited);
             }

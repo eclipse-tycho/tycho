@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="test" uid="org.eclipse.tycho.p2.impl.test.rcp-feature" version="1.0.0.qualifier" application="test" useFeatures="true" includeLaunchers="true">
+<product name="test" uid="org.eclipse.tycho.p2.impl.test.rcp-feature-2" version="1.0.0.qualifier" application="test" type="features" includeLaunchers="true">
 
    <plugins> <!-- shall not be used -->
       <plugin id="included.bundle"/>
