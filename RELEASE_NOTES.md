@@ -4,6 +4,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Support for Eclipse-Products with mixed Features and Plugins
+
+Tycho now supports building _mixed_ Products. In mixed Products both the listed features and listed plug-ins are installed.
+Therefore the Product attribute `type` is now supported, which can have the values `bundles`, `features` and `mixed` and takes precedence over the boolean-valued `useFeatures` attribute.
+
 ### New API Tools Mojo
 
 Tycho now provides a new API Tools Mojo, see https://github.com/eclipse/tycho/tree/master/tycho-its/projects/api-tools for an example how to use it.
