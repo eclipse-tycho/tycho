@@ -30,18 +30,13 @@ public class Java7ResolutionTest extends AbstractTychoIntegrationTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		buildResult = new Java7ResolutionTest().runBuild();
-	}
-
-	public File runBuild() throws Exception {
-		Verifier verifier = getVerifier("eeProfile.java7", false);
+		Verifier verifier = new Java7ResolutionTest().getVerifier("eeProfile.java7", false);
 
 		verifier.executeGoal("verify");
 
 		// with bug 384494, the product could not be materialized
 		verifier.verifyErrorFreeLog();
-
-		return new File(verifier.getBasedir());
+		buildResult = new File(verifier.getBasedir());
 	}
 
 	@Test
