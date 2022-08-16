@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <!--org.eclipse.rcp include a bundle with the same ID & version, which triggers #1261 -->
+   <feature id="org.eclipse.rcp"/>
+</site>
