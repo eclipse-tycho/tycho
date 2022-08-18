@@ -1,0 +1,17 @@
+Import-Package: \
+	org.junit.jupiter.api.*;version='[5.9,6)',\
+	org.junit.runner.*;resolution:=optional;version='[4.12,5)',\
+	org.junit.runners.*;resolution:=optional;version='[4.12,5)',\
+	org.junit.experimental.categories;resolution:=optional;version='[4.12,5)',\
+	org.junit.internal.*;version='[4.12,5)';resolution:=optional,\
+	org.junit;resolution:=optional;version='[4.12,5)',\
+	junit.runner;resolution:=optional;version='[4.12,5)',\
+	!org.apache.maven.surefire.*,\
+	!org.apache.maven.plugin.surefire.*,\
+	*
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+# The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.
+# (This is checked in the tycho-surefire-plugin's pom.xml. See execution 'enforce-runtime-jdk-compatibility'.)
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+-removeheaders: Tool, Bnd-*, Created-By, Private-Package
+-fixupmessages "Classes found in the wrong directory"; is:=warning
