@@ -234,11 +234,6 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     }
 
     @Override
-    public float getPriority() {
-        return 0;
-    }
-
-    @Override
     public String getFlavour() {
         return getPackaging();
     }

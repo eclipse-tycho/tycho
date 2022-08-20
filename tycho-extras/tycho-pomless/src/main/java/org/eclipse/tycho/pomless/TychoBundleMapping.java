@@ -47,6 +47,16 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     private static final String PACKAGING_TEST = "eclipse-test-plugin";
 
     @Override
+    protected String getPackaging() {
+        return PACKAGING;
+    }
+
+    @Override
+    public float getPriority() {
+        return 40;
+    }
+
+    @Override
     protected boolean isValidLocation(String location) {
         File polyglotFile = new File(location);
         return polyglotFile.getName().equals(META_INF_DIRECTORY) && new File(polyglotFile, MANIFEST_MF).isFile();
@@ -59,11 +69,6 @@ public class TychoBundleMapping extends AbstractTychoMapping {
             return metaInfDirectory;
         }
         return null;
-    }
-
-    @Override
-    protected String getPackaging() {
-        return PACKAGING;
     }
 
     @Override

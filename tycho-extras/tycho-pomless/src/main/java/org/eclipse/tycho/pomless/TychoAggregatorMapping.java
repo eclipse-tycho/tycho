@@ -23,8 +23,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,9 +43,18 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
 
     private static final String TYCHO_POM = "pom.tycho";
 
-    private static final Set<String> COMMON_NAMES = new HashSet<>(
-            Arrays.asList(System.getProperty(TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY,
-                    "bundles,plugins,tests,features,sites,products,releng").split(",")));
+    private static final Set<String> COMMON_NAMES = Set.of(System.getProperty(TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY,
+            "bundles,plugins,tests,features,sites,products,releng").split(","));
+
+    @Override
+    protected String getPackaging() {
+        return "pom";
+    }
+
+    @Override
+    public float getPriority() {
+        return -10;
+    }
 
     @Override
     protected boolean isValidLocation(String location) {
@@ -91,11 +98,6 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
     }
 
     @Override
-    protected String getPackaging() {
-        return "pom";
-    }
-
-    @Override
     protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
         logger.debug("Generate aggregator pom for " + artifactFile);
         try (BufferedReader reader = new BufferedReader(artifactReader)) {
@@ -108,11 +110,6 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
             model.setArtifactId(artifactFile.getParentFile().getName());
             model.setName("[aggregator] " + model.getArtifactId());
         }
-    }
-
-    @Override
-    public float getPriority() {
-        return -10f;
     }
 
     private boolean isCurrent(File file) {

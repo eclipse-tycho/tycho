@@ -34,6 +34,16 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
     public static final String PACKAGING = "eclipse-feature";
 
     @Override
+    protected String getPackaging() {
+        return PACKAGING;
+    }
+
+    @Override
+    public float getPriority() {
+        return 30;
+    }
+
+    @Override
     protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
         model.setArtifactId(getRequiredXMLAttributeValue(xml, "id"));
         model.setVersion(getPomVersion(getRequiredXMLAttributeValue(xml, "version")));
@@ -64,11 +74,6 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
             return featureXml;
         }
         return null;
-    }
-
-    @Override
-    protected String getPackaging() {
-        return PACKAGING;
     }
 
 }
