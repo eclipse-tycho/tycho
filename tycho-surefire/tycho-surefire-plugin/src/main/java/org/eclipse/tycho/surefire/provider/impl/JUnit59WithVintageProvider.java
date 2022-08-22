@@ -49,7 +49,7 @@ public class JUnit59WithVintageProvider extends AbstractJUnitProvider {
 
     @Override
     public List<Dependency> getRequiredBundles() {
-        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit59withvintage"));
+        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit58withvintage"));
     }
 
     @Override
