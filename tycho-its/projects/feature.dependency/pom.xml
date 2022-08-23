@@ -10,6 +10,7 @@
 		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
 		<orbit-url>https://download.eclipse.org/tools/orbit/downloads/2022-03/</orbit-url>
 		<includePlugins>false</includePlugins>
+		<includeFeatures>false</includeFeatures>
 	</properties>
 
 	<repositories>
@@ -44,6 +45,7 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<includeRequiredPlugins>${includePlugins}</includeRequiredPlugins>
+					<includeRequiredFeatures>${includeFeatures}</includeRequiredFeatures>
 				</configuration>
 			</plugin>
 		</plugins>
