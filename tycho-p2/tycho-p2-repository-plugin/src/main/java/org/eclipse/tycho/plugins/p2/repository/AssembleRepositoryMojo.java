@@ -95,6 +95,45 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     /**
      * <p>
+     * By default, only included plugins of a feature are included in the repository, setting this
+     * to true will also include plugins mentioned in the dependencies section of a feature
+     * </p>
+     * <h2>Important Notes:</h2>
+     * <p>
+     * Due to <a href="https://github.com/eclipse-equinox/p2/issues/138">current restrictions of P2
+     * requirement model</a> even if this is disabled, plugins with a strict version range are
+     * <b>always</b> included, even if they are part of the dependencies of a feature!
+     * </p>
+     * <p>
+     * Due to <a href="https://github.com/eclipse-equinox/p2/issues/139">current data structure
+     * restrictions of P2 Slicer</a> also transitive dependencies of a plugin might be included and
+     * not only the dependency plugin itself!
+     * </p>
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeRequiredPlugins;
+    /**
+     * <p>
+     * By default, only included features of a feature are included in the repository, setting this
+     * to true will also include features mentioned in the dependencies section.
+     * </p>
+     * <h2>Important Notes:</h2>
+     * <p>
+     * Due to <a href="https://github.com/eclipse-equinox/p2/issues/138">current restrictions of P2
+     * requirement model</a> even if this is disabled, features with a strict version range are
+     * <b>always</b> included, even if they are part of the dependencies of a feature!
+     * </p>
+     * <p>
+     * Due to <a href="https://github.com/eclipse-equinox/p2/issues/139">current data structure
+     * restrictions of P2 Slicer</a> also transitive dependencies of a feature are included and not
+     * only the feature itself!
+     * </p>
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeRequiredFeatures;
+
+    /**
+     * <p>
      * Compress the repository index files <tt>content.xml</tt> and <tt>artifacts.xml</tt>.
      * </p>
      */
@@ -176,7 +215,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
                         !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryRefrences);
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                        includeAllDependencies, includeAllSources, profileProperties);
+                        includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
+                        profileProperties);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Could not assemble p2 repository", e);
             }

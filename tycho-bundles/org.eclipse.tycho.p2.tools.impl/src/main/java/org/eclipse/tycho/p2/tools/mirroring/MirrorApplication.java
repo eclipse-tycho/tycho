@@ -54,6 +54,8 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
     private final Map<String, String> extraArtifactRepositoryProperties;
     private final List<RepositoryReference> repositoryReferences;
     private boolean includeAllSource;
+    private boolean includeRequiredBundles;
+    private boolean includeRequiredFeatures;
 
     public MirrorApplication(IProvisioningAgent agent, Map<String, String> extraArtifactRepositoryProperties,
             List<RepositoryReference> repositoryReferences) {
@@ -87,29 +89,51 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
                 onlyFilteredRequirements) {
             @Override
             protected boolean isApplicable(IInstallableUnit iu, IRequirement req) {
-                if (QueryUtil.isGroup(iu)) {
+                if ((includeRequiredBundles || includeRequiredFeatures) && QueryUtil.isGroup(iu)) {
                     if (req instanceof IRequiredCapability) {
-                        if (IInstallableUnit.NAMESPACE_IU_ID.equals(((IRequiredCapability) req).getNamespace())) {
-                            if (!includeOptionalDependencies) {
-                                if (req.getMin() == 0) {
+                        IRequiredCapability capability = (IRequiredCapability) req;
+                        if (IInstallableUnit.NAMESPACE_IU_ID.equals(capability.getNamespace())) {
+                            boolean isFeature = capability.getName().endsWith(".feature.group");
+                            if ((isFeature && includeRequiredFeatures) || (!isFeature && includeRequiredBundles)) {
+                                if (!includeOptionalDependencies) {
+                                    if (req.getMin() == 0) {
+                                        return false;
+                                    }
+                                }
+                                IMatchExpression<IInstallableUnit> filter = req.getFilter();
+                                if (considerFilter) {
+                                    if (onlyFilteredRequirements && filter == null) {
+                                        return false;
+                                    }
+                                    boolean filterMatches = filter == null || filter.isMatch(selectionContext);
+                                    if (filterMatches) {
+                                    }
+                                    return filterMatches;
+                                }
+                                if (filter == null && onlyFilteredRequirements) {
                                     return false;
                                 }
+                                return true;
                             }
-                            IMatchExpression<IInstallableUnit> filter = req.getFilter();
-                            if (considerFilter) {
-                                if (onlyFilteredRequirements && filter == null) {
-                                    return false;
-                                }
-                                return filter == null || filter.isMatch(selectionContext);
-                            }
-                            if (filter == null && onlyFilteredRequirements) {
-                                return false;
-                            }
-                            return true;
                         }
                     }
                 }
-                return super.isApplicable(iu, req);
+                return super.isApplicable(req);
+            }
+
+            @Override
+            protected void processIU(IInstallableUnit iu) {
+                super.processIU(iu);
+            }
+
+            @Override
+            protected boolean isApplicable(IInstallableUnit iu) {
+                return super.isApplicable(iu);
+            }
+
+            @Override
+            protected boolean isApplicable(IRequirement req) {
+                throw new UnsupportedOperationException("should never be called!");
             }
 
             @Override
@@ -178,6 +202,14 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
 
     public void setIncludeSources(boolean includeAllSource) {
         this.includeAllSource = includeAllSource;
+    }
+
+    public void setIncludeRequiredBundles(boolean includeRequiredBundles) {
+        this.includeRequiredBundles = includeRequiredBundles;
+    }
+
+    public void setIncludeRequiredFeatures(boolean includeRequiredFeatures) {
+        this.includeRequiredFeatures = includeRequiredFeatures;
     }
 
 }

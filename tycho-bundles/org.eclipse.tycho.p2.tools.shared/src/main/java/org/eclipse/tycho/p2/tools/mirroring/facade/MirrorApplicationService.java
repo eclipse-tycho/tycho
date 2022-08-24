@@ -50,6 +50,10 @@ public interface MirrorApplicationService {
      *            Whether to include all transitive dependencies
      * @param includeAllSource
      *            Whether to include all possible sources
+     * @param includeRequiredBundles
+     *            Whether to include bundles mentioned in the require section of a feature
+     * @param includeRequiredFeatures
+     *            Whether to include features mentioned in the require section of a feature
      * @param filterProperties
      *            additional filter properties to be set in the p2 slicing options. May be
      *            <code>null</code>
@@ -58,7 +62,8 @@ public interface MirrorApplicationService {
      */
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> seeds, BuildContext context, boolean includeAllDependencies,
-            boolean includeAllSource, Map<String, String> filterProperties) throws FacadeException;
+            boolean includeAllSource, boolean includeRequiredBundles, boolean includeRequiredFeatures,
+            Map<String, String> filterProperties) throws FacadeException;
 
     /**
      * recreates the metadata of an existing repository e.g. to account for changes in the contained
