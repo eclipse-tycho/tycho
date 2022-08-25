@@ -26,9 +26,6 @@
 
 	<modules>
 		<module>tycho-bundles-target</module>
-		<!-- non-Tycho bundles in the Tycho's OSGi runtime -->
-		<module>tycho-bundles-external</module>
-
 		<!-- classes shared between Maven and OSGi class loaders -->
 		<module>org.eclipse.tycho.embedder.shared</module>
 		<module>org.eclipse.tycho.core.shared</module>
