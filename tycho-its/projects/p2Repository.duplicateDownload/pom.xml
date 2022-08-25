@@ -10,7 +10,7 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<properties>
-		<tycho-version>3.0.0-SNAPSHOT</ttycho-version>
+		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
 	</properties>
 	
 <pluginRepositories>
