@@ -2,6 +2,12 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 2.7.5
+
+Fixes:
+
+- [reverted] Not all (direct) requirements of a feature are considered when building an update-site
+
 ## 2.7.4
 
 Fixes:

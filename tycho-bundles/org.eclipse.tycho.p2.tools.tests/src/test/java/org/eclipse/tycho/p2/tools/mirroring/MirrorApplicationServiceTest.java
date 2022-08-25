@@ -144,7 +144,7 @@ public class MirrorApplicationServiceTest {
         subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo, seedFor(FEATURE_PATCH_IU), context, false,
                 false, null);
 
-        //TODO why mirror tool emits a warning here?        logVerifier.expectNoWarnings();
+        logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
         assertTrue(repoFile(destinationRepo, "features/" + FEATURE_PATCH + "_1.0.0.jar").exists());
     }
