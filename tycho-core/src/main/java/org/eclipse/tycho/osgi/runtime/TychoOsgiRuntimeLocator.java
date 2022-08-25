@@ -102,16 +102,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
 
         MavenSession session = buildContext.getSession();
 
-        TychoOsgiRuntimeArtifacts framework = runtimeArtifacts.get(TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK);
-        if (framework != null) {
-            addRuntimeArtifacts(workspaceLocator, description, session, framework);
-        }
-        if (forked) {
-            TychoOsgiRuntimeArtifacts shared = runtimeArtifacts.get(TychoOsgiRuntimeArtifacts.HINT_SHARED);
-            if (framework != null) {
-                addRuntimeArtifacts(workspaceLocator, description, session, shared);
-            }
-        } else {
+        if (!forked) {
             for (String systemPackage : SYSTEM_PACKAGES_EXTRA) {
                 description.addExtraSystemPackage(systemPackage);
             }

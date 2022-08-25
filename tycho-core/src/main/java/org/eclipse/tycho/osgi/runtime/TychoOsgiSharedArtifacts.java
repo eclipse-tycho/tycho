@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.core.utils.TychoVersion;
 
 @Component(role = TychoOsgiRuntimeArtifacts.class, hint = TychoOsgiRuntimeArtifacts.HINT_SHARED)
 public class TychoOsgiSharedArtifacts implements TychoOsgiRuntimeArtifacts {
@@ -24,17 +23,6 @@ public class TychoOsgiSharedArtifacts implements TychoOsgiRuntimeArtifacts {
 
     static {
         ARTIFACTS = new ArrayList<>();
-
-        String tychoVersion = TychoVersion.getTychoVersion();
-
-        ARTIFACTS.add(TychoOsgiRuntimeArtifacts.newDependency("org.eclipse.tycho", "org.eclipse.tycho.core.shared",
-                tychoVersion, "jar"));
-        ARTIFACTS.add(TychoOsgiRuntimeArtifacts.newDependency("org.eclipse.tycho", "org.eclipse.tycho.embedder.shared",
-                tychoVersion, "jar"));
-        ARTIFACTS.add(TychoOsgiRuntimeArtifacts.newDependency("org.eclipse.tycho",
-                "org.eclipse.tycho.p2.resolver.shared", tychoVersion, "jar"));
-        ARTIFACTS.add(TychoOsgiRuntimeArtifacts.newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.tools.shared",
-                tychoVersion, "jar"));
     }
 
     @Override

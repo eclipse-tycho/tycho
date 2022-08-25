@@ -50,13 +50,6 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-testing-harness</artifactId>
 			<scope>test</scope>
-			</dependency>
-		<dependency>
-		<!-- workaround for 393663 -->
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-bundles-external</artifactId>
-			<type>zip</type>
-			<scope>test</scope>
 		</dependency>
 	         <!-- begin  workaround for 393663 -->
 		<dependency>
