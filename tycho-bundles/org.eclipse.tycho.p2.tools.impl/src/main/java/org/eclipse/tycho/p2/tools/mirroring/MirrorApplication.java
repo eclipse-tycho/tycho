@@ -19,19 +19,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
-import org.eclipse.equinox.internal.p2.director.Slicer;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.Mirroring;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
-import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -66,46 +59,6 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
         extraArtifactRepositoryProperties.entrySet()
                 .forEach(entry -> result.setProperty(entry.getKey(), entry.getValue()));
         return result;
-    }
-
-    @Override
-    protected Slicer createSlicer(SlicingOptions options) {
-        Map<String, String> context = options.getFilter();
-        boolean includeOptionalDependencies = options.includeOptionalDependencies();
-        boolean onlyFilteredRequirements = options.followOnlyFilteredRequirements();
-        boolean considerFilter = (context != null && context.size() > 1) ? true : false;
-        PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), context,
-                includeOptionalDependencies, options.isEverythingGreedy(), options.forceFilterTo(),
-                options.considerStrictDependencyOnly(), onlyFilteredRequirements) {
-            @Override
-            protected boolean isApplicable(IInstallableUnit iu, IRequirement req) {
-                if (QueryUtil.isGroup(iu)) {
-                    if (req instanceof IRequiredCapability) {
-                        if (IInstallableUnit.NAMESPACE_IU_ID.equals(((IRequiredCapability) req).getNamespace())) {
-                            if (!includeOptionalDependencies) {
-                                if (req.getMin() == 0) {
-                                    return false;
-                                }
-                            }
-                            IMatchExpression<IInstallableUnit> filter = req.getFilter();
-                            if (considerFilter) {
-                                if (onlyFilteredRequirements && filter == null) {
-                                    return false;
-                                }
-                                return filter == null || filter.isMatch(selectionContext);
-                            }
-                            if (filter == null && onlyFilteredRequirements) {
-                                return false;
-                            }
-                            return true;
-                        }
-                    }
-                }
-                return super.isApplicable(iu, req);
-            }
-
-        };
-        return slicer;
     }
 
     @Override
