@@ -10,7 +10,7 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.publisher;
+package org.eclipse.tycho.p2maven.tools;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +52,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.tycho.p2maven.advices.PGPSignatureAdvice;
 import org.osgi.framework.BundleException;
 
 @SuppressWarnings("restriction")

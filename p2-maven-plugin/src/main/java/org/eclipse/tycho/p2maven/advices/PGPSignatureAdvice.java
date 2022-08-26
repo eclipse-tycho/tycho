@@ -10,7 +10,7 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.publisher;
+package org.eclipse.tycho.p2maven.advices;
 
 import java.util.Map;
 
