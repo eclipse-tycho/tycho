@@ -36,6 +36,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
@@ -69,10 +71,13 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
+import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplication;
 
 /**
  * <p>
@@ -191,10 +196,10 @@ public class MavenP2SiteMojo extends AbstractMojo {
     private RepositorySystem repositorySystem;
 
     @Component
-    private P2ApplicationLauncher launcher;
+    private MavenProjectHelper projectHelper;
 
     @Component
-    private MavenProjectHelper projectHelper;
+    private IProvisioningAgent agent;
 
     /**
      * The output directory of the jar file
@@ -227,6 +232,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        //fetch a random service to make sure OSGi framework is there ... even if the service is (yet) not used
+        agent.getService(IArtifactRepositoryManager.class);
         logger.debug("categoryName =        " + categoryName);
         logger.debug("includeDependencies = " + includeDependencies);
         logger.debug("includeManaged =      " + includeManaged);
@@ -345,7 +352,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 }
             }
         }
+        //TODO actually we should be able to pass all that stuff directly to the application!
         File publicKeysFile = null;
+        Builder<Object> arguments = Stream.builder();
         if (publicKeys.size() > 0) {
             try {
                 publicKeysFile = File.createTempFile("publicKeys", ".pgp");
@@ -354,32 +363,43 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 try (OutputStream out = new ArmoredOutputStream(new FileOutputStream(publicKeysFile))) {
                     collection.encode(out);
                 }
-                launcher.addArguments("-publicKeys", publicKeysFile.getAbsolutePath());
+                arguments.add("-publicKeys");
+                arguments.add(publicKeysFile.getAbsolutePath());
             } catch (IOException | PGPException e) {
                 throw new MojoExecutionException("failed to generate public-key section", e);
             }
         }
         destination.mkdirs();
-        launcher.setWorkingDirectory(destination);
-        launcher.setApplicationName("org.eclipse.tycho.p2.tools.publisher.TychoFeaturesAndBundlesPublisher");
-        launcher.addArguments("-artifactRepository", destination.toURI().toString(), //
-                "-metadataRepository", destination.toURI().toString(), //
-                "-apublish", "false", //
-                "-bundles", //
-                bundlesFile.getAbsolutePath(), //
-                "-advices", //
-                advicesFile.getAbsolutePath(), //
-                "-signatures", //
-                signaturesFile.getAbsolutePath(), //
-                "-categoryDefinition", //
-                categoryURI, //
-                "-artifactRepositoryName", //
-                project.getName(), //
-                "-metadataRepositoryName", //
-                project.getName(), //
-                "-rules", //
+        arguments.add("-artifactRepository");
+        arguments.add(destination.toURI().toString());
+        arguments.add("-metadataRepository");
+        arguments.add(destination.toURI().toString());
+        arguments.add("-apublish");
+        arguments.add("false");
+        arguments.add("-bundles");
+
+        arguments.add(bundlesFile.getAbsolutePath());
+        arguments.add("-advices");
+        arguments.add(advicesFile.getAbsolutePath());
+        arguments.add("-signatures");
+        arguments.add(signaturesFile.getAbsolutePath());
+        arguments.add("-categoryDefinition");
+        arguments.add(categoryURI);
+        arguments.add("-artifactRepositoryName");
+        arguments.add(project.getName());
+        arguments.add("-metadataRepositoryName");
+        arguments.add(project.getName());
+        arguments.add("-rules");
+        arguments.add(
                 "(&(classifier=osgi.bundle));mvn:${maven.groupId}:${maven.artifactId}:${maven.version}:${maven.extension}:${maven.classifier}");
-        int result = launcher.execute(timeoutInSeconds);
+
+        TychoFeaturesAndBundlesPublisherApplication application = new TychoFeaturesAndBundlesPublisherApplication();
+        Object result;
+        try {
+            result = application.run(arguments.build().toArray(String[]::new));
+        } catch (Exception e) {
+            throw new MojoFailureException(e);
+        }
         for (File file : advices) {
             file.delete();
         }
@@ -389,7 +409,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         if (publicKeysFile != null) {
             publicKeysFile.delete();
         }
-        if (result != 0) {
+        if (result != IApplication.EXIT_OK) {
             throw new MojoFailureException("P2 publisher return code was " + result);
         }
         ZipArchiver archiver = new ZipArchiver();
