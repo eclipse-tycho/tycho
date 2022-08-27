@@ -13,19 +13,16 @@
 package org.eclipse.tycho.surefire.provisioning;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
@@ -51,12 +48,11 @@ public class ProvisionedInstallationBuilder {
         this.workingDir = workingDir;
     }
 
-    public ProvisionedInstallationBuilder(BundleReader bundleReader, DirectorRuntime directorRuntime,
-            P2ApplicationLauncher launcher, Logger log) {
+    public ProvisionedInstallationBuilder(BundleReader bundleReader, DirectorRuntime directorRuntime, Logger log) {
         this.log = log;
         this.bundleReader = bundleReader;
         this.directorRuntime = directorRuntime;
-        this.bundlesPublisher = new BundlesPublisher(launcher, log);
+        this.bundlesPublisher = new BundlesPublisher(log);
     }
 
     public void addMetadataRepositories(List<URI> uris) {
@@ -101,18 +97,17 @@ public class ProvisionedInstallationBuilder {
         this.installFeatures = installFeatures;
     }
 
-    public EquinoxInstallation install() throws MojoFailureException, MojoExecutionException, IOException {
+    public EquinoxInstallation install() throws Exception {
         validate();
         publishPlainBundleJars();
         executeDirector();
         return new ProvisionedEquinoxInstallation(effectiveDestination, bundleReader);
     }
 
-    private void publishPlainBundleJars() throws MojoFailureException, MojoExecutionException, IOException {
+    private void publishPlainBundleJars() throws Exception {
         if (bundleJars.isEmpty()) {
             return;
         }
-        bundlesPublisher.setWorkingDir(workingDir);
         for (File bundle : bundleJars) {
             bundlesPublisher.addBundle(bundle);
         }

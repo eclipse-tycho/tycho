@@ -12,13 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire.provisioning;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import static org.junit.Assert.assertEquals;
 
 public class ProvisionedInstallationBuilderTest {
 
@@ -27,7 +27,7 @@ public class ProvisionedInstallationBuilderTest {
 
     @Test
     public void setDestination_LayoutNormal() throws Exception {
-        ProvisionedInstallationBuilder builder = new ProvisionedInstallationBuilder(null, null, null, null);
+        ProvisionedInstallationBuilder builder = new ProvisionedInstallationBuilder(null, null, null);
 
         File work = tempDir.newFolder("work");
         builder.setDestination(work);
@@ -36,7 +36,7 @@ public class ProvisionedInstallationBuilderTest {
 
     @Test
     public void setDestination_LayoutMacOS() throws Exception {
-        ProvisionedInstallationBuilder builder = new ProvisionedInstallationBuilder(null, null, null, null);
+        ProvisionedInstallationBuilder builder = new ProvisionedInstallationBuilder(null, null, null);
 
         File work = tempDir.newFolder("work.app");
         builder.setDestination(work);
