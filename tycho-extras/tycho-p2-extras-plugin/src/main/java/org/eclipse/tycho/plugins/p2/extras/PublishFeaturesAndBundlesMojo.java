@@ -13,8 +13,8 @@
 package org.eclipse.tycho.plugins.p2.extras;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -25,7 +25,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherApplication;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 
 /**
  * This goal invokes the feature and bundle publisher on a folder.
@@ -34,7 +37,6 @@ import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
  */
 @Mojo(name = "publish-features-and-bundles")
 public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
-    private static String CONTENT_PUBLISHER_APP_NAME = "org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher";
 
     /**
      * Location of the metadata repository to write. The AssembleRepositoryMojo of
@@ -84,18 +86,11 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
     @Parameter(defaultValue = "")
     private String additionalArgs;
 
-    /**
-     * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the
-     * process, never timing out.
-     */
-    @Parameter(property = "p2.timeout", defaultValue = "0")
-    private int forkedProcessTimeoutInSeconds;
-
     @Parameter(property = "project")
     private MavenProject project;
 
     @Component
-    private P2ApplicationLauncher launcher;
+    private IProvisioningAgent agent;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -111,23 +106,25 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
             List<String> contentArgs = new ArrayList<>();
             contentArgs.add("-source");
             contentArgs.add(sourceRepositoryDir.toString());
+            agent.getService(IArtifactRepositoryManager.class); //force init P2 services
+            FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
+            List<String> arguments = new ArrayList<String>();
+            arguments.add("-artifactRepository");
+            arguments.add(artifactRepositoryDir.toURL().toString());
+            arguments.add("-metadataRepository");
+            arguments.add(metadataRepositoryDir.toURL().toString());
+            arguments.addAll(Arrays.asList(getPublishArtifactFlag()));
+            arguments.addAll(Arrays.asList(getAppendFlag()));
+            arguments.addAll(Arrays.asList(getCompressFlag()));
+            arguments.addAll(Arrays.asList(getAdditionalArgs()));
+            arguments.addAll(Arrays.asList(contentArgs.toArray(new String[contentArgs.size()])));
 
-            launcher.setWorkingDirectory(project.getBasedir());
-            launcher.setApplicationName(CONTENT_PUBLISHER_APP_NAME);
-            launcher.addArguments("-artifactRepository", artifactRepositoryDir.toURL().toString(), //
-                    "-metadataRepository", metadataRepositoryDir.toURL().toString());
-            launcher.addArguments(getPublishArtifactFlag());
-            launcher.addArguments(getAppendFlag());
-            launcher.addArguments(getCompressFlag());
-            launcher.addArguments(getAdditionalArgs());
-            launcher.addArguments(contentArgs.toArray(new String[contentArgs.size()]));
-
-            int result = launcher.execute(forkedProcessTimeoutInSeconds);
-            if (result != 0) {
+            Object result = application.run(arguments.toArray(String[]::new));
+            if (result != IApplication.EXIT_OK) {
                 throw new MojoFailureException("P2 publisher return code was " + result);
             }
-        } catch (IOException ioe) {
-            throw new MojoExecutionException("Unable to execute the publisher", ioe);
+        } catch (Exception ioe) {
+            throw new MojoFailureException("Unable to execute the publisher", ioe);
         }
     }
 
