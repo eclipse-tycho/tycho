@@ -15,12 +15,13 @@ package org.eclipse.tycho.plugins.p2;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
+import org.eclipse.equinox.internal.p2.updatesite.CategoryPublisherApplication;
 
 /**
  * Adds category IUs to existing metadata repository.
@@ -35,14 +36,16 @@ public class CategoryP2MetadataMojo extends AbstractP2MetadataMojo {
     private File categoryDefinition;
 
     @Override
-    protected String getPublisherApplication() {
-        return "org.eclipse.equinox.p2.publisher.CategoryPublisher";
+    protected CategoryPublisherApplication getPublisherApplication() {
+        return new CategoryPublisherApplication();
     }
 
     @Override
-    protected void addArguments(P2ApplicationLauncher cli) throws IOException, MalformedURLException {
-        cli.addArguments("-metadataRepository", getUpdateSiteLocation().toURL().toExternalForm(), //
-                "-categoryDefinition", categoryDefinition.toURL().toExternalForm());
+    protected void addArguments(List<String> arguments) throws IOException, MalformedURLException {
+        arguments.add("-metadataRepository");
+        arguments.add(getUpdateSiteLocation().toURL().toExternalForm());
+        arguments.add("-categoryDefinition");
+        arguments.add(categoryDefinition.toURL().toExternalForm());
     }
 
     @Override

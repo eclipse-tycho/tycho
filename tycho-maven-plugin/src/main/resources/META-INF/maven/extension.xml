@@ -13,6 +13,7 @@
     <exportedPackage>org.eclipse.equinox.p2.publisher</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.publisher.eclipse</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.query</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.internal.p2.updatesite</exportedPackage>
     <!-- other  -->
     <exportedPackage>de.pdark.decentxml</exportedPackage>
   </exportedPackages>

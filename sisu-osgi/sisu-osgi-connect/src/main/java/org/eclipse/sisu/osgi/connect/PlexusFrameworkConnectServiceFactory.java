@@ -125,9 +125,10 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 				"javax.security.auth.x500;version=\"1.3.0\", org.slf4j;version=\"1.7.37\"");
 		p.put("osgi.framework.useSystemProperties", "false");
 		p.put("osgi.parentClassloader", "fwk");
-		p.put(Constants.FRAMEWORK_STORAGE,
-				System.getProperty("java.io.tmpdir") + File.separator + "plexus.osgi." + UUID.randomUUID());
+		String storagePath = System.getProperty("java.io.tmpdir") + File.separator + "plexus.osgi." + UUID.randomUUID();
+		p.put(Constants.FRAMEWORK_STORAGE, storagePath + File.separator + "storage");
 		p.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "6");
+		p.put("osgi.instance.area", storagePath + File.separator + "instance");
 		ServiceLoader<ConnectFrameworkFactory> sl = ServiceLoader.load(ConnectFrameworkFactory.class,
 				getClass().getClassLoader());
 		ConnectFrameworkFactory factory = sl.iterator().next();

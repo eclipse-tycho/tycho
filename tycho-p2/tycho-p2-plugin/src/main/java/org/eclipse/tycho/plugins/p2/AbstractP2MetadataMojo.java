@@ -15,14 +15,16 @@ package org.eclipse.tycho.plugins.p2;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.core.maven.P2ApplicationLauncher;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
 
 public abstract class AbstractP2MetadataMojo extends AbstractMojo {
 
@@ -66,15 +68,11 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private boolean compressRepository;
 
-    @Component
-    private P2ApplicationLauncher launcher;
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!generateP2Metadata) {
             return;
         }
-
         try {
             if (getUpdateSiteLocation().isDirectory()) {
                 generateMetadata();
@@ -93,37 +91,40 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
     }
 
     private void generateMetadata() throws Exception {
-        P2ApplicationLauncher launcher = this.launcher;
+        List<String> arguments = new ArrayList<String>();
 
-        launcher.setWorkingDirectory(project.getBasedir());
-        launcher.setApplicationName(getPublisherApplication());
-
-        addArguments(launcher);
+        addArguments(arguments);
 
         if (argLine != null && !argLine.trim().isEmpty()) {
             // TODO does this really do anything???
-            launcher.addArguments("-vmargs", argLine);
+            arguments.add("-vmargs");
+            arguments.add(argLine);
         }
 
-        int result = launcher.execute(forkedProcessTimeoutInSeconds);
-        if (result != 0) {
+        Object result = getPublisherApplication().run(arguments.toArray(String[]::new));
+        if (result != IApplication.EXIT_OK) {
             throw new MojoFailureException("P2 publisher return code was " + result);
         }
     }
 
-    protected void addArguments(P2ApplicationLauncher launcher) throws IOException, MalformedURLException {
-        launcher.addArguments("-source", getUpdateSiteLocation().getAbsolutePath(), //
-                "-metadataRepository", getUpdateSiteLocation().toURL().toExternalForm(), //
-                "-metadataRepositoryName", metadataRepositoryName, //
-                "-artifactRepository", getUpdateSiteLocation().toURL().toExternalForm(), //
-                "-artifactRepositoryName", artifactRepositoryName, //
-                "-noDefaultIUs");
+    protected void addArguments(List<String> arguments) throws IOException, MalformedURLException {
+        arguments.add("-source");
+        arguments.add(getUpdateSiteLocation().getAbsolutePath());
+        arguments.add("-metadataRepository");
+        arguments.add(getUpdateSiteLocation().toURL().toExternalForm());
+        arguments.add("-metadataRepositoryName");
+        arguments.add(metadataRepositoryName);
+        arguments.add("-artifactRepository");
+        arguments.add(getUpdateSiteLocation().toURL().toExternalForm());
+        arguments.add("-artifactRepositoryName");
+        arguments.add(artifactRepositoryName);
+        arguments.add("-noDefaultIUs");
         if (compressRepository) {
-            launcher.addArguments("-compress");
+            arguments.add("-compress");
         }
     }
 
-    protected abstract String getPublisherApplication();
+    protected abstract AbstractPublisherApplication getPublisherApplication();
 
     protected File getUpdateSiteLocation() {
         return target;
