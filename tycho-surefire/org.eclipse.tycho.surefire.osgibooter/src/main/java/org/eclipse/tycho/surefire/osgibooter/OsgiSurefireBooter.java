@@ -85,9 +85,6 @@ public class OsgiSurefireBooter {
     private static final String JUNIT_PLATFORM_PROVIDER = "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
 
     public static int run(String[] args, Properties testProps) throws Exception {
-        boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
-        boolean redirectTestOutputToFile = Boolean
-                .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
         String testPlugin = testProps.getProperty("testpluginname");
         File testClassesDir = new File(testProps.getProperty("testclassesdirectory"));
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
@@ -122,12 +119,12 @@ public class OsgiSurefireBooter {
         // but without dirScannerParams we get an NPE accessing runOrder
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
                 Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
-                failIfNoTests, runOrder);
+                runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
                 TestListResolver.getEmptyTestListResolver(), rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
-                new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
+                new RunOrderParameters(runOrder, null), reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
                 skipAfterFailureCount, Shutdown.DEFAULT, 30);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
