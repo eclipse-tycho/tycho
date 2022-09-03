@@ -255,6 +255,55 @@ This can be useful if you like to execute the build with multiple threads (e.g. 
 
 ### Migration guide 2.x -> 3.x
 
+#### 
+
+`assemble-maven-repository` was relocated from `tycho-p2-repository-plugin` to `p2-maven-plugin` simply change your pom from
+
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-repository-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<configuration>
+				....
+			</configuration>
+			<id>maven-p2-site</id>
+			<phase>package</phase>
+			<goals>
+				<goal>assemble-maven-repository</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+
+```
+
+to
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>p2-maven-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<configuration>
+				....
+			</configuration>
+			<id>maven-p2-site</id>
+			<phase>package</phase>
+			<goals>
+				<goal>assemble-maven-repository</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+
+```
+
 #### Default value for archive-products has changed
 
 Previously Tycho uses `zip` for all platforms when packaging a product, now `.tar.gz` is used for linux+mac. If you want you can restore old behaviour by:
