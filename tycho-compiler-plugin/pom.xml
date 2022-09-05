@@ -29,7 +29,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-compat</artifactId>
+			<artifactId>maven-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -65,6 +65,11 @@
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-testing-harness</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-compat</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
