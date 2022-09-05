@@ -21,8 +21,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.model.IU;
 
 import de.pdark.decentxml.Element;

@@ -10,12 +10,9 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.artifacts;
+package org.eclipse.tycho;
 
 import java.io.File;
-
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ArtifactType;
 
 /**
  * Set of artifacts which can be used by the build of a project, e.g. to resolve the project's

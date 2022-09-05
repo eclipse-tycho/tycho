@@ -26,9 +26,9 @@ import java.util.LinkedHashSet;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.artifacts.DependencyResolutionException;
-import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.TargetPlatform;
 import org.junit.Before;
 import org.junit.Test;
 

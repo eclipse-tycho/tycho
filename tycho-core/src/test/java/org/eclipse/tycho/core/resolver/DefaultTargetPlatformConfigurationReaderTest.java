@@ -21,8 +21,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Test;
 
