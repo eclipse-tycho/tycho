@@ -44,11 +44,11 @@ public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
     private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
 
     @Override
-    protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
-        initModelFromXML(model, parseXML(artifactReader, artifactFile.toURI().toASCIIString()), artifactFile);
+    protected void initModel(Model model, Reader artifactReader, Path artifactFile) throws IOException {
+        initModelFromXML(model, parseXML(artifactReader, artifactFile.toUri().toASCIIString()), artifactFile);
     }
 
-    protected abstract void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException;
+    protected abstract void initModelFromXML(Model model, Element xml, Path artifactFile) throws IOException;
 
     protected static Element parseXML(Reader artifactReader, String documentURI) throws IOException {
         try {
@@ -102,7 +102,7 @@ public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
     protected static Stream<File> filesWithExtension(Path directory, String extension) throws IOException {
         Predicate<String> nameFilter = n -> !n.startsWith(".polyglot.") && n.endsWith(extension);
         return Files.walk(directory, 1) //
-                .filter(p -> nameFilter.test(p.getFileName().toString())) // 
+                .filter(p -> nameFilter.test(getFileName(p))) //
                 .filter(Files::isRegularFile).map(Path::toFile);
     }
 }
