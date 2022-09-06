@@ -15,9 +15,11 @@
 package org.eclipse.tycho.pomless;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.function.Supplier;
@@ -57,9 +59,9 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     }
 
     @Override
-    protected boolean isValidLocation(String location) {
-        File polyglotFile = new File(location);
-        return polyglotFile.getName().equals(META_INF_DIRECTORY) && new File(polyglotFile, MANIFEST_MF).isFile();
+    protected boolean isValidLocation(Path polyglotFile) {
+        return getFileName(polyglotFile).equals(META_INF_DIRECTORY)
+                && Files.isRegularFile(polyglotFile.resolve(MANIFEST_MF));
     }
 
     @Override
@@ -72,9 +74,9 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     }
 
     @Override
-    protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
-        File bundleRoot = artifactFile.getParentFile();
-        File manifestFile = new File(artifactFile, MANIFEST_MF);
+    protected void initModel(Model model, Reader artifactReader, Path artifactFile) throws IOException {
+        Path bundleRoot = artifactFile.getParent();
+        Path manifestFile = artifactFile.resolve(MANIFEST_MF);
         Attributes manifestHeaders = readManifestHeaders(manifestFile);
         String bundleSymbolicName = getBundleSymbolicName(manifestHeaders, manifestFile);
         // groupId is inherited from parent pom
@@ -88,7 +90,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         } else {
             prefix = NAME_PREFIX;
         }
-        File l10nFile = getBundleLocalizationPropertiesFile(manifestHeaders, manifestFile);
+        Path l10nFile = getBundleLocalizationPropertiesFile(manifestHeaders, manifestFile);
         Supplier<Properties> properties = getPropertiesSupplier(l10nFile);
 
         String bundleName = getManifestAttributeValue(manifestHeaders, "Bundle-Name", properties);
@@ -104,18 +106,18 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         if (description != null) {
             model.setDescription(description);
         }
-        File bndFile = new File(bundleRoot, "bnd.bnd");
-        if (bndFile.exists()) {
+        Path bndFile = bundleRoot.resolve("bnd.bnd");
+        if (Files.isRegularFile(bndFile)) {
             createBndPlugin(model);
         }
 
     }
 
     @Override
-    protected Properties getEnhancementProperties(File file) throws IOException {
-        if (file.getName().equals(META_INF_DIRECTORY) && file.isDirectory()) {
+    protected Properties getEnhancementProperties(Path file) throws IOException {
+        if (getFileName(file).equals(META_INF_DIRECTORY) && Files.isDirectory(file)) {
             //Look up build.properties in the project's root. The given file points to the 'META-INF' folder.
-            return getBuildProperties(file.getParentFile());
+            return getBuildProperties(file.getParent());
         } else {
             return super.getEnhancementProperties(file);
         }
@@ -146,15 +148,15 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         return plugin;
     }
 
-    private Attributes readManifestHeaders(File manifestFile) throws IOException {
+    private Attributes readManifestHeaders(Path manifestFile) throws IOException {
         Manifest manifest = new Manifest();
-        try (FileInputStream stream = new FileInputStream(manifestFile)) {
+        try (InputStream stream = Files.newInputStream(manifestFile)) {
             manifest.read(stream);
         }
         return manifest.getMainAttributes();
     }
 
-    private String getBundleSymbolicName(Attributes headers, File manifestFile) throws ModelParseException {
+    private String getBundleSymbolicName(Attributes headers, Path manifestFile) throws ModelParseException {
         String symbolicName = getRequiredHeaderValue(BUNDLE_SYMBOLIC_NAME, headers, manifestFile);
         // strip off any directives/attributes
         int semicolonIndex = symbolicName.indexOf(';');
@@ -164,7 +166,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         return symbolicName;
     }
 
-    private String getRequiredHeaderValue(String headerKey, Attributes headers, File manifestFile)
+    private String getRequiredHeaderValue(String headerKey, Attributes headers, Path manifestFile)
             throws ModelParseException {
         String value = headers.getValue(headerKey);
         if (value == null) {
@@ -173,7 +175,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         return value;
     }
 
-    private boolean isTestBundle(String bundleSymbolicName, File bundleRoot) throws IOException {
+    private boolean isTestBundle(String bundleSymbolicName, Path bundleRoot) throws IOException {
         Properties buildProperties = getBuildProperties(bundleRoot);
         // Although user defined packaging-type takes precedence, check it to have a corresponding artifactId
         String packagingProperty = buildProperties.getProperty(PACKAGING_PROPERTY);
@@ -188,20 +190,20 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     }
 
     private static String getManifestAttributeValue(Attributes headers, String attributeName,
-            Supplier<Properties> localizationProperties) throws IOException {
+            Supplier<Properties> localizationProperties) {
         String rawValue = headers.getValue(attributeName);
 
         String localizedValue = localizedValue(rawValue, localizationProperties);
         return localizedValue != null && !localizedValue.isBlank() ? localizedValue : null;
     }
 
-    private static File getBundleLocalizationPropertiesFile(Attributes headers, File manifestFile) {
+    private static Path getBundleLocalizationPropertiesFile(Attributes headers, Path manifestFile) {
         String location = headers.getValue("Bundle-Localization");
         if (location == null || location.isEmpty()) {
             location = "OSGI-INF/l10n/bundle";
         }
         //we always use the default here to have consistent build regardless of locale settings
-        return new File(manifestFile.getParentFile().getParentFile(), location + ".properties");
+        return manifestFile.getParent().getParent().resolve(location + ".properties");
     }
 
 }

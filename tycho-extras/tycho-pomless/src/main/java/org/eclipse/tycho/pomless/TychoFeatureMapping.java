@@ -17,6 +17,7 @@ package org.eclipse.tycho.pomless;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.function.Supplier;
 
@@ -44,11 +45,11 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
+    protected void initModelFromXML(Model model, Element xml, Path artifactFile) throws IOException {
         model.setArtifactId(getRequiredXMLAttributeValue(xml, "id"));
         model.setVersion(getPomVersion(getRequiredXMLAttributeValue(xml, "version")));
 
-        File featureProperties = new File(artifactFile.getParentFile(), "feature.properties");
+        Path featureProperties = artifactFile.getParent().resolve("feature.properties");
         Supplier<Properties> properties = getPropertiesSupplier(featureProperties);
 
         String label = localizedValue(getXMLAttributeValue(xml, "label"), properties);
@@ -63,8 +64,8 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected boolean isValidLocation(String location) {
-        return location.endsWith(FEATURE_XML);
+    protected boolean isValidLocation(Path location) {
+        return getFileName(location).equals(FEATURE_XML);
     }
 
     @Override
