@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,9 +18,9 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.junit.jupiter.api.Test;
 
-public class RepositoryLayoutHelperTest {
+class RepositoryLayoutHelperTest {
     @Test
-    public void testRelpath() {
+    void testRelpath() {
         GAV gav = new GAV("a.b.c", "d.e.f", "1.0.0");
         assertEquals("a/b/c/d.e.f/1.0.0/d.e.f-1.0.0-foo.bar",
                 RepositoryLayoutHelper.getRelativePath(gav, "foo", "bar"));
@@ -30,7 +30,7 @@ public class RepositoryLayoutHelperTest {
     }
 
     @Test
-    public void testRelpathSimpleGroupId() {
+    void testRelpathSimpleGroupId() {
         GAV gav = new GAV("a", "b", "1.0.0");
         assertEquals("a/b/1.0.0/b-1.0.0.jar", RepositoryLayoutHelper.getRelativePath(gav, null, null));
 

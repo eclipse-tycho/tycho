@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -35,10 +35,10 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.junit.jupiter.api.Test;
 
-public class TargetDefinitionFileTest {
+class TargetDefinitionFileTest {
 
     @Test
-    public void testTarget() throws Exception {
+    void testTarget() throws Exception {
         List<? extends Location> locations = readTarget("target.target").getLocations();
         assertEquals(2, locations.size());
 
@@ -60,7 +60,7 @@ public class TargetDefinitionFileTest {
     }
 
     @Test
-    public void testLocationTypes() throws Exception {
+    void testLocationTypes() throws Exception {
         List<? extends Location> locations = readTarget("locationtypes.target").getLocations();
         assertEquals("Directory", locations.get(0).getTypeDescription());
         assertEquals("Profile", locations.get(1).getTypeDescription());
@@ -73,47 +73,44 @@ public class TargetDefinitionFileTest {
     }
 
     @Test
-    public void testDefaultIncludeModeValues() throws Exception {
+    void testDefaultIncludeModeValues() throws Exception {
         List<? extends Location> locations = readTarget("includeModes.target").getLocations();
         InstallableUnitLocation locationWithDefaults = (InstallableUnitLocation) locations.get(0);
         assertEquals(IncludeMode.PLANNER, locationWithDefaults.getIncludeMode());
-        assertEquals(false, locationWithDefaults.includeAllEnvironments());
+        assertFalse(locationWithDefaults.includeAllEnvironments());
     }
 
     @Test
-    public void testExplictIncludeModeValues() throws Exception {
+    void testExplictIncludeModeValues() throws Exception {
         List<? extends Location> locations = readTarget("includeModes.target").getLocations();
         InstallableUnitLocation locationWithPlanner = (InstallableUnitLocation) locations.get(1);
         InstallableUnitLocation locationWithSlicer = (InstallableUnitLocation) locations.get(2);
         InstallableUnitLocation locationWithSlicerAndAllEnvironments = (InstallableUnitLocation) locations.get(3);
         assertEquals(IncludeMode.PLANNER, locationWithPlanner.getIncludeMode());
         assertEquals(IncludeMode.SLICER, locationWithSlicer.getIncludeMode());
-        assertEquals(false, locationWithSlicer.includeAllEnvironments());
+        assertFalse(locationWithSlicer.includeAllEnvironments());
         assertEquals(IncludeMode.SLICER, locationWithSlicerAndAllEnvironments.getIncludeMode());
-        assertEquals(true, locationWithSlicerAndAllEnvironments.includeAllEnvironments());
+        assertTrue(locationWithSlicerAndAllEnvironments.includeAllEnvironments());
     }
 
     @Test
-    public void testIncludeSource() throws Exception {
+    void testIncludeSource() throws Exception {
         List<? extends Location> locations = readTarget("includeSource.target", IncludeSourceMode.honor).getLocations();
         InstallableUnitLocation locationWithSources = (InstallableUnitLocation) locations.get(0);
         InstallableUnitLocation locationWithoutSources = (InstallableUnitLocation) locations.get(1);
         InstallableUnitLocation locationWithoutIncludeSourceAttribute = (InstallableUnitLocation) locations.get(2);
-        assertEquals(true, locationWithSources.includeSource());
-        assertEquals(false, locationWithoutSources.includeSource());
-        assertEquals(false, locationWithoutIncludeSourceAttribute.includeSource());
+        assertTrue(locationWithSources.includeSource());
+        assertFalse(locationWithoutSources.includeSource());
+        assertFalse(locationWithoutIncludeSourceAttribute.includeSource());
     }
 
     @Test
-    public void testInvalidXML() throws Exception {
-        try {
-            readTarget("invalidXML.target").getLocations();
-        } catch (RuntimeException e) {
-            assertEquals(TargetDefinitionSyntaxException.class, e.getCause().getClass());
-        }
+    void testInvalidXML() throws Exception {
+        RuntimeException e = assertThrows(RuntimeException.class, () -> readTarget("invalidXML.target").getLocations());
+        assertEquals(TargetDefinitionSyntaxException.class, e.getCause().getClass());
     }
 
-    public void testInvalidIncludeMode() throws Exception {
+    void testInvalidIncludeMode() throws Exception {
 
         List<? extends Location> locations = readTarget("invalidMode.target").getLocations();
 
@@ -123,13 +120,13 @@ public class TargetDefinitionFileTest {
     }
 
     @Test
-    public void testBundleSelectionList() throws Exception {
+    void testBundleSelectionList() throws Exception {
         TargetDefinitionFile targetFile = readTarget("withBundleSelection.target");
         assertTrue(targetFile.hasIncludedBundles());
     }
 
     @Test
-    public void testNoBundleSelectionList() throws Exception {
+    void testNoBundleSelectionList() throws Exception {
         TargetDefinitionFile targetFile = readTarget("target.target");
         assertFalse(targetFile.hasIncludedBundles());
     }
