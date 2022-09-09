@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher;
+package org.eclipse.tycho.p2maven.actions;
 
 import java.io.BufferedInputStream;
 import java.io.File;
