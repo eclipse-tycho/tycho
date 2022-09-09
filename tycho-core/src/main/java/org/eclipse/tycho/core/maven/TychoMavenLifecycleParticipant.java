@@ -208,7 +208,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     private static String getKey(Dependency dependency) {
 
-        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getType() + ":"
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
+                + Objects.requireNonNullElse(dependency.getType(), "jar") + ":" + dependency.getVersion() + ":"
                 + Objects.requireNonNullElse(dependency.getClassifier(), "");
     }
 

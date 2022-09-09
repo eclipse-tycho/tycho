@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.resolver.shared;
+package org.eclipse.tycho;
 
 public enum OptionalResolutionAction {
     /**
