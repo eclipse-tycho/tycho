@@ -31,16 +31,11 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		String projectBasedir = verifier.getBasedir();
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "My 1st JUnit 5 test!");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
-				"parameterizedJUnit5Test(String)[1] one");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
-				"parameterizedJUnit5Test(String)[2] two");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
-				"repeatedJUnit5Test() repetition 1 of 3");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
-				"repeatedJUnit5Test() repetition 2 of 3");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
-				"repeatedJUnit5Test() repetition 3 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "[1] one");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "[2] two");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 1 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 2 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 3 of 3");
 		// make sure test tagged as 'slow' was skipped
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 6);
 	}
@@ -82,7 +77,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit56Test", 1);
 	}
 
-	@Test
+  @Test
 	public void testJUnit59Runner() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit59/bundle.test", false);
 		verifier.addCliOption("-Drepo-2020-03=" + "https:////download.eclipse.org/eclipse/updates/4.25-I-builds/");
