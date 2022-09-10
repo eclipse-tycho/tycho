@@ -21,6 +21,8 @@ import org.apache.maven.execution.ProjectExecutionListener;
 import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.plugin.MojoExecution;
+import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -42,7 +44,28 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
 
     @Override
     public void beforeProjectExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
-        if (TychoMavenLifecycleParticipant.USE_OLD_RESOLVER) {
+
+    }
+
+    private boolean requiresDependencies(ProjectExecutionEvent event) {
+        List<MojoExecution> executionPlan = event.getExecutionPlan();
+        if (executionPlan == null) {
+            //we can't know ...
+            return true;
+        }
+        for (MojoExecution execution : executionPlan) {
+            MojoDescriptor mojoDescriptor = execution.getMojoDescriptor();
+            String dependencyResolutionRequired = mojoDescriptor.getDependencyResolutionRequired();
+            if (dependencyResolutionRequired != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void beforeProjectLifecycleExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
+        if (TychoMavenLifecycleParticipant.USE_OLD_RESOLVER || !requiresDependencies(event)) {
             return;
         }
         MavenProject mavenProject = event.getProject();
@@ -62,10 +85,6 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
             } catch (IOException e) {
             }
         }
-    }
-
-    @Override
-    public void beforeProjectLifecycleExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
     }
 
     @Override

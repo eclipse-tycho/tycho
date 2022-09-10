@@ -24,6 +24,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -53,7 +54,7 @@ import org.osgi.framework.Version;
  * 
  * @see https://wiki.eclipse.org/Equinox/p2/Publisher
  */
-@Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
+@Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishProductMojo extends AbstractPublishMojo {
 
     // as per https://download.eclipse.org/releases/luna/201502271000/features/org.eclipse.equinox.executable_3.6.102.v20150204-1316.jar
