@@ -8,11 +8,13 @@
 	<modules>
 		<!--module>api-repo</module-->
 		<!-- Used to build the baseline repo -->
-		<module>bundle</module>
+		<module>bundle1</module>
+		<module>bundle2</module>
 	</modules>
 	<properties>
-		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
 		<target-platform>https://download.eclipse.org/releases/2022-06/</target-platform>
+		<!-- required until 2023-06 release! -->
+		<eclipserun-repo>https://download.eclipse.org/eclipse/updates/4.28-I-builds/</eclipserun-repo>
 	</properties>
 	<repositories>
 		<repository>
@@ -34,9 +36,13 @@
 				<artifactId>tycho-apitools-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<apiToolsRepository>
+				 		<url>${eclipserun-repo}</url>
+				 	</apiToolsRepository>
 					<baselines>
 						<repository>
-							<url>file:/home/christoph/git/laeubi/tycho/tycho-its/projects/api-tools/api-repo/target/repository</url>
+							<id>baseline</id>
+							<url>${baselineRepo}</url>
 						</repository>
 					</baselines>
 				</configuration>
