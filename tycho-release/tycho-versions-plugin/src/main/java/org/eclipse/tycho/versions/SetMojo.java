@@ -25,6 +25,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 
@@ -62,7 +63,7 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
  * </ul>
  * 
  */
-@Mojo(name = "set-version", aggregator = true, requiresDirectInvocation = true)
+@Mojo(name = "set-version", aggregator = true, requiresDependencyResolution = ResolutionScope.NONE)
 public class SetMojo extends AbstractMojo {
     /**
      * <p>
