@@ -14,7 +14,6 @@ package org.eclipse.tycho.plugins.p2.extras;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,22 +51,22 @@ import org.osgi.framework.Version;
  * This mojo compares versions the output artifacts of your module build with the version of the
  * same artifacts available in configured baselines, in order to detect version inconsistencies
  * (version moved back, or not correctly bumped since last release).
- * 
+ *
  * Rules for "illegal" versions are:
  * <li>version decreased compared to baseline</li>
  * <li>same fully-qualified version as baseline, but with different binary content</li>
  * <li>same major.minor.micro as baseline, with different qualifier (at least micro should be
  * increased)</li>
- * 
+ *
  * This mojo doesn't allow to use qualifier as a versioning segment and will most likely drive to
  * false-positive errors if your qualifier has means to show versioniterations.
- * 
+ *
  * @author mistria
  */
 @Mojo(defaultPhase = LifecyclePhase.VERIFY, requiresProject = false, name = "compare-version-with-baselines", threadSafe = true)
 public class CompareWithBaselineMojo extends AbstractMojo {
 
-    public static enum ReportBehavior {
+    public enum ReportBehavior {
         fail, warn
     }
 
@@ -87,14 +86,14 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     /**
      * A list of file path patterns that are ignored when comparing the build artifact against the
      * baseline version.
-     * 
+     *
      * {@code
      * <ignoredPatterns>
      *   <pattern>META-INF/ECLIPSE_.RSA<pattern>
      *   <pattern>META-INF/ECLIPSE_.SF</pattern>
      * </ignoredPatterns>
      * }
-     * 
+     *
      */
     @Parameter
     private List<String> ignoredPatterns;
@@ -105,7 +104,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter(property = "onIllegalVersion", defaultValue = "fail")
     private ReportBehavior onIllegalVersion;
 
-    @Component()
+    @Component
     P2ResolverFactory resolverFactory;
 
     @Component
@@ -129,6 +128,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
             getLog().info("Execution was skipped");
             return;
         }
+        //TODO: unify into a an abstractBaseline-mojo? Use that also for p2-metadata validation. Actually there is no need to copy that into the target-folder?
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         Set<IInstallableUnit> dependencyMetadata = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
         if (dependencyMetadata == null || dependencyMetadata.isEmpty()) {
@@ -141,11 +141,11 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         }
 
         TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
-        P2Resolver resolver = resolverFactory.createResolver(Collections.singletonList(runningEnvironment));
+        P2Resolver resolver = resolverFactory.createResolver(List.of(runningEnvironment));
 
         TargetPlatformConfigurationStub baselineTPStub = new TargetPlatformConfigurationStub();
         baselineTPStub.setIgnoreLocalArtifacts(true);
-        baselineTPStub.setEnvironments(Collections.singletonList(runningEnvironment));
+        baselineTPStub.setEnvironments(List.of(runningEnvironment));
         for (String baselineRepo : this.baselines) {
             baselineTPStub.addP2Repository(toRepoURI(baselineRepo));
         }

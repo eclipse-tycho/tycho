@@ -14,6 +14,7 @@ package org.eclipse.tycho.apitools;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,12 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 	 */
 	@Parameter
 	protected List<File> extraSourceLocations = List.of();
+
+	/**
+	 * @Since 3.1.0
+	 */
+	@Parameter(defaultValue = "eclipse-plugin-project")
+	private Set<String> supportedPackagingTypes;
 
 	@Parameter(defaultValue = "false", property = "tycho.apitools.generate.skip")
 	private boolean skip;

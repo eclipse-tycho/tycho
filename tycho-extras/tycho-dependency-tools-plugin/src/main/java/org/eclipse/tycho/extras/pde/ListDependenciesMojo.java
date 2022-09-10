@@ -9,14 +9,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.pde;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -29,7 +30,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathContributor;
@@ -68,65 +68,40 @@ public class ListDependenciesMojo extends AbstractMojo {
             getLog().info("Execution was skipped");
             return;
         }
-        File outputFile = new File(project.getBuild().getDirectory(), "dependencies-list.txt");
-        try {
-            outputFile.getParentFile().mkdirs();
-            outputFile.createNewFile();
-        } catch (IOException ex) {
-            throw new MojoFailureException(ex.getMessage(), ex);
-        }
-        Set<String> written = new HashSet<>();
-        try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
-            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(reactorProject)
-                    .getArtifacts().stream().filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
-                    .toList();
-            for (ArtifactDescriptor dependnecy : dependencies) {
-                if (dependnecy.getMavenProject() == null) {
-                    File location = dependnecy.getLocation(true);
-                    writeLocation(writer, location, written);
-                } else {
-                    ReactorProject otherProject = dependnecy.getMavenProject();
-                    writeLocation(writer, otherProject.getArtifact(dependnecy.getClassifier()), written);
-                }
-            }
-            TychoProject projectType = projectTypes.get(project.getPackaging());
-            if (projectType instanceof OsgiBundleProject bundleProject) {
+        Path outputFile = Path.of(project.getBuild().getDirectory(), "dependencies-list.txt");
 
-                try {
-                    pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
-                        List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project, Artifact.SCOPE_COMPILE);
-                        if (list != null && !list.isEmpty()) {
-                            for (ClasspathEntry entry : list) {
-                                for (File locations : entry.getLocations()) {
-                                    try {
-                                        writeLocation(writer, locations, written);
-                                    } catch (IOException e) {
-                                        //ignore...
-                                    }
-                                }
-                            }
-                        }
-                    });
-                } catch (Exception e) {
-                    throw new MojoExecutionException("can't call classpath contributors", e);
-                }
-            }
+        Set<File> dependencyPaths = collectProjectDependencyPaths(project, projectTypes, pluginRealmHelper, session);
+        Iterable<String> paths = dependencyPaths.stream().map(File::getAbsolutePath)::iterator;
+        try {
+            Files.write(outputFile, paths);
         } catch (IOException e) {
             getLog().error(e);
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
-    private void writeLocation(BufferedWriter writer, File location, Set<String> written) throws IOException {
-        if (location == null) {
-            return;
+    //TODO: wrap this into an own component to make it re-usable by others?!
+    public static Set<File> collectProjectDependencyPaths(MavenProject project, Map<String, TychoProject> projectTypes,
+            PluginRealmHelper pluginRealmHelper, MavenSession session) throws MojoExecutionException {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        Set<File> dependencies = TychoProjectUtils.getDependencyArtifacts(reactorProject).getArtifacts().stream()
+                .map(d -> d.getMavenProject() == null //
+                        ? d.getLocation(true)
+                        : d.getMavenProject().getArtifact(d.getClassifier()))
+                .collect(Collectors.toCollection(HashSet::new));
+        if (projectTypes.get(project.getPackaging()) instanceof OsgiBundleProject) {
+            try {
+                pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
+                    List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project, Artifact.SCOPE_COMPILE);
+                    list.forEach(e -> dependencies.addAll(e.getLocations()));
+                });
+            } catch (Exception e) {
+                throw new MojoExecutionException("can't call classpath contributors", e);
+            }
         }
-        String path = location.getAbsolutePath();
-        if (written.add(path)) {
-            writer.write(path);
-            writer.write(System.lineSeparator());
-        }
+        dependencies.remove(project.getBasedir()); // remove self
+        dependencies.remove(null);
+        return dependencies;
     }
 
 }

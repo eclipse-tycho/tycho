@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plugin with API
+Bundle-SymbolicName: api-bundle-2
+Bundle-Version: 0.0.1.qualifier
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=11))"
+Export-Package: bundle
+Automatic-Module-Name: bundle
