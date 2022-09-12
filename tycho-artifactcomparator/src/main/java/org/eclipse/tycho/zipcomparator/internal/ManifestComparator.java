@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,9 +14,6 @@ package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeMap;
@@ -24,8 +21,8 @@ import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
-import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
 @Component(role = ContentsComparator.class, hint = ManifestComparator.TYPE)
@@ -33,32 +30,22 @@ public class ManifestComparator implements ContentsComparator {
 
     public static final String TYPE = "manifest";
 
-    private static final Collection<Name> IGNORED_KEYS;
-
-    static {
-        ArrayList<Name> ignoredKeys = new ArrayList<>();
-
-        // these keys are added by plexus archiver
-        ignoredKeys.add(new Name("Archiver-Version"));
-        ignoredKeys.add(new Name("Created-By"));
-        ignoredKeys.add(new Name("Build-Jdk"));
-        ignoredKeys.add(new Name("Built-By"));
-        ignoredKeys.add(new Name("Build-Jdk-Spec"));
-
-        // lets be friendly to bnd/maven-bundle-plugin
-        ignoredKeys.add(new Name("Bnd-LastModified"));
-        ignoredKeys.add(new Name("Tool"));
-
-        // this is common attribute not supported by Tycho yet
-        ignoredKeys.add(new Name("Eclipse-SourceReferences"));
-
-        // TODO make it possible to disable default ignores and add custom ignore
-
-        IGNORED_KEYS = Collections.unmodifiableCollection(ignoredKeys);
-    }
+    private static final Set<Name> IGNORED_KEYS = Set.of(
+            // these keys are added by plexus archiver
+            new Name("Archiver-Version"), //
+            new Name("Created-By"), //
+            new Name("Build-Jdk"), //
+            new Name("Built-By"), //
+            new Name("Build-Jdk-Spec"),
+            // lets be friendly to bnd/maven-bundle-plugin
+            new Name("Bnd-LastModified"), //
+            new Name("Tool"),
+            // this is common attribute not supported by Tycho yet
+            new Name("Eclipse-SourceReferences"));
+    // TODO make it possible to disable default ignores and add custom ignore
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Manifest manifest = new Manifest(baseline);
