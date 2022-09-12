@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2017 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,28 @@ package org.eclipse.tycho.artifactcomparator;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.maven.plugin.MojoExecution;
+import java.util.List;
 
 public interface ArtifactComparator {
-    public ArtifactDelta getDelta(File baseline, File reactor, MojoExecution execution) throws IOException;
+
+    public static class ComparisonData {
+
+        public ComparisonData(List<String> ignoredPattern, boolean writeDelta) {
+            this.ignoredPattern = ignoredPattern != null ? List.copyOf(ignoredPattern) : List.of();
+            this.writeDelta = writeDelta;
+        }
+
+        private final List<String> ignoredPattern;
+        private boolean writeDelta;
+
+        public List<String> ignoredPattern() {
+            return ignoredPattern;
+        }
+
+        public boolean writeDelta() {
+            return writeDelta;
+        }
+    }
+
+    public ArtifactDelta getDelta(File baseline, File reactor, ComparisonData execution) throws IOException;
 }

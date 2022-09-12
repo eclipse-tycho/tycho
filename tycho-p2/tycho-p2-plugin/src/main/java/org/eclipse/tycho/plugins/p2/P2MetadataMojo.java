@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -28,7 +27,6 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -42,6 +40,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
@@ -57,9 +56,6 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(property = "project")
     protected MavenProject project;
 
-    @Parameter(property = "mojoExecution", readonly = true)
-    protected MojoExecution execution;
-
     @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
 
@@ -73,8 +69,8 @@ public class P2MetadataMojo extends AbstractMojo {
      * Project types which this plugin supports.
      */
     @Parameter
-    private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin",
-            "eclipse-feature", "p2-installable-unit");
+    private List<String> supportedProjectTypes = List.of("eclipse-plugin", "eclipse-test-plugin", "eclipse-feature",
+            "p2-installable-unit");
 
     /**
      * Baseline build repository(ies).
@@ -101,6 +97,29 @@ public class P2MetadataMojo extends AbstractMojo {
      */
     @Parameter(property = "tycho.baseline", defaultValue = "warn")
     private BaselineMode baselineMode;
+
+    /**
+     * A list of file path patterns that are ignored when comparing the build artifact against the
+     * baseline version.
+     * 
+     * {@code
+     * <ignoredPatterns>
+     *   <pattern>META-INF/ECLIPSE_.RSA<pattern>
+     *   <pattern>META-INF/ECLIPSE_.SF</pattern>
+     * </ignoredPatterns>
+     * }
+     * 
+     */
+    @Parameter
+    private List<String> ignoredPatterns;
+
+    /**
+     * Weather or not detailed information about encountered differences is written in case the
+     * comparison found some. The differing states in baseline and build are written to
+     * {@code ${project.build.directory}/artifactcomparison}
+     */
+    @Parameter(property = "tycho.debug.artifactcomparator", defaultValue = "false")
+    private boolean writeComparatorDelta;
 
     /**
      * Whether to replace build artifacts with baseline version or use reactor version:
@@ -176,7 +195,8 @@ public class P2MetadataMojo extends AbstractMojo {
                     new PublisherOptions(generateDownloadStatsProperty), targetDir);
 
             if (baselineMode != BaselineMode.disable) {
-                generatedMetadata = baselineValidator.validateAndReplace(project, execution, generatedMetadata,
+                ComparisonData data = new ComparisonData(ignoredPatterns, writeComparatorDelta);
+                generatedMetadata = baselineValidator.validateAndReplace(project, data, generatedMetadata,
                         baselineRepositories, baselineMode, baselineReplace);
             }
 
@@ -263,15 +283,8 @@ public class P2MetadataMojo extends AbstractMojo {
     }
 
     private static void writeProperties(Properties properties, File outputFile) throws MojoExecutionException {
-        FileOutputStream outputStream;
-        try {
-            outputStream = new FileOutputStream(outputFile);
-
-            try {
-                properties.store(outputStream, null);
-            } finally {
-                outputStream.close();
-            }
+        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            properties.store(outputStream, null);
         } catch (IOException e) {
             throw new MojoExecutionException("I/O exception while writing " + outputFile, e);
         }
