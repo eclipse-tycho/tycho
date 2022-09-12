@@ -105,7 +105,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
                 //perfectly equal!
                 return null;
             }
-            ContentsComparator comparator = comparators.get(getContentType(name));
+            ContentsComparator comparator = comparators.get(getContentType(name, data));
             if (comparator != null) {
                 try {
                     return comparator.getDelta(new ComparatorInputStream(baselineBytes, name),
@@ -128,7 +128,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
         }
     }
 
-    private String getContentType(String name) {
+    private String getContentType(String name, ComparisonData data) {
         name = name.toLowerCase(Locale.ENGLISH);
         if (name.endsWith(".class")) {
             return ClassfileComparator.TYPE;
@@ -145,6 +145,9 @@ public class ZipComparatorImpl implements ArtifactComparator {
         }
         if (name.endsWith(".xml")) {
             return XmlComparator.XML;
+        }
+        if (data.isTextFile(name)) {
+            return TextContentsComparator.TYPE;
         }
         return DefaultContentsComparator.TYPE;
     }

@@ -334,7 +334,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 			ignores.addAll(context.getIgnores());
 			ArtifactDelta artifactDelta = zipComparator.getDelta(getStream(baselineJarUnit, context),
 					new ComparatorInputStream(reactor, file.getAbsolutePath()),
-					new ComparisonData(ignores, false));
+					new ComparisonData(ignores, List.of(".xml"), false));
 			if (artifactDelta == null) {
 				return List.of();
 			}

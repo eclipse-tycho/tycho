@@ -26,6 +26,8 @@ public interface BaselineContext {
 	void reportBaselineProblem(String message) throws MojoFailureException;
 
 	List<String> getIgnores();
+	
+	List<String> getTextFileExtensions();
 
 	List<String> getPackages();
 

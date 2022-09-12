@@ -19,22 +19,18 @@ import java.util.List;
 
 public interface ArtifactComparator {
 
-    public static class ComparisonData {
+    public static record ComparisonData(List<String> ignoredPattern, List<String> textFileExtensions,
+            boolean writeDelta) {
 
-        public ComparisonData(List<String> ignoredPattern, boolean writeDelta) {
+        public ComparisonData(List<String> ignoredPattern, List<String> textFileExtensions, boolean writeDelta) {
             this.ignoredPattern = ignoredPattern != null ? List.copyOf(ignoredPattern) : List.of();
             this.writeDelta = writeDelta;
+            this.textFileExtensions = textFileExtensions.stream().map(String::strip)
+                    .map(e -> e.startsWith(".") ? e : "." + e).toList();
         }
 
-        private final List<String> ignoredPattern;
-        private boolean writeDelta;
-
-        public List<String> ignoredPattern() {
-            return ignoredPattern;
-        }
-
-        public boolean writeDelta() {
-            return writeDelta;
+        public boolean isTextFile(String name) {
+            return textFileExtensions().stream().anyMatch(name::endsWith);
         }
     }
 

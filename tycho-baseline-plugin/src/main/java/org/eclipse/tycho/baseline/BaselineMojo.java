@@ -41,6 +41,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
+import org.eclipse.tycho.zipcomparator.internal.TextContentsComparator;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 /**
@@ -101,6 +102,9 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Parameter(property = "tycho.baseline.extensions", defaultValue = "false")
 	private boolean extensions;
 
+    @Parameter(property = "tycho.baseline.textfile.extensions", defaultValue = TextContentsComparator.DEFAULT_TEXT_FILE_EXTENSIONS)
+    private List<String> textFileExtensions;
+	
 	@Component
 	protected TychoProjectManager projectManager;
 	@Component
@@ -217,6 +221,14 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 			return List.of();
 		}
 		return ignores;
+	}
+	
+	@Override
+	public List<String> getTextFileExtensions() {
+		if (textFileExtensions == null) {
+			return List.of();
+		}
+		return textFileExtensions;
 	}
 
 	@Override

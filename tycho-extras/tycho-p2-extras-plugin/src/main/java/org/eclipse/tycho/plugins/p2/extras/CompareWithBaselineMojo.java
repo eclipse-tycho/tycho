@@ -45,6 +45,7 @@ import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.zipcomparator.internal.TextContentsComparator;
 import org.osgi.framework.Version;
 
 /**
@@ -97,6 +98,9 @@ public class CompareWithBaselineMojo extends AbstractMojo {
      */
     @Parameter
     private List<String> ignoredPatterns;
+
+    @Parameter(property = "tycho.baseline.textfile.extensions", defaultValue = TextContentsComparator.DEFAULT_TEXT_FILE_EXTENSIONS)
+    private List<String> textFileExtensions;
 
     @Parameter(property = "skip")
     private boolean skip;
@@ -184,7 +188,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                         } else {
                             reactorFile = reactorProject.getArtifact();
                         }
-                        ComparisonData data = new ComparisonData(ignoredPatterns, false);
+                        ComparisonData data = new ComparisonData(ignoredPatterns, textFileExtensions, false);
                         ArtifactDelta artifactDelta = this.artifactComparators.get(this.comparator)
                                 .getDelta(baselineFile, reactorFile, data);
                         String message = "Baseline and reactor have same fully qualified version, but with different content";

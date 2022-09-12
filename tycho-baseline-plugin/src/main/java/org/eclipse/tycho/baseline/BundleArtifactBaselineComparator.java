@@ -353,8 +353,8 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				try (InputStream baseStream = baseResource.openInputStream();
 						InputStream currentStream = currenttResource.openInputStream()) {
 					return comparator.getDelta(new ComparatorInputStream(baseStream, name),
-							new ComparatorInputStream(currentStream, name),
-							new ComparisonData(baselineContext.getIgnores(), false));
+							new ComparatorInputStream(currentStream, name), new ComparisonData(
+									baselineContext.getIgnores(), baselineContext.getTextFileExtensions(), false));
 				} catch (Exception e) {
 				}
 			}

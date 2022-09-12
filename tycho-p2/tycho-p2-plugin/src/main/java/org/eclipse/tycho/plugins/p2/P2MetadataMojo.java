@@ -46,6 +46,7 @@ import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2resolver.ArtifactFacade;
+import org.eclipse.tycho.zipcomparator.internal.TextContentsComparator;
 
 @Mojo(name = "p2-metadata", threadSafe = true)
 public class P2MetadataMojo extends AbstractMojo {
@@ -110,6 +111,9 @@ public class P2MetadataMojo extends AbstractMojo {
      */
     @Parameter
     private List<String> ignoredPatterns;
+
+    @Parameter(property = "tycho.baseline.textfile.extensions", defaultValue = TextContentsComparator.DEFAULT_TEXT_FILE_EXTENSIONS)
+    private List<String> textFileExtensions;
 
     /**
      * Weather or not detailed information about encountered differences is written in case the
@@ -191,7 +195,7 @@ public class P2MetadataMojo extends AbstractMojo {
                     new PublisherOptions(generateDownloadStatsProperty), targetDir);
 
             if (baselineMode != BaselineMode.disable) {
-                ComparisonData data = new ComparisonData(ignoredPatterns, writeComparatorDelta);
+                ComparisonData data = new ComparisonData(ignoredPatterns, textFileExtensions, writeComparatorDelta);
                 generatedMetadata = baselineValidator.validateAndReplace(project, data, generatedMetadata,
                         baselineRepositories, baselineMode, baselineReplace);
             }
