@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="issue1052.impl.StringInverter">
-   <property name="osgi.jaxrs.resource" value="true"/>
-   <service>
-      <provide interface="issue1052.api.StringModifier"/>
-   </service>
-   <implementation class="issue1052.impl.StringInverter"/>
-</scr:component>
