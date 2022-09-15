@@ -56,7 +56,7 @@
 		<dependency>
 		    <groupId>org.eclipse.jdt</groupId>
 		    <artifactId>org.eclipse.jdt.core</artifactId>
-		    <version>3.30.0</version>
+		    <version>3.31.0</version>
 		</dependency>
 	</dependencies>
 	<build>
