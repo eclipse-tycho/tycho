@@ -200,7 +200,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		Map<String, String> frameworkProperties = new HashMap<>();
 		Enumeration<URL> resources;
 		try {
-			resources = classloader.getResources("META-INF/sisu-connect.properties");
+			resources = classloader.getResources("META-INF/sisu/connect.properties");
 		} catch (IOException e1) {
 			return frameworkProperties;
 		}
@@ -228,7 +228,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		Comparator<Bundle> byState = Comparator.comparingInt(Bundle::getState);
 		Arrays.stream(bundles).sorted(byState.thenComparing(bySymbolicName)).forEachOrdered(bundle -> {
 			String state = toBundleState(bundle.getState());
-			log.info(state + " | " + bundle.getSymbolicName() + " (" + bundle.getVersion() + ")");
+			log.info(state + " | " + bundle.getSymbolicName() + " (" + bundle.getVersion() + ") at "
+					+ bundle.getLocation());
 		});
 		ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime> st = new ServiceTracker<>(
 				framework.getBundleContext(), ServiceComponentRuntime.class, null);
