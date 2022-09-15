@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
@@ -58,6 +59,55 @@ public class TychoVersionsPluginCompatibilityTest extends AbstractTychoIntegrati
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
 		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), "pom.xml")));
 		assertEquals("<version> in pom.xml has not been changed!", expectedNewVersion, pomModel.getVersion());
+	}
+
+	/**
+	 * Verifies that the update-pom goal of the tycho-version plug-in updates the
+	 * version of a pom that is named 'pom.xml'. The command line for this would be
+	 * <p>
+	 * <code>mvn -f pom.xml org.eclipse.tycho:tycho-versions-plugin:update-pom</code>
+	 * </p>
+	 * This was created in response to
+	 * <a href="https://github.com/eclipse-tycho/tycho/issues/309">issue 309</a>.
+	 */
+	@Test
+	public void testUpdatePomOfPomThatIsNamedPomXml() throws Exception {
+		String POM_NAME = "pom.xml";
+		String MANIFEST_VERSION = "2.0.0";
+
+		Verifier verifier = getVerifier("tycho-version.update-pom.pomNamedPomXml", false);
+		verifier.addCliOption("--file " + POM_NAME);
+		verifier.executeGoals(Arrays
+				.asList("org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":update-pom"));
+		verifier.verifyErrorFreeLog();
+		MavenXpp3Reader pomReader = new MavenXpp3Reader();
+		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), POM_NAME)));
+		assertEquals("<version> in pom.xml has not been changed!", MANIFEST_VERSION, pomModel.getVersion());
+	}
+
+	/**
+	 * Verifies that the update-pom goal of the tycho-version plug-in updates the
+	 * version of a pom that is NOT named 'pom.xml'. The command line for this would
+	 * be
+	 * <p>
+	 * <code>mvn -f foo.bar.pom.xml org.eclipse.tycho:tycho-versions-plugin:update-pom</code>
+	 * </p>
+	 * This was created in response to
+	 * <a href="https://github.com/eclipse-tycho/tycho/issues/309">issue 309</a>.
+	 */
+	@Test
+	public void testUpdatePomOfPomThatIsNotNamedPomXml() throws Exception {
+		String POM_NAME = "foo.bar.pom.xml";
+		String MANIFEST_VERSION = "2.0.0";
+
+		Verifier verifier = getVerifier("tycho-version.update-pom.pomNotNamedPomXml", false);
+		verifier.addCliOption("--file " + POM_NAME);
+		verifier.executeGoals(Arrays
+				.asList("org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":update-pom"));
+		verifier.verifyErrorFreeLog();
+		MavenXpp3Reader pomReader = new MavenXpp3Reader();
+		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), POM_NAME)));
+		assertEquals("<version> in foo.bar.pom.xml has not been changed!", MANIFEST_VERSION, pomModel.getVersion());
 	}
 
 }
