@@ -80,7 +80,7 @@ public class MyPlexusComponent {
 For the setup you need to do the following:
 
 1. include any bundle you like to make up your plexus-osgi-connect framework as a dependency of your maven plugin
-2. include a file `META-INF/sisu-connect.bundles` that list all your bundles you like to have installed in the format `bsn[,true]`, where `bsn` is the symbolid name and optionally you can control if your bundle has to be started or not
+2. include a file `META-INF/sisu/connect.bundles` that list all your bundles you like to have installed in the format `bsn[,true]`, where `bsn` is the symbolid name and optionally you can control if your bundle has to be started or not
 3. include the following additional dependency
 ```
 <dependency>
