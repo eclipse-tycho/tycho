@@ -25,3 +25,8 @@ with Maven.
 * 💬 Discussion channels
      * Usage assistance https://github.com/eclipse-tycho/tycho/discussions
      * Development https://dev.eclipse.org/mailman/listinfo/tycho-dev
+
+     
+Sponsoring individual committer if you want to help with development of Tycho itself or the Eclipse Foundation in general is welcome. You can do that at:
+* [Christoph Läubrich](https://github.com/sponsors/laeubi) - A sample of his recent work can be seen [here](https://github.com/eclipse-tycho/tycho/commits?author=laeubi).
+* [Eclipse Foundation](https://www.eclipse.org/sponsor/)
