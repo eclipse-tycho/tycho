@@ -76,6 +76,11 @@ public class TargetDefinitionUtil {
 			for (int i = 0; i < repositories.getLength(); i++) {
 				Element repository = (Element) repositories.item(i);
 				repository.setAttribute("location", url);
+				NodeList urls = repository.getElementsByTagName("url");
+				// m2 repositories use an id and url tag
+				for (int j = 0; j < urls.getLength(); ++j) {
+					urls.item(j).setTextContent(url);
+				}
 			}
 		}
 		try (FileOutputStream output = new FileOutputStream(targetDefinitionFile)) {

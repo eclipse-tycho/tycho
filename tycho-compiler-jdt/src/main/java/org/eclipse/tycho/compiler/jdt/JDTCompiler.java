@@ -364,6 +364,8 @@ public class JDTCompiler extends AbstractCompiler {
             String sourceLevel = config.getSourceVersion();
             if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
                 addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
+            } else {
+                addToCompilerArgumentsIfNotSet("--system", custom.javaHome, jdtCompilerArgs);
             }
         }
         getLogger().debug("JDT compiler args: " + jdtCompilerArgs);

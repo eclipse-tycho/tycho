@@ -44,6 +44,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -129,6 +130,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Requirement
     private PluginRealmHelper pluginRealmHelper;
+
+    @Requirement
+    private LegacySupport context;
 
     private P2ResolverFactory resolverFactory;
 
@@ -500,6 +504,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts dependencyArtifacts, DependencyArtifacts testDependencyArtifacts, Logger logger) {
         MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts,
-                bundleReader, resolverFactory::resolveDependencyDescriptor, logger, repositorySystem);
+                bundleReader, resolverFactory::resolveDependencyDescriptor, logger, repositorySystem,
+                context.getSession().getSettings());
     }
 }

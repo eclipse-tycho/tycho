@@ -68,7 +68,10 @@ mvn clean deploy -Prelease -DskipTests -Dsource=8 -DjdetectJavaApiLink=false \
 git log --pretty=format:%an tycho-<previousVersion>..tycho-<newVersion> | sort | uniq
 git log --grep="Also-[bB]y:" tycho-<previousVersion>..tycho-<newVersion> | grep -i also-by | sed -e 's/.*Also-[bB]y:\s*\(.*\)/\1/' | sort | uniq
 ```
-
+   - [ ] Find out who has sponsored something in this release:
+   ```
+   is:closed is:issue label:sponsored milestone:<version mile stone> 
+   ```
    - [ ] Prepare (in a text editor) announcement, thanking the contributors:
 ```
 Subject: Tycho <VERSION> is released
@@ -79,10 +82,14 @@ Tycho <VERSION> has been released and is available from Maven Central repository
 🏷️ https://github.com/eclipse/tycho/tree/tycho-x.y.z
 👔 https://projects.eclipse.org/projects/technology.tycho/releases/x.y.z
 🙏 contributors who contributed patches for this release:
-<contributors>
-and thanks and to everyone who helped us with testing the staged version.
+    <contributors>
+💰 we would like to also thank <list of sponsors> for sponsoring contributions in this release
+
+and thanks to everyone who helped us with testing the snapshot version.
 
 Regards,
+
+ The Tycho Team
 
 ```
 - [ ] close the staging repository on https://oss.sonatype.org/#stagingRepositories 
