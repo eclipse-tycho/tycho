@@ -4,6 +4,22 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### New option to transform P2 dependencies into real maven coordinates
+
+The `tycho-consumer-pom` mojo has a new option to resolve p2 introduced dependencies to 'real' maven coordinates now, when enabled it queries maven-central with the SHA1 of the file to find out what are the actual maven central coordinates
+ and place them in the generated pom consumer-pom.
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-packaging-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<mapP2Dependencies>true</mapP2Dependencies>
+	</configuration>
+</plugin>
+```
+
 ### New tycho-p2-plugin:dependency-tree mojo
 
 Sometimes it is useful to find out how dependencies of a project are actually pulled in. Tycho now supports a new `tycho-p2-plugin:dependency-tree` mojo that outputs a tree view of the P2 dependecies of a tycho project.

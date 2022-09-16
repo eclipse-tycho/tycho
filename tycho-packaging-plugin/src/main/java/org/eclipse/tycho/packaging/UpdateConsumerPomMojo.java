@@ -14,9 +14,15 @@ package org.eclipse.tycho.packaging;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.artifact.Artifact;
@@ -36,6 +42,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.packaging.reverseresolve.ArtifactCoordinateResolver;
 
 /**
  * Updates the pom file with the dependencies from the tycho model. If you
@@ -56,6 +63,9 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 
 	@Component(role = ModelReader.class)
 	protected ModelReader modelReader;
+
+	@Component
+	private Map<String, ArtifactCoordinateResolver> artifactCoordinateResolvers;
 
 	/**
 	 * The directory where the tycho generated POM file will be written to.
@@ -84,8 +94,30 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "true")
 	protected boolean updatePomFile = true;
 
+	/**
+	 * If includeP2Dependencies is true Tycho will include P2 dependencies in the
+	 * consumer pom as optional items with provided scope. If the value is false,
+	 * such items are skipped and only such items are included that can be mapped to
+	 * a valid maven artifact
+	 */
+	@Parameter(defaultValue = "false")
+	protected boolean includeP2Dependencies = false;
+
+	/**
+	 * If mapP2Dependencies is true then Tycho tries to reverse-resolve P2
+	 * dependencies to true maven artifact coordinates and include those in the pom
+	 * instead of the P2 system scoped ones.
+	 */
+	@Parameter(defaultValue = "false")
+	protected boolean mapP2Dependencies = false;
+
 	@Parameter
 	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
+
+	@Parameter(defaultValue = "local,central")
+	private String resolver;
+
+	private Map<String, Optional<Dependency>> resolvedDependencies = new HashMap<>();
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -112,10 +144,9 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		for (Dependency dep : list) {
 			Dependency copy = dep.clone();
 			if (Artifact.SCOPE_SYSTEM.equals(dep.getScope())) {
-				if (dep.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX) || isEmbeddedJar(dep)) {
-					copy.setOptional(true);
-					copy.setScope(Artifact.SCOPE_PROVIDED);
-					copy.setSystemPath(null);
+				if (!handleSystemScopeDependency(copy)) {
+					// skip this ...
+					continue;
 				}
 			}
 			dependencies.add(copy);
@@ -141,6 +172,45 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			project.setFile(output);
 		}
 
+	}
+
+	private boolean handleSystemScopeDependency(Dependency dep) {
+		if (dep.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX) || isEmbeddedJar(dep)) {
+			if (mapP2Dependencies && !isEmbeddedJar(dep)) {
+				Path p = getPath(dep);
+				Optional<Dependency> resolved = resolvedDependencies.computeIfAbsent(p.normalize().toString(), nil -> {
+					return Arrays.stream(resolver.split(",")).map(String::strip).map(artifactCoordinateResolvers::get)
+							.filter(Objects::nonNull).flatMap(resolver -> resolver.resolve(p).stream()).findFirst();
+				});
+				if (resolved.isPresent()) {
+					dep.setScope(Artifact.SCOPE_COMPILE); // TODO what about test dependencies?
+					dep.setSystemPath(null);
+					Dependency dependency = resolved.get();
+					dep.setArtifactId(dependency.getArtifactId());
+					dep.setGroupId(dependency.getGroupId());
+					dep.setVersion(dependency.getVersion());
+					dep.setType(dependency.getType());
+					return true;
+				}
+			}
+			dep.setOptional(true);
+			dep.setScope(Artifact.SCOPE_PROVIDED);
+			dep.setSystemPath(null);
+			return includeP2Dependencies;
+		}
+		return true;
+	}
+
+	private Path getPath(Dependency dep) {
+		String systemPath = dep.getSystemPath();
+		if (systemPath != null) {
+			try {
+				return Path.of(systemPath).toAbsolutePath();
+			} catch (InvalidPathException e) {
+				// then we can't use it ...
+			}
+		}
+		return null;
 	}
 
 	private boolean isEmbeddedJar(Dependency dep) {
