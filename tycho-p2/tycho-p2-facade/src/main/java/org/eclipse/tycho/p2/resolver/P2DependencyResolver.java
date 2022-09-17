@@ -44,6 +44,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -59,17 +60,19 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
@@ -84,15 +87,12 @@ import org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -131,6 +131,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     @Requirement
     private PluginRealmHelper pluginRealmHelper;
 
+    @Requirement
+    private LegacySupport context;
+
     private P2ResolverFactory resolverFactory;
 
     private DependencyMetadataGenerator generator;
@@ -150,15 +153,13 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             typeMap.put(type, new LinkedHashSet<>());
         }
         for (IDependencyMetadata metadata : metadataMap.values()) {
-            for (Entry<DependencyMetadataType, Set<IInstallableUnit>> map : typeMap.entrySet()) {
-                map.getValue().addAll(metadata.getDependencyMetadata(map.getKey()));
-            }
+            typeMap.forEach((key, value) -> value.addAll(metadata.getDependencyMetadata(key)));
         }
         Set<IInstallableUnit> initial = new HashSet<>();
-        for (Entry<DependencyMetadataType, Set<IInstallableUnit>> entry : typeMap.entrySet()) {
-            reactorProject.setDependencyMetadata(entry.getKey(), entry.getValue());
-            initial.addAll(entry.getValue());
-        }
+        typeMap.forEach((key, value) -> {
+        	reactorProject.setDependencyMetadata(key, value);
+            initial.addAll(value);
+        });
         reactorProject.setDependencyMetadata(DependencyMetadataType.INITIAL, initial);
     }
 
@@ -239,8 +240,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
                 optionalAction);
         Map<DependencyMetadataType, Set<IInstallableUnit>> typeMap = new TreeMap<>();
-        for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
-            IDependencyMetadata value = entry.getValue();
+        for (IDependencyMetadata value : dependencyMetadata.values()) {
             for (DependencyMetadataType type : DependencyMetadataType.values()) {
                 typeMap.computeIfAbsent(type, t -> new LinkedHashSet<>()).addAll(value.getDependencyMetadata(type));
             }
@@ -343,11 +343,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         if (dependencyArtifacts instanceof ArtifactCollection) {
             //enhance the dependency set
             ArtifactCollection collection = (ArtifactCollection) dependencyArtifacts;
-            Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = dependencyCollector
-                    .getMavenInstallableUnits();
-            for (var entry : mavenInstallableUnits.entrySet()) {
-                IInstallableUnit key = entry.getKey();
-                IArtifactFacade val = entry.getValue();
+            dependencyCollector.getMavenInstallableUnits().forEach((key, val) -> {
                 ArtifactKey artifactKey = dependencyCollector.getArtifactKey(val);
                 File location = val.getLocation();
                 try {
@@ -355,7 +351,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 } catch (IllegalStateException e) {
                     //already contained in the collection --> ignore it...
                 }
-            }
+            });
         }
         return dependencyCollector;
     }
@@ -508,6 +504,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts dependencyArtifacts, DependencyArtifacts testDependencyArtifacts, Logger logger) {
         MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts,
-                bundleReader, resolverFactory::resolveDependencyDescriptor, logger, repositorySystem);
+                bundleReader, resolverFactory::resolveDependencyDescriptor, logger, repositorySystem,
+                context.getSession().getSettings());
     }
 }

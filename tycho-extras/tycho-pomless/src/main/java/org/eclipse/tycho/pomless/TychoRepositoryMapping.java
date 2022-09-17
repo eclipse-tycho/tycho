@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,14 +62,19 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException {
-        if (artifactFile.getName().endsWith(PRODUCT_EXTENSION)) {
-            File projectRoot = artifactFile.getParentFile();
-            try (var files = filesWithExtension(projectRoot.toPath(), PRODUCT_EXTENSION)) {
+    public float getPriority() {
+        return 20;
+    }
+
+    @Override
+    protected void initModel(Model model, Reader artifactReader, Path artifactFile) throws IOException {
+        if (getFileName(artifactFile).endsWith(PRODUCT_EXTENSION)) {
+            Path projectRoot = artifactFile.getParent();
+            try (var files = filesWithExtension(projectRoot, PRODUCT_EXTENSION)) {
                 List<File> products = files.collect(Collectors.toList());
                 if (products.size() > 1) {
                     //multiple products must inherit version from parent but get the artifact-id from the parent-folder
-                    model.setArtifactId(projectRoot.getName());
+                    model.setArtifactId(getFileName(projectRoot));
                     Plugin directorPlugin = createDirectorPlugin(model);
                     List<String> names = new ArrayList<>();
                     for (File file : products) {
@@ -90,8 +96,8 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
-        if (artifactFile.getName().endsWith(PRODUCT_EXTENSION)) {
+    protected void initModelFromXML(Model model, Element xml, Path artifactFile) throws IOException {
+        if (getFileName(artifactFile).endsWith(PRODUCT_EXTENSION)) {
             model.setArtifactId(getRequiredXMLAttributeValue(xml, PRODUCT_UID_ATTRIBUTE));
             String version = getXMLAttributeValue(xml, PRODUCT_VERSION_ATTRIBUTE);
             if (version != null) {
@@ -105,8 +111,8 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
         }
     }
 
-    private static void initFromCategory(Model model, File categoryXml) {
-        String name = categoryXml.getParentFile().getName();
+    private static void initFromCategory(Model model, Path categoryXml) {
+        String name = getFileName(categoryXml.getParent());
         if (!name.endsWith(UPDATE_SITE_SUFFIX)) {
             name = name + UPDATE_SITE_SUFFIX;
         }
@@ -115,8 +121,9 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected boolean isValidLocation(String location) {
-        return location.endsWith(PRODUCT_EXTENSION) || location.endsWith(CATEGORY_XML);
+    protected boolean isValidLocation(Path location) {
+        String fileName = getFileName(location);
+        return fileName.endsWith(PRODUCT_EXTENSION) || fileName.endsWith(CATEGORY_XML);
     }
 
     @Override

@@ -36,8 +36,8 @@ import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
@@ -95,9 +95,8 @@ public class P2GeneratorImplTest {
         assertEquals(0, unit.getRequirements().size());
     }
 
-    private IInstallableUnit getUnit(String id, Set<?> units) {
-        for (Object obj : units) {
-            IInstallableUnit unit = (IInstallableUnit) obj;
+    private IInstallableUnit getUnit(String id, Set<IInstallableUnit> units) {
+        for (IInstallableUnit unit : units) {
             if (id.equals(unit.getId())) {
                 return unit;
             }

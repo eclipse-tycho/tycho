@@ -191,10 +191,7 @@ public class P2MetadataMojo extends AbstractMojo {
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
             Set<IInstallableUnit> installableUnits = new LinkedHashSet<>();
-            for (Map.Entry<String, IP2Artifact> entry : generatedMetadata.entrySet()) {
-                String classifier = entry.getKey();
-                IP2Artifact p2artifact = entry.getValue();
-
+            generatedMetadata.forEach((classifier, p2artifact) -> {
                 installableUnits.addAll(p2artifact.getInstallableUnits());
 
                 // attach any new classified artifacts, like feature root files for example
@@ -202,7 +199,7 @@ public class P2MetadataMojo extends AbstractMojo {
                     projectHelper.attachArtifact(project, getExtension(p2artifact.getLocation()), classifier,
                             p2artifact.getLocation());
                 }
-            }
+            });
 
             // TODO 353889 distinguish between dependency resolution seed units ("primary") and other units of the project
             reactorProject.setDependencyMetadata(DependencyMetadataType.SEED, installableUnits);

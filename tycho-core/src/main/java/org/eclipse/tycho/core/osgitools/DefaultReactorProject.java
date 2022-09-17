@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2020 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -186,16 +188,16 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public Set<IInstallableUnit> getDependencyMetadata() {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>(
-                getDependencyMetadata(DependencyMetadataType.SEED));
+        Set<IInstallableUnit> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataType.SEED));
         result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
     @Override
     public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
-        return Objects.requireNonNullElse((Set<IInstallableUnit>) getContextValue(getDependencyMetadataKey(type)),
-                Collections.emptySet());
+        @SuppressWarnings("unchecked")
+        Set<IInstallableUnit> contextValue = (Set<IInstallableUnit>) getContextValue(getDependencyMetadataKey(type));
+        return Objects.requireNonNullElse(contextValue, Collections.emptySet());
     }
 
     private static String getDependencyMetadataKey(DependencyMetadataType type) {

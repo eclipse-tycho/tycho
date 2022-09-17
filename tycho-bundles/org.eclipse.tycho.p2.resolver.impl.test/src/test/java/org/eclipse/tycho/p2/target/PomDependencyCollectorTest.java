@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -61,7 +61,7 @@ public class PomDependencyCollectorTest {
 
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
-        Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
+        Collection<IInstallableUnit> units = subject.getMavenInstallableUnits().keySet();
         assertThat(units, hasItem(unitWithId("test.unit.source")));
         assertEquals(1, units.size());
     }
@@ -73,7 +73,7 @@ public class PomDependencyCollectorTest {
 
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
-        Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
+        Collection<IInstallableUnit> units = subject.getMavenInstallableUnits().keySet();
         assertThat(units, hasItem(unitWithId("test.unit")));
         assertEquals(1, units.size());
     }
@@ -85,7 +85,7 @@ public class PomDependencyCollectorTest {
 
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
-        Collection<IInstallableUnit> units = (Collection<IInstallableUnit>) subject.getMavenInstallableUnits().keySet();
+        Collection<IInstallableUnit> units = subject.getMavenInstallableUnits().keySet();
         assertTrue(units.isEmpty());
     }
 

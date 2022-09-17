@@ -26,7 +26,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
@@ -86,8 +85,8 @@ public class StandaloneDirectorRuntimeFactory {
 
     private File getDirectorRepositoryZip(ArtifactRepository localMavenRepository) {
         // this artifact is a dependency of the Mojo, so we expect it in the local Maven repo
-        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-bundles-external",
-                TychoVersion.getTychoVersion(), "eclipse-repository");
+        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-bundles-external", "2.7.5",
+                "eclipse-repository");
         return new File(localMavenRepository.getBasedir(), localMavenRepository.pathOf(artifact));
     }
 }

@@ -40,7 +40,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2014, 2021 Bachmann electronics GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Bachmann electronics GmbH - initial API and implementation
@@ -21,8 +23,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Test;
 

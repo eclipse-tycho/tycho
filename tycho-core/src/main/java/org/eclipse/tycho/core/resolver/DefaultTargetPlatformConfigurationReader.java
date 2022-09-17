@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -33,7 +35,9 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
@@ -43,9 +47,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPol
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {

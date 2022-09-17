@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
@@ -41,7 +42,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  * 
  * @since 1.2.0
  */
-@Mojo(name = "publish-osgi-ee", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
+@Mojo(name = "publish-osgi-ee", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishOsgiEEMojo extends AbstractPublishMojo {
 
     /**

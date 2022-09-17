@@ -281,13 +281,6 @@
 			<version>${tycho-build-version}</version>
 			<type>pom</type>
 		</dependency>
-		<!-- Tycho's OSGi runtime -->
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-bundles-external</artifactId>
-			<version>${tycho-build-version}</version>
-			<type>eclipse-repository</type>
-		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.tycho.p2.resolver.shared</artifactId>

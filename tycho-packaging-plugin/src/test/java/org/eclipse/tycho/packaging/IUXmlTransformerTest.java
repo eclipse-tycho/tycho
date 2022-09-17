@@ -22,7 +22,7 @@ import java.io.File;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.model.IU;
 import org.eclipse.tycho.testing.TestUtil;
 import org.hamcrest.Description;

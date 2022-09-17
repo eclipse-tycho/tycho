@@ -52,15 +52,15 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyResolutionException;
-import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
@@ -123,11 +123,11 @@ public class P2ResolverImpl implements P2Resolver {
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         Set<IInstallableUnit> usedTargetPlatformUnits = new LinkedHashSet<>();
-        Set<?> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
+        Set<IInstallableUnit> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
                 : Collections.emptySet();
         for (TargetEnvironment environment : environments) {
             if (isMatchingEnv(metadata, environment, logger::debug)) {
-                results.put(environment, resolveDependencies(Collections.<IInstallableUnit> emptySet(), project,
+                results.put(environment, resolveDependencies(Collections.emptySet(), project,
                         new ProjectorResolutionStrategy(logger), environment, targetPlatform, usedTargetPlatformUnits));
             } else {
                 logger.info(MessageFormat.format(
@@ -208,7 +208,6 @@ public class P2ResolverImpl implements P2Resolver {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     protected P2ResolutionResult resolveDependencies(Collection<IInstallableUnit> rootUIs, ReactorProject project,
             AbstractResolutionStrategy strategy, TargetEnvironment environment, P2TargetPlatform targetPlatform,
             Set<IInstallableUnit> usedTargetPlatformUnits) {
@@ -216,8 +215,8 @@ public class P2ResolverImpl implements P2Resolver {
 
         Set<IInstallableUnit> availableUnits = targetPlatform.getInstallableUnits();
         if (project != null) {
-            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(DependencyMetadataType.SEED));
-            Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
+            data.setRootIUs(project.getDependencyMetadata(DependencyMetadataType.SEED));
+            Collection<IInstallableUnit> projectSecondaryIUs = project
                     .getDependencyMetadata(DependencyMetadataType.RESOLVE);
             if (!projectSecondaryIUs.isEmpty()) {
                 availableUnits = new LinkedHashSet<>(availableUnits);
@@ -237,7 +236,7 @@ public class P2ResolverImpl implements P2Resolver {
             newState = strategy.resolve(environment, monitor);
             if (pomDependencies != PomDependencies.ignore) {
                 Collection<IRequirement> missingRequirements = data.getMissingRequirements();
-                if (missingRequirements.size() > 0) {
+                if (!missingRequirements.isEmpty()) {
                     logger.info(
                             "The following requirements are not satisfied yet and must be provided through pom dependencies:");
                     for (IRequirement requirement : missingRequirements) {
@@ -369,12 +368,11 @@ public class P2ResolverImpl implements P2Resolver {
                 + ", required is " + P2TargetPlatform.class);
     }
 
-    @SuppressWarnings("unchecked")
     private static Set<IInstallableUnit> getProjectUnits(ReactorProject project) {
         if (project == null) {
             return Collections.emptySet();
         } else {
-            return (Set<IInstallableUnit>) project.getDependencyMetadata();
+            return project.getDependencyMetadata();
         }
     }
 
@@ -507,19 +505,17 @@ public class P2ResolverImpl implements P2Resolver {
      * @param environment
      * @return
      */
-    private static boolean isMatchingEnv(Set<?> metadata, TargetEnvironment environment,
+    private static boolean isMatchingEnv(Set<IInstallableUnit> metadata, TargetEnvironment environment,
             Consumer<String> debugConsumer) {
         if (metadata != null) {
-            for (Object meta : metadata) {
-                if (meta instanceof IInstallableUnit) {
-                    IMatchExpression<IInstallableUnit> filter = ((IInstallableUnit) meta).getFilter();
-                    if (filter != null) {
-                        boolean match = filter.isMatch(InstallableUnit.contextIU(environment.toFilterProperties()));
-                        debugConsumer.accept(MessageFormat.format("{0}: {1} (matches {2})", filter,
-                                Arrays.toString(filter.getParameters()), match));
-                        if (!match) {
-                            return false;
-                        }
+            for (IInstallableUnit meta : metadata) {
+                IMatchExpression<IInstallableUnit> filter = meta.getFilter();
+                if (filter != null) {
+                    boolean match = filter.isMatch(InstallableUnit.contextIU(environment.toFilterProperties()));
+                    debugConsumer.accept(MessageFormat.format("{0}: {1} (matches {2})", filter,
+                            Arrays.toString(filter.getParameters()), match));
+                    if (!match) {
+                        return false;
                     }
                 }
             }

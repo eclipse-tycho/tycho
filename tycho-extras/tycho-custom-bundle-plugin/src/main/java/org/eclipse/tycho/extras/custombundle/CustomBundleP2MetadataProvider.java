@@ -18,7 +18,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -32,12 +34,11 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 
@@ -56,24 +57,29 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
 	public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
 			List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
 		Map<String, IDependencyMetadata> metadata = new LinkedHashMap<>();
-		Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-custom-bundle-plugin");
-		if (plugin != null) {
-			// it is possible to configure manifest location at <plugin> level, but it does
-			// not make sense to do so
-			for (PluginExecution execution : plugin.getExecutions()) {
-				File location = getBundleLocation(execution);
-				String classifier = getClassifier(execution);
-				if (location != null && classifier != null) {
-					IArtifactFacade artifact = new AttachedArtifact(project, location, classifier);
-					metadata.put(classifier, new SecondaryDependencyMetadata(generator.generateMetadata(artifact,
-							environments, optionalAction, new PublisherOptions())));
-				}
-			}
-		}
+		getCustomArtifacts(project).forEach(artifact -> {
+			metadata.put(artifact.getClassifier(), new SecondaryDependencyMetadata(
+					generator.generateMetadata(artifact, environments, optionalAction, new PublisherOptions())));
+		});
 		return metadata;
 	}
 
-	private String getClassifier(PluginExecution execution) {
+	static Stream<AttachedArtifact> getCustomArtifacts(MavenProject project) {
+		Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-custom-bundle-plugin");
+		if (plugin != null) {
+			return plugin.getExecutions().stream().map(execution -> {
+				File location = getBundleLocation(execution);
+				String classifier = getClassifier(execution);
+				if (location != null && classifier != null) {
+					return new AttachedArtifact(project, location, classifier);
+				}
+				return null;
+			}).filter(Objects::nonNull);
+		}
+		return Stream.empty();
+	}
+
+	private static String getClassifier(PluginExecution execution) {
 		Xpp3Dom cfg = (Xpp3Dom) execution.getConfiguration();
 		if (cfg == null) {
 			return null;
@@ -85,7 +91,7 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
 		return classifierDom.getValue();
 	}
 
-	private File getBundleLocation(PluginExecution execution) {
+	private static File getBundleLocation(PluginExecution execution) {
 		Xpp3Dom cfg = (Xpp3Dom) execution.getConfiguration();
 		if (cfg == null) {
 			return null;

@@ -17,6 +17,7 @@ package org.eclipse.tycho.pomless;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,8 +39,13 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected boolean isValidLocation(String location) {
-        return location.endsWith(TARGET_EXTENSION);
+    public float getPriority() {
+        return 10;
+    }
+
+    @Override
+    protected boolean isValidLocation(Path location) {
+        return getFileName(location).endsWith(TARGET_EXTENSION);
     }
 
     @Override
@@ -64,8 +70,8 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
-        String fileName = artifactFile.getName();
+    protected void initModelFromXML(Model model, Element xml, Path artifactFile) throws IOException {
+        String fileName = getFileName(artifactFile);
         String artifactId = fileName.substring(0, fileName.length() - TARGET_EXTENSION.length());
         model.setArtifactId(artifactId);
         String name = getXMLAttributeValue(xml, "name");

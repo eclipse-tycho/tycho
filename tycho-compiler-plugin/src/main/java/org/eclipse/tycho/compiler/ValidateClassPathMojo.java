@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2021 Christoph Läubrich and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
@@ -21,9 +23,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 /**
  * This mojo could be added to a build if validation of the classpath is desired before the
@@ -43,8 +47,13 @@ public class ValidateClassPathMojo extends AbstractMojo {
 
         TychoProject projectType = projectTypes.get(project.getPackaging());
         if (projectType instanceof OsgiBundleProject) {
-            OsgiBundleProject bundleProject = (OsgiBundleProject) projectType;
-            bundleProject.getClasspath(DefaultReactorProject.adapt(project));
+            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+            if (TychoProjectUtils.getOptionalDependencyArtifacts(reactorProject).isPresent()) {
+                OsgiBundleProject bundleProject = (OsgiBundleProject) projectType;
+                bundleProject.getClasspath(reactorProject);
+            } else {
+                getLog().info("Skip classpath validation because project is currently not resolved.");
+            }
         }
     }
 

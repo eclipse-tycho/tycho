@@ -15,14 +15,15 @@ package org.eclipse.tycho.plugins.p2;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.eclipse.equinox.internal.p2.updatesite.UpdateSitePublisherApplication;
 
 @Mojo(name = "update-site-p2-metadata", threadSafe = true)
 public class UpdateSiteP2MetadataMojo extends AbstractP2MetadataMojo {
     private static final Object LOCK = new Object();
 
     @Override
-    protected String getPublisherApplication() {
-        return "org.eclipse.equinox.p2.publisher.UpdateSitePublisher";
+    protected UpdateSitePublisherApplication getPublisherApplication() {
+        return new UpdateSitePublisherApplication();
     }
 
     @Override

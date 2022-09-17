@@ -45,10 +45,10 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
@@ -98,7 +98,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertEquals(2, result.getNonReactorUnits().size()); // + a.jre
     }
 
-    @SuppressWarnings({ "unchecked", "deprecation" })
+    @SuppressWarnings("deprecation")
     @Test
     public void testSiteConflictingDependenciesResolver() throws IOException {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
@@ -123,7 +123,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         }
         // conflicting dependency mode only collects included artifacts - the referenced non-reactor unit
         // org.eclipse.osgi is not included
-        assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), not(hasItem(unitWithId("org.eclipse.osgi"))));
+        assertThat(result.getNonReactorUnits(), not(hasItem(unitWithId("org.eclipse.osgi"))));
     }
 
     @Test
@@ -140,7 +140,6 @@ public class P2ResolverTest extends P2ResolverTestBase {
                 () -> impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testProjectToResolveOverwritesTargetContent() throws Exception {
         reactorProjects.add(createReactorProject(resourceFile("resolver/bundle.optional-dep"), TYPE_ECLIPSE_PLUGIN,
@@ -151,7 +150,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
-        assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
+        assertThat(result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
         // the unit from projectToResolve with the dependency has been used
     }
 
@@ -476,7 +475,6 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertEquals(0, macosx.getNonReactorUnits().size());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testAdditionalFilterProperties() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
@@ -488,10 +486,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
         impl.setAdditionalFilterProperties(Collections.singletonMap("org.example.custom.option", "true"));
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
-        assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
+        assertThat(result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testResolveWithoutProject() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
@@ -500,7 +497,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         impl.addDependency(TYPE_ECLIPSE_PLUGIN, "org.eclipse.osgi", "0.0.0");
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
-        assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
+        assertThat(result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
     }
 
     private P2TargetPlatform getTargetPlatform() {

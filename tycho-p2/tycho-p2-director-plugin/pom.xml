@@ -57,7 +57,8 @@
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-bundles-external</artifactId>
-			<version>${project.version}</version>
+			<!-- use a fixed version here for now, this is only used when working with a standalone director -->
+			<version>2.7.5</version>
 			<type>zip</type>
 		</dependency>
 		<dependency>

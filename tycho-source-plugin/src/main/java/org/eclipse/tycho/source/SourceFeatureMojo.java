@@ -51,7 +51,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;

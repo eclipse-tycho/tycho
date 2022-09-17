@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2021, 2022 Christoph Läubrich and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Christoph Läubrich - initial API and implementation based on 
@@ -13,7 +15,7 @@
 package org.eclipse.tycho.build;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,6 +52,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
+import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencies;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.sonatype.maven.polyglot.mapping.Mapping;
@@ -97,8 +100,33 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			loggerAdapter.debug("  - ExcludedProjects: " + request.getExcludedProjects());
 			loggerAdapter.debug("  - MakeBehavior:     " + makeBehavior);
 		}
+		// upstream is the -am / --also-make option of maven described as:
+		// When you specify a project with the -am option, Maven will build all of the
+		// projects that the specified project depends upon (either directly or
+		// indirectly). Maven will examine the list of projects and walk down the
+		// dependency tree, finding all of the projects that it needs to build.
+		// If you are working on the multi-module project with the build order shown in
+		// Order of Project Builds in Maven Reactor and you were only interested in
+		// working on the sample-services project, you would run mvn -pl simple-services
+		// -am to build only those projects
+		// $ mvn --projects sample-services --also-make install
 		boolean makeUpstream = MavenExecutionRequest.REACTOR_MAKE_UPSTREAM.equals(makeBehavior)
 				|| MavenExecutionRequest.REACTOR_MAKE_BOTH.equals(makeBehavior);
+
+		// downstream is the -amd / -also-make-dependents option of maven that is
+		// described as:
+		// While the -am command makes all of the projects required by a particular
+		// project in a multi-module build, the -amd or --also-make-dependents option
+		// configures Maven to build a project and any project that depends on that
+		// project. When using --also-make-dependents, Maven will examine all of the
+		// projects in our reactor to find projects that depend on a particular project.
+		// It will automatically build those projects and nothing else.
+		// If you are working on the multi-module project with the build order shown in
+		// Order of Project Builds in Maven Reactor and you wanted to make sure that
+		// your changes to sample-services did not introduce any errors into the
+		// projects that directly or indirectly depend on sample-services, you would run
+		// the following command:
+		// $ mvn --projects sample-services --also-make-dependents install
 		boolean makeDownstream = MavenExecutionRequest.REACTOR_MAKE_DOWNSTREAM.equals(makeBehavior)
 				|| MavenExecutionRequest.REACTOR_MAKE_BOTH.equals(makeBehavior);
 		if (!makeDownstream && !makeUpstream) {
@@ -126,12 +154,12 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 			if (loggerAdapter.isExtendedDebugEnabled()) {
 				for (MavenProject project : projects) {
-					Collection<IInstallableUnit> depends = dependencyClosure.getProjectDependecies(project);
-					if (depends.isEmpty()) {
+					ProjectDependencies depends = dependencyClosure.getProjectDependecies(project);
+					if (depends.getDependencies().isEmpty()) {
 						continue;
 					}
 					loggerAdapter.debug("[[ project " + project.getName() + " depends on: ]]");
-					for (IInstallableUnit dependency : depends) {
+					for (IInstallableUnit dependency : depends.getDependencies()) {
 						Optional<MavenProject> mavenProject = dependencyClosure.getProject(dependency);
 						if (mavenProject.isEmpty()) {
 							loggerAdapter.debug(" IU: " + dependency);
@@ -150,16 +178,15 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			while (!queue.isEmpty()) {
 				ProjectRequest projectRequest = queue.poll();
 				if (selectedProjects.add(projectRequest.mavenProject)) {
-					if (projectRequest.requestUpstream) {
+					if (projectRequest.addDependencies) {
 						dependencyClosure.getDependencyProjects(projectRequest.mavenProject).forEach(project -> {
-							loggerAdapter.debug(" + add upstream project '" + project.getName() + "' of project '"
-									+ projectRequest.mavenProject.getName() + "'...");
-							// make behaviors are both false here as projectDependenciesMap includes
-							// transitive already
-							queue.add(new ProjectRequest(project, false, false, projectRequest));
+							loggerAdapter.debug(" + add dependency project '" + project.getId() + "' of project '"
+									+ projectRequest.mavenProject.getId() + "'...");
+							// we also need to add the dependencies of the dependency project
+							queue.add(new ProjectRequest(project, false, true, projectRequest));
 						});
 					}
-					if (projectRequest.requestDownstream) {
+					if (projectRequest.addRequires) {
 						dependencyClosure.dependencies()//
 								.filter(entry -> {
 									return entry.getValue().stream()//
@@ -168,12 +195,12 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 								})//
 								.map(Entry::getKey)//
 								.distinct()//
-								.peek(project -> loggerAdapter.debug(" + add downstream project '" + project.getName()
-										+ "' of project '" + projectRequest.mavenProject.getName() + "'..."))//
+								.peek(project -> loggerAdapter.debug(" + add project '" + project.getId()
+										+ "' that depends on '" + projectRequest.mavenProject.getId() + "'..."))//
 								// request dependencies of dependants, otherwise, -amd would not be able to
 								// produce a satisfiable build graph
 								.forEach(
-										project -> queue.add(new ProjectRequest(project, false, true, projectRequest)));
+										project -> queue.add(new ProjectRequest(project, true, true, projectRequest)));
 					}
 				}
 			}
@@ -191,6 +218,14 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		}
 
 		try {
+			log.debug("=============== SELECTED PROJECTS ==================");
+
+			selectedProjects.stream()
+					.sorted(Comparator.comparing(MavenProject::getGroupId, String.CASE_INSENSITIVE_ORDER)
+							.thenComparing(MavenProject::getArtifactId, String.CASE_INSENSITIVE_ORDER))
+					.forEachOrdered(p -> {
+						log.debug(p.getId());
+					});
 			return Result.success(new DefaultProjectDependencyGraph(projects, selectedProjects));
 		} catch (DuplicateProjectException | CycleDetectedException e) {
 			log.error("Can't compute project dependency graph", e);
@@ -229,13 +264,19 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 		final MavenProject mavenProject;
 		final ProjectRequest parent;
-		final boolean requestDownstream;
-		final boolean requestUpstream;
+		/**
+		 * The request is to add everything that requires the given maven project
+		 */
+		final boolean addRequires;
+		/**
+		 * The request is to add any dependency of the given maven project
+		 */
+		final boolean addDependencies;
 
-		ProjectRequest(MavenProject mavenProject, boolean requestDownstream, boolean requestUpstream,
+		ProjectRequest(MavenProject mavenProject, boolean addRequires, boolean addDependencies,
 				ProjectRequest parent) {
-			this.requestDownstream = requestDownstream;
-			this.requestUpstream = requestUpstream;
+			this.addRequires = addRequires;
+			this.addDependencies = addDependencies;
 			this.parent = parent;
 			this.mavenProject = mavenProject;
 		}
@@ -246,8 +287,8 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 		@Override
 		public String toString() {
-			return "ProjectRequest [mavenProject=" + mavenProject + ", parent=" + parent + ", requestDownstream="
-					+ requestDownstream + ", requestUpstream=" + requestUpstream + "]";
+			return "ProjectRequest [mavenProject=" + mavenProject + ", parent=" + parent + ", addRequires="
+					+ addRequires + ", addDependencies=" + addDependencies + "]";
 		}
 	}
 

@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
@@ -111,7 +112,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
 
         this.remoteAgent = remoteAgent;
-        this.remoteRepositoryIdManager = remoteAgent.getService(IRepositoryIdManager.class);
+        this.remoteRepositoryIdManager = Objects.requireNonNull(remoteAgent.getService(IRepositoryIdManager.class),
+                "IRepositoryIdManager not registered with agent " + remoteAgent + "!");
         this.offline = mavenContext.isOffline();
 
         this.remoteMetadataRepositoryManager = remoteAgent.getService(IMetadataRepositoryManager.class);
@@ -386,9 +388,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<>();
 
         for (ReactorProject project : reactorProjects) {
-            @SuppressWarnings("unchecked")
-            Set<IInstallableUnit> projectIUs = (Set<IInstallableUnit>) project
-                    .getDependencyMetadata(DependencyMetadataType.INITIAL);
+            Set<IInstallableUnit> projectIUs = project.getDependencyMetadata(DependencyMetadataType.INITIAL);
 
             if (projectIUs == null)
                 continue;
@@ -433,7 +433,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                     || reactorIUIDs.contains(unit.getId())) {
                 // TODO debug log output?
                 iter.remove();
-                continue;
             }
         }
 
@@ -448,7 +447,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     private static boolean isPartialIU(IInstallableUnit iu) {
-        return Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue();
+        return Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU));
     }
 
     static int countElements(Iterator<?> iterator) {

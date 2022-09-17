@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import de.pdark.decentxml.Attribute;
@@ -155,13 +156,22 @@ public class ProductConfiguration {
         return Collections.unmodifiableList(plugins);
     }
 
-    public boolean useFeatures() {
-        return Boolean.parseBoolean(dom.getAttributeValue("useFeatures"));
+    public ProductType getType() {
+        String type = dom.getAttributeValue("type");
+        if (type != null && !type.isEmpty()) {
+            return ProductType.parse(type);
+        }
+        // Support legacy 'useFeatures' attribute  
+        String useFeatures = dom.getAttributeValue("useFeatures");
+        if (useFeatures != null && !useFeatures.isEmpty()) {
+            return Boolean.parseBoolean(useFeatures) ? ProductType.FEATURES : ProductType.BUNDLES;
+        }
+        return ProductType.BUNDLES;
     }
 
     public boolean includeLaunchers() {
         String attribute = dom.getAttributeValue("includeLaunchers");
-        return attribute == null ? true : Boolean.parseBoolean(attribute);
+        return attribute == null || Boolean.parseBoolean(attribute);
     }
 
     public String getVersion() {
@@ -271,6 +281,28 @@ public class ProductConfiguration {
             return null;
         }
         return linux.getAttributeValue("icon");
+    }
+
+    /**
+     * @see org.eclipse.equinox.internal.p2.publisher.eclipse.ProductContentType
+     */
+    public enum ProductType {
+        BUNDLES, // only bundles are accepted in the product
+        FEATURES, // only features are accepted in the product
+        MIXED; // all kinds of installable units are accepted in the product
+
+        public static ProductType parse(String s) {
+            try {
+                return ProductType.valueOf(s.toUpperCase(Locale.ENGLISH));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Illegal product type " + s, e); //$NON-NLS-1$
+            }
+        }
+
+        @Override
+        public String toString() {
+            return name().toLowerCase(Locale.ENGLISH);
+        }
     }
 
     public ConfigIni getConfigIni() {

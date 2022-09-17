@@ -38,7 +38,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.eclipse.osgi.service.resolver.ImportPackageSpecification;
 import org.eclipse.osgi.util.ManifestElement;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.OptionalResolutionAction;
 
 @SuppressWarnings("restriction")
 public class BundleDependenciesAction extends BundlesAction {

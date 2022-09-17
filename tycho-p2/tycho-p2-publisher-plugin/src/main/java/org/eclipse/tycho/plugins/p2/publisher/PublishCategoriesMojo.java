@@ -24,6 +24,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.PackagingType;
@@ -42,7 +43,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  * 
  * @see https://wiki.eclipse.org/Equinox/p2/Publisher
  */
-@Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
+@Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)

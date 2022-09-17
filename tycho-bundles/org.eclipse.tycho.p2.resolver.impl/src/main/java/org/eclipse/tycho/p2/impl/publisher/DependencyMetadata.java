@@ -36,14 +36,14 @@ public class DependencyMetadata implements IDependencyMetadata {
 
     @Override
     public Set<IInstallableUnit> getDependencyMetadata() {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
+        Set<IInstallableUnit> result = new LinkedHashSet<>();
         result.addAll(getDependencyMetadata(DependencyMetadataType.SEED));
         result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
+    @Override
     public void setDependencyMetadata(DependencyMetadataType type, Collection<IInstallableUnit> units) {
-
         typeMap.put(type, new LinkedHashSet<>(units));
     }
 

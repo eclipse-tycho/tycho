@@ -64,21 +64,6 @@
         </lifecycles>
       </configuration>
     </component>
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>eclipse-plugin</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>jar</extension>
-        <type>eclipse-plugin</type>
-        <packaging>eclipse-plugin</packaging>
-        <language>java</language>
-        <addedToClasspath>true</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
-      </configuration>
-    </component>
 
     <component>
       <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
@@ -134,22 +119,6 @@
         </lifecycles>
       </configuration>
     </component>
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>eclipse-test-plugin</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>jar</extension>
-        <type>eclipse-test-plugin</type>
-        <packaging>eclipse-test-plugin</packaging>
-        <language>java</language>
-        <addedToClasspath>true</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
-      </configuration>
-    </component>
-
 
     <component>
       <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
@@ -190,21 +159,6 @@
             </phases>
           </lifecycle>
         </lifecycles>
-      </configuration>
-    </component>
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>eclipse-feature</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>jar</extension>
-        <type>eclipse-feature</type>
-        <packaging>eclipse-feature</packaging>
-        <language>java</language>
-        <addedToClasspath>false</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
       </configuration>
     </component>
 
@@ -253,21 +207,6 @@
         </lifecycles>
       </configuration>
     </component>
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>eclipse-repository</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>zip</extension>
-        <type>eclipse-repository</type>
-        <packaging>eclipse-repository</packaging>
-        <language>java</language>
-        <addedToClasspath>false</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
-      </configuration>
-    </component>
     
     <component>
       <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
@@ -294,22 +233,6 @@
         </lifecycles>
       </configuration>
     </component>
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>eclipse-target-definition</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>target</extension>
-        <type>eclipse-target-definition</type>
-        <packaging>eclipse-target-definition</packaging>
-        <language>java</language>
-        <addedToClasspath>false</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
-      </configuration>
-    </component>
-
 
     <component>
       <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
@@ -347,52 +270,6 @@
             </phases>
           </lifecycle>
         </lifecycles>
-      </configuration>
-    </component>
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>p2-installable-unit</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>zip</extension>
-        <type>p2-installable-unit</type>
-        <packaging>p2-installable-unit</packaging>
-        <language>java</language>
-        <addedToClasspath>false</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
-      </configuration>
-    </component>
-
-
-    <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>p2-artifacts</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>xml</extension>
-        <type>p2-artifacts</type>
-        <language>P2</language>
-        <addedToClasspath>false</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
-      </configuration>
-    </component>
-    
-     <component>
-      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
-      <role-hint>p2-metadata</role-hint>
-      <implementation>
-        org.apache.maven.artifact.handler.DefaultArtifactHandler
-      </implementation>
-      <configuration>
-        <extension>xml</extension>
-        <type>p2-metadata</type>
-        <language>P2</language>
-        <addedToClasspath>false</addedToClasspath>
-        <includesDependencies>false</includesDependencies>
       </configuration>
     </component>
 

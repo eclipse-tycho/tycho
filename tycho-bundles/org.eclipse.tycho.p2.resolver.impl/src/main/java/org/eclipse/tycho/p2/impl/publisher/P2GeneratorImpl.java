@@ -40,10 +40,10 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.Interpolator;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
@@ -184,10 +184,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         Set<IInstallableUnit> units = new LinkedHashSet<>();
         Set<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<>();
         for (IP2Artifact artifact : metadata.values()) {
-            for (Object unit : artifact.getInstallableUnits()) {
-                units.add((IInstallableUnit) unit);
-            }
-            artifactDescriptors.add((IArtifactDescriptor) artifact.getArtifactDescriptor());
+            units.addAll(artifact.getInstallableUnits());
+            artifactDescriptors.add(artifact.getArtifactDescriptor());
         }
         new MetadataIO().writeXML(units, unitsXml);
         new ArtifactsIO().writeXML(artifactDescriptors, artifactsXml);

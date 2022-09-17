@@ -3,6 +3,10 @@
 
 <product name="test" uid="org.eclipse.tycho.p2.impl.test.rcp-feature" version="1.0.0.qualifier" application="test" useFeatures="true" includeLaunchers="true">
 
+   <plugins> <!-- shall not be used -->
+      <plugin id="included.bundle"/>
+   </plugins>
+
    <features>
       <feature id="included.feature" version="1.0.0"/>
    </features>

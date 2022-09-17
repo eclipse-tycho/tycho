@@ -167,23 +167,12 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcpBundle() throws Exception {
-        generateDependencies("rcp-bundle", PackagingType.TYPE_ECLIPSE_REPOSITORY);
+        assertGeneratedRequirements("rcp-bundle", List.of("included.bundle"));
+    }
 
-        assertEquals(1, units.size());
-        IInstallableUnit unit = units.iterator().next();
-
-        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-bundle", unit.getId());
-        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-
-        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
-
-        assertEquals(2, requirements.size());
-        assertNotNull(getRequiredCapability("included.bundle", requirements));
-
-        // implicit dependencies because includeLaunchers="true"
-        assertNotNull(getRequiredCapability("org.eclipse.equinox.executable.feature.group", requirements));
-
-        assertEquals(0, artifacts.size());
+    @Test
+    public void rcpBundleWithType() throws Exception {
+        assertGeneratedRequirements("rcp-bundle-2", List.of("included.bundle"));
     }
 
     @Test
@@ -221,15 +210,34 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcpFeature() throws Exception {
-        generateDependencies("rcp-feature", PackagingType.TYPE_ECLIPSE_REPOSITORY);
+        assertGeneratedRequirements("rcp-feature", List.of("included.feature.feature.group"));
+    }
+
+    @Test
+    public void rcpFeatureWithType() throws Exception {
+        assertGeneratedRequirements("rcp-feature-2", List.of("included.feature.feature.group"));
+    }
+
+    @Test
+    public void rcpMixed() throws Exception {
+        assertGeneratedRequirements("rcp-mixed", List.of("included.bundle", "included.feature.feature.group"));
+    }
+
+    private void assertGeneratedRequirements(String id, List<String> expectedIUs) throws IOException {
+        generateDependencies(id, PackagingType.TYPE_ECLIPSE_REPOSITORY);
 
         assertEquals(1, units.size());
-        IInstallableUnit unit = units.iterator().next();
-
-        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-feature", unit.getId());
+        IInstallableUnit unit = units.get(0);
+        assertEquals("org.eclipse.tycho.p2.impl.test." + id, unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
-        assertEquals(2, unit.getRequirements().size());
+        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
+        assertEquals(expectedIUs.size() + 1, requirements.size());
+        for (String expectedIU : expectedIUs) {
+            assertNotNull(getRequiredCapability(expectedIU, requirements));
+        }
+        // implicit dependencies because includeLaunchers="true"
+        assertNotNull(getRequiredCapability("org.eclipse.equinox.executable.feature.group", requirements));
 
         assertEquals(0, artifacts.size());
     }

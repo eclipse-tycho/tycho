@@ -16,7 +16,7 @@ package org.eclipse.tycho.p2.target.facade;
 import java.util.List;
 
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 
 // TODO 412416 javadoc

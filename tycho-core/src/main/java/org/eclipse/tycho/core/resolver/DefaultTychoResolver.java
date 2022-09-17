@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2021 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -27,11 +29,12 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
@@ -43,7 +46,6 @@ import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.TychoResolver;
 

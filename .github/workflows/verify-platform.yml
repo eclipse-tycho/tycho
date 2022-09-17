@@ -62,5 +62,7 @@ jobs:
         mvn -U -V -e -B -ntp
         --global-toolchains ${{ github.workspace }}/tycho/toolchains-gh.xml
         --file pom.xml
+        --settings ${{ github.workspace }}/tycho/.github/settings.xml
+        -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         -DskipTests
         clean verify

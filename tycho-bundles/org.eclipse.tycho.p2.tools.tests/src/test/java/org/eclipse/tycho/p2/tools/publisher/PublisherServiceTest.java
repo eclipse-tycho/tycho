@@ -130,7 +130,7 @@ public class PublisherServiceTest {
     private static Map<String, IInstallableUnit> unitsById(Collection<DependencySeed> seeds) {
         Map<String, IInstallableUnit> result = new HashMap<>();
         for (DependencySeed seed : seeds) {
-            IInstallableUnit iu = (IInstallableUnit) seed.getInstallableUnit();
+            IInstallableUnit iu = seed.getInstallableUnit();
             result.put(iu.getId(), iu);
         }
         return result;

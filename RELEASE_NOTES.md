@@ -4,6 +4,36 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### New tycho-p2-plugin:dependency-tree mojo
+
+Sometimes it is useful to find out how dependencies of a project are actually pulled in. Tycho now supports a new `tycho-p2-plugin:dependency-tree` mojo that outputs a tree view of the P2 dependecies of a tycho project.
+
+Example with Tycho integration test project:
+
+```
+tycho-its/projects/reactor.makeBehaviour$ mvn org.eclipse.tycho:tycho-p2-plugin:3.0.0-SNAPSHOT:dependency-tree
+
+...
+
+[INFO] --- tycho-p2-plugin:3.0.0-SNAPSHOT:dependency-tree (default-cli) @ feature2 ---
+[INFO] tycho-its-project.reactor.makeBehaviour:feature2:eclipse-feature:1.0.0-SNAPSHOT
+[INFO] +- feature2.feature.group (1.0.0.qualifier) --> [tycho-its-project.reactor.makeBehaviour:feature2:eclipse-feature:1.0.0-SNAPSHOT]
+[INFO]    +- bundle2 (1.0.0.qualifier) satisfies org.eclipse.equinox.p2.iu; bundle2 0.0.0 --> [tycho-its-project.reactor.makeBehaviour:bundle2:eclipse-plugin:1.0.0-SNAPSHOT]
+[INFO]    +- feature1.feature.group (1.0.0.qualifier) satisfies org.eclipse.equinox.p2.iu; feature1.feature.group 0.0.0 --> [tycho-its-project.reactor.makeBehaviour:feature1:eclipse-feature:1.0.0-SNAPSHOT]
+[INFO]       +- bundle1 (1.0.0.qualifier) satisfies org.eclipse.equinox.p2.iu; bundle1 0.0.0 --> [tycho-its-project.reactor.makeBehaviour:bundle1:eclipse-plugin:1.0.0-SNAPSHOT]
+...
+```
+
+### Support for inclusion of all source bundles in an update-site
+
+The [tycho-p2-repository-plugin:2.7.0:assemble-repository](https://www.eclipse.org/tycho/sitedocs/tycho-p2/tycho-p2-repository-plugin/assemble-repository-mojo.html) now support a new property `includeAllSources` that,
+when enabled, includes any available source bundle in the resulting repository.
+
+### Support for Eclipse-Products with mixed Features and Plugins
+
+Tycho now supports building _mixed_ Products. In mixed Products both the listed features and listed plug-ins are installed.
+Therefore the Product attribute `type` is now supported, which can have the values `bundles`, `features` and `mixed` and takes precedence over the boolean-valued `useFeatures` attribute.
+
 ### New API Tools Mojo
 
 Tycho now provides a new API Tools Mojo, see https://github.com/eclipse/tycho/tree/master/tycho-its/projects/api-tools for an example how to use it.
