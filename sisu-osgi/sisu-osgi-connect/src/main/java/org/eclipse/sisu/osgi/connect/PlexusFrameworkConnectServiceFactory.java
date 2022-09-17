@@ -15,10 +15,8 @@ package org.eclipse.sisu.osgi.connect;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -26,9 +24,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ServiceLoader;
@@ -44,6 +41,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.osgi.framework.Bundle;
@@ -73,7 +71,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	private Logger log;
 
 	private static final Map<ClassRealm, PlexusConnectFramework> frameworkMap = new HashMap<>();
-	
+
 	private static final Map<ClassLoader, ClassRealm> loaderMap = new HashMap<>();
 
 	@Requirement(role = EquinoxLifecycleListener.class)
@@ -109,15 +107,15 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		}
 		Framework foreignFramework = getForeignFramework(realm);
 		if (foreignFramework != null) {
-			PlexusConnectFramework connectFramework = new PlexusConnectFramework(foreignFramework, log, this, realm,
-					true);
-			frameworkMap.put(realm, connectFramework);
-			return connectFramework;
+			PlexusConnectFramework connectFwk = new PlexusConnectFramework(foreignFramework, log, this, realm, true);
+			frameworkMap.put(realm, connectFwk);
+			return connectFwk;
 		}
 		if (log.isDebugEnabled()) {
-			printRealm(realm, 0, new HashSet<ClassRealm>());
+			printRealm(realm, 0, new HashSet<>());
 		}
-		Collection<ClassRealm> realms = collectRealms(realm, new LinkedHashSet<ClassRealm>());
+		Collection<ClassRealm> realms = collectRealms(realm, new LinkedHashSet<>());
+
 		log.debug("Create framework for " + this + " with realm " + realm);
 		Logger fwLogger = new PlexusConnectFramework(null, log, this, realm, false);
 		Map<String, String> p = readProperties(realm, fwLogger);
@@ -129,23 +127,25 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		p.put(Constants.FRAMEWORK_STORAGE, storagePath + File.separator + "storage");
 		p.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "6");
 		p.put("osgi.instance.area", storagePath + File.separator + "instance");
-		ServiceLoader<ConnectFrameworkFactory> sl = ServiceLoader.load(ConnectFrameworkFactory.class,
-				getClass().getClassLoader());
-		ConnectFrameworkFactory factory = sl.iterator().next();
+
+		var loader = ServiceLoader.load(ConnectFrameworkFactory.class, getClass().getClassLoader());
+		ConnectFrameworkFactory factory = loader.findFirst()
+				.orElseThrow(() -> new NoSuchElementException("No ConnectFrameworkFactory found"));
+
 		PlexusModuleConnector connector = new PlexusModuleConnector(factory);
 		Framework osgiFramework = factory.newFramework(p, connector);
 		PlexusConnectFramework connectFramework = new PlexusConnectFramework(osgiFramework, log, this, realm, false);
 		PlexusFrameworkUtilHelper.registerHelper(connectFramework);
 		osgiFramework.init(connectFramework);
 		frameworkMap.put(realm, connectFramework);
+
 		connectFramework.start(osgiFramework.getBundleContext());
 		for (ClassRealm r : realms) {
 			connector.installRealm(r, osgiFramework.getBundleContext(), connectFramework);
 		}
 		osgiFramework.start();
 
-		Collection<EquinoxLifecycleListener> values = lifecycleListeners.values();
-		for (EquinoxLifecycleListener listener : values) {
+		for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
 			connectFramework.debug("Calling " + listener + "...");
 			listener.afterFrameworkStarted(connectFramework);
 		}
@@ -163,17 +163,11 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 				printRealm(parentRealm, indent, printed);
 				indent += 2;
 			}
-			for (int j = 0; j < indent; j++) {
-				System.out.print(' ');
-			}
-			System.out.println("> " + realm.getId() + " (parent = " + realm.getParentRealm() + ")");
+			String indentation = StringUtils.repeat(" ", indent);
+			System.out.println(indentation + "> " + realm.getId() + " (parent = " + realm.getParentRealm() + ")");
 			Enumeration<URL> resources = realm.loadResourcesFromSelf(PlexusModuleConnector.MAVEN_EXTENSION_DESCRIPTOR);
-			while (resources != null && resources.hasMoreElements()) {
-				URL url = resources.nextElement();
-				for (int j = 0; j < indent; j++) {
-					System.out.print(' ');
-				}
-				System.out.println("  " + url);
+			if (resources != null) {
+				resources.asIterator().forEachRemaining(url -> System.out.println(indentation + "  " + url));
 			}
 			realm.display();
 			for (ClassRealm imports : realm.getImportRealms()) {
@@ -195,24 +189,22 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		return realms;
 	}
 
-	protected ClassRealm getRealm(ClassLoader classloader) throws BundleException {
+	protected ClassRealm getRealm(ClassLoader classloader) {
 		if (classloader instanceof ClassRealm) {
 			return (ClassRealm) classloader;
 		}
-		return loaderMap.computeIfAbsent(classloader,
-				cl -> new DummyClassRealm("Not called from a ClassRealm", cl, log));
+		return loaderMap.computeIfAbsent(classloader, cl -> new DummyClassRealm("Not called from a ClassRealm", cl));
 	}
 
 	private static Map<String, String> readProperties(ClassLoader classloader, Logger logger) {
-		Map<String, String> frameworkProperties = new HashMap<String, String>();
+		Map<String, String> frameworkProperties = new HashMap<>();
 		Enumeration<URL> resources;
 		try {
 			resources = classloader.getResources("META-INF/sisu-connect.properties");
 		} catch (IOException e1) {
 			return frameworkProperties;
 		}
-		while (resources.hasMoreElements()) {
-			URL url = resources.nextElement();
+		resources.asIterator().forEachRemaining(url -> {
 			logger.debug("Reading properties from " + url);
 			Properties properties = new Properties();
 			try (InputStream stream = url.openStream()) {
@@ -221,14 +213,10 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 				logger.warn("Can't read properties from url " + url);
 			}
 			for (String property : properties.stringPropertyNames()) {
-				String existing = frameworkProperties.get(property);
-				if (existing == null) {
-					frameworkProperties.put(property, properties.getProperty(property));
-				} else {
-					frameworkProperties.put(property, existing + "," + properties.getProperty(property));
-				}
+				String value = properties.getProperty(property);
+				frameworkProperties.merge(property, value, (v1, v2) -> v1 + "," + v2);
 			}
-		}
+		});
 		return frameworkProperties;
 	}
 
@@ -239,10 +227,10 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 				String.CASE_INSENSITIVE_ORDER);
 		Comparator<Bundle> byState = Comparator.comparingInt(Bundle::getState);
 		Arrays.stream(bundles).sorted(byState.thenComparing(bySymbolicName)).forEachOrdered(bundle -> {
-			log.info(toBundleState(bundle.getState()) + " | " + bundle.getSymbolicName() + " (" + bundle.getVersion()
-					+ ")");
+			String state = toBundleState(bundle.getState());
+			log.info(state + " | " + bundle.getSymbolicName() + " (" + bundle.getVersion() + ")");
 		});
-		ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime> st = new ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime>(
+		ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime> st = new ServiceTracker<>(
 				framework.getBundleContext(), ServiceComponentRuntime.class, null);
 		st.open();
 		try {
@@ -273,8 +261,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			st.close();
 		}
 		log.info("============ Registered Services ==================");
-		Arrays.stream(bundles).map(bundle -> bundle.getRegisteredServices()).filter(Objects::nonNull)
-				.flatMap(Arrays::stream).forEach(reference -> {
+		Arrays.stream(bundles).map(Bundle::getRegisteredServices).filter(Objects::nonNull).flatMap(Arrays::stream)
+				.forEach(reference -> {
 					Object service = reference.getProperty(Constants.OBJECTCLASS);
 					if (service instanceof Object[]) {
 						Object[] objects = (Object[]) service;
@@ -324,14 +312,11 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 
 	@Override
 	public void dispose() {
-		List<Entry<ClassRealm, PlexusConnectFramework>> cleared = new ArrayList<>();
-		frameworkMap.entrySet().forEach(entry -> {
-			PlexusConnectFramework connect = entry.getValue();
-			if (connect.factory == this) {
-				cleared.add(entry);
-				if (connect.foreign) {
-					return;
-				}
+		frameworkMap.values().removeIf(connect -> {
+			if (connect.factory != this) {
+				return false;
+			}
+			if (!connect.foreign) {
 				Framework fw = connect.getFramework();
 				connect.stop(fw.getBundleContext());
 				String storage = fw.getBundleContext().getProperty(Constants.FRAMEWORK_STORAGE);
@@ -348,15 +333,12 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 					FileUtils.deleteQuietly(new File(storage));
 				}
 			}
+			return true;
 		});
-		for (Entry<ClassRealm, PlexusConnectFramework> entry : cleared) {
-			frameworkMap.remove(entry.getKey(), entry.getValue());
-		}
 	}
 
 	@Override
 	public void initialize() throws InitializationException {
-
 		log.debug("Init instance " + this + " [" + getClass().getClassLoader() + "]");
 	}
 
@@ -399,17 +381,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			try {
 				Method method = foreignFactoryClass.getMethod("getOsgiFramework", ClassRealm.class);
 				return (Framework) method.invoke(null, realm);
-			} catch (IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			} catch (ReflectiveOperationException e) {
 			}
-		}
-		return null;
-	}
-
-	public static Framework getOsgiFramework(ClassRealm realm) {
-		PlexusConnectFramework cachedFramework = frameworkMap.get(realm);
-		if (cachedFramework != null) {
-			return cachedFramework.getFramework();
 		}
 		return null;
 	}

@@ -21,7 +21,6 @@ import java.util.jar.JarFile;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.logging.Logger;
 
 final class DummyClassRealm extends ClassRealm {
 
@@ -30,7 +29,7 @@ final class DummyClassRealm extends ClassRealm {
 	private ClassLoader classLoader;
 	private List<URL> urls;
 
-	DummyClassRealm(String id, ClassLoader classLoader, Logger log) {
+	DummyClassRealm(String id, ClassLoader classLoader) {
 		super(new ClassWorld(), id, classLoader);
 		this.classLoader = classLoader;
 	}
@@ -38,7 +37,7 @@ final class DummyClassRealm extends ClassRealm {
 	@Override
 	public URL[] getURLs() {
 		if (urls == null) {
-			urls = new ArrayList<URL>();
+			urls = new ArrayList<>();
 			try {
 				Enumeration<URL> resources = classLoader.getResources(JarFile.MANIFEST_NAME);
 				while (resources.hasMoreElements()) {
