@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
@@ -73,7 +72,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 
 	private URI frameworkBundle;
 
-	private Set<String> installedSingletons = new HashSet<String>();
+	private Set<String> installedSingletons = new HashSet<>();
 
 	public PlexusModuleConnector(ConnectFrameworkFactory factory) {
 		frameworkBundle = PlexusConnectFramework.getLocationFromClass(factory.getClass());
@@ -118,17 +117,17 @@ final class PlexusModuleConnector implements ModuleConnector {
 			installRealm(parentRealm, bundleContext, logger);
 		}
 		// make the realm available as a bundle exporting any packages it provides...
-		List<String> installed = new ArrayList<String>();
+		List<String> installed = new ArrayList<>();
 		realmBundles.put(realm, installed);
 		RealmExports realmExports = readCoreExports(logger, realm);
-		LinkedHashMap<String, String> headers = new LinkedHashMap<>();
+		Map<String, String> headers = new LinkedHashMap<>();
 		headers.put("Manifest-Version", "1.0");
 		headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
 		String realmBundleName = getRealmBundle(realm);
 		headers.put(Constants.BUNDLE_SYMBOLICNAME, realmBundleName);
 		headers.put(Constants.BUNDLE_VERSION, "1.0.0." + System.identityHashCode(realm));
 		if (!realmExports.packages.isEmpty()) {
-			headers.put(Constants.EXPORT_PACKAGE, realmExports.packages.stream().collect(Collectors.joining(",")));
+			headers.put(Constants.EXPORT_PACKAGE, String.join(",", realmExports.packages));
 		}
 		Collection<ClassRealm> importRealms = realm.getImportRealms();
 		if (!importRealms.isEmpty()) {
@@ -141,15 +140,14 @@ final class PlexusModuleConnector implements ModuleConnector {
 		if (installBundle(bundleContext, realmBundleName, logger) != null) {
 			installed.add(realmBundleName);
 		}
-		boolean isExtensionRealm = !realmExports.artifacts.isEmpty() || !realmExports.artifacts.isEmpty()
-				|| !realmExports.bundleStartMap.isEmpty();
+		boolean isExtensionRealm = !realmExports.artifacts.isEmpty() || !realmExports.bundleStartMap.isEmpty();
 		if (isExtensionRealm && realmExports.artifacts.isEmpty() && realmExports.bundleStartMap.isEmpty()) {
 			// nothing more to do...
 			return;
 		}
 		// now scan the URLs
 		for (URL url : realm.getURLs()) {
-			File file = getFile(logger, url);
+			File file = getFile(url);
 			if (file == null) {
 				logger.debug("Can't convert url " + url + " to file!");
 				continue;
@@ -323,10 +321,8 @@ final class PlexusModuleConnector implements ModuleConnector {
 
 	private Map<String, String> getHeaderFromManifest(JarFile jarFile) throws IOException {
 		Attributes attributes = jarFile.getManifest().getMainAttributes();
-		Map<String, String> headers = new LinkedHashMap<String, String>();
-		for (Entry<Object, Object> entry : attributes.entrySet()) {
-			headers.put(entry.getKey().toString(), entry.getValue().toString());
-		}
+		Map<String, String> headers = new LinkedHashMap<>();
+		attributes.forEach((key, value) -> headers.put(key.toString(), value.toString()));
 		return Collections.unmodifiableMap(headers);
 	}
 
@@ -366,11 +362,10 @@ final class PlexusModuleConnector implements ModuleConnector {
 		if (manifest == null) {
 			return null;
 		}
-		Attributes mainAttributes = manifest.getMainAttributes();
-		return mainAttributes;
+		return manifest.getMainAttributes();
 	}
 
-	private static File getFile(Logger logger, URL url) {
+	private static File getFile(URL url) {
 		if ("file".equalsIgnoreCase(url.getProtocol())) {
 			try {
 				File file = new File(url.toURI());
@@ -384,9 +379,9 @@ final class PlexusModuleConnector implements ModuleConnector {
 	}
 
 	private static final class RealmExports {
-		final Set<String> packages = new HashSet<String>();
-		final Set<String> artifacts = new HashSet<String>();
-		final Map<String, Boolean> bundleStartMap = new LinkedHashMap<String, Boolean>();
+		final Set<String> packages = new HashSet<>();
+		final Set<String> artifacts = new HashSet<>();
+		final Map<String, Boolean> bundleStartMap = new LinkedHashMap<>();
 	}
 
 	private static void readBundles(ClassRealm realm, Map<String, Boolean> map, Logger logger) {

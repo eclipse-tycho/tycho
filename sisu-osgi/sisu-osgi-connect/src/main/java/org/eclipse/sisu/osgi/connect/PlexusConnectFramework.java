@@ -50,14 +50,14 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * created by plexus
  *
  */
-class PlexusConnectFramework
+class PlexusConnectFramework //
 		implements Logger, EmbeddedEquinox, EquinoxServiceFactory, FrameworkUtilHelper, FrameworkListener, LogListener,
 		BundleActivator {
 
 	private final Framework framework;
 	private final Logger logger;
 	private final String uuid = UUID.randomUUID().toString();
-	private final Map<Class<?>, ServiceTracker<?, ?>> trackerMap = new ConcurrentHashMap<Class<?>, ServiceTracker<?, ?>>();
+	private final Map<Class<?>, ServiceTracker<?, ?>> trackerMap = new ConcurrentHashMap<>();
 	private final ClassRealm realm;
 	final PlexusFrameworkConnectServiceFactory factory;
 	final boolean foreign;
@@ -313,29 +313,27 @@ class PlexusConnectFramework
 	@Override
 	public void start(BundleContext context) {
 		context.addFrameworkListener(this);
-		serviceTracker = new ServiceTracker<LogReaderService, LogReaderService>(
-				context, LogReaderService.class, new ServiceTrackerCustomizer<LogReaderService, LogReaderService>() {
+		serviceTracker = new ServiceTracker<>(context, LogReaderService.class, new ServiceTrackerCustomizer<>() {
 
-					@Override
-					public LogReaderService addingService(ServiceReference<LogReaderService> reference) {
-						LogReaderService service = context.getService(reference);
-						if (service != null) {
-							service.addLogListener(PlexusConnectFramework.this);
-						}
-						return service;
-					}
+			@Override
+			public LogReaderService addingService(ServiceReference<LogReaderService> reference) {
+				LogReaderService service = context.getService(reference);
+				if (service != null) {
+					service.addLogListener(PlexusConnectFramework.this);
+				}
+				return service;
+			}
 
-					@Override
-					public void modifiedService(ServiceReference<LogReaderService> reference,
-							LogReaderService service) {
-					}
+			@Override
+			public void modifiedService(ServiceReference<LogReaderService> reference, LogReaderService service) {
+			}
 
-					@Override
-					public void removedService(ServiceReference<LogReaderService> reference, LogReaderService service) {
-						service.removeLogListener(PlexusConnectFramework.this);
-						context.ungetService(reference);
-					}
-				});
+			@Override
+			public void removedService(ServiceReference<LogReaderService> reference, LogReaderService service) {
+				service.removeLogListener(PlexusConnectFramework.this);
+				context.ungetService(reference);
+			}
+		});
 		serviceTracker.open();
 	}
 
