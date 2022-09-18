@@ -21,7 +21,6 @@ import static org.eclipse.tycho.plugins.p2.BaselineReplace.none;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,10 +78,10 @@ public class BaselineValidator {
         Map<String, IP2Artifact> result = reactorMetadata;
 
         if (baselineMode != disable && baselineRepositories != null && !baselineRepositories.isEmpty()) {
-            List<MavenRepositoryLocation> _repositories = new ArrayList<>();
+            List<MavenRepositoryLocation> repositories = new ArrayList<>();
             for (Repository repository : baselineRepositories) {
                 if (repository.getUrl() != null) {
-                    _repositories.add(new MavenRepositoryLocation(repository.getId(), repository.getUrl()));
+                    repositories.add(new MavenRepositoryLocation(repository.getId(), repository.getUrl()));
                 }
             }
 
@@ -90,7 +89,7 @@ public class BaselineValidator {
 
             BaselineService baselineService = getService(BaselineService.class);
 
-            Map<String, IP2Artifact> baselineMetadata = baselineService.getProjectBaseline(_repositories,
+            Map<String, IP2Artifact> baselineMetadata = baselineService.getProjectBaseline(repositories,
                     reactorMetadata, baselineBasedir);
 
             if (baselineMetadata != null) {
@@ -154,8 +153,7 @@ public class BaselineValidator {
                                         .collect(Collectors.toCollection(ArrayList::new));
                                 try {
                                     MethodUtils.invokeMethod(project, true, "setAttachedArtifacts", list);
-                                } catch (NoSuchMethodException | IllegalAccessException
-                                        | InvocationTargetException ignored) {
+                                } catch (ReflectiveOperationException ignored) {
                                     log.warn("The attached artifact " + classifier
                                             + " is not present in the baseline but could not be removed!");
                                 }
@@ -248,6 +246,7 @@ public class BaselineValidator {
                     result.put(deltaKey, delta);
                 }
             } catch (IOException e) {
+                log.warn("Elementwise comparison of zip-file failed", e);
                 // do byte-to-byte comparison if jar comparison fails for whatever reason
                 if (!FileUtils.contentEquals(baselineArtifact.getLocation(), reactorArtifact.getLocation())) {
                     result.put(deltaKey, new SimpleArtifactDelta("different"));

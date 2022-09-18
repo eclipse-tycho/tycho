@@ -79,7 +79,7 @@ public class ManifestComparator implements ContentsComparator {
         return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
     }
 
-    protected void addDelta(TreeMap<String, ArtifactDelta> result, Name key, String message) {
+    private void addDelta(TreeMap<String, ArtifactDelta> result, Name key, String message) {
         result.put(key.toString(), new SimpleArtifactDelta(message));
     }
 
