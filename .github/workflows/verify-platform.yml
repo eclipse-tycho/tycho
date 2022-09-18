@@ -58,8 +58,8 @@ jobs:
         clean install
     - name: Run Platform Build
       working-directory: 'platform'
-      # env:
-       # JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+      env:
+       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       run: >- 
         mvn -U -V -e -B -ntp
         --global-toolchains ${{ github.workspace }}/tycho/toolchains-gh.xml
