@@ -31,8 +31,8 @@ jobs:
       with:
         java-version: |
             8
-            17
             11
+            17
         distribution: 'adopt'
     - name: print env
       run: 'env'
@@ -48,6 +48,8 @@ jobs:
       with:
         maven-version: 3.8.6
     - name: Build Tycho
+      env:
+       JAVA_HOME: ${{ env.JAVA_HOME_11_X64 }}
       working-directory: 'tycho'
       run: >- 
         mvn -U -V -e -B -ntp
@@ -67,4 +69,5 @@ jobs:
         --settings ${{ github.workspace }}/tycho/.github/settings.xml
         -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         -DskipTests
+        -Pbree-libs
         clean verify
