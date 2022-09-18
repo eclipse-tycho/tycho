@@ -73,18 +73,19 @@ public class ZipComparatorImpl implements ArtifactComparator {
         return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
     }
 
-    private ArtifactDelta getDelta(String name, Map<String, ZipEntry> baseline, Map<String, ZipEntry> reachtor,
+    private ArtifactDelta getDelta(String name, Map<String, ZipEntry> baseline, Map<String, ZipEntry> reactor,
             ZipFile baselineJar, ZipFile reactorJar, ComparisonData data) throws IOException {
-        ZipEntry entry = baseline.get(name);
-        if (entry == null) {
+        ZipEntry baselineEntry = baseline.get(name);
+        if (baselineEntry == null) {
             return new SimpleArtifactDelta("not present in baseline");
         }
-        ZipEntry entry2 = reachtor.get(name);
-        if (entry2 == null) {
+        ZipEntry reactorEntry = reactor.get(name);
+        if (reactorEntry == null) {
             return new SimpleArtifactDelta("present in baseline only");
         }
 
-        try (InputStream is = baselineJar.getInputStream(entry); InputStream is2 = reactorJar.getInputStream(entry2);) {
+        try (InputStream is = baselineJar.getInputStream(baselineEntry);
+                InputStream is2 = reactorJar.getInputStream(reactorEntry);) {
             ContentsComparator comparator = comparators.get(getContentType(name));
             return comparator.getDelta(is, is2, data);
         }

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -32,15 +33,15 @@ public class NestedZipComparator implements ContentsComparator {
 
     @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
-        Path zip = Files.createTempFile("zip", ".zip");
-        Path zip2 = Files.createTempFile("zip2", ".zip");
+        Path baselineZip = Files.createTempFile("baseline", ".zip");
+        Path reactorZip = Files.createTempFile("reactor", ".zip");
         try {
-            Files.copy(baseline, zip);
-            Files.copy(reactor, zip2);
-            return zipComparator.getDelta(zip.toFile(), zip2.toFile(), data);
+            Files.copy(baseline, baselineZip, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(reactor, reactorZip, StandardCopyOption.REPLACE_EXISTING);
+            return zipComparator.getDelta(baselineZip.toFile(), reactorZip.toFile(), data);
         } finally {
-            Files.deleteIfExists(zip);
-            Files.deleteIfExists(zip2);
+            Files.deleteIfExists(baselineZip);
+            Files.deleteIfExists(reactorZip);
         }
     }
 
