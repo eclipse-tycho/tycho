@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -111,19 +112,27 @@ public class JDTCompiler extends AbstractCompiler {
 
         CompilerResult messages;
 
-        if (config.isFork()) {
-            String executable = config.getExecutable();
-
-            if (StringUtils.isEmpty(executable)) {
-                executable = "javac";
-            }
-
-            messages = compileOutOfProcess(config.getWorkingDirectory(), executable, args);
+        if (requireFork(config, custom)) {
+            messages = compileOutOfProcess(args, config, custom);
         } else {
             messages = compileInProcess(args, config, custom);
         }
 
         return messages;
+    }
+
+    private boolean requireFork(CompilerConfiguration config, CustomCompilerConfiguration custom) {
+        if (config.isFork()) {
+            return true;
+        }
+        if (custom.javaHome != null) {
+            String sourceLevel = config.getSourceVersion();
+            if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -292,28 +301,26 @@ public class JDTCompiler extends AbstractCompiler {
     /**
      * Compile the java sources in a external process, calling an external executable, like javac.
      *
-     * @param workingDirectory
-     *            base directory where the process will be launched
-     * @param executable
-     *            name of the executable to launch
-     * @param args
-     *            arguments for the executable launched
-     * @return CompilerResult with the errors and warnings encountered.
-     * @throws CompilerException
      */
-    CompilerResult compileOutOfProcess(File workingDirectory, String executable, String[] args)
-            throws CompilerException {
-        if (true /* fork is not supported */) {
-            throw new UnsupportedOperationException("compileoutOfProcess not supported");
-        }
-
+    private CompilerResult compileOutOfProcess(String[] args, CompilerConfiguration config,
+            CustomCompilerConfiguration custom) throws CompilerException {
         Commandline cli = new Commandline();
 
-        cli.setWorkingDirectory(workingDirectory.getAbsolutePath());
+        cli.setWorkingDirectory(config.getWorkingDirectory().getAbsolutePath());
 
-        cli.setExecutable(executable);
-
-        cli.addArguments(args);
+        cli.setExecutable(new File(custom.javaHome, "bin/java").getAbsolutePath());
+        List<String> arguments = new ArrayList<String>();
+        arguments.add("-cp");
+        try {
+            URL location = Main.class.getProtectionDomain().getCodeSource().getLocation();
+            File file = new File(location.toURI());
+            arguments.add(file.getAbsolutePath());
+        } catch (Exception e) {
+            throw new CompilerException("Can't determine location of the compiler!", e);
+        }
+        arguments.add(Main.class.getName());
+        arguments.addAll(Arrays.asList(args));
+        cli.addArguments(arguments.toArray(String[]::new));
 
         CommandLineUtils.StringStreamConsumer out = new CommandLineUtils.StringStreamConsumer();
 
@@ -332,9 +339,8 @@ public class JDTCompiler extends AbstractCompiler {
         }
 
         if (returnCode != 0 && messages.isEmpty()) {
-            // TODO: exception?
-            messages.add(new CompilerMessage(
-                    "Failure executing javac,  but could not parse the error:" + EOL + err.getOutput(), Kind.ERROR));
+            // low-level, e.g. configuration error
+            throw new CompilerException( "Failure executing ejc, but could not parse the error:" + EOL + err.getOutput());
         }
 
         return new CompilerResult(returnCode == 0, messages);
@@ -365,7 +371,7 @@ public class JDTCompiler extends AbstractCompiler {
             if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
                 addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
             } else {
-                addToCompilerArgumentsIfNotSet("--system", custom.javaHome, jdtCompilerArgs);
+                //FIXME how is this supported by JDT?
             }
         }
         getLogger().debug("JDT compiler args: " + jdtCompilerArgs);
