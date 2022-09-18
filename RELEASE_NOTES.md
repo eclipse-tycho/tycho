@@ -4,6 +4,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Tycho now support forking of the Eclipse Java Compiler
+
+Previously forking was not supported, now forking is possible and will be used if a custom java home is specified.
+
 ### New option to transform P2 dependencies into real maven coordinates
 
 The `tycho-consumer-pom` mojo has a new option to resolve p2 introduced dependencies to 'real' maven coordinates now, when enabled it queries maven-central with the SHA1 of the file to find out what are the actual maven central coordinates
