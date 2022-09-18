@@ -26,15 +26,13 @@ jobs:
        lfs: true
        repository: 'eclipse-platform/eclipse.platform.releng.aggregator'
        fetch-depth: 0
-    - name: Set up JDK 17
+    - name: Set up Java
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
-        distribution: 'adopt'
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
+        java-version: |
+            8
+            11
+            17
         distribution: 'adopt'
     - name: Cache local Maven repository
       uses: actions/cache@v3
@@ -48,21 +46,26 @@ jobs:
       with:
         maven-version: 3.8.6
     - name: Build Tycho
+      env:
+       JAVA_HOME: ${{ env.JAVA_HOME_11_X64 }}
       working-directory: 'tycho'
       run: >- 
         mvn -U -V -e -B -ntp
         -DskipTests
         --file pom.xml
         -T1C
-        --global-toolchains ${{ github.workspace }}/tycho/toolchains-gh.xml
+        --global-toolchains ${{ github.workspace }}/tycho/.github/toolchains.xml
         clean install
     - name: Run Platform Build
+      env:
+       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       working-directory: 'platform'
       run: >- 
         mvn -U -V -e -B -ntp
-        --global-toolchains ${{ github.workspace }}/tycho/toolchains-gh.xml
+        --global-toolchains ${{ github.workspace }}/tycho/.github/toolchains.xml
         --file pom.xml
         --settings ${{ github.workspace }}/tycho/.github/settings.xml
         -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         -DskipTests
+        -Pbree-libs
         clean verify
