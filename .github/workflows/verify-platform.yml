@@ -34,6 +34,8 @@ jobs:
             17
             11
         distribution: 'adopt'
+    - name: print env
+      run: 'env'
     - name: Cache local Maven repository
       uses: actions/cache@v3
       with:
@@ -56,8 +58,8 @@ jobs:
         clean install
     - name: Run Platform Build
       working-directory: 'platform'
-      env:
-       JAVA_HOME: ${{ JAVA_HOME_17_x64 }}
+      # env:
+       # JAVA_HOME: ${{ JAVA_HOME_17_x64 }}
       run: >- 
         mvn -U -V -e -B -ntp
         --global-toolchains ${{ github.workspace }}/tycho/toolchains-gh.xml
