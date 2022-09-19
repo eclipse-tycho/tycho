@@ -14,12 +14,12 @@
 package org.eclipse.tycho.osgi.configuration;
 
 import java.net.URI;
+import java.util.List;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.repository.MirrorSelector;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
@@ -27,6 +27,7 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.MavenRepositoryLocation;
@@ -51,8 +52,14 @@ public class RepositorySettingsConfigurator implements EquinoxLifecycleListener 
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
 
-    @Requirement(role = MirrorSelector.class, hint = "tycho")
-    private MirrorSelector mirrorSelector;
+    public RepositorySettingsConfigurator() {
+        // for plexus
+    }
+
+    public RepositorySettingsConfigurator(RepositorySystem repositorySystem) {
+        // for test
+        this.repositorySystem = repositorySystem;
+    }
 
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
@@ -66,13 +73,9 @@ public class RepositorySettingsConfigurator implements EquinoxLifecycleListener 
             if (location.getId() == null) {
                 return null;
             }
-            // TODO check repository type?
-
             ArtifactRepository locationAsMavenRepository = repositorySystem.createArtifactRepository(location.getId(),
                     location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
-            Mirror mirror = mirrorSelector.getMirror(locationAsMavenRepository,
-                    context.getSession().getRequest().getMirrors());
-
+            Mirror mirror = getTychoMirror(locationAsMavenRepository, context.getSession().getRequest().getMirrors());
             if (mirror != null) {
                 return new MavenRepositoryLocation(mirror.getId(), URI.create(mirror.getUrl()));
             }
@@ -96,5 +99,38 @@ public class RepositorySettingsConfigurator implements EquinoxLifecycleListener 
             return null;
         }
 
+    }
+
+    public Mirror getTychoMirror(ArtifactRepository repository, List<Mirror> mirrors) {
+        // if we find a mirror the default way (the maven way) we will use that mirror
+        Mirror mavenMirror = repositorySystem.getMirror(repository, mirrors);
+        if (mavenMirror != null || mirrors == null) {
+            return mavenMirror;
+        }
+        for (Mirror mirror : mirrors) {
+            if (isPrefixMirrorOf(repository, mirror)) {
+                // We will create a new Mirror that does
+                // have the artifacts URL replaced with the Prefix URL from the mirror
+                return createMirror(repository, mirror);
+            }
+        }
+        return null;
+    }
+
+    private static boolean isPrefixMirrorOf(ArtifactRepository repo, Mirror mirror) {
+        boolean isMirrorOfRepoUrl = repo.getUrl() != null && repo.getUrl().startsWith(mirror.getMirrorOf());
+        boolean matchesLayout = repo.getLayout() != null
+                && repo.getLayout().getId().equals(mirror.getMirrorOfLayouts());
+        return isMirrorOfRepoUrl && matchesLayout;
+    }
+
+    // We have to create a new Mirror
+    private static Mirror createMirror(ArtifactRepository repo, Mirror toMirror) {
+        Mirror mirror = toMirror.clone();
+        String urlToReplace = toMirror.getMirrorOf();
+        String newUrl = StringUtils.replaceOnce(repo.getUrl(), urlToReplace, toMirror.getUrl());
+        mirror.setUrl(newUrl);
+        mirror.setId(toMirror.getId());
+        return mirror;
     }
 }

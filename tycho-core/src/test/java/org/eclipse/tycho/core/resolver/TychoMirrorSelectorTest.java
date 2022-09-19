@@ -12,25 +12,52 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
+import org.apache.maven.repository.DefaultMirrorSelector;
+import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
+import org.eclipse.tycho.osgi.configuration.RepositorySettingsConfigurator;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class TychoMirrorSelectorTest {
 
-    private TychoMirrorSelector selector = new TychoMirrorSelector();
+    private RepositorySettingsConfigurator selector;
+
+    @Before
+    public void setup() {
+        RepositorySystem repo = mock(RepositorySystem.class);
+        doAnswer(new Answer<Mirror>() {
+
+            @Override
+            public Mirror answer(InvocationOnMock invocation) throws Throwable {
+
+                final Object[] args = invocation.getArguments();
+                return new DefaultMirrorSelector().getMirror((ArtifactRepository) args[0], (List<Mirror>) args[1]);
+            }
+        }).when(repo).getMirror(any(), any());
+        selector = new RepositorySettingsConfigurator(repo);
+
+    }
 
     @Test
     public void testWithMatchingMirrorOfIds() {
         ArtifactRepository repository = createArtifactRepository("neon-repo",
                 "https://download.eclipse.org/eclipse/update/4.6");
         Mirror mirrorWithMatchingMirrorOfIds = createMirror("myId", "http://foo.bar", "neon-repo");
-        Mirror selectedMirror = selector.getMirror(repository, Arrays.asList(mirrorWithMatchingMirrorOfIds));
+        Mirror selectedMirror = selector.getTychoMirror(repository, Arrays.asList(mirrorWithMatchingMirrorOfIds));
         Assert.assertEquals(mirrorWithMatchingMirrorOfIds, selectedMirror);
     }
 
@@ -40,7 +67,7 @@ public class TychoMirrorSelectorTest {
                 "https://download.eclipse.org/eclipse/update/4.6");
         Mirror prefixMatchingMirror1 = createMirror("myId1", "http://foo.bar", "https://download.eclipse.org");
         Mirror prefixMatchingMirror2 = createMirror("myId2", "http://foo1.bar1", "http://abc.vxz");
-        Mirror selectedMirror = selector.getMirror(repository,
+        Mirror selectedMirror = selector.getTychoMirror(repository,
                 Arrays.asList(prefixMatchingMirror1, prefixMatchingMirror2));
         Assert.assertNotNull(selectedMirror);
         Assert.assertEquals("http://foo.bar/eclipse/update/4.6", selectedMirror.getUrl());
