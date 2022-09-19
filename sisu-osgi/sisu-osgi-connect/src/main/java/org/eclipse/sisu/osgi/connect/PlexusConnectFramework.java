@@ -18,7 +18,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.Dictionary;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +33,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.connect.FrameworkUtilHelper;
@@ -186,12 +186,12 @@ class PlexusConnectFramework
 
 	@Override
 	public <T> void registerService(Class<T> clazz, T service) {
-		registerService(clazz, service, null);
+		registerService(clazz, service, Map.of());
 	}
 
 	@Override
-	public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties) {
-		framework.getBundleContext().registerService(clazz, service, properties);
+	public <T> void registerService(Class<T> clazz, T service, Map<String, ?> properties) {
+		framework.getBundleContext().registerService(clazz, service, FrameworkUtil.asDictionary(properties));
 	}
 
 	@Override
