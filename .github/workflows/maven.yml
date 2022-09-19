@@ -45,7 +45,7 @@ jobs:
         maven-version: 3.8.6
     - name: Build Tycho
       env:
-       JAVA_HOME: ${{ env.JAVA_HOME_11_X64 }}
+       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       run: | 
         cp .github/toolchains.xml ~/.m2/toolchains.xml
         mvn -U -V -e -B -ntp clean install --file pom.xml -T1C

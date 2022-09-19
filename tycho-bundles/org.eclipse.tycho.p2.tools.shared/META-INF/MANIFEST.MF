@@ -4,7 +4,7 @@ Bundle-Name: Tycho p2 Tools Maven/OSGi Shared Classes
 Bundle-ManifestVersion: 2
 Bundle-Description: Exposes tools for manipulating p2 data, which are implemented in OSGi bundles, to Maven plug-ins
 Bundle-SymbolicName: org.eclipse.tycho.p2.tools.shared
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.eclipse.tycho.p2.tools,
  org.eclipse.tycho.p2.tools.baseline.facade,
  org.eclipse.tycho.p2.tools.director.shared,

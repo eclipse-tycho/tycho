@@ -123,7 +123,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	/**
 	 * Execution environment profile name used to resolve dependencies.
 	 */
-	@Parameter(defaultValue = "JavaSE-11")
+	@Parameter(defaultValue = "JavaSE-17")
 	private String executionEnvironment;
 
 	/**

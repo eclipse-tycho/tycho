@@ -253,10 +253,10 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project;
         // project with neither POM nor MANIFEST configuration => must fallback to 
-        // source/target level == 11
+        // source/target level == 17
         project = projects.get(1);
         getMojo(projects, project).execute();
-        assertBytecodeMajorLevel(55 /* Java 11 */, new File(project.getBasedir(), "target/classes/Generic.class"));
+        assertBytecodeMajorLevel(61 /* Java 17 */, new File(project.getBasedir(), "target/classes/Generic.class"));
 
         // project with multiple execution envs.
         // Minimum source and target level must be taken
