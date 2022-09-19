@@ -20,8 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
+import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
 /**

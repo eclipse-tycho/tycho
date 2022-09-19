@@ -15,7 +15,7 @@ package org.eclipse.tycho.p2.remote;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
+import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
 
 /**

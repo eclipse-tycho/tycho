@@ -17,8 +17,8 @@ import java.util.Properties;
 import java.util.stream.Stream;
 
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 
 public class MockMavenContext extends MavenContextImpl {
 

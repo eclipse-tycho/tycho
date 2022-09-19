@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 
 public interface BaselineService {
