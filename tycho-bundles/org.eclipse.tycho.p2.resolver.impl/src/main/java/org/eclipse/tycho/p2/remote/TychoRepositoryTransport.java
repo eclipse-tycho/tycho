@@ -34,7 +34,7 @@ import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings.Credentials;
+import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 

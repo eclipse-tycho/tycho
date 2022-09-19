@@ -14,7 +14,7 @@ package org.eclipse.tycho.p2.remote.testutil;
 
 import java.net.URI;
 
-import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
+import org.eclipse.tycho.IRepositoryIdManager;
 
 public class NoopRepositoryIdManager implements IRepositoryIdManager {
 

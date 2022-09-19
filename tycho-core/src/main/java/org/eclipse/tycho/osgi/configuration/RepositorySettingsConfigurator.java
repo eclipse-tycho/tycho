@@ -29,8 +29,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
+import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.MavenRepositorySettings;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "RepositorySettingsConfigurator")
 public class RepositorySettingsConfigurator implements EquinoxLifecycleListener {

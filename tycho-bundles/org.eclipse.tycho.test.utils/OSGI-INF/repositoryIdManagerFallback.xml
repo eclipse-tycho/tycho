@@ -4,5 +4,5 @@
    <service>
       <provide interface="org.eclipse.equinox.p2.core.spi.IAgentServiceFactory"/>
    </service>
-   <property name="p2.agent.servicename" type="String" value="org.eclipse.tycho.p2.remote.IRepositoryIdManager"/>
+   <property name="p2.agent.servicename" type="String" value="org.eclipse.tycho.IRepositoryIdManager"/>
 </scr:component>
