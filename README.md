@@ -54,14 +54,9 @@ If you want to help with development of Tycho itself but can't afford to do it b
 ### Support us with processing power
 Tycho has a very large user-base and thus we use exhaustive test-suites to ensure everything works well. This comes at a cost of also using a lot of processing power.
 
-The following companies already support Tycho getting more processing power for their builds:
+The following Organizations support Tycho getting processing power for their builds:
 * [Eclipse Foundation](https://www.eclipse.org/sponsor/) - host our CI Infrastructure, become a friend of Eclipse and support the Eclipse Foundation in general
 * ![](https://läubisoft.gmbh/favicon.ico) [Läubisoft GmbH](https://läubisoft.gmbh/en/) - provides four dynamic build nodes powered by 12 CPU / 32 GB RAM
+* ![](https://www.renesas.com/favicon.ico) [Renesas Electronics Corporation](https://www.eclipse.org/membership/showMember.php?member_id=1069) - sponsors a resource pack with 2 CPU / 8 GB RAM
 
 If your Organizations is an [Eclipse Member](https://www.eclipse.org/membership/exploreMembership.php) you can help us by [sponsoring one of the included resource packs](https://wiki.eclipse.org/CBI#Assigning_Resource_Packs_to_a_Project) to speed up builds. Organizations can check how many Resource Packs they have left for project sponsoring on the [membership portal](https://membership.eclipse.org/portal/login).
-
-
-
-
-
-
