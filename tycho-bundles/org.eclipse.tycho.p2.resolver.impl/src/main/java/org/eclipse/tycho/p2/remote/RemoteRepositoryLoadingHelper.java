@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
@@ -79,7 +78,7 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
         return effectiveLocation.getURL();
     }
 
-    public URI getEffectiveLocationAndPrepareLoad(URI location) throws ProvisionException {
+    public URI getEffectiveLocationAndPrepareLoad(URI location) {
         if (certainlyNoRemoteURL(location)) {
             return location;
         }
@@ -121,7 +120,7 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
      * specify all children in the Maven settings. This feature can easily break if repositories are
      * loaded in parallel. If this shall be supported, a lock is needed here (TODO).
      */
-    private void setPasswordForLoading(MavenRepositoryLocation location) throws ProvisionException {
+    private void setPasswordForLoading(MavenRepositoryLocation location) {
         MavenRepositorySettings.Credentials credentials = settings.getCredentials(location);
         if (credentials != null) {
             if (logger.isDebugEnabled()) {

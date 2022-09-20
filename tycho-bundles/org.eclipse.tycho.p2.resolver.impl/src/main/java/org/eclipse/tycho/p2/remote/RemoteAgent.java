@@ -64,11 +64,7 @@ public class RemoteAgent implements IProvisioningAgent {
                         }
                         IRepositoryIdManager repositoryIdManager = agent.getService(IRepositoryIdManager.class);
                         Stream<MavenRepositoryLocation> locations = mavenContext.getMavenRepositoryLocations();
-                        if (repositoryIdManager instanceof RemoteRepositoryLoadingHelper) {
-                            RemoteRepositoryLoadingHelper repositoryLoadingHelper = (RemoteRepositoryLoadingHelper) repositoryIdManager;
-                            locations = Stream.concat(locations,
-                                    repositoryLoadingHelper.getKnownMavenRepositoryLocations());
-                        }
+                        locations = Stream.concat(locations, repositoryIdManager.getKnownMavenRepositoryLocations());
                         String requestUri = uri.normalize().toASCIIString();
                         return locations.sorted((loc1, loc2) -> {
                             //we wan't the longest prefix match, so first sort all uris by their length ...
@@ -124,8 +120,7 @@ public class RemoteAgent implements IProvisioningAgent {
             MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
 
         // register service which stores mapping between URLs and IDs (used by Maven)
-        RemoteRepositoryLoadingHelper loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings,
-                logger);
+        IRepositoryIdManager loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings, logger);
         agent.registerService(IRepositoryIdManager.class, loadingHelper);
 
         // wrap metadata repository manager
