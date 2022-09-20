@@ -24,13 +24,14 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.tycho.IRepositoryIdManager;
 
 class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
 
     private IArtifactRepositoryManager delegate;
-    private final RemoteRepositoryLoadingHelper loadingHelper;
+    private final IRepositoryIdManager loadingHelper;
 
-    RemoteArtifactRepositoryManager(IArtifactRepositoryManager delegate, RemoteRepositoryLoadingHelper loadingHelper) {
+    RemoteArtifactRepositoryManager(IArtifactRepositoryManager delegate, IRepositoryIdManager loadingHelper) {
         this.delegate = delegate;
         this.loadingHelper = loadingHelper;
     }

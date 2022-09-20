@@ -13,11 +13,18 @@
 package org.eclipse.tycho;
 
 import java.net.URI;
+import java.util.stream.Stream;
 
 public interface IRepositoryIdManager {
 
     String SERVICE_NAME = IRepositoryIdManager.class.getName();
 
     void addMapping(String id, URI location);
+
+    URI getEffectiveLocation(URI location);
+
+    URI getEffectiveLocationAndPrepareLoad(URI location);
+
+    Stream<MavenRepositoryLocation> getKnownMavenRepositoryLocations();
 
 }
