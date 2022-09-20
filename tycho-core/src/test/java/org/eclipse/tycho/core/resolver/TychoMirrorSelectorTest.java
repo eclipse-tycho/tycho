@@ -24,7 +24,7 @@ import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.repository.DefaultMirrorSelector;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
-import org.eclipse.tycho.osgi.configuration.RepositorySettingsConfigurator;
+import org.eclipse.tycho.p2maven.repository.DefaultMavenRepositorySettings;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,7 +34,7 @@ import org.mockito.stubbing.Answer;
 
 public class TychoMirrorSelectorTest {
 
-    private RepositorySettingsConfigurator selector;
+    private DefaultMavenRepositorySettings selector;
 
     @Before
     public void setup() {
@@ -48,7 +48,7 @@ public class TychoMirrorSelectorTest {
                 return new DefaultMirrorSelector().getMirror((ArtifactRepository) args[0], (List<Mirror>) args[1]);
             }
         }).when(repo).getMirror(any(), any());
-        selector = new RepositorySettingsConfigurator(repo);
+        selector = new DefaultMavenRepositorySettings(repo);
 
     }
 
