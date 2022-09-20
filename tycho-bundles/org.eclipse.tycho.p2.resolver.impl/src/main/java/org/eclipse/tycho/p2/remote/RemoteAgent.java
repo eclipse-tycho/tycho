@@ -100,6 +100,7 @@ public class RemoteAgent implements IProvisioningAgent {
         }
 
         if (mavenRepositorySettings != null) {
+            agent.registerService(MavenRepositorySettings.class, mavenRepositorySettings);
             addMavenAwareRepositoryManagers(agent, mavenRepositorySettings, mavenContext.getLogger());
         }
 
@@ -119,9 +120,7 @@ public class RemoteAgent implements IProvisioningAgent {
     private static void addMavenAwareRepositoryManagers(AgentBuilder agent,
             MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
 
-        // register service which stores mapping between URLs and IDs (used by Maven)
-        IRepositoryIdManager loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings, logger);
-        agent.registerService(IRepositoryIdManager.class, loadingHelper);
+        IRepositoryIdManager loadingHelper = agent.getAgent().getService(IRepositoryIdManager.class);
 
         // wrap metadata repository manager
         IMetadataRepositoryManager plainMetadataRepoManager = agent.getService(IMetadataRepositoryManager.class);
