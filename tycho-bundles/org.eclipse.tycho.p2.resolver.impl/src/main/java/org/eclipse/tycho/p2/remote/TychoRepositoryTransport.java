@@ -61,8 +61,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         File cacheLocation = new File(mavenContext.getLocalRepositoryRoot(), ".cache/tycho");
         cacheLocation.mkdirs();
         MavenLogger logger = mavenContext.getLogger();
-        logger.info(
-                "### Using TychoRepositoryTransport for remote P2 access (You can disable this with -Dtycho.p2.transport=ecf) ###");
+        logger.info("### Using TychoRepositoryTransport for remote P2 access ###");
         logger.info("    Cache location:         " + cacheLocation);
         logger.info("    Transport mode:         " + (mavenContext.isOffline() ? "offline" : "online"));
         logger.info("    Update mode:            " + (mavenContext.isUpdateSnapshots() ? "forced" : "cache first"));
