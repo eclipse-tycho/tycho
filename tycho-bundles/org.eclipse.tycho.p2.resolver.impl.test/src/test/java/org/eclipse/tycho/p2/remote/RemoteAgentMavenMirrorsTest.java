@@ -63,6 +63,8 @@ public class RemoteAgentMavenMirrorsTest {
 
         mavenRepositorySettings = new MavenRepositorySettingsStub();
         subject = new RemoteAgent(mavenContext, null, mavenRepositorySettings, OFFLINE);
+        IRepositoryIdManager idManager = subject.getService(IRepositoryIdManager.class);
+        System.out.println(idManager);
     }
 
     @Test

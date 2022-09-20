@@ -10,23 +10,23 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho.p2maven.helper;
 
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
-import org.eclipse.tycho.core.shared.MavenLogger;
 
-class P2PasswordUtil {
+public class P2PasswordUtil {
 
-    static void setCredentials(URI location, String username, String password, MavenLogger logger) {
+	public static void setCredentials(URI location, String username, String password, Logger logger) {
         ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
 
         // if URI is not opaque, just getting the host may be enough

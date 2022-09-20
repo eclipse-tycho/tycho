@@ -11,7 +11,7 @@
  *    SAP AG - initial API and implementation
  *    Christoph Läubrich - Issue #797 - Implement a caching P2 transport  
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho.p2maven.repository;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,26 +19,27 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
-import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2maven.helper.P2PasswordUtil;
 
 /**
  * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the
  * settings.xml-configured mirrors and setting passwords.
  */
-class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
+@Component(role = IRepositoryIdManager.class)
+public class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
 
-    private final MavenRepositorySettings settings;
-    private final MavenLogger logger;
+	@Requirement
+	private MavenRepositorySettings settings;
+	@Requirement
+	private Logger logger;
 
     private Map<URI, String> knownMavenRepositoryIds = new ConcurrentHashMap<>();
-
-    public RemoteRepositoryLoadingHelper(MavenRepositorySettings settings, MavenLogger logger) {
-        this.settings = settings;
-        this.logger = logger;
-    }
 
     @Override
     public void addMapping(String mavenRepositoryId, URI location) {
@@ -69,7 +70,8 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
         }
     }
 
-    public URI getEffectiveLocation(URI location) {
+    @Override
+	public URI getEffectiveLocation(URI location) {
         if (certainlyNoRemoteURL(location)) {
             return location;
         }
@@ -78,7 +80,8 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
         return effectiveLocation.getURL();
     }
 
-    public URI getEffectiveLocationAndPrepareLoad(URI location) {
+    @Override
+	public URI getEffectiveLocationAndPrepareLoad(URI location) {
         if (certainlyNoRemoteURL(location)) {
             return location;
         }
@@ -136,7 +139,8 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
         return location.isOpaque() || !location.isAbsolute();
     }
 
-    public Stream<MavenRepositoryLocation> getKnownMavenRepositoryLocations() {
+    @Override
+	public Stream<MavenRepositoryLocation> getKnownMavenRepositoryLocations() {
         return knownMavenRepositoryIds.entrySet().stream()
                 .map(e -> new MavenRepositoryLocation(e.getValue(), e.getKey()));
     }

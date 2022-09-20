@@ -28,7 +28,7 @@ public class NoopRepositoryIdManagerFactory implements IAgentServiceFactory {
 
     @Override
     public Object createService(IProvisioningAgent agent) {
-        return new NoopRepositoryIdManager();
+        return new NoopRepositoryIdManager(agent);
     }
 
 }
