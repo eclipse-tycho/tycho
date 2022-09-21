@@ -9,7 +9,6 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>${tycho-version}</tycho.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<!-- 
@@ -22,7 +21,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
 			<plugin>

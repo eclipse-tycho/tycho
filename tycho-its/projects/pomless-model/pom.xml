@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>${tycho-version}</tycho.version>
+		<tycho-version>${tycho-version}</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<custom.user.property>the-default-value</custom.user.property>
 	</properties>
@@ -23,13 +23,13 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<configuration>
 					<target>
 						<artifact>
@@ -68,7 +68,7 @@
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-p2-director-plugin</artifactId>
-					<version>${tycho.version}</version>
+					<version>${tycho-version}</version>
 					<executions>
 						<execution>
 							<id>materialize-products</id>
@@ -89,7 +89,7 @@
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-p2-repository-plugin</artifactId>
-					<version>${tycho.version}</version>
+					<version>${tycho-version}</version>
 					<executions>
 						<execution>
 							<id>default-assemble-repository</id>
