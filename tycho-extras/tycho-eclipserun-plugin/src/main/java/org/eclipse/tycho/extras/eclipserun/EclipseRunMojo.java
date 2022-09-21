@@ -320,6 +320,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 		ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger, false,
 				toolchainManager, session);
+		eeConfiguration.setProfileConfiguration(executionEnvironment, "tycho-eclipserun-plugin <executionEnvironment>");
 		TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
 				eeConfiguration, null);
 		P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
