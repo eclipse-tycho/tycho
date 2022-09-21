@@ -78,7 +78,7 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
                 if (pomFile.isFile()) {
                     return pomFile;
                 }
-                Model findModel = findModel(artifact);
+                Model findModel = getP2Model(artifact);
                 if (findModel != null) {
                     try {
                         pomFile.getParentFile().mkdirs();
@@ -155,19 +155,25 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
     public Model findModel(Artifact artifact) {
         if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
             logger.debug("Find the model for: " + artifact);
-            Model model = new Model();
-            model.setModelVersion("4.0.0");
-            model.setArtifactId(artifact.getArtifactId());
-            model.setGroupId(artifact.getGroupId());
-            model.setVersion(artifact.getVersion());
-            model.setPackaging(artifact.getProperty("packaging", null));
-            if (model.getPackaging() == null) {
-                model.setPackaging(
-                        artifact.getGroupId().substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-'));
-            }
-            return model;
+            //TODO due to a bug in maven we can not use this here... see  Tycho issue #1388
+            //see https://issues.apache.org/jira/browse/MNG-7544
+//            return getP2Model(artifact);
         }
         return null;
+    }
+
+    private Model getP2Model(Artifact artifact) {
+        Model model = new Model();
+        model.setModelVersion("4.0.0");
+        model.setArtifactId(artifact.getArtifactId());
+        model.setGroupId(artifact.getGroupId());
+        model.setVersion(artifact.getVersion());
+        model.setPackaging(artifact.getProperty("packaging", null));
+        if (model.getPackaging() == null) {
+            model.setPackaging(
+                    artifact.getGroupId().substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-'));
+        }
+        return model;
     }
 
 }
