@@ -16,6 +16,10 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -496,7 +500,21 @@ public class EquinoxResolver {
     }
 
     private OsgiManifest loadManifest(File bundleLocation) {
-        if (bundleLocation == null || !bundleLocation.exists()) {
+        if (bundleLocation == null) {
+            throw new IllegalArgumentException("bundleLocation is null!");
+        }
+        if (!bundleLocation.exists()) {
+            if (bundleLocation != null) {
+                Path path = bundleLocation.toPath();
+                try {
+                    BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+                    throw new IllegalArgumentException("bundleLocation not found (s/c/d/r/o): " + bundleLocation + " "
+                            + attributes.size() + " / " + attributes.creationTime() + " / " + attributes.isDirectory()
+                            + " / " + attributes.isRegularFile() + " / " + attributes.isOther());
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation, e);
+                }
+            }
             throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation);
         }
         return manifestReader.loadManifest(bundleLocation);
