@@ -99,16 +99,12 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
 
     @Override
     public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
-        switch (type) {
-        case SEED:
-            return dependencyMetadata;
-        case RESOLVE:
-            return secondaryDependencyMetadata;
-        case INITIAL:
-            return initialMetadata;
-        default:
-            return Collections.emptySet();
-        }
+        return switch (type) {
+        case SEED -> dependencyMetadata;
+        case RESOLVE -> secondaryDependencyMetadata;
+        case INITIAL -> initialMetadata;
+        default -> Collections.emptySet();
+        };
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {

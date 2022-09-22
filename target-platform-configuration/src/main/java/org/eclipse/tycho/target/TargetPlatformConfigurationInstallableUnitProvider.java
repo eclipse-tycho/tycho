@@ -74,22 +74,17 @@ public class TargetPlatformConfigurationInstallableUnitProvider implements Insta
     }
 
     private static IRequirement createRequirementFor(String type, String id, VersionRange versionRange) {
-        switch (type) {
-        case ArtifactType.TYPE_ECLIPSE_PLUGIN:
-            return MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, id, versionRange, null,
-                    false, true);
-        case ArtifactType.TYPE_ECLIPSE_FEATURE:
-            return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id + ".feature.group",
-                    versionRange, null, false, true);
-        case ArtifactType.TYPE_INSTALLABLE_UNIT:
-            return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, versionRange, null, false,
-                    true);
-        case ArtifactType.TYPE_ECLIPSE_PRODUCT:
-            return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, versionRange, null, false,
-                    true);
-        default:
-            return null;
-        }
+        return switch (type) {
+        case ArtifactType.TYPE_ECLIPSE_PLUGIN -> MetadataFactory
+                .createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, id, versionRange, null, false, true);
+        case ArtifactType.TYPE_ECLIPSE_FEATURE -> MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                id + ".feature.group", versionRange, null, false, true);
+        case ArtifactType.TYPE_INSTALLABLE_UNIT -> MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                id, versionRange, null, false, true);
+        case ArtifactType.TYPE_ECLIPSE_PRODUCT -> MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                id, versionRange, null, false, true);
+        default -> null;
+        };
     }
 
     private static IInstallableUnit createUnitRequiring(Collection<IRequirement> requirements) {

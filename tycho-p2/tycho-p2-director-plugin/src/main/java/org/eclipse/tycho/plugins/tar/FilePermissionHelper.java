@@ -36,35 +36,17 @@ public class FilePermissionHelper {
     public static int toOctalFileMode(Set<PosixFilePermission> permissions) {
         int result = 0;
         for (PosixFilePermission permissionBit : permissions) {
-            switch (permissionBit) {
-            case OWNER_READ:
-                result |= OWNER_READ_FILEMODE;
-                break;
-            case OWNER_WRITE:
-                result |= OWNER_WRITE_FILEMODE;
-                break;
-            case OWNER_EXECUTE:
-                result |= OWNER_EXEC_FILEMODE;
-                break;
-            case GROUP_READ:
-                result |= GROUP_READ_FILEMODE;
-                break;
-            case GROUP_WRITE:
-                result |= GROUP_WRITE_FILEMODE;
-                break;
-            case GROUP_EXECUTE:
-                result |= GROUP_EXEC_FILEMODE;
-                break;
-            case OTHERS_READ:
-                result |= OTHERS_READ_FILEMODE;
-                break;
-            case OTHERS_WRITE:
-                result |= OTHERS_WRITE_FILEMODE;
-                break;
-            case OTHERS_EXECUTE:
-                result |= OTHERS_EXEC_FILEMODE;
-                break;
-            }
+            result |= switch (permissionBit) {
+            case OWNER_READ -> OWNER_READ_FILEMODE;
+            case OWNER_WRITE -> OWNER_WRITE_FILEMODE;
+            case OWNER_EXECUTE -> OWNER_EXEC_FILEMODE;
+            case GROUP_READ -> GROUP_READ_FILEMODE;
+            case GROUP_WRITE -> GROUP_WRITE_FILEMODE;
+            case GROUP_EXECUTE -> GROUP_EXEC_FILEMODE;
+            case OTHERS_READ -> OTHERS_READ_FILEMODE;
+            case OTHERS_WRITE -> OTHERS_WRITE_FILEMODE;
+            case OTHERS_EXECUTE -> OTHERS_EXEC_FILEMODE;
+            };
         }
         return result;
     }

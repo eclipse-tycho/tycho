@@ -84,18 +84,11 @@ public class InstallableUnitResolver {
         //update (and validate) desired global state
         setIncludeMode(iuLocationDefinition.getIncludeMode());
         setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
-        switch (sourceMode) {
-        case force:
-            setIncludeSource(true);
-            break;
-        case ignore:
-            setIncludeSource(false);
-            break;
-        case honor:
-        default:
-            setIncludeSource(iuLocationDefinition.includeSource());
-            break;
-        }
+        setIncludeSource(switch (sourceMode) {
+        case force -> true;
+        case ignore -> false;
+        default -> iuLocationDefinition.includeSource();
+        });
         //resolve root units and add them
         rootUnits.add(new RootUnits(getRootIUs(iuLocationDefinition.getUnits(), localUnits), localUnits));
     }

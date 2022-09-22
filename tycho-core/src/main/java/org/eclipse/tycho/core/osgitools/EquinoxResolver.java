@@ -249,13 +249,11 @@ public class EquinoxResolver {
             @Override
             public String getProperty(String key) {
                 // see https://github.com/eclipse/tycho/issues/213#issuecomment-912547700 for details about what these does
-                switch (key) {
-                case "equinox.resolver.revision.batch.size":
-                    return config.batchSize;
-                case "equinox.resolver.batch.timeout":
-                    return EquinoxResolverConfiguration.BATCH_TIMEOUT;
-                }
-                return super.getProperty(key);
+                return switch (key) {
+                case "equinox.resolver.revision.batch.size" -> config.batchSize;
+                case "equinox.resolver.batch.timeout" -> EquinoxResolverConfiguration.BATCH_TIMEOUT;
+                default -> super.getProperty(key);
+                };
             }
 
             @Override

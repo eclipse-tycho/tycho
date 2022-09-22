@@ -69,16 +69,11 @@ public final class TargetPlatformFilter {
     @Override
     public String toString() {
         String commonPart = "TargetPlatformFilter(scope=" + scopePattern + ", action=" + action;
-        switch (action) {
-        case REMOVE_ALL:
-            return commonPart + ")";
-
-        case RESTRICT:
-            return commonPart + ", restriction=" + actionPattern + ")";
-
-        default:
-            return super.toString();
-        }
+        return switch (action) {
+        case REMOVE_ALL -> commonPart + ")";
+        case RESTRICT -> commonPart + ", restriction=" + actionPattern + ")";
+        default -> super.toString();
+        };
     }
 
     public enum FilterAction {
