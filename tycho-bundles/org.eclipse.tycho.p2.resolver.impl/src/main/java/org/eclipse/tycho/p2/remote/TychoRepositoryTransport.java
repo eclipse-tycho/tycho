@@ -100,8 +100,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     }
 
     private IStatus reportStatus(IStatus status, OutputStream target) {
-        if (target instanceof IStateful) {
-            IStateful stateful = (IStateful) target;
+        if (target instanceof IStateful stateful) {
             stateful.setStatus(status);
         }
         return status;

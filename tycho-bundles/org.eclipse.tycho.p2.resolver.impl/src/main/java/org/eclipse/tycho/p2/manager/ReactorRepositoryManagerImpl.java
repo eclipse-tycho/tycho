@@ -124,11 +124,10 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     }
 
     private PreliminaryTargetPlatformImpl getRegisteredPreliminaryTargetPlatform(ReactorProject project) {
-        Object result = project.getContextValue(PRELIMINARY_TARGET_PLATFORM_KEY);
-        if (result instanceof PreliminaryTargetPlatformImpl) {
-            return (PreliminaryTargetPlatformImpl) result;
-        }
-        return null;
+        return project.getContextValue(
+                PRELIMINARY_TARGET_PLATFORM_KEY) instanceof PreliminaryTargetPlatformImpl preliminaryTargetPlatformImpl
+                        ? preliminaryTargetPlatformImpl
+                        : null;
     }
 
     private List<PublishingRepository> getBuildResults(List<? extends ReactorProjectIdentities> projects) {

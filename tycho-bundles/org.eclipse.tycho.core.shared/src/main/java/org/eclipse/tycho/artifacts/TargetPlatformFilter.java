@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.artifacts;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 
 public final class TargetPlatformFilter {
@@ -169,36 +170,16 @@ public final class TargetPlatformFilter {
 
         @Override
         public int hashCode() {
-            final int prime = 17;
-            int result = 1;
-            result = prime * result + ((type == null) ? 0 : type.hashCode());
-            result = prime * result + ((id == null) ? 0 : id.hashCode());
-            result = prime * result + ((version == null) ? 0 : version.hashCode());
-            result = prime * result + ((versionRange == null) ? 0 : versionRange.hashCode());
-            return result;
+            return Objects.hash(type, id, version, versionRange);
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!(obj instanceof CapabilityPattern))
-                return false;
-
-            CapabilityPattern other = (CapabilityPattern) obj;
-            return isEqual(this.type, other.type) //
-                    && isEqual(this.id, other.id) //
-                    && isEqual(this.version, other.version) //
-                    && isEqual(this.versionRange, other.versionRange);
-        }
-
-        private static <T> boolean isEqual(T left, T right) {
-            if (left == right)
-                return true;
-            else if (left == null)
-                return false;
-            else
-                return left.equals(right);
+            return this == obj || (obj instanceof CapabilityPattern other && //
+                    Objects.equals(this.type, other.type) && //
+                    Objects.equals(this.id, other.id) && //
+                    Objects.equals(this.version, other.version) && //
+                    Objects.equals(this.versionRange, other.versionRange));
         }
 
     }

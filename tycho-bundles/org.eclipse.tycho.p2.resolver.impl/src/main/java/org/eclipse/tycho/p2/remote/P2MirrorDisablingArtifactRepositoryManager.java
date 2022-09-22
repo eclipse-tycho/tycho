@@ -44,8 +44,8 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
 
     private static IArtifactRepository disableMirrors(IArtifactRepository repository, MavenLogger logger)
             throws ProvisionException {
-        if (repository instanceof SimpleArtifactRepository) {
-            stripMirrorsURLProperty((SimpleArtifactRepository) repository, logger);
+        if (repository instanceof SimpleArtifactRepository simpleArtifactRepo) {
+            stripMirrorsURLProperty(simpleArtifactRepo, logger);
         }
         return repository;
     }
@@ -59,13 +59,13 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
                 logger.debug("Removed 'p2.mirrorsURL' property in repository " + repository.getLocation());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to disable mirrors for artifact repository at \""
-                    + repository.getLocation() + "\"", e);
+            throw new RuntimeException(
+                    "Failed to disable mirrors for artifact repository at \"" + repository.getLocation() + "\"", e);
         }
     }
 
-    private static Map<?, ?> getRepositoryProperties(AbstractRepository<?> repository) throws SecurityException,
-            NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+    private static Map<?, ?> getRepositoryProperties(AbstractRepository<?> repository)
+            throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         // TODO there should be a better way to modify repository properties
         Field field = AbstractRepository.class.getDeclaredField("properties");
         field.setAccessible(true);

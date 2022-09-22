@@ -46,8 +46,8 @@ public final class ArtifactProviderImplUtilities {
      *             if the check fails
      */
     public static void canWriteCanonicalArtifactToSink(IArtifactSink artifactSink) throws IllegalArgumentException {
-        if (artifactSink instanceof IRawArtifactSink
-                && !isCanonicalFormat(((IRawArtifactSink) artifactSink).getArtifactFormatToBeWritten())) {
+        if (artifactSink instanceof IRawArtifactSink rawSink
+                && !isCanonicalFormat(rawSink.getArtifactFormatToBeWritten())) {
             throw new IllegalArgumentException(
                     "Artifact should not be written in canonical format to a sink expecting a non-canonical format. Did you mean to call getRawArtifact?");
         }

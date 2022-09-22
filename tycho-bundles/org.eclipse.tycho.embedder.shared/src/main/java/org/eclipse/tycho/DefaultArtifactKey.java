@@ -38,19 +38,11 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof ArtifactKey)) {
-            return false;
-        }
-
-        ArtifactKey other = (ArtifactKey) obj;
-
-        return Objects.equals(getType(), other.getType()) && //
-                Objects.equals(getId(), other.getId()) && //
-                Objects.equals(getVersion(), other.getVersion());
+        return this == obj || //
+                (obj instanceof ArtifactKey other && //
+                        Objects.equals(getType(), other.getType()) && //
+                        Objects.equals(getId(), other.getId()) && //
+                        Objects.equals(getVersion(), other.getVersion()));
     }
 
     @Override

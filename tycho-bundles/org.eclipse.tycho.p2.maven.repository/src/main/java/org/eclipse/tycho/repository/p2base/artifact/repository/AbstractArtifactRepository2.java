@@ -367,8 +367,8 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
     }
 
     protected static void setStatusOnStreamIfPossible(OutputStream destination, IStatus status) {
-        if (destination instanceof IStateful) {
-            ((IStateful) destination).setStatus(status);
+        if (destination instanceof IStateful stateful) {
+            stateful.setStatus(status);
         }
     }
 

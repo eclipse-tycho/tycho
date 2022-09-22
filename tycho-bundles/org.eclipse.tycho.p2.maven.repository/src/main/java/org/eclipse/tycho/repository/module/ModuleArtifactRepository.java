@@ -141,9 +141,8 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
     }
 
     private static MavenRepositoryCoordinates readMavenCoordinates(IArtifactDescriptor descriptor) {
-        if (descriptor instanceof ModuleArtifactDescriptor) {
-            return ((ModuleArtifactDescriptor) descriptor).getMavenCoordinates();
-
+        if (descriptor instanceof ModuleArtifactDescriptor moduleArtifactDescriptor) {
+            return moduleArtifactDescriptor.getMavenCoordinates();
         } else {
             MavenRepositoryCoordinates result = GAVArtifactDescriptorBase.readMavenCoordinateProperties(descriptor);
             if (result == null) {
@@ -304,17 +303,13 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         public boolean equals(Object obj) {
             if (obj == this)
                 return true;
-            if (!(obj instanceof IArtifactDescriptor))
-                return false;
-            IArtifactDescriptor other = (IArtifactDescriptor) obj;
-
-            if (other instanceof ModuleArtifactDescriptor || other instanceof ModuleArtifactComparableDescriptor) {
-                // compare fields used in ArtifactDescriptor.hashCode
-                return Objects.equals(this.key, other.getArtifactKey())
-                        && Objects.equals(this.getProperty(FORMAT), other.getProperty(FORMAT))
-                        && Arrays.equals(this.processingSteps, other.getProcessingSteps());
-            }
-            return false;
+            return obj == this || //
+                    (obj instanceof IArtifactDescriptor other //
+                            && (other instanceof ModuleArtifactDescriptor
+                                    || other instanceof ModuleArtifactComparableDescriptor)
+                            && Objects.equals(this.key, other.getArtifactKey()) && //
+                            Objects.equals(this.getProperty(FORMAT), other.getProperty(FORMAT)) && // 
+                            Arrays.equals(this.processingSteps, other.getProcessingSteps()));
         }
     }
 
@@ -331,17 +326,12 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof IArtifactDescriptor))
-                return false;
-            IArtifactDescriptor other = (IArtifactDescriptor) obj;
-
-            if (other instanceof ModuleArtifactDescriptor || other instanceof ModuleArtifactComparableDescriptor) {
-                // compare fields used in ArtifactDescriptor.hashCode
-                return Objects.equals(this.key, other.getArtifactKey())
-                        && Objects.equals(this.getProperty(FORMAT), other.getProperty(FORMAT))
-                        && Arrays.equals(this.processingSteps, other.getProcessingSteps());
-            }
-            return false;
+            return obj instanceof IArtifactDescriptor other //
+                    && (other instanceof ModuleArtifactDescriptor
+                            || other instanceof ModuleArtifactComparableDescriptor)
+                    && Objects.equals(this.key, other.getArtifactKey()) //
+                    && Objects.equals(this.getProperty(FORMAT), other.getProperty(FORMAT)) //
+                    && Arrays.equals(this.processingSteps, other.getProcessingSteps());
         }
 
     }

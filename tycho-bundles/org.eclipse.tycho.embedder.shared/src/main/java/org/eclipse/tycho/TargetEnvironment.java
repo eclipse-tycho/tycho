@@ -14,6 +14,7 @@ package org.eclipse.tycho;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Properties;
 
 public final class TargetEnvironment {
@@ -128,27 +129,16 @@ public final class TargetEnvironment {
 
     @Override
     public int hashCode() {
-        int hash = 17;
-        hash = 17 * hash + (os != null ? os.hashCode() : 0);
-        hash = 17 * hash + (ws != null ? ws.hashCode() : 0);
-        hash = 17 * hash + (arch != null ? arch.hashCode() : 0);
-        return hash;
+        return Objects.hash(os, ws, arch);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        } else if (!(obj instanceof TargetEnvironment)) {
-            return false;
-        }
-        TargetEnvironment other = (TargetEnvironment) obj;
-
-        return eq(os, other.os) && eq(ws, other.ws) && eq(arch, other.arch);
-    }
-
-    private static boolean eq(String a, String b) {
-        return a != null ? a.equals(b) : b == null;
+        return this == obj || //
+                (obj instanceof TargetEnvironment other && //
+                        Objects.equals(os, other.os) && //
+                        Objects.equals(ws, other.ws) && //
+                        Objects.equals(arch, other.arch));
     }
 
     public static TargetEnvironment getRunningEnvironment() {

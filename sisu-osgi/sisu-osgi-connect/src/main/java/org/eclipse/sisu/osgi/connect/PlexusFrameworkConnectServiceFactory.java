@@ -84,12 +84,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	}
 
 	protected String getName(ClassLoader classLoader) {
-		if (classLoader instanceof ClassRealm) {
-			ClassRealm classRealm = (ClassRealm) classLoader;
-			return classRealm.getId();
-		} else {
-			return classLoader.toString();
-		}
+		return classLoader instanceof ClassRealm classRealm ? classRealm.getId() :classLoader.toString();
 	}
 
 	/**
@@ -190,10 +185,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	}
 
 	protected ClassRealm getRealm(ClassLoader classloader) {
-		if (classloader instanceof ClassRealm) {
-			return (ClassRealm) classloader;
-		}
-		return loaderMap.computeIfAbsent(classloader, cl -> new DummyClassRealm("Not called from a ClassRealm", cl));
+		return classloader instanceof ClassRealm classRealm ? classRealm : //
+			loaderMap.computeIfAbsent(classloader, cl -> new DummyClassRealm("Not called from a ClassRealm", cl));
 	}
 
 	private static Map<String, String> readProperties(ClassLoader classloader, Logger logger) {
@@ -265,8 +258,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		Arrays.stream(bundles).map(Bundle::getRegisteredServices).filter(Objects::nonNull).flatMap(Arrays::stream)
 				.forEach(reference -> {
 					Object service = reference.getProperty(Constants.OBJECTCLASS);
-					if (service instanceof Object[]) {
-						Object[] objects = (Object[]) service;
+					if (service instanceof Object[] objects) {
 						if (objects.length == 1) {
 							service = objects[0];
 						} else {

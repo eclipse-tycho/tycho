@@ -61,14 +61,15 @@ public class QueryableCollection extends IndexProvider<IInstallableUnit> {
 
     @Override
     public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
-        if (!(client instanceof IInstallableUnit))
-            return null;
-        IInstallableUnit iu = (IInstallableUnit) client;
-        if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
-            if (translationSupport == null)
-                translationSupport = new TranslationSupport(this);
-            return key instanceof KeyWithLocale ? translationSupport.getIUProperty(iu, (KeyWithLocale) key)
-                    : translationSupport.getIUProperty(iu, key.toString());
+        if (client instanceof IInstallableUnit iu) {
+            if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
+                if (translationSupport == null) {
+                    translationSupport = new TranslationSupport(this);
+                }
+                return key instanceof KeyWithLocale keyWithLocale //
+                        ? translationSupport.getIUProperty(iu, keyWithLocale)
+                        : translationSupport.getIUProperty(iu, key.toString());
+            }
         }
         return null;
     }
