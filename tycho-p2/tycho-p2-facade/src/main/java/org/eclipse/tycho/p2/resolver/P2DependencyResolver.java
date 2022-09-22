@@ -64,10 +64,10 @@ import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.OptionalResolutionAction;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -157,7 +157,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
         Set<IInstallableUnit> initial = new HashSet<>();
         typeMap.forEach((key, value) -> {
-        	reactorProject.setDependencyMetadata(key, value);
+            reactorProject.setDependencyMetadata(key, value);
             initial.addAll(value);
         });
         reactorProject.setDependencyMetadata(DependencyMetadataType.INITIAL, initial);
@@ -340,9 +340,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             }
         }
         DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(reactorProject);
-        if (dependencyArtifacts instanceof ArtifactCollection) {
+        if (dependencyArtifacts instanceof ArtifactCollection collection) {
             //enhance the dependency set
-            ArtifactCollection collection = (ArtifactCollection) dependencyArtifacts;
             dependencyCollector.getMavenInstallableUnits().forEach((key, val) -> {
                 ArtifactKey artifactKey = dependencyCollector.getArtifactKey(val);
                 File location = val.getLocation();

@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
+import java.util.Objects;
+
 public class VersionChange {
 
     private final String version;
@@ -33,24 +35,15 @@ public class VersionChange {
 
     @Override
     public int hashCode() {
-        int hash = version.hashCode();
-        hash = 17 * hash + newVersion.hashCode();
-        return hash;
+        return Objects.hash(version, newVersion);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof VersionChange)) {
-            return false;
-        }
-
-        VersionChange other = (VersionChange) obj;
-
-        return version.equals(other.version) && newVersion.equals(other.newVersion);
+        return obj == this || //
+                (obj instanceof VersionChange other && //
+                        version.equals(other.version) && //
+                        newVersion.equals(other.newVersion));
     }
 
     @Override

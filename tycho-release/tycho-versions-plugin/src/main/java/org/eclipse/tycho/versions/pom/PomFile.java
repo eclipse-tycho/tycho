@@ -125,8 +125,8 @@ public class PomFile {
         List<Node> elements = project.getNodes();
         for (Iterator<Node> iterator = elements.iterator(); iterator.hasNext();) {
             Node node = iterator.next();
-            if (node instanceof Element) {
-                if ("version".equals(((Element) node).getName())) {
+            if (node instanceof Element element) {
+                if ("version".equals(element.getName())) {
                     iterator.remove();
 
                     // also return newline after the element

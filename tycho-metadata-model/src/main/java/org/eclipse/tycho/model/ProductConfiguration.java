@@ -116,9 +116,7 @@ public class ProductConfiguration {
             for (int childIx = featuresDom.getNodes().size() - 1; childIx > 0; --childIx) {
                 Node nodeDom = featuresDom.getNode(childIx);
 
-                if (nodeDom instanceof Element) {
-                    Element elementDom = (Element) nodeDom;
-
+                if (nodeDom instanceof Element elementDom) {
                     if (parseFeature(elementDom).getInstallMode() == FeatureRef.InstallMode.root) {
                         featuresDom.removeNode(childIx);
                     }
