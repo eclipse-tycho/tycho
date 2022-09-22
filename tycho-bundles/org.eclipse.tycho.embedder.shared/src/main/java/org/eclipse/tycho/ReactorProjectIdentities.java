@@ -13,6 +13,7 @@
 package org.eclipse.tycho;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  * All values (GAV, project base directory, and target directory) by which a Tycho reactor project
@@ -33,38 +34,16 @@ public abstract class ReactorProjectIdentities {
     // equals and hashCode could be based on any of the unique keys; GAV is promising the most stable hash values, so use that
     @Override
     public final boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        } else if (!(obj instanceof ReactorProjectIdentities)) {
-            return false;
-        }
-
-        ReactorProjectIdentities other = (ReactorProjectIdentities) obj;
-        return eq(this.getArtifactId(), other.getArtifactId()) && eq(this.getGroupId(), other.getGroupId())
-                && eq(this.getVersion(), other.getVersion());
+        return this == obj || //
+                (obj instanceof ReactorProjectIdentities other && //
+                        Objects.equals(this.getArtifactId(), other.getArtifactId()) && //
+                        Objects.equals(this.getGroupId(), other.getGroupId()) && //
+                        Objects.equals(this.getVersion(), other.getVersion()));
     }
 
     @Override
     public final int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + hash(getArtifactId());
-        result = prime * result + hash(getGroupId());
-        result = prime * result + hash(getVersion());
-        return result;
-    }
-
-    private static boolean eq(String left, String right) {
-        if (left == right)
-            return true;
-        else if (left == null)
-            return false;
-        else
-            return left.equals(right);
-    }
-
-    private static int hash(String string) {
-        return (string == null) ? 0 : string.hashCode();
+        return Objects.hash(getArtifactId(), getGroupId(), getVersion());
     }
 
 }

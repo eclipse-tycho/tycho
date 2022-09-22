@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
+import java.util.Objects;
+
 public final class ConfigSpec {
 
     public static final ConfigSpec GLOBAL = new ConfigSpec(null, null, null);
@@ -47,31 +49,16 @@ public final class ConfigSpec {
 
     @Override
     public int hashCode() {
-        final int prime = 29;
-        int result = 1;
-        result = prime * result + ((arch == null) ? 0 : arch.hashCode());
-        result = prime * result + ((os == null) ? 0 : os.hashCode());
-        result = prime * result + ((ws == null) ? 0 : ws.hashCode());
-        return result;
+        return Objects.hash(ws, os, arch);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj instanceof ConfigSpec) {
-            ConfigSpec other = (ConfigSpec) obj;
-            return equals(ws, other.ws) && equals(os, other.os) && equals(arch, other.arch);
-        }
-        return false;
-    }
-
-    private <T> boolean equals(T left, T right) {
-        if (left == right)
-            return true;
-        if (left == null)
-            return false;
-        return left.equals(right);
+        return this == obj || //
+                (obj instanceof ConfigSpec other && //
+                        Objects.equals(ws, other.ws) && //
+                        Objects.equals(os, other.os) && //
+                        Objects.equals(arch, other.arch));
     }
 
     public String toOsString() {

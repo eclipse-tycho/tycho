@@ -137,8 +137,8 @@ public abstract class AbstractMetadataGenerator {
         metadata.setDependencyMetadata(DependencyMetadataType.RESOLVE, result.getIUs(null, PublisherResult.NON_ROOT));
 
         IArtifactRepository artifactRepository = publisherInfo.getArtifactRepository();
-        if (artifactRepository instanceof TransientArtifactRepository) {
-            metadata.setArtifacts(((TransientArtifactRepository) artifactRepository).getArtifactDescriptors());
+        if (artifactRepository instanceof TransientArtifactRepository transientArtifactRepo) {
+            metadata.setArtifacts(transientArtifactRepo.getArtifactDescriptors());
         }
 
         return metadata;

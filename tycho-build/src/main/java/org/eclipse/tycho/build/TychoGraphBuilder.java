@@ -74,8 +74,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		Objects.requireNonNull(session);
 		// Tell the polyglot mappings that we are in extension mode
 		for (Mapping mapping : polyglotMappings.values()) {
-			if (mapping instanceof AbstractTychoMapping) {
-				AbstractTychoMapping tychoMapping = (AbstractTychoMapping) mapping;
+			if (mapping instanceof AbstractTychoMapping tychoMapping) {
 				tychoMapping.setExtensionMode(true);
 				tychoMapping.setMultiModuleProjectDirectory(session.getRequest().getMultiModuleProjectDirectory());
 				if (session.getRequest().getSystemProperties().getProperty("tycho.buildqualifier.format") != null) {
@@ -242,8 +241,8 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		Exception exception;
 		if (throwable == null) {
 			exception = null;
-		} else if (throwable instanceof Exception) {
-			exception = (Exception) throwable;
+		} else if (throwable instanceof Exception ex) {
+			exception = ex;
 		} else {
 			exception = new ExecutionException(throwable);
 		}

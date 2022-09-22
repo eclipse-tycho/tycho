@@ -50,8 +50,8 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
             message.append(member.getKey()).append(": ").append(member.getValue().getMessage());
             message.append("\n");
 
-            if (member.getValue() instanceof CompoundArtifactDelta) {
-                ((CompoundArtifactDelta) member.getValue()).appendDetailedMessage(message, indent + 1);
+            if (member.getValue() instanceof CompoundArtifactDelta compoundDelta) {
+                compoundDelta.appendDetailedMessage(message, indent + 1);
             }
         }
     }
@@ -65,10 +65,9 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
     public void writeDetails(File basedir) throws IOException {
         for (Map.Entry<String, ArtifactDelta> member : members.entrySet()) {
             ArtifactDelta memberDelta = member.getValue();
-            if (memberDelta instanceof CompoundArtifactDelta) {
-                ((CompoundArtifactDelta) memberDelta).writeDetails(new File(basedir, member.getKey()));
-            } else if (memberDelta instanceof SimpleArtifactDelta) {
-                SimpleArtifactDelta delta = (SimpleArtifactDelta) memberDelta;
+            if (memberDelta instanceof CompoundArtifactDelta compoundDelta) {
+                compoundDelta.writeDetails(new File(basedir, member.getKey()));
+            } else if (memberDelta instanceof SimpleArtifactDelta delta) {
                 if (delta.getBaseline() != null) {
                     writeFile(basedir, member.getKey() + "-baseline", delta.getBaseline());
                 }

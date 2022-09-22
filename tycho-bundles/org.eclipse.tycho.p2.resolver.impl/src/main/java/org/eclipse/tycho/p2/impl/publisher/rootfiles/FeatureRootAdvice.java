@@ -57,12 +57,9 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
      */
     public static IFeatureRootAdvice createRootFileAdvice(IArtifactFacade featureArtifact,
             BuildPropertiesParser buildPropertiesParser) {
-        Interpolator interpolator;
-        if (featureArtifact instanceof ReactorProjectFacade) {
-            interpolator = ((ReactorProjectFacade) featureArtifact).getReactorProject().getInterpolator();
-        } else {
-            interpolator = null;
-        }
+        Interpolator interpolator = featureArtifact instanceof ReactorProjectFacade reactorFacade
+                ? reactorFacade.getReactorProject().getInterpolator()
+                : null;
         File projectDir = getProjectBaseDir(featureArtifact);
 
         if (projectDir != null) {

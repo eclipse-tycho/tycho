@@ -66,8 +66,8 @@ public class PropertiesComparator implements ContentsComparator {
         for (Entry<Object, Object> propEntry : props.entrySet()) {
             Object key = propEntry.getKey();
             Object value = propEntry.getValue();
-            if (key instanceof String && value instanceof String) {
-                names.add((String) key);
+            if (key instanceof String keyString && value instanceof String) {
+                names.add(keyString);
             }
         }
     }

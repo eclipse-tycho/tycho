@@ -229,8 +229,7 @@ public class MavenProjectDependencyProcessor {
 		return getFragmentCapability(installableUnit).map(provided -> {
 			String hostName = provided.getName();
 			for (IRequirement requirement : installableUnit.getRequirements()) {
-				if (requirement instanceof IRequiredCapability) {
-					IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
+				if (requirement instanceof IRequiredCapability requiredCapability) {
 					if (hostName.equals(requiredCapability.getName())) {
 						return requirement;
 					}

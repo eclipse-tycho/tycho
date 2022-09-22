@@ -116,8 +116,8 @@ public class FeatureRootfileArtifactRepository extends TransientArtifactReposito
         List<IPublisherAdvice> adviceList = this.publisherInfo.getAdvice();
 
         for (IPublisherAdvice publisherAdvice : adviceList) {
-            if (publisherAdvice instanceof FeatureRootAdvice) {
-                String[] configurations = ((FeatureRootAdvice) publisherAdvice).getConfigurations();
+            if (publisherAdvice instanceof FeatureRootAdvice featureRootAdvice) {
+                String[] configurations = featureRootAdvice.getConfigurations();
 
                 for (String config : configurations) {
                     if (!"".equals(config) && artifactId.endsWith(config)) {

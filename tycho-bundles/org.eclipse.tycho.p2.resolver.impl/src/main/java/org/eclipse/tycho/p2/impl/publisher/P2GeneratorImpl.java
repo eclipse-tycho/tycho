@@ -301,12 +301,9 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     @Override
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options) {
-        Interpolator interpolator;
-        if (artifact instanceof ReactorProjectFacade) {
-            interpolator = ((ReactorProjectFacade) artifact).getReactorProject().getInterpolator();
-        } else {
-            interpolator = null;
-        }
+        Interpolator interpolator = artifact instanceof ReactorProjectFacade reactorFacade
+                ? reactorFacade.getReactorProject().getInterpolator()
+                : null;
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
         advice.add(new MavenPropertiesAdvice(artifact, mavenContext));
         advice.add(getExtraEntriesAdvice(artifact, interpolator));

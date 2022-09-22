@@ -109,20 +109,16 @@ public class LazyArtifactRepository extends AbstractArtifactRepository implement
 
     @Override
     public File getArtifactFile(IArtifactKey key) {
-        IArtifactRepository repository = getDelegate();
-        if (repository instanceof IFileArtifactRepository) {
-            return ((IFileArtifactRepository) repository).getArtifactFile(key);
-        }
-        return null;
+        return getDelegate() instanceof IFileArtifactRepository fileArtifactRepo //
+                ? fileArtifactRepo.getArtifactFile(key)
+                : null;
     }
 
     @Override
     public File getArtifactFile(IArtifactDescriptor descriptor) {
-        IArtifactRepository repository = getDelegate();
-        if (repository instanceof IFileArtifactRepository) {
-            return ((IFileArtifactRepository) repository).getArtifactFile(descriptor);
-        }
-        return null;
+        return getDelegate() instanceof IFileArtifactRepository fileArtifactRepo
+                ? fileArtifactRepo.getArtifactFile(descriptor)
+                : null;
     }
 
 }
