@@ -2,7 +2,7 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## 3.0.0 (under development)
+## 3.0.0
 
 ### Tycho now support forking of the Eclipse Java Compiler
 
