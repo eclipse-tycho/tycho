@@ -40,7 +40,11 @@ public class DefaultDependencyResolverFactory {
     private PlexusContainer container;
 
     public DependencyResolver lookupDependencyResolver(MavenProject project) {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        return lookupDependencyResolver(DefaultReactorProject.adapt(project));
+    }
+
+    public DependencyResolver lookupDependencyResolver(ReactorProject reactorProject) {
+
         Properties properties = (Properties) reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
 

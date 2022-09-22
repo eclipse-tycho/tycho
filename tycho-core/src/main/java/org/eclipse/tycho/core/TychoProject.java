@@ -30,11 +30,6 @@ public interface TychoProject {
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project);
 
     /**
-     * Walks project dependencies resolved for the specified runtime environment.
-     */
-    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment);
-
-    /**
      * Returns resolved project dependencies. For projects targeting multiple runtime environments,
      * returned collection includes artifacts for all supported runtime environments.
      */

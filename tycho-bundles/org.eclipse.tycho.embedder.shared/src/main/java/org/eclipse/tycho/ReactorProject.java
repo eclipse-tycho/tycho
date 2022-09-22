@@ -96,4 +96,6 @@ public interface ReactorProject extends IDependencyMetadata {
     public boolean sameProject(/* MavenProject */Object otherProject);
 
     public String getName();
+
+    <T> T adapt(Class<T> target);
 }

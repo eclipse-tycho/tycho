@@ -49,7 +49,6 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
     private static final String PRELIMINARY_TARGET_PLATFORM_KEY = ReactorRepositoryManagerImpl.class.getName()
             + "/dependencyOnlyTargetPlatform";
-    private static final String FINAL_TARGET_PLATFORM_KEY = TargetPlatform.FINAL_TARGET_PLATFORM_KEY;
 
     private IProvisioningAgentProvider agentFactory;
     private File agentDir;
@@ -109,18 +108,19 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     }
 
     @Override
-    public void computeFinalTargetPlatform(ReactorProject project,
+    public TargetPlatform computeFinalTargetPlatform(ReactorProject project,
             List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector) {
         PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
         if (preliminaryTargetPlatform == null) {
             // project doesn't seem to use resolver=p2
-            return;
+            return null;
         }
         List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
         TargetPlatform result = tpFactory.createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
                 upstreamProjectResults, pomDependencyCollector);
 
-        project.setContextValue(FINAL_TARGET_PLATFORM_KEY, result);
+        project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
+        return result;
     }
 
     private PreliminaryTargetPlatformImpl getRegisteredPreliminaryTargetPlatform(ReactorProject project) {
@@ -141,7 +141,8 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
     @Override
     public TargetPlatform getFinalTargetPlatform(ReactorProject project) {
-        TargetPlatform targetPlatform = (TargetPlatform) project.getContextValue(FINAL_TARGET_PLATFORM_KEY);
+        TargetPlatform targetPlatform = (TargetPlatform) project
+                .getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
         if (targetPlatform == null) {
             throw new IllegalStateException("Target platform is missing");
         }
