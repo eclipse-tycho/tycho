@@ -154,33 +154,21 @@ public final class DirectorMojo extends AbstractProductMojo {
     }
 
     private DirectorRuntime getDirectorRuntime() throws MojoFailureException, MojoExecutionException {
-        switch (directorRuntime) {
-        case internal:
-            // director from Tycho's OSGi runtime
-            return osgiServices.getService(DirectorRuntime.class);
-
-        case standalone:
-            // separate director installation in the target folder
-            return standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
-                    getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
-
-        default:
-            throw new MojoFailureException(
-                    "Unsupported value for attribute 'directorRuntime': \"" + directorRuntime + "\"");
-        }
+        return switch (directorRuntime) {
+        case internal -> osgiServices.getService(DirectorRuntime.class);
+        case standalone -> standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
+                getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
+        default -> throw new MojoFailureException(
+                "Unsupported value for attribute 'directorRuntime': \"" + directorRuntime + "\"");
+        };
     }
 
     private RepositoryReferences getSourceRepositories() throws MojoExecutionException, MojoFailureException {
-        switch (source) {
-        case targetPlatform:
-            return getTargetPlatformRepositories();
-
-        case repository:
-            return getBuildOutputRepository();
-
-        default:
-            throw new MojoFailureException("Unsupported value for attribute 'source': \"" + source + "\"");
-        }
+        return switch (source) {
+        case targetPlatform -> getTargetPlatformRepositories();
+        case repository -> getBuildOutputRepository();
+        default -> throw new MojoFailureException("Unsupported value for attribute 'source': \"" + source + "\"");
+        };
     }
 
     private RepositoryReferences getBuildOutputRepository() {

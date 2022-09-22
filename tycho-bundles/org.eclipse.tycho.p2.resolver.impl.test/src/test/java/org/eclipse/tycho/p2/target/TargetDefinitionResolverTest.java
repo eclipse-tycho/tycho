@@ -317,25 +317,16 @@ public class TargetDefinitionResolverTest {
 
         @Override
         public List<? extends Repository> getRepositories() {
-            switch (repositories) {
-            case V1:
-                return Collections.singletonList(new RepositoryStub("v1_content"));
-            case V2:
-                return Collections.singletonList(new RepositoryStub("v2_content"));
-            case V1_AND_V2:
-                return Arrays.asList(new RepositoryStub("v1_content"), new RepositoryStub("v2_content"));
-            case UNSATISFIED:
-                return Collections.singletonList(new RepositoryStub("unsatisfied"));
-            case INVALID:
-                return Collections.singletonList(new RepositoryStub(null));
-            case NONE:
-                return Collections.emptyList();
-            case SOURCES:
-                return Collections.singletonList(new RepositoryStub("include-source"));
-            default:
-                break;
-            }
-            throw new RuntimeException();
+            return switch (repositories) {
+            case V1 -> Collections.singletonList(new RepositoryStub("v1_content"));
+            case V2 -> Collections.singletonList(new RepositoryStub("v2_content"));
+            case V1_AND_V2 -> Arrays.asList(new RepositoryStub("v1_content"), new RepositoryStub("v2_content"));
+            case UNSATISFIED -> Collections.singletonList(new RepositoryStub("unsatisfied"));
+            case INVALID -> Collections.singletonList(new RepositoryStub(null));
+            case NONE -> Collections.emptyList();
+            case SOURCES -> Collections.singletonList(new RepositoryStub("include-source"));
+            default -> throw new RuntimeException();
+            };
         }
 
         @Override

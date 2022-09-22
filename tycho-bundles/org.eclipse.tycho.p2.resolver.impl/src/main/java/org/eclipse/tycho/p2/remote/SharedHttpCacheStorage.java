@@ -577,15 +577,11 @@ public class SharedHttpCacheStorage {
         }
 
         private static Type convertType(IProxyData data) {
-            switch (data.getType()) {
-            case IProxyData.HTTPS_PROXY_TYPE:
-            case IProxyData.HTTP_PROXY_TYPE:
-                return Type.HTTP;
-            case IProxyData.SOCKS_PROXY_TYPE:
-                return Type.SOCKS;
-            default:
-                return Type.DIRECT;
-            }
+            return switch (data.getType()) {
+            case IProxyData.HTTPS_PROXY_TYPE, IProxyData.HTTP_PROXY_TYPE -> Type.HTTP;
+            case IProxyData.SOCKS_PROXY_TYPE -> Type.SOCKS;
+            default -> Type.DIRECT;
+            };
         }
     }
 

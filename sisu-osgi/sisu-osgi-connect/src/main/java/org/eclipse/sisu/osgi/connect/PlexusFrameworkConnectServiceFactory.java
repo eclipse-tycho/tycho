@@ -271,36 +271,24 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	}
 
 	private static String toComponentState(int state) {
-		switch (state) {
-		case ComponentConfigurationDTO.ACTIVE:
-			return "ACTIVE     ";
-		case ComponentConfigurationDTO.FAILED_ACTIVATION:
-			return "FAILED     ";
-		case ComponentConfigurationDTO.SATISFIED:
-			return "SATISFIED  ";
-		case ComponentConfigurationDTO.UNSATISFIED_CONFIGURATION:
-		case ComponentConfigurationDTO.UNSATISFIED_REFERENCE:
-			return "UNSATISFIED";
-		default:
-			return String.valueOf(state);
-		}
+		return switch (state) {
+		case ComponentConfigurationDTO.ACTIVE -> "ACTIVE     ";
+		case ComponentConfigurationDTO.FAILED_ACTIVATION -> "FAILED     ";
+		case ComponentConfigurationDTO.SATISFIED -> "SATISFIED  ";
+		case ComponentConfigurationDTO.UNSATISFIED_CONFIGURATION, ComponentConfigurationDTO.UNSATISFIED_REFERENCE -> "UNSATISFIED";
+		default -> String.valueOf(state);
+		};
 	}
 
 	private static String toBundleState(int state) {
-		switch (state) {
-		case Bundle.ACTIVE:
-			return "ACTIVE   ";
-		case Bundle.INSTALLED:
-			return "INSTALLED";
-		case Bundle.RESOLVED:
-			return "RESOLVED ";
-		case Bundle.STARTING:
-			return "STARTING ";
-		case Bundle.STOPPING:
-			return "STOPPING ";
-		default:
-			return String.valueOf(state);
-		}
+		return switch (state) {
+		case Bundle.ACTIVE -> "ACTIVE   ";
+		case Bundle.INSTALLED -> "INSTALLED";
+		case Bundle.RESOLVED -> "RESOLVED ";
+		case Bundle.STARTING -> "STARTING ";
+		case Bundle.STOPPING -> "STOPPING ";
+		default -> String.valueOf(state);
+		};
 	}
 
 	@Override

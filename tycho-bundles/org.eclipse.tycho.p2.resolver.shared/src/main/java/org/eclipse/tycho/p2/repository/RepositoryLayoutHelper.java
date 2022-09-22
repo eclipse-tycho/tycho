@@ -46,16 +46,10 @@ public class RepositoryLayoutHelper {
                 || (classifier != null && classifier.startsWith(TychoConstants.ROOTFILE_CLASSIFIER + "."))) {
             extension = TychoConstants.ROOTFILE_EXTENSION;
         } else {
-            switch (type) {
-            case TychoConstants.JAR_EXTENSION:
-            case "zip":
-            case "target":
-            case "xml":
-                extension = type;
-                break;
-            default:
-                extension = mavenContext.getExtension(type);
-            }
+            extension = switch (type) {
+            case TychoConstants.JAR_EXTENSION, "zip", "target", "xml" -> type;
+            default -> mavenContext.getExtension(type);
+            };
         }
         return getRelativePath(groupId, artifactId, version, classifier, extension);
     }

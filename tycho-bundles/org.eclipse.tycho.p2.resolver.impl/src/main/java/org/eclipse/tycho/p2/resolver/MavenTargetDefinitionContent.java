@@ -112,24 +112,16 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             List<IInstallableUnit> locationBundles = new ArrayList<>();
             List<IInstallableUnit> locationSourceBundles = new ArrayList<>();
             for (MavenDependency mavenDependency : location.getRoots()) {
-                int depth;
                 DependencyDepth dependencyDepth = location.getIncludeDependencyDepth();
                 if (dependencyDepth == DependencyDepth.NONE
                         && POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType())) {
                     dependencyDepth = DependencyDepth.DIRECT;
                 }
-                switch (dependencyDepth) {
-                case INFINITE:
-                    depth = MavenDependenciesResolver.DEEP_INFINITE;
-                    break;
-                case DIRECT:
-                    depth = MavenDependenciesResolver.DEEP_DIRECT_CHILDREN;
-                    break;
-                case NONE:
-                default:
-                    depth = MavenDependenciesResolver.DEEP_NO_DEPENDENCIES;
-                    break;
-                }
+                int depth = switch (dependencyDepth) {
+                case INFINITE -> MavenDependenciesResolver.DEEP_INFINITE;
+                case DIRECT -> MavenDependenciesResolver.DEEP_DIRECT_CHILDREN;
+                default -> MavenDependenciesResolver.DEEP_NO_DEPENDENCIES;
+                };
                 Collection<?> resolve;
                 try {
                     resolve = mavenDependenciesResolver.resolve(mavenDependency.getGroupId(),
