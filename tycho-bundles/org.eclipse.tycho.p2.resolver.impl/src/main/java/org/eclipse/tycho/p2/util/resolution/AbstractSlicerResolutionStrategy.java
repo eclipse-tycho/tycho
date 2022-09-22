@@ -146,9 +146,8 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         result.setId(name + "-" + UUID.randomUUID());
         result.setVersion(Version.createOSGi(0, 0, 0, time));
         for (IRequirement requirement : requirements) {
-            if (requirement instanceof IRequiredCapability) {
+            if (requirement instanceof IRequiredCapability capability) {
                 try {
-                    IRequiredCapability capability = (IRequiredCapability) requirement;
                     String namespace = capability.getNamespace();
                     IMatchExpression<IInstallableUnit> matches = capability.getMatches();
                     String extractName = RequiredCapability.extractName(matches);
@@ -159,10 +158,9 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                 } catch (RuntimeException e) {
                     logger.debug("can't convert requirement " + requirement + " to capability: " + e.toString(), e);
                 }
-            } else if (requirement instanceof RequiredPropertiesMatch) {
+            } else if (requirement instanceof RequiredPropertiesMatch propertiesMatch) {
                 try {
                     if (isEERequirement(requirement)) {
-                        RequiredPropertiesMatch propertiesMatch = (RequiredPropertiesMatch) requirement;
                         IMatchExpression<IInstallableUnit> matches = propertiesMatch.getMatches();
                         Map<String, Object> properties = new HashMap<>();
                         Object p = matches.getParameters()[1];
@@ -214,11 +212,9 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         // is incomplete but actually on only the EE or package is missing.
         Collection<IInstallableUnit> availableIUs = new HashSet<>(data.getAvailableIUs());
         for (Explanation exp : explanation) {
-            if (exp instanceof IUToInstall) {
-                IUToInstall iuToInstall = (IUToInstall) exp;
+            if (exp instanceof IUToInstall iuToInstall) {
                 availableIUs.add(iuToInstall.iu);
-            } else if (exp instanceof MissingIU) {
-                MissingIU missingIU = (MissingIU) exp;
+            } else if (exp instanceof MissingIU missingIU) {
                 availableIUs.add(missingIU.iu);
                 if (isEERequirement(missingIU.req)) {
                     if (data.getEEResolutionHints() instanceof NoExecutionEnvironmentResolutionHints) {
@@ -241,8 +237,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                     continue;
                 }
                 missingRequirements.add(missingIU.req);
-            } else if (exp instanceof HardRequirement) {
-                HardRequirement hardRequirement = (HardRequirement) exp;
+            } else if (exp instanceof HardRequirement hardRequirement) {
                 availableIUs.add(hardRequirement.iu);
                 for (IInstallableUnit available : availableIUs) {
                     if (hardRequirement.req.isMatch(available)) {
@@ -272,8 +267,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
      * @return
      */
     protected static boolean isEERequirement(IRequirement requirement) {
-        if (requirement instanceof RequiredPropertiesMatch) {
-            RequiredPropertiesMatch propertiesMatch = (RequiredPropertiesMatch) requirement;
+        if (requirement instanceof RequiredPropertiesMatch propertiesMatch) {
             String namespace = RequiredPropertiesMatch.extractNamespace(propertiesMatch.getMatches());
             return JREAction.NAMESPACE_OSGI_EE.equals(namespace);
         }

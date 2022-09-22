@@ -41,13 +41,10 @@ public class GAV {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof GAV)) {
-            return false;
-        }
-        GAV other = (GAV) o;
-
-        return Objects.equals(groupId, other.getGroupId()) && Objects.equals(artifactId, other.getArtifactId())
-                && Objects.equals(version, other.getVersion());
+        return o instanceof GAV other && //
+                Objects.equals(groupId, other.getGroupId()) && //
+                Objects.equals(artifactId, other.getArtifactId()) && //
+                Objects.equals(version, other.getVersion());
     }
 
     @Override

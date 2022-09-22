@@ -499,8 +499,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 String basedir = repository.getBasedir();
                 Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
                 for (ProjectClasspathEntry cpe : classpathEntries) {
-                    if (cpe instanceof M2ClasspathVariable) {
-                        M2ClasspathVariable cpv = (M2ClasspathVariable) cpe;
+                    if (cpe instanceof M2ClasspathVariable cpv) {
                         String entry = new File(basedir, cpv.getRepositoryPath()).getAbsolutePath();
                         if (seen.add(entry)) {
                             classpath.add(entry);
@@ -608,8 +607,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         configureCompilerLog(compilerConfiguration);
         Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
         for (ProjectClasspathEntry cpe : classpathEntries) {
-            if (cpe instanceof JREClasspathEntry) {
-                JREClasspathEntry jreClasspathEntry = (JREClasspathEntry) cpe;
+            if (cpe instanceof JREClasspathEntry jreClasspathEntry) {
                 if (jreClasspathEntry.isModule()) {
                     Collection<String> modules = jreClasspathEntry.getLimitModules();
                     if (!modules.isEmpty()) {
@@ -802,8 +800,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
                 for (Artifact b : result.getArtifacts()) {
                     ReactorProject bProject = null;
-                    if (b instanceof ProjectArtifact) {
-                        bProject = DefaultReactorProject.adapt(((ProjectArtifact) b).getProject());
+                    if (b instanceof ProjectArtifact projectArtifact) {
+                        bProject = DefaultReactorProject.adapt(projectArtifact.getProject());
                     }
                     ArrayList<File> bLocations = new ArrayList<>();
                     bLocations.add(b.getFile()); // TODO properly handle multiple project locations maybe

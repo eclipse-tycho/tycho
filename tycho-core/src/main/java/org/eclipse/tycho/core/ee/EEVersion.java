@@ -74,17 +74,10 @@ public class EEVersion implements Comparable<EEVersion> {
 
     @Override
     public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null) {
-            return false;
-        }
-        if (!(other instanceof EEVersion)) {
-            return false;
-        }
-        EEVersion o = (EEVersion) other;
-        return this.version.equals(o.version) && this.type.equals(o.type);
+        return this == other || //
+                (other instanceof EEVersion o && //
+                        this.version.equals(o.version) && //
+                        this.type.equals(o.type));
     }
 
     @Override

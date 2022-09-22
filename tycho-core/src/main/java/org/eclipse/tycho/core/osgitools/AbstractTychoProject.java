@@ -41,9 +41,8 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project, TargetEnvironment environment) {
         DependencyArtifacts platform = getDependencyArtifacts(project);
 
-        if (environment != null && platform instanceof MultiEnvironmentDependencyArtifacts) {
-            platform = ((MultiEnvironmentDependencyArtifacts) platform).getPlatform(environment);
-
+        if (environment != null && platform instanceof MultiEnvironmentDependencyArtifacts multiEnvArtifacts) {
+            platform = multiEnvArtifacts.getPlatform(environment);
             if (platform == null) {
                 throw new IllegalStateException("Unsupported runtime environment " + environment.toString()
                         + " for project " + project.toString());

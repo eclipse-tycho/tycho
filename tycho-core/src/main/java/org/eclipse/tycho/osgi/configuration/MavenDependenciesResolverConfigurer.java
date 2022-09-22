@@ -131,14 +131,10 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
     }
 
     protected MavenSession getMavenSession(Object session) {
-        MavenSession mavenSession;
-        if (session instanceof MavenSession) {
-            mavenSession = (MavenSession) session;
-        } else {
-            mavenSession = Objects.requireNonNull(context.getSession(),
-                    "Can't acquire maven session from context, called outside maven thread context?");
-        }
-        return mavenSession;
+        return session instanceof MavenSession mavenSession //
+                ? mavenSession
+                : Objects.requireNonNull(context.getSession(),
+                        "Can't acquire maven session from context, called outside maven thread context?");
     }
 
     @Override

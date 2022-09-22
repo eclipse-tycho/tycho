@@ -370,11 +370,9 @@ public class JavadocMojo extends AbstractMojo {
 		private final Set<String> classPath = new HashSet<>();
 
 		private BundleProject getBundleProject(final MavenProject project) {
-			TychoProject projectType = projectTypes.get(project.getPackaging());
-			if (!(projectType instanceof BundleProject)) {
-				return null;
-			}
-			return (BundleProject) projectType;
+			return projectTypes.get(project.getPackaging()) instanceof BundleProject bundleProject //
+					? bundleProject
+					: null;
 		}
 
 		@Override

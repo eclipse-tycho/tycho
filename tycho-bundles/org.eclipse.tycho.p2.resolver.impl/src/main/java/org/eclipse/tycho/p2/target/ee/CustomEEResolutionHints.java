@@ -92,12 +92,7 @@ public final class CustomEEResolutionHints implements ExecutionEnvironmentResolu
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!(obj instanceof CustomEEResolutionHints))
-            return false;
-
-        CustomEEResolutionHints other = (CustomEEResolutionHints) obj;
-        return Objects.equals(eeName, other.eeName);
+        return this == obj || //
+                (obj instanceof CustomEEResolutionHints other && Objects.equals(eeName, other.eeName));
     }
 }

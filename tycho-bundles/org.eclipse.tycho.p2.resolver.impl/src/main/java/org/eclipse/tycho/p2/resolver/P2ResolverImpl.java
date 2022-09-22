@@ -53,8 +53,8 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
-import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -361,8 +361,8 @@ public class P2ResolverImpl implements P2Resolver {
 
     private static P2TargetPlatform getTargetFromContext(TargetPlatform context) {
         Objects.requireNonNull(context, "target context can't be null");
-        if (context instanceof P2TargetPlatform) {
-            return (P2TargetPlatform) context;
+        if (context instanceof P2TargetPlatform p2TP) {
+            return p2TP;
         }
         throw new IllegalArgumentException("invalid target context-type " + context.getClass().getName()
                 + ", required is " + P2TargetPlatform.class);

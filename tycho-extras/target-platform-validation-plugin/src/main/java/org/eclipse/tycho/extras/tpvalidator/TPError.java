@@ -38,8 +38,7 @@ public class TPError extends Exception {
         res.append("Could not resolve content of ");
         res.append(this.file.getName());
         res.append('\n');
-        if (getCause() instanceof TargetDefinitionResolutionException) {
-            TargetDefinitionResolutionException cause = (TargetDefinitionResolutionException) getCause();
+        if (getCause() instanceof TargetDefinitionResolutionException cause) {
             res.append(cause.getMessage());
         } else if (debug) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();

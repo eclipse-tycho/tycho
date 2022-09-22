@@ -287,21 +287,13 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof StandardExecutionEnvironment)) {
-            return false;
-        }
-        StandardExecutionEnvironment other = (StandardExecutionEnvironment) obj;
-        return Objects.equals(this.compilerSourceLevel, other.compilerSourceLevel)
-                && Objects.equals(this.compilerTargetLevel, other.compilerTargetLevel)
-                && Objects.equals(this.eeVersion, other.eeVersion)
-                && Objects.equals(this.profileName, other.profileName)
-                && Objects.equals(this.profileProperties, other.profileProperties);
+        return this == obj || //
+                (obj instanceof StandardExecutionEnvironment other && //
+                        Objects.equals(this.compilerSourceLevel, other.compilerSourceLevel) && //
+                        Objects.equals(this.compilerTargetLevel, other.compilerTargetLevel) && //
+                        Objects.equals(this.eeVersion, other.eeVersion) && //
+                        Objects.equals(this.profileName, other.profileName) && //
+                        Objects.equals(this.profileProperties, other.profileProperties));
     }
 
     @Override

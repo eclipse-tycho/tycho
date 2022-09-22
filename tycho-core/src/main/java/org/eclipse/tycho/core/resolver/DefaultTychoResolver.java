@@ -155,9 +155,8 @@ public class DefaultTychoResolver implements TychoResolver {
 
         DependencyArtifacts testDependencyArtifacts = null;
         TychoProject tychoProjectType = projectTypes.get(project.getPackaging());
-        if (tychoProjectType instanceof BundleProject) {
-            List<ArtifactKey> testDependencies = ((BundleProject) tychoProjectType)
-                    .getExtraTestRequirements(reactorProject);
+        if (tychoProjectType instanceof BundleProject bundleProject) {
+            List<ArtifactKey> testDependencies = bundleProject.getExtraTestRequirements(reactorProject);
             if (!testDependencies.isEmpty()) {
                 logger.info(threadMarker + "Resolving test dependencies of " + project);
                 DependencyResolverConfiguration testResolverConfiguration = new DependencyResolverConfiguration() {

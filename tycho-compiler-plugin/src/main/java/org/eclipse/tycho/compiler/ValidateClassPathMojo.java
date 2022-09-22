@@ -46,10 +46,9 @@ public class ValidateClassPathMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         TychoProject projectType = projectTypes.get(project.getPackaging());
-        if (projectType instanceof OsgiBundleProject) {
+        if (projectType instanceof OsgiBundleProject bundleProject) {
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
             if (TychoProjectUtils.getOptionalDependencyArtifacts(reactorProject).isPresent()) {
-                OsgiBundleProject bundleProject = (OsgiBundleProject) projectType;
                 bundleProject.getClasspath(reactorProject);
             } else {
                 getLog().info("Skip classpath validation because project is currently not resolved.");

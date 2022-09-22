@@ -93,8 +93,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     @Override
     public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle) {
-        if (artifact instanceof ReactorProjectFacade) {
-            ReactorProjectFacade projectFacade = (ReactorProjectFacade) artifact;
+        if (artifact instanceof ReactorProjectFacade projectFacade) {
             ReactorProject reactorProject = projectFacade.getReactorProject();
             String packaging = reactorProject.getPackaging();
             if ("bundle".equalsIgnoreCase(packaging) || "jar".equalsIgnoreCase(packaging)) {

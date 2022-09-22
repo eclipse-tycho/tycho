@@ -91,7 +91,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 			return;
 		}
 		TychoProject projectType = projectTypes.get(project.getPackaging());
-		if (projectType instanceof OsgiBundleProject) {
+		if (projectType instanceof OsgiBundleProject bundleProject) {
 			try {
 				DeclarativeServicesConfiguration configuration = configurationReader.getConfiguration(project);
 				if (configuration == null) {
@@ -109,7 +109,6 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 						// clear any existing entries
 						directory.clear();
 					}
-					OsgiBundleProject bundleProject = (OsgiBundleProject) projectType;
 					List<ClasspathEntry> classpath = bundleProject.getClasspath(DefaultReactorProject.adapt(project));
 					for (ClasspathEntry entry : classpath) {
 						List<File> locations = entry.getLocations();

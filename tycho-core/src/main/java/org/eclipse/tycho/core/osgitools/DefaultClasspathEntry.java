@@ -17,6 +17,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import javax.annotation.Nonnull;
+
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
@@ -31,7 +33,7 @@ public class DefaultClasspathEntry implements ClasspathEntry {
     private final Collection<AccessRule> rules;
 
     public static class DefaultAccessRule implements AccessRule {
-        private final String pattern;
+        private final @Nonnull String pattern;
         private final boolean discouraged;
 
         public DefaultAccessRule(String path, boolean discouraged) {
@@ -45,14 +47,10 @@ public class DefaultClasspathEntry implements ClasspathEntry {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof AccessRule)) {
-                return false;
-            }
-            AccessRule other = (AccessRule) obj;
-            return isDiscouraged() == other.isDiscouraged() && getPattern().equals(other.getPattern());
+            return this == obj || //
+                    (obj instanceof AccessRule other && //
+                            isDiscouraged() == other.isDiscouraged() && //
+                            getPattern().equals(other.getPattern()));
         }
 
         @Override

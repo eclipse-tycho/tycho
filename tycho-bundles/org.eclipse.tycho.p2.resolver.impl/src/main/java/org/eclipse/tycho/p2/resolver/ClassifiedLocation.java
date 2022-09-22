@@ -41,17 +41,10 @@ public class ClassifiedLocation {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof ClassifiedLocation)) {
-            return false;
-        }
-
-        ClassifiedLocation other = (ClassifiedLocation) obj;
-
-        return Objects.equals(this.location, other.location) && Objects.equals(this.classifier, other.classifier);
+        return this == obj || //
+                (obj instanceof ClassifiedLocation other && //
+                        Objects.equals(this.location, other.location) && //
+                        Objects.equals(this.classifier, other.classifier));
     }
 
 }

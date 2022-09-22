@@ -97,31 +97,16 @@ public final class MavenRepositoryCoordinates {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((gav == null) ? 0 : gav.hashCode());
-        result = prime * result + ((classifier == null) ? 0 : classifier.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-        return result;
+        return Objects.hash(gav, classifier, type);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!(obj instanceof MavenRepositoryCoordinates))
-            return false;
-
-        MavenRepositoryCoordinates other = (MavenRepositoryCoordinates) obj;
-        return eq(gav, other.gav) && eq(classifier, other.classifier) && eq(type, other.type);
+        return this == obj || //
+                (obj instanceof MavenRepositoryCoordinates other && //
+                        Objects.equals(gav, other.gav) && //
+                        Objects.equals(classifier, other.classifier) && //
+                        Objects.equals(type, other.type));
     }
 
-    private static <T> boolean eq(T left, T right) {
-        if (left == right)
-            return true;
-        else if (left == null)
-            return false;
-        else
-            return left.equals(right);
-    }
 }

@@ -96,8 +96,8 @@ public final class MavenBundlesArtifactRepository extends ArtifactRepositoryBase
 
     private GAVArtifactDescriptor toInternalDescriptor(IArtifactDescriptor descriptor) {
         // TODO share with LocalArtifactRepository?
-        if (descriptor instanceof GAVArtifactDescriptor && descriptor.getRepository() == this) {
-            return (GAVArtifactDescriptor) descriptor;
+        if (descriptor instanceof GAVArtifactDescriptor gavArtifactDescriptor && descriptor.getRepository() == this) {
+            return gavArtifactDescriptor;
         } else {
             GAVArtifactDescriptor internalDescriptor = new GAVArtifactDescriptor(descriptor);
             internalDescriptor.setRepository(this);

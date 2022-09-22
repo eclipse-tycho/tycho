@@ -196,8 +196,7 @@ public class TPValidationMojo extends AbstractMojo {
             P2Resolver resolver = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));
 
             for (Location location : targetDefinition.getLocations()) {
-                if (location instanceof InstallableUnitLocation) {
-                    InstallableUnitLocation p2Loc = (InstallableUnitLocation) location;
+                if (location instanceof InstallableUnitLocation p2Loc) {
                     for (Repository repo : p2Loc.getRepositories()) {
                         ref.addArtifactRepository(repo.getLocation());
                         ref.addMetadataRepository(repo.getLocation());
