@@ -50,8 +50,8 @@ public interface ReactorRepositoryManagerFacade {
      *            Other projects in the reactor which have already been built and may be referenced
      *            by the given project.
      */
-    void computeFinalTargetPlatform(ReactorProject project, List<? extends ReactorProjectIdentities> upstreamProjects,
-            PomDependencyCollector pomDependencyCollector);
+    TargetPlatform computeFinalTargetPlatform(ReactorProject project,
+            List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector);
 
     /**
      * Returns the target platform with final p2 metadata for the given project.

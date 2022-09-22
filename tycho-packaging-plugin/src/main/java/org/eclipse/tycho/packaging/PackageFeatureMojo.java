@@ -241,7 +241,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     private void assembleDeployableFeature() throws MojoExecutionException {
         UpdateSiteAssembler assembler = new UpdateSiteAssembler(plexus, target);
-        getDependencyWalker().walk(assembler);
+		getTychoProjectFacet().getDependencyWalker(DefaultReactorProject.adapt(project)).walk(assembler);
     }
 
     private void expandVersionQualifiers(Feature feature) throws MojoFailureException {
