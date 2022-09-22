@@ -91,7 +91,7 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
         System.clearProperty("org.osgi.framework.vendor");
     }
 
-    public void testMirrorFromOldStyleUpdatesite() throws Exception {
+    public void __testMirrorFromOldStyleUpdatesite() throws Exception {
         File sourceRepository = new File("src/test/resources/mirroring/sourceUpdatesite").getCanonicalFile();
         setVariableValueToObject(mirrorMojo, "source",
                 Collections.singletonList(new Repository(sourceRepository.toURI())));

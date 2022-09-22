@@ -6,6 +6,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.IRepositoryIdManager;
@@ -21,9 +22,13 @@ public class P2ServicesLifecycleListener implements EquinoxLifecycleListener {
 	@Requirement
 	IRepositoryIdManager repositoryIdManager;
 
+	@Requirement
+	IMetadataRepositoryManager metadataRepositoryManager;
+
 	@Override
 	public void afterFrameworkStarted(EmbeddedEquinox framework) {
 		registerAgentFactory(repositoryIdManager, IRepositoryIdManager.SERVICE_NAME, framework);
+		registerAgentFactory(metadataRepositoryManager, IMetadataRepositoryManager.SERVICE_NAME, framework);
 	}
 
 	private void registerAgentFactory(Object service, String serviceName, EmbeddedEquinox framework) {

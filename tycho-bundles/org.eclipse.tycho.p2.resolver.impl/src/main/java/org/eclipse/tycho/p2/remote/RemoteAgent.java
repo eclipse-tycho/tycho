@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
@@ -105,13 +104,6 @@ public class RemoteAgent implements IProvisioningAgent {
             MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
 
         IRepositoryIdManager loadingHelper = agent.getAgent().getService(IRepositoryIdManager.class);
-
-        // wrap metadata repository manager
-        IMetadataRepositoryManager plainMetadataRepoManager = agent.getService(IMetadataRepositoryManager.class);
-        IMetadataRepositoryManager remoteMetadataRepoManager = new RemoteMetadataRepositoryManager(
-                plainMetadataRepoManager, loadingHelper, logger);
-        agent.registerService(IMetadataRepositoryManager.class, remoteMetadataRepoManager);
-
         // wrap artifact repository manager
         IArtifactRepositoryManager plainArtifactRepoManager = agent.getService(IArtifactRepositoryManager.class);
         RemoteArtifactRepositoryManager remoteArtifactRepoManager = new RemoteArtifactRepositoryManager(

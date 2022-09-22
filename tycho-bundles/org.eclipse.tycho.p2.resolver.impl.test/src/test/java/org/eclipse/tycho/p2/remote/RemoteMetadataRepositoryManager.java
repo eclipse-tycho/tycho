@@ -29,17 +29,17 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
-class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
+public class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
-    private final IMetadataRepositoryManager delegate;
-    private final IRepositoryIdManager loadingHelper;
-    private final MavenLogger logger;
+    private IRepositoryIdManager loadingHelper;
+    private IMetadataRepositoryManager service;
+    private MavenLogger logger2;
 
-    RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, IRepositoryIdManager loadingHelper,
-            MavenLogger logger) {
-        this.delegate = delegate;
+    public RemoteMetadataRepositoryManager(IRepositoryIdManager loadingHelper, IMetadataRepositoryManager service,
+            MavenLogger logger2) {
         this.loadingHelper = loadingHelper;
-        this.logger = logger;
+        this.service = service;
+        this.logger2 = logger2;
     }
 
     private URI translate(URI location) {
@@ -61,7 +61,7 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
             throws ProvisionException, OperationCanceledException {
         URI effectiveLocation = translateAndPrepareLoad(location);
 
-        IMetadataRepository loadedRepository = delegate.loadRepository(effectiveLocation, flags, monitor);
+        IMetadataRepository loadedRepository = getDelegate().loadRepository(effectiveLocation, flags, monitor);
         failIfRepositoryContainsPartialIUs(loadedRepository, effectiveLocation);
 
         return loadedRepository;
@@ -74,7 +74,7 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
         for (IInstallableUnit unit : allUnits.toUnmodifiableSet()) {
             if (Boolean.valueOf(unit.getProperty(IInstallableUnit.PROP_PARTIAL_IU))) {
                 hasPartialIUs = true;
-                logger.error("Partial IU: " + unit.getId());
+                logger2.error("Partial IU: " + unit.getId());
             }
         }
         if (hasPartialIUs) {
@@ -88,64 +88,68 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
     @Override
     public void addRepository(URI location) {
-        delegate.addRepository(translate(location));
+        getDelegate().addRepository(translate(location));
     }
 
     @Override
     public boolean contains(URI location) {
-        return delegate.contains(translate(location));
+        return getDelegate().contains(translate(location));
     }
 
     @Override
     public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException, OperationCanceledException {
-        return delegate.createRepository(translate(location), name, type, properties);
+        return getDelegate().createRepository(translate(location), name, type, properties);
     }
 
     @Override
     public IProvisioningAgent getAgent() {
-        return delegate.getAgent();
+        return getDelegate().getAgent();
     }
 
     @Override
     public URI[] getKnownRepositories(int flags) {
-        return delegate.getKnownRepositories(flags);
+        return getDelegate().getKnownRepositories(flags);
     }
 
     @Override
     public String getRepositoryProperty(URI location, String key) {
-        return delegate.getRepositoryProperty(translate(location), key);
+        return getDelegate().getRepositoryProperty(translate(location), key);
     }
 
     @Override
     public boolean isEnabled(URI location) {
-        return delegate.isEnabled(translate(location));
+        return getDelegate().isEnabled(translate(location));
     }
 
     @Override
     public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-        return delegate.query(query, monitor);
+        return getDelegate().query(query, monitor);
     }
 
     @Override
     public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor)
             throws ProvisionException, OperationCanceledException {
-        return delegate.refreshRepository(translateAndPrepareLoad(location), monitor);
+        return getDelegate().refreshRepository(translateAndPrepareLoad(location), monitor);
     }
 
     @Override
     public boolean removeRepository(URI location) {
-        return delegate.removeRepository(translate(location));
+        return getDelegate().removeRepository(translate(location));
     }
 
     @Override
     public void setEnabled(URI location, boolean enablement) {
-        delegate.setEnabled(translate(location), enablement);
+        getDelegate().setEnabled(translate(location), enablement);
     }
 
     @Override
     public void setRepositoryProperty(URI location, String key, String value) {
-        delegate.setRepositoryProperty(translate(location), key, value);
+        getDelegate().setRepositoryProperty(translate(location), key, value);
+    }
+
+    private IMetadataRepositoryManager getDelegate() {
+        return service;
     }
 
 }
