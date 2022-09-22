@@ -49,18 +49,11 @@ public class PomVersionChange extends VersionChange {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof PomVersionChange)) {
-            return false;
-        }
-
-        PomVersionChange other = (PomVersionChange) obj;
-
-        return super.equals(other) && pom.getGroupId().equals(other.pom.getGroupId())
-                && pom.getArtifactId().equals(other.getArtifactId());
+        return obj == this || //
+                (obj instanceof PomVersionChange other && //
+                        super.equals(other) && //
+                        pom.getGroupId().equals(other.pom.getGroupId()) && //
+                        pom.getArtifactId().equals(other.getArtifactId()));
     }
 
     @Override

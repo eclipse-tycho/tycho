@@ -248,8 +248,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
 			// 4. check DS files exits...
 			TychoProject facet = getTychoProjectFacet();
-			if (facet instanceof OsgiBundleProject) {
-				OsgiBundleProject bundleProject = (OsgiBundleProject) facet;
+			if (facet instanceof OsgiBundleProject bundleProject) {
 				String components = bundleProject.getManifestValue("Service-Component", project);
 				if (components != null) {
 					if (components.contains("*")) {

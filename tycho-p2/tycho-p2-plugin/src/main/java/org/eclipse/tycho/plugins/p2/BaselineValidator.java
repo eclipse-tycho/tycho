@@ -99,9 +99,8 @@ public class BaselineValidator {
                         File logdir = new File(project.getBuild().getDirectory(), "artifactcomparison");
                         log.info("Artifact comparison detailed log directory " + logdir.getAbsolutePath());
                         for (Map.Entry<String, ArtifactDelta> classifier : delta.getMembers().entrySet()) {
-                            if (classifier.getValue() instanceof CompoundArtifactDelta) {
-                                ((CompoundArtifactDelta) classifier.getValue())
-                                        .writeDetails(new File(logdir, classifier.getKey()));
+                            if (classifier.getValue() instanceof CompoundArtifactDelta compoundDelta) {
+                                compoundDelta.writeDetails(new File(logdir, classifier.getKey()));
                             }
                         }
                     }

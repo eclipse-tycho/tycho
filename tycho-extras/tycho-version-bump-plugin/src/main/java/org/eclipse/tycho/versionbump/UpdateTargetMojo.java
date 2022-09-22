@@ -102,8 +102,8 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         @Override
         public List<? extends Location> getLocations() {
             return delegate.getLocations().stream().map(location -> {
-                if (location instanceof InstallableUnitLocation) {
-                    return new LatestVersionLocation((InstallableUnitLocation) location);
+                if (location instanceof InstallableUnitLocation iuLocation) {
+                    return new LatestVersionLocation(iuLocation);
                 } else {
                     return location;
                 }

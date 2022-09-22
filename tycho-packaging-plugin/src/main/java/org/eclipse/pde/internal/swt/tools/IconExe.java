@@ -944,10 +944,11 @@ public RGB(int red, int green, int blue) {
  */
 @Override
 public boolean equals (Object object) {
-    if (object == this) return true;
-    if (!(object instanceof RGB)) return false;
-    RGB rgb = (RGB)object;
-    return (rgb.red == this.red) && (rgb.green == this.green) && (rgb.blue == this.blue);
+	return object == this || //
+			(object instanceof RGB rgb && //
+					rgb.red == this.red && //
+					rgb.green == this.green && //
+					rgb.blue == this.blue);
 }
 
 /**

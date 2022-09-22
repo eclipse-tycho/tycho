@@ -687,8 +687,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                 return false;
             }
             Object configuration = execution.getConfiguration();
-            if (configuration instanceof Xpp3Dom) {
-                Xpp3Dom dom = (Xpp3Dom) configuration;
+            if (configuration instanceof Xpp3Dom dom) {
                 Xpp3Dom child = dom.getChild("skip");
                 if (child != null && Boolean.valueOf(child.getValue())) {
                     return false;

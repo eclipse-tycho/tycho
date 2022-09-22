@@ -143,14 +143,11 @@ public final class Product {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj instanceof Product) {
-            Product other = (Product) obj;
-            return Objects.equals(this.id, other.id) && Objects.equals(this.attachId, other.attachId)
-                    && Objects.equals(this.archiveFileName, other.archiveFileName);
-        }
-        return false;
+        return this == obj || //
+                (obj instanceof Product other && //
+                        Objects.equals(this.id, other.id) && //
+                        Objects.equals(this.attachId, other.attachId) && //
+                        Objects.equals(this.archiveFileName, other.archiveFileName));
     }
 
 }

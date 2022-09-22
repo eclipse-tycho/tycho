@@ -320,8 +320,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 try (InputStream in = PGPUtil.getDecoderStream(new FileInputStream(file))) {
                     PGPObjectFactory pgpFact = new BcPGPObjectFactory(in);
                     Object o = pgpFact.nextObject();
-                    if (o instanceof PGPSignatureList) {
-                        PGPSignatureList list = (PGPSignatureList) o;
+                    if (o instanceof PGPSignatureList list) {
                         for (int i = 0; i < list.size(); i++) {
                             PGPSignature signature = list.get(i);
                             long keyID = signature.getKeyID();
@@ -463,8 +462,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
             retry--;
             URLConnection connection = url.openConnection();
             connection.connect();
-            if (connection instanceof HttpURLConnection) {
-                HttpURLConnection http = (HttpURLConnection) connection;
+            if (connection instanceof HttpURLConnection http) {
                 int code = http.getResponseCode();
                 if (code == HttpURLConnection.HTTP_UNAVAILABLE || code == HttpURLConnection.HTTP_CLIENT_TIMEOUT
                         || code == HttpURLConnection.HTTP_BAD_GATEWAY) {

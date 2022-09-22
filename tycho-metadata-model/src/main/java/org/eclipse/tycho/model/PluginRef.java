@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.model;
 
+import java.util.Objects;
+
 import de.pdark.decentxml.Element;
 
 public class PluginRef {
@@ -19,31 +21,15 @@ public class PluginRef {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
-        return result;
+        return Objects.hash(getId(), getVersion());
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!(obj instanceof PluginRef))
-            return false;
-        PluginRef other = (PluginRef) obj;
-        if (getId() == null) {
-            if (other.getId() != null)
-                return false;
-        } else if (!getId().equals(other.getId()))
-            return false;
-        if (getVersion() == null) {
-            if (other.getVersion() != null)
-                return false;
-        } else if (!getVersion().equals(other.getVersion()))
-            return false;
-        return true;
+        return this == obj || //
+                (obj instanceof PluginRef other && //
+                        Objects.equals(getId(), other.getId()) && //
+                        Objects.equals(getVersion(), other.getVersion()));
     }
 
     @Override
