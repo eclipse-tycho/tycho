@@ -90,8 +90,7 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
             @Override
             protected boolean isApplicable(IInstallableUnit iu, IRequirement req) {
                 if ((includeRequiredBundles || includeRequiredFeatures) && QueryUtil.isGroup(iu)) {
-                    if (req instanceof IRequiredCapability) {
-                        IRequiredCapability capability = (IRequiredCapability) req;
+                    if (req instanceof IRequiredCapability capability) {
                         if (IInstallableUnit.NAMESPACE_IU_ID.equals(capability.getNamespace())) {
                             boolean isFeature = capability.getName().endsWith(".feature.group");
                             if ((isFeature && includeRequiredFeatures) || (!isFeature && includeRequiredBundles)) {

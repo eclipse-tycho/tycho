@@ -180,8 +180,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private static Optional<Entry<IInstallableUnit, IRequiredCapability>> findFragmentHostRequirement(
             IInstallableUnit unit, String hostName) {
         for (IRequirement requirement : unit.getRequirements()) {
-            if (requirement instanceof IRequiredCapability) {
-                IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
+            if (requirement instanceof IRequiredCapability requiredCapability) {
                 if (hostName.equals(requiredCapability.getName())) {
                     return Optional.of(new SimpleEntry<>(unit, requiredCapability));
                 }

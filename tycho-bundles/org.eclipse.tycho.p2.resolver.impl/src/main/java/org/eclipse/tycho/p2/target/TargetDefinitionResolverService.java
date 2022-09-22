@@ -18,6 +18,7 @@ package org.eclipse.tycho.p2.target;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -66,9 +67,7 @@ public class TargetDefinitionResolverService {
             throw new IllegalStateException();
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException)
-                throw (RuntimeException) cause;
-            throw new RuntimeException(cause);
+            throw cause instanceof RuntimeException runtimeEx ? runtimeEx : new RuntimeException(cause);
         }
 
     }
@@ -147,29 +146,17 @@ public class TargetDefinitionResolverService {
 
         @Override
         public int hashCode() {
-            final int prime = 61;
-            int result = 1;
-            result = prime * result + ((agent == null) ? 0 : agent.hashCode());
-            result = prime * result + ((definition == null) ? 0 : definition.hashCode());
-            result = prime * result + ((environments == null) ? 0 : environments.hashCode());
-            result = prime * result + ((jreIUs == null) ? 0 : jreIUs.hashCode());
-            result = prime * result + ((includeSourceMode == null) ? 0 : includeSourceMode.hashCode());
-            return result;
+            return Objects.hash(agent, definition, environments, jreIUs, includeSourceMode);
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!(obj instanceof ResolutionArguments))
-                return false;
-
-            ResolutionArguments other = (ResolutionArguments) obj;
-            return eq(jreIUs, other.jreIUs) //
-                    && eq(definition, other.definition) //
-                    && eq(agent, other.agent) // expected to be object identity
-                    && eq(environments, other.environments) //
-                    && eq(includeSourceMode, other.includeSourceMode);
+            return this == obj || //
+                    (obj instanceof ResolutionArguments other && Objects.equals(jreIUs, other.jreIUs) //
+                            && Objects.equals(definition, other.definition) //
+                            && Objects.equals(agent, other.agent) // expected to be object identity
+                            && Objects.equals(environments, other.environments) //
+                            && Objects.equals(includeSourceMode, other.includeSourceMode));
         }
 
         public List<String> getNonEqualFields(ResolutionArguments other) {
@@ -191,18 +178,8 @@ public class TargetDefinitionResolverService {
 
     }
 
-    static <T> boolean eq(T left, T right) {
-        if (left == right) {
-            return true;
-        } else if (left == null) {
-            return false;
-        } else {
-            return left.equals(right);
-        }
-    }
-
     static <T> void addIfNonEqual(List<String> result, String stringToAdd, T left, T right) {
-        if (!eq(left, right)) {
+        if (!Objects.equals(left, right)) {
             result.add(stringToAdd);
         }
     }

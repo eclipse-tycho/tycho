@@ -197,9 +197,8 @@ public class EquinoxResolver {
 
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         TargetEnvironment environment = configuration.getEnvironments().get(0);
-        if (artifacts instanceof MultiEnvironmentDependencyArtifacts) {
-            environment = ((MultiEnvironmentDependencyArtifacts) artifacts).getPlatforms().stream().findFirst()
-                    .orElse(environment);
+        if (artifacts instanceof MultiEnvironmentDependencyArtifacts multiEnv) {
+            environment = multiEnv.getPlatforms().stream().findFirst().orElse(environment);
         }
         logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");
         Properties properties = new Properties();

@@ -52,8 +52,8 @@ public class ToolchainProvider {
             final Map<String, String> requirements = Collections.singletonMap("id", toolchainId);
             for (ToolchainPrivate javaToolChain : toolChainManager.getToolchainsForType("jdk", session)) {
                 if (javaToolChain.matchesRequirements(requirements)) {
-                    if (javaToolChain instanceof DefaultJavaToolChain) {
-                        return ((DefaultJavaToolChain) javaToolChain);
+                    if (javaToolChain instanceof DefaultJavaToolChain defaultJavaToolchain) {
+                        return defaultJavaToolchain;
                     }
                 }
             }

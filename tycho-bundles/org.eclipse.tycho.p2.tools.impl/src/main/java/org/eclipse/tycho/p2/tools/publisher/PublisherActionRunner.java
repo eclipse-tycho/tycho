@@ -103,12 +103,9 @@ class PublisherActionRunner {
 
         } else if (!result.isOK()) {
             Throwable directlyIncludedException = result.getException();
-            if (directlyIncludedException instanceof RuntimeException) {
-                throw (RuntimeException) directlyIncludedException;
-            } else {
-                // unknown internal error
-                throw new RuntimeException(StatusTool.collectProblems(result), StatusTool.findException(result));
-            }
+            throw directlyIncludedException instanceof RuntimeException runtimeEx //
+                    ? runtimeEx
+                    : new RuntimeException(StatusTool.collectProblems(result), StatusTool.findException(result));
         }
     }
 

@@ -223,8 +223,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 // do not use plexus.dispose() as this only works once and we
                 // want to reuse the factory multiple times but make sure the
                 // equinox framework is fully recreated
-                if (factory instanceof Disposable) {
-                    ((Disposable) factory).dispose();
+                if (factory instanceof Disposable disposable) {
+                    disposable.dispose();
                 }
             } catch (ComponentLookupException e) {
                 throw new MavenExecutionException(e.getMessage(), e);
@@ -280,10 +280,9 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 Thread.currentThread().interrupt();
             } catch (ExecutionException e) {
                 Throwable cause = e.getCause();
-                if (cause instanceof RuntimeException) {
-                    throw (RuntimeException) cause;
-                }
-                throw new RuntimeException("resolve dependencies failed", cause);
+                throw cause instanceof RuntimeException ex //
+                        ? ex
+                        : new RuntimeException("resolve dependencies failed", cause);
             } finally {
                 executor.shutdown();
             }

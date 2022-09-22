@@ -136,8 +136,7 @@ public final class TargetDefinitionResolver {
         List<MavenTargetDefinitionContent> mavenLocations = new ArrayList<>();
         List<TargetDefinitionContent> referencedTargetLocations = new ArrayList<>();
         for (Location locationDefinition : definition.getLocations()) {
-            if (locationDefinition instanceof InstallableUnitLocation) {
-                InstallableUnitLocation installableUnitLocation = (InstallableUnitLocation) locationDefinition;
+            if (locationDefinition instanceof InstallableUnitLocation installableUnitLocation) {
                 if (installableUnitResolver == null) {
                     installableUnitResolver = new InstallableUnitResolver(environments, executionEnvironment,
                             includeSourceMode, logger);
@@ -151,9 +150,7 @@ public final class TargetDefinitionResolver {
                 }
                 IQueryable<IInstallableUnit> locationUnits = QueryUtil.compoundQueryable(locations);
                 installableUnitResolver.addLocation((InstallableUnitLocation) locationDefinition, locationUnits);
-            } else if (locationDefinition instanceof PathLocation) {
-                PathLocation pathLocation = (PathLocation) locationDefinition;
-
+            } else if (locationDefinition instanceof PathLocation pathLocation) {
                 String resolvePath = resolvePath(pathLocation.getPath(), definition);
                 File fileLocation;
                 try {
@@ -168,9 +165,7 @@ public final class TargetDefinitionResolver {
                     if (pathLocation instanceof DirectoryLocation || pathLocation instanceof ProfileLocation) {
                         unitResultSet.addAll(
                                 fileRepositoryRolver.query(QueryUtil.ALL_UNITS, new LoggingProgressMonitor(logger)));
-                    } else if (pathLocation instanceof FeaturesLocation) {
-                        //
-                        FeaturesLocation featuresLocation = (FeaturesLocation) pathLocation;
+                    } else if (pathLocation instanceof FeaturesLocation featuresLocation) {
                         @SuppressWarnings("restriction")
                         IArtifactKey key = org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction
                                 .createFeatureArtifactKey(featuresLocation.getId(), featuresLocation.getVersion());
@@ -181,8 +176,7 @@ public final class TargetDefinitionResolver {
                     logger.warn("Target location path '" + fileLocation.getAbsolutePath()
                             + "' does not exist, target resolution might be incomplete.");
                 }
-            } else if (locationDefinition instanceof MavenGAVLocation) {
-                MavenGAVLocation location = (MavenGAVLocation) locationDefinition;
+            } else if (locationDefinition instanceof MavenGAVLocation location) {
                 MavenTargetDefinitionContent targetDefinitionContent = new MavenTargetDefinitionContent(location,
                         mavenDependenciesResolver, includeSourceMode, provisioningAgent, mavenContext);
                 mavenLocations.add(targetDefinitionContent);
@@ -195,8 +189,7 @@ public final class TargetDefinitionResolver {
                         logger.debug("\t" + iu);
                     }
                 }
-            } else if (locationDefinition instanceof TargetReferenceLocation) {
-                TargetReferenceLocation referenceLocation = (TargetReferenceLocation) locationDefinition;
+            } else if (locationDefinition instanceof TargetReferenceLocation referenceLocation) {
                 logger.info("Resolving " + referenceLocation.getUri());
                 String resolvePath = resolvePath(referenceLocation.getUri(), definition);
                 URI resolvedUri;

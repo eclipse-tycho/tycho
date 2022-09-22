@@ -64,8 +64,7 @@ public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
         } catch (SAXException e) {
             int lineNumber = -1;
             int columnNumber = -1;
-            if (e instanceof SAXParseException) {
-                SAXParseException parseException = (SAXParseException) e;
+            if (e instanceof SAXParseException parseException) {
                 lineNumber = parseException.getLineNumber();
                 columnNumber = parseException.getColumnNumber();
             }

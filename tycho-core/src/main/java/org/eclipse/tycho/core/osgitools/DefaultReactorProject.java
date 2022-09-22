@@ -83,11 +83,9 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     protected static ReactorProject getCachedValue(MavenProject project) {
-        Object cachedValue = project.getContextValue(CTX_REACTOR_PROJECT);
-        if (cachedValue instanceof ReactorProject) {
-            return (ReactorProject) cachedValue;
-        }
-        return null;
+        return project.getContextValue(CTX_REACTOR_PROJECT) instanceof ReactorProject reactorProject //
+                ? reactorProject
+                : null;
     }
 
     public static List<ReactorProject> adapt(MavenSession session) {
@@ -236,17 +234,8 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof DefaultReactorProject)) {
-            return false;
-        }
-
-        DefaultReactorProject other = (DefaultReactorProject) obj;
-
-        return project.equals(other.project);
+        return this == obj || //
+                (obj instanceof DefaultReactorProject other && project.equals(other.project));
     }
 
     @Override

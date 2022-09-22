@@ -323,13 +323,12 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             List<IArtifactRepository> remote = new ArrayList<>();
             List<FileArtifactRepository> local = new ArrayList<>();
             for (IArtifactRepository repo : repositories) {
-                if (repo instanceof ListCompositeArtifactRepository) {
-                    SortedRepositories children = SortedRepositories
-                            .sort(((ListCompositeArtifactRepository) repo).artifactRepositories);
+                if (repo instanceof ListCompositeArtifactRepository list) {
+                    SortedRepositories children = SortedRepositories.sort(list.artifactRepositories);
                     remote.addAll(children.remoteRepositories);
                     local.addAll(children.localRepositories);
-                } else if (repo instanceof FileArtifactRepository) {
-                    local.add((FileArtifactRepository) repo);
+                } else if (repo instanceof FileArtifactRepository fileArtifactRepo) {
+                    local.add(fileArtifactRepo);
                 } else {
                     remote.add(repo);
                 }
@@ -463,8 +462,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     public P2TargetPlatform createTargetPlatformWithUpdatedReactorContent(TargetPlatform baseTargetPlatform,
             List<?> upstreamProjectResults, PomDependencyCollector pomDependencies) {
         PomDependencyCollectorImpl pomDependenciesContent;
-        if (pomDependencies instanceof PomDependencyCollectorImpl) {
-            pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
+        if (pomDependencies instanceof PomDependencyCollectorImpl source) {
+            pomDependenciesContent = source;
         } else {
             logger.debug("Using empty PomDependencyCollector instead of given = " + pomDependencies);
             pomDependenciesContent = new PomDependencyCollectorImpl(mavenContext, null);
@@ -517,8 +516,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 .getMavenInstallableUnits();
         for (Entry<IInstallableUnit, IArtifactFacade> entry : mavenInstallableUnits.entrySet()) {
             IArtifactFacade value = entry.getValue();
-            if (value instanceof ReactorProjectFacade) {
-                ReactorProjectFacade projectFacade = (ReactorProjectFacade) value;
+            if (value instanceof ReactorProjectFacade projectFacade) {
                 reactorUnitsMap.put(entry.getKey(), projectFacade.getReactorProject().getIdentities());
             }
         }

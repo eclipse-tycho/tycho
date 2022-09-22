@@ -42,17 +42,10 @@ public class ClassifiedArtifactKey {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof ClassifiedArtifactKey)) {
-            return false;
-        }
-
-        ClassifiedArtifactKey other = (ClassifiedArtifactKey) obj;
-
-        return Objects.equals(this.artifactKey, other.artifactKey) && Objects.equals(this.classifier, other.classifier);
+        return this == obj || //
+                (obj instanceof ClassifiedArtifactKey other //
+                        && Objects.equals(this.artifactKey, other.artifactKey) //
+                        && Objects.equals(this.classifier, other.classifier));
     }
 
 }

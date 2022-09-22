@@ -138,12 +138,9 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!(obj instanceof StandardEEResolutionHints))
-            return false;
-        StandardEEResolutionHints other = (StandardEEResolutionHints) obj;
-        return Objects.equals(executionEnvironment, other.executionEnvironment);
+        return this == obj && //
+                (obj instanceof StandardEEResolutionHints other
+                        && Objects.equals(executionEnvironment, other.executionEnvironment));
     }
 
     static Collection<IProvidedCapability> parseSystemCapabilities(String systemCapabilities) {

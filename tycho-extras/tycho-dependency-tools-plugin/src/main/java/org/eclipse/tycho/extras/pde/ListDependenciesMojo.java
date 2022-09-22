@@ -82,8 +82,7 @@ public class ListDependenciesMojo extends AbstractMojo {
                 }
             }
             TychoProject projectType = projectTypes.get(project.getPackaging());
-            if (projectType instanceof OsgiBundleProject) {
-                OsgiBundleProject bundleProject = (OsgiBundleProject) projectType;
+            if (projectType instanceof OsgiBundleProject bundleProject) {
                 Map<String, ResolvedArtifactKey> artifacts = bundleProject
                         .getAnnotationArtifacts(DefaultReactorProject.adapt(project));
                 for (ResolvedArtifactKey artifactDescriptor : artifacts.values()) {

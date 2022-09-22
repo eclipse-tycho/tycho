@@ -400,8 +400,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                             + RepositoryLayoutHelper.getRelativePath(gav, mavenClassifier, mavenExtension));
                     try {
                         URLConnection connection = mavenArtifactURI.toURL().openConnection();
-                        if (connection instanceof HttpURLConnection) {
-                            int responseCode = ((HttpURLConnection) connection).getResponseCode();
+                        if (connection instanceof HttpURLConnection httpConnection) {
+                            int responseCode = httpConnection.getResponseCode();
                             if (responseCode != HttpURLConnection.HTTP_OK) {
                                 mavenContext.getLogger()
                                         .debug(artifactKey.toString() + '/' + gav + " not found in " + mavenRepo);

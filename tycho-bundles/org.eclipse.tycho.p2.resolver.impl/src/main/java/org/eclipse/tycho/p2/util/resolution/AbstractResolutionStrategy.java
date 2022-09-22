@@ -87,11 +87,9 @@ public abstract class AbstractResolutionStrategy {
 
     protected void explainProblems(Set<Explanation> explanation, BiConsumer<MavenLogger, String> logLevel) {
         for (Explanation exp : explanation) {
-            if (exp instanceof MissingIU) {
-                MissingIU missingIU = (MissingIU) exp;
+            if (exp instanceof MissingIU missingIU) {
                 IRequirement requirement = missingIU.req;
-                if (requirement instanceof RequiredPropertiesMatch) {
-                    RequiredPropertiesMatch requiredPropertiesMatch = (RequiredPropertiesMatch) requirement;
+                if (requirement instanceof RequiredPropertiesMatch requiredPropertiesMatch) {
                     IMatchExpression<IInstallableUnit> matches = requiredPropertiesMatch.getMatches();
                     String namespace = RequiredPropertiesMatch.extractNamespace(matches);
                     if ("osgi.ee".equals(namespace)) {

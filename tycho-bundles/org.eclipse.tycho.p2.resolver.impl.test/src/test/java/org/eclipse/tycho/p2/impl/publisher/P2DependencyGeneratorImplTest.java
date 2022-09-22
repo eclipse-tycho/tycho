@@ -198,8 +198,7 @@ public class P2DependencyGeneratorImplTest {
 
     private IRequiredCapability getRequiredCapability(String name, List<IRequirement> requirements) {
         for (IRequirement req : requirements) {
-            if (req instanceof IRequiredCapability) {
-                IRequiredCapability requiredCapability = (IRequiredCapability) req;
+            if (req instanceof IRequiredCapability requiredCapability) {
                 if (name.equals(requiredCapability.getName())) {
                     return requiredCapability;
                 }

@@ -210,10 +210,9 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
 
     @Override
     public File getArtifactFile(IArtifactDescriptor descriptor) {
-        if (descriptor instanceof FileArtifactDescriptor) {
-            return ((FileArtifactDescriptor) descriptor).file;
-        }
-        return null;
+        return descriptor instanceof FileArtifactDescriptor fileArtifactDescriptor //
+                ? fileArtifactDescriptor.file
+                : null;
     }
 
     private static boolean matches(IArtifactKey key, IArtifactDescriptor descriptor) {

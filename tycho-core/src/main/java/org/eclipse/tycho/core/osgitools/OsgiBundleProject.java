@@ -381,8 +381,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ClasspathEntry> list = new ArrayList<>();
         Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(reactorProject).getClasspathEntries();
         for (ProjectClasspathEntry cpe : entries) {
-            if (cpe instanceof JUnitClasspathContainerEntry) {
-                JUnitClasspathContainerEntry junit = (JUnitClasspathContainerEntry) cpe;
+            if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolve JUnit " + junit.getJUnitSegment() + " classpath container...");
                 P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
                 P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
@@ -457,8 +456,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             try {
                 pdeProject = new EclipsePluginProjectImpl(otherProject, otherProject.getBuildProperties(),
                         classpathParser.parse(otherProject.getBasedir()));
-                if (otherProject instanceof DefaultReactorProject) {
-                    populateProperties(((DefaultReactorProject) otherProject).project.getProperties(), pdeProject);
+                if (otherProject instanceof DefaultReactorProject defaultReactorProject) {
+                    populateProperties(defaultReactorProject.project.getProperties(), pdeProject);
                 }
                 otherProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT, pdeProject);
             } catch (IOException e) {
@@ -493,9 +492,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public synchronized BundleClassPath getBundleClassPath(ReactorProject project) {
-        Object contextValue = project.getContextValue(CTX_CLASSPATH);
-        if (contextValue instanceof BundleClassPath) {
-            return (BundleClassPath) contextValue;
+        if (project.getContextValue(CTX_CLASSPATH) instanceof BundleClassPath bundleClassPath) {
+            return bundleClassPath;
         }
         BundleClassPath cp = resolveClassPath(getMavenSession(project), getMavenProject(project));
         project.setContextValue(CTX_CLASSPATH, cp);
@@ -599,8 +597,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
         }
         for (ProjectClasspathEntry entry : pdeProject.getClasspathEntries()) {
-            if (entry instanceof LibraryClasspathEntry) {
-                LibraryClasspathEntry libraryClasspathEntry = (LibraryClasspathEntry) entry;
+            if (entry instanceof LibraryClasspathEntry libraryClasspathEntry) {
                 File path = libraryClasspathEntry.getLibraryPath();
                 classpath.add(new DefaultClasspathEntry(null, readOrCreateArtifactKey(path, () -> {
                     return new DefaultArtifactKey("jar", path.getAbsolutePath());
@@ -860,8 +857,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ArtifactKey> list = new ArrayList<>();
         Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(project).getClasspathEntries();
         for (ProjectClasspathEntry cpe : entries) {
-            if (cpe instanceof JUnitClasspathContainerEntry) {
-                list.addAll(((JUnitClasspathContainerEntry) cpe).getArtifacts());
+            if (cpe instanceof JUnitClasspathContainerEntry junitEntry) {
+                list.addAll(junitEntry.getArtifacts());
             }
         }
         return list;
