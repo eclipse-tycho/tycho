@@ -26,7 +26,6 @@ public abstract class AbstractArtifactBasedProject extends AbstractTychoProject 
         return getDependencyWalker(project, null);
     }
 
-    @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         return newDependencyWalker(project, environment);
     }

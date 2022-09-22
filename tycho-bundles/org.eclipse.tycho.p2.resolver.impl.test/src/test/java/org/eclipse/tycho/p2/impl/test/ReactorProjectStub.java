@@ -213,4 +213,10 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public <T> T adapt(Class<T> target) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

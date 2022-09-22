@@ -55,6 +55,9 @@ public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
+        if (session == null) {
+            return;
+        }
 
         IProxyService proxyService = framework.getServiceFactory().getService(IProxyService.class);
         if (proxyService == null) {

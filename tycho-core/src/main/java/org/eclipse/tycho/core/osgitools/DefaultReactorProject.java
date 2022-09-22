@@ -259,4 +259,12 @@ public class DefaultReactorProject implements ReactorProject {
         return project.getName();
     }
 
+    @Override
+    public <T> T adapt(Class<T> target) {
+        if (target == MavenProject.class) {
+            return target.cast(project);
+        }
+        return null;
+    }
+
 }

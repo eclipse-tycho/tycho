@@ -63,6 +63,9 @@ public class MavenContextConfigurator implements EquinoxLifecycleListener {
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
+        if (session == null) {
+            return;
+        }
         File localRepoRoot = new File(session.getLocalRepository().getBasedir());
         MavenLoggerAdapter mavenLogger = new MavenLoggerAdapter(logger, false);
         Properties globalProps = getGlobalProperties(session);
