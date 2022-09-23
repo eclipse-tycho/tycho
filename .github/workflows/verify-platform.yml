@@ -8,7 +8,7 @@ concurrency:
 on:
   pull_request:
     branches: 
-     - 'master'
+     - 'tycho-3.0.x'
 
 jobs:
   build:
@@ -68,4 +68,6 @@ jobs:
         -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         -DskipTests
         -Pbree-libs
+        -Dtycho-version=3.0.0-SNAPSHOT
+        -Dtycho.version=3.0.0-SNAPSHOT
         clean verify
