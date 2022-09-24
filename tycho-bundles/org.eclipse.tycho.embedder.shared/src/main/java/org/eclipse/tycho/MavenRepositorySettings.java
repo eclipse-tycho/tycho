@@ -11,7 +11,7 @@
  *    SAP AG - initial API and implementation
  *    Christoph Läubrich - Issue #797 - Implement a caching P2 transport  
  *******************************************************************************/
-package org.eclipse.tycho.core.resolver.shared;
+package org.eclipse.tycho;
 
 import java.net.URI;
 

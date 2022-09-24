@@ -63,7 +63,7 @@
 
 	<groupId>org.eclipse.tycho</groupId>
 	<artifactId>tycho</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>3.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Tycho</name>
@@ -71,7 +71,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<min.jdk.version>11</min.jdk.version>
+		<min.jdk.version>17</min.jdk.version>
 
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<commonsCompressVersion>1.21</commonsCompressVersion>
@@ -89,7 +89,7 @@
 		<ecjVersion>3.31.0</ecjVersion>
 
 		<!-- version of Tycho used by this build -->
-		<tychoBootstrapVersion>2.7.4</tychoBootstrapVersion>
+		<tychoBootstrapVersion>2.7.5</tychoBootstrapVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -219,7 +219,7 @@
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
-				<version>5.9.0</version>
+				<version>5.9.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -374,7 +374,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.2</version>
+					<version>3.3.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

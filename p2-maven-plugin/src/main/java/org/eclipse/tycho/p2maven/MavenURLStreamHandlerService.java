@@ -19,8 +19,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -62,9 +62,8 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 	@Override
 	public void afterFrameworkStarted(EmbeddedEquinox framework) {
 		this.mavenSession = context.getSession();
-		Hashtable<String, Object> properties = new Hashtable<>();
-		properties.put(URLConstants.URL_HANDLER_PROTOCOL, new String[] { PROTOCOL });
-		framework.registerService(URLStreamHandlerService.class, this, properties);
+		framework.registerService(URLStreamHandlerService.class, this,
+				Map.of(URLConstants.URL_HANDLER_PROTOCOL, new String[] { PROTOCOL }));
 	}
 
 	@Override

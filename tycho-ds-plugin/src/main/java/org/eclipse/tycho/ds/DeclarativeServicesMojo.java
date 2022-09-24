@@ -112,7 +112,12 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					OsgiBundleProject bundleProject = (OsgiBundleProject) projectType;
 					List<ClasspathEntry> classpath = bundleProject.getClasspath(DefaultReactorProject.adapt(project));
 					for (ClasspathEntry entry : classpath) {
-						analyzer.addClasspath(entry.getLocations());
+						List<File> locations = entry.getLocations();
+						for (File file : locations) {
+							if (file.exists()) {
+								analyzer.addClasspath(file);
+							}
+						}
 					}
 					analyzer.addBasicPlugin(new DSAnnotations());
 					analyzer.analyze();

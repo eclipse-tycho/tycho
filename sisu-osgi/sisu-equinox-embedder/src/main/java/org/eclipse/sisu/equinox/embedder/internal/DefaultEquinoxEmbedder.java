@@ -15,8 +15,6 @@ package org.eclipse.sisu.equinox.embedder.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +34,7 @@ import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
@@ -302,13 +301,13 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
 
     @Override
     public <T> void registerService(Class<T> clazz, T service) {
-        registerService(clazz, service, new Hashtable<String, Object>(1));
+        registerService(clazz, service, Map.of());
     }
 
     @Override
-    public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties) {
+    public <T> void registerService(Class<T> clazz, T service, Map<String, ?> properties) {
         // don't need to call checkStarted here because EmbeddedEquinox instances are already started
-        frameworkContext.registerService(clazz, service, properties);
+        frameworkContext.registerService(clazz, service, FrameworkUtil.asDictionary(properties));
     }
 
     @Override

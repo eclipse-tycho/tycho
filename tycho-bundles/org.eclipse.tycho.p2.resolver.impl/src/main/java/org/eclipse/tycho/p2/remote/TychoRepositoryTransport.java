@@ -34,7 +34,7 @@ import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings.Credentials;
+import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
@@ -61,8 +61,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         File cacheLocation = new File(mavenContext.getLocalRepositoryRoot(), ".cache/tycho");
         cacheLocation.mkdirs();
         MavenLogger logger = mavenContext.getLogger();
-        logger.info(
-                "### Using TychoRepositoryTransport for remote P2 access (You can disable this with -Dtycho.p2.transport=ecf) ###");
+        logger.info("### Using TychoRepositoryTransport for remote P2 access ###");
         logger.info("    Cache location:         " + cacheLocation);
         logger.info("    Transport mode:         " + (mavenContext.isOffline() ? "offline" : "online"));
         logger.info("    Update mode:            " + (mavenContext.isUpdateSnapshots() ? "forced" : "cache first"));

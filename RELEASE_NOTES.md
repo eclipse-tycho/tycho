@@ -4,6 +4,26 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.0 (under development)
 
+### Tycho now support forking of the Eclipse Java Compiler
+
+Previously forking was not supported, now forking is possible and will be used if a custom java home is specified.
+
+### New option to transform P2 dependencies into real maven coordinates
+
+The `tycho-consumer-pom` mojo has a new option to resolve p2 introduced dependencies to 'real' maven coordinates now, when enabled it queries maven-central with the SHA1 of the file to find out what are the actual maven central coordinates
+ and place them in the generated pom consumer-pom.
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-packaging-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<mapP2Dependencies>true</mapP2Dependencies>
+	</configuration>
+</plugin>
+```
+
 ### New tycho-p2-plugin:dependency-tree mojo
 
 Sometimes it is useful to find out how dependencies of a project are actually pulled in. Tycho now supports a new `tycho-p2-plugin:dependency-tree` mojo that outputs a tree view of the P2 dependecies of a tycho project.
@@ -60,7 +80,7 @@ public class MyPlexusComponent {
 For the setup you need to do the following:
 
 1. include any bundle you like to make up your plexus-osgi-connect framework as a dependency of your maven plugin
-2. include a file `META-INF/sisu-connect.bundles` that list all your bundles you like to have installed in the format `bsn[,true]`, where `bsn` is the symbolid name and optionally you can control if your bundle has to be started or not
+2. include a file `META-INF/sisu/connect.bundles` that list all your bundles you like to have installed in the format `bsn[,true]`, where `bsn` is the symbolid name and optionally you can control if your bundle has to be started or not
 3. include the following additional dependency
 ```
 <dependency>

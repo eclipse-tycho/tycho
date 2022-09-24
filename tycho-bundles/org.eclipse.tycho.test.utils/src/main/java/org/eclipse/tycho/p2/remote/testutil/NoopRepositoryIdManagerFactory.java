@@ -14,7 +14,7 @@ package org.eclipse.tycho.p2.remote.testutil;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
-import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
+import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.test.util.P2Context;
 
 /**
@@ -28,7 +28,7 @@ public class NoopRepositoryIdManagerFactory implements IAgentServiceFactory {
 
     @Override
     public Object createService(IProvisioningAgent agent) {
-        return new NoopRepositoryIdManager();
+        return new NoopRepositoryIdManager(agent);
     }
 
 }

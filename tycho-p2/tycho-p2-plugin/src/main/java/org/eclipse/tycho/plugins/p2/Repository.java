@@ -14,7 +14,7 @@ package org.eclipse.tycho.plugins.p2;
 
 import java.net.URI;
 
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.MavenRepositoryLocation;
 
 // TODO reconcile with MavenRepositoryLocation
 public class Repository {

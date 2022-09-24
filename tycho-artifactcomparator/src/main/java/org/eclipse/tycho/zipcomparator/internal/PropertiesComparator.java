@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
 @Component(role = ContentsComparator.class, hint = PropertiesComparator.TYPE)
@@ -29,7 +29,7 @@ public class PropertiesComparator implements ContentsComparator {
     public static final String TYPE = "properties";
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Properties props = new Properties();

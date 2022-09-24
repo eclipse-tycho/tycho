@@ -18,7 +18,7 @@ import java.net.URI;
 import java.util.function.Function;
 
 import org.eclipse.core.net.proxy.IProxyService;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings.Credentials;
+import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 
 public interface CacheEntry {
 

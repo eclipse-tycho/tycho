@@ -33,7 +33,6 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
@@ -112,10 +111,6 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
         fileSet.setExcludes(allExcludes.toArray(new String[allExcludes.size()]));
 
         return fileSet;
-    }
-
-    protected ArtifactDependencyWalker getDependencyWalker() {
-        return getTychoProjectFacet().getDependencyWalker(DefaultReactorProject.adapt(project));
     }
 
     protected TychoProject getTychoProjectFacet() {

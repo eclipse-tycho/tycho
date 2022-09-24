@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.sisu.osgi.connect;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -45,23 +44,14 @@ public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 	}
 
 	public static void registerHelper(FrameworkUtilHelper helper) {
-		for (FrameworkUtilHelper spi : ServiceLoader.load(FrameworkUtilHelper.class,
-				FrameworkUtilHelper.class.getClassLoader())) {
-			Class<? extends FrameworkUtilHelper> spiHelperClass = spi.getClass();
-			Class<PlexusFrameworkUtilHelper> thisClass = PlexusFrameworkUtilHelper.class;
-			if (spiHelperClass.getName().equals(thisClass.getName())) {
-				if (spiHelperClass == thisClass) {
-					// register our instance here...
-					helpers.add(helper);
-				} else {
-					invokeForeignMethod(spiHelperClass, "registerHelper", helper);
-				}
-				break;
-			}
-		}
+		modifyHelperRegistry(helper, "registerHelper");
 	}
 
 	public static void unregisterHelper(FrameworkUtilHelper helper) {
+		modifyHelperRegistry(helper, "unregisterHelper");
+	}
+
+	private static void modifyHelperRegistry(FrameworkUtilHelper helper, String methodName) {
 		for (FrameworkUtilHelper spi : ServiceLoader.load(FrameworkUtilHelper.class,
 				FrameworkUtilHelper.class.getClassLoader())) {
 			Class<? extends FrameworkUtilHelper> spiHelperClass = spi.getClass();
@@ -71,7 +61,7 @@ public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 					// register our instance here...
 					helpers.add(helper);
 				} else {
-					invokeForeignMethod(spiHelperClass, "unregisterHelper", helper);
+					invokeForeignMethod(spiHelperClass, methodName, helper);
 				}
 				break;
 			}
@@ -82,8 +72,7 @@ public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 		try {
 			Method method = clazz.getMethod(methodName, FrameworkUtilHelper.class);
 			method.invoke(null, parameter);
-		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
+		} catch (ReflectiveOperationException e) {
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2017 Red Hat Inc., and others
+ * Copyright (c) 2015, 2022 Red Hat Inc., and others
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -83,6 +84,21 @@ public class CompareWithBaselineMojo extends AbstractMojo {
      */
     @Parameter(property = "baselines", name = "baselines")
     private List<String> baselines;
+
+    /**
+     * A list of file path patterns that are ignored when comparing the build artifact against the
+     * baseline version.
+     * 
+     * {@code
+     * <ignoredPatterns>
+     *   <pattern>META-INF/ECLIPSE_.RSA<pattern>
+     *   <pattern>META-INF/ECLIPSE_.SF</pattern>
+     * </ignoredPatterns>
+     * }
+     * 
+     */
+    @Parameter
+    private List<String> ignoredPatterns;
 
     @Parameter(property = "skip")
     private boolean skip;
@@ -171,8 +187,9 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                         } else {
                             reactorFile = reactorProject.getArtifact();
                         }
+                        ComparisonData data = new ComparisonData(ignoredPatterns, false);
                         ArtifactDelta artifactDelta = this.artifactComparators.get(this.comparator)
-                                .getDelta(baselineFile, reactorFile, execution);
+                                .getDelta(baselineFile, reactorFile, data);
                         String message = "Baseline and reactor have same fully qualified version, but with different content";
                         if (artifactDelta != null) {
                             if (this.onIllegalVersion == ReportBehavior.warn) {
