@@ -171,4 +171,12 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
                     "Unexpected build result of " + project + ": File \"" + expectedLocation + "\" is missing");
         }
     }
+
+    @Override
+    public void clearTargetPlatform(ReactorProject project) {
+        synchronized (project) {
+            project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, null);
+        }
+
+    }
 }

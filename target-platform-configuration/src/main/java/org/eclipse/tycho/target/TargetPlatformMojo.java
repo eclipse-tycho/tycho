@@ -20,11 +20,15 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 @Mojo(name = "target-platform", threadSafe = true)
 public class TargetPlatformMojo extends AbstractMojo {
+
+    private static final String TARGET_PLATFORM_MOJO_EXECUTED = "TargetPlatformMojo.executed";
+
     // TODO site doc (including steps & parameters handled in afterProjectsRead?)
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
@@ -34,8 +38,17 @@ public class TargetPlatformMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        Object executed = reactorProject.getContextValue(TARGET_PLATFORM_MOJO_EXECUTED);
+        if (executed != null) {
+            //second execution should force recomputation
+            platformService.clearTargetPlatform(reactorProject);
+        } else {
+            reactorProject.setContextValue(TARGET_PLATFORM_MOJO_EXECUTED, Boolean.TRUE);
+        }
         //trigger target platform resoloution....
-        platformService.getTargetPlatform(DefaultReactorProject.adapt(project));
+        platformService.getTargetPlatform(reactorProject);
     }
 
 }

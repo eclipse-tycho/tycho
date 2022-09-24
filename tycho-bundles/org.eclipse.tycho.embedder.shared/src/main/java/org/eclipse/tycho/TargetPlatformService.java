@@ -31,4 +31,12 @@ public interface TargetPlatformService {
      *             when the target platform for the project can not be resolved
      */
     Optional<TargetPlatform> getTargetPlatform(ReactorProject project) throws DependencyResolutionException;
+
+    /**
+     * Clears the given target platform for this project
+     * 
+     * @param reactorProject
+     *            the project for what the {@link TargetPlatform} should be cleared
+     */
+    void clearTargetPlatform(ReactorProject reactorProject);
 }
