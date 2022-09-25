@@ -27,6 +27,8 @@ import org.eclipse.tycho.core.shared.MavenContext;
 @SuppressWarnings("restriction")
 public class TychoRepositoryTransportCacheManager extends CacheManager {
 
+    public static final String CACHE_RELPATH = ".cache/tycho/p2-repository-metadata";
+
     private static final List<String> EXTENSIONS = List.of(".jar", ".xml");
 
     private MavenContext mavenContext;
@@ -71,7 +73,7 @@ public class TychoRepositoryTransportCacheManager extends CacheManager {
 
     @Override
     protected File getCacheDirectory() {
-        return new File(mavenContext.getLocalRepositoryRoot(), RemoteRepositoryCacheManager.CACHE_RELPATH);
+        return new File(mavenContext.getLocalRepositoryRoot(), CACHE_RELPATH);
     }
 
 }
