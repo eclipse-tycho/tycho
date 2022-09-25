@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
@@ -62,6 +63,8 @@ public class RemoteAgentMavenMirrorsTest {
 
         mavenRepositorySettings = new MavenRepositorySettingsStub();
         subject = new RemoteAgent(mavenContext, null, mavenRepositorySettings, OFFLINE);
+        IRepositoryIdManager idManager = subject.getService(IRepositoryIdManager.class);
+        System.out.println(idManager);
     }
 
     @Test

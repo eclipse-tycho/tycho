@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -54,6 +55,9 @@ public class OSGiProxyConfigurator implements EquinoxLifecycleListener {
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
+        if (session == null) {
+            return;
+        }
 
         IProxyService proxyService = framework.getServiceFactory().getService(IProxyService.class);
         if (proxyService == null) {

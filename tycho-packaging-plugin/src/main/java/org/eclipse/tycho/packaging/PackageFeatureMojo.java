@@ -41,8 +41,8 @@ import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 
 @Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
@@ -106,6 +106,9 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     @Component
     private LicenseFeatureHelper licenseFeatureHelper;
+
+	@Component
+	private TargetPlatformService platformService;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -241,20 +244,20 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     private void assembleDeployableFeature() throws MojoExecutionException {
         UpdateSiteAssembler assembler = new UpdateSiteAssembler(plexus, target);
-        getDependencyWalker().walk(assembler);
+		getTychoProjectFacet().getDependencyWalker(DefaultReactorProject.adapt(project)).walk(assembler);
     }
 
     private void expandVersionQualifiers(Feature feature) throws MojoFailureException {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         feature.setVersion(reactorProject.getExpandedVersion());
 
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(reactorProject);
-        if (targetPlatform == null) {
-            getLog().warn(
+		TargetPlatform targetPlatform = platformService.getTargetPlatform(reactorProject).orElse(null);
+		if (targetPlatform == null) {
+			getLog().warn(
                     "Skipping version reference expansion in eclipse-feature project using the deprecated -Dtycho.targetPlatform configuration");
-            return;
-        }
-        featureXmlTransformer.expandReferences(feature, targetPlatform);
+			return;
+		}
+		featureXmlTransformer.expandReferences(feature, targetPlatform);
     }
 
     private JarArchiver getJarArchiver() throws MojoExecutionException {

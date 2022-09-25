@@ -19,7 +19,7 @@ pipeline {
 	}
 	tools {
 		maven 'apache-maven-3.8.5'
-		jdk 'openjdk-jdk11-latest'
+		jdk 'openjdk-jdk17-latest'
 	}
 	stages {
 		stage('Build') {

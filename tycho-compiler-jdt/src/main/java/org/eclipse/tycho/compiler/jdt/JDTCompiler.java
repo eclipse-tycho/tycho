@@ -125,13 +125,13 @@ public class JDTCompiler extends AbstractCompiler {
         if (config.isFork()) {
             return true;
         }
-        if (custom.javaHome != null) {
-            String sourceLevel = config.getSourceVersion();
-            if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
-                return false;
-            }
-            return true;
-        }
+//        if (custom.javaHome != null) {
+//            String sourceLevel = config.getSourceVersion();
+//            if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
+//                return false;
+//            }
+//            return true;
+//        }
         return false;
     }
 
@@ -278,8 +278,14 @@ public class JDTCompiler extends AbstractCompiler {
         }
 
         if (!StringUtils.isEmpty(config.getReleaseVersion())) {
-            args.add("--release");
-            args.add(config.getReleaseVersion());
+            if (custom.javaHome == null) {
+                //release can only be used without custom java home!
+                args.add("--release");
+                args.add(config.getReleaseVersion());
+            } else {
+                getLogger().debug("Custom java home and --release are incompatible, ignore --release="
+                        + config.getReleaseVersion() + " setting ");
+            }
         }
 
         if (!suppressEncoding(config) && !StringUtils.isEmpty(config.getSourceEncoding())) {
@@ -340,7 +346,8 @@ public class JDTCompiler extends AbstractCompiler {
 
         if (returnCode != 0 && messages.isEmpty()) {
             // low-level, e.g. configuration error
-            throw new CompilerException( "Failure executing ejc, but could not parse the error:" + EOL + err.getOutput());
+            throw new CompilerException(
+                    "Failure executing ejc, but could not parse the error:" + EOL + err.getOutput());
         }
 
         return new CompilerResult(returnCode == 0, messages);
@@ -371,7 +378,7 @@ public class JDTCompiler extends AbstractCompiler {
             if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
                 addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
             } else {
-                //FIXME how is this supported by JDT?
+                addToCompilerArgumentsIfNotSet("--system", custom.javaHome, jdtCompilerArgs);
             }
         }
         getLogger().debug("JDT compiler args: " + jdtCompilerArgs);

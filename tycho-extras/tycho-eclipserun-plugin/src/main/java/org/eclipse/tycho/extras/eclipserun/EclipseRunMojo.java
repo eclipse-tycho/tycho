@@ -45,11 +45,11 @@ import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -123,7 +123,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	/**
 	 * Execution environment profile name used to resolve dependencies.
 	 */
-	@Parameter(defaultValue = "JavaSE-11")
+	@Parameter(defaultValue = "JavaSE-17")
 	private String executionEnvironment;
 
 	/**
@@ -310,7 +310,8 @@ public class EclipseRunMojo extends AbstractMojo {
 	}
 
 	private EquinoxInstallation createEclipseInstallation() throws MojoFailureException {
-		P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
+		P2ResolverFactory resolverFactory = Objects.requireNonNull(equinox.getService(P2ResolverFactory.class),
+				"P2ResolverFactory service is missing!");
 		TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
 		// we want to resolve from remote repos only
 		tpConfiguration.setForceIgnoreLocalArtifacts(true);
@@ -319,6 +320,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 		ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger, false,
 				toolchainManager, session);
+		eeConfiguration.setProfileConfiguration(executionEnvironment, "tycho-eclipserun-plugin <executionEnvironment>");
 		TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
 				eeConfiguration, null);
 		P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));

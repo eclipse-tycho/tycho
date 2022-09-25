@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho Core Maven/OSGi Shared Classes Tests
 Bundle-SymbolicName: org.eclipse.tycho.core.shared.tests
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.1.0.qualifier
 Fragment-Host: org.eclipse.tycho.core.shared
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit;bundle-version="4.8.2"
 Bundle-Vendor: %providerName
 Automatic-Module-Name: org.eclipse.tycho.core.shared.tests

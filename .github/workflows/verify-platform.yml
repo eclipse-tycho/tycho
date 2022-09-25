@@ -47,7 +47,7 @@ jobs:
         maven-version: 3.8.6
     - name: Build Tycho
       env:
-       JAVA_HOME: ${{ env.JAVA_HOME_11_X64 }}
+       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       working-directory: 'tycho'
       run: >- 
         mvn -U -V -e -B -ntp

@@ -23,8 +23,9 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
+import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
@@ -55,54 +56,35 @@ public class RemoteAgent implements IProvisioningAgent {
             throws ProvisionException {
         // TODO set a temporary folder as persistence location
         AgentBuilder agent = new AgentBuilder(Activator.newProvisioningAgent());
-        if (!"ecf".equalsIgnoreCase(System.getProperty("tycho.p2.transport"))) {
-            TychoRepositoryTransport tychoRepositoryTransport = new TychoRepositoryTransport(mavenContext, proxyService,
-                    uri -> {
-                        if (mavenRepositorySettings == null) {
-                            return null;
-                        }
-                        IRepositoryIdManager repositoryIdManager = agent.getService(IRepositoryIdManager.class);
-                        Stream<MavenRepositoryLocation> locations = mavenContext.getMavenRepositoryLocations();
-                        if (repositoryIdManager instanceof RemoteRepositoryLoadingHelper) {
-                            RemoteRepositoryLoadingHelper repositoryLoadingHelper = (RemoteRepositoryLoadingHelper) repositoryIdManager;
-                            locations = Stream.concat(locations,
-                                    repositoryLoadingHelper.getKnownMavenRepositoryLocations());
-                        }
-                        String requestUri = uri.normalize().toASCIIString();
-                        return locations.sorted((loc1, loc2) -> {
-                            //we wan't the longest prefix match, so first sort all uris by their length ...
-                            String s1 = loc1.getURL().normalize().toASCIIString();
-                            String s2 = loc2.getURL().normalize().toASCIIString();
-                            return Long.compare(s2.length(), s1.length());
-                        }).filter(loc -> {
-                            String prefix = loc.getURL().normalize().toASCIIString();
-                            return requestUri.startsWith(prefix);
-                        }).map(mavenRepositorySettings::getCredentials).filter(Objects::nonNull).findFirst()
-                                .orElse(null);
-                    });
-            agent.getAgent().registerService(CacheManager.SERVICE_NAME,
-                    new TychoRepositoryTransportCacheManager(tychoRepositoryTransport, mavenContext));
-            agent.getAgent().registerService(Transport.SERVICE_NAME, tychoRepositoryTransport);
-        } else {
-            // suppress p2.index access
-            final Transport transport;
-            if (mavenContext.isOffline()) {
-                transport = new OfflineTransport(mavenContext);
-                agent.registerService(Transport.class, transport);
-            } else {
-                transport = agent.getService(Transport.class);
-            }
-
-            // cache indices of p2 repositories in the local Maven repository
-            RemoteRepositoryCacheManager cacheMgr = new RemoteRepositoryCacheManager(transport, mavenContext);
-            agent.registerService(CacheManager.class, cacheMgr);
-        }
+        TychoRepositoryTransport tychoRepositoryTransport = new TychoRepositoryTransport(mavenContext, proxyService,
+                uri -> {
+                    if (mavenRepositorySettings == null) {
+                        return null;
+                    }
+                    IRepositoryIdManager repositoryIdManager = agent.getService(IRepositoryIdManager.class);
+                    Stream<MavenRepositoryLocation> locations = mavenContext.getMavenRepositoryLocations();
+                    locations = Stream.concat(locations, repositoryIdManager.getKnownMavenRepositoryLocations());
+                    String requestUri = uri.normalize().toASCIIString();
+                    return locations.sorted((loc1, loc2) -> {
+                        //we wan't the longest prefix match, so first sort all uris by their length ...
+                        String s1 = loc1.getURL().normalize().toASCIIString();
+                        String s2 = loc2.getURL().normalize().toASCIIString();
+                        return Long.compare(s2.length(), s1.length());
+                    }).filter(loc -> {
+                        String prefix = loc.getURL().normalize().toASCIIString();
+                        return requestUri.startsWith(prefix);
+                    }).map(mavenRepositorySettings::getCredentials).filter(Objects::nonNull).findFirst().orElse(null);
+                });
+        agent.getAgent().registerService(CacheManager.SERVICE_NAME,
+                new TychoRepositoryTransportCacheManager(tychoRepositoryTransport, mavenContext));
+        agent.getAgent().registerService(Transport.SERVICE_NAME, tychoRepositoryTransport);
 
         if (disableP2Mirrors) {
             addP2MirrorDisablingRepositoryManager(agent, mavenContext.getLogger());
         }
 
         if (mavenRepositorySettings != null) {
+            agent.registerService(MavenRepositorySettings.class, mavenRepositorySettings);
             addMavenAwareRepositoryManagers(agent, mavenRepositorySettings, mavenContext.getLogger());
         }
 
@@ -122,10 +104,7 @@ public class RemoteAgent implements IProvisioningAgent {
     private static void addMavenAwareRepositoryManagers(AgentBuilder agent,
             MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
 
-        // register service which stores mapping between URLs and IDs (used by Maven)
-        RemoteRepositoryLoadingHelper loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings,
-                logger);
-        agent.registerService(IRepositoryIdManager.class, loadingHelper);
+        IRepositoryIdManager loadingHelper = agent.getAgent().getService(IRepositoryIdManager.class);
 
         // wrap metadata repository manager
         IMetadataRepositoryManager plainMetadataRepoManager = agent.getService(IMetadataRepositoryManager.class);

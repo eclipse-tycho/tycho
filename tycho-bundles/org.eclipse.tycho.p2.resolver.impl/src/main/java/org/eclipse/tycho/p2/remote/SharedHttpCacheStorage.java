@@ -48,7 +48,7 @@ import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.ecf.provider.filetransfer.util.ProxySetupHelper;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings.Credentials;
+import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
 public class SharedHttpCacheStorage {

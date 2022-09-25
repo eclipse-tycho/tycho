@@ -138,11 +138,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private DeclarativeServiceConfigurationReader dsConfigReader;
 
     @Override
-    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment) {
-        return getDependencyWalker(project);
-    }
-
-    @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {
         final DependencyArtifacts artifacts = getDependencyArtifacts(project);
 

@@ -201,7 +201,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                     return;
                 }
 
-                RepositoryReferences sources = getVisibleRepositories();
+                RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(),
+                        getSession(), RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
 
                 MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
 
@@ -233,11 +234,6 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Error copying resources", e);
         }
-    }
-
-    protected RepositoryReferences getVisibleRepositories() throws MojoExecutionException, MojoFailureException {
-        int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
-        return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
     }
 
     private List<Category> getCategories() {

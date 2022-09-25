@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2021 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -8,16 +8,22 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    Christoph Läubrich. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package bundle.test;
 
-import java.net.URI;
+public class Counter {
 
-public interface IRepositoryIdManager {
+	int count;
 
-    String SERVICE_NAME = IRepositoryIdManager.class.getName();
+	public void increment(int x) {
+		if (x < 0) {
+			throw new IllegalArgumentException();
+		}
+		count += x;
+	}
 
-    void addMapping(String id, URI location);
-
+	public int get() {
+		return count;
+	}
 }

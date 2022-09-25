@@ -26,15 +26,16 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
 class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
     private final IMetadataRepositoryManager delegate;
-    private final RemoteRepositoryLoadingHelper loadingHelper;
+    private final IRepositoryIdManager loadingHelper;
     private final MavenLogger logger;
 
-    RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, RemoteRepositoryLoadingHelper loadingHelper,
+    RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, IRepositoryIdManager loadingHelper,
             MavenLogger logger) {
         this.delegate = delegate;
         this.loadingHelper = loadingHelper;
@@ -50,8 +51,8 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
     }
 
     @Override
-    public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException,
-            OperationCanceledException {
+    public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor)
+            throws ProvisionException, OperationCanceledException {
         return this.loadRepository(location, IRepository.NONE, monitor);
     }
 
@@ -77,8 +78,7 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
             }
         }
         if (hasPartialIUs) {
-            String message = "The p2 repository at "
-                    + effectiveLocation
+            String message = "The p2 repository at " + effectiveLocation
                     + " contains partial IUs (see above) from an old style update site which cannot be used for dependency resolution";
             throw new ProvisionException(message);
         }
@@ -128,8 +128,8 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
     }
 
     @Override
-    public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException,
-            OperationCanceledException {
+    public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor)
+            throws ProvisionException, OperationCanceledException {
         return delegate.refreshRepository(translateAndPrepareLoad(location), monitor);
     }
 
