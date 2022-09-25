@@ -130,6 +130,9 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                         explanation.stream().map(Object::toString).collect(Collectors.joining("\n")),
                         selectionContext.toString(), StatusTool.findException(s));
             }
+            if (s.getSeverity() == IStatus.WARNING) {
+                logger.warn(StatusTool.collectProblems(s));
+            }
             Collection<IInstallableUnit> newState = projector.extractSolution();
 
             // remove fake IUs from resolved state
