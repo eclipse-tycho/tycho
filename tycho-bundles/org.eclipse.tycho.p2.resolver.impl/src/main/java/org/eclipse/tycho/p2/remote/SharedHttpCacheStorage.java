@@ -29,6 +29,7 @@ import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,7 +47,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
-import org.eclipse.ecf.provider.filetransfer.util.ProxySetupHelper;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -458,9 +458,9 @@ public class SharedHttpCacheStorage {
     private static IProxyData getProxyData(IProxyService proxyService, URI uri) throws IOException {
         if (proxyService != null) {
             IProxyData[] selected = proxyService.select(uri);
-            IProxyData proxyData = ProxySetupHelper.selectProxyFromProxies(uri.getScheme(), selected);
-            if (proxyData != null) {
-                return proxyData;
+            if (selected.length > 0) {
+                return Arrays.stream(selected).filter(p -> p.getType().equalsIgnoreCase(uri.getScheme())).findFirst()
+                        .orElse(selected[0]);
             }
         }
         return null;
