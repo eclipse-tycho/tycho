@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho.p2maven.repository;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 
-public interface CacheEntry {
+interface CacheEntry {
 
     long getLastModified(IProxyService proxyService, Function<URI, Credentials> credentialsProvider) throws IOException;
 

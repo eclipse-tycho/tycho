@@ -27,10 +27,12 @@ import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+@Ignore("Temporally disabled")
 public class RemoteAgentDisableP2MirrorsTest {
 
     @Rule

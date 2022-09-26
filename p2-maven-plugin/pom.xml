@@ -130,24 +130,29 @@
 		</dependency>
 		<!-- P2 -->
 		<dependency>
-		    <groupId>org.eclipse.platform</groupId>
-		    <artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>
-		    <version>1.2.300</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>
+			<version>1.2.300</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.eclipse.platform</groupId>
-		  <artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
-		  <version>1.4.400</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
+			<version>1.4.400</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.eclipse.platform</groupId>
-		  <artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>
-		  <version>2.3.300</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>
+			<version>2.3.300</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.eclipse.platform</groupId>
-		  <artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>
-		  <version>1.2.0</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.core.net</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 		<!-- Equinox -->
 		<dependency>
@@ -156,24 +161,24 @@
 			<version>1.2.100</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.eclipse.platform</groupId>
-		    <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
-		    <version>1.4.100</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+			<version>1.4.100</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.eclipse.platform</groupId>
-		    <artifactId>org.eclipse.equinox.app</artifactId>
-		    <version>1.6.200</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.app</artifactId>
+			<version>1.6.200</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.eclipse.platform</groupId>
-		    <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
-		    <version>1.2.200</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
+			<version>1.2.200</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.eclipse.platform</groupId>
-		    <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
-		    <version>2.2.0</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
+			<version>2.2.0</version>
 		</dependency>
 		<!-- ECF  -->
 		<dependency>
@@ -204,26 +209,26 @@
 
 		<!-- felix -->
 		<dependency>
-		    <groupId>org.apache.felix</groupId>
-		    <artifactId>org.apache.felix.scr</artifactId>
-		    <version>2.2.2</version>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.scr</artifactId>
+			<version>2.2.2</version>
 		</dependency>
 		<!-- OSGi API -->
 		<dependency>
-		    <groupId>org.osgi</groupId>
-		    <artifactId>org.osgi.service.component</artifactId>
-		    <version>1.5.0</version>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component</artifactId>
+			<version>1.5.0</version>
 		</dependency>
 		<!-- others -->
 		<dependency>
-		    <groupId>org.bouncycastle</groupId>
-		    <artifactId>bcpg-jdk15on</artifactId>
-		    <version>1.70</version>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpg-jdk15on</artifactId>
+			<version>1.70</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.bouncycastle</groupId>
-		    <artifactId>bcprov-jdk15on</artifactId>
-		    <version>1.70</version>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.70</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>

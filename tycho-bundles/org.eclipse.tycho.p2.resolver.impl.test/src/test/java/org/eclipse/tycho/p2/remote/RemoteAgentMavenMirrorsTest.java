@@ -32,10 +32,12 @@ import org.eclipse.tycho.p2.remote.testutil.MavenRepositorySettingsStub;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+@Ignore("Temporally disabled")
 public class RemoteAgentMavenMirrorsTest {
 
     private static final boolean OFFLINE = false;

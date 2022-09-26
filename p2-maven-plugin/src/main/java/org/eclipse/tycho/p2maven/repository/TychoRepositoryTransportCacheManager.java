@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.remote;
+package org.eclipse.tycho.p2maven.repository;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.shared.MavenContext;
 
 @SuppressWarnings("restriction")
 public class TychoRepositoryTransportCacheManager extends CacheManager {
@@ -31,14 +30,15 @@ public class TychoRepositoryTransportCacheManager extends CacheManager {
 
     private static final List<String> EXTENSIONS = List.of(".jar", ".xml");
 
-    private MavenContext mavenContext;
     private TychoRepositoryTransport transport;
 
-    public TychoRepositoryTransportCacheManager(TychoRepositoryTransport transport, MavenContext mavenContext) {
-        super(null, transport);
-        this.transport = transport;
-        this.mavenContext = mavenContext;
-    }
+	private File localRepositoryDir;
+
+	public TychoRepositoryTransportCacheManager(TychoRepositoryTransport transport, File localRepositoryDir) {
+		super(null, transport);
+		this.transport = transport;
+		this.localRepositoryDir = localRepositoryDir;
+	}
 
     @Override
     public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor)
@@ -73,7 +73,7 @@ public class TychoRepositoryTransportCacheManager extends CacheManager {
 
     @Override
     protected File getCacheDirectory() {
-        return new File(mavenContext.getLocalRepositoryRoot(), CACHE_RELPATH);
+		return new File(localRepositoryDir, CACHE_RELPATH);
     }
 
 }
