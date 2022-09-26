@@ -25,7 +25,6 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
@@ -37,8 +36,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
-import org.eclipse.tycho.p2.metadata.MetadataSerializable;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
@@ -51,13 +48,13 @@ public class RepositoryReferenceTool {
      * Option to indicate that the publisher results of the given module shall be included in the
      * list of repositories.
      */
-    public static int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
-
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory osgiServices;
+    public static final int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
     @Requirement
     private DefaultDependencyResolverFactory dependencyResolverLocator;
+
+    @Requirement
+    private MetadataSerializable serializer;
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list
@@ -113,7 +110,6 @@ public class RepositoryReferenceTool {
             File repositoryLocation = new File(project.getBuild().getDirectory(), "targetPlatformRepository");
             repositoryLocation.mkdirs();
             try (FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"))) {
-                MetadataSerializable serializer = osgiServices.getService(MetadataSerializable.class);
 
                 ReactorProject reactorProject = DefaultReactorProject.adapt(project);
                 TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);

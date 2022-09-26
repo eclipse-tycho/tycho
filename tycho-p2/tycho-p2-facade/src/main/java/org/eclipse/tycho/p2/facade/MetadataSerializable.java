@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.metadata;
+package org.eclipse.tycho.p2.facade;
 
 import java.io.IOException;
 import java.io.OutputStream;

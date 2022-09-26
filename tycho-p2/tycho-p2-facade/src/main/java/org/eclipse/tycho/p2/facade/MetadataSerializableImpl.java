@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.repo;
+package org.eclipse.tycho.p2.facade;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,27 +18,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryIO;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
-import org.eclipse.tycho.p2.impl.Activator;
-import org.eclipse.tycho.p2.metadata.MetadataSerializable;
 
-@SuppressWarnings("restriction")
+@Component(role = MetadataSerializable.class)
 public class MetadataSerializableImpl implements MetadataSerializable {
-    private final IProvisioningAgent agent;
-
-    public MetadataSerializableImpl() throws ProvisionException {
-        super();
-        this.agent = Activator.newProvisioningAgent();
-    }
+    @Requirement
+    private IProvisioningAgent agent;
 
     @Override
     public void serialize(OutputStream stream, Set<IInstallableUnit> installableUnits) throws IOException {

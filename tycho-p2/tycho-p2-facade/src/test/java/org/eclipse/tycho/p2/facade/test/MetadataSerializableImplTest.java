@@ -10,7 +10,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.repo;
+package org.eclipse.tycho.p2.facade.test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,6 +20,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.PlexusConstants;
+import org.codehaus.plexus.PlexusTestCase;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -28,26 +31,27 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.p2.impl.Activator;
-import org.eclipse.tycho.p2.impl.repo.MetadataSerializableImpl;
+import org.eclipse.tycho.p2.facade.MetadataSerializableImpl;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class MetadataSerializableImplTest {
+public class MetadataSerializableImplTest extends PlexusTestCase {
 
     private IProvisioningAgent agent;
 
-    @Before
-    public void setUp() throws ProvisionException {
-        agent = Activator.newProvisioningAgent();
+    @BeforeEach
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        agent = lookup(IProvisioningAgent.class);
     }
 
-    @After
-    public void tearDown() {
-        agent.stop();
+    @Override
+    protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
+        configuration.setAutoWiring(true);
+        configuration.setClassPathScanning(PlexusConstants.SCANNING_INDEX);
+
     }
 
     @Test
@@ -59,7 +63,7 @@ public class MetadataSerializableImplTest {
             Set<IInstallableUnit> units = new HashSet<>();
             MetadataSerializableImpl subject = new MetadataSerializableImpl();
             serialize(subject, units, tmpDir);
-            Assert.assertEquals(units, deserialize(tmpDir));
+            assertEquals(units, deserialize(tmpDir));
         } finally {
             deleteRecursive(tmpDir);
         }
@@ -74,7 +78,7 @@ public class MetadataSerializableImplTest {
                     Arrays.asList(InstallableUnitUtil.createIU("org.example.test", "1.0.0")));
             MetadataSerializableImpl subject = new MetadataSerializableImpl();
             serialize(subject, units, tmpDir);
-            Assert.assertEquals(units, deserialize(tmpDir));
+            assertEquals(units, deserialize(tmpDir));
         } finally {
             deleteRecursive(tmpDir);
         }
