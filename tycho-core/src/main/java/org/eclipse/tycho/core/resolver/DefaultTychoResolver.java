@@ -79,7 +79,7 @@ public class DefaultTychoResolver implements TychoResolver {
         }
 
         // skip if setup was already done
-        if (reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES) != null) {
+        if (reactorProject.getContextValue(ReactorProject.CTX_MERGED_PROPERTIES) != null) {
             return;
         }
 
@@ -93,7 +93,7 @@ public class DefaultTychoResolver implements TychoResolver {
         properties.putAll(project.getProperties());
         properties.putAll(session.getSystemProperties()); // session wins
         properties.putAll(session.getUserProperties());
-        reactorProject.setContextValue(TychoConstants.CTX_MERGED_PROPERTIES, properties);
+        reactorProject.setContextValue(ReactorProject.CTX_MERGED_PROPERTIES, properties);
 
         setTychoEnvironmentProperties(properties, project);
 
