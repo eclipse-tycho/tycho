@@ -124,7 +124,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
             TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        Properties properties = (Properties) reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        Properties properties = reactorProject.getProperties();
         if (properties != null) {
             String property = properties.getProperty("tycho.test.targetPlatform");
             if (property != null) {

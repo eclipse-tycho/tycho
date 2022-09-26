@@ -59,7 +59,6 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
@@ -203,7 +202,7 @@ public class EquinoxResolver {
         }
         logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");
         Properties properties = new Properties();
-        properties.putAll((Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES));
+        properties.putAll(project.getProperties());
 
         return getPlatformProperties(properties, mavenSession, environment, ee);
     }

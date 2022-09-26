@@ -80,7 +80,6 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
@@ -1143,8 +1142,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     private String decodeReturnCode(int result) {
         try {
-            Properties properties = (Properties) DefaultReactorProject.adapt(project)
-                    .getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+            Properties properties = DefaultReactorProject.adapt(project).getProperties();
             if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(properties))) {
                 int signal = result - 128;
                 if (signal > 0 && signal < UNIX_SIGNAL_NAMES.length) {
@@ -1192,8 +1190,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
         cli.addVMArguments("-Dosgi.noShutdown=false");
 
-        Properties properties = (Properties) DefaultReactorProject.adapt(project)
-                .getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        Properties properties = DefaultReactorProject.adapt(project).getProperties();
         cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
