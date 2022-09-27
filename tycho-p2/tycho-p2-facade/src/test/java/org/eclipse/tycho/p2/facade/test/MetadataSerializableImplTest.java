@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.facade.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,9 +22,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.codehaus.plexus.ContainerConfiguration;
-import org.codehaus.plexus.PlexusConstants;
-import org.codehaus.plexus.PlexusTestCase;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -33,25 +32,17 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2.facade.MetadataSerializableImpl;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MetadataSerializableImplTest extends PlexusTestCase {
+public class MetadataSerializableImplTest extends TychoPlexusTestCase {
 
     private IProvisioningAgent agent;
 
     @BeforeEach
-    @Override
     protected void setUp() throws Exception {
-        super.setUp();
         agent = lookup(IProvisioningAgent.class);
-    }
-
-    @Override
-    protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
-        configuration.setAutoWiring(true);
-        configuration.setClassPathScanning(PlexusConstants.SCANNING_INDEX);
-
     }
 
     @Test
