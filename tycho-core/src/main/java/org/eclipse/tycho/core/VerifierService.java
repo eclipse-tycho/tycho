@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.verifier.facade;
+package org.eclipse.tycho.core;
 
 import java.net.URI;
 

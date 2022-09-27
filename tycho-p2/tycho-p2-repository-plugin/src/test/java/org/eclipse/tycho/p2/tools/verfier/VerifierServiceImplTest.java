@@ -13,40 +13,41 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.verfier;
 
-import static org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest.sourceRepos;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.codehaus.plexus.logging.AbstractLogger;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.BuildOutputDirectory;
-import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.core.shared.MockMavenContext;
+import org.eclipse.tycho.core.VerifierService;
+import org.eclipse.tycho.core.VerifierServiceImpl;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.verifier.VerifierServiceImpl;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class VerifierServiceImplTest {
+public class VerifierServiceImplTest extends TychoPlexusTestCase {
 
     private ErrorStoreMemoryLog logger;
-    private VerifierServiceImpl subject;
+    private VerifierService subject;
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Before
-    public void setup() {
-        subject = new VerifierServiceImpl();
+    public void setup() throws Exception {
+        subject = lookup(VerifierService.class);
         logger = new ErrorStoreMemoryLog();
-        MavenContext mavenContext = new MockMavenContext(null, logger);
-        subject.setMavenContext(mavenContext);
+        VerifierServiceImpl impl = (VerifierServiceImpl) subject;
+        impl.setLogger(logger);
     }
 
     @Test
@@ -57,7 +58,7 @@ public class VerifierServiceImplTest {
 
     @Test
     public void testFileRepositoryWithWrongMd5Sum() throws Exception {
-        final RepositoryReferences repositories = sourceRepos("invalid/wrong_checksum");
+        final RepositoryReferences repositories = sourceRepos("wrong_checksum");
         assertEquals(false, verify(repositories));
         // we expect two errors to be reported: the feature "jarsinging.feature" has a wrong md5 hash and
         // the osgi.bundle "jarsigning" has also a wrong md5 hash.
@@ -73,7 +74,7 @@ public class VerifierServiceImplTest {
 
     @Test
     public void testFileRepositoryWithTamperedArtifact() throws Exception {
-        final RepositoryReferences repositories = sourceRepos("invalid/tampered_file");
+        final RepositoryReferences repositories = sourceRepos("tampered_file");
         assertEquals(false, verify(repositories));
         assertTrue(firstErrorLine().contains("osgi.bundle"));
         assertTrue(firstErrorLine().contains("jarsigning"));
@@ -82,7 +83,7 @@ public class VerifierServiceImplTest {
 
     @Test
     public void testMissingArtifactsReferencedInMetadata() throws Exception {
-        final RepositoryReferences repositories = sourceRepos("invalid/missing_artifacts");
+        final RepositoryReferences repositories = sourceRepos("missing_artifacts");
         assertEquals(false, verify(repositories));
         assertTrue(firstErrorLine().contains("osgi.bundle"));
         assertTrue(firstErrorLine().contains("tycho551.bundle1"));
@@ -102,49 +103,52 @@ public class VerifierServiceImplTest {
                 repositories.getArtifactRepositories().get(0), new BuildOutputDirectory(tempFolder.getRoot()));
     }
 
-    class ErrorStoreMemoryLog implements MavenLogger {
+    class ErrorStoreMemoryLog extends AbstractLogger {
+        public ErrorStoreMemoryLog() {
+            super(LEVEL_DEBUG, "TestLogger");
+        }
+
         List<String> errors = new ArrayList<>();
 
         @Override
-        public void error(String message) {
+        public void debug(String message, Throwable throwable) {
+
+        }
+
+        @Override
+        public void info(String message, Throwable throwable) {
+
+        }
+
+        @Override
+        public void warn(String message, Throwable throwable) {
+
+        }
+
+        @Override
+        public void error(String message, Throwable throwable) {
             errors.add(message);
+
         }
 
         @Override
-        public void error(String message, Throwable cause) {
-            error(message);
+        public void fatalError(String message, Throwable throwable) {
+
         }
 
         @Override
-        public void warn(String message) {
+        public Logger getChildLogger(String name) {
+            return null;
         }
+    }
 
-        @Override
-        public void warn(String message, Throwable cause) {
+    public static RepositoryReferences sourceRepos(String... repoIds) throws IOException {
+        RepositoryReferences result = new RepositoryReferences();
+        for (String repoId : repoIds) {
+            result.addMetadataRepository(resourceFile("repositories/" + repoId));
+            result.addArtifactRepository(resourceFile("repositories/" + repoId));
         }
-
-        @Override
-        public void info(String message) {
-        }
-
-        @Override
-        public void debug(String message) {
-        }
-
-        @Override
-        public boolean isDebugEnabled() {
-            return true;
-        }
-
-        @Override
-        public boolean isExtendedDebugEnabled() {
-            return true;
-        }
-
-        @Override
-        public void debug(String message, Throwable cause) {
-
-        }
+        return result;
     }
 
 }

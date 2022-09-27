@@ -11,13 +11,16 @@
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich - #225 MavenLogger is missing error method that accepts an exception
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.verifier;
+package org.eclipse.tycho.core;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -34,48 +37,46 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.BuildDirectory;
-import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.impl.Activator;
-import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
 
+@Component(role = VerifierService.class)
 public class VerifierServiceImpl implements VerifierService {
 
     private final NullProgressMonitor monitor = new NullProgressMonitor();
-    private MavenContext mavenContext;
+    @Requirement
+    IProvisioningAgent agent;
+
+    @Requirement
+    Logger logger;
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
 
     @Override
     public boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildDirectory tempDirectory)
             throws FacadeException {
-        MavenLogger logger = mavenContext.getLogger();
         logger.debug("Checking metadata from '" + metadataRepositoryUri + "' and artifacts from '"
                 + artifactRepositoryUri + "'");
-        IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
-            try {
-                final IMetadataRepository metadata = loadMetadataRepository(metadataRepositoryUri, agent);
-                final IArtifactRepository artifactRepository = loadArtifactRepository(artifactRepositoryUri, agent);
+            final IMetadataRepository metadata = loadMetadataRepository(metadataRepositoryUri, agent);
+            final IArtifactRepository artifactRepository = loadArtifactRepository(artifactRepositoryUri, agent);
 
-                boolean valid = true;
-                valid &= verifyReferencedArtifactsExist(metadata, artifactRepository, logger);
-                valid &= verifyAllArtifactContent(artifactRepository, logger);
-                if (valid) {
-                    logger.info("The integrity of the metadata repository '" + metadataRepositoryUri
-                            + "' and artifact repository '" + artifactRepositoryUri
-                            + "' has been verified successfully");
-                }
-                return valid;
-            } catch (ProvisionException e) {
-                throw new FacadeException(e);
+            boolean valid = true;
+            valid &= verifyReferencedArtifactsExist(metadata, artifactRepository, logger);
+            valid &= verifyAllArtifactContent(artifactRepository, logger);
+            if (valid) {
+                logger.info("The integrity of the metadata repository '" + metadataRepositoryUri
+                        + "' and artifact repository '" + artifactRepositoryUri + "' has been verified successfully");
             }
-        } finally {
-            agent.stop();
+            return valid;
+        } catch (ProvisionException e) {
+            throw new FacadeException(e);
         }
     }
 
     private boolean verifyReferencedArtifactsExist(final IMetadataRepository metadata,
-            final IArtifactRepository artifactRepository, MavenLogger logger) {
+            final IArtifactRepository artifactRepository, Logger logger) {
         final IQueryResult<IInstallableUnit> collector = metadata.query(QueryUtil.ALL_UNITS, monitor);
         boolean valid = true;
         for (Iterator<IInstallableUnit> iterator = collector.iterator(); iterator.hasNext();) {
@@ -88,7 +89,7 @@ public class VerifierServiceImpl implements VerifierService {
         return valid;
     }
 
-    private boolean verifyArtifactExists(IArtifactKey key, IArtifactRepository repository, MavenLogger logger) {
+    private boolean verifyArtifactExists(IArtifactKey key, IArtifactRepository repository, Logger logger) {
         final IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
         if (descriptors.length == 0) {
             logger.error("Missing artifact: " + key);
@@ -97,7 +98,7 @@ public class VerifierServiceImpl implements VerifierService {
         return true;
     }
 
-    private boolean verifyAllArtifactContent(IArtifactRepository repository, MavenLogger logger) {
+    private boolean verifyAllArtifactContent(IArtifactRepository repository, Logger logger) {
         boolean valid = true;
 
         IQueryResult<IArtifactKey> allKeys = repository
@@ -113,7 +114,7 @@ public class VerifierServiceImpl implements VerifierService {
         return valid;
     }
 
-    private boolean verifyArtifactContent(IArtifactRepository repository, MavenLogger logger,
+    private boolean verifyArtifactContent(IArtifactRepository repository, Logger logger,
             IArtifactDescriptor descriptor) {
         final IStatus status = repository.getArtifact(descriptor, new ByteArrayOutputStream(), monitor);
         if (!status.isOK()) {
@@ -122,7 +123,7 @@ public class VerifierServiceImpl implements VerifierService {
         return status.isOK();
     }
 
-    private void logErrorStatus(IStatus status, String indent, MavenLogger logger) {
+    private void logErrorStatus(IStatus status, String indent, Logger logger) {
         final Throwable exception = status.getException();
         if (exception == null) {
             logger.error(indent + status.getMessage());
@@ -144,10 +145,6 @@ public class VerifierServiceImpl implements VerifierService {
             throws ProvisionException {
         final IArtifactRepositoryManager repositoryManager = agent.getService(IArtifactRepositoryManager.class);
         return repositoryManager.loadRepository(artifactRepository, monitor);
-    }
-
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
     }
 
 }
