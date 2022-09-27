@@ -226,8 +226,12 @@ class PlexusConnectFramework //
 	public Optional<Bundle> getBundle(Class<?> classFromBundle) {
 		URI location = getLocationFromClass(classFromBundle);
 		if (location != null) {
-			debug("Searching bundle for class " + classFromBundle + " and location " + location);
 			BundleContext bundleContext = getFramework().getBundleContext();
+			if (bundleContext == null) {
+				// already shut down
+				return Optional.empty();
+			}
+			debug("Searching bundle for class " + classFromBundle + " and location " + location);
 			Bundle[] bundles = bundleContext.getBundles();
 			for (Bundle bundle : bundles) {
 				String bundleLocation = bundle.getLocation();
