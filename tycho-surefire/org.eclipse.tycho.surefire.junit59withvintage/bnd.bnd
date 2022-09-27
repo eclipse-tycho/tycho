@@ -1,6 +1,11 @@
 Import-Package: \
-	org.junit.jupiter.api.*;version='[5.8,5.9)',\
-	org.opentest4j;version='[1.2,2)',\
+	org.junit.jupiter.api.*;version='[5.9,6)',\
+	org.junit.runner.*;resolution:=optional;version='[4.12,5)',\
+	org.junit.runners.*;resolution:=optional;version='[4.12,5)',\
+	org.junit.experimental.categories;resolution:=optional;version='[4.12,5)',\
+	org.junit.internal.*;version='[4.12,5)';resolution:=optional,\
+	org.junit;resolution:=optional;version='[4.12,5)',\
+	junit.runner;resolution:=optional;version='[4.12,5)',\
 	!org.apache.maven.surefire.*,\
 	!org.apache.maven.plugin.surefire.*,\
 	*
