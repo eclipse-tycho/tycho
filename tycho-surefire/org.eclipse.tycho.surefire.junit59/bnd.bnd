@@ -1,5 +1,5 @@
 Import-Package: \
-	org.junit.jupiter.api.*;version='[5.8,5.9)',\
+	org.junit.jupiter.api.*;version='[5.9,6)',\
 	org.opentest4j;version='[1.2,2)',\
 	!org.apache.maven.surefire.*,\
 	!org.apache.maven.plugin.surefire.*,\

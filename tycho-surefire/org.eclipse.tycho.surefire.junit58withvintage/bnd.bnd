@@ -1,5 +1,5 @@
 Import-Package: \
-	org.junit.jupiter.api.*;version='[5.8,6)',\
+	org.junit.jupiter.api.*;version='[5.8,5.9)',\
 	org.junit.runner.*;resolution:=optional;version='[4.12,5)',\
 	org.junit.runners.*;resolution:=optional;version='[4.12,5)',\
 	org.junit.experimental.categories;resolution:=optional;version='[4.12,5)',\
