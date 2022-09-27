@@ -13,6 +13,7 @@
 package org.eclipse.tycho.extras.eclipserun;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -150,14 +151,13 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 	}
 
 	public void testExecutionEnvironmentIsRespectedDuringEclipseExecution() throws Exception {
-		setVariableValueToObject(runMojo, "executionEnvironment", "custom-ee");
 		@SuppressWarnings("deprecation")
-		org.apache.maven.toolchain.java.DefaultJavaToolChain customToolchain = mock(
+		org.apache.maven.toolchain.java.DefaultJavaToolChain mockToolchainForCustomEE = mock(
 				org.apache.maven.toolchain.java.DefaultJavaToolChain.class);
-		when(customToolchain.findTool("java")).thenReturn("/path/to/custom-ee-jdk/bin/java");
-		when(toolchainProvider.findMatchingJavaToolChain(any(), any())).thenAnswer(invocation -> {
-			return customToolchain;
-		});
+		when(mockToolchainForCustomEE.findTool("java")).thenReturn("/path/to/custom-ee-jdk/bin/java");
+		when(toolchainProvider.findMatchingJavaToolChain(any(), eq("custom-ee"))).thenReturn(mockToolchainForCustomEE);
+
+		setVariableValueToObject(runMojo, "executionEnvironment", "custom-ee");
 
 		LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
 
