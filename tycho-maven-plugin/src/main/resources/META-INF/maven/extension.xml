@@ -9,16 +9,22 @@
     <exportedPackage>org.eclipse.sisu.equinox</exportedPackage>
     <exportedPackage>org.eclipse.tycho.p2.resolver</exportedPackage>
     <!-- P2 Stuff TODO add more? -->
+    <exportedPackage>org.eclipse.equinox.internal.p2.updatesite</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.p2.core</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.metadata</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.publisher</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.publisher.eclipse</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.query</exportedPackage>
-    <exportedPackage>org.eclipse.equinox.internal.p2.updatesite</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.p2.repository.artifact</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.p2.repository.metadata</exportedPackage>
+    <!-- <exportedPackage>org.eclipse.core.runtime</exportedPackage>
+    <exportedPackage>org.eclipse.core.resources</exportedPackage>  -->
     <!-- other  -->
     <exportedPackage>de.pdark.decentxml</exportedPackage>
   </exportedPackages>
 
   <exportedArtifacts>
+  	<exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.embedder.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.embedder.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-embedder-api</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-metadata-model</exportedArtifact>

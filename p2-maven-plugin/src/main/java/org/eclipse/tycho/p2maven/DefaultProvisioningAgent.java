@@ -29,12 +29,19 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 
 	@Override
 	public Object getService(String serviceName) {
-		return serviceFactory.getService(IProvisioningAgent.class).getService(serviceName);
+		IProvisioningAgent agent = serviceFactory.getService(IProvisioningAgent.class);
+		if (agent != null) {
+			return agent.getService(serviceName);
+		}
+		return null;
 	}
 
 	@Override
 	public void registerService(String serviceName, Object service) {
-		serviceFactory.getService(IProvisioningAgent.class).registerService(serviceName, service);
+		IProvisioningAgent agent = serviceFactory.getService(IProvisioningAgent.class);
+		if (agent != null) {
+			agent.registerService(serviceName, service);
+		}
 	}
 
 	@Override
@@ -44,7 +51,10 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 
 	@Override
 	public void unregisterService(String serviceName, Object service) {
-		serviceFactory.getService(IProvisioningAgent.class).unregisterService(serviceName, service);
+		IProvisioningAgent agent = serviceFactory.getService(IProvisioningAgent.class);
+		if (agent != null) {
+			agent.unregisterService(serviceName, service);
+		}
 	}
 
 }

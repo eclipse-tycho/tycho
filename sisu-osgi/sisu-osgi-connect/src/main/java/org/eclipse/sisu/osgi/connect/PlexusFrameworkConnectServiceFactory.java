@@ -84,7 +84,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	}
 
 	protected String getName(ClassLoader classLoader) {
-		return classLoader instanceof ClassRealm classRealm ? classRealm.getId() :classLoader.toString();
+		return classLoader instanceof ClassRealm classRealm ? classRealm.getId() : classLoader.toString();
 	}
 
 	/**
@@ -186,7 +186,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 
 	protected ClassRealm getRealm(ClassLoader classloader) {
 		return classloader instanceof ClassRealm classRealm ? classRealm : //
-			loaderMap.computeIfAbsent(classloader, cl -> new DummyClassRealm("Not called from a ClassRealm", cl));
+				loaderMap.computeIfAbsent(classloader, cl -> new DummyClassRealm("Not called from a ClassRealm", cl));
 	}
 
 	private static Map<String, String> readProperties(ClassLoader classloader, Logger logger) {
@@ -275,7 +275,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		case ComponentConfigurationDTO.ACTIVE -> "ACTIVE     ";
 		case ComponentConfigurationDTO.FAILED_ACTIVATION -> "FAILED     ";
 		case ComponentConfigurationDTO.SATISFIED -> "SATISFIED  ";
-		case ComponentConfigurationDTO.UNSATISFIED_CONFIGURATION, ComponentConfigurationDTO.UNSATISFIED_REFERENCE -> "UNSATISFIED";
+		case ComponentConfigurationDTO.UNSATISFIED_CONFIGURATION, ComponentConfigurationDTO.UNSATISFIED_REFERENCE ->
+			"UNSATISFIED";
 		default -> String.valueOf(state);
 		};
 	}
