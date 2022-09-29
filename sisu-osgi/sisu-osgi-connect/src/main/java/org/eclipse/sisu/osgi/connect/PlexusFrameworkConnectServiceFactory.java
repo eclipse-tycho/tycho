@@ -387,4 +387,14 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		}
 		return null;
 	}
+
+	// DO NOT DELETE THIS METHOD! It is referenced by reflection in
+	// getForeignFramework!
+	public static Framework getOsgiFramework(ClassRealm realm) {
+		PlexusConnectFramework cachedFramework = frameworkMap.get(realm);
+		if (cachedFramework != null) {
+			return cachedFramework.getFramework();
+		}
+		return null;
+	}
 }
