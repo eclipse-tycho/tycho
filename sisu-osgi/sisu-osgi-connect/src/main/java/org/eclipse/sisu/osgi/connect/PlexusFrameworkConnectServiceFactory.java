@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.connect.ConnectFrameworkFactory;
 import org.osgi.framework.launch.Framework;
+import org.osgi.framework.wiring.FrameworkWiring;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.component.runtime.dto.ComponentConfigurationDTO;
 import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
@@ -138,6 +140,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		for (ClassRealm r : realms) {
 			connector.installRealm(r, osgiFramework.getBundleContext(), connectFramework);
 		}
+		FrameworkWiring wiring = osgiFramework.adapt(FrameworkWiring.class);
+		wiring.resolveBundles(Collections.emptyList());
 		osgiFramework.start();
 
 		for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
@@ -214,16 +218,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	}
 
 	private static void printFrameworkState(Framework framework, Logger log) {
-		Bundle[] bundles = framework.getBundleContext().getBundles();
-		log.info("============ Framework Bundles ==================");
-		Comparator<Bundle> bySymbolicName = Comparator.comparing(Bundle::getSymbolicName,
-				String.CASE_INSENSITIVE_ORDER);
-		Comparator<Bundle> byState = Comparator.comparingInt(Bundle::getState);
-		Arrays.stream(bundles).sorted(byState.thenComparing(bySymbolicName)).forEachOrdered(bundle -> {
-			String state = toBundleState(bundle.getState());
-			log.info(state + " | " + bundle.getSymbolicName() + " (" + bundle.getVersion() + ") at "
-					+ bundle.getLocation());
-		});
+		Bundle[] bundles = printBundles(framework, log);
 		ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime> st = new ServiceTracker<>(
 				framework.getBundleContext(), ServiceComponentRuntime.class, null);
 		st.open();
@@ -268,6 +263,20 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 					log.info(service + " registered by " + reference.getBundle().getSymbolicName() + " | "
 							+ reference.getProperties());
 				});
+	}
+
+	private static Bundle[] printBundles(Framework framework, Logger log) {
+		Bundle[] bundles = framework.getBundleContext().getBundles();
+		log.info("============ Framework Bundles ==================");
+		Comparator<Bundle> bySymbolicName = Comparator.comparing(Bundle::getSymbolicName,
+				String.CASE_INSENSITIVE_ORDER);
+		Comparator<Bundle> byState = Comparator.comparingInt(Bundle::getState);
+		Arrays.stream(bundles).sorted(byState.thenComparing(bySymbolicName)).forEachOrdered(bundle -> {
+			String state = toBundleState(bundle.getState());
+			log.info(state + " | " + bundle.getSymbolicName() + " (" + bundle.getVersion() + ") at "
+					+ bundle.getLocation());
+		});
+		return bundles;
 	}
 
 	private static String toComponentState(int state) {
