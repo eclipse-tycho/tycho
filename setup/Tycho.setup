@@ -86,19 +86,9 @@
   <setupTask
       xsi:type="setup.p2:P2Task">
     <requirement
-        name="org.sonatype.m2e.plexus.annotations.feature.feature.group"/>
-    <requirement
-        name="com.ianbrandt.tools.m2e.mdp.feature.feature.group"/>
-    <requirement
         name="org.eclipse.m2e.feature.feature.group"/>
     <requirement
         name="org.eclipse.m2e.logback.feature.feature.group"/>
-    <repository
-        url="https://repo1.maven.org/maven2/.m2e/connectors/m2eclipse-plexus/0.15.0/N/0.15.0.201409152016/"/>
-    <repository
-        url="https://repo1.maven.org/maven2/.m2e/connectors/mavendev/0.5.0/N/0.5.0.201807010411/"/>
-    <repository
-        url="http://ianbrandt.github.io/m2e-maven-dependency-plugin/"/>
     <repository
         url="https://download.eclipse.org/technology/m2e/releases/latest/"/>
     <description>P2 Update Sites for the m2e connectors</description>
