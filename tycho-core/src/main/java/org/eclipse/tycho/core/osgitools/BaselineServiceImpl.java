@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.baseline;
+package org.eclipse.tycho.core.osgitools;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -25,7 +25,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -43,23 +47,24 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
-import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.impl.publisher.P2Artifact;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
-import org.eclipse.tycho.p2.remote.RemoteAgentManager;
-import org.eclipse.tycho.p2.tools.baseline.facade.BaselineService;
 import org.eclipse.tycho.repository.util.StatusTool;
 
-@SuppressWarnings("restriction")
+@Component(role = BaselineService.class)
 public class BaselineServiceImpl implements BaselineService {
 
     private IProgressMonitor monitor = new NullProgressMonitor();
 
-    // @Inject
-    private RemoteAgentManager remoteAgentManager;
-    private MavenContext mavenContext;
+    @Requirement(hint = TychoServiceFactory.HINT)
+    private EquinoxServiceFactory equinox;
+
+    @Requirement
+    private Logger logger;
 
     @Override
     public Map<String, IP2Artifact> getProjectBaseline(Collection<MavenRepositoryLocation> baselineLocations,
@@ -73,38 +78,35 @@ public class BaselineServiceImpl implements BaselineService {
         CompositeMetadataRepository baselineUnits;
         CompositeArtifactRepository baselineArtifacts;
 
-        try {
-            IProvisioningAgent remoteAgent = remoteAgentManager.getProvisioningAgent();
-            IRepositoryIdManager remoteRepositoryIdManager = remoteAgent.getService(IRepositoryIdManager.class);
-            IMetadataRepositoryManager remoteMetadataRepositoryManager = remoteAgent
-                    .getService(IMetadataRepositoryManager.class);
-            IArtifactRepositoryManager remoteArtifactRepositoryManager = remoteAgent
-                    .getService(IArtifactRepositoryManager.class);
+        IProvisioningAgent remoteAgent = Objects.requireNonNull(equinox.getService(IProvisioningAgent.class),
+                "IProvisioningAgent is not found!");
+        IRepositoryIdManager remoteRepositoryIdManager = remoteAgent.getService(IRepositoryIdManager.class);
+        IMetadataRepositoryManager remoteMetadataRepositoryManager = remoteAgent
+                .getService(IMetadataRepositoryManager.class);
+        IArtifactRepositoryManager remoteArtifactRepositoryManager = remoteAgent
+                .getService(IArtifactRepositoryManager.class);
 
-            baselineUnits = CompositeMetadataRepository.createMemoryComposite(remoteAgent);
-            baselineArtifacts = CompositeArtifactRepository.createMemoryComposite(remoteAgent);
+        baselineUnits = CompositeMetadataRepository.createMemoryComposite(remoteAgent);
+        baselineArtifacts = CompositeArtifactRepository.createMemoryComposite(remoteAgent);
 
-            for (MavenRepositoryLocation location : baselineLocations) {
-                URI url = location.getURL();
+        for (MavenRepositoryLocation location : baselineLocations) {
+            URI url = location.getURL();
 
-                try {
-                    remoteRepositoryIdManager.addMapping(location.getId(), url);
+            try {
+                remoteRepositoryIdManager.addMapping(location.getId(), url);
 
-                    // TODO offline mode https://bugs.eclipse.org/bugs/show_bug.cgi?id=337022
+                // TODO offline mode https://bugs.eclipse.org/bugs/show_bug.cgi?id=337022
 
-                    // not strictly necessary, but makes sure metadata download is visible in the console/log
-                    remoteMetadataRepositoryManager.loadRepository(url, monitor);
-                    remoteArtifactRepositoryManager.loadRepository(url, monitor);
+                // not strictly necessary, but makes sure metadata download is visible in the console/log
+                remoteMetadataRepositoryManager.loadRepository(url, monitor);
+                remoteArtifactRepositoryManager.loadRepository(url, monitor);
 
-                    baselineUnits.addChild(url);
-                    baselineArtifacts.addChild(url);
-                } catch (ProvisionException e) {
-                    // baseline repository may not exist yet
-                    mavenContext.getLogger().warn(e.getMessage(), e);
-                }
+                baselineUnits.addChild(url);
+                baselineArtifacts.addChild(url);
+            } catch (ProvisionException e) {
+                // baseline repository may not exist yet
+                logger.warn(e.getMessage(), e);
             }
-        } catch (ProvisionException e) {
-            throw new RuntimeException(e);
         }
 
         Map<String, IP2Artifact> result = new LinkedHashMap<>();
@@ -201,16 +203,6 @@ public class BaselineServiceImpl implements BaselineService {
     public boolean isMetadataEqual(IP2Artifact baseline, IP2Artifact reactor) {
         // TODO Auto-generated method stub
         return true;
-    }
-
-    // OSGi DS
-
-    public void setRemoteAgentManager(RemoteAgentManager remoteAgentManager) {
-        this.remoteAgentManager = remoteAgentManager;
-    }
-
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
     }
 
 }

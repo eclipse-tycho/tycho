@@ -36,14 +36,12 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
+import org.eclipse.tycho.core.osgitools.BaselineService;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
-import org.eclipse.tycho.p2.tools.baseline.facade.BaselineService;
 import org.eclipse.tycho.zipcomparator.internal.CompoundArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 
@@ -68,8 +66,8 @@ public class BaselineValidator {
     @Requirement(hint = "zip")
     private ArtifactComparator zipComparator;
 
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory equinox;
+    @Requirement
+    BaselineService baselineService;
 
     public Map<String, IP2Artifact> validateAndReplace(MavenProject project, ComparisonData data,
             Map<String, IP2Artifact> reactorMetadata, List<Repository> baselineRepositories, BaselineMode baselineMode,
@@ -86,8 +84,6 @@ public class BaselineValidator {
             }
 
             File baselineBasedir = new File(project.getBuild().getDirectory(), "baseline");
-
-            BaselineService baselineService = getService(BaselineService.class);
 
             Map<String, IP2Artifact> baselineMetadata = baselineService.getProjectBaseline(repositories,
                     reactorMetadata, baselineBasedir);
@@ -257,14 +253,6 @@ public class BaselineValidator {
                 ? new CompoundArtifactDelta("baseline and build artifacts have same version but different contents",
                         result)
                 : null;
-    }
-
-    private <T> T getService(Class<T> type) {
-        T service = equinox.getService(type);
-        if (service == null) {
-            throw new IllegalStateException("Could not acquire service " + type);
-        }
-        return service;
     }
 
 }

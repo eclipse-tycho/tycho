@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.baseline.facade;
+package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.util.Collection;
