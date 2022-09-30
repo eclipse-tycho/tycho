@@ -29,8 +29,6 @@
 		<!-- classes shared between Maven and OSGi class loaders -->
 		<module>org.eclipse.tycho.embedder.shared</module>
 		<module>org.eclipse.tycho.core.shared</module>
-		<module>org.eclipse.tycho.p2.resolver.shared</module>
-		<module>org.eclipse.tycho.p2.tools.shared</module>
 
 		<!-- implementations -->
 		<module>org.eclipse.tycho.p2.resolver.impl</module>
@@ -41,7 +39,6 @@
 		<!-- unit tests -->
 		<module>org.eclipse.tycho.core.shared.tests</module>
 		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
-		<module>org.eclipse.tycho.p2.resolver.shared.tests</module>
 		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
 		<module>org.eclipse.tycho.p2.tools.tests</module>
 		<module>org.eclipse.tycho.test.utils</module>

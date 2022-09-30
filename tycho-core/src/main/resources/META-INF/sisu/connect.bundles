@@ -33,8 +33,6 @@ org.eclipse.equinox.p2.touchpoint.eclipse,true
 org.eclipse.equinox.p2.garbagecollector,true
 org.eclipse.tycho.noopsecurity,true
 
-org.eclipse.tycho.p2.tools.shared
-org.eclipse.tycho.p2.resolver.shared
 org.eclipse.tycho.embedder.shared
 org.eclipse.tycho.embedder-api
 org.eclipse.tycho.core.shared

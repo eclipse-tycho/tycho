@@ -283,11 +283,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.shared</artifactId>
-			<version>${tycho-build-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
 			<version>${tycho-build-version}</version>
 		</dependency>
