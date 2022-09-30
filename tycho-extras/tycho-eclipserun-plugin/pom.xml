@@ -15,7 +15,7 @@
   <parent>
     <artifactId>tycho-extras</artifactId>
     <groupId>org.eclipse.tycho.extras</groupId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>tycho-eclipserun-plugin</artifactId>

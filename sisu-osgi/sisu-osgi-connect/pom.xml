@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.eclipse.tycho</groupId>
     <artifactId>sisu-osgi</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>sisu-osgi-connect</artifactId>
   <name>Sisu Implementation of the OSGi R8 Framework Connect Specification</name>

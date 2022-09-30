@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho.extras</groupId>
 		<artifactId>tycho-extras</artifactId>
-		<version>3.0.0</version>
+		<version>3.0.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>target-platform-validation-plugin</artifactId>

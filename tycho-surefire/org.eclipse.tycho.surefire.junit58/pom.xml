@@ -15,7 +15,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho-surefire</artifactId>
-		<version>3.0.0</version>
+		<version>3.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.tycho.surefire.junit58</artifactId>
 	<packaging>jar</packaging>
