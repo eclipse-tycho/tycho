@@ -34,7 +34,6 @@ Import-Package: org.apache.commons.io;version="2.6.0",
  org.eclipse.tycho.p2.target,
  org.eclipse.tycho.p2.target.ee,
  org.eclipse.tycho.p2.tools,
- org.eclipse.tycho.p2.tools.baseline.facade,
  org.eclipse.tycho.p2.tools.director.shared,
  org.eclipse.tycho.p2.tools.mirroring.facade,
  org.eclipse.tycho.p2.tools.publisher.facade,
@@ -43,8 +42,7 @@ Import-Package: org.apache.commons.io;version="2.6.0",
  org.eclipse.tycho.repository.registry.facade,
  org.eclipse.tycho.repository.util,
  org.osgi.framework;version="[1.5.0,2.0.0)"
-Service-Component: OSGI-INF/directorapp.xml, OSGI-INF/publisherfactory.xml, OSGI-INF/mirrorapp.xml,
- OSGI-INF/baseline.xml
+Service-Component: OSGI-INF/directorapp.xml, OSGI-INF/publisherfactory.xml, OSGI-INF/mirrorapp.xml
 Bundle-Activator: org.eclipse.tycho.p2.tools.impl.Activator
 Bundle-Vendor: %providerName
 Bundle-ActivationPolicy: lazy
