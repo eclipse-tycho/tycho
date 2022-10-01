@@ -46,11 +46,11 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
-import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
 
 /**
  * Base implementation of a mutable, file system based p2 artifact repository. This class manages

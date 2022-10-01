@@ -15,6 +15,8 @@ package org.eclipse.tycho.repository.p2base.artifact.provider.streaming;
 import java.io.OutputStream;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
 
 class StreamArtifactSink implements IArtifactSink {
 

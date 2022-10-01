@@ -16,6 +16,8 @@ import java.io.OutputStream;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
 
 public final class ArtifactSinkFactory {
 

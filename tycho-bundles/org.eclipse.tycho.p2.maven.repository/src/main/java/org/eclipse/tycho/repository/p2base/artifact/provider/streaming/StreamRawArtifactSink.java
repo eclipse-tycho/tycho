@@ -15,6 +15,7 @@ package org.eclipse.tycho.repository.p2base.artifact.provider.streaming;
 import java.io.OutputStream;
 
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
 
 final class StreamRawArtifactSink extends StreamArtifactSink implements IRawArtifactSink {
 
