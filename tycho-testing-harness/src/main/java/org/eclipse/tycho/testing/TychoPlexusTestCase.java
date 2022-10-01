@@ -13,7 +13,6 @@
 package org.eclipse.tycho.testing;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.PlexusConstants;
@@ -41,7 +40,7 @@ public class TychoPlexusTestCase {
         return ext.getContainer().lookup(role);
     }
 
-    public static File resourceFile(String path) throws IOException {
+    public static File resourceFile(String path) {
         File resolvedFile = new File("src/test/resources", path).getAbsoluteFile();
 
         if (!resolvedFile.canRead()) {

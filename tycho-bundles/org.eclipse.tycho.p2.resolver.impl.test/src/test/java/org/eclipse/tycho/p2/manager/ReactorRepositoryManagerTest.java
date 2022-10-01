@@ -33,7 +33,7 @@ import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 import org.eclipse.tycho.test.util.MavenServiceStubbingTestBase;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;

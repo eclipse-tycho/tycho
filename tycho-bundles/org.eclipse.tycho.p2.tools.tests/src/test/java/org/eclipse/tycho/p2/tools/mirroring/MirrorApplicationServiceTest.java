@@ -40,9 +40,9 @@ import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.DependencySeedUtil;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.publisher.DependencySeedUtil;
 import org.eclipse.tycho.p2.tools.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
@@ -97,7 +97,8 @@ public class MirrorApplicationServiceTest {
         // make sure that this unsupported case is detected; the mirror application would just mirror everything
         Collection<DependencySeed> noSeeds = Collections.emptyList();
 
-        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, false, false, null);
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, false,
+                false, null);
     }
 
     @Test
@@ -170,7 +171,8 @@ public class MirrorApplicationServiceTest {
          * since it is not easy to distinguish between patched and unpatched dependencies, only a
          * warning is issued.
          */
-        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, false, false, false, null);
+        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, false,
+                false, false, null);
 
         logVerifier.expectWarning(not(is("")));
     }

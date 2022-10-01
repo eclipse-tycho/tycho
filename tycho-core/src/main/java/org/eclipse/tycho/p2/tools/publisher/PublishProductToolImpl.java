@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
@@ -36,7 +37,6 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.target.ArtifactTypeHelper;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
@@ -56,10 +56,10 @@ public class PublishProductToolImpl implements PublishProductTool {
 
     private final String buildQualifier;
     private final Interpolator interpolator;
-    private final MavenLogger logger;
+    private final Logger logger;
 
     public PublishProductToolImpl(PublisherActionRunner publisherRunner, PublishingRepository publishingRepository,
-            P2TargetPlatform targetPlatform, String buildQualifier, Interpolator interpolator, MavenLogger logger) {
+            P2TargetPlatform targetPlatform, String buildQualifier, Interpolator interpolator, Logger logger) {
         this.publisherRunner = publisherRunner;
         this.publishingRepository = publishingRepository;
         this.targetPlatform = targetPlatform;

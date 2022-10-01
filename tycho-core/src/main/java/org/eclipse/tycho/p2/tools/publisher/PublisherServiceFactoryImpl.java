@@ -14,21 +14,27 @@ package org.eclipse.tycho.p2.tools.publisher;
 
 import java.util.List;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
-import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
+@Component(role = PublisherServiceFactory.class)
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
-    private MavenContext mavenContext;
+    @Requirement
     private ReactorRepositoryManager reactorRepoManager;
+
+    @Requirement
+    private Logger logger;
 
     @Override
     public PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments) {
@@ -47,31 +53,14 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
         PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project.getIdentities());
 
         return new PublishProductToolImpl(publisherRunner, publishingRepository, targetPlatform, buildQualifier,
-                interpolator, mavenContext.getLogger());
+                interpolator, logger);
     }
 
     private PublisherActionRunner getPublisherRunnerForProject(P2TargetPlatform targetPlatform,
             List<TargetEnvironment> environments) {
-        checkCollaborators();
 
         return new PublisherActionRunner(targetPlatform.getInstallableUnitsAsMetadataRepository(), environments,
-                mavenContext.getLogger());
-    }
-
-    // setters for DS
-
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
-    }
-
-    public void setReactorRepositoryManager(ReactorRepositoryManager reactorRepoManager) {
-        this.reactorRepoManager = reactorRepoManager;
-    }
-
-    private void checkCollaborators() {
-        if (mavenContext == null || reactorRepoManager == null) {
-            throw new IllegalStateException(); // shoudn't happen; see OSGI-INF/publisherfactory.xml
-        }
+                logger);
     }
 
 }

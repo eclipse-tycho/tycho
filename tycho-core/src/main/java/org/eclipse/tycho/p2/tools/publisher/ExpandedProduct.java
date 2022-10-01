@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductContentType;
@@ -30,9 +31,9 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.Interpolator;
-import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.VersioningHelper;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 
 @SuppressWarnings({ "restriction" })
@@ -51,12 +52,12 @@ class ExpandedProduct implements IProductDescriptor {
     private final MultiLineLogger logger;
 
     public ExpandedProduct(IProductDescriptor originalProduct, String buildQualifier, P2TargetPlatform targetPlatform,
-            Interpolator interpolator, MavenLogger logger) {
+            Interpolator interpolator, Logger logger) {
         this.defaults = originalProduct;
         this.expandedVersion = VersioningHelper.expandQualifier(originalProduct.getVersion(), buildQualifier);
         this.targetPlatform = targetPlatform;
         this.interpolator = interpolator;
-        this.logger = new MultiLineLogger(logger);
+        this.logger = new MultiLineLogger(new MavenLoggerAdapter(logger, false));
 
         expandVersions();
     }
