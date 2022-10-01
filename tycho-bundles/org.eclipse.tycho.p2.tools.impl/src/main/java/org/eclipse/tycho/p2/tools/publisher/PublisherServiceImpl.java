@@ -32,7 +32,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 
 @SuppressWarnings("restriction")
-class PublisherServiceImpl implements PublisherService {
+public class PublisherServiceImpl implements PublisherService {
 
     private final PublisherActionRunner publisherRunner;
     private final String qualifier;

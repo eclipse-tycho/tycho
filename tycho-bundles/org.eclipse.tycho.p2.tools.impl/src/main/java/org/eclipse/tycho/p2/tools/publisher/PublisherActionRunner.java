@@ -32,7 +32,7 @@ import org.eclipse.tycho.repository.util.StatusTool;
  * Helper for running publisher actions in the context of a project.
  */
 @SuppressWarnings("restriction")
-class PublisherActionRunner {
+public class PublisherActionRunner {
 
     private IMetadataRepository contextIUs;
     private List<TargetEnvironment> environments;

@@ -10,12 +10,11 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.registry;
+package org.eclipse.tycho.repository.registry.facade;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
-import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
 public interface ReactorRepositoryManager extends ReactorRepositoryManagerFacade {
 
