@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <components xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0">
   <scr:component name="org.eclipse.tycho.p2.P2Generator">
-     <implementation class="org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl"/>
+     <implementation class="org.eclipse.tycho.p2.impl.P2GeneratorImpl"/>
      <service>
         <provide interface="org.eclipse.tycho.p2.metadata.P2Generator"/>
      </service>
@@ -9,7 +9,7 @@
      <reference bind="setMavenContext" cardinality="1..1" interface="org.eclipse.tycho.core.shared.MavenContext" name="MavenContext" policy="static"/>
   </scr:component>
   <scr:component name="org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator">
-     <implementation class="org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator"/>
+     <implementation class="org.eclipse.tycho.p2.impl.DefaultDependencyMetadataGenerator"/>
      <property name='role-hint'>dependency-only</property>
      <service>
         <provide interface="org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator"/>
@@ -18,7 +18,7 @@
      <reference bind="setMavenContext" cardinality="1..1" interface="org.eclipse.tycho.core.shared.MavenContext" name="MavenContext" policy="static"/>
   </scr:component>
   <scr:component name="org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator">
-     <implementation class="org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator"/>
+     <implementation class="org.eclipse.tycho.p2.impl.SourcesBundleDependencyMetadataGenerator"/>
      <property name='role-hint'>source-bundle</property>
      <service>
         <provide interface="org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator"/>

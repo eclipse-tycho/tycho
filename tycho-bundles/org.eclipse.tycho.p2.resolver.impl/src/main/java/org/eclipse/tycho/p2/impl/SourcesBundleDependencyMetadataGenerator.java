@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher;
+package org.eclipse.tycho.p2.impl;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -27,6 +27,10 @@ import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.p2.impl.publisher.AbstractMetadataGenerator;
+import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
+import org.eclipse.tycho.p2.impl.publisher.DownloadStatsAdvice;
+import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;

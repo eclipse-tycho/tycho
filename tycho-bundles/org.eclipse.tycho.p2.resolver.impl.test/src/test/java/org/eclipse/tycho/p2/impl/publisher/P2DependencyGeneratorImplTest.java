@@ -30,6 +30,7 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MockMavenContext;
+import org.eclipse.tycho.p2.impl.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
