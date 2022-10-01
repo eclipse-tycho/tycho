@@ -18,7 +18,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactProvider;
+import org.eclipse.tycho.p2.artifact.provider.IArtifactProvider;
 
 /**
  * Policy for picking the internally used artifact format when obtaining an artifact. Different

@@ -10,7 +10,7 @@
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.p2base.artifact.provider.streaming;
+package org.eclipse.tycho.p2.artifact.provider.streaming;
 
 /**
  * Exception thrown when one of the operations of {@link IArtifactSink} fails.

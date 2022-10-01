@@ -10,7 +10,7 @@
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.p2base.artifact.provider;
+package org.eclipse.tycho.p2.artifact.provider;
 
 import java.io.File;
 

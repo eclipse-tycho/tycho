@@ -28,9 +28,10 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.IRawArtifactProvider;
+import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
 
 public abstract class CompositeArtifactProviderBaseImpl implements IRawArtifactProvider {
 

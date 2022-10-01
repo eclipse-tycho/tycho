@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
 
 public class ProbeArtifactSink implements IArtifactSink {
 

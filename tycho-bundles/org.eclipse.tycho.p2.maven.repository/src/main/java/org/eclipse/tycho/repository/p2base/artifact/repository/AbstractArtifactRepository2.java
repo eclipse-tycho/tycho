@@ -35,10 +35,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
-import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.IRawArtifactProvider;
+import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
 
 /**
  * Base class for {@link IArtifactRepository} implementations that fixes some problems in the p2 API

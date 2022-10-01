@@ -10,14 +10,14 @@
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.p2base.artifact.provider;
+package org.eclipse.tycho.p2.artifact.provider;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
 
 /**
  * Provider for artifact content.

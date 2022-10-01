@@ -39,11 +39,11 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProviderBaseImpl;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
 
 public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImpl {
 
