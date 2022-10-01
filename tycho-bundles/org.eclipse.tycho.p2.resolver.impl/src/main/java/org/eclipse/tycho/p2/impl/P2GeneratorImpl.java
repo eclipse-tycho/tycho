@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - fix handling of optional secondary metadata
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher;
+package org.eclipse.tycho.p2.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,6 +45,16 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.p2.impl.publisher.AbstractMetadataGenerator;
+import org.eclipse.tycho.p2.impl.publisher.AuthoredIUAction;
+import org.eclipse.tycho.p2.impl.publisher.BundleDependenciesAction;
+import org.eclipse.tycho.p2.impl.publisher.CategoryDependenciesAction;
+import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
+import org.eclipse.tycho.p2.impl.publisher.DownloadStatsAdvice;
+import org.eclipse.tycho.p2.impl.publisher.FeatureDependenciesAction;
+import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
+import org.eclipse.tycho.p2.impl.publisher.P2Artifact;
+import org.eclipse.tycho.p2.impl.publisher.ProductDependenciesAction;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
