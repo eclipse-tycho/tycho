@@ -37,7 +37,7 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
-import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
