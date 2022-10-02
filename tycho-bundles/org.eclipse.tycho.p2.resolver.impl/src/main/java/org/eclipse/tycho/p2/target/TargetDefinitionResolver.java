@@ -49,6 +49,7 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
+import org.eclipse.tycho.p2.impl.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.resolver.FileTargetDefinitionContent;
 import org.eclipse.tycho.p2.resolver.InstallableUnitResolver;
 import org.eclipse.tycho.p2.resolver.MavenTargetDefinitionContent;

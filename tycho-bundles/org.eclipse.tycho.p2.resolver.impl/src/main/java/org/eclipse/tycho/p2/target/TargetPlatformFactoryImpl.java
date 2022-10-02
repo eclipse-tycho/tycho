@@ -58,6 +58,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.p2.impl.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
