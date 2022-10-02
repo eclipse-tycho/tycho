@@ -66,6 +66,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
+import org.eclipse.tycho.p2.impl.P2ResolverFactoryImpl;
 import org.eclipse.tycho.p2.impl.publisher.AuthoredIUAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;

@@ -35,6 +35,7 @@ import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 import org.eclipse.tycho.core.shared.MockMavenContext;
+import org.eclipse.tycho.p2.impl.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.remote.RemoteAgent;

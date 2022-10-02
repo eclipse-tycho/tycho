@@ -13,7 +13,7 @@
  *                         Issue #443 - Use regular Maven coordinates -when possible- for dependencies 
  *                         Issue #822 - If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2.impl;
 
 import java.io.File;
 import java.util.AbstractMap.SimpleEntry;
@@ -47,9 +47,9 @@ import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
+import org.eclipse.tycho.p2.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
-import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ResolutionData;
