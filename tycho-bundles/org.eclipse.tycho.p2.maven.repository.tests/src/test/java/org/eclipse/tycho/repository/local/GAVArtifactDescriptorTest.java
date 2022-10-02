@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.GAVArtifactDescriptor;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.junit.Test;
 

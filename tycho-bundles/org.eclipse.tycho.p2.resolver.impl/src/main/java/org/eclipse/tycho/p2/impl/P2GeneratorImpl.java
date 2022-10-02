@@ -59,13 +59,13 @@ import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
-import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
-import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
+import org.eclipse.tycho.p2.repository.ArtifactsIO;
+import org.eclipse.tycho.p2.repository.MetadataIO;
 
 @SuppressWarnings("restriction")
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {

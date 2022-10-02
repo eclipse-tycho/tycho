@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
+import org.eclipse.tycho.p2.repository.module.ModuleArtifactRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.BeforeClass;

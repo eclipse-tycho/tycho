@@ -38,7 +38,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.impl.Activator;
-import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
+import org.eclipse.tycho.p2.repository.MetadataIO;
 
 @SuppressWarnings("restriction")
 public class AuthoredIUAction extends AbstractPublisherAction implements IPublisherAction {

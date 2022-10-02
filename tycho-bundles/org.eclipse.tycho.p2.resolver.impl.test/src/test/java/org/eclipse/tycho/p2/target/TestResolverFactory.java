@@ -38,6 +38,9 @@ import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
+import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
+import org.eclipse.tycho.p2.maven.repository.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
@@ -47,9 +50,6 @@ import org.eclipse.tycho.p2.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
-import org.eclipse.tycho.repository.local.LocalArtifactRepository;
-import org.eclipse.tycho.repository.local.LocalMetadataRepository;
-import org.eclipse.tycho.repository.local.index.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 
 public class TestResolverFactory implements P2ResolverFactory {

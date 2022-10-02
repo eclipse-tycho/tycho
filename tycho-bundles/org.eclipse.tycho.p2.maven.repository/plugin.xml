@@ -15,7 +15,7 @@
          id="org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository"
          point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
       <factory
-            class="org.eclipse.tycho.repository.local.LocalArtifactRepositoryFactory">
+            class="org.eclipse.tycho.p2.maven.repository.LocalArtifactRepositoryFactory">
       </factory>
       <filter
             suffix=".meta/p2-artifacts.properties" />
@@ -24,7 +24,7 @@
          id="org.eclipse.tycho.repository.module.ModuleArtifactRepository"
          point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
       <factory
-            class="org.eclipse.tycho.repository.module.ModuleArtifactRepositoryFactory">
+            class="org.eclipse.tycho.p2.repository.module.ModuleArtifactRepositoryFactory">
       </factory>
       <filter
             suffix="p2artifacts.xml">
@@ -34,7 +34,7 @@
          id="org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard"
          point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
       <factory
-            class="org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard">
+            class="org.eclipse.tycho.p2.maven.repository.ArtifactRepositoryBlackboard">
       </factory>
       <filter
             suffix="@memory"/>
@@ -43,7 +43,7 @@
          id="org.eclipse.tycho.repository.module.ModuleMetadataRepository"
          point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
       <factory
-            class="org.eclipse.tycho.repository.module.ModuleMetadataRepositoryFactory">
+            class="org.eclipse.tycho.p2.repository.module.ModuleMetadataRepositoryFactory">
       </factory>
       <filter
             suffix="p2content.xml">

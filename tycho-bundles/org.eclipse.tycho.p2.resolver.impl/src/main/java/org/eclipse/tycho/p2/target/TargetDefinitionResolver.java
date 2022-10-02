@@ -50,6 +50,8 @@ import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.p2.impl.TargetDefinitionResolverService;
+import org.eclipse.tycho.p2.repository.ListCompositeArtifactRepository;
+import org.eclipse.tycho.p2.repository.ListCompositeMetadataRepository;
 import org.eclipse.tycho.p2.resolver.FileTargetDefinitionContent;
 import org.eclipse.tycho.p2.resolver.InstallableUnitResolver;
 import org.eclipse.tycho.p2.resolver.MavenTargetDefinitionContent;
@@ -69,8 +71,6 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
-import org.eclipse.tycho.repository.p2base.artifact.repository.ListCompositeArtifactRepository;
-import org.eclipse.tycho.repository.p2base.artifact.repository.ListCompositeMetadataRepository;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 /**

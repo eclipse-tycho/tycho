@@ -25,10 +25,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.p2.repository.LazyArtifactRepository;
+import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.p2.target.TargetDefinitionContent;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
-import org.eclipse.tycho.repository.p2base.artifact.repository.LazyArtifactRepository;
-import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 
 public class URITargetDefinitionContent implements TargetDefinitionContent {
 

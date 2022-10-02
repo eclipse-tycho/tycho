@@ -23,10 +23,10 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.repository.ArtifactRepositoryBaseImpl;
+import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
+import org.eclipse.tycho.p2.repository.GAVArtifactDescriptor;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
-import org.eclipse.tycho.repository.local.GAVArtifactDescriptor;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
-import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 
 /**
  * p2 artifact repository providing the POM dependency Maven artifacts.
