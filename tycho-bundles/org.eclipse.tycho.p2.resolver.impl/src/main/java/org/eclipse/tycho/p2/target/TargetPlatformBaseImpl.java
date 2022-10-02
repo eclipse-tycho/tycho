@@ -31,9 +31,9 @@ import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
-import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 
 abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
 

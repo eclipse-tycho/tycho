@@ -19,11 +19,13 @@ import static org.junit.Assert.assertFalse;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.tycho.core.shared.MockMavenContext;
+import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.MirroringArtifactProvider;
+import org.eclipse.tycho.p2.maven.repository.MirroringArtifactProvider.MirroringFailedException;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
-import org.eclipse.tycho.repository.local.MirroringArtifactProvider.MirroringFailedException;
+import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
+import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
-import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;

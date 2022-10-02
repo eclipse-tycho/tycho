@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.impl.publisher.FeatureDependenciesAction;
-import org.eclipse.tycho.repository.p2base.metadata.QueryableCollection;
+import org.eclipse.tycho.p2.repository.QueryableCollection;
 
 @SuppressWarnings("restriction")
 public class DependencyCollector extends AbstractResolutionStrategy {

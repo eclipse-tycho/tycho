@@ -69,6 +69,7 @@ import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.p2.impl.P2ResolverFactoryImpl;
 import org.eclipse.tycho.p2.impl.publisher.AuthoredIUAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.ArtifactTypeHelper;
@@ -80,7 +81,6 @@ import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
-import org.eclipse.tycho.repository.p2base.metadata.QueryableCollection;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 @SuppressWarnings("restriction")

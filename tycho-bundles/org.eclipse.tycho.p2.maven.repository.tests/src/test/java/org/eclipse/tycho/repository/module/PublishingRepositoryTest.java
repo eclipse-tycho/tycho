@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAndExtension;

@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
+import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;

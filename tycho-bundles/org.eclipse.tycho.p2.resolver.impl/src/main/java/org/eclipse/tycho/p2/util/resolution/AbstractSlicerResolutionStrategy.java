@@ -49,8 +49,8 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.target.ee.NoExecutionEnvironmentResolutionHints;
-import org.eclipse.tycho.repository.p2base.metadata.QueryableCollection;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")

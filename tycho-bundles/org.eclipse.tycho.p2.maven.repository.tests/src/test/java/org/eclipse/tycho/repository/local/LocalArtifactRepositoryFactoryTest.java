@@ -17,6 +17,8 @@ import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepositoryFactory;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
 import org.junit.Assert;

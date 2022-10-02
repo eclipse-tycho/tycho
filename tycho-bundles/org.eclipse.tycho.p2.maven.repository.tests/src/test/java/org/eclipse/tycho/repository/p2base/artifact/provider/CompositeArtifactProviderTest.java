@@ -23,9 +23,10 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
-import org.eclipse.tycho.repository.p2base.artifact.repository.FileRepositoryArtifactProvider;
+import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
+import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
+import org.eclipse.tycho.p2.repository.CompositeArtifactProvider;
+import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.junit.Test;
 
 public class CompositeArtifactProviderTest extends CompositeArtifactProviderTestBase<IRawArtifactFileProvider> {

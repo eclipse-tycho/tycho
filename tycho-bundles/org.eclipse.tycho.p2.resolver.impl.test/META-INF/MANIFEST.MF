@@ -13,7 +13,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
 Import-Package: org.eclipse.tycho.p2.remote.testutil,
  org.eclipse.tycho.p2.testutil,
- org.eclipse.tycho.repository.local.index,
  org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.testutil,
  org.eclipse.tycho.test.util,

@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
+import org.eclipse.tycho.p2.repository.MetadataIO;
 
 class ResolverDebugUtils {
     public static String toDebugString(IQueryable<IInstallableUnit> ius, boolean verbose, IProgressMonitor monitor) {

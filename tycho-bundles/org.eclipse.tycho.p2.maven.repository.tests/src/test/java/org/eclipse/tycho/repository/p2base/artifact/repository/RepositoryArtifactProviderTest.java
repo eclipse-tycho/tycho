@@ -47,9 +47,11 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactProvider;
+import org.eclipse.tycho.p2.repository.AbstractArtifactRepository2;
+import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
+import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
+import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProviderTestBase;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
 import org.junit.Test;
 
 public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTestBase<IRawArtifactProvider> {

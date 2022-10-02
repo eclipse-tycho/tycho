@@ -32,6 +32,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
+import org.eclipse.tycho.p2.repository.module.ModuleMetadataRepository;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.BeforeClass;
 import org.junit.Rule;

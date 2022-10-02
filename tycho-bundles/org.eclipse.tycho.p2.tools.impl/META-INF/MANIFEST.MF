@@ -38,7 +38,6 @@ Import-Package: org.apache.commons.io;version="2.6.0",
  org.eclipse.tycho.p2.tools.mirroring.facade,
  org.eclipse.tycho.p2.tools.publisher.facade,
  org.eclipse.tycho.repository.publishing,
- org.eclipse.tycho.repository.registry,
  org.eclipse.tycho.repository.registry.facade,
  org.eclipse.tycho.repository.util,
  org.osgi.framework;version="[1.5.0,2.0.0)"

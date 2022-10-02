@@ -45,15 +45,15 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.impl.Activator;
-import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
+import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
+import org.eclipse.tycho.p2.repository.CompositeArtifactProvider;
+import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.MetadataIO;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.repository.FileArtifactRepository;
-import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProvider;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
-import org.eclipse.tycho.repository.p2base.artifact.repository.FileRepositoryArtifactProvider;
 import org.osgi.framework.BundleException;
 
 @SuppressWarnings("restriction")
