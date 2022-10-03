@@ -51,8 +51,8 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
-import org.eclipse.tycho.p2.impl.publisher.P2Artifact;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
+import org.eclipse.tycho.p2.publisher.P2Artifact;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 @Component(role = BaselineService.class)

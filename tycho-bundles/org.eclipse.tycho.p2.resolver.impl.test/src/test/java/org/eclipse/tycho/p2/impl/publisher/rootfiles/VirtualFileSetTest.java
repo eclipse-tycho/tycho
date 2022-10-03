@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.tycho.p2.publisher.rootfiles.VirtualFileSet;
 import org.junit.Test;
 
 public class VirtualFileSetTest {

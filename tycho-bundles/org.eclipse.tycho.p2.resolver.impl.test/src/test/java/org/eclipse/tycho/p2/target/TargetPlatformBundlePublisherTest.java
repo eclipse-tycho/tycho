@@ -35,6 +35,8 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.core.resolver.target.MavenBundleInfo;
+import org.eclipse.tycho.core.resolver.target.TargetPlatformBundlePublisher;
 import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;

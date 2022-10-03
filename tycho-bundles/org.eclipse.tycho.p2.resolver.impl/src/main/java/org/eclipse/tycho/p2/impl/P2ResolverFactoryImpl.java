@@ -49,10 +49,7 @@ import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
-import org.eclipse.tycho.p2.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
-import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ResolutionData;
 

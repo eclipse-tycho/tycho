@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
+import org.eclipse.tycho.p2.publisher.rootfiles.FileToPathMap;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")

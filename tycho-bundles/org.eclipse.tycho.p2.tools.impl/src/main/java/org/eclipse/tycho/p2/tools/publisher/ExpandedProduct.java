@@ -30,10 +30,10 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.Interpolator;
+import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.VersioningHelper;
-import org.eclipse.tycho.p2.target.P2TargetPlatform;
 
 @SuppressWarnings({ "restriction" })
 class ExpandedProduct implements IProductDescriptor {

@@ -29,6 +29,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.p2.impl.FinalTargetPlatformImpl;
 import org.junit.Before;
 import org.junit.Test;
 

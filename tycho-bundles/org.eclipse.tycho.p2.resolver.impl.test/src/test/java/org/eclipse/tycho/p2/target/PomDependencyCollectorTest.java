@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.MockMavenContext;
+import org.eclipse.tycho.p2.impl.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;

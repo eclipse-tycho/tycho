@@ -21,8 +21,8 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.target.P2TargetPlatform;
 
 class ProductVersionExpansionRun {
 
