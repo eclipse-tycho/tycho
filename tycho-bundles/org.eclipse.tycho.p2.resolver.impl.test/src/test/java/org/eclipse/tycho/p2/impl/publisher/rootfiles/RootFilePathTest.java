@@ -21,7 +21,8 @@ import java.io.File;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.tycho.p2.impl.publisher.rootfiles.RootFilePatternParser.RootFilePath;
+import org.eclipse.tycho.p2.publisher.rootfiles.FileSet;
+import org.eclipse.tycho.p2.publisher.rootfiles.RootFilePatternParser.RootFilePath;
 import org.junit.Test;
 
 public class RootFilePathTest {

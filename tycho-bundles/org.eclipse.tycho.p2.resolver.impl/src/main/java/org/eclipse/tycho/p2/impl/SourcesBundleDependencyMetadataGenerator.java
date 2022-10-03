@@ -27,13 +27,13 @@ import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.p2.impl.publisher.AbstractMetadataGenerator;
-import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
-import org.eclipse.tycho.p2.impl.publisher.DownloadStatsAdvice;
-import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
+import org.eclipse.tycho.p2.publisher.AbstractMetadataGenerator;
+import org.eclipse.tycho.p2.publisher.DependencyMetadata;
+import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
+import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
 import org.osgi.framework.BundleException;
 
 @SuppressWarnings("restriction")

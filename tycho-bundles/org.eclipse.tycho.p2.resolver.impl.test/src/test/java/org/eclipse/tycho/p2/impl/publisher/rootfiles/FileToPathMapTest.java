@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 
 import org.eclipse.core.runtime.Path;
+import org.eclipse.tycho.p2.publisher.rootfiles.FileToPathMap;
 import org.junit.Before;
 import org.junit.Test;
 

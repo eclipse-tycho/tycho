@@ -33,6 +33,7 @@ import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
+import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;

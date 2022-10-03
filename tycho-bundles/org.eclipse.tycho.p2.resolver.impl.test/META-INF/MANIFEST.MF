@@ -11,11 +11,12 @@ Require-Bundle: org.junit,
  biz.aQute.bndlib
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
-Import-Package: org.eclipse.tycho.p2.remote.testutil,
+Import-Package: org.apache.commons.io,
+ org.eclipse.tycho.core.ee.impl,
+ org.eclipse.tycho.core.ee.shared,
+ org.eclipse.tycho.p2.remote.testutil,
  org.eclipse.tycho.p2.testutil,
  org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.testutil,
- org.eclipse.tycho.test.util,
- org.eclipse.tycho.core.ee.shared,
- org.apache.commons.io
+ org.eclipse.tycho.test.util
 Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl.test

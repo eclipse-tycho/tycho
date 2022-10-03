@@ -16,6 +16,8 @@ package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 import java.io.File;
 
 import org.eclipse.core.runtime.Path;
+import org.eclipse.tycho.p2.publisher.rootfiles.FileSet;
+import org.eclipse.tycho.p2.publisher.rootfiles.FileToPathMap;
 import org.junit.Assert;
 import org.junit.Test;
 

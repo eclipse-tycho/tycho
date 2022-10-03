@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNull;
 import java.util.Map;
 
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
 import org.junit.Test;
 
 public class MavenPropertiesAdviceTest {

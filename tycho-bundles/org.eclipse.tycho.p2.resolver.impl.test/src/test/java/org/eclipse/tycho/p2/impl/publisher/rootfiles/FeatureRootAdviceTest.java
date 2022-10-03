@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Ignore;
 import org.junit.Test;
