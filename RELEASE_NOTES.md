@@ -4,6 +4,38 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.1.0 (under development)
 
+### New Maven dependency consistency check
+
+Tycho has a new mojo to check the consistency of the pom used for your bundle.
+To enable this add the following to your pom (or adjust an existing configuration):
+
+```
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-packaging-plugin</artifactId>
+    <executions>
+      <execution>
+        <id>validate-pom</id>
+        <phase>verify</phase>
+        <goals>
+          <goal>verify-osgi-pom</goal>
+        </goals>
+      </execution>
+    </executions>
+      <configuration>
+        <archive>
+          <addMavenDescriptor>true</addMavenDescriptor>
+        </archive>
+        <mapP2Dependencies>true</mapP2Dependencies>
+      </configuration>
+</plugin>
+```
+This will then:
+
+1. add a new execution of the `verify-osgi-pom` mojo
+2. enable the generation and embedding of a maven descriptor (optional if you fully manage your pom.xml with all dependencies)
+3. map P2 dependencies to maven dependencies (optional, but most likely required to get good results)
+
 ## 3.0.0
 
 ### Tycho now support forking of the Eclipse Java Compiler
