@@ -2,7 +2,9 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## 3.0.0 (under development)
+## 3.1.0 (under development)
+
+## 3.0.0
 
 ### Tycho now support forking of the Eclipse Java Compiler
 
@@ -295,6 +297,10 @@ This can be useful if you like to execute the build with multiple threads (e.g. 
 
 ### Migration guide 2.x -> 3.x
 
+#### Java 17 required as runtime VM
+
+From 3.x on Tycho requires Java 17 as a runtime VM, but you can still compile code for older releases.
+
 #### Default value for archive-products has changed
 
 Previously Tycho uses `zip` for all platforms when packaging a product, now `.tar.gz` is used for linux+mac. If you want you can restore old behaviour by:
@@ -381,6 +387,14 @@ It was hardcoded to "tooling" always and had no practical meaning to change.
 
 `applicationArgs` (previously known as `applicationsArgs`) has been corrected to not perform any
 interpretation of whitepace and quotes anymore. Individual arguments are now used literally (just like `jvmArgs`).
+
+## 2.7.5
+
+Fixes:
+
+- [reverted] Not all (direct) requirements of a feature are considered when building an update-site
+- [backport] Fix MavenLocation scope filtering
+- org.eclipse.tycho:tycho-packaging-plugin:2.7.3:package-plugin issuing error <<pluginname>>/target/classes does not exist
 
 ## 2.7.4
 
