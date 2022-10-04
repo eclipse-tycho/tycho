@@ -138,7 +138,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj && //
+        return this == obj || //
                 (obj instanceof StandardEEResolutionHints other
                         && Objects.equals(executionEnvironment, other.executionEnvironment));
     }
