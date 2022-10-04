@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -72,6 +73,12 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
 
     @Parameter(defaultValue = "true")
     private boolean addPublicKeysToArtifacts;
+
+    /**
+     * Bundles that should be signed independently of other settings, eg {@link #skipIfJarsigned}.
+     */
+    @Parameter
+    private List<String> forceSignature;
 
     @Component(role = UnArchiver.class, hint = "xz")
     private XZUnArchiver xzUnarchiver;
@@ -141,13 +148,12 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             if (!file.canRead()) {
                 continue;
             }
-            if (skipIfJarsigned && isJarSigned(file)) {
+            if (skipSign(file)) {
                 continue;
             }
             var signatureFile = signer.generateSignatureForArtifact(file);
-            String signature;
             try {
-                signature = Files.readString(signatureFile.toPath());
+                String signature = Files.readString(signatureFile.toPath());
                 var signatureProperty = new Xpp3Dom("property");
                 signatureProperty.setAttribute("name", "pgp.signatures");
                 signatureProperty.setAttribute("value", signature);
@@ -194,6 +200,16 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
         } catch (ArchiverException | IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    private boolean skipSign(File file) throws MojoFailureException {
+        if (forceSignature != null) {
+            String bundleName = file.getName().substring(0, file.getName().lastIndexOf('_'));
+            if (forceSignature.contains(bundleName)) {
+                return false;
+            }
+        }
+        return skipIfJarsigned && isJarSigned(file);
     }
 
     private boolean isJarSigned(File file) throws MojoFailureException {
