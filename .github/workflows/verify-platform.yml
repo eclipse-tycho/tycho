@@ -68,4 +68,5 @@ jobs:
         -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         -DskipTests
         -Pbree-libs
+        -Dtycho.version=3.1.0-SNAPSHOT
         clean verify
