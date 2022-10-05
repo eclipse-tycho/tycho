@@ -39,8 +39,12 @@ import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Resource;
 
 /**
- * This mojo could be added to a build if validation of the classpath is desired
- * before the compile-phase.
+ * This mojo generates <a href="http://docs.osgi.org/specification/osgi.cmpn/8.0.0/service.component.html#service.component-component.description">
+ * OSGi Declarative Services component description XMLs</a> based on
+ * <a href="https://docs.osgi.org/javadoc/osgi.cmpn/8.0.0/org/osgi/service/component/annotations/package-summary.html">OSGi DS annotations</a>
+ * in the {@code process-classes} phase.
+ * The generated component description XMLs end up in {@code project.build.outputDirectory} below the given {@link DeclarativeServicesMojo#path}.
+ * This mojo uses <a href="https://bnd.bndtools.org/>Bnd</a> under the hood.
  */
 @Mojo(name = "declarative-services", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class DeclarativeServicesMojo extends AbstractMojo {
@@ -59,7 +63,10 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 
 	/**
 	 * Enables the processing of declarative services by Tycho, this could be
-	 * overridden by project specific configuration
+	 * overridden by project specific configuration.
+	 * If set to {@code true} will enable DS it for all projects except for those that have explicitly disabled
+	 * <a href="https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Ftips%2Fpde_tips.htm&cp%3D4_4">DS processing in their per-project configuration</a>,
+	 * if set to {@code false} will only process projects which have DS processing explicitly enabled in their per-project configuration.
 	 */
 	@Parameter(property = "tycho.ds.enabled", defaultValue = "false")
 	private boolean enabled = false;
@@ -71,7 +78,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	private boolean skip = false;
 
 	/**
-	 * The desired path where to place component definitions
+	 * The desired path where to place component definitions. If it is given as relative path it is relative to {@code project.build.outputDirectory}.
 	 */
 	@Parameter(property = "tycho.ds.path", defaultValue = DeclarativeServiceConfigurationReader.DEFAULT_PATH)
 	private String path = "OSGI-INF";
