@@ -146,7 +146,8 @@ public class OSGiResolver {
 				if (Constants.BUNDLE_ACTIVATOR.equalsIgnoreCase(key)) {
 					continue;
 				}
-				if (Constants.REQUIRE_CAPABILITY.equalsIgnoreCase(key)) {
+				if (Constants.REQUIRE_CAPABILITY.equalsIgnoreCase(key)
+						|| "Eclipse-PlatformFilter".equalsIgnoreCase(key)) {
 					// capabilities are not really something that is interesting for maven...
 					continue;
 				}

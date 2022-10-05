@@ -12,9 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging.reverseresolve;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -39,21 +39,22 @@ import kong.unirest.json.JSONObject;
 public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
 	@Requirement
-	private LegacySupport legacySupport;
-
-	@Requirement
 	private Logger log;
 
 	@Override
-	public Optional<Dependency> resolve(Path path) {
-		MavenSession session = legacySupport.getSession();
-		if (session != null && session.isOffline()) {
+	public Optional<Dependency> resolve(Dependency dep, MavenProject project, MavenSession session) {
+		if (session.isOffline()) {
 			return Optional.empty();
 		}
-		try {
-			if (Files.isRegularFile(path)) {
+		return ArtifactCoordinateResolver.getPath(dep).filter(Files::isRegularFile).filter(p -> {
+			try {
+				return Files.size(p) > 0;
+			} catch (IOException e1) {
+				return false;
+			}
+		}).map(path -> {
+			try {
 				MessageDigest digest = MessageDigest.getInstance("SHA-1");
-
 				byte[] buffer = new byte[8192];
 				try (InputStream stream = Files.newInputStream(path)) {
 					int read;
@@ -76,14 +77,15 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 						dependency.setGroupId(coordinates.getString("g"));
 						dependency.setVersion(coordinates.getString("v"));
 						dependency.setType(coordinates.getString("p"));
-						return Optional.of(dependency);
+						return dependency;
 					}
 				}
+			} catch (Exception e) {
+				log.debug("Can't check " + path + " from central because of " + e, e);
 			}
-		} catch (Exception e) {
-			log.debug("Can't check " + path + " from central because of " + e, e);
-		}
-		return Optional.empty();
+			return null;
+		});
+
 	}
 
 	private static String toHexString(byte[] bytes) {

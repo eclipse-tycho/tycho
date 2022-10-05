@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -69,6 +70,9 @@ public class VerifyPomMojo extends AbstractMojo {
 
 	@Parameter(property = "tycho.verify.pom")
 	private boolean skip;
+
+	@Parameter(property = "tycho.verify.failOnError")
+	private boolean failOnError;
 
 	@Component
 	private RepositorySystem repositorySystem;
@@ -161,15 +165,17 @@ public class VerifyPomMojo extends AbstractMojo {
 			if (resolveErrors.isEmpty()) {
 				log.info("No consistency errors found!");
 			} else {
-				resolveErrors.entrySet().stream()
+				Iterator<Entry<Bundle, String>> iterator = resolveErrors.entrySet().stream()
 						.sorted(Comparator.comparing(Entry::getKey,
 								Comparator.comparing(Bundle::getSymbolicName, String.CASE_INSENSITIVE_ORDER)))
-						.forEach(entry -> {
-							Bundle bundle = entry.getKey();
-							TrackedDependency trackedDependency = bundleMap.get(bundle);
-							String message = entry.getValue();
-							logError(trackedDependency, message, pom);
-						});
+						.iterator();
+				while (iterator.hasNext()) {
+					Map.Entry<org.osgi.framework.Bundle, java.lang.String> entry = iterator.next();
+					Bundle bundle = entry.getKey();
+					TrackedDependency trackedDependency = bundleMap.get(bundle);
+					String message = entry.getValue();
+					logError(trackedDependency, message, pom);
+				}
 			}
 		} catch (ModelParseException e) {
 			logError(new TrackedDependency(project.getId(), null, pom), "Failed to parse pom model: " + e.getMessage(),
@@ -184,9 +190,9 @@ public class VerifyPomMojo extends AbstractMojo {
 		}
 	}
 
-	private void logError(TrackedDependency trackedDependency, String message, File pom) {
+	private void logError(TrackedDependency trackedDependency, String message, File pom) throws MojoFailureException {
 		if (trackedDependency != null) {
-			String oneLineMsg = message.replaceAll("[\\r\\n]+", " ");
+			String oneLineMsg = failOnError ? message : message.replaceAll("[\\r\\n]+", " ");
 			InputLocation location = trackedDependency.location;
 			String content = "[" + NAME + "] " + trackedDependency.id + ": " + oneLineMsg + " @ file: "
 					+ pom.getAbsolutePath();
@@ -194,6 +200,9 @@ public class VerifyPomMojo extends AbstractMojo {
 				content += ", line: " + location.getLineNumber() + ", column: " + location.getColumnNumber();
 			} else {
 				content += ", line: -1, column: -1";
+			}
+			if (failOnError) {
+				throw new MojoFailureException(content);
 			}
 			getLog().error(content);
 		}

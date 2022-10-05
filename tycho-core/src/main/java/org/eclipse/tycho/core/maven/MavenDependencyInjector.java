@@ -383,7 +383,9 @@ public final class MavenDependencyInjector {
             copy.setClassifier(getClassifier());
             copy.setExclusions(new ArrayList<>(getExclusions()));
             copy.setGroupId(getGroupId());
-            copy.setOptional(isOptional());
+            if (copy.getOptional() != null) {
+                copy.setOptional(isOptional());
+            }
             copy.setScope(getScope());
             copy.setSystemPath(getSystemPath());
             copy.setType(getType());
