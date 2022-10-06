@@ -35,6 +35,7 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 
 import aQute.bnd.component.DSAnnotations;
 import aQute.bnd.osgi.Analyzer;
+import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Resource;
 
@@ -56,7 +57,9 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	@Parameter(property = "tycho.ds.classpath", defaultValue = DeclarativeServiceConfigurationReader.DEFAULT_ADD_TO_CLASSPATH)
 	private boolean classpath = Boolean.parseBoolean(DeclarativeServiceConfigurationReader.DEFAULT_ADD_TO_CLASSPATH);
 	/**
-	 * Controls the declarative services specification version to use.
+	 * Controls the declarative services specification version to use as maximum.
+	 * This mojo may generate component descriptions in a version lower than the given one in case the annotations don't require features from newer versions.
+	 * Values need to be given in format {@code V<major>_<minor>} or {@code <major>.<minor>}.
 	 */
 	@Parameter(property = "tycho.ds.version", defaultValue = DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION)
 	private String dsVersion = DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION;
@@ -125,6 +128,8 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 							}
 						}
 					}
+					// https://bnd.bndtools.org/instructions/dsannotations-options.html
+					analyzer.setProperty(Constants.DSANNOTATIONS_OPTIONS, "version;maximum=" + configuration.getSpecificationVersion().toString());
 					analyzer.addBasicPlugin(new DSAnnotations());
 					analyzer.analyze();
 					String components = analyzer.getProperty("Service-Component");
