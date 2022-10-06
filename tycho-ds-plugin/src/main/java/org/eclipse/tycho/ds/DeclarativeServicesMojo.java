@@ -45,7 +45,7 @@ import aQute.bnd.osgi.Resource;
  * <a href="https://docs.osgi.org/javadoc/osgi.cmpn/8.0.0/org/osgi/service/component/annotations/package-summary.html">OSGi DS annotations</a>
  * in the {@code process-classes} phase.
  * The generated component description XMLs end up in {@code project.build.outputDirectory} below the given {@link DeclarativeServicesMojo#path}.
- * This mojo uses <a href="https://bnd.bndtools.org/>Bnd</a> under the hood.
+ * This mojo uses <a href="https://bnd.bndtools.org/">Bnd</a> under the hood.
  */
 @Mojo(name = "declarative-services", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class DeclarativeServicesMojo extends AbstractMojo {
