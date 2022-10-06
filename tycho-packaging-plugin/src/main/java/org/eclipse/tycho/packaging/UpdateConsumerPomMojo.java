@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -38,6 +40,7 @@ import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -74,6 +77,9 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Component
 	private Map<String, ArtifactCoordinateResolver> artifactCoordinateResolvers;
 
+	@Component
+	ArtifactHandlerManager artifactHandlerManager;
+
 	/**
 	 * The directory where the tycho generated POM file will be written to.
 	 */
@@ -91,6 +97,13 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	 */
 	@Parameter(defaultValue = "true")
 	protected boolean deleteOnExit = true;
+
+	/**
+	 * replace they type of a dependency (e.g. 'eclipse-plugin') with its extension
+	 * (e.g. 'jar')
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean replaceTypeWithExtension = true;
 
 	@Parameter
 	protected Boolean skipPomGeneration;
@@ -138,7 +151,8 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		if (outputDirectory == null) {
 			outputDirectory = project.getBasedir();
 		}
-		getLog().debug("Generate pom descriptor with updated dependencies...");
+		Log log = getLog();
+		log.debug("Generate pom descriptor with updated dependencies...");
 		Model projectModel;
 		try {
 			projectModel = modelReader.read(project.getFile(), null);
@@ -161,6 +175,12 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 				}
 				resolved++;
 			}
+			if (replaceTypeWithExtension && PackagingType.TYCHO_PACKAGING_TYPES.contains(copy.getType())) {
+				ArtifactHandler handler = artifactHandlerManager.getArtifactHandler(copy.getType());
+				if (handler != null) {
+					copy.setType(handler.getExtension());
+				}
+			}
 			dependencies.add(copy);
 		}
 		Parent parent = projectModel.getParent();
@@ -176,11 +196,16 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			output.deleteOnExit();
 		}
 		if (p2Skipped.isEmpty()) {
-			getLog().info("All system scoped dependencies where mapped to maven artifacts.");
+			log.info("All system scoped dependencies where mapped to maven artifacts.");
 		} else {
-			getLog().warn(resolved + " system scoped dependencies where mapped to maven artifacts, "
+			log.warn(resolved + " system scoped dependencies where mapped to maven artifacts, "
 					+ p2Skipped.size()
 					+ " where skipped!");
+			if (log.isDebugEnabled()) {
+				for (String skipped : p2Skipped) {
+					log.debug("Skipped: " + skipped);
+				}
+			}
 		}
 		try {
 			modelWriter.write(output, null, projectModel);
@@ -194,7 +219,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 				Files.writeString(file.toPath(), p2Skipped.stream().collect(Collectors.joining("\r\n")));
 			}
 		} catch (IOException e) {
-			getLog().warn("Writing additional information failed: " + e);
+			log.warn("Writing additional information failed: " + e);
 		}
 		if (updatePomFile) {
 			project.setFile(output);
