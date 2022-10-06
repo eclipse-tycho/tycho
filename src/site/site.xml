@@ -27,10 +27,12 @@
       		<item name="Eclipserun Plugin" href="tycho-extras/tycho-eclipserun-plugin/plugin-info.html"/>
      		<item name="Document Bundle Plugin" href="tycho-extras/tycho-document-bundle-plugin/plugin-info.html"/>
     	</menu>
+        <!-- always include all reports -->
+        <menu ref="reports" inherit="bottom"/>
 	</body>
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
 		<artifactId>maven-fluido-skin</artifactId>
-		<version>1.10.0</version>
+		<version>1.11.1</version>
 	</skin>
 </project>
