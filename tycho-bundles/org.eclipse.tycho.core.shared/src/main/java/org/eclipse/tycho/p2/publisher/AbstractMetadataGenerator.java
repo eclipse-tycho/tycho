@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -42,6 +41,7 @@ import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.repository.util.StatusTool;
@@ -112,8 +112,7 @@ public abstract class AbstractMetadataGenerator {
     }
 
     private void createRequirementFromPlatformURL(ArrayList<IRequirement> result, String url) {
-        Pattern platformURL = Pattern.compile("platform:/(plugin|fragment)/([^/]*)(/)*.*");
-        Matcher m = platformURL.matcher(url);
+        Matcher m = TychoConstants.PLATFORM_URL_PATTERN.matcher(url);
         if (m.matches())
             result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, m.group(2),
                     VersionRange.emptyRange, null, false, false));
