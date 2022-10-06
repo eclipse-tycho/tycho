@@ -132,6 +132,15 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					analyzer.setProperty(Constants.DSANNOTATIONS_OPTIONS, "version;maximum=" + configuration.getSpecificationVersion().toString());
 					analyzer.addBasicPlugin(new DSAnnotations());
 					analyzer.analyze();
+					for (String warning : analyzer.getWarnings()) {
+						getLog().warn(warning);
+					}
+					for (String error : analyzer.getErrors()) {
+						getLog().error(error);
+					}
+					if (!analyzer.getErrors().isEmpty()) {
+						throw new MojoFailureException("Generation of ds components failed, see log for details");
+					}
 					String components = analyzer.getProperty("Service-Component");
 					if (components == null || components.isBlank()) {
 						// nothing to do...
@@ -152,7 +161,10 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					}
 				}
 			} catch (Exception e) {
-				throw new MojoFailureException("generation of ds components failed: " + e.getMessage(), e);
+				if (e instanceof MojoFailureException mfe) {
+					throw mfe;
+				}
+				throw new MojoFailureException("Generation of ds components failed: " + e.getMessage(), e);
 			}
 		}
 	}
