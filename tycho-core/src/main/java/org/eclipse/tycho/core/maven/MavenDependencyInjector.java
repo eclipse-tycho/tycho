@@ -43,6 +43,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
@@ -79,6 +80,32 @@ public final class MavenDependencyInjector {
                     .forEach(descriptor -> generator.addDependency(descriptor, Artifact.SCOPE_TEST));
         }
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        BuildProperties buildProperties = reactorProject.getBuildProperties();
+        List<Dependency> extraJars = buildProperties.getJarsExtraClasspath().stream().map(extra -> {
+            if (TychoConstants.PLATFORM_URL_PATTERN.matcher(extra).matches()) {
+                //this should already be handled as an extra requirement!
+                return null;
+            }
+            Dependency dependency = new Dependency();
+            dependency.setScope(Artifact.SCOPE_SYSTEM);
+            dependency.setGroupId(project.getGroupId());
+            dependency.setArtifactId(project.getArtifactId() + ".jars.extra.classpath");
+            dependency.setClassifier(extra);
+            File file = new File(reactorProject.getBasedir(), extra);
+            if (!file.exists()) {
+                //create empty dummy file to make maven think this dependency is already resolved?!
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    //still can't be created --> out of luck then...
+                    return null;
+                }
+            }
+            dependency.setSystemPath(file.getAbsolutePath());
+            dependency.setVersion(project.getVersion());
+            return dependency;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        generator.addDependencyList(extraJars);
         @SuppressWarnings("unchecked")
         Collection<MavenArtifactRepositoryReference> repositoryReferences = (Collection<MavenArtifactRepositoryReference>) reactorProject
                 .getContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE);
@@ -144,14 +171,7 @@ public final class MavenDependencyInjector {
         List<Dependency> dependencyList = artifact.getMavenProject() != null //
                 ? collectProjectDependencies(artifact, scope) //
                 : collectExternalDependencies(artifact, scope, true);
-        Model model = project.getModel();
-        Set<String> existing = model.getDependencies().stream().map(dep -> getKey(dep))
-                .collect(Collectors.toCollection(HashSet::new));
-        for (Dependency dependency : dependencyList) {
-            if (existing.add(getKey(dependency))) {
-                model.addDependency(dependency);
-            }
-        }
+        addDependencyList(dependencyList);
         Map<String, MavenProject> projectReferences = project.getProjectReferences();
         ReactorProject mavenProject = artifact.getMavenProject();
         if (mavenProject != null && DefaultReactorProject.adapt(project) != mavenProject) {
@@ -160,6 +180,20 @@ public final class MavenDependencyInjector {
             if (!projectReferences.containsKey(key)) {
                 logger.debug("Found a P2 dependency (" + artifact
                         + ") that is not reflected in the maven model project references");
+            }
+        }
+    }
+
+    private void addDependencyList(List<Dependency> dependencyList) {
+        if (dependencyList.isEmpty()) {
+            return;
+        }
+        Model model = project.getModel();
+        Set<String> existing = model.getDependencies().stream().map(dep -> getKey(dep))
+                .collect(Collectors.toCollection(HashSet::new));
+        for (Dependency dependency : dependencyList) {
+            if (existing.add(getKey(dependency))) {
+                model.addDependency(dependency);
             }
         }
     }
