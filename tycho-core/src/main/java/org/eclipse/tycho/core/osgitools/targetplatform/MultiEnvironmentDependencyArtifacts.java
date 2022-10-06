@@ -61,7 +61,16 @@ public class MultiEnvironmentDependencyArtifacts extends DefaultDependencyArtifa
 
     @Override
     public Collection<ArtifactDescriptor> getFragments() {
-        return platforms.values().stream().map(DependencyArtifacts::getFragments).flatMap(Collection::stream).distinct()
-                .collect(Collectors.toList());
+        //Only return fragments from the first resolved platform here --> multi platform compile support?
+        return platforms.values().stream().findFirst().stream().map(DependencyArtifacts::getFragments)
+                .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+    }
+
+    public Collection<ArtifactDescriptor> getFragments(TargetEnvironment environment) {
+        DependencyArtifacts platform = getPlatform(environment);
+        if (platform == null) {
+            return Collections.emptyList();
+        }
+        return platform.getFragments();
     }
 }

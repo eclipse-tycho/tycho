@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,6 +37,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
@@ -107,6 +110,60 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFaca
 
 @Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
 public class P2DependencyResolver extends AbstractLogEnabled implements DependencyResolver, Initializable {
+
+    private final class ArtifactKeyFileSupplier implements Supplier<File> {
+        private final org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry entry;
+
+        private ArtifactKeyFileSupplier(org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry entry) {
+            this.entry = entry;
+        }
+
+        @Override
+        public File get() {
+            File location = entry.getLocation(true);
+            if (location != null && !location.exists()) {
+                throw new IllegalStateException(
+                        "Fetching entry " + entry + " returned a file that do not exits!" + debugLoc(location));
+            }
+            return location;
+        }
+
+        private String debugLoc(File location) {
+            File parentFile = location.getParentFile();
+            if (parentFile != null) {
+                if (parentFile.isDirectory()) {
+                    return " But folder " + parentFile.getAbsolutePath() + " exits and contains "
+                            + Arrays.stream(parentFile.list()).collect(Collectors.joining(", "));
+                } else {
+                    return debugLoc(parentFile);
+                }
+            }
+            return "";
+        }
+
+        @Override
+        public String toString() {
+            return "ArtifactKeyFileSupplier: " + entry;
+        }
+    }
+
+    private final class EntrySupplier implements Supplier<File> {
+        private final org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry entry;
+
+        private EntrySupplier(org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry entry) {
+            this.entry = entry;
+        }
+
+        @Override
+        public File get() {
+            return entry.getLocation(true);
+        }
+
+        @Override
+        public String toString() {
+            return "EntrySupplier: " + entry;
+        }
+    }
 
     public static final String ROLE_HINT = "p2";
 
@@ -478,12 +535,12 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             if (otherProject != null) {
                 platform.addReactorArtifact(key, otherProject, entry.getClassifier(), entry.getInstallableUnits());
             } else {
-                platform.addArtifactFile(key, () -> entry.getLocation(true), entry.getInstallableUnits());
+                platform.addArtifactFile(key, new EntrySupplier(entry), entry.getInstallableUnits());
             }
         }
         for (P2ResolutionResult.Entry entry : result.getDependencyFragments()) {
             ArtifactKey key = new DefaultArtifactKey(entry.getType(), entry.getId(), entry.getVersion());
-            platform.addFragment(key, () -> entry.getLocation(true), entry.getInstallableUnits());
+            platform.addFragment(key, new ArtifactKeyFileSupplier(entry), entry.getInstallableUnits());
         }
         return platform;
     }

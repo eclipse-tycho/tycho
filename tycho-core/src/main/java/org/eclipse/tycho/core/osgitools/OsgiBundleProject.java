@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -87,6 +88,7 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
+import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
@@ -202,6 +204,31 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private MavenProject getMavenProject(ReactorProject reactorProject) {
         return Objects.requireNonNull((MavenProject) reactorProject.getContextValue(CTX_MAVEN_PROJECT),
                 "Project not setup correctly");
+    }
+
+    public Optional<ArtifactKey> readArtifactKey(ArtifactDescriptor descriptor) {
+        File location = descriptor.getLocation(true);
+        if (location == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(readArtifactKey(location));
+        } catch (OsgiManifestParserException e) {
+            logger.warn("First attempt failed, deleting file " + location + " :: " + e);
+            //something is wrong, delete the file and try to fetch it again!
+            if (!location.delete()) {
+                logger.warn("File can't be deleted!");
+            }
+            location = descriptor.getLocation(true);
+            if (location == null) {
+                return Optional.empty();
+            }
+            if (!location.exists()) {
+                logger.warn("FIle is not null but do not exits! " + location.getAbsolutePath());
+            }
+            //last resort
+            return Optional.of(readArtifactKey(location));
+        }
     }
 
     public ArtifactKey readArtifactKey(File location) {
@@ -500,6 +527,16 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return cp;
     }
 
+    private TargetEnvironment getTargetEnvironment(ReactorProject project) {
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(project);
+        TargetEnvironment environment = configuration.getEnvironments().get(0);
+        if (dependencyArtifacts instanceof MultiEnvironmentDependencyArtifacts multiEnv) {
+            return multiEnv.getPlatforms().stream().findFirst().orElse(environment);
+        }
+        return environment;
+    }
+
     /**
      * Returns project compile classpath entries.
      */
@@ -605,12 +642,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
         }
         //Fragments are like embedded dependencies...
-        for (ArtifactDescriptor fragment : artifacts.getFragments()) {
-            File location = fragment.getLocation(true);
-            if (location != null) {
-                classpath.add(new DefaultClasspathEntry(null, readArtifactKey(location),
-                        Collections.singletonList(location), null));
-            }
+        for (ArtifactDescriptor fragment : getFragments(artifacts, project)) {
+            readArtifactKey(fragment).ifPresent(key -> {
+                classpath.add(new DefaultClasspathEntry(null, key,
+                        Collections.singletonList(fragment.getLocation(true)), null));
+            });
         }
         for (var entry : getAnnotationArtifacts(project).entrySet()) {
             String pkg = entry.getKey();
@@ -621,6 +657,15 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             classpath.add(new DefaultClasspathEntry(null, artifactKey,
                     Collections.singletonList(artifactKey.getLocation()), List.of(rule)));
         }
+    }
+
+    private Collection<ArtifactDescriptor> getFragments(DependencyArtifacts artifacts, ReactorProject project) {
+        if (artifacts instanceof MultiEnvironmentDependencyArtifacts mra) {
+            TargetEnvironment targetEnvironment = getTargetEnvironment(project);
+            logger.debug("Using fragments for " + targetEnvironment.toFilterExpression() + " for compilation");
+            return mra.getFragments(targetEnvironment);
+        }
+        return artifacts.getFragments();
     }
 
     /**

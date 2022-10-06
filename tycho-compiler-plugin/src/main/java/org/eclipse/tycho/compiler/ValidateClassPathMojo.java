@@ -23,6 +23,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -41,6 +42,9 @@ public class ValidateClassPathMojo extends AbstractMojo {
 
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
+
+    @Component
+    private Logger logger;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

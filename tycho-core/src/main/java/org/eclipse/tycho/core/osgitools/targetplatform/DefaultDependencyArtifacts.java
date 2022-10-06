@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -32,6 +33,24 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 
 public class DefaultDependencyArtifacts extends ArtifactCollection implements DependencyArtifacts {
+
+    private final class SupplierFunction implements Function<ArtifactDescriptor, File> {
+        private final Supplier<File> location;
+
+        private SupplierFunction(Supplier<File> supplier) {
+            this.location = supplier;
+        }
+
+        @Override
+        public File apply(ArtifactDescriptor whatever) {
+            return location.get();
+        }
+
+        @Override
+        public String toString() {
+            return "SupplierFunction: " + location;
+        }
+    }
 
     /**
      * ArtifactKey cache used to correlate equal instances to reduce memory usage
@@ -98,7 +117,7 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
     }
 
     public void addFragment(ArtifactKey key, Supplier<File> location, Set<IInstallableUnit> installableUnits) {
-        fragments.add(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
+        fragments.add(new DefaultArtifactDescriptor(key, new SupplierFunction(location), null, null, installableUnits));
     }
 
     @Override

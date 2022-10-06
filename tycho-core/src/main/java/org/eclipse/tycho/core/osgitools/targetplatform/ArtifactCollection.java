@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -42,6 +43,44 @@ import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.osgi.framework.Version;
 
 public class ArtifactCollection {
+    private final class SupplierLocation implements Function<ArtifactDescriptor, File> {
+        private final Supplier<File> location;
+
+        private SupplierLocation(Supplier<File> location) {
+            this.location = location;
+        }
+
+        @Override
+        public File apply(ArtifactDescriptor whatever) {
+            return location.get();
+        }
+
+        @Override
+        public String toString() {
+            return "SupplierLocation: " + location;
+        }
+    }
+
+    private final class LazyArtifactFileProvider implements Function<ArtifactDescriptor, File> {
+        private final ArtifactDescriptor artifact;
+
+        private LazyArtifactFileProvider(ArtifactDescriptor artifact) {
+            this.artifact = artifact;
+        }
+
+        @Override
+        public File apply(ArtifactDescriptor thisArtifact) {
+            File resolvedLocation = artifact.getLocation(true);
+            registerArtifactLocation(resolvedLocation, thisArtifact);
+            return resolvedLocation;
+        }
+
+        @Override
+        public String toString() {
+            return "LazyArtifactFileProvider: " + artifact;
+        }
+    }
+
     private static final Version VERSION_0_0_0 = new Version("0.0.0");
 
     protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<>();
@@ -66,7 +105,7 @@ public class ArtifactCollection {
     }
 
     public void addArtifactFile(ArtifactKey key, Supplier<File> location, Set<IInstallableUnit> installableUnits) {
-        addArtifact(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
+        addArtifact(new DefaultArtifactDescriptor(key, new SupplierLocation(location), null, null, installableUnits));
     }
 
     public void addArtifact(ArtifactDescriptor artifact) {
@@ -120,11 +159,8 @@ public class ArtifactCollection {
         ArtifactDescriptor normalizedArtifact = location != null
                 ? new DefaultArtifactDescriptor(key, location, artifact.getMavenProject(), artifact.getClassifier(),
                         units)
-                : new DefaultArtifactDescriptor(key, thisArtifact -> {
-                    File resolvedLocation = artifact.getLocation(true);
-                    registerArtifactLocation(resolvedLocation, thisArtifact);
-                    return resolvedLocation;
-                }, artifact.getMavenProject(), artifact.getClassifier(), units);
+                : new DefaultArtifactDescriptor(key, new LazyArtifactFileProvider(artifact), artifact.getMavenProject(),
+                        artifact.getClassifier(), units);
 
         artifacts.put(artifact.getKey(), normalizedArtifact);
         if (location != null) {

@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -21,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry {
+
     private String type;
 
     private String id;
@@ -36,6 +38,7 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     public DefaultP2ResolutionResultEntry(String type, String id, String version, String classifier,
             Supplier<File> delayedLocation) {
+        Objects.requireNonNull(delayedLocation);
         this.type = type;
         this.id = id;
         this.version = version;
@@ -45,6 +48,9 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     public DefaultP2ResolutionResultEntry(String type, String id, String version, String classifier,
             File resolvedLocation) {
+        if (resolvedFile != null && !resolvedFile.exists()) {
+            throw new IllegalArgumentException("File " + resolvedLocation + " does not exits!");
+        }
         this.type = type;
         this.id = id;
         this.version = version;
@@ -70,7 +76,7 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     @Override
     public File getLocation(boolean fetch) {
-        if (resolvedFile == null && fetch) {
+        if (fetch && (resolvedFile == null || !resolvedFile.exists()) && location != null) {
             resolvedFile = location.get();
         }
         return resolvedFile;
@@ -103,6 +109,12 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultP2ResolutionResultEntry [id=" + id + ", version=" + version + ", type=" + type + ", classifier="
+                + classifier + ", location=" + location + ", resolvedFile=" + resolvedFile + "]";
     }
 
 }

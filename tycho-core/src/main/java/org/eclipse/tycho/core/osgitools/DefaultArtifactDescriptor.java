@@ -38,6 +38,10 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     public DefaultArtifactDescriptor(ArtifactKey key, File location, ReactorProject project, String classifier,
             Set<IInstallableUnit> installableUnits) {
+        Objects.requireNonNull(location);
+        if (!location.exists()) {
+            throw new IllegalArgumentException("Give a location that do not exists!");
+        }
         this.key = key;
         this.location = ArtifactCollection.normalizeLocation(location);
         this.project = project;
@@ -70,7 +74,13 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
         if (fetch && locationSupplier != null && (location == null || !location.exists())) {
             File file = locationSupplier.apply(this);
             if (file != null) {
+                if (!file.exists()) {
+                    throw new IllegalArgumentException(
+                            "Supplier " + locationSupplier + " returned a location that do not exits!");
+                }
                 location = ArtifactCollection.normalizeLocation(file);
+            } else {
+                location = null;
             }
         }
         return location;

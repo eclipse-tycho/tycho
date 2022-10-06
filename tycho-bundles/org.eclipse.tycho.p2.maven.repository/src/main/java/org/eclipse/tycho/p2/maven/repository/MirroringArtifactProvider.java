@@ -279,6 +279,22 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
             }
             return false;
         }
+        String sha1 = properties.get("download.checksum.sha-1");
+        if (sha1 != null) {
+            try (FileInputStream stream = new FileInputStream(file)) {
+                String fileSha1 = DigestUtils.sha1Hex(stream);
+                if (fileSha1.equalsIgnoreCase(sha1)) {
+                    return true;
+                }
+            } catch (IOException e) {
+                mavenContext.getLogger().debug("Computing hash sum failed, assume file is corrupted (" + e + ")");
+            }
+            if (logFailure) {
+                mavenContext.getLogger().warn("sha-1 checksum for " + file.getAbsolutePath()
+                        + " does not match, attempting to download file again...");
+            }
+            return false;
+        }
         String md5 = properties.get("download.checksum.md5");
         if (md5 != null) {
             try (FileInputStream stream = new FileInputStream(file)) {

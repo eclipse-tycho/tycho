@@ -35,9 +35,14 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class DefaultDependencyArtifactsTest {
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     static IInstallableUnit unit(String id) {
         InstallableUnitDescription desc = new InstallableUnitDescription();
@@ -47,7 +52,7 @@ public class DefaultDependencyArtifactsTest {
     }
 
     @Test
-    public void testVersionMatch() {
+    public void testVersionMatch() throws IOException {
         String type = "foo";
         String id = "foo";
 
@@ -88,9 +93,9 @@ public class DefaultDependencyArtifactsTest {
         Assert.assertNull(tp.getArtifact(type, id, "9.9.9.qualifier"));
     }
 
-    private void addArtifact(DefaultDependencyArtifacts tp, String type, String id, String version) {
+    private void addArtifact(DefaultDependencyArtifacts tp, String type, String id, String version) throws IOException {
         ArtifactKey key = new DefaultArtifactKey(type, id, version);
-        tp.addArtifactFile(key, new File(version), null);
+        tp.addArtifactFile(key, tempFolder.newFile(version), null);
     }
 
     @Test
@@ -98,21 +103,27 @@ public class DefaultDependencyArtifactsTest {
         DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         File relative = new File("relative.xml");
-        File canonical = new File("canonical.xml");
+        relative.createNewFile();
+        relative.deleteOnExit();
+        try {
+            File canonical = tempFolder.newFile();
 
-        tp.addArtifactFile(new DefaultArtifactKey("foo", "relative", "1"), relative, null);
-        tp.addArtifactFile(new DefaultArtifactKey("foo", "canonical", "1"), canonical.getAbsoluteFile(), null);
+            tp.addArtifactFile(new DefaultArtifactKey("foo", "relative", "1"), relative, null);
+            tp.addArtifactFile(new DefaultArtifactKey("foo", "canonical", "1"), canonical.getAbsoluteFile(), null);
 
-        Assert.assertNotNull(tp.getArtifact(relative.getAbsoluteFile()));
-        Assert.assertNotNull(getArtifactMapForLocation(canonical, tp));
+            Assert.assertNotNull(tp.getArtifact(relative.getAbsoluteFile()));
+            Assert.assertNotNull(getArtifactMapForLocation(canonical, tp));
+        } finally {
+            relative.delete();
+        }
     }
 
     @Test
-    public void testEqualArtifacts() {
+    public void testEqualArtifacts() throws IOException {
         DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
-        File location = new File("location");
+        File location = tempFolder.newFile();
 
         tp.addArtifactFile(key, location, Set.of(unit("a")));
         tp.addArtifactFile(key, location, Set.of(unit("a")));
@@ -121,11 +132,11 @@ public class DefaultDependencyArtifactsTest {
     }
 
     @Test
-    public void testInconsistentArtifacts() {
+    public void testInconsistentArtifacts() throws IOException {
         DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
-        File location = new File("location");
+        File location = tempFolder.newFile();
 
         tp.addArtifactFile(key, location, Set.of(unit("a")));
         try {
@@ -136,9 +147,9 @@ public class DefaultDependencyArtifactsTest {
     }
 
     @Test
-    public void testMultiEnvironmentMetadataMerge() {
+    public void testMultiEnvironmentMetadataMerge() throws IOException {
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
-        File location = new File("location");
+        File location = tempFolder.newFile();
 
         DefaultDependencyArtifacts tpA = new DefaultDependencyArtifacts();
         tpA.addArtifactFile(key, location, Set.of(unit("a")));
@@ -162,11 +173,11 @@ public class DefaultDependencyArtifactsTest {
     }
 
     @Test
-    public void testInstallableUnits() {
+    public void testInstallableUnits() throws IOException {
         DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
-        File location = new File("location");
+        File location = tempFolder.newFile();
 
         tp.addArtifactFile(key, location, Set.of(unit("a")));
         tp.addNonReactorUnits(Set.of(unit("b")));
@@ -175,7 +186,7 @@ public class DefaultDependencyArtifactsTest {
     }
 
     @Test
-    public void testDoNotCacheArtifactsThatRepresentReactorProjects() {
+    public void testDoNotCacheArtifactsThatRepresentReactorProjects() throws IOException {
         // IInstallableUnit #hashCode and #equals methods only use (version,id) tuple to determine IU equality
         // Reactor projects are expected to produce different IUs potentially with the same (version,id) during the build
         // This test verifies that different DefaultTargetPlatform can have the same reactor project with different IUs
@@ -183,7 +194,7 @@ public class DefaultDependencyArtifactsTest {
 
         ReactorProject project = new DefaultReactorProject(new MavenProject());
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
-        File location = new File("location");
+        File location = tempFolder.newFile();
 
         DefaultDependencyArtifacts tp1 = new DefaultDependencyArtifacts();
         tp1.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, Set.of(unit("a"))));

@@ -104,6 +104,7 @@ public abstract class AbstractTychoIntegrationTest {
             verifier.getEnvironmentVariables().put("MAVEN_OPTS", mvnOpts);
             System.out.flush();
         }
+        verifier.addCliOption("--strict-checksums");
         verifier.addCliOption("-Dmaven.home=" + getMavenHome());
         verifier.addCliOption("-Dtycho-version=" + getTychoVersion());
         // bug 447397: use temp dir in target/ folder to make sure we don't leave garbage behind
