@@ -45,6 +45,36 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.artifactId}_${project.version}")
 	protected String projectName;
 
+	/**
+	 * @Since 3.1.0
+	 */
+	@Parameter(defaultValue = "false")
+	private boolean allowNonApiProject;
+
+	/**
+	 * @Since 3.1.0
+	 */
+	@Parameter
+	protected String encoding;
+
+	/**
+	 * @Since 3.1.0
+	 */
+	@Parameter
+	protected boolean debug;
+
+	/**
+	 * @Since 3.1.0
+	 */
+	@Parameter
+	protected String extraManifests;
+
+	/**
+	 * @Since 3.1.0
+	 */
+	@Parameter
+	protected String extraSourceLocations;
+
 	@Parameter(defaultValue = "false", property = "tycho.apitools.generate.skip")
 	private boolean skip;
 
@@ -58,6 +88,11 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 				generator.projectLocation = projectLocation.getAbsolutePath();
 				generator.binaryLocations = binaryLocations.getAbsolutePath();
 				generator.targetFolder = targetFolder.getAbsolutePath();
+				generator.allowNonApiProject = allowNonApiProject;
+				generator.encoding = encoding;
+				generator.debug = debug;
+				generator.manifests = extraManifests;
+				generator.sourceLocations = extraSourceLocations;
 				generator.generateAPIFile();
 			}
 		}
