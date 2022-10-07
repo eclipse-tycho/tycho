@@ -72,7 +72,7 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
         return null;
     }
 
-    public void setDescriptorProperties(IArtifactDescriptor descriptor) {
+    private void setDescriptorProperties(IArtifactDescriptor descriptor) {
         if (descriptor instanceof ArtifactDescriptor artifactDescriptor) {
             for (Map.Entry<String, String> entry : properties.entrySet()) {
                 String key = entry.getKey();

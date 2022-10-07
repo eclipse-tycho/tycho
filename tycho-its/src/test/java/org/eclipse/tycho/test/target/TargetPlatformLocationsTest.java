@@ -13,6 +13,7 @@
 package org.eclipse.tycho.test.target;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -37,6 +38,12 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("target.maven", false, true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
+		// check that there are no warnings
+		assertThrows("Warning about missing digest algorithm was printed to the log", VerificationException.class,
+				() -> {
+					verifier.verifyTextInLog(
+							"No digest algorithm is available to verify download of osgi.bundle,org.apache.velocity");
+				});
 	}
 
 	@Test
