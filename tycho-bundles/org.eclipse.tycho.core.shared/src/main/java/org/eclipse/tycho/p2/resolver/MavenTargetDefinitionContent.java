@@ -62,6 +62,7 @@ import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.publisher.MavenChecksumAdvice;
 import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.BNDInstructions;
@@ -371,10 +372,10 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         if (mavenArtifact != null) {
             MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact, mavenContext);
             publisherInfo.addAdvice(advice);
-            advice.setDescriptorProperties(descriptor);
         }
+        publisherInfo.addAdvice(new MavenChecksumAdvice(bundleLocation));
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-        IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, key, publisherInfo);
+        IInstallableUnit iu = BundlePublisher.publishBundle(bundleDescription, descriptor, publisherInfo);
         repositoryContent.put(descriptor, iu);
         return iu;
     }
