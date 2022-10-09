@@ -29,7 +29,8 @@ import org.eclipse.tycho.PackagingType;
 
 /**
  * <p>
- * Executes tests in an OSGi runtime.
+ * Executes tests in an OSGi runtime. This is only supported in modules of packaging type
+ * `eclipse-test-plugin`.
  * </p>
  * <p>
  * The goal launches an OSGi runtime and executes the project's tests in that runtime. The "test

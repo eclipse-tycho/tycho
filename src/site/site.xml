@@ -3,7 +3,7 @@
 	<body>
 		<menu name="Tycho" inherit="top">
 			<item name="Introduction" href="index.html" />
-
+			<item name="Packaging Types" href="PackagingTypes.html" />
 			<item name="Target Platform Configuration" href="target-platform-configuration/plugin-info.html" />
 			<item name="Compiler Plugin" href="tycho-compiler-plugin/plugin-info.html" />
 			<item name="Packaging Plugin" href="tycho-packaging-plugin/plugin-info.html" />
