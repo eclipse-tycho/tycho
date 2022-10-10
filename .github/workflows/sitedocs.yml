@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+    permissions:
+      contents: write
     steps:
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@v4
