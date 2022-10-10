@@ -10,25 +10,27 @@
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.director;
+package org.eclipse.tycho.p2tools;
 
 import java.util.List;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
-import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
-@SuppressWarnings("restriction")
+@Component(role = DirectorRuntime.class)
 public final class DirectorApplicationWrapper implements DirectorRuntime {
     /**
      * @see org.eclipse.equinox.app.IApplication#EXIT_OK
      */
     static final Integer EXIT_OK = Integer.valueOf(0);
 
-    MavenLogger logger;
+    @Requirement
+    Logger logger;
 
     @Override
     public Command newInstallCommand() {
@@ -53,8 +55,4 @@ public final class DirectorApplicationWrapper implements DirectorRuntime {
         }
     }
 
-    // setters for DS
-    public void setMavenContext(MavenContext context) {
-        this.logger = context.getLogger();
-    }
 }

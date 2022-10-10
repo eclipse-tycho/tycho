@@ -58,6 +58,9 @@ public final class DirectorMojo extends AbstractProductMojo {
     @Component
     private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
 
+    @Component
+    DirectorRuntime director;
+
     /**
      * The name of the p2 profile to be created.
      */
@@ -155,7 +158,7 @@ public final class DirectorMojo extends AbstractProductMojo {
 
     private DirectorRuntime getDirectorRuntime() throws MojoFailureException, MojoExecutionException {
         return switch (directorRuntime) {
-        case internal -> osgiServices.getService(DirectorRuntime.class);
+        case internal -> director;
         case standalone -> standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
                 getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
         default -> throw new MojoFailureException(

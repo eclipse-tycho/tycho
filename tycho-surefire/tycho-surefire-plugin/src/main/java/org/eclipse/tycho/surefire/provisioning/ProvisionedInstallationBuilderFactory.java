@@ -15,9 +15,7 @@ package org.eclipse.tycho.surefire.provisioning;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
 @Component(role = ProvisionedInstallationBuilderFactory.class)
@@ -26,18 +24,14 @@ public class ProvisionedInstallationBuilderFactory {
     @Requirement
     private BundleReader bundleReader;
 
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory osgiServices;
+    @Requirement
+    private DirectorRuntime directorRuntime;
 
     @Requirement
     private Logger logger;
 
     public ProvisionedInstallationBuilder createInstallationBuilder() {
-        return new ProvisionedInstallationBuilder(bundleReader, getDirectorRuntime(), logger);
-    }
-
-    private DirectorRuntime getDirectorRuntime() {
-        return osgiServices.getService(DirectorRuntime.class);
+        return new ProvisionedInstallationBuilder(bundleReader, directorRuntime, logger);
     }
 
 }

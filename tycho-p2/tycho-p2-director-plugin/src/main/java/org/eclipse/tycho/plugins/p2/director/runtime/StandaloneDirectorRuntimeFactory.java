@@ -23,10 +23,8 @@ import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
@@ -36,8 +34,8 @@ public class StandaloneDirectorRuntimeFactory {
     @Requirement
     private RepositorySystem repositorySystem;
 
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory osgiServices;
+    @Requirement
+    DirectorRuntime bootstrapDirector;
 
     @Requirement
     private EquinoxLauncher launchHelper;
@@ -54,9 +52,6 @@ public class StandaloneDirectorRuntimeFactory {
 
     private void installStandaloneDirector(File installLocation, ArtifactRepository localMavenRepository)
             throws MojoExecutionException {
-        // using the internal director...
-        DirectorRuntime bootstrapDirector = osgiServices.getService(DirectorRuntime.class);
-
         try {
             // ... install from a zipped p2 repository obtained via Maven ...
             URI directorRuntimeRepo = URI

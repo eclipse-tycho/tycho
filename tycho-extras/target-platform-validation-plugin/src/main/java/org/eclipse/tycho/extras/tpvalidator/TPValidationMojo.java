@@ -110,6 +110,8 @@ public class TPValidationMojo extends AbstractMojo {
 
     @Component(hint = TychoServiceFactory.HINT)
     protected EquinoxServiceFactory equinox;
+    @Component
+    DirectorRuntime director;
 
     @Component
     private Logger logger;
@@ -185,7 +187,6 @@ public class TPValidationMojo extends AbstractMojo {
             // create resolver
             this.logger.info("Validating " + targetFile + "...");
             RepositoryReferences ref = new RepositoryReferences();
-            DirectorRuntime director = this.equinox.getService(DirectorRuntime.class);
             DirectorRuntime.Command directorCommand = director.newInstallCommand();
 
             TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
