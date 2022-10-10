@@ -14,9 +14,9 @@ with Maven.
 
 
 * 👔 Eclipse project entry: https://projects.eclipse.org/projects/technology.tycho
-* 🗒️ Documentation (some content to be reincorporated into this repository):
-     * https://www.eclipse.org/tycho/sitedocs/
-     * https://wiki.eclipse.org/Tycho/
+* 🗒️ Documentation:
+     * https://tycho.eclipseprojects.io/doc/latest/
+     * https://github.com/eclipse-tycho/tycho/wiki (previously https://wiki.eclipse.org/Tycho/ **outdated-content** please help to migrate!)
 * 📢 Release notes: [RELEASE_NOTES.md](./RELEASE_NOTES.md)
 * 🪲 Bug Tracker
      * New https://github.com/eclipse-tycho/tycho/issues
