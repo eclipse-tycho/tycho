@@ -2,12 +2,12 @@
 
 Tycho defines the following custom Maven packaging types targeted for Eclipse Plug-in development.
 
-1. `eclipse-plugin` corresponds to [Eclipse Plug-in and Plug-in Fragment projects](https://wiki.eclipse.org/PDE/User_Guide#Plug-in)
-1. `eclipse-test-plugin` is similar to `eclipse-plugin` but only contains ITs to be executed inside an Eclipse application. There is a noticable difference between `eclipse-plugin` and `eclipse-test-plugin` with respect to the goal executed during `integration-test`. The former uses `tycho-surefire-plugin:integration-test` while the latter uses `tycho-surefire-plugin:test`.
-1. `eclipse-feature` corresponds to [Eclipse Feature projects](https://wiki.eclipse.org/PDE/User_Guide#Feature)
-1. `eclipse-repository` corresponds to [Eclipse Update Site projects](https://wiki.eclipse.org/PDE/User_Guide#Update_Site)
-1. `eclipse-target-definition` corresponds to [Eclipse Target Platform](https://wiki.eclipse.org/PDE/User_Guide#Target_Platform)
-1. `p2-installable-unit` corresponds to [Installable Units](https://wiki.eclipse.org/Installable_Units)
+* `eclipse-plugin` corresponds to [Eclipse Plug-in and Plug-in Fragment projects](https://wiki.eclipse.org/PDE/User_Guide#Plug-in).
+* `eclipse-test-plugin` is similar to `eclipse-plugin` but only contains Plugin Tests to be executed inside an OSGi runtime. There is a noticable difference between `eclipse-plugin` and `eclipse-test-plugin` with respect to the goal executed during `integration-test`. The former uses `tycho-surefire-plugin:integration-test` while the latter uses `tycho-surefire-plugin:test`.
+* `eclipse-feature` corresponds to [Eclipse Feature projects](https://wiki.eclipse.org/PDE/User_Guide#Feature)
+* `eclipse-repository` corresponds to [Eclipse Update Site projects](https://wiki.eclipse.org/PDE/User_Guide#Update_Site)
+* `eclipse-target-definition` corresponds to [Eclipse Target Platform](https://wiki.eclipse.org/PDE/User_Guide#Target_Platform)
+* `p2-installable-unit` corresponds to [Installable Units](https://wiki.eclipse.org/Installable_Units)
 
 The lifecycle bindings (i.e. which Maven plugins are executed in which Maven phase by default) are defined by `tycho-maven-plugin` in a [Maven extension](https://maven.apache.org/guides/mini/guide-using-extensions.html) therefore it needs to be loaded accordingly:
 
