@@ -31,7 +31,6 @@ org.eclipse.equinox.p2.updatesite,true
 org.eclipse.equinox.p2.touchpoint.natives,true
 org.eclipse.equinox.p2.touchpoint.eclipse,true
 org.eclipse.equinox.p2.garbagecollector,true
-org.eclipse.tycho.noopsecurity,true
 
 org.eclipse.tycho.embedder.shared
 org.eclipse.tycho.embedder-api
