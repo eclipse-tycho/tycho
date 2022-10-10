@@ -690,6 +690,10 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (!isCompatiblePackagingType(project.getPackaging())) {
+            getLog().debug("Skip because of incompatible packaging type: " + project.getPackaging());
+            return;
+        }
         if (shouldSkip()) {
             getLog().info("Skipping tests");
             return;
@@ -719,6 +723,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             }
         }
     }
+
+    protected abstract boolean isCompatiblePackagingType(String packaging);
 
     protected abstract boolean shouldRun();
 
@@ -1051,7 +1057,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return Arrays.asList("**/*$*");
     }
 
-    protected abstract List<String> getDefaultInclude();
+    protected List<String> getDefaultInclude() {
+        return List.of("**/Test*.class", "**/*Test.class", "**/*Tests.class", "**/*TestCase.class");
+    }
 
     private void storeProperties(Map<String, String> propertiesMap, File file) throws MojoExecutionException {
         Properties p = new Properties();

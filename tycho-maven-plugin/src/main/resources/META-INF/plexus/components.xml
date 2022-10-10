@@ -47,10 +47,8 @@
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default
               </package>
               <integration-test>
-               org.eclipse.tycho:tycho-surefire-plugin:${project.version}:integration-test
               </integration-test>
               <verify>
-               org.apache.maven.plugins:maven-failsafe-plugin:${surefire-plugin.version}:verify
               </verify>
               <install>
                 org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install,

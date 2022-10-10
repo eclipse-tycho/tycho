@@ -263,6 +263,11 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+		      <groupId>org.apache.maven.plugins</groupId>
+	          <artifactId>maven-failsafe-plugin</artifactId>
+	          <version>${surefire-version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven.surefire</groupId>
 			<artifactId>surefire-api</artifactId>
 			<version>${surefire-version}</version>

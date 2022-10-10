@@ -17,8 +17,6 @@
 package org.eclipse.tycho.surefire;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -71,19 +69,12 @@ public class TestPluginMojo extends AbstractTestMojo {
 
     @Override
     protected boolean shouldRun() {
-        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())) {
-            return false;
-        }
-        if (!PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging())) {
-            getLog().warn("Unsupported packaging type " + project.getPackaging());
-            return false;
-        }
         return true;
     }
 
     @Override
-    protected List<String> getDefaultInclude() {
-        return Arrays.asList("**/Test*.class", "**/*Test.class", "**/*Tests.class", "**/*TestCase.class");
+    protected boolean isCompatiblePackagingType(String packaging) {
+        return PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging());
     }
 
     @Override

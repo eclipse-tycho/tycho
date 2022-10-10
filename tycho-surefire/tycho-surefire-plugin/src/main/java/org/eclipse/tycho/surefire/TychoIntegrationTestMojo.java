@@ -13,7 +13,6 @@
 package org.eclipse.tycho.surefire;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -80,7 +79,7 @@ import aQute.bnd.osgi.Jar;
  * summary files are generated according to the default maven-surefire-plugin for integration with
  * tools that already work with maven-surefire-plugin (e.g. CI servers)
  */
-@Mojo(name = "integration-test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
+@Mojo(name = "plugin-test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class TychoIntegrationTestMojo extends AbstractTestMojo {
 
     /**
@@ -89,7 +88,7 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     @Parameter(property = "project.build.testOutputDirectory")
     private File testClassesDirectory;
 
-    @Parameter(property = "skipITs")
+    @Parameter(property = "tycho.plugin-test.skip")
     private boolean skipITs;
 
     @Parameter(defaultValue = "${project.build.directory}/failsafe-reports/failsafe-summary.xml", required = true)
@@ -112,12 +111,12 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
 
     @Override
     protected boolean shouldRun() {
-        return PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging()) && scanForTests().size() > 0;
+        return scanForTests().size() > 0;
     }
 
     @Override
-    protected List<String> getDefaultInclude() {
-        return Arrays.asList("**/PluginTest*.class", "**/*IT.class");
+    protected boolean isCompatiblePackagingType(String packaging) {
+        return PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging());
     }
 
     @Override
