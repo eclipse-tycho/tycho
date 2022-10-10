@@ -34,7 +34,6 @@
 		<module>org.eclipse.tycho.p2.resolver.impl</module>
 		<module>org.eclipse.tycho.p2.maven.repository</module>
 		<module>org.eclipse.tycho.p2.tools.impl</module>
-		<module>org.eclipse.tycho.noopsecurity</module>
 
 		<!-- unit tests -->
 		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
