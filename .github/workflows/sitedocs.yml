@@ -58,8 +58,8 @@ jobs:
           ${{ github.workspace }}/tycho/target/staging/**/*.*
     - run: |
         cd ${{ github.workspace }}/page/doc/
-        git config user.name "GitHub Actions Bot"
-        git config user.email "<>"
+        git config user.name github-actions
+        git config user.email github-actions@github.com
         cp -r ${{ github.workspace }}/tycho/target/staging/ ${{ env.GITHUB_REF_NAME }}
         git diff --quiet && git diff --staged --quiet || git commit -am "Update sitedocs for branch ${{ env.GITHUB_REF_NAME }}"
         git push
