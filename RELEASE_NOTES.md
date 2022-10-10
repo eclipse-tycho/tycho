@@ -4,6 +4,39 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.1.0 (under development)
 
+### Migration guide
+
+#### Using integration/plugin tests with eclipse-plugin packaging
+
+Some improvements have been made for the test execution with `eclipse-plugin` packaging that probably needs some adjustments to your pom configuration or build scripts:
+
+1. The property `skipITs` has been renamed to `tycho.plugin-test.skip`
+2. the mojo `integration-test` has been renamed to `plugin-test`
+3. the default pattern of the former `integration-test` has been changed from `**/PluginTest*.class", "**/*IT.class` to the maven default `**/Test*.class", "**/*Test.class", "**/*Tests.class", "**/*TestCase.class`
+4. the former `integration-test` mojo is no longer part of the default life-cycle, that means to use it it has to be explicitly be enabled to be more flexible and this is how standard maven behaves
+
+To restore old behaviour you can add the follwoing snippet to your (master) pom:
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-surefire-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<id>execute-plugin-tests</id>
+			<configuration>
+				<includes>**/PluginTest*.class,**/*IT.class</includes>
+			</configuration>
+			<goals>
+				<goal>plugin-test</goal>
+				<goal>verify</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+```
+
 ### New Maven dependency consistency check
 
 Tycho has a new mojo to check the consistency of the pom used for your bundle.
