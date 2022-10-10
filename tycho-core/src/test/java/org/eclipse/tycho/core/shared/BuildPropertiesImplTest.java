@@ -70,7 +70,7 @@ public class BuildPropertiesImplTest {
     @Test
     public void testSupportedKeys() throws IOException {
         BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(
-                readProperties(new File("resources/testbuild.properties")));
+                readProperties(new File("src/test/resources/buildproperties/testbuild.properties")));
         assertEquals("1.3", buildProperties.getJavacSource());
         assertEquals("1.1", buildProperties.getJavacTarget());
         assertEquals("JavaSE-1.6", buildProperties.getJreCompilationProfile());
