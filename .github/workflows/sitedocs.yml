@@ -1,0 +1,65 @@
+name: Publish Tycho site-docs
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+on:
+  push:
+    branches: 
+      - 'master'
+      - 'tycho-*'
+  pull_request:
+    branches: 
+jobs:
+  build:
+    name: Publish site-docs
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v4
+    - name: Checkout tycho code
+      uses: actions/checkout@v3
+      with:
+       path: 'tycho'
+    - name: Checkout page
+      uses: actions/checkout@v3
+      with:
+       path: 'page'
+       repository: 'eclipse-tycho/eclipse-tycho.github.io'
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: 'adopt'
+    - name: Cache local Maven repository
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-site-${{ hashFiles('**/pom.xml', '**/*.target') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-site-
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.4
+      with:
+        maven-version: 3.8.6
+    - name: Build site-doc
+      env:
+       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+      run: | 
+        mvn -U -V -e -B -ntp clean install site site:stage --file tycho/pom.xml -T1C -DskipTests
+    - name: Upload site-doc
+      uses: actions/upload-artifact@v3
+      with:
+        name: site-docs-${{ env.GITHUB_REF_NAME }}
+        if-no-files-found: error
+        path: |
+          ${{ github.workspace }}/tycho/target/staging/**/*.*
+    - run: |
+        cd ${{ github.workspace }}/page/doc/
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+        cp -r ${{ github.workspace }}/tycho/target/staging/ ${{ env.GITHUB_REF_NAME }}
+        git diff --quiet && git diff --staged --quiet || git commit -am "Update sitedocs for branch ${{ env.GITHUB_REF_NAME }}"
+        git push
+
