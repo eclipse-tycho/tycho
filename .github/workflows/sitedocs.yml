@@ -15,6 +15,7 @@ jobs:
       fail-fast: false
     permissions:
       contents: write
+      repository-projects: write
     steps:
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@v4
