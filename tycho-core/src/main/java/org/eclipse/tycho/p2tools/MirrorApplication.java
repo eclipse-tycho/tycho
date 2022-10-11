@@ -10,7 +10,7 @@
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.mirroring;
+package org.eclipse.tycho.p2tools;
 
 import java.net.URI;
 import java.util.Collection;

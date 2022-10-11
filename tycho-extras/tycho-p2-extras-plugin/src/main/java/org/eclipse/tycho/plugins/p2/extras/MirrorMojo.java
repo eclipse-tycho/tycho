@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -30,11 +29,9 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -58,8 +55,8 @@ public class MirrorMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    @Component(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory p2;
+    @Component
+    MirrorApplicationService mirrorService;
 
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
@@ -222,9 +219,6 @@ public class MirrorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        final MirrorApplicationService mirrorService = Objects.requireNonNull(
-                p2.getService(MirrorApplicationService.class), "MirrorApplicationService is not available");
-
         RepositoryReferences sourceDescriptor = null;
         if (this.projectTypes.containsKey(project.getPackaging()) && this.repositoryReferenceTool != null
                 && this.targetPlatformAsSource) {

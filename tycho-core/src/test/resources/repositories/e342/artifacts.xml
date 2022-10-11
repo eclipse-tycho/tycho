@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='e342' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1308584189023'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='1'>
+    <artifact classifier='osgi.bundle' id='org.eclipse.core.runtime' version='3.4.0.v20080512'>
+      <properties size='3'>
+        <property name='artifact.size' value='69026'/>
+        <property name='download.size' value='69026'/>
+        <property name='download.md5' value='c1c7af4eaca62fcc24f82c2c02ac77dd'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>

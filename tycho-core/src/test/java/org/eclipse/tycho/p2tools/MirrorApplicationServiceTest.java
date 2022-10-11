@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.mirroring;
+package org.eclipse.tycho.p2tools;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -28,24 +28,25 @@ import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MockMavenContext;
+import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.publisher.DependencySeedUtil;
-import org.eclipse.tycho.p2.tools.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,7 +55,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class MirrorApplicationServiceTest {
+public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
 
     // feature containing org.eclipse.core.runtime 3.4
     private static final String SIMPLE_FEATURE = "org.eclipse.example.original_feature";
@@ -81,15 +82,21 @@ public class MirrorApplicationServiceTest {
 
     @Before
     public void initTestContext() throws Exception {
+        IProvisioningAgent agent = lookup(IProvisioningAgent.class);
+        agent.getService(IArtifactRepositoryManager.class);
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
         File projectFolder = tempFolder.getRoot();
         ReactorProjectIdentities currentProject = new ReactorProjectIdentitiesStub(projectFolder);
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
-        subject = new MirrorApplicationServiceImpl();
-        MavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
-        subject.setMavenContext(mavenContext);
+        subject = new MirrorApplicationServiceImpl() {
+            @Override
+            protected IProvisioningAgent getAgent() {
+                return agent;
+            }
+        };
+        subject.setLogger(logVerifier.getLogger());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -97,7 +104,8 @@ public class MirrorApplicationServiceTest {
         // make sure that this unsupported case is detected; the mirror application would just mirror everything
         Collection<DependencySeed> noSeeds = Collections.emptyList();
 
-        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, false, false, null);
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, false,
+                false, null);
     }
 
     @Test
@@ -170,7 +178,8 @@ public class MirrorApplicationServiceTest {
          * since it is not easy to distinguish between patched and unpatched dependencies, only a
          * warning is issued.
          */
-        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, false, false, false, null);
+        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, false,
+                false, false, null);
 
         logVerifier.expectWarning(not(is("")));
     }
