@@ -11,10 +11,10 @@
  *    SAP SE - initial API and implementation
  *    Bachmann electronic GmbH. - Support for ignoreError flag    
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.mirroring;
+package org.eclipse.tycho.p2tools;
 
-import static org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest.repoFile;
-import static org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest.sourceRepos;
+import static org.eclipse.tycho.p2tools.MirrorApplicationServiceTest.repoFile;
+import static org.eclipse.tycho.p2tools.MirrorApplicationServiceTest.sourceRepos;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -22,22 +22,23 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Collections;
 
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildOutputDirectory;
-import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class MirrorStandaloneTest {
+public class MirrorStandaloneTest extends TychoPlexusTestCase {
     private static final String DEFAULT_NAME = "dummy";
 
     private DestinationRepositoryDescriptor destinationRepo;
@@ -53,10 +54,16 @@ public class MirrorStandaloneTest {
 
     @Before
     public void initTestContext() throws Exception {
+        IProvisioningAgent agent = lookup(IProvisioningAgent.class);
+        agent.getService(IArtifactRepositoryManager.class);
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
-        subject = new MirrorApplicationServiceImpl();
-        MavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
-        subject.setMavenContext(mavenContext);
+        subject = new MirrorApplicationServiceImpl() {
+            @Override
+            protected IProvisioningAgent getAgent() {
+                return agent;
+            }
+        };
+        subject.setLogger(logVerifier.getLogger());
         targetFolder = new BuildOutputDirectory(tempFolder.getRoot());
     }
 

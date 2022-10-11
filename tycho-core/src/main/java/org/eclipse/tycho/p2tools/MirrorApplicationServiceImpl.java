@@ -11,7 +11,7 @@
  *     SAP SE - initial API and implementation
  *     Bachmann electronic GmbH. - Support for ignoreError flag
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.mirroring;
+package org.eclipse.tycho.p2tools;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -44,55 +47,63 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.impl.Activator;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 import org.eclipse.tycho.repository.util.StatusTool;
 
-@SuppressWarnings("restriction")
+@Component(role = MirrorApplicationService.class)
 public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static final String MIRROR_FAILURE_MESSAGE = "Mirroring failed";
 
-    private MavenContext mavenContext;
+    @Requirement
+    Logger logger;
+
+    @Requirement(hint = TychoServiceFactory.HINT)
+    private EquinoxServiceFactory p2;
 
     @Override
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException {
-        IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
+        IProvisioningAgent agent = getAgent();
+        final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
+        mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
+        mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
         try {
-            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
-            mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
-            mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
-            try {
-                // we want to see mirror progress as this is a possibly long-running operation
-                mirrorApp.setVerbose(true);
-                mirrorApp.setLog(new LogListener(mavenContext.getLogger()));
-                mirrorApp.setSourceIUs(querySourceIus(seedIUs, mirrorApp.getCompositeMetadataRepository(), sources));
-                IStatus returnStatus = mirrorApp.run(null);
-                checkStatus(returnStatus, mirrorOptions.isIgnoreErrors());
+            // we want to see mirror progress as this is a possibly long-running operation
+            mirrorApp.setVerbose(true);
+            mirrorApp.setLog(new LogListener(logger));
+            mirrorApp.setSourceIUs(querySourceIus(seedIUs, mirrorApp.getCompositeMetadataRepository(), sources));
+            IStatus returnStatus = mirrorApp.run(null);
+            checkStatus(returnStatus, mirrorOptions.isIgnoreErrors());
 
-            } catch (ProvisionException e) {
-                throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
-            }
-        } finally {
-            agent.stop();
+        } catch (ProvisionException e) {
+            throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
         }
+    }
+
+    protected IProvisioningAgent getAgent() {
+        return p2.getService(IProvisioningAgent.class);
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
     }
 
     private static SlicingOptions createSlicingOptions(MirrorOptions mirrorOptions) {
@@ -145,45 +156,40 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
             boolean includeAllSource, boolean includeRequiredBundles, boolean includeRequiredFeatures,
             Map<String, String> filterProperties) throws FacadeException {
-        IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
-        try {
-            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
+        IProvisioningAgent agent = getAgent();
+        final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
 
-            // mirror scope: seed units...
-            mirrorApp.setSourceIUs(
-                    toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(), sources));
-            mirrorApp.setIncludeSources(includeAllSource);
-            mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
-            mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
+        // mirror scope: seed units...
+        mirrorApp
+                .setSourceIUs(toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(), sources));
+        mirrorApp.setIncludeSources(includeAllSource);
+        mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
+        mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
 
-            // TODO the p2 mirror tool should support mirroring multiple environments at once
-            for (TargetEnvironment environment : context.getEnvironments()) {
-                SlicingOptions options = new SlicingOptions();
-                options.considerStrictDependencyOnly(!includeAllDependencies);
-                Map<String, String> filter = options.getFilter();
-                addFilterForFeatureJARs(filter);
-                if (filterProperties != null) {
-                    filter.putAll(filterProperties);
-                }
-                filter.putAll(environment.toFilterProperties());
-                mirrorApp.setSlicingOptions(options);
-
-                try {
-                    LogListener logListener = new LogListener(mavenContext.getLogger());
-                    mirrorApp.setLog(logListener);
-
-                    IStatus returnStatus = mirrorApp.run(null);
-                    checkStatus(returnStatus, false);
-                    logListener.showHelpForLoggedMessages();
-                } catch (ProvisionException e) {
-                    throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()),
-                            e);
-                }
+        // TODO the p2 mirror tool should support mirroring multiple environments at once
+        for (TargetEnvironment environment : context.getEnvironments()) {
+            SlicingOptions options = new SlicingOptions();
+            options.considerStrictDependencyOnly(!includeAllDependencies);
+            Map<String, String> filter = options.getFilter();
+            addFilterForFeatureJARs(filter);
+            if (filterProperties != null) {
+                filter.putAll(filterProperties);
             }
-            recreateArtifactRepository(destination);
-        } finally {
-            agent.stop();
+            filter.putAll(environment.toFilterProperties());
+            mirrorApp.setSlicingOptions(options);
+
+            try {
+                LogListener logListener = new LogListener(logger);
+                mirrorApp.setLog(logListener);
+
+                IStatus returnStatus = mirrorApp.run(null);
+                checkStatus(returnStatus, false);
+                logListener.showHelpForLoggedMessages();
+            } catch (ProvisionException e) {
+                throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
+            }
         }
+        recreateArtifactRepository(destination);
     }
 
     private void xzCompress(DestinationRepositoryDescriptor destination) throws FacadeException {
@@ -216,7 +222,9 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             artifactsXz.delete();
         }
         descriptor.setLocation(location.toURI());
-
+        //TODO this is to trigger loading of the osgi services and we can not pass the agent directly see 
+        // https://github.com/eclipse-equinox/p2/issues/151
+        getAgent().getService(IArtifactRepositoryManager.class);
         RecreateRepositoryApplication application = new RecreateRepositoryApplication();
         application.setArtifactRepository(descriptor.getRepoLocation());
         try {
@@ -311,12 +319,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             if (!ignoreErrors) {
                 throw new FacadeException(message, StatusTool.findException(status));
             }
-            mavenContext.getLogger().info(message);
+            logger.info(message);
         }
-    }
-
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
     }
 
     static class LogListener implements IArtifactMirrorLog {
@@ -324,10 +328,10 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         private static final URI MIRROR_TOOL_MESSAGE_HELP = URI
                 .create("https://wiki.eclipse.org/Tycho_Messages_Explained#Mirror_tool");
 
-        private final MavenLogger logger;
+        private final Logger logger;
         private boolean hasLogged = false;
 
-        LogListener(MavenLogger logger) {
+        LogListener(Logger logger) {
             this.logger = logger;
         }
 
@@ -403,8 +407,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                         if (connection instanceof HttpURLConnection httpConnection) {
                             int responseCode = httpConnection.getResponseCode();
                             if (responseCode != HttpURLConnection.HTTP_OK) {
-                                mavenContext.getLogger()
-                                        .debug(artifactKey.toString() + '/' + gav + " not found in " + mavenRepo);
+                                logger.debug(artifactKey.toString() + '/' + gav + " not found in " + mavenRepo);
                                 continue;
                             }
                         }
@@ -417,7 +420,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                         if (artifactFile != null) {
                             artifactFile.delete();
                         }
-                        mavenContext.getLogger().info(artifactKey + " remapped to " + mavenArtifactURI);
+                        logger.info(artifactKey + " remapped to " + mavenArtifactURI);
                         break;
                     } catch (IOException ex) {
                         throw new FacadeException(ex);

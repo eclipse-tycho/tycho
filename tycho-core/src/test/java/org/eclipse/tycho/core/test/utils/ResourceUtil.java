@@ -13,16 +13,15 @@
 package org.eclipse.tycho.core.test.utils;
 
 import java.io.File;
-import java.io.IOException;
 
 public class ResourceUtil {
 
-    public static File resourceFile(String path) throws IOException {
+    public static File resourceFile(String path) {
         File resolvedFile = new File("src/test/resources", path).getAbsoluteFile();
 
         if (!resolvedFile.canRead()) {
-            throw new IllegalStateException("Test resource \"" + path
-                    + "\" not found under \"src/test/resources\" in the project");
+            throw new IllegalStateException(
+                    "Test resource \"" + path + "\" not found under \"src/test/resources\" in the project");
         }
         return resolvedFile;
     }
