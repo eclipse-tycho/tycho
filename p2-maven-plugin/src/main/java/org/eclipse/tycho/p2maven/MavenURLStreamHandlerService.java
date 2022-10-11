@@ -177,6 +177,16 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 			return new URL(urlSpec).openStream();
 		}
 
+		@Override
+		public long getLastModified() {
+			try {
+				connect();
+			} catch (IOException e) {
+				return 0;
+			}
+			return artifact.getFile().lastModified();
+		}
+
 	}
 
 }
