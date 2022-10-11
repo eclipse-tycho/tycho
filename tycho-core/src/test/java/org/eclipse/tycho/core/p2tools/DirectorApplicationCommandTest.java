@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.director;
+package org.eclipse.tycho.core.p2tools;
 
 import static org.eclipse.tycho.test.util.TychoMatchers.hasSequence;
 import static org.hamcrest.CoreMatchers.hasItem;
