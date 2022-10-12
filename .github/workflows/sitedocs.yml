@@ -62,6 +62,7 @@ jobs:
         git config user.name "Tycho Bot"
         git config user.email tycho-bot@eclipse.org
         cp -r ${{ github.workspace }}/tycho/target/staging/ ${{ env.GITHUB_REF_NAME }}
+        git add -A
         git diff --quiet && git diff --staged --quiet || git commit -am "Update sitedocs for branch ${{ env.GITHUB_REF_NAME }}"
         git push
 
