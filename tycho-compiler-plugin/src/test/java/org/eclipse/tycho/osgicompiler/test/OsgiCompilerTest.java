@@ -610,7 +610,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             mojo.execute();
             fail("Mojo should fail because of missing toolchains");
         } catch (MojoExecutionException ex) {
-            assertThat(ex.getMessage(), Matchers.allOf(StringContains.containsStringIgnoringCase("toolchain"),
+            assertThat(ex.getMessage(), Matchers.allOf(StringContains.containsString("toolchain"),
                     StringContains.containsString("JavaSE-1.8")));
         }
     }

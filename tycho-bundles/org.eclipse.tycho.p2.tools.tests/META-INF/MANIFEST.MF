@@ -7,16 +7,18 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Fragment-Host: org.eclipse.tycho.p2.tools.impl
 Require-Bundle: org.eclipse.tycho.p2.resolver.impl,
  net.bytebuddy.byte-buddy,
- org.hamcrest.core
+ net.bytebuddy.byte-buddy
 Bundle-Vendor: %providerName
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.p2.maven.repository,
  org.eclipse.tycho.p2.repository.module,
  org.eclipse.tycho.p2.testutil,
  org.eclipse.tycho.test.util,
+ org.hamcrest;version="1.3.0",
+ org.hamcrest.core;version="1.3.0",
  org.junit;version="[4.13.2,5.0.0)",
- org.junit.rules;version="[4.13.2,5.0.0)",
  org.junit.function;version="[4.13.2,5.0.0)",
+ org.junit.rules;version="[4.13.2,5.0.0)",
  org.mockito,
  org.mockito.invocation,
  org.mockito.stubbing
