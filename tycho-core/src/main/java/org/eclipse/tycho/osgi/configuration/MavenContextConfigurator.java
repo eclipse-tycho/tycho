@@ -23,6 +23,7 @@ import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -33,16 +34,23 @@ public class MavenContextConfigurator implements EquinoxLifecycleListener {
     @Requirement
     private MavenContext context;
 
+    @Requirement
+    private Logger logger;
+
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         //we call all methods here to init the data for sure inside the maven thread...
-        context.getChecksumsMode();
-        context.isUpdateSnapshots();
-        context.getSessionProperties();
-        context.getLocalRepositoryRoot();
-        context.getMavenRepositoryLocations();
-        context.getProjects();
-        context.isOffline();
+        try {
+            context.getChecksumsMode();
+            context.isUpdateSnapshots();
+            context.getSessionProperties();
+            context.getLocalRepositoryRoot();
+            context.getMavenRepositoryLocations();
+            context.getProjects();
+            context.isOffline();
+        } catch (RuntimeException e) {
+            logger.debug("Can't pre-init context: " + e);
+        }
         framework.registerService(MavenContext.class, context);
     }
 

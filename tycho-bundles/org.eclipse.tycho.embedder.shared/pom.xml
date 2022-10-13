@@ -25,5 +25,23 @@
 
 	<name>Tycho Embedder API Maven/OSGi Shared Classes</name>
 	<description>Classes shared between the tycho-embedder-api module and Tycho's OSGi bundles.</description>
-
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tychoBootstrapVersion}</version>
+				<configuration>
+					<pomDependencies>consider</pomDependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.metadata</artifactId>
+			<version>2.6.300</version>
+		</dependency>
+	</dependencies>
 </project>
