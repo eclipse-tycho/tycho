@@ -17,8 +17,10 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,6 +31,7 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -73,7 +76,7 @@ public class DefaultMavenContext implements MavenContext {
     @Override
     public boolean isUpdateSnapshots() {
         if (updateSnapshots == null) {
-            updateSnapshots = getSession().getRequest().isUpdateSnapshots();
+            updateSnapshots = getSession().map(s -> s.getRequest().isUpdateSnapshots()).orElse(false);
         }
         return updateSnapshots;
     }
@@ -81,15 +84,16 @@ public class DefaultMavenContext implements MavenContext {
     @Override
     public Stream<MavenRepositoryLocation> getMavenRepositoryLocations() {
         if (repositoryLocations == null) {
-            repositoryLocations = getSession().getProjects().stream().map(MavenProject::getRemoteArtifactRepositories)
-                    .flatMap(Collection::stream).filter(r -> r.getLayout() instanceof P2ArtifactRepositoryLayout)
-                    .map(r -> {
+            repositoryLocations = getSession().map(s -> s.getProjects().stream()
+                    .map(MavenProject::getRemoteArtifactRepositories).flatMap(Collection::stream)
+                    .filter(r -> r.getLayout() instanceof P2ArtifactRepositoryLayout).map(r -> {
                         try {
                             return new MavenRepositoryLocation(r.getId(), new URL(r.getUrl()).toURI());
                         } catch (MalformedURLException | URISyntaxException e) {
                             return null;
                         }
-                    }).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+                    }).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList()))
+                    .orElse(Collections.emptyList());
         }
         return repositoryLocations.stream();
     }
@@ -98,7 +102,7 @@ public class DefaultMavenContext implements MavenContext {
     public ChecksumPolicy getChecksumsMode() {
         if (checksumPolicy == null) {
             if (MavenExecutionRequest.CHECKSUM_POLICY_FAIL
-                    .equals(getSession().getRequest().getGlobalChecksumPolicy())) {
+                    .equals(getSession().map(s -> s.getRequest().getGlobalChecksumPolicy()).orElse(null))) {
                 checksumPolicy = ChecksumPolicy.STRICT;
             } else {
                 checksumPolicy = ChecksumPolicy.LAX;
@@ -110,7 +114,8 @@ public class DefaultMavenContext implements MavenContext {
     @Override
     public File getLocalRepositoryRoot() {
         if (repoDir == null) {
-            repoDir = new File(getSession().getLocalRepository().getBasedir());
+            repoDir = getSession().map(s -> s.getLocalRepository().getBasedir()).map(File::new)
+                    .orElse(RepositorySystem.defaultUserLocalRepository);
         }
         return repoDir;
     }
@@ -123,7 +128,7 @@ public class DefaultMavenContext implements MavenContext {
     @Override
     public boolean isOffline() {
         if (isOffline == null) {
-            isOffline = getSession().isOffline();
+            isOffline = getSession().map(s -> s.isOffline()).orElse(false);
         }
         return isOffline;
     }
@@ -131,7 +136,8 @@ public class DefaultMavenContext implements MavenContext {
     @Override
     public Properties getSessionProperties() {
         if (globalProps == null) {
-            globalProps = MavenContextConfigurator.getGlobalProperties(getSession());
+            globalProps = getSession().map(session -> MavenContextConfigurator.getGlobalProperties(session))
+                    .orElse(new Properties());
         }
         return globalProps;
     }
@@ -139,15 +145,26 @@ public class DefaultMavenContext implements MavenContext {
     @Override
     public Collection<ReactorProject> getProjects() {
         if (projects == null) {
-            projects = getSession().getProjects().stream().map(DefaultReactorProject::adapt)
-                    .collect(Collectors.toUnmodifiableList());
+            projects = getSession().map(s -> s.getProjects().stream().map(DefaultReactorProject::adapt)
+                    .collect(Collectors.toUnmodifiableList())).orElse(Collections.emptyList());
         }
         return projects;
     }
 
-    private MavenSession getSession() {
-        return Objects.requireNonNull(Objects.requireNonNull(legacySupport, "legacy support not aviable!").getSession(),
-                "Not called from a maven thread!");
+    private Optional<MavenSession> getSession() {
+        if (legacySupport == null) {
+            logger.warn("legacy support not available!");
+            return Optional.empty();
+        }
+        MavenSession session = legacySupport.getSession();
+        if (session == null) {
+            if (logger.isDebugEnabled()) {
+                Thread.dumpStack();
+            }
+            logger.warn("not called from a maven thread!");
+            return Optional.empty();
+        }
+        return Optional.of(session);
     }
 
 }
