@@ -6,8 +6,7 @@ Bundle-Version: 3.1.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Fragment-Host: org.eclipse.tycho.p2.maven.repository
-Require-Bundle: org.junit,
- org.hamcrest.core,
+Require-Bundle: org.hamcrest.core,
  org.eclipse.equinox.p2.publisher,
  net.bytebuddy.byte-buddy
 Import-Package: org.eclipse.tycho.locking.facade,
@@ -17,6 +16,9 @@ Import-Package: org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.testutil,
  org.eclipse.tycho.test.util,
+ org.junit;version="[4.13.2,5.0.0)",
+ org.junit.rules;version="[4.13.2,5.0.0)",
+ org.junit.function;version="[4.13.2,5.0.0)",
  org.mockito,
  org.mockito.stubbing
 Automatic-Module-Name: org.eclipse.tycho.p2.maven.repository.tests
