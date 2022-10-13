@@ -152,9 +152,9 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 				log.warn("Internal error in EquinoxLifecycleListener " + listener, e);
 			}
 		}
-		if (log.isDebugEnabled()) {
+//		if (log.isDebugEnabled()) {
 			printFrameworkState(osgiFramework, connectFramework);
-		}
+//		}
 		return connectFramework;
 
 	}
