@@ -21,7 +21,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -188,18 +187,19 @@ final class PlexusModuleConnector implements ModuleConnector {
 					if (modulesMap.containsKey(location)) {
 						bundle = bundleContext.getBundle(location);
 						continue;
-					} else if (isSingleton(mainAttributes) && !installedSingletons.add(bundleSymbolicName)) {
-						bundle = Arrays.stream(bundleContext.getBundles())
-								.filter(b -> b.getSymbolicName().equals(bundleSymbolicName)).findFirst().orElse(null);
-						logger.info("More than one singleton bundle found for smybolic name " + bundleSymbolicName
-								+ " one with path " + location + " and one with path "
-								+ (bundle == null ? "???" : bundle.getLocation()));
-						continue;
-					} else {
+					} /*
+						 * else if (isSingleton(mainAttributes) &&
+						 * !installedSingletons.add(bundleSymbolicName)) { bundle =
+						 * Arrays.stream(bundleContext.getBundles()) .filter(b ->
+						 * b.getSymbolicName().equals(bundleSymbolicName)).findFirst().orElse(null);
+						 * logger.info("More than one singleton bundle found for smybolic name " +
+						 * bundleSymbolicName + " one with path " + location + " and one with path " +
+						 * (bundle == null ? "???" : bundle.getLocation())); continue; } else {
+						 */
 						modulesMap.put(location,
 								new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), realm));
 						bundle = installBundle(bundleContext, location, logger);
-					}
+						// }
 					if (bundle != null) {
 						installed.add(location);
 						if (realmExports.bundleStartMap.getOrDefault(bundleSymbolicName, false)) {
@@ -325,6 +325,9 @@ final class PlexusModuleConnector implements ModuleConnector {
 		Attributes attributes = jarFile.getManifest().getMainAttributes();
 		Map<String, String> headers = new LinkedHashMap<>();
 		attributes.forEach((key, value) -> headers.put(key.toString(), value.toString()));
+		String remove = headers.remove(Constants.BUNDLE_SYMBOLICNAME);
+		// allow to install any singelton bundle...
+		headers.put(Constants.BUNDLE_SYMBOLICNAME, getBsn(remove));
 		return Collections.unmodifiableMap(headers);
 	}
 
