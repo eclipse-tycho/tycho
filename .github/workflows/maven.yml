@@ -48,7 +48,7 @@ jobs:
        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       run: | 
         cp .github/toolchains.xml ~/.m2/toolchains.xml
-        mvn -U -V -e -B -ntp clean install --file pom.xml -T1C
+        mvn -U -V -e -B -ntp clean install --file pom.xml
     - name: Run Integration Tests
       run: mvn -U -V -e -B -ntp -Pits -D maven.test.failure.ignore=true clean install --file tycho-its/pom.xml
       if: github.event.pull_request.draft == false

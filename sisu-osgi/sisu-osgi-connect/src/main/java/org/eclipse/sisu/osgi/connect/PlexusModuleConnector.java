@@ -187,12 +187,14 @@ final class PlexusModuleConnector implements ModuleConnector {
 					Bundle bundle;
 					if (modulesMap.containsKey(location)) {
 						bundle = bundleContext.getBundle(location);
+						continue;
 					} else if (isSingleton(mainAttributes) && !installedSingletons.add(bundleSymbolicName)) {
 						bundle = Arrays.stream(bundleContext.getBundles())
 								.filter(b -> b.getSymbolicName().equals(bundleSymbolicName)).findFirst().orElse(null);
-						logger.debug("More than one singleton bundle found for smybolic name " + bundleSymbolicName
+						logger.info("More than one singleton bundle found for smybolic name " + bundleSymbolicName
 								+ " one with path " + location + " and one with path "
 								+ (bundle == null ? "???" : bundle.getLocation()));
+						continue;
 					} else {
 						modulesMap.put(location,
 								new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), realm));

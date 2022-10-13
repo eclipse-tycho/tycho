@@ -42,6 +42,7 @@ final class DummyClassRealm extends ClassRealm {
 				Enumeration<URL> resources = classLoader.getResources(JarFile.MANIFEST_NAME);
 				while (resources.hasMoreElements()) {
 					String location = resources.nextElement().toExternalForm();
+					System.out.println("Location of manifest found " + location);
 					if (location.startsWith(JAR_FILE_PREFIX)) {
 						String name = location.substring(JAR_PREFIX.length()).split("!")[0];
 						urls.add(new URL(name));
