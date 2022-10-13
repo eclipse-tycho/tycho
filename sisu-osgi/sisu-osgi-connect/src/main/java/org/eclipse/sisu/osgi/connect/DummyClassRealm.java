@@ -45,13 +45,14 @@ final class DummyClassRealm extends ClassRealm {
 					System.out.println("Location of manifest found " + location);
 					if (location.startsWith(JAR_FILE_PREFIX)) {
 						String name = location.substring(JAR_PREFIX.length()).split("!")[0];
-						urls.add(new URL(name));
+						urls.add(0, new URL(name));
 					}
 				}
 			} catch (IOException e) {
 			}
 		}
-		return urls.toArray(URL[]::new);
+		URL[] array = urls.toArray(URL[]::new);
+		return array;
 	}
 
 	@Override
