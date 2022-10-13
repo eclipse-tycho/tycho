@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -33,6 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -104,6 +106,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 	}
 
 	public synchronized void installRealm(ClassRealm realm, BundleContext bundleContext, Logger logger) {
+		boolean startAll = realm instanceof DummyClassRealm;
 		Objects.requireNonNull(realm);
 		if (realmBundles.containsKey(realm)) {
 			// already scanned!
@@ -187,19 +190,32 @@ final class PlexusModuleConnector implements ModuleConnector {
 					if (modulesMap.containsKey(location)) {
 						bundle = bundleContext.getBundle(location);
 						continue;
-					} /*
-						 * else if (isSingleton(mainAttributes) &&
-						 * !installedSingletons.add(bundleSymbolicName)) { bundle =
-						 * Arrays.stream(bundleContext.getBundles()) .filter(b ->
-						 * b.getSymbolicName().equals(bundleSymbolicName)).findFirst().orElse(null);
-						 * logger.info("More than one singleton bundle found for smybolic name " +
-						 * bundleSymbolicName + " one with path " + location + " and one with path " +
-						 * (bundle == null ? "???" : bundle.getLocation())); continue; } else {
-						 */
+					} else if (isSingleton(mainAttributes) && !installedSingletons.add(bundleSymbolicName)) {
+						bundle = Arrays.stream(bundleContext.getBundles())
+								.filter(b -> b.getSymbolicName().equals(bundleSymbolicName)).findFirst().orElse(null);
+						logger.info("More than one singleton bundle found for smybolic name " + bundleSymbolicName
+								+ " one with path " + location + " and one with path "
+								+ (bundle == null ? "???" : bundle.getLocation()));
+						if (startAll) {
+							// THIS is hacky ... remove once we migrated Tycho fully to maven!
+							Map<String, String> manifest = getHeaderFromManifest(jarFile);
+							manifest.put(Constants.SYSTEM_BUNDLE_SYMBOLICNAME,
+									bundleSymbolicName + "." + UUID.randomUUID() + ";singleton:=true");
+							modulesMap.put(location, new PlexusConnectContent(jarFile, manifest, realm));
+							bundle = installBundle(bundleContext, location, logger);
+							if (realmExports.bundleStartMap.getOrDefault(bundleSymbolicName, false)) {
+								try {
+									bundle.start();
+								} catch (BundleException e) {
+								}
+							}
+						}
+						continue;
+					} else {
 						modulesMap.put(location,
 								new PlexusConnectContent(jarFile, getHeaderFromManifest(jarFile), realm));
 						bundle = installBundle(bundleContext, location, logger);
-						// }
+					}
 					if (bundle != null) {
 						installed.add(location);
 						if (realmExports.bundleStartMap.getOrDefault(bundleSymbolicName, false)) {
@@ -325,9 +341,6 @@ final class PlexusModuleConnector implements ModuleConnector {
 		Attributes attributes = jarFile.getManifest().getMainAttributes();
 		Map<String, String> headers = new LinkedHashMap<>();
 		attributes.forEach((key, value) -> headers.put(key.toString(), value.toString()));
-		String remove = headers.remove(Constants.BUNDLE_SYMBOLICNAME);
-		// allow to install any singelton bundle...
-		headers.put(Constants.BUNDLE_SYMBOLICNAME, getBsn(remove));
 		return Collections.unmodifiableMap(headers);
 	}
 
