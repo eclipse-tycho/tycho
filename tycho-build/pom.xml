@@ -45,13 +45,6 @@
 			<artifactId>tycho-embedder-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
--->
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.core</artifactId>
@@ -149,6 +142,12 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>p2-maven-plugin</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.scr</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 	</dependencies>
