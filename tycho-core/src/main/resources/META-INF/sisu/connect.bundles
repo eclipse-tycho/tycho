@@ -34,7 +34,7 @@ org.eclipse.equinox.p2.garbagecollector,true
 
 org.eclipse.tycho.embedder.shared
 org.eclipse.tycho.embedder-api
-org.eclipse.tycho.core.shared
+org.eclipse.tycho.core.shared,true
 
 org.eclipse.tycho.p2.maven.repository,true
 org.eclipse.tycho.embedder-api,true

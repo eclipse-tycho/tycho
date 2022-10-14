@@ -51,3 +51,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.26.0",
  biz.aQute.bndlib,
  org.eclipse.equinox.security
 Automatic-Module-Name: org.eclipse.tycho.core.shared
+Bundle-ActivationPolicy: lazy
