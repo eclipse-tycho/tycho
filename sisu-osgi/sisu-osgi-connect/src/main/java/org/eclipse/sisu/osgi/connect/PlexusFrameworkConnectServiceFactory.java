@@ -194,7 +194,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 
 	protected ClassRealm getRealm(ClassLoader classloader) {
 		return classloader instanceof ClassRealm classRealm ? classRealm : //
-				loaderMap.computeIfAbsent(classloader, cl -> new DummyClassRealm("Not called from a ClassRealm", cl));
+				loaderMap.computeIfAbsent(classloader,
+						cl -> new DummyClassRealm("Not called from a ClassRealm", cl, log));
 	}
 
 	private static Map<String, String> readProperties(ClassLoader classloader, Logger logger) {
