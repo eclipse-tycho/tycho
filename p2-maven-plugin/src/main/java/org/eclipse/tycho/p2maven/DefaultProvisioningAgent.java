@@ -33,6 +33,7 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 		if (agent != null) {
 			return agent.getService(serviceName);
 		}
+		log.warn("Can't locate service = " + serviceName + " because no provisioning agent was found!");
 		return null;
 	}
 
