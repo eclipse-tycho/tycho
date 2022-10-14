@@ -291,11 +291,5 @@
 			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
 			<version>${tycho-build-version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
-			<version>${tycho-build-version}</version>
-		</dependency>
-
 	</dependencies>
 </project>

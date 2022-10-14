@@ -62,11 +62,6 @@
 			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
-			<scope>test</scope>
-		</dependency>
 		<!-- end workaround for 393663 -->
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
