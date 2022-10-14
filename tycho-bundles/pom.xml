@@ -33,12 +33,10 @@
 		<!-- implementations -->
 		<module>org.eclipse.tycho.p2.resolver.impl</module>
 		<module>org.eclipse.tycho.p2.maven.repository</module>
-		<module>org.eclipse.tycho.p2.tools.impl</module>
 
 		<!-- unit tests -->
 		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
 		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
-		<module>org.eclipse.tycho.p2.tools.tests</module>
 		<module>org.eclipse.tycho.test.utils</module>
 	</modules>
 

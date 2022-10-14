@@ -15,7 +15,6 @@ org.eclipse.ecf.provider.filetransfer,true
 biz.aQute.bndlib
 biz.aQute.bnd.util
 
-org.eclipse.tycho.p2.tools.impl,true
 org.eclipse.equinox.p2.core,true
 org.eclipse.equinox.p2.artifact.repository,true
 org.eclipse.equinox.p2.director,true

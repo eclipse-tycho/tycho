@@ -88,7 +88,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testBasic() throws Exception {
-        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342_2").toURI());
 
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
         projectToResolve = createReactorProject(resourceFile("resolver/bundle01"), TYPE_ECLIPSE_PLUGIN, artifactId);
@@ -102,7 +102,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @SuppressWarnings("deprecation")
     @Test
     public void testSiteConflictingDependenciesResolver() throws IOException {
-        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342_2").toURI());
 
         File[] projects = new File[] { resourceFile("siteresolver/bundle342"), //
                 resourceFile("siteresolver/bundle352"), //
@@ -148,7 +148,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         projectToResolve = createReactorProject(resourceFile("resolver/bundle.optional-dep"), TYPE_ECLIPSE_PLUGIN,
                 "bundle.optional-dep", OptionalResolutionAction.REQUIRE);
 
-        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342_2").toURI());
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
         assertThat(result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
@@ -202,7 +202,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testEclipseRepository() throws Exception {
-        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342_2").toURI());
         tpConfig.addP2Repository(resourceFile("repositories/launchers").toURI());
 
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.repository";
@@ -478,7 +478,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testAdditionalFilterProperties() throws Exception {
-        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342_2").toURI());
 
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundle.filtered-dep";
         projectToResolve = createReactorProject(resourceFile("resolver/bundle.filtered-dep"), TYPE_ECLIPSE_PLUGIN,
@@ -492,7 +492,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testResolveWithoutProject() throws Exception {
-        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342_2").toURI());
 
         projectToResolve = null;
         impl.addDependency(TYPE_ECLIPSE_PLUGIN, "org.eclipse.osgi", "0.0.0");
