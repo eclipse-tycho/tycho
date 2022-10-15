@@ -16,5 +16,42 @@
             priority="0">
       </provider>
    </extension>
-
+   <extension
+         id="org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository"
+         point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
+      <factory
+            class="org.eclipse.tycho.p2.repository.LocalArtifactRepositoryFactory">
+      </factory>
+      <filter
+            suffix=".meta/p2-artifacts.properties" />
+   </extension>
+   <extension
+         id="org.eclipse.tycho.repository.module.ModuleArtifactRepository"
+         point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
+      <factory
+            class="org.eclipse.tycho.p2.repository.module.ModuleArtifactRepositoryFactory">
+      </factory>
+      <filter
+            suffix="p2artifacts.xml">
+      </filter>
+   </extension>
+   <extension
+         id="org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard"
+         point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
+      <factory
+            class="org.eclipse.tycho.p2.repository.ArtifactRepositoryBlackboard">
+      </factory>
+      <filter
+            suffix="@memory"/>
+   </extension>
+   <extension
+         id="org.eclipse.tycho.repository.module.ModuleMetadataRepository"
+         point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
+      <factory
+            class="org.eclipse.tycho.p2.repository.module.ModuleMetadataRepositoryFactory">
+      </factory>
+      <filter
+            suffix="p2content.xml">
+      </filter>
+   </extension>
 </plugin>

@@ -43,9 +43,9 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
+import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
+import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
@@ -71,8 +71,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         if (localMetadataRepository == null) {
             File localMavenRepoRoot = context.getLocalRepositoryRoot();
             RepositoryReader contentLocator = new LocalRepositoryReader(context);
-            localMetadataRepository = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
-                    localRepoIndices.getMetadataIndex(), contentLocator);
+            localMetadataRepository = new LocalMetadataRepository(Activator.getProvisioningAgent(),
+                    localMavenRepoRoot.toURI(), localRepoIndices.getMetadataIndex(), contentLocator);
 
         }
         return localMetadataRepository;
@@ -82,7 +82,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
             LocalRepositoryP2Indices localRepoIndices) {
         if (localArtifactRepository == null) {
             RepositoryReader contentLocator = new LocalRepositoryReader(mavenContext);
-            localArtifactRepository = new LocalArtifactRepository(localRepoIndices, contentLocator);
+            localArtifactRepository = new LocalArtifactRepository(Activator.getProvisioningAgent(), localRepoIndices,
+                    contentLocator);
         }
         return localArtifactRepository;
     }

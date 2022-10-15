@@ -224,11 +224,6 @@
 
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>

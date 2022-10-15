@@ -28,8 +28,8 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.resolver.target.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
-import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
+import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
+import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {

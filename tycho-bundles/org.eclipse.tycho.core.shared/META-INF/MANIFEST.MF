@@ -32,7 +32,8 @@ Export-Package: org.eclipse.tycho.artifacts,
  org.eclipse.tycho.repository.util,
  org.eclipse.tycho.security.storage
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Import-Package: org.apache.commons.io;version="2.11.0",
+Import-Package: org.apache.commons.codec.digest;version="1.14.0",
+ org.apache.commons.io;version="2.11.0",
  org.eclipse.equinox.frameworkadmin;version="2.0.0",
  org.eclipse.tycho
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.26.0",

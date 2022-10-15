@@ -128,12 +128,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
 			<version>1.4.100</version>

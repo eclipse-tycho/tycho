@@ -26,17 +26,10 @@
 
 	<modules>
 		<module>tycho-bundles-target</module>
-		<!-- classes shared between Maven and OSGi class loaders -->
 		<module>org.eclipse.tycho.embedder.shared</module>
 		<module>org.eclipse.tycho.core.shared</module>
-
-		<!-- implementations -->
 		<module>org.eclipse.tycho.p2.resolver.impl</module>
-		<module>org.eclipse.tycho.p2.maven.repository</module>
-
-		<!-- unit tests -->
 		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
-		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
 		<module>org.eclipse.tycho.test.utils</module>
 	</modules>
 
