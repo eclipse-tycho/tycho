@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator implements BundleActivator {
     public static final String PLUGIN_ID = "org.eclipse.tycho.p2.impl";
@@ -28,6 +29,8 @@ public class Activator implements BundleActivator {
 
     private BundleContext context;
 
+    private static ServiceTracker<IProvisioningAgent, IProvisioningAgent> serviceTracker;
+
     public Activator() {
         Activator.instance = this;
     }
@@ -35,6 +38,16 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext context) throws Exception {
         this.context = context;
+        serviceTracker = new ServiceTracker<>(context, IProvisioningAgent.class, null);
+        serviceTracker.open();
+    }
+
+    public static IProvisioningAgent getProvisioningAgent() {
+        if (serviceTracker == null) {
+            return null;
+        }
+        IProvisioningAgent service = serviceTracker.getService();
+        return service;
     }
 
     /**

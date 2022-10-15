@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.equinox.p2.core;bundle-version="1.0.100",
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.tycho.p2.remote.testutil,
  org.eclipse.tycho.p2.testutil,
- org.eclipse.tycho.repository.local.testutil,
  org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.testutil,
  org.eclipse.tycho.test.util
@@ -31,12 +30,12 @@ Import-Package: javax.servlet,
  org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.p2.artifact.provider,
  org.eclipse.tycho.p2.artifact.provider.streaming,
- org.eclipse.tycho.p2.maven.repository,
+ org.eclipse.tycho.p2.impl,
  org.eclipse.tycho.p2.remote,
  org.eclipse.tycho.p2.repository,
  org.junit;version="[4.13.2,5.0.0)",
- org.junit.rules;version="[4.13.2,5.0.0)",
  org.junit.function;version="[4.13.2,5.0.0)",
+ org.junit.rules;version="[4.13.2,5.0.0)",
  org.osgi.framework
 Bundle-Activator: org.eclipse.tycho.test.util.Activator
 Bundle-ActivationPolicy: lazy

@@ -35,17 +35,18 @@ import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 import org.eclipse.tycho.core.shared.MockMavenContext;
+import org.eclipse.tycho.p2.impl.Activator;
+import org.eclipse.tycho.p2.impl.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.P2ResolverImpl;
 import org.eclipse.tycho.p2.impl.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.impl.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.impl.TargetPlatformFactoryImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
-import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
-import org.eclipse.tycho.p2.maven.repository.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
+import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -105,9 +106,10 @@ public class TestResolverFactory implements P2ResolverFactory {
         File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
         LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
         LocalRepositoryReader localRepositoryReader = new LocalRepositoryReader(mavenContext);
-        localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(), localRepoIndices.getMetadataIndex(),
+        localMetadataRepo = new LocalMetadataRepository(Activator.getProvisioningAgent(), localMavenRepoRoot.toURI(),
+                localRepoIndices.getMetadataIndex(), localRepositoryReader);
+        localArtifactRepo = new LocalArtifactRepository(Activator.getProvisioningAgent(), localRepoIndices,
                 localRepositoryReader);
-        localArtifactRepo = new LocalArtifactRepository(localRepoIndices, localRepositoryReader);
     }
 
     public LocalMetadataRepository getLocalMetadataRepository() {
