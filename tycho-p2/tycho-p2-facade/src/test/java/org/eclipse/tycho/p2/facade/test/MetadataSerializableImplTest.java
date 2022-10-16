@@ -31,7 +31,6 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2.facade.MetadataSerializableImpl;
-import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

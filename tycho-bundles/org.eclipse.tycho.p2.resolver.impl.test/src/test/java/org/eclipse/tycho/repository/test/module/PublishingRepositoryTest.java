@@ -13,7 +13,7 @@
 package org.eclipse.tycho.repository.test.module;
 
 import static org.eclipse.tycho.repository.test.module.ModuleArtifactRepositoryTest.writeAndClose;
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.allKeysIn;
+import static org.eclipse.tycho.testutil.ArtifactRepositoryTestUtils.allKeysIn;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,8 +37,8 @@ import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAndExtension;
-import org.eclipse.tycho.test.util.P2Context;
-import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
+import org.eclipse.tycho.testutil.P2Context;
+import org.eclipse.tycho.testutil.ReactorProjectIdentitiesStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

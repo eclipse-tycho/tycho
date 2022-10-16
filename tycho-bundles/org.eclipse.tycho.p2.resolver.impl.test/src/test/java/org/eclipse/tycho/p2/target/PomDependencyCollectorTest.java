@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
+import static org.eclipse.tycho.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -26,12 +26,12 @@ import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.testutil.LogVerifier;
+import org.eclipse.tycho.testutil.MockMavenContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

@@ -13,16 +13,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.test.repository;
 
-import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
-import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
 import static org.eclipse.tycho.repository.test.TestRepositoryContent.BUNDLE_A_KEY;
 import static org.eclipse.tycho.repository.test.TestRepositoryContent.BUNDLE_B_KEY;
 import static org.eclipse.tycho.repository.test.TestRepositoryContent.REPO_BUNDLE_A_CORRUPT;
 import static org.eclipse.tycho.repository.test.TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT;
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.ANY_ARTIFACT_KEY_QUERY;
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
-import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
-import static org.eclipse.tycho.test.util.StatusMatchers.warningStatus;
+import static org.eclipse.tycho.testutil.ArtifactRepositoryTestUtils.ANY_ARTIFACT_KEY_QUERY;
+import static org.eclipse.tycho.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
+import static org.eclipse.tycho.testutil.ProbeArtifactSink.newArtifactSinkFor;
+import static org.eclipse.tycho.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
+import static org.eclipse.tycho.testutil.StatusMatchers.errorStatus;
+import static org.eclipse.tycho.testutil.StatusMatchers.warningStatus;
 import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;

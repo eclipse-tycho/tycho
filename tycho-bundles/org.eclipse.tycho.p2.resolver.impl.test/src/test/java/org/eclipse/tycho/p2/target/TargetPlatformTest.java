@@ -12,9 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createBundleIU;
-import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createFeatureIU;
-import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createProductIU;
+import static org.eclipse.tycho.testutil.InstallableUnitUtil.createBundleIU;
+import static org.eclipse.tycho.testutil.InstallableUnitUtil.createFeatureIU;
+import static org.eclipse.tycho.testutil.InstallableUnitUtil.createProductIU;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;

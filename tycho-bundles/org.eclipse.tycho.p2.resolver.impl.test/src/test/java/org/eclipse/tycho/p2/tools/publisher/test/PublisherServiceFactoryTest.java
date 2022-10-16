@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
-import org.eclipse.tycho.test.util.MavenServiceStubbingTestBase;
+import org.eclipse.tycho.testutil.MavenServiceStubbingTestBase;
 import org.junit.Test;
 import org.osgi.util.tracker.ServiceTracker;
 

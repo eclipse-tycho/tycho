@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.test.module;
 
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.allKeysIn;
+import static org.eclipse.tycho.testutil.ArtifactRepositoryTestUtils.allKeysIn;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -39,7 +39,7 @@ import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.p2.repository.module.ModuleArtifactRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.repository.test.ResourceUtil;
-import org.eclipse.tycho.test.util.P2Context;
+import org.eclipse.tycho.testutil.P2Context;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;

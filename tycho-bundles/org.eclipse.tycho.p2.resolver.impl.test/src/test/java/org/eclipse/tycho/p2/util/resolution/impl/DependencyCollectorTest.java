@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils;
 import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
-import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.testutil.LogVerifier;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

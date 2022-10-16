@@ -31,7 +31,7 @@ import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
 import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.repository.test.TestRepositoryContent;
-import org.eclipse.tycho.test.util.P2Context;
+import org.eclipse.tycho.testutil.P2Context;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

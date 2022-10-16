@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.manager;
 
-import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
+import static org.eclipse.tycho.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -27,7 +27,6 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
@@ -35,8 +34,9 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
-import org.eclipse.tycho.test.util.MavenServiceStubbingTestBase;
-import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
+import org.eclipse.tycho.testutil.MavenServiceStubbingTestBase;
+import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.testutil.ReactorProjectIdentitiesStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

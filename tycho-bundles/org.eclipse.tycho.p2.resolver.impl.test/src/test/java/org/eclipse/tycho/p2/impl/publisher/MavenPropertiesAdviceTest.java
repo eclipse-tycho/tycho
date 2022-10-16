@@ -17,6 +17,7 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Map;
 
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
 import org.junit.Test;
@@ -44,7 +45,8 @@ public class MavenPropertiesAdviceTest {
     private Map<String, String> createIUProperties(String classifier) {
         MavenPropertiesAdvice mavenPropertiesAdvice = new MavenPropertiesAdvice("groupId", "artifactId", "1.0.0",
                 classifier, null, null, null);
-        Map<String, String> iuProperties = mavenPropertiesAdvice.getInstallableUnitProperties(null);
+        InstallableUnitDescription desc = null;
+        Map<String, String> iuProperties = mavenPropertiesAdvice.getInstallableUnitProperties(desc);
         return iuProperties;
     }
 

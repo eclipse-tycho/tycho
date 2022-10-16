@@ -32,7 +32,7 @@ import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.target.TestResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
-import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.testutil.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

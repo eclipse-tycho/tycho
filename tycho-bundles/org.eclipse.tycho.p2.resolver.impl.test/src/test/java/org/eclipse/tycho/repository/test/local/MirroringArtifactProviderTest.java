@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.test.local;
 
-import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
-import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.ANY_ARTIFACT_KEY_QUERY;
-import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
+import static org.eclipse.tycho.testutil.ArtifactRepositoryTestUtils.ANY_ARTIFACT_KEY_QUERY;
+import static org.eclipse.tycho.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
+import static org.eclipse.tycho.testutil.ProbeArtifactSink.newArtifactSinkFor;
+import static org.eclipse.tycho.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -35,18 +35,18 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.MirroringArtifactProvider;
 import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
-import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
-import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.eclipse.tycho.repository.test.ResourceUtil;
 import org.eclipse.tycho.repository.test.TemporaryLocalMavenRepository;
 import org.eclipse.tycho.repository.test.TestRepositoryContent;
-import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.P2Context;
+import org.eclipse.tycho.testutil.LogVerifier;
+import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.testutil.P2Context;
+import org.eclipse.tycho.testutil.ProbeArtifactSink;
+import org.eclipse.tycho.testutil.ProbeRawArtifactSink;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

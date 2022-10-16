@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.ee.impl.CustomEEResolutionHints;
 import org.eclipse.tycho.core.ee.impl.InvalidEENameException;
-import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
+import org.eclipse.tycho.testutil.InstallableUnitUtil;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")
