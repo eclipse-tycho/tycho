@@ -19,10 +19,10 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.GAVArtifactDescriptor;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
+import org.eclipse.tycho.testutil.MockMavenContext;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")

@@ -56,12 +56,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.test.utils</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-testing-harness</artifactId>
 			<scope>test</scope>
 		</dependency>

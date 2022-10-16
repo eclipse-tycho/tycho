@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.p2.impl.P2ResolverImpl;
-import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.testutil.LogVerifier;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

@@ -42,7 +42,7 @@ public class RemoteAgent implements IProvisioningAgent {
     }
 
     // constructor for tests
-    RemoteAgent(MavenContext mavenContext, boolean disableP2Mirrors) throws ProvisionException {
+    public RemoteAgent(MavenContext mavenContext, boolean disableP2Mirrors) throws ProvisionException {
         this(mavenContext, null, null, disableP2Mirrors);
     }
 

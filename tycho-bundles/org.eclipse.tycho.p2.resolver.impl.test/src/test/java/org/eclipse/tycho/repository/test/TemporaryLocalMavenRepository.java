@@ -16,12 +16,12 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.NoopFileLockService;
+import org.eclipse.tycho.testutil.LogVerifier;
+import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.testutil.NoopFileLockService;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;

@@ -32,14 +32,14 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.test.util.NoopFileLockService;
+import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.testutil.NoopFileLockService;
 import org.junit.Assert;
 import org.junit.Test;
 

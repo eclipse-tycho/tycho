@@ -13,22 +13,22 @@
 package org.eclipse.tycho.repository.test.local;
 
 import static java.util.Collections.singletonList;
-import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
+import static org.eclipse.tycho.testutil.ProbeArtifactSink.newArtifactSinkFor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.MirroringArtifactProvider;
 import org.eclipse.tycho.p2.repository.MirroringArtifactProvider.MirroringFailedException;
 import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
-import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
 import org.eclipse.tycho.repository.test.TemporaryLocalMavenRepository;
 import org.eclipse.tycho.repository.test.TestRepositoryContent;
-import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.P2Context;
+import org.eclipse.tycho.testutil.LogVerifier;
+import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.testutil.P2Context;
+import org.eclipse.tycho.testutil.ProbeArtifactSink;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

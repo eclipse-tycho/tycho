@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.test.local;
 
-import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
-import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
-import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
+import static org.eclipse.tycho.testutil.ProbeArtifactSink.newArtifactSinkFor;
+import static org.eclipse.tycho.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
+import static org.eclipse.tycho.testutil.StatusMatchers.errorStatus;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -51,12 +51,12 @@ import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
 import org.eclipse.tycho.p2.repository.ArtifactRepositoryBaseImpl;
 import org.eclipse.tycho.p2.repository.GAVArtifactDescriptor;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
-import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
-import org.eclipse.tycho.repository.streaming.testutil.ProbeOutputStream;
-import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.eclipse.tycho.repository.test.ResourceUtil;
 import org.eclipse.tycho.repository.test.TemporaryLocalMavenRepository;
 import org.eclipse.tycho.repository.test.TestRepositoryContent;
+import org.eclipse.tycho.testutil.ProbeArtifactSink;
+import org.eclipse.tycho.testutil.ProbeOutputStream;
+import org.eclipse.tycho.testutil.ProbeRawArtifactSink;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

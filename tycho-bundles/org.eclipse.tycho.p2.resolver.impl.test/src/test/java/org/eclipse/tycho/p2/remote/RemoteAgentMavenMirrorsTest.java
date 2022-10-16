@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.net.URI;
 import java.util.Properties;
-
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -26,11 +26,11 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
-import org.eclipse.tycho.p2.remote.testutil.MavenRepositorySettingsStub;
-import org.eclipse.tycho.test.util.HttpServer;
-import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.testutil.HttpServer;
+import org.eclipse.tycho.testutil.LogVerifier;
+import org.eclipse.tycho.testutil.MavenRepositorySettingsStub;
+import org.eclipse.tycho.testutil.MockMavenContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,7 +62,8 @@ public class RemoteAgentMavenMirrorsTest {
         };
 
         mavenRepositorySettings = new MavenRepositorySettingsStub();
-        subject = new RemoteAgent(mavenContext, null, mavenRepositorySettings, OFFLINE);
+        IProxyService service = null;
+        subject = new RemoteAgent(mavenContext, service, mavenRepositorySettings, OFFLINE);
         IRepositoryIdManager idManager = subject.getService(IRepositoryIdManager.class);
         System.out.println(idManager);
     }

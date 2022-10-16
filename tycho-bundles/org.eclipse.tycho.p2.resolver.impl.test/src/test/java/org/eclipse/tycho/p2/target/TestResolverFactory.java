@@ -34,7 +34,6 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.impl.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.P2ResolverImpl;
@@ -53,7 +52,8 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
-import org.eclipse.tycho.test.util.NoopFileLockService;
+import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.testutil.NoopFileLockService;
 
 public class TestResolverFactory implements P2ResolverFactory {
 

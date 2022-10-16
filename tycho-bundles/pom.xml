@@ -30,7 +30,6 @@
 		<module>org.eclipse.tycho.core.shared</module>
 		<module>org.eclipse.tycho.p2.resolver.impl</module>
 		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
-		<module>org.eclipse.tycho.test.utils</module>
 	</modules>
 
 	<build>

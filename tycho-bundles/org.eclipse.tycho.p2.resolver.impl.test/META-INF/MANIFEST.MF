@@ -4,22 +4,33 @@ Bundle-Name: Tycho p2 Resolver Bundle Tests
 Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.impl.test;singleton:=true
 Bundle-Version: 3.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Fragment-Host: org.eclipse.tycho.p2.resolver.impl
 Require-Bundle: org.hamcrest.core,
  org.eclipse.equinox.p2.transport.ecf,
  biz.aQute.bndlib,
- org.mockito.mockito-core;bundle-version="4.8.0"
+ org.mockito.mockito-core;bundle-version="4.8.0",
+ org.eclipse.equinox.p2.metadata,
+ org.eclipse.equinox.p2.repository,
+ org.eclipse.equinox.p2.publisher,
+ org.eclipse.equinox.p2.publisher.eclipse,
+ org.eclipse.equinox.p2.core,
+ org.eclipse.core.runtime,
+ org.eclipse.tycho.p2.resolver.impl,
+ org.eclipse.core.net,
+ org.eclipse.tycho.core.shared,
+ org.eclipse.tycho.embedder.shared
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
-Import-Package: org.apache.commons.io,
- org.eclipse.tycho.core.ee.impl,
- org.eclipse.tycho.core.ee.shared,
- org.eclipse.tycho.p2.remote.testutil,
- org.eclipse.tycho.p2.testutil,
- org.eclipse.tycho.repository.streaming.testutil,
- org.eclipse.tycho.repository.testutil,
- org.eclipse.tycho.test.util,
+Import-Package: javax.servlet;version="4.0.0",
+ javax.servlet.http;version="4.0.0",
+ org.apache.commons.io,
+ org.eclipse.jetty.http,
+ org.eclipse.jetty.security,
+ org.eclipse.jetty.server,
+ org.eclipse.jetty.servlet,
+ org.eclipse.jetty.util,
+ org.eclipse.jetty.util.component,
  org.junit;version="[4.13.2,5.0.0)",
- org.junit.rules;version="[4.13.2,5.0.0)",
- org.junit.function;version="[4.13.2,5.0.0)",org.eclipse.tycho.p2.tools
+ org.junit.function;version="[4.13.2,5.0.0)",
+ org.junit.rules;version="[4.13.2,5.0.0)"
 Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl.test
+Service-Component: OSGI-INF/repositoryIdManagerFallback.xml

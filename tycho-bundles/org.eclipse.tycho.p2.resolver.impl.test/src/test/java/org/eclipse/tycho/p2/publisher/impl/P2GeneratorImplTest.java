@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.publisher.impl;
 
-import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.hasGAV;
+import static org.eclipse.tycho.testutil.InstallableUnitMatchers.hasGAV;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,14 +38,14 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.shared.MockMavenContext;
 import org.eclipse.tycho.p2.impl.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
-import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
-import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.testutil.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.testutil.LogVerifier;
+import org.eclipse.tycho.testutil.MockMavenContext;
 import org.junit.Rule;
 import org.junit.Test;
 
