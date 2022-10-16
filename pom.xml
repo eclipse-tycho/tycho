@@ -277,6 +277,17 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
+			<dependency>
+			    <groupId>org.eclipse.platform</groupId>
+			    <artifactId>org.eclipse.ui.workbench</artifactId>
+			    <version>3.126.0</version>
+			    <exclusions>
+					<exclusion>
+						<groupId>org.osgi</groupId>
+						<artifactId>*</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
