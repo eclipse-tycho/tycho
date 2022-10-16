@@ -6,6 +6,12 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Migration guide
 
+#### Minimum version for running integration/plugin tests
+
+Previously the `osgibooter` has claimed to be Java 1.5 compatible but as such old JVMs are hard to find/test against already some newer code was slipping in. It was therefore decided to raise the minimum requirement to Java 1.8 what implicitly makes it the lowest bound for running integration/plugin tests with Tycho.
+
+This requires any tests using pre 1.8 java jvm to be upgrade to at laest running on Java 1.8.
+
 #### Using integration/plugin tests with eclipse-plugin packaging
 
 Some improvements have been made for the test execution with `eclipse-plugin` packaging that probably needs some adjustments to your pom configuration or build scripts:

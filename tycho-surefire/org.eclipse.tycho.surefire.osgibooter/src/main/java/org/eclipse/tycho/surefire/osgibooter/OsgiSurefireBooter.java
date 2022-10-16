@@ -142,7 +142,7 @@ public class OsgiSurefireBooter {
         RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin), reporterFactory,
                 providerConfiguration, false, startupConfiguration, true);
         String failsafe = testProps.getProperty("failsafe");
-        if (failsafe != null && !failsafe.isBlank()) {
+        if (failsafe != null && !failsafe.trim().isEmpty()) {
             FailsafeSummaryXmlUtils.writeSummary(result, new File(failsafe), false);
         }
         // counter-intuitive, but null indicates OK here
