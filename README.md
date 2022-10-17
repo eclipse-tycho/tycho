@@ -1,6 +1,8 @@
 Eclipse Tycho
 =============
 
+Test if the build shows failure without any changes ...
+
 [![Build Tycho](https://github.com/eclipse/tycho/actions/workflows/maven.yml/badge.svg)](https://github.com/eclipse/tycho/actions/workflows/maven.yml) [![Unit Test Results](https://github.com/eclipse/tycho/actions/workflows/check.yml/badge.svg)](https://github.com/eclipse/tycho/actions/workflows/check.yml) [![License check](https://github.com/eclipse/tycho/actions/workflows/licensecheck.yml/badge.svg)](https://github.com/eclipse/tycho/actions/workflows/licensecheck.yml)
 
 Tycho is a manifest-first way to build
