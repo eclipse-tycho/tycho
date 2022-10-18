@@ -490,7 +490,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      *
      * @since 1.3.0
      */
-    @Parameter(property = "trimStackTrace", defaultValue = "true")
+    @Parameter(property = "trimStackTrace", defaultValue = "false")
     private boolean trimStackTrace;
 
     /**
