@@ -10,7 +10,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 Previously the `osgibooter` has claimed to be Java 1.5 compatible but as such old JVMs are hard to find/test against already some newer code was slipping in. It was therefore decided to raise the minimum requirement to Java 1.8 what implicitly makes it the lowest bound for running integration/plugin tests with Tycho.
 
-This requires any tests using pre 1.8 java jvm to be upgrade to at laest running on Java 1.8.
+This requires any tests using pre 1.8 java jvm to be upgrade to at least running on Java 1.8.
 
 #### Using integration/plugin tests with eclipse-plugin packaging
 
@@ -74,6 +74,23 @@ This will then:
 1. add a new execution of the `verify-osgi-pom` mojo
 2. enable the generation and embedding of a maven descriptor (optional if you fully manage your pom.xml with all dependencies)
 3. map P2 dependencies to maven dependencies (optional, but most likely required to get good results)
+
+### Default value change for trimStackTrace
+
+tycho-surefire-plugin had set the default value of the trimStackTrace option to true.
+The default will now be aligned with maven-surefire-plugin at false and will need to be manually adjusted for users that really need the stack traces trimmed.
+
+Old behavior can be restored through configuration of the tycho-surefire-plugin:
+
+```
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-surefire-plugin</artifactId>
+    <configuration>
+        <trimStackTrace>true</trimStackTrace>
+    </configuration>
+</plugin>
+```
 
 ## 3.0.0
 
