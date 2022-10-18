@@ -2,9 +2,9 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## 3.1.0 (under development)
+## 4.0.0 (under development)
 
-### Migration guide
+### Migration guide 3.x > 4.x
 
 #### Minimum version for running integration/plugin tests
 
