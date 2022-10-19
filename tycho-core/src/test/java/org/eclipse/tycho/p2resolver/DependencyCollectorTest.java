@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.resolution.impl;
+package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertThrows;
 
@@ -27,10 +27,11 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
-import org.eclipse.tycho.testutil.LogVerifier;
+import org.eclipse.tycho.test.util.ExecutionEnvironmentTestUtils;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,7 +64,7 @@ public class DependencyCollectorTest {
         data.setAdditionalRequirements(new ArrayList<IRequirement>());
         data.setAvailableIUs(Collections.<IInstallableUnit> emptyList());
 
-        DependencyCollector dc = new DependencyCollector(logVerifier.getLogger());
+        DependencyCollector dc = new DependencyCollector(new MavenLoggerAdapter(logVerifier.getLogger(), false));
         dc.setData(data);
         RuntimeException e = assertThrows(RuntimeException.class,
                 () -> dc.resolve(Collections.emptyMap(), new NullProgressMonitor()));
