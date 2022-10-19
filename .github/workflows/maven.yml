@@ -60,4 +60,12 @@ jobs:
         path: |
           ${{ github.workspace }}/tycho-its/target/surefire-reports/*.xml
       if: github.event.pull_request.draft == false
-
+  event_file:
+    name: "Event File"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: Event File
+        path: ${{ github.event_path }}
