@@ -11,7 +11,7 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.p2.impl.publisher.rootfiles;
+package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 
