@@ -10,7 +10,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher;
+package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

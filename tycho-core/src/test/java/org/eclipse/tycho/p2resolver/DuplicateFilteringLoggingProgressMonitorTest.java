@@ -1,4 +1,4 @@
-package org.eclipse.tycho.repository.test;
+package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

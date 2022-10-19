@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.test.local;
+package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.GAVArtifactDescriptor;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
-import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.test.util.MockMavenContext;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")

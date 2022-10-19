@@ -11,7 +11,7 @@
  *    SAP AG - initial API and implementation
  *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher.rootfiles;
+package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 
@@ -94,7 +94,7 @@ public class FileSetTest {
 
     @Test
     public void testScan() {
-        FileSet txtFileset = new FileSet(new File("resources/rootfiles"), "**/*.txt");
+        FileSet txtFileset = new FileSet(new File("src/test/resources/rootfiles"), "**/*.txt");
         FileToPathMap result = txtFileset.scan();
         Assert.assertEquals(4, result.keySet().size());
     }

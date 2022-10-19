@@ -11,9 +11,9 @@
  *     SAP SE - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.p2.target.ee;
+package org.eclipse.tycho.p2resolver;
 
-import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
+import static org.eclipse.tycho.core.test.utils.ResourceUtil.resourceFile;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.ee.impl.CustomEEResolutionHints;
 import org.eclipse.tycho.core.ee.impl.InvalidEENameException;
-import org.eclipse.tycho.testutil.InstallableUnitUtil;
+import org.eclipse.tycho.test.util.InstallableUnitUtil;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")

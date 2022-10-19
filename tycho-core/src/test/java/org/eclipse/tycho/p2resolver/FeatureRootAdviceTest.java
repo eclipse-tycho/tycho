@@ -11,7 +11,7 @@
  *    SAP AG - initial API and implementation
  *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher.rootfiles;
+package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -24,9 +24,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
-import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
-import org.eclipse.tycho.testutil.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.ArtifactMock;
+import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -42,10 +42,10 @@ public class FeatureRootAdviceTest {
 
     static final String LINUX_SPEC_FOR_ADVICE = "gtk.linux.x86";
 
-    private static final String RESOURCES_ROOTFILES_REL_PATH = "resources/rootfiles";
+    private static final String RESOURCES_ROOTFILES_REL_PATH = "src/test/resources/rootfiles";
 
-    public static final File FEATURE_PROJECT_TEST_RESOURCE_ROOT = new File(RESOURCES_ROOTFILES_REL_PATH
-            + "/feature-project");
+    public static final File FEATURE_PROJECT_TEST_RESOURCE_ROOT = new File(
+            RESOURCES_ROOTFILES_REL_PATH + "/feature-project");
 
     private static final String FEATURE_JAR_REL_PATH = RESOURCES_ROOTFILES_REL_PATH
             + "/feature-project/target/feature-0.0.1-SNAPSHOT.jar";
@@ -119,9 +119,9 @@ public class FeatureRootAdviceTest {
                 GROUP_ID, ARTIFACT_ID, VERSION, "eclipse-plugin");
         assertNull(FeatureRootAdvice.getProjectBaseDir(wrongTypeArtifactMock));
 
-        ArtifactMock invalidLocationArtifactMock = new ArtifactMock(new File(
-                "resources/rootfiles/feature-project/target/feature.jar").getCanonicalFile(), GROUP_ID, ARTIFACT_ID,
-                VERSION, PACKAGING_TYPE);
+        ArtifactMock invalidLocationArtifactMock = new ArtifactMock(
+                new File("resources/rootfiles/feature-project/target/feature.jar").getCanonicalFile(), GROUP_ID,
+                ARTIFACT_ID, VERSION, PACKAGING_TYPE);
         assertNull(FeatureRootAdvice.getProjectBaseDir(invalidLocationArtifactMock));
 
         ArtifactMock invalidRelativeLocationArtifactMock = new ArtifactMock(new File(FEATURE_JAR_REL_PATH), GROUP_ID,

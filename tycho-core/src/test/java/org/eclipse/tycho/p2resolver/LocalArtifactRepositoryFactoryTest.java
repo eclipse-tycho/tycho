@@ -10,7 +10,7 @@
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.test.local;
+package org.eclipse.tycho.p2resolver;
 
 import java.net.URI;
 
@@ -21,7 +21,7 @@ import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepositoryFactory;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.repository.test.TemporaryLocalMavenRepository;
+import org.eclipse.tycho.test.util.TemporaryLocalMavenRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

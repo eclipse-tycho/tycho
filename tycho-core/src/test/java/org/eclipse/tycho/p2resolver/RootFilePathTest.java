@@ -11,7 +11,7 @@
  *    SAP AG - initial API and implementation
  *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher.rootfiles;
+package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
