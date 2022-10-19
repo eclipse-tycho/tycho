@@ -22,7 +22,8 @@
                 org.eclipse.tycho:tycho-compiler-plugin:${project.version}:validate-classpath
               </initialize>
               <process-resources>
-                org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
+                org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources,
+                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:bin-includes
               </process-resources>
               <compile>
                 org.eclipse.tycho:tycho-compiler-plugin:${project.version}:compile
@@ -84,7 +85,8 @@
                 org.eclipse.tycho:tycho-compiler-plugin:${project.version}:validate-classpath
               </initialize>
               <process-resources>
-                org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
+                org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources,
+                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:bin-includes
               </process-resources>
               <compile>
                 org.eclipse.tycho:tycho-compiler-plugin:${project.version}:compile

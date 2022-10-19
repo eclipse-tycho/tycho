@@ -225,7 +225,6 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			}
 			BuildProperties buildProperties = pdeProject.getBuildProperties();
 			List<String> binIncludesList = buildProperties.getBinIncludes();
-			List<String> binExcludesList = buildProperties.getBinExcludes();
 			// 1. additional filesets should win over bin.includes, so we add them first
 			if (additionalFileSets != null) {
 				for (DefaultFileSet fileSet : additionalFileSets) {
@@ -236,12 +235,17 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			}
 			List<String> binIncludesIgnoredForValidation = new ArrayList<>();
 			// 2. handle dir classpath entries and "."
+			boolean hasDot = false;
 			for (BuildOutputJar outputJar : pdeProject.getOutputJarMap().values()) {
 				String jarName = outputJar.getName();
 				if (binIncludesList.contains(jarName) && outputJar.isDirClasspathEntry()) {
 					binIncludesIgnoredForValidation.add(jarName);
-					String prefix = ".".equals(jarName) ? "" : jarName;
+					boolean equals = ".".equals(jarName);
+					String prefix = equals ? "" : jarName;
 					archiver.getArchiver().addDirectory(outputJar.getOutputDirectory(), prefix);
+					if (equals) {
+						hasDot = true;
+					}
 				}
 			}
 			// 3. handle nested jars and included resources
@@ -262,7 +266,13 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 				}
 			}
 			MavenProject mavenProject = project;
-			archiver.getArchiver().addFileSet(getFileSet(mavenProject.getBasedir(), binIncludesList, binExcludesList));
+			if (!hasDot) {
+				// thats a bit hacky, but you can define a bundle that do not includes the '.'
+				// but still would require the bin includes to take into account...
+				archiver.getArchiver()
+						.addFileSet(getFileSet(mavenProject.getBasedir(), binIncludesList,
+								buildProperties.getBinExcludes()));
+			}
 
 			File manifest = new File(mavenProject.getBuild().getDirectory(), "MANIFEST.MF");
 			updateManifest(manifest);
