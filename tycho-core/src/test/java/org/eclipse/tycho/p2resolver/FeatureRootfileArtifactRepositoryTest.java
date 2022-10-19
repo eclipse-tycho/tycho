@@ -10,7 +10,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher.repo;
+package org.eclipse.tycho.p2resolver;
 
 import java.util.Map;
 import java.util.Properties;
@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
-import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;

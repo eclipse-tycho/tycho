@@ -11,17 +11,17 @@
  *    SAP AG - initial API and implementation
  *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.publisher.rootfiles;
+package org.eclipse.tycho.p2resolver;
 
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.FEATURE_PROJECT_TEST_RESOURCE_ROOT;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.GLOBAL_SPEC;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.LINUX_SPEC_FOR_ADVICE;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.LINUX_SPEC_FOR_PROPERTIES_KEY;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.WINDOWS_SPEC_FOR_ADVICE;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.WINDOWS_SPEC_FOR_PROPERTIES_KEY;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.createAdvice;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.createBuildPropertiesWithDefaultRootFiles;
-import static org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest.createBuildPropertiesWithoutRootKeys;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.FEATURE_PROJECT_TEST_RESOURCE_ROOT;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.GLOBAL_SPEC;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.LINUX_SPEC_FOR_ADVICE;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.LINUX_SPEC_FOR_PROPERTIES_KEY;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.WINDOWS_SPEC_FOR_ADVICE;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.WINDOWS_SPEC_FOR_PROPERTIES_KEY;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createAdvice;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createBuildPropertiesWithDefaultRootFiles;
+import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createBuildPropertiesWithoutRootKeys;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
