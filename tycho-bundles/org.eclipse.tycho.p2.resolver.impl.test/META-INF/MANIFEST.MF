@@ -34,4 +34,4 @@ Import-Package: javax.servlet;version="4.0.0",
  org.junit.function;version="[4.13.2,5.0.0)",
  org.junit.rules;version="[4.13.2,5.0.0)"
 Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl.test
-Service-Component: OSGI-INF/repositoryIdManagerFallback.xml
+Service-Component: OSGI-INF/repositoryIdManagerFallback.xml, OSGI-INF/localRepoP2Indices.xml

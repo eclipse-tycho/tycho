@@ -54,7 +54,6 @@ Service-Component: OSGI-INF/org.eclipse.tycho.p2.manager.ReactorRepositoryManage
  OSGI-INF/publisherfactory.xml,
  OSGI-INF/remoteAgentManager.xml,
  OSGI-INF/resolver.xml,
- OSGI-INF/targetDefinitionResolverService.xml,
- OSGI-INF/localRepoP2Indices.xml
+ OSGI-INF/targetDefinitionResolverService.xml
 Bundle-Vendor: %providerName
 Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl

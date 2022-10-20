@@ -11,7 +11,7 @@
  *     SAP SE - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.p2.impl;
+package org.eclipse.tycho.testutil;
 
 import java.io.File;
 import java.io.IOException;
