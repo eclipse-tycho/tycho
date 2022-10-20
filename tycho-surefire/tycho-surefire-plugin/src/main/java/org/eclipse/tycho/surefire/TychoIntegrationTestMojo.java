@@ -109,6 +109,12 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
     private ArtifactRepository localRepository;
 
+    /**
+     * Configures the packaging type where this mojos applies
+     */
+    @Parameter(property = "tycho.plugin-test.packaging", defaultValue = PackagingType.TYPE_ECLIPSE_PLUGIN)
+    private String packaging = PackagingType.TYPE_ECLIPSE_PLUGIN;
+
     @Override
     protected boolean shouldRun() {
         return scanForTests().size() > 0;
@@ -116,7 +122,7 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
 
     @Override
     protected boolean isCompatiblePackagingType(String packaging) {
-        return PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging());
+        return this.packaging.equals(packaging);
     }
 
     @Override

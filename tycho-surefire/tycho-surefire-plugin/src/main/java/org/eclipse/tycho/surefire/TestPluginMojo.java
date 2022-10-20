@@ -68,6 +68,13 @@ public class TestPluginMojo extends AbstractTestMojo {
     @Parameter(property = "maven.test.failure.ignore", defaultValue = "false")
     private boolean testFailureIgnore;
 
+    /**
+     * Configures the packaging type where this mojos applies, would normally be one of
+     * eclipse-test-plugin or eclipse-plugin.
+     */
+    @Parameter(property = "tycho.test.packaging", defaultValue = PackagingType.TYPE_ECLIPSE_TEST_PLUGIN)
+    private String packaging = PackagingType.TYPE_ECLIPSE_TEST_PLUGIN;
+
     @Override
     protected boolean shouldRun() {
         return true;
@@ -75,7 +82,7 @@ public class TestPluginMojo extends AbstractTestMojo {
 
     @Override
     protected boolean isCompatiblePackagingType(String packaging) {
-        return PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging());
+        return this.packaging.equals(packaging);
     }
 
     @Override
