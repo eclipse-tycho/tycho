@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl;
+package org.eclipse.tycho.testutil;
 
 import java.util.List;
 

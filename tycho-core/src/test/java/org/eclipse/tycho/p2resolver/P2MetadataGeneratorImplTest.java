@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.test;
+package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -24,12 +24,12 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.p2.impl.P2GeneratorImpl;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
-import org.eclipse.tycho.testutil.BuildPropertiesParserForTesting;
-import org.eclipse.tycho.testutil.LogVerifier;
-import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.test.util.ArtifactMock;
+import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.test.util.MockMavenContext;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class P2MetadataGeneratorImplTest {
         P2GeneratorImpl impl = new P2GeneratorImpl(false);
         impl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
         impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
-        File location = new File("resources/generator/bundle").getCanonicalFile();
+        File location = new File("src/test/resources/generator/bundle").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";
         String version = "1.0.0-SNAPSHOT";
@@ -78,7 +78,7 @@ public class P2MetadataGeneratorImplTest {
         P2GeneratorImpl impl = new P2GeneratorImpl(false);
         impl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
         impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
-        File location = new File("resources/generator/bundle").getCanonicalFile();
+        File location = new File("src/test/resources/generator/bundle").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";
         String version = "1.0.0-SNAPSHOT";

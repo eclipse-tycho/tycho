@@ -17,7 +17,8 @@ Require-Bundle: org.hamcrest.core,
  org.eclipse.tycho.p2.resolver.impl,
  org.eclipse.core.net,
  org.eclipse.tycho.core.shared,
- org.eclipse.tycho.embedder.shared
+ org.eclipse.tycho.embedder.shared,
+ org.eclipse.equinox.p2.updatesite
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
 Import-Package: javax.servlet;version="4.0.0",
