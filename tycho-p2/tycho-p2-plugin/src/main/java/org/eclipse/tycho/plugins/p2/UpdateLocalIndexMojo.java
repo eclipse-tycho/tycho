@@ -21,8 +21,6 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 
@@ -32,15 +30,14 @@ public class UpdateLocalIndexMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true, required = true)
     private MavenProject project;
 
-    @Component(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory serviceFactory;
+    @Component
+    private LocalRepositoryP2Indices p2index;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        LocalRepositoryP2Indices localRepoIndices = serviceFactory.getService(LocalRepositoryP2Indices.class);
         GAV gav = new GAV(project.getGroupId(), project.getArtifactId(), project.getArtifact().getVersion());
         try {
-            localRepoIndices.add(gav);
+            p2index.add(gav);
         } catch (IOException e) {
             throw new MojoExecutionException("Could not update local repository index", e);
         }

@@ -16,10 +16,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.impl.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
+import org.eclipse.tycho.p2resolver.LocalRepositoryP2IndicesImpl;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
@@ -35,7 +34,7 @@ public class TemporaryLocalMavenRepository extends ExternalResource {
     public LogVerifier logVerifier = new LogVerifier();
     private final TemporaryFolder tempManager = new TemporaryFolder();
     private File repoRoot;
-    private LocalRepositoryP2Indices repoIndex;
+    private LocalRepositoryP2IndicesImpl repoIndex;
     private LocalArtifactRepository repo;
 
     @Override
@@ -65,15 +64,11 @@ public class TemporaryLocalMavenRepository extends ExternalResource {
 
     public LocalRepositoryP2Indices getLocalRepositoryIndex() {
         if (repoIndex == null) {
-            createLocalRepoIndices();
+            repoIndex = new LocalRepositoryP2IndicesImpl();
+            repoIndex.setFileLockService(new NoopFileLockService());
+            repoIndex.setMavenContext(new MockMavenContext(getLocalRepositoryRoot(), logVerifier.getLogger()));
         }
         return repoIndex;
-    }
-
-    private void createLocalRepoIndices() {
-        repoIndex = new LocalRepositoryP2IndicesImpl(
-                new MockMavenContext(getLocalRepositoryRoot(), new MavenLoggerAdapter(logVerifier.getLogger(), false)),
-                new NoopFileLockService());
     }
 
     public LocalArtifactRepository getLocalArtifactRepository() {

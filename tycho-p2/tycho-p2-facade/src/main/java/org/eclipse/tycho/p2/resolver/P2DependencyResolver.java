@@ -141,6 +141,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     private ReactorRepositoryManagerFacade reactorRepositoryManager;
 
+    @Requirement
+    private LocalRepositoryP2Indices p2index;
+
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
@@ -328,7 +331,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             externalArtifacts.add(artifact);
         }
         PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
-                resolverFactory, equinox.getService(LocalRepositoryP2Indices.class), getLogger());
+                resolverFactory, p2index, getLogger());
         PomDependencyCollector dependencyCollector = pomDependencyProcessor.collectPomDependencies(project,
                 externalArtifacts, pomDependencies == PomDependencies.wrapAsBundle);
 

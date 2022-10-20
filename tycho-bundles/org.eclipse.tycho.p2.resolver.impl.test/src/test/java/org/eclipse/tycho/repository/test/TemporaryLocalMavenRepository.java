@@ -16,9 +16,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.tycho.p2.impl.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
+import org.eclipse.tycho.testutil.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.testutil.LogVerifier;
 import org.eclipse.tycho.testutil.MockMavenContext;
 import org.eclipse.tycho.testutil.NoopFileLockService;
