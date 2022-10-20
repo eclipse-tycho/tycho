@@ -16,17 +16,23 @@ import java.io.File;
 import java.util.Properties;
 import java.util.stream.Stream;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 
 public class MockMavenContext extends MavenContextImpl {
 
     public MockMavenContext(File localRepositoryRoot, boolean offline, MavenLogger mavenLogger,
             Properties mergedProperties) {
         super(localRepositoryRoot, offline, mavenLogger, mergedProperties);
+    }
+
+    public MockMavenContext(File newFolder, Logger logger) {
+        super(newFolder, new MavenLoggerAdapter(logger, true));
     }
 
     public MockMavenContext(File newFolder, MavenLogger logger) {

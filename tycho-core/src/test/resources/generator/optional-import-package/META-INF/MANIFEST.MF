@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: optional-import-package
+Bundle-SymbolicName: optional-import-package;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ActivationPolicy: lazy
+Import-Package: org.osgi.framework;resolution:=optional

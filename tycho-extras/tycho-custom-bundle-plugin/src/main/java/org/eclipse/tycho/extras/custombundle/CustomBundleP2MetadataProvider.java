@@ -32,11 +32,9 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
@@ -48,9 +46,8 @@ import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
  */
 @Component(role = P2MetadataProvider.class, hint = "org.eclipse.tycho.extras.custombundle.CustomBundleP2MetadataProvider")
 public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initializable {
-	@Requirement(hint = TychoServiceFactory.HINT)
-	private EquinoxServiceFactory equinox;
 
+	@Requirement(hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
 	private DependencyMetadataGenerator generator;
 
 	@Override
@@ -105,7 +102,6 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
 
 	@Override
 	public void initialize() throws InitializationException {
-		this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
 	}
 
 	private static class SecondaryDependencyMetadata implements IDependencyMetadata {

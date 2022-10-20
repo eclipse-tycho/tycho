@@ -20,6 +20,10 @@ import org.eclipse.tycho.TargetEnvironment;
 
 public interface DependencyMetadataGenerator {
 
+    public static final String DEPENDENCY_ONLY = "dependency-only";
+
+    public static final String SOURCE_BUNDLE = "source-bundle";
+
     /**
      * Generates dependency-only artifact metadata
      */

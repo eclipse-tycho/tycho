@@ -50,7 +50,6 @@ import org.eclipse.tycho.repository.util.StatusTool;
 public abstract class AbstractMetadataGenerator {
 
     private IProgressMonitor monitor = new NullProgressMonitor();
-    private BuildPropertiesParser buildPropertiesParser;
 
     protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             PublisherInfo publisherInfo, OptionalResolutionAction optionalAction, PublisherOptions options) {
@@ -94,7 +93,7 @@ public abstract class AbstractMetadataGenerator {
     }
 
     private IRequirement[] extractExtraEntriesAsIURequirement(File location, Interpolator interpolator) {
-        BuildProperties buildProps = buildPropertiesParser.parse(location, interpolator);
+        BuildProperties buildProps = getBuildPropertiesParser().parse(location, interpolator);
         ArrayList<IRequirement> result = new ArrayList<>();
         for (Entry<String, List<String>> entry : buildProps.getJarToExtraClasspathMap().entrySet()) {
             createRequirementFromExtraClasspathProperty(result, entry.getValue());
@@ -142,13 +141,6 @@ public abstract class AbstractMetadataGenerator {
         return metadata;
     }
 
-    // injected by DS runtime
-    public void setBuildPropertiesParser(BuildPropertiesParser buildPropertiesReader) {
-        this.buildPropertiesParser = buildPropertiesReader;
-    }
-
-    protected BuildPropertiesParser getBuildPropertiesParser() {
-        return buildPropertiesParser;
-    }
+    protected abstract BuildPropertiesParser getBuildPropertiesParser();
 
 }

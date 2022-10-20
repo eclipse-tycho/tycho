@@ -136,6 +136,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     private P2ResolverFactory resolverFactory;
 
+    @Requirement(hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
     private DependencyMetadataGenerator generator;
 
     private ReactorRepositoryManagerFacade reactorRepositoryManager;
@@ -492,9 +493,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     public void initialize() throws InitializationException {
         this.resolverFactory = Objects.requireNonNull(equinox.getService(P2ResolverFactory.class),
                 "P2ResolverFactory service is missing");
-        this.generator = Objects.requireNonNull(
-                equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)"),
-                "DependencyMetadataGenerator(role-hint=dependency-only) is missing");
         this.reactorRepositoryManager = Objects.requireNonNull(equinox.getService(ReactorRepositoryManagerFacade.class),
                 "ReactorRepositoryManagerFacade service is missing");
     }

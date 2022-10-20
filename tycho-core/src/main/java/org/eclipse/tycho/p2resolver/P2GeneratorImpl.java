@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - fix handling of optional secondary metadata
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl;
+package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryParser;
@@ -39,6 +42,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PackagingType;
@@ -67,7 +71,7 @@ import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.repository.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.MetadataIO;
 
-@SuppressWarnings("restriction")
+@Component(role = P2Generator.class)
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
     private static final String[] SUPPORTED_TYPES = { PackagingType.TYPE_ECLIPSE_PLUGIN,
             PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, PackagingType.TYPE_ECLIPSE_FEATURE,
@@ -77,8 +81,14 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
      * Whether we need full p2 metadata (false) or just required capabilities.
      */
     private boolean dependenciesOnly;
-
+    @Requirement
     private MavenContext mavenContext;
+
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    private Logger logger;
 
     public P2GeneratorImpl(boolean dependenciesOnly) {
         this.dependenciesOnly = dependenciesOnly;
@@ -164,7 +174,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                         canonical);
                 result.put(classifier, p2artifact);
             }, () -> {
-                mavenContext.getLogger().debug("Skip generation of secondary metadata for artifact = " + artifact
+                logger.debug("Skip generation of secondary metadata for artifact = " + artifact
                         + ", as it does not has a canonical ArtifactDescriptor");
             });
 
@@ -330,7 +340,17 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         return advice;
     }
 
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
+    @Override
+    protected BuildPropertiesParser getBuildPropertiesParser() {
+        return buildPropertiesParser;
     }
+
+    public void setMavenContext(MavenContext mockMavenContext) {
+        mavenContext = mockMavenContext;
+    }
+
+    public void setBuildPropertiesParser(BuildPropertiesParser propertiesParserForTesting) {
+        buildPropertiesParser = propertiesParserForTesting;
+    }
+
 }

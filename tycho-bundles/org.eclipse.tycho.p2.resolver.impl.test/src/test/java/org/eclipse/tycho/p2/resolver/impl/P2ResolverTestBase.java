@@ -21,8 +21,6 @@ import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.p2.impl.DefaultDependencyMetadataGenerator;
-import org.eclipse.tycho.p2.impl.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.impl.TargetPlatformFactoryImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
@@ -33,8 +31,10 @@ import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.TestResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.testutil.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.testutil.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.testutil.LogVerifier;
 import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.testutil.P2GeneratorImpl;
 import org.junit.Before;
 import org.junit.Rule;
 
@@ -62,9 +62,9 @@ public class P2ResolverTestBase {
         fullGenerator = new P2GeneratorImpl(true);
         fullGenerator.setMavenContext(mavenContext);
         BuildPropertiesParserForTesting buildPropertiesReader = new BuildPropertiesParserForTesting();
-        fullGenerator.setBuildPropertiesParser(buildPropertiesReader);
+        fullGenerator.setParser(buildPropertiesReader);
         dependencyGenerator = new DefaultDependencyMetadataGenerator();
-        dependencyGenerator.setBuildPropertiesParser(buildPropertiesReader);
+        dependencyGenerator.setParser(buildPropertiesReader);
         dependencyGenerator.setMavenContext(mavenContext);
 
         tpConfig = new TargetPlatformConfigurationStub();

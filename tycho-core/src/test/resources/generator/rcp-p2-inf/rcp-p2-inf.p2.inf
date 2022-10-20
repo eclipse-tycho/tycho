@@ -1,0 +1,6 @@
+requires.1.namespace=org.eclipse.equinox.p2.iu
+requires.1.name=required.p2.inf
+requires.1.greedy=true
+
+units.0.id=iu.p2.inf
+units.0.version=1.0.0.qualifier

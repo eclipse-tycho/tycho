@@ -10,13 +10,15 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl;
+package org.eclipse.tycho.p2resolver;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -24,6 +26,7 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -36,14 +39,18 @@ import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
 import org.osgi.framework.BundleException;
 
-@SuppressWarnings("restriction")
+@Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
 public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator
         implements DependencyMetadataGenerator {
     private static final String SUFFIX_QUALIFIER = ".qualifier";
 
     private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
+    @Requirement
     private MavenContext mavenContext;
+
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
 
     @Override
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
@@ -113,8 +120,13 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
         return sourceBundleSymbolicName.hashCode() | (((long) version.hashCode()) << 32);
     }
 
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
+    @Override
+    protected BuildPropertiesParser getBuildPropertiesParser() {
+        return buildPropertiesParser;
+    }
+
+    public void setMavenContext(MavenContext mockMavenContext) {
+        mavenContext = mockMavenContext;
     }
 
 }

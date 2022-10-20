@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MNGECLIPSE1007 Plug-in
+Bundle-SymbolicName: org.eclipse.tycho.p2.impl.test.bundle
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: somebundle
+Import-Package: somepackage

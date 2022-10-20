@@ -53,7 +53,6 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
 import org.eclipse.tycho.core.resolver.target.DuplicateReactorIUsException;
 import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.impl.P2ResolverImpl;
-import org.eclipse.tycho.p2.impl.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
@@ -62,6 +61,7 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.testutil.LogVerifier;
 import org.eclipse.tycho.testutil.MockMavenContext;
+import org.eclipse.tycho.testutil.SourcesBundleDependencyMetadataGenerator;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -180,7 +180,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         reactorProjects.add(createReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId));
 
         ReactorProjectStub sb = new ReactorProjectStub(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN);
-        SourcesBundleDependencyMetadataGenerator metadata = new SourcesBundleDependencyMetadataGenerator();
+        SourcesBundleDependencyMetadataGenerator metadata = new org.eclipse.tycho.testutil.SourcesBundleDependencyMetadataGenerator();
         metadata.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
         DependencyMetadata generateMetadata = metadata.generateMetadata(new ArtifactMock(sb, "source"),
                 getEnvironments(), null, new PublisherOptions());

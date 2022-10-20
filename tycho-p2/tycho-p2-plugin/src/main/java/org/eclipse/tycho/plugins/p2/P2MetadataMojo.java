@@ -35,14 +35,12 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
@@ -62,8 +60,8 @@ public class P2MetadataMojo extends AbstractMojo {
     @Component
     protected MavenProjectHelper projectHelper;
 
-    @Component(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory equinox;
+    @Component
+    P2Generator p2generator;
 
     /**
      * Project types which this plugin supports.
@@ -153,13 +151,13 @@ public class P2MetadataMojo extends AbstractMojo {
         }
     }
 
-    private <T> T getService(Class<T> type) {
-        T service = equinox.getService(type);
-        if (service == null) {
-            throw new IllegalStateException("Could not acquire service " + type);
-        }
-        return service;
-    }
+//    private <T> T getService(Class<T> type) {
+//        T service = equinox.getService(type);
+//        if (service == null) {
+//            throw new IllegalStateException("Could not acquire service " + type);
+//        }
+//        return service;
+//    }
 
     protected void attachP2Metadata() throws MojoExecutionException {
         if (!attachP2Metadata || !supportedProjectTypes.contains(project.getPackaging())) {
@@ -188,8 +186,6 @@ public class P2MetadataMojo extends AbstractMojo {
                     artifacts.add(new ArtifactFacade(attachedArtifact));
                 }
             }
-
-            P2Generator p2generator = getService(P2Generator.class);
 
             Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts,
                     new PublisherOptions(generateDownloadStatsProperty), targetDir);
