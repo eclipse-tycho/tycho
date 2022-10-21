@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Rule;
@@ -239,6 +240,10 @@ public class LogVerifier extends Verifier {
 
     public Logger getLogger() {
         return getInitializedContext().getInitializedLogger();
+    }
+
+    public MavenLogger getMavenLogger() {
+        return new MavenLoggerAdapter(getLogger(), true);
     }
 
     /**

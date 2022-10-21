@@ -14,13 +14,27 @@ package org.eclipse.tycho.testing;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.monitor.event.EventDispatcher;
+import org.apache.maven.monitor.event.EventMonitor;
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 /**
  *
@@ -30,6 +44,9 @@ import org.junit.After;
  */
 public class TychoPlexusTestCase {
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     PlexusTestCaseExension ext = new PlexusTestCaseExension();
 
     @After
@@ -37,11 +54,58 @@ public class TychoPlexusTestCase {
         ext.teardownContainer();
     }
 
+    @SuppressWarnings("deprecation")
+    @Before
+    public void setUpServiceAndSession() throws ComponentLookupException, IOException {
+        LegacySupport legacySupport = lookup(LegacySupport.class);
+        PlexusContainer container = ext.getContainer();
+        Settings settings = new Settings();
+        ArtifactRepository localRepository = new StubArtifactRepository(temporaryFolder.newFolder().getAbsolutePath());
+        EventDispatcher eventDispatcher = new EventDispatcher() {
+
+            @Override
+            public void dispatchStart(String event, String target) {
+
+            }
+
+            @Override
+            public void dispatchError(String event, String target, Throwable cause) {
+
+            }
+
+            @Override
+            public void dispatchEnd(String event, String target) {
+
+            }
+
+            @Override
+            public void addEventMonitor(EventMonitor monitor) {
+
+            }
+        };
+        MavenSession mavenSession = new MavenSession(container, settings, localRepository, eventDispatcher, null,
+                List.of(), temporaryFolder.newFolder().getAbsolutePath(), System.getProperties(),
+                System.getProperties(), new Date());
+        mavenSession.setProjects(Collections.emptyList());
+        legacySupport.setSession(mavenSession);
+        try {
+            //if possible, init the service factory and loading of services
+            EquinoxServiceFactory coreFactory = lookup(EquinoxServiceFactory.class, "tycho-core");
+            coreFactory.getService(Object.class);
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
+
     public final <T> T lookup(final Class<T> role) throws ComponentLookupException {
         return ext.getContainer().lookup(role);
     }
 
-    public static File resourceFile(String path) throws IOException {
+    public final <T> T lookup(final Class<T> role, String hint) throws ComponentLookupException {
+        return ext.getContainer().lookup(role, hint);
+    }
+
+    public static File resourceFile(String path) {
         File resolvedFile = new File("src/test/resources", path).getAbsoluteFile();
 
         if (!resolvedFile.canRead()) {

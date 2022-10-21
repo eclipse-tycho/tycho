@@ -14,7 +14,9 @@
 package org.eclipse.tycho.p2maven.repository;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
@@ -51,6 +53,8 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
 
+	private Map<String, URI> idToMirrorMap = new HashMap<>();
+
     public DefaultMavenRepositorySettings() {
         // for plexus
     }
@@ -65,6 +69,9 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
         if (location.getId() == null) {
             return null;
         }
+		if (idToMirrorMap.containsKey(location.getId())) {
+			return new MavenRepositoryLocation(location.getId(), idToMirrorMap.get(location.getId()));
+		}
         ArtifactRepository locationAsMavenRepository = repositorySystem.createArtifactRepository(location.getId(),
                 location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
         Mirror mirror = getTychoMirror(locationAsMavenRepository, context.getSession().getRequest().getMirrors());
@@ -123,4 +130,12 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
         mirror.setId(toMirror.getId());
         return mirror;
     }
+
+	public void addMirror(String repositoryId, URI mirroredUrl) {
+		if (mirroredUrl == null) {
+			idToMirrorMap.remove(repositoryId);
+		} else {
+			idToMirrorMap.put(repositoryId, mirroredUrl);
+		}
+	}
 }

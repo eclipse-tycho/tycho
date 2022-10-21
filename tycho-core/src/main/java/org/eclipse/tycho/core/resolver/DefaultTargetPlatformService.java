@@ -27,7 +27,6 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -36,16 +35,12 @@ import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 @Component(role = TargetPlatformService.class)
 public class DefaultTargetPlatformService implements TargetPlatformService {
-
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory osgiServices;
 
     @Requirement
     private Logger logger;
@@ -56,6 +51,9 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
     @Requirement
     private DefaultDependencyResolverFactory dependencyResolverLocator;
 
+    @Requirement
+    ReactorRepositoryManager repositoryManager;
+
     @Override
     public Optional<TargetPlatform> getTargetPlatform(ReactorProject project) throws DependencyResolutionException {
         synchronized (project) {
@@ -64,8 +62,6 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
                 return Optional.of((TargetPlatform) contextValue);
             }
             MavenSession session = legacySupport.getSession();
-            ReactorRepositoryManagerFacade repositoryManager = osgiServices
-                    .getService(ReactorRepositoryManagerFacade.class);
             if (repositoryManager == null) {
                 return Optional.empty();
             }

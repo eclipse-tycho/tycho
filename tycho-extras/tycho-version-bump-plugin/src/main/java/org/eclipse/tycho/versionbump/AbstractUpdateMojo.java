@@ -30,7 +30,7 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public abstract class AbstractUpdateMojo extends AbstractMojo {
 
-	@Component(hint = TychoServiceFactory.HINT)
+    @Component(hint = TychoServiceFactory.HINT)
     protected EquinoxServiceFactory equinox;
 
     @Component
@@ -42,6 +42,9 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     protected P2Resolver p2;
 
     protected TargetPlatformConfigurationStub resolutionContext;
+
+    @Component
+    P2ResolverFactory factory;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
@@ -57,7 +60,6 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     protected abstract void doUpdate() throws Exception;
 
     private void createResolver() {
-        P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
         p2 = factory.createResolver(new MavenLoggerAdapter(logger, false));
         resolutionContext = new TargetPlatformConfigurationStub();
     }

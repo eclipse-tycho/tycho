@@ -23,13 +23,11 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
-import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 /**
  * <p>
@@ -45,8 +43,8 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     @Component
     private MavenProjectHelper projectHelper;
 
-    @Component(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory osgiServices;
+    @Component()
+    ReactorRepositoryManager reactorRepoManager;
 
     @Component
     private Logger logger;
@@ -54,8 +52,6 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
-            ReactorRepositoryManagerFacade reactorRepoManager = osgiServices
-                    .getService(ReactorRepositoryManagerFacade.class);
             PublishingRepositoryFacade publishingRepo = reactorRepoManager
                     .getPublishingRepository(getProjectIdentities());
             Map<String, File> artifacts = publishingRepo.getArtifactLocations();

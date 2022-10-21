@@ -22,6 +22,9 @@
 
 	<name>Tycho Core</name>
 	<description>Core Tycho components</description>
+	<properties>
+		<jetty.version>10.0.11</jetty.version>
+	</properties>
 
 	<build>
 		<resources>
@@ -223,11 +226,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.core.runtime</artifactId>
 			<version>3.26.0</version>
@@ -242,19 +240,19 @@
 			<artifactId>biz.aQute.bndlib</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.osgi</groupId>
-		    <artifactId>org.osgi.service.repository</artifactId>
-		    <version>1.1.0</version>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.repository</artifactId>
+			<version>1.1.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.osgi</groupId>
-		    <artifactId>org.osgi.util.function</artifactId>
-		    <version>1.2.0</version>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.util.function</artifactId>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.osgi</groupId>
-		    <artifactId>org.osgi.util.promise</artifactId>
-		    <version>1.2.0</version>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.util.promise</artifactId>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -272,9 +270,9 @@
 			<version>2.3.100</version>
 		</dependency>
 		<dependency>
-		    <groupId>commons-io</groupId>
-		    <artifactId>commons-io</artifactId>
-		    <version>2.11.0</version>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
 		</dependency>
 
 
@@ -312,6 +310,25 @@
 			<version>8.1.0</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-http</artifactId>
+			<version>${jetty.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>${jetty.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+			<version>${jetty.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 </project>

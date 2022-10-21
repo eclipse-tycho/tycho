@@ -14,20 +14,22 @@ package org.eclipse.tycho.p2resolver;
 
 import java.net.URI;
 
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepositoryFactory;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.test.util.TemporaryLocalMavenRepository;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class LocalArtifactRepositoryFactoryTest {
+public class LocalArtifactRepositoryFactoryTest extends TychoPlexusTestCase {
 
     @Rule
     public TemporaryLocalMavenRepository tempLocalMavenRepository = new TemporaryLocalMavenRepository();
@@ -55,8 +57,8 @@ public class LocalArtifactRepositoryFactoryTest {
     }
 
     @Test
-    public void testLoad() throws ProvisionException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(Activator.getProvisioningAgent(),
+    public void testLoad() throws ProvisionException, ComponentLookupException {
+        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
                 tempLocalMavenRepository.getLocalRepositoryIndex());
         repo.save();
         IArtifactRepository repo2 = subject.load(tempLocalMavenRepository.getLocalRepositoryRoot().toURI(), 0,

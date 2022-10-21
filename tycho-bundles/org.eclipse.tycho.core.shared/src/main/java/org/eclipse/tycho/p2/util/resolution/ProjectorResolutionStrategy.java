@@ -96,7 +96,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                     new QueryableArray(EMPTY_IU_ARRAY) /* installedIUs */, seedUnits /* newRoots */, monitor);
             IStatus s = projector.invokeSolver(monitor);
             if (s.getSeverity() == IStatus.ERROR) {
-                Set<Explanation> explanation = projector.getExplanation(new NullProgressMonitor()); // suppress "Cannot complete the request.  Generating details."
+                Set<Explanation> explanation = getExplanation(projector); // suppress "Cannot complete the request.  Generating details."
                 if (!data.failOnMissingRequirements()) {
                     List<IRequirement> missingRequirements = computeMissingRequirements(explanation);
                     if (missingRequirements.size() > 0) {
@@ -145,6 +145,15 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             return newState;
         } while (iteration < MAX_ITERATIONS);
         throw new ResolverException("Maximum iterations reached", new TimeoutException());
+    }
+
+    private Set<Explanation> getExplanation(Projector projector) {
+        try {
+            return projector.getExplanation(new NullProgressMonitor());
+        } catch (IllegalStateException e) {
+            //this schedules a job, if this fails (e.g. in tests) we simply use no explanation
+            return Set.of();
+        }
     }
 
 }

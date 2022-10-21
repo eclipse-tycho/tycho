@@ -30,7 +30,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-@SuppressWarnings("restriction")
 public class ArtifactsIO {
 
     private static class Writer35M7 extends SimpleArtifactRepositoryIO.Writer {
@@ -50,8 +49,8 @@ public class ArtifactsIO {
 
         private Set<IArtifactDescriptor> artifacts;
 
-        public Parser35M7(String bundleId) {
-            super(bundleId);
+        public Parser35M7() {
+            super(BundleConstants.BUNDLE_ID);
         }
 
         @Override
@@ -113,7 +112,7 @@ public class ArtifactsIO {
     }
 
     public Set<IArtifactDescriptor> readXML(InputStream is) throws IOException {
-        Parser35M7 parser = new Parser35M7(BundleConstants.BUNDLE_ID);
+        Parser35M7 parser = new Parser35M7();
 
         parser.parse(is);
 

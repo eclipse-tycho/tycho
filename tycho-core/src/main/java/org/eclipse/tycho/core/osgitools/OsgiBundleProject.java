@@ -50,7 +50,6 @@ import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -91,7 +90,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
@@ -131,8 +129,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     @Requirement
     private ToolchainManager toolchainManager;
 
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory equinox;
+    @Requirement
+    P2ResolverFactory resolverFactory;
 
     @Requirement
     private DeclarativeServiceConfigurationReader dsConfigReader;
@@ -383,7 +381,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolve JUnit " + junit.getJUnitSegment() + " classpath container...");
-                P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
                 P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
                 TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
                 Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, junit.getArtifacts())

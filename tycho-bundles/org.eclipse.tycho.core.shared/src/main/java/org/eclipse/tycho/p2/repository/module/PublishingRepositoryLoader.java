@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2.repository.module;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -36,7 +37,7 @@ class PublishingRepositoryLoader {
     private final ReactorProjectIdentities project;
 
     public PublishingRepositoryLoader(IProvisioningAgent agent, ReactorProjectIdentities project) {
-        this.agent = agent;
+        this.agent = Objects.requireNonNull(agent);
         this.project = project;
     }
 

@@ -34,7 +34,6 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -50,7 +49,6 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
@@ -235,8 +233,8 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Component
 	private ToolchainProvider toolchainProvider;
 
-	@Component(hint = TychoServiceFactory.HINT)
-	private EquinoxServiceFactory equinox;
+	@Component()
+	P2ResolverFactory resolverFactory;
 
 	@Component
 	private Logger logger;
@@ -256,7 +254,7 @@ public class EclipseRunMojo extends AbstractMojo {
 			List<Repository> repositories, MavenSession session, List<String> jvmArgs, boolean skip,
 			List<String> applicationArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
 			EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
-			ToolchainProvider toolchainProvider, EquinoxServiceFactory equinox, Logger logger,
+			ToolchainProvider toolchainProvider, P2ResolverFactory resolverFactory, Logger logger,
 			ToolchainManager toolchainManager) {
 		this.work = work;
 		this.clearWorkspaceBeforeLaunch = clearWorkspaceBeforeLaunch;
@@ -274,7 +272,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		this.installationFactory = installationFactory;
 		this.launcher = launcher;
 		this.toolchainProvider = toolchainProvider;
-		this.equinox = equinox;
+		this.resolverFactory = resolverFactory;
 		this.logger = logger;
 		this.toolchainManager = toolchainManager;
 	}
@@ -310,8 +308,6 @@ public class EclipseRunMojo extends AbstractMojo {
 	}
 
 	private EquinoxInstallation createEclipseInstallation() throws MojoFailureException {
-		P2ResolverFactory resolverFactory = Objects.requireNonNull(equinox.getService(P2ResolverFactory.class),
-				"P2ResolverFactory service is missing!");
 		TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
 		// we want to resolve from remote repos only
 		tpConfiguration.setForceIgnoreLocalArtifacts(true);

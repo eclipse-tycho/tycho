@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 SAP SE and others.
+ * Copyright (c) 2012, 2021 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,16 +9,56 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
 package org.eclipse.tycho.repository.registry.facade;
 
+import java.util.List;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 
-public interface ReactorRepositoryManager extends ReactorRepositoryManagerFacade {
+/**
+ * Manages the p2 repositories for the projects' build results ("publishing repository") and the p2
+ * repositories with the projects' context artifacts ("target platform").
+ */
+public interface ReactorRepositoryManager {
 
-    IProvisioningAgent getAgent();
+    /**
+     * Computes the target platform with dependency-only p2 metadata and attaches it to the given
+     * project.
+     * 
+     * @param project
+     *            the reactor project to compute the target platform for.
+     * @param resolvedEnvironment
+     */
+    TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
+            TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
+            List<ReactorProject> reactorProjects);
+
+    /**
+     * Computes the (immutable) target platform with final p2 metadata and attaches it to the given
+     * project.
+     * 
+     * @param project
+     *            the reactor project to compute the target platform for.
+     * @param upstreamProjects
+     *            Other projects in the reactor which have already been built and may be referenced
+     *            by the given project.
+     */
+    TargetPlatform computeFinalTargetPlatform(ReactorProject project,
+            List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector);
+
+    /**
+     * Returns the target platform with final p2 metadata for the given project.
+     */
+    TargetPlatform getFinalTargetPlatform(ReactorProject project);
 
     /**
      * Returns the project's publishing repository.
@@ -26,7 +66,8 @@ public interface ReactorRepositoryManager extends ReactorRepositoryManagerFacade
      * @param project
      *            a reference to a project in the reactor.
      */
-    @Override
     PublishingRepository getPublishingRepository(ReactorProjectIdentities project);
+
+    IProvisioningAgent getAgent();
 
 }

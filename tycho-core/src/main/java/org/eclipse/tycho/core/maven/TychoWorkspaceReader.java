@@ -31,7 +31,6 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.MavenDependencyDescriptor;
@@ -51,13 +50,13 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
     private LegacySupport legacySupport;
 
     @Requirement
-    private EquinoxServiceFactory equinox;
-
-    @Requirement
     private Logger logger;
 
     @Requirement
     private ModelWriter modelWriter;
+
+    @Requirement
+    P2ResolverFactory factory;
 
     public TychoWorkspaceReader() {
         repository = new WorkspaceRepository("tycho", null);
@@ -105,7 +104,6 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
                 Optional<DependencyArtifacts> dependencyMetadata = TychoProjectUtils
                         .getOptionalDependencyArtifacts(reactorProject);
                 if (dependencyMetadata.isPresent()) {
-                    P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
                     logger.debug("Attempt to resolve " + artifact + " for project " + currentProject + " ...");
                     for (ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
                         MavenDependencyDescriptor dependencyDescriptor = factory

@@ -51,13 +51,6 @@
 			<artifactId>tycho-testing-harness</artifactId>
 			<scope>test</scope>
 		</dependency>
-	         <!-- begin  workaround for 393663 -->
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- end workaround for 393663 -->
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-equinox-launching</artifactId>

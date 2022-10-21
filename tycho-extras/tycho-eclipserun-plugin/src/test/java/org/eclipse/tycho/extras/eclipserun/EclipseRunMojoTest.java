@@ -27,7 +27,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
@@ -139,9 +138,7 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 		when(mockP2ResolverFactory.getTargetPlatformFactory()).thenReturn(mockTargetPlatformFactory);
 		when(mockP2ResolverFactory.createResolver(any())).thenReturn(mockP2Resolver);
 
-		EquinoxServiceFactory mockEquinoxServiceFactory = mock(EquinoxServiceFactory.class);
-		when(mockEquinoxServiceFactory.getService(P2ResolverFactory.class)).thenReturn(mockP2ResolverFactory);
-		setVariableValueToObject(runMojo, "equinox", mockEquinoxServiceFactory);
+		setVariableValueToObject(runMojo, "resolverFactory", mockP2ResolverFactory);
 
 		setVariableValueToObject(runMojo, "executionEnvironment", "custom-ee");
 
