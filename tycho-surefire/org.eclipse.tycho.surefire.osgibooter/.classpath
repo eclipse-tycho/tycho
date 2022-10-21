@@ -17,18 +17,11 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="jars/surefire-booter-3.0.0-M5.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/surefire-api-3.0.0-M5.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/surefire-logger-api-3.0.0-M5.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/surefire-extensions-api-3.0.0-M5.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/common-java5-3.0.0-M5.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/maven-surefire-common-3.0.0-M5.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/maven-failsafe-plugin-3.0.0-M5.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/surefire-shared-utils-3.0.0-M5.jar"/>
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">

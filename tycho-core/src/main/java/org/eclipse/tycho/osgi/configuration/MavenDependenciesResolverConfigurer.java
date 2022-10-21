@@ -38,16 +38,14 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "MavenDependenciesResolver")
-public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver, EquinoxLifecycleListener {
+@Component(role = MavenDependenciesResolver.class)
+public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver {
 
     @Requirement
     private Logger logger;
@@ -135,11 +133,6 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
                 ? mavenSession
                 : Objects.requireNonNull(context.getSession(),
                         "Can't acquire maven session from context, called outside maven thread context?");
-    }
-
-    @Override
-    public void afterFrameworkStarted(EmbeddedEquinox framework) {
-        framework.registerService(MavenDependenciesResolver.class, this);
     }
 
     @Override

@@ -28,8 +28,6 @@
 		<module>tycho-bundles-target</module>
 		<module>org.eclipse.tycho.embedder.shared</module>
 		<module>org.eclipse.tycho.core.shared</module>
-		<module>org.eclipse.tycho.p2.resolver.impl</module>
-		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
 	</modules>
 
 	<build>

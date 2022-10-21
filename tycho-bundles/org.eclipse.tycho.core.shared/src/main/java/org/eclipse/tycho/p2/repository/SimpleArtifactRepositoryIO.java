@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -228,7 +229,7 @@ public class SimpleArtifactRepositoryIO {
         private SimpleArtifactRepository theRepository = null;
 
         public Parser(String bundleId) {
-            super(bundleId);
+            super(SAXParserFactory.newDefaultInstance(), bundleId);
         }
 
         public synchronized void parse(InputStream stream) throws IOException {

@@ -30,7 +30,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -40,7 +39,6 @@ import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
@@ -106,8 +104,8 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter(property = "onIllegalVersion", defaultValue = "fail")
     private ReportBehavior onIllegalVersion;
 
-    @Component(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory equinox;
+    @Component()
+    P2ResolverFactory resolverFactory;
 
     @Component
     private Logger plexusLogger;
@@ -138,7 +136,6 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                     + this.artifactComparators.keySet());
         }
 
-        P2ResolverFactory resolverFactory = this.equinox.getService(P2ResolverFactory.class);
         P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(this.plexusLogger, true));
 
         TargetPlatformConfigurationStub baselineTPStub = new TargetPlatformConfigurationStub();

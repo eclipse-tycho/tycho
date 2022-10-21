@@ -48,7 +48,6 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetPlatform;
@@ -58,7 +57,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
@@ -216,8 +214,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Component
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    @Component(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory equinox;
+    @Component()
+    P2ResolverFactory factory;
 
     @Component
     private Logger logger;
@@ -451,7 +449,6 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     private void fillReferences(Feature sourceFeature, Feature feature, TargetPlatform targetPlatform)
             throws MojoExecutionException {
-        P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
         P2Resolver p2 = factory.createResolver(
                 new MavenLoggerAdapter(this.logger, DebugUtils.isDebugEnabled(this.session, this.project)));
 

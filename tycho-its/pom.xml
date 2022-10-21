@@ -281,10 +281,5 @@
 			<version>${tycho-build-version}</version>
 			<type>pom</type>
 		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
-			<version>${tycho-build-version}</version>
-		</dependency>
 	</dependencies>
 </project>

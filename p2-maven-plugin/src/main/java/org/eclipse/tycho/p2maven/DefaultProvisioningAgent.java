@@ -12,8 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven;
 
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
@@ -27,11 +29,25 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 	@Requirement(hint = "connect")
 	private EquinoxServiceFactory serviceFactory;
 
+	@Requirement
+	private PlexusContainer plexusContainer;
+
 	@Override
 	public Object getService(String serviceName) {
 		IProvisioningAgent agent = serviceFactory.getService(IProvisioningAgent.class);
 		if (agent != null) {
-			return agent.getService(serviceName);
+			Object service = agent.getService(serviceName);
+			if (service == null) {
+				try {
+					log.debug("Service " + serviceName
+							+ " not found in OSGi ProvisioningAgent agent, look it up in PlexusContainer");
+					return plexusContainer.lookup(serviceName);
+				} catch (ComponentLookupException e) {
+					log.debug("Service " + serviceName
+							+ " was not found in PlexusContainer");
+				}
+			}
+			return service;
 		}
 		log.warn("Can't locate service = " + serviceName + " because no provisioning agent was found!");
 		return null;

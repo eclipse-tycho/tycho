@@ -33,7 +33,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -57,6 +56,7 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
@@ -103,15 +103,12 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
-import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 @Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
 public class P2DependencyResolver extends AbstractLogEnabled implements DependencyResolver, Initializable {
 
     public static final String ROLE_HINT = "p2";
-
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory equinox;
 
     @Requirement
     private BundleReader bundleReader;
@@ -134,15 +131,20 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     @Requirement
     private LegacySupport context;
 
+    @Requirement
     private P2ResolverFactory resolverFactory;
 
     @Requirement(hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
     private DependencyMetadataGenerator generator;
 
-    private ReactorRepositoryManagerFacade reactorRepositoryManager;
+    @Requirement
+    private ReactorRepositoryManager reactorRepositoryManager;
 
     @Requirement
     private LocalRepositoryP2Indices p2index;
+
+    @Requirement(hint = TychoServiceFactory.HINT)
+    private EquinoxServiceFactory serviceFactory;
 
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
@@ -362,7 +364,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
             TargetPlatformConfigurationStub resolutionContext) {
         try {
+            serviceFactory.getService(IAgentService.class); //this will force triggering service loadings that are required to resolve URLs!
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
+                //TODO we might pass an URLStreamHandler here that collects handlers from plexus components?
                 URI url = new URL(repository.getUrl()).toURI();
                 resolutionContext.addP2Repository(new MavenRepositoryLocation(repository.getId(), url));
 
@@ -494,10 +498,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Override
     public void initialize() throws InitializationException {
-        this.resolverFactory = Objects.requireNonNull(equinox.getService(P2ResolverFactory.class),
-                "P2ResolverFactory service is missing");
-        this.reactorRepositoryManager = Objects.requireNonNull(equinox.getService(ReactorRepositoryManagerFacade.class),
-                "ReactorRepositoryManagerFacade service is missing");
     }
 
     @Override

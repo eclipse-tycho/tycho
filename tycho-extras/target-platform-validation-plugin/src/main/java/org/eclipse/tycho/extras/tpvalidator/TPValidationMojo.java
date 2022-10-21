@@ -32,7 +32,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
@@ -41,7 +40,6 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
@@ -108,8 +106,6 @@ public class TPValidationMojo extends AbstractMojo {
     @Parameter
     private String executionEnvironment;
 
-    @Component(hint = TychoServiceFactory.HINT)
-    protected EquinoxServiceFactory equinox;
     @Component
     DirectorRuntime director;
 
@@ -119,10 +115,10 @@ public class TPValidationMojo extends AbstractMojo {
     @Component
     private ToolchainManager toolchainManager;
 
+    @Component
     private P2ResolverFactory factory;
 
     public void execute() throws MojoExecutionException {
-        this.factory = this.equinox.getService(P2ResolverFactory.class);
 
         List<TPError> errors = new ArrayList<>();
         File[] targetFilesToValidate;
