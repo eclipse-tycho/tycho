@@ -28,7 +28,6 @@ pipeline {
 			}
 			post {
 				always {
-					archiveArtifacts artifacts: '*/*/target/work/data/.metadata/.log,*/*/target/work/configuration/*.log'
 					junit '*/target/surefire-reports/TEST-*.xml,*/*/target/surefire-reports/TEST-*.xml,*/*/*/target/surefire-reports/TEST-*.xml'
 				}
 			}
