@@ -28,7 +28,7 @@
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.api.tools</artifactId>
 		    <version>1.2.900</version>
-		    <type>eclipse-plugin</type>
+		    <type>jar</type>
 		    <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -40,7 +40,7 @@
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.core</artifactId>
 		    <version>3.15.200</version>
-		    <type>eclipse-plugin</type>
+		    <type>jar</type>
 		    <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

@@ -87,9 +87,6 @@
 
 		<equinoxVersion>3.18.100</equinoxVersion>
 		<ecjVersion>3.31.0</ecjVersion>
-
-		<!-- version of Tycho used by this build -->
-		<tychoBootstrapVersion>3.0.0</tychoBootstrapVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -303,22 +300,6 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tychoBootstrapVersion}</version>
-				<extensions>true</extensions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tychoBootstrapVersion}</version>
-				<configuration>
-					<resolver>p2</resolver>
-				</configuration>
 			</plugin>
 		</plugins>
 
