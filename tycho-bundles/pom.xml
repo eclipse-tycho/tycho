@@ -25,58 +25,7 @@
 	<name>Tycho OSGi Bundles Parent</name>
 
 	<modules>
-		<module>tycho-bundles-target</module>
 		<module>org.eclipse.tycho.embedder.shared</module>
 		<module>org.eclipse.tycho.core.shared</module>
 	</modules>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tychoBootstrapVersion}</version>
-				<extensions>true</extensions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-packaging-plugin</artifactId>
-				<version>${tychoBootstrapVersion}</version>
-				<configuration>
-					<skipPomGeneration>true</skipPomGeneration>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tychoBootstrapVersion}</version>
-				<configuration>
-					<target>
-						<artifact>
-							<groupId>org.eclipse.tycho</groupId>
-							<artifactId>tycho-bundles-target</artifactId>
-							<version>${project.version}</version>
-						</artifact>
-					</target>
-					<dependency-resolution>
-						<extraRequirements>
-							<!-- p2 currently uses the Equinox compatibility fragment -->
-							<requirement>
-								<type>eclipse-plugin</type>
-								<id>org.eclipse.osgi.compatibility.state</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-							<!-- This is a workaround for split packages -->
-							<requirement>
-								<type>eclipse-plugin</type>
-								<id>org.eclipse.equinox.registry</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-						</extraRequirements>
-					</dependency-resolution>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
 </project>
