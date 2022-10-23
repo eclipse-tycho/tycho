@@ -16,11 +16,8 @@ package org.eclipse.tycho.agent;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
 
 @SuppressWarnings("restriction")
 public class RemoteAgent implements IProvisioningAgent {
@@ -48,39 +45,11 @@ public class RemoteAgent implements IProvisioningAgent {
     private static IProvisioningAgent createConfiguredProvisioningAgent(MavenContext mavenContext,
             IProxyService proxyService, boolean disableP2Mirrors, MavenRepositorySettings mavenRepositorySettings,
             IProvisioningAgent baseAgent) throws ProvisionException {
-        // TODO set a temporary folder as persistence location
         AgentBuilder agent = new AgentBuilder(baseAgent);
 
-        if (disableP2Mirrors) {
-            addP2MirrorDisablingRepositoryManager(agent, mavenContext.getLogger());
-        }
-
-        if (mavenRepositorySettings != null) {
-            agent.registerService(MavenRepositorySettings.class, mavenRepositorySettings);
-            addMavenAwareRepositoryManagers(agent, mavenRepositorySettings, mavenContext.getLogger());
-        }
         return agent.getAgent();
     }
 
-    private static void addP2MirrorDisablingRepositoryManager(AgentBuilder agent, MavenLogger mavenLogger) {
-        // wrap artifact repository manager
-        IArtifactRepositoryManager plainRepoManager = agent.getService(IArtifactRepositoryManager.class);
-        IArtifactRepositoryManager mirrorDisablingRepoManager = new P2MirrorDisablingArtifactRepositoryManager(
-                plainRepoManager, mavenLogger);
-        agent.registerService(IArtifactRepositoryManager.class, mirrorDisablingRepoManager);
-    }
-
-    private static void addMavenAwareRepositoryManagers(AgentBuilder agent,
-            MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
-
-        IRepositoryIdManager loadingHelper = agent.getAgent().getService(IRepositoryIdManager.class);
-
-        // wrap artifact repository manager
-        IArtifactRepositoryManager plainArtifactRepoManager = agent.getService(IArtifactRepositoryManager.class);
-        RemoteArtifactRepositoryManager remoteArtifactRepoManager = new RemoteArtifactRepositoryManager(
-                plainArtifactRepoManager, loadingHelper);
-        agent.registerService(IArtifactRepositoryManager.class, remoteArtifactRepoManager);
-    }
 
     /**
      * Wrapper around an {@link IProvisioningAgent} with type-safe service access.

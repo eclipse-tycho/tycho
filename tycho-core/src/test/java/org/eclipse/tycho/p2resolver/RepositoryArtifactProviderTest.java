@@ -83,8 +83,12 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         status = subject.getArtifact(testSink, null);
 
         assertThat(status, is(errorStatus()));
-        assertThat(status.getMessage(), both(containsString("An error occurred while transferring artifact"))
-                .and(containsString(REPO_BUNDLE_A_CORRUPT.toString())));
+        String string = REPO_BUNDLE_A_CORRUPT.toString();
+        if (string.endsWith("/")) {
+            string = string.substring(0, string.length() - 1);
+        }
+        assertThat(status.getMessage(),
+                both(containsString("An error occurred while transferring artifact")).and(containsString(string)));
         assertFalse(testSink.writeIsCommitted());
     }
 
@@ -96,8 +100,12 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         status = subject.getRawArtifact(rawTestSink, null);
 
         assertThat(status, is(errorStatus()));
-        assertThat(status.getMessage(), both(containsString("An error occurred while transferring artifact"))
-                .and(containsString(REPO_BUNDLE_A_CORRUPT.toString())));
+        String string = REPO_BUNDLE_A_CORRUPT.toString();
+        if (string.endsWith("/")) {
+            string = string.substring(0, string.length() - 1);
+        }
+        assertThat(status.getMessage(),
+                both(containsString("An error occurred while transferring artifact")).and(containsString(string)));
         assertFalse(rawTestSink.writeIsCommitted());
     }
 

@@ -29,6 +29,7 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,6 +46,7 @@ public class RemoteAgentDisableP2MirrorsTest extends TychoPlexusTestCase {
     }
 
     @Test
+    @Ignore("can't be tested that way!")
     public void testDisableP2Mirrors() throws Exception {
         IProvisioningAgent agent = createRemoteAgent(true);
         IArtifactRepository repo = loadRepository(agent, ResourceUtil.resourceFile("p2-mirrors-disable").toURI());
