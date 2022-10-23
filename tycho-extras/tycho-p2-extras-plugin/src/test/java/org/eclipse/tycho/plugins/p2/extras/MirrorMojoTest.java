@@ -91,17 +91,6 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
         System.clearProperty("org.osgi.framework.vendor");
     }
 
-    public void testMirrorFromOldStyleUpdatesite() throws Exception {
-        File sourceRepository = new File("src/test/resources/mirroring/sourceUpdatesite").getCanonicalFile();
-        setVariableValueToObject(mirrorMojo, "source",
-                Collections.singletonList(new Repository(sourceRepository.toURI())));
-        mirrorMojo.execute();
-        assertTrue(mirrorDestinationDir.isDirectory());
-        assertEquals(1, new File(mirrorDestinationDir, "plugins").listFiles().length);
-        assertMirroredBundle(mirrorDestinationDir, "testbundle", "1.0.0");
-        assertMirroredFeature(mirrorDestinationDir, "testfeature", "1.0.0");
-    }
-
     public void testMirrorSpecificIUFromP2Repo() throws Exception {
         File sourceRepository = new File("src/test/resources/mirroring/sourceP2Repo").getCanonicalFile();
         setVariableValueToObject(mirrorMojo, "source",

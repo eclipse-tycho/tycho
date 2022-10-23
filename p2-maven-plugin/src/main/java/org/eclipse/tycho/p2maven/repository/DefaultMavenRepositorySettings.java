@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
@@ -74,7 +75,13 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 		}
         ArtifactRepository locationAsMavenRepository = repositorySystem.createArtifactRepository(location.getId(),
                 location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
-        Mirror mirror = getTychoMirror(locationAsMavenRepository, context.getSession().getRequest().getMirrors());
+        MavenSession session = context.getSession();
+		if (session == null) {
+			logger.warn(
+					"Called MavenRepositorySettings.getMirror() outside maven thread, mirrors can't be determined!");
+			return null;
+		}
+		Mirror mirror = getTychoMirror(locationAsMavenRepository, session.getRequest().getMirrors());
         if (mirror != null) {
             return new MavenRepositoryLocation(mirror.getId(), URI.create(mirror.getUrl()));
         }
@@ -87,7 +94,13 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
             return null;
         }
 
-        Server serverSettings = context.getSession().getSettings().getServer(location.getId());
+        MavenSession session = context.getSession();
+		if (session == null) {
+			logger.warn(
+					"Called MavenRepositorySettings.getCredentials() outside maven thread, credentials can't be determined!");
+			return null;
+		}
+		Server serverSettings = session.getSettings().getServer(location.getId());
 
         if (serverSettings != null) {
             SettingsDecryptionResult result = decrypter.decryptAndLogProblems(serverSettings);
