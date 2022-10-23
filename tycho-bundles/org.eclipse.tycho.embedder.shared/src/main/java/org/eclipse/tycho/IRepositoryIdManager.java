@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 public interface IRepositoryIdManager {
 
-    String SERVICE_NAME = IRepositoryIdManager.class.getName();
+    String SERVICE_NAME = "org.eclipse.tycho.IRepositoryIdManager";
 
     void addMapping(String id, URI location);
 

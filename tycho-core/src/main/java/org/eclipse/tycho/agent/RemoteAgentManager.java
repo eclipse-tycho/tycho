@@ -19,7 +19,6 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
@@ -43,12 +42,11 @@ public class RemoteAgentManager {
     IProvisioningAgentProvider agentProvider;
 
     @Requirement
-    IRepositoryIdManager repositoryIdManager;
+    IProvisioningAgent agent;
 
     /**
      * Cached provisioning agent instance.
      */
-    // TODO stop when this service is stopped?
     private IProvisioningAgent cachedAgent;
     private IProxyService proxyService;
 
@@ -63,10 +61,8 @@ public class RemoteAgentManager {
     public synchronized IProvisioningAgent getProvisioningAgent() throws ProvisionException {
         if (cachedAgent == null) {
             boolean disableP2Mirrors = getDisableP2MirrorsConfiguration();
-            IProvisioningAgent createAgent = agentProvider.createAgent(null);
-            createAgent.registerService(IRepositoryIdManager.SERVICE_NAME, repositoryIdManager);
             cachedAgent = new RemoteAgent(mavenContext, getProxyService(), mavenRepositorySettings, disableP2Mirrors,
-                    createAgent);
+                    agent);
         }
         return cachedAgent;
     }

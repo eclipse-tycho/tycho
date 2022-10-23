@@ -44,7 +44,6 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
-import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
@@ -100,7 +99,7 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
     @Before
     public void setUpSubjectAndContext() throws Exception {
         TestResolverFactory testResolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(),
-                lookup(IProvisioningAgent.class), lookup(IRepositoryIdManager.class));
+                lookup(IProvisioningAgent.class));
         subject = testResolverFactory.getTargetPlatformFactoryImpl();
         localM2Repo = testResolverFactory.mavenContext.getLocalRepositoryRoot().getAbsoluteFile().toPath();
 
@@ -257,7 +256,7 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
     @Test
     public void testIncludeLocalMavenRepo() throws Exception {
         TestResolverFactory factory = new TestResolverFactory(logVerifier.getMavenLogger(),
-                lookup(IProvisioningAgent.class), lookup(IRepositoryIdManager.class));
+                lookup(IProvisioningAgent.class));
         LocalMetadataRepository localMetadataRepo = factory.getLocalMetadataRepository();
         // add one IU to local repo
         localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"),

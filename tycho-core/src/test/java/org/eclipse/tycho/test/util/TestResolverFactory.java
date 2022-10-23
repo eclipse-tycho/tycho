@@ -59,9 +59,9 @@ public class TestResolverFactory implements P2ResolverFactory {
     private IProvisioningAgent agent;
     private IRepositoryIdManager idManager;
 
-    public TestResolverFactory(MavenLogger logger, IProvisioningAgent agent, IRepositoryIdManager idManager) {
+    public TestResolverFactory(MavenLogger logger, IProvisioningAgent agent) {
         this.agent = agent;
-        this.idManager = idManager;
+        this.idManager = agent.getService(IRepositoryIdManager.class);
         boolean offline = false;
         mavenContext = createMavenContext(offline, logger);
 

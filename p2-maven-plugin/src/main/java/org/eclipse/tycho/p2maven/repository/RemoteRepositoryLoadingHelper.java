@@ -22,6 +22,8 @@ import java.util.stream.Stream;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
@@ -31,8 +33,8 @@ import org.eclipse.tycho.p2maven.helper.P2PasswordUtil;
  * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the
  * settings.xml-configured mirrors and setting passwords.
  */
-@Component(role = IRepositoryIdManager.class)
-public class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
+@Component(role = IAgentServiceFactory.class, hint = IRepositoryIdManager.SERVICE_NAME)
+public class RemoteRepositoryLoadingHelper implements IRepositoryIdManager, IAgentServiceFactory {
 
 	@Requirement
 	private MavenRepositorySettings settings;
@@ -144,5 +146,11 @@ public class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
         return knownMavenRepositoryIds.entrySet().stream()
                 .map(e -> new MavenRepositoryLocation(e.getValue(), e.getKey()));
     }
+
+	@Override
+	public Object createService(IProvisioningAgent agent) {
+		// this don't care about different agents
+		return this;
+	}
 
 }

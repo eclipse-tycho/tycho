@@ -75,8 +75,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     @Requirement
     private RemoteAgentManager remoteAgentManager;
     @Requirement
-    private IRepositoryIdManager repositoryIdManager;
-    @Requirement
     private TargetDefinitionResolverService targetDefinitionResolverService;
     private ConcurrentMap<IInstallableUnit, Optional<Entry<IInstallableUnit, IRequiredCapability>>> hostRequirementMap = new ConcurrentHashMap<>();
 
@@ -119,7 +117,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
             LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
             LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
             return new TargetPlatformFactoryImpl(mavenContext, remoteAgentManager.getProvisioningAgent(),
-                    localArtifactRepo, localMetadataRepo, targetDefinitionResolverService, repositoryIdManager);
+                    localArtifactRepo, localMetadataRepo, targetDefinitionResolverService,
+                    agent.getService(IRepositoryIdManager.class));
         } catch (ProvisionException e) {
             throw new RuntimeException(e);
         }
