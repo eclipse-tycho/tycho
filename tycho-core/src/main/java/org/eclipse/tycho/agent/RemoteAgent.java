@@ -13,9 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.agent;
 
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
@@ -24,7 +21,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -57,28 +53,10 @@ public class RemoteAgent implements IProvisioningAgent {
             IProvisioningAgent baseAgent) throws ProvisionException {
         // TODO set a temporary folder as persistence location
         AgentBuilder agent = new AgentBuilder(baseAgent);
-        TychoRepositoryTransport tychoRepositoryTransport = new TychoRepositoryTransport(mavenContext, proxyService,
-                uri -> {
-                    if (mavenRepositorySettings == null) {
-                        return null;
-                    }
-                    IRepositoryIdManager repositoryIdManager = agent.getService(IRepositoryIdManager.class);
-                    Stream<MavenRepositoryLocation> locations = mavenContext.getMavenRepositoryLocations();
-                    locations = Stream.concat(locations, repositoryIdManager.getKnownMavenRepositoryLocations());
-                    String requestUri = uri.normalize().toASCIIString();
-                    return locations.sorted((loc1, loc2) -> {
-                        //we wan't the longest prefix match, so first sort all uris by their length ...
-                        String s1 = loc1.getURL().normalize().toASCIIString();
-                        String s2 = loc2.getURL().normalize().toASCIIString();
-                        return Long.compare(s2.length(), s1.length());
-                    }).filter(loc -> {
-                        String prefix = loc.getURL().normalize().toASCIIString();
-                        return requestUri.startsWith(prefix);
-                    }).map(mavenRepositorySettings::getCredentials).filter(Objects::nonNull).findFirst().orElse(null);
-                });
+        TychoRepositoryTransport tychoRepositoryTransport = (TychoRepositoryTransport) baseAgent
+                .getService(Transport.SERVICE_NAME);
         agent.getAgent().registerService(CacheManager.SERVICE_NAME,
                 new TychoRepositoryTransportCacheManager(tychoRepositoryTransport, mavenContext));
-        agent.getAgent().registerService(Transport.SERVICE_NAME, tychoRepositoryTransport);
 
         if (disableP2Mirrors) {
             addP2MirrorDisablingRepositoryManager(agent, mavenContext.getLogger());

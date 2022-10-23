@@ -88,6 +88,7 @@ public class TychoPlexusTestCase {
                 System.getProperties(), new Date());
         mavenSession.setProjects(Collections.emptyList());
         legacySupport.setSession(mavenSession);
+        modifySession(mavenSession);
         try {
             //if possible, init the service factory and loading of services
             EquinoxServiceFactory coreFactory = lookup(EquinoxServiceFactory.class, "tycho-core");
@@ -95,6 +96,10 @@ public class TychoPlexusTestCase {
         } catch (Exception e) {
             System.err.println(e);
         }
+    }
+
+    protected void modifySession(MavenSession mavenSession) {
+
     }
 
     public final <T> T lookup(final Class<T> role) throws ComponentLookupException {
