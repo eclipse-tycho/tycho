@@ -35,7 +35,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -46,7 +45,6 @@ import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.agent.RemoteAgentManager;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
@@ -72,8 +70,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private MavenContext mavenContext;
     @Requirement
     private LocalRepositoryP2Indices localRepoIndices;
-    @Requirement
-    private RemoteAgentManager remoteAgentManager;
     @Requirement
     private TargetDefinitionResolverService targetDefinitionResolverService;
     private ConcurrentMap<IInstallableUnit, Optional<Entry<IInstallableUnit, IRequiredCapability>>> hostRequirementMap = new ConcurrentHashMap<>();
@@ -112,16 +108,11 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     @Override
     public TargetPlatformFactoryImpl getTargetPlatformFactory() {
-        try {
-            // TODO don't synchronize twice
-            LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
-            LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
-            return new TargetPlatformFactoryImpl(mavenContext, remoteAgentManager.getProvisioningAgent(),
-                    localArtifactRepo, localMetadataRepo, targetDefinitionResolverService,
-                    agent.getService(IRepositoryIdManager.class));
-        } catch (ProvisionException e) {
-            throw new RuntimeException(e);
-        }
+        // TODO don't synchronize twice
+        LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
+        LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
+        return new TargetPlatformFactoryImpl(mavenContext, agent, localArtifactRepo, localMetadataRepo,
+                targetDefinitionResolverService, agent.getService(IRepositoryIdManager.class));
     }
 
     @Override
@@ -213,10 +204,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     public void setLocalRepositoryIndices(LocalRepositoryP2Indices localRepoIndices) {
         this.localRepoIndices = localRepoIndices;
-    }
-
-    public void setRemoteAgentManager(RemoteAgentManager remoteAgentManager) {
-        this.remoteAgentManager = remoteAgentManager;
     }
 
     public void setTargetDefinitionResolverService(TargetDefinitionResolverService targetDefinitionResolverService) {
