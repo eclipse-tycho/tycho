@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2resolver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.io.File;
 import java.net.URI;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -23,10 +22,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.tycho.agent.RemoteAgent;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -63,9 +60,7 @@ public class RemoteAgentDisableP2MirrorsTest extends TychoPlexusTestCase {
     }
 
     private IProvisioningAgent createRemoteAgent(boolean disableMirrors) throws Exception {
-        File localRepo = tempManager.newFolder("localRepo");
-        return new RemoteAgent(new MockMavenContext(localRepo, logVerifier.getLogger()), disableMirrors,
-                lookup(IProvisioningAgent.class));
+        return lookup(IProvisioningAgent.class);
     }
 
     private static IArtifactRepository loadRepository(IProvisioningAgent agent, URI location)

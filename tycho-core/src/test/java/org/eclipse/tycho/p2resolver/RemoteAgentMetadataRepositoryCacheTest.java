@@ -18,16 +18,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.agent.RemoteAgent;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,8 +32,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 /**
- * Tests for verifying the caching behaviour of the {@link RemoteAgent}'s metadata repository
- * manager.
+ * Tests for verifying the caching behavior of the RemoteAgent's metadata repository manager.
  */
 public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase {
 
@@ -66,20 +62,20 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
 
     @Test
     public void testOnlineLoading() throws Exception {
-        RemoteAgent onlineAgent = newOnlineAgent();
+        IProvisioningAgent onlineAgent = newOnlineAgent();
         IMetadataRepository repo = loadHttpRepository(onlineAgent);
         assertNotNull(repo);
     }
 
     @Test
     public void testOfflineLoadingFromCache() throws Exception {
-        RemoteAgent onlineAgent = newOnlineAgent();
+        IProvisioningAgent onlineAgent = newOnlineAgent();
         loadHttpRepository(onlineAgent);
 
         assertFalse(localServer.getAccessedUrls(HTTP_REPO_PATH).isEmpty()); // self-test
         localServer.clearAccessedUrls(HTTP_REPO_PATH);
 
-        RemoteAgent offlineAgent = newOfflineAgent();
+        IProvisioningAgent offlineAgent = newOfflineAgent();
         IMetadataRepository repo = loadHttpRepository(offlineAgent);
         assertNotNull(repo);
 
@@ -88,13 +84,13 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
 
     @Test
     public void testOnlineLoadingFallsBackToCache() throws Exception {
-        RemoteAgent onlineAgent1 = newOnlineAgent();
+        IProvisioningAgent onlineAgent1 = newOnlineAgent();
         loadHttpRepository(onlineAgent1);
 
         // server becomes unavailable
         localServer.stop();
 
-        RemoteAgent onlineAgent2 = newOnlineAgent();
+        IProvisioningAgent onlineAgent2 = newOnlineAgent();
         IMetadataRepository repo = loadHttpRepository(onlineAgent2);
         assertNotNull(repo);
     }
@@ -104,13 +100,13 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
         // server unavailable and no cache entry
         localServer.stop();
 
-        RemoteAgent onlineAgent = newOnlineAgent();
+        IProvisioningAgent onlineAgent = newOnlineAgent();
         loadHttpRepository(onlineAgent);
     }
 
     @Test
     public void testOnlineReloadingDoesntReloadFromRemote() throws Exception {
-        RemoteAgent onlineAgent = newOnlineAgent();
+        IProvisioningAgent onlineAgent = newOnlineAgent();
         loadHttpRepository(onlineAgent);
 
         assertFalse(localServer.getAccessedUrls(HTTP_REPO_PATH).isEmpty()); // self-test
@@ -122,20 +118,16 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
         assertTrue(localServer.getAccessedUrls(HTTP_REPO_PATH).isEmpty());
     }
 
-    private RemoteAgent newOnlineAgent() throws Exception {
-        return new RemoteAgent(
-                new MockMavenContext(localMavenRepository, false, logVerifier.getMavenLogger(), new Properties()),
-                lookup(IProvisioningAgent.class));
+    private IProvisioningAgent newOnlineAgent() throws Exception {
+        return lookup(IProvisioningAgent.class);
     }
 
-    private RemoteAgent newOfflineAgent() throws Exception {
-        return new RemoteAgent(
-                new MockMavenContext(localMavenRepository, true, logVerifier.getMavenLogger(), new Properties()),
-                lookup(IProvisioningAgent.class));
+    private IProvisioningAgent newOfflineAgent() throws Exception {
+        return lookup(IProvisioningAgent.class);
     }
 
-    private IMetadataRepository loadHttpRepository(RemoteAgent agent) throws ProvisionException {
-        IMetadataRepositoryManager metadataRepositoryManager = agent.getService(IMetadataRepositoryManager.class);
+    private IMetadataRepository loadHttpRepository(IProvisioningAgent onlineAgent) throws ProvisionException {
+        IMetadataRepositoryManager metadataRepositoryManager = onlineAgent.getService(IMetadataRepositoryManager.class);
         IMetadataRepository repo = metadataRepositoryManager.loadRepository(localHttpRepo, null);
         return repo;
     }
