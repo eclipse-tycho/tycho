@@ -14,8 +14,6 @@
 package org.eclipse.tycho.agent;
 
 import org.eclipse.core.net.proxy.IProxyService;
-import org.eclipse.equinox.internal.p2.repository.CacheManager;
-import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -53,10 +51,6 @@ public class RemoteAgent implements IProvisioningAgent {
             IProvisioningAgent baseAgent) throws ProvisionException {
         // TODO set a temporary folder as persistence location
         AgentBuilder agent = new AgentBuilder(baseAgent);
-        TychoRepositoryTransport tychoRepositoryTransport = (TychoRepositoryTransport) baseAgent
-                .getService(Transport.SERVICE_NAME);
-        agent.getAgent().registerService(CacheManager.SERVICE_NAME,
-                new TychoRepositoryTransportCacheManager(tychoRepositoryTransport, mavenContext));
 
         if (disableP2Mirrors) {
             addP2MirrorDisablingRepositoryManager(agent, mavenContext.getLogger());
