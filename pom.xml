@@ -76,7 +76,7 @@
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<commonsCompressVersion>1.21</commonsCompressVersion>
 		<plexusVersion>2.1.1</plexusVersion>
-		<plexusUtilsVersion>3.4.2</plexusUtilsVersion>
+		<plexusUtilsVersion>3.5.0</plexusUtilsVersion>
 		<cipherVersion>2.0</cipherVersion>
 		<pluginToolsVersion>3.6.4</pluginToolsVersion>
 		<jgit-version>6.3.0.202209071007-r</jgit-version>
