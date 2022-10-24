@@ -158,18 +158,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
-			<version>1.3.300</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.concurrent</artifactId>
 			<version>1.2.100</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.ecf</groupId>
-			<artifactId>org.eclipse.ecf.identity</artifactId>
-			<version>3.9.402</version>
 		</dependency>
 	</dependencies>
 	<build>

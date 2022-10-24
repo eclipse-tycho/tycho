@@ -8,10 +8,6 @@ org.osgi.service.component
 org.eclipse.equinox.preferences,true
 org.apache.felix.scr,true
 org.eclipse.equinox.common,true
-org.eclipse.ecf,true
-org.eclipse.ecf.filetransfer,true
-org.eclipse.ecf.identity,true
-org.eclipse.ecf.provider.filetransfer,true
 biz.aQute.bndlib
 biz.aQute.bnd.util
 
@@ -25,7 +21,6 @@ org.eclipse.equinox.p2.metadata.repository,true
 org.eclipse.equinox.p2.publisher,true
 org.eclipse.equinox.p2.publisher.eclipse,true
 org.eclipse.equinox.p2.repository,true
-org.eclipse.equinox.p2.transport.ecf,true
 org.eclipse.equinox.p2.updatesite,true
 org.eclipse.equinox.p2.touchpoint.natives,true
 org.eclipse.equinox.p2.touchpoint.eclipse,true
