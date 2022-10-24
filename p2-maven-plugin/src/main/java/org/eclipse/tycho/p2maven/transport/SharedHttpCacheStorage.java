@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.agent;
+package org.eclipse.tycho.p2maven.transport;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,11 +45,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
-import org.eclipse.tycho.core.shared.MavenLogger;
 
 public class SharedHttpCacheStorage {
 
@@ -80,7 +80,7 @@ public class SharedHttpCacheStorage {
     private SharedHttpCacheStorage(CacheConfig cacheConfig) {
 
         this.cacheConfig = cacheConfig;
-        entryCache = new LinkedHashMap<>(100, 0.75f, true) {
+        entryCache = new LinkedHashMap<File, CacheLine>(100, 0.75f, true) {
 
             private static final long serialVersionUID = 1L;
 
@@ -100,7 +100,7 @@ public class SharedHttpCacheStorage {
      * @throws FileNotFoundException
      *             if the URI is know to be not found
      */
-    public CacheEntry getCacheEntry(URI uri, MavenLogger logger) throws FileNotFoundException {
+	public CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException {
         CacheLine cacheLine = getCacheLine(uri);
         if (!cacheConfig.update) { //if not updates are forced ...
             int code = cacheLine.getResponseCode();
@@ -190,7 +190,7 @@ public class SharedHttpCacheStorage {
         }
 
         public synchronized long fetchLastModified(URI uri, IProxyService proxyService,
-                Function<URI, Credentials> credentialsProvider, MavenLogger logger) throws IOException {
+				Function<URI, Credentials> credentialsProvider, Logger logger) throws IOException {
             //TODO its very likely that the file is downloaded here if it has changed... so probably just download it right now?
             RepositoryAuthenticator authenticator = new RepositoryAuthenticator(getProxyData(proxyService, uri),
                     credentialsProvider.apply(uri));
@@ -221,7 +221,7 @@ public class SharedHttpCacheStorage {
 
         public synchronized long getLastModified(URI uri, IProxyService proxyService,
                 Function<URI, Credentials> credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
-                MavenLogger logger) throws IOException {
+				Logger logger) throws IOException {
             int code = getResponseCode();
             if (code > 0) {
                 if (isAuthFailure(code)) {
@@ -246,7 +246,7 @@ public class SharedHttpCacheStorage {
         }
 
         public synchronized File fetchFile(URI uri, IProxyService proxyService,
-                Function<URI, Credentials> credentialsProvider, MavenLogger logger) throws IOException {
+				Function<URI, Credentials> credentialsProvider, Logger logger) throws IOException {
             boolean exits = file.isFile();
             if (exits && !mustValidate()) {
                 return file;
@@ -299,7 +299,7 @@ public class SharedHttpCacheStorage {
 
         public synchronized File getFile(URI uri, IProxyService proxyService,
                 Function<URI, Credentials> credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
-                MavenLogger logger) throws IOException {
+				Logger logger) throws IOException {
             int code = getResponseCode();
             if (code > 0) {
                 if (isAuthFailure(code)) {

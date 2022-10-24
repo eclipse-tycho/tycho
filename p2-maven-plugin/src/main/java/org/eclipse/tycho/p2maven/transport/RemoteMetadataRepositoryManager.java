@@ -10,12 +10,13 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.agent;
+package org.eclipse.tycho.p2maven.transport;
 
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -28,16 +29,15 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
-import org.eclipse.tycho.core.shared.MavenLogger;
 
 class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
     private final IMetadataRepositoryManager delegate;
     private final IRepositoryIdManager loadingHelper;
-    private final MavenLogger logger;
+	private final Logger logger;
 
     RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, IRepositoryIdManager loadingHelper,
-            MavenLogger logger) {
+			Logger logger) {
         this.delegate = delegate;
         this.loadingHelper = Objects.requireNonNull(loadingHelper);
         this.logger = logger;
