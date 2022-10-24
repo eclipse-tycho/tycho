@@ -22,12 +22,10 @@ import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.agent.RemoteAgent;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -59,9 +57,9 @@ public class TestResolverFactory implements P2ResolverFactory {
     private IProvisioningAgent agent;
     private IRepositoryIdManager idManager;
 
-    public TestResolverFactory(MavenLogger logger, IProvisioningAgent agent, IRepositoryIdManager idManager) {
+    public TestResolverFactory(MavenLogger logger, IProvisioningAgent agent) {
         this.agent = agent;
-        this.idManager = idManager;
+        this.idManager = agent.getService(IRepositoryIdManager.class);
         boolean offline = false;
         mavenContext = createMavenContext(offline, logger);
 
@@ -143,12 +141,8 @@ public class TestResolverFactory implements P2ResolverFactory {
     }
 
     public TargetPlatformFactoryImpl getTargetPlatformFactoryImpl() {
-        try {
-            return new TargetPlatformFactoryImpl(mavenContext, new RemoteAgent(mavenContext, agent), localArtifactRepo,
-                    localMetadataRepo, targetDefinitionResolverService, idManager);
-        } catch (ProvisionException e) {
-            throw new RuntimeException(e);
-        }
+        return new TargetPlatformFactoryImpl(mavenContext, agent, localArtifactRepo, localMetadataRepo,
+                targetDefinitionResolverService, idManager);
     }
 
     @Override

@@ -483,15 +483,16 @@ public class SharedHttpCacheStorage {
     }
 
     private static final class CacheConfig {
+
+        private final File location;
+        private final boolean offline;
+        private final boolean update;
+
         public CacheConfig(File location, boolean offline, boolean update) {
             this.location = location;
             this.offline = offline;
             this.update = update;
         }
-
-        private final File location;
-        private final boolean offline;
-        private final boolean update;
 
         @Override
         public int hashCode() {

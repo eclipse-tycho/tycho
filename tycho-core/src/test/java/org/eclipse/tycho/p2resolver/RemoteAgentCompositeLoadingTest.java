@@ -22,10 +22,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.tycho.agent.RemoteAgent;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -41,13 +39,12 @@ public class RemoteAgentCompositeLoadingTest extends TychoPlexusTestCase {
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
 
-    private RemoteAgent subject;
+    private IProvisioningAgent subject;
 
     @Before
     public void initSubject() throws Exception {
         File localRepo = tempManager.newFolder("localRepo");
-        subject = new RemoteAgent(new MockMavenContext(localRepo, logVerifier.getLogger()),
-                lookup(IProvisioningAgent.class));
+        subject = lookup(IProvisioningAgent.class);
     }
 
     @Test

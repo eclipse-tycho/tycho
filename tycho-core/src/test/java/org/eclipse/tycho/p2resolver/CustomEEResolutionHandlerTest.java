@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
@@ -50,8 +49,8 @@ public class CustomEEResolutionHandlerTest extends TychoPlexusTestCase {
 
     @Before
     public void setUpContext() throws Exception {
-        tpFactory = new TestResolverFactory(logVerifier.getMavenLogger(), lookup(IProvisioningAgent.class),
-                lookup(IRepositoryIdManager.class)).getTargetPlatformFactory();
+        tpFactory = new TestResolverFactory(logVerifier.getMavenLogger(), lookup(IProvisioningAgent.class))
+                .getTargetPlatformFactory();
         tpConfig = new TargetPlatformConfigurationStub();
     }
 

@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.IDependencyMetadata;
-import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -57,8 +56,7 @@ public class P2ResolverTestBase extends TychoPlexusTestCase {
 
     @Before
     final public void prepare() throws Exception {
-        resolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(), lookup(IProvisioningAgent.class),
-                lookup(IRepositoryIdManager.class));
+        resolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(), lookup(IProvisioningAgent.class));
         MockMavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
         fullGenerator = new P2GeneratorImpl(true);
         fullGenerator.setMavenContext(mavenContext);

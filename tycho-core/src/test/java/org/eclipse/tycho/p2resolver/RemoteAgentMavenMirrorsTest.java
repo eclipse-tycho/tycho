@@ -17,7 +17,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Properties;
 
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -27,13 +26,10 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositorySettings;
-import org.eclipse.tycho.agent.RemoteAgent;
-import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2maven.repository.DefaultMavenRepositorySettings;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Rule;
@@ -57,18 +53,9 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
     @Before
     public void initSubject() throws Exception {
         File localRepository = tempManager.newFolder("localRepo");
-        MavenContext mavenContext = new MockMavenContext(localRepository, OFFLINE, logVerifier.getMavenLogger(),
-                new Properties()) {
-            @Override
-            public boolean isUpdateSnapshots() {
-                return true;
-            }
-        };
-
         mavenRepositorySettings = (DefaultMavenRepositorySettings) lookup(MavenRepositorySettings.class);
         IProxyService service = null;
-        subject = new RemoteAgent(mavenContext, service, mavenRepositorySettings, OFFLINE,
-                lookup(IProvisioningAgent.class));
+        subject = lookup(IProvisioningAgent.class);
     }
 
     @Test
