@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.agent;
+package org.eclipse.tycho.p2maven.transport;
 
 import java.io.File;
 import java.io.IOException;

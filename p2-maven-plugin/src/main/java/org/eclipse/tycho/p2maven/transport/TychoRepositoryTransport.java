@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.agent;
+package org.eclipse.tycho.p2maven.transport;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 
 import org.apache.commons.io.IOUtils;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -35,16 +36,16 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
-import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
 
 @SuppressWarnings("restriction")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
         implements IAgentServiceFactory {
 
+	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
+
     private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
-    private MavenContext mavenContext;
+	private Logger logger;
     private SharedHttpCacheStorage httpCache;
     private LongAdder requests = new LongAdder();
     private LongAdder indexRequests = new LongAdder();
@@ -53,25 +54,13 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
     private Function<URI, Credentials> credentialsProvider;
 
-    public TychoRepositoryTransport(MavenContext mavenContext, IProxyService proxyService,
+	public TychoRepositoryTransport(Logger logger, IProxyService proxyService, SharedHttpCacheStorage httpCache,
             Function<URI, Credentials> credentialsProvider) {
-        this.mavenContext = mavenContext;
+		this.logger = logger;
         this.proxyService = proxyService;
         this.credentialsProvider = credentialsProvider;
-        File cacheLocation = new File(mavenContext.getLocalRepositoryRoot(), ".cache/tycho");
-        cacheLocation.mkdirs();
-        MavenLogger logger = mavenContext.getLogger();
-        logger.info("### Using TychoRepositoryTransport for remote P2 access ###");
-        logger.info("    Cache location:         " + cacheLocation);
-        logger.info("    Transport mode:         " + (mavenContext.isOffline() ? "offline" : "online"));
-        logger.info("    Update mode:            " + (mavenContext.isUpdateSnapshots() ? "forced" : "cache first"));
-        logger.info("    Minimum cache duration: " + SharedHttpCacheStorage.MIN_CACHE_PERIOD + " minutes");
-        logger.info(
-                "      (you can configure this with -Dtycho.p2.transport.min-cache-minutes=<desired minimum cache duration>)");
-
         numberFormat.setMaximumFractionDigits(2);
-        httpCache = SharedHttpCacheStorage.getStorage(cacheLocation, mavenContext.isOffline(),
-                mavenContext.isUpdateSnapshots());
+		this.httpCache = httpCache;
     }
 
     @Override
@@ -109,10 +98,9 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     @Override
     public synchronized InputStream stream(URI toDownload, IProgressMonitor monitor)
             throws FileNotFoundException, CoreException, AuthenticationFailedException {
-        MavenLogger logger = mavenContext.getLogger();
-        if (logger.isExtendedDebugEnabled()) {
+		if (DEBUG_REQUESTS) {
             logger.debug("Request stream for " + toDownload + "...");
-        }
+		}
         requests.increment();
         if (toDownload.toASCIIString().endsWith("p2.index")) {
             indexRequests.increment();
@@ -120,25 +108,25 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         try {
             File cachedFile = getCachedFile(toDownload);
             if (cachedFile != null) {
-                if (logger.isExtendedDebugEnabled()) {
+				if (DEBUG_REQUESTS) {
                     logger.debug(" --> routed through http-cache ...");
                 }
                 return new FileInputStream(cachedFile);
             }
             return toDownload.toURL().openStream();
         } catch (FileNotFoundException e) {
-            if (logger.isExtendedDebugEnabled()) {
+			if (DEBUG_REQUESTS) {
                 logger.debug(" --> not found!");
             }
             throw e;
         } catch (IOException e) {
-            if (logger.isExtendedDebugEnabled()) {
+			if (DEBUG_REQUESTS) {
                 logger.debug(" --> generic error: " + e);
             }
             throw new CoreException(new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
                     "download from " + toDownload + " failed", e));
         } finally {
-            if (logger.isExtendedDebugEnabled()) {
+			if (DEBUG_REQUESTS) {
                 logger.debug("Total number of requests: " + requests.longValue() + " (" + indexRequests.longValue()
                         + " for p2.index)");
             }
@@ -151,7 +139,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         //TODO P2 cache manager relies on this method to throw an exception to work correctly
         try {
             if (isHttp(toDownload)) {
-                return httpCache.getCacheEntry(toDownload, mavenContext.getLogger()).getLastModified(proxyService,
+				return httpCache.getCacheEntry(toDownload, logger).getLastModified(proxyService,
                         credentialsProvider);
             }
             URLConnection connection = toDownload.toURL().openConnection();
@@ -178,7 +166,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     public File getCachedFile(URI remoteFile) throws IOException {
 
         if (isHttp(remoteFile)) {
-            return httpCache.getCacheEntry(remoteFile, mavenContext.getLogger()).getCacheFile(proxyService,
+			return httpCache.getCacheEntry(remoteFile, logger).getCacheFile(proxyService,
                     credentialsProvider);
         }
         return null;
