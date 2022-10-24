@@ -131,12 +131,15 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>p2-maven-plugin</artifactId>
 			<version>${project.version}</version>
+			<!-- TODO
+			  if not excluded an Tycho build and the project tycho version uses different scr versions this produces strance warnings
+			  but if excluded some option like -am can cause problems becuase SCR is then missing ?
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>org.apache.felix.scr</artifactId>
 				</exclusion>
-			</exclusions>
+			</exclusions> -->
 		</dependency>
 
 	</dependencies>
