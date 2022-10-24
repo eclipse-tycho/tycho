@@ -10,12 +10,13 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.agent;
+package org.eclipse.tycho.p2maven.transport;
 
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Map;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -28,21 +29,19 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
-import org.eclipse.tycho.core.shared.MavenLogger;
 
-@SuppressWarnings("restriction")
 class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryManager {
 
     private final IArtifactRepositoryManager delegate;
-    private final MavenLogger mavenLogger;
+	private final Logger mavenLogger;
 
     public P2MirrorDisablingArtifactRepositoryManager(IArtifactRepositoryManager originalRepositoryManager,
-            MavenLogger mavenLogger) {
+			Logger mavenLogger) {
         this.delegate = originalRepositoryManager;
         this.mavenLogger = mavenLogger;
     }
 
-    private static IArtifactRepository disableMirrors(IArtifactRepository repository, MavenLogger logger)
+	private static IArtifactRepository disableMirrors(IArtifactRepository repository, Logger logger)
             throws ProvisionException {
         if (repository instanceof SimpleArtifactRepository simpleArtifactRepo) {
             stripMirrorsURLProperty(simpleArtifactRepo, logger);
@@ -50,7 +49,7 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
         return repository;
     }
 
-    private static void stripMirrorsURLProperty(AbstractRepository<?> repository, MavenLogger logger) {
+	private static void stripMirrorsURLProperty(AbstractRepository<?> repository, Logger logger) {
         try {
             Map<?, ?> properties = getRepositoryProperties(repository);
             Object removedConfiguration = properties.remove(IRepository.PROP_MIRRORS_URL);

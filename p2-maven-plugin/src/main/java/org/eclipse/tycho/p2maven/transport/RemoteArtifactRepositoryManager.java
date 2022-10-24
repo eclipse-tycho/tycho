@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.agent;
+package org.eclipse.tycho.p2maven.transport;
 
 import java.net.URI;
 import java.util.Map;
