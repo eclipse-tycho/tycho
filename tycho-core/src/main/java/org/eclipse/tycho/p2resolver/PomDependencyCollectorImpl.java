@@ -184,7 +184,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         IArtifactDescriptor artifactDescriptor = descriptorMap.get(facade);
         if (artifactDescriptor == null) {
             //TODO should we simply use the packaging type here??
-            String type = ArtifactType.TYPE_ECLIPSE_PLUGIN;
+            String type;
             if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(facade.getPackagingType())) {
                 type = ArtifactType.TYPE_ECLIPSE_FEATURE;
             } else {
