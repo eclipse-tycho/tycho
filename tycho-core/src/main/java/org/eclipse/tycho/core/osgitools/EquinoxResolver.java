@@ -353,7 +353,7 @@ public class EquinoxResolver {
                 ReactorProject mavenProject = artifact.getMavenProject();
                 if (mavenProject != null) {
                     Collection<String> additionalBundles = mavenProject.getBuildProperties().getAdditionalBundles();
-                    if (additionalBundles.size() > 0) {
+                    if (!additionalBundles.isEmpty()) {
                         List<String> reqb = new ArrayList<>();
                         String value = mf.getValue(Constants.REQUIRE_BUNDLE);
                         if (value != null) {
