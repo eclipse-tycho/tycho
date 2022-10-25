@@ -33,7 +33,6 @@ import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.LocationStub;
@@ -138,7 +137,7 @@ public class TargetDefinitionResolverIncludeModeTest extends TychoPlexusTestCase
         logVerifier.expectError("");
     }
 
-    static class PlannerLocationStub extends LocationStub implements InstallableUnitLocation {
+    static class PlannerLocationStub extends LocationStub {
 
         public PlannerLocationStub(TestRepositories repositories, IVersionedId... seedUnits) {
             super(repositories, seedUnits);
@@ -150,7 +149,7 @@ public class TargetDefinitionResolverIncludeModeTest extends TychoPlexusTestCase
         }
     }
 
-    static class SlicerLocationStub extends LocationStub implements InstallableUnitLocation {
+    static class SlicerLocationStub extends LocationStub {
 
         public SlicerLocationStub(TestRepositories repositories, IVersionedId... seedUnits) {
             super(repositories, seedUnits);
