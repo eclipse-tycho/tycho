@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.model.Build;
@@ -71,7 +70,7 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
         if (getFileName(artifactFile).endsWith(PRODUCT_EXTENSION)) {
             Path projectRoot = artifactFile.getParent();
             try (var files = filesWithExtension(projectRoot, PRODUCT_EXTENSION)) {
-                List<File> products = files.collect(Collectors.toList());
+                List<File> products = files.toList();
                 if (products.size() > 1) {
                     //multiple products must inherit version from parent but get the artifact-id from the parent-folder
                     model.setArtifactId(getFileName(projectRoot));

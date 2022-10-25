@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -109,7 +108,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 
 		List<String> out = Files.lines(annotBundleManifestFile.toPath())
-				.filter(line -> !line.contains("Export-Package")).collect(Collectors.toList());
+				.filter(line -> !line.contains("Export-Package")).toList();
 		Files.write(annotBundleManifestFile.toPath(), out, StandardOpenOption.WRITE,
 				StandardOpenOption.TRUNCATE_EXISTING);
 

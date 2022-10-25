@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -82,7 +81,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     }
 
     public List<TargetDefinitionFile> getTargets() {
-        return targets.stream().map(TargetDefinitionFile::read).collect(Collectors.toList());
+        return targets.stream().map(TargetDefinitionFile::read).toList();
     }
 
     public void addEnvironment(TargetEnvironment environment) {

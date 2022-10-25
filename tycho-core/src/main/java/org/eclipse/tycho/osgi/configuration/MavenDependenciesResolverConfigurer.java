@@ -105,8 +105,7 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
         if (result.hasExceptions()) {
             throw new DependencyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
         }
-        return result.getArtifacts().stream().filter(a -> a.getFile() != null).map(MavenArtifactFacade::new)
-                .collect(Collectors.toList());
+        return result.getArtifacts().stream().filter(a -> a.getFile() != null).map(MavenArtifactFacade::new).toList();
     }
 
     protected boolean isValidScope(Artifact artifact, Collection<String> scopes) {

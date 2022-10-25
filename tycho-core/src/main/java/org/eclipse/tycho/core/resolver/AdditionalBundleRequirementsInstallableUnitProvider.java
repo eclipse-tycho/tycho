@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -61,7 +60,7 @@ public class AdditionalBundleRequirementsInstallableUnitProvider implements Inst
             List<IRequirement> additionalBundleRequirements = buildProperties.getAdditionalBundles().stream()
                     .map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
                             bundleName, VersionRange.emptyRange, null, true, true))
-                    .collect(Collectors.toList());
+                    .toList();
             return createIU(additionalBundleRequirements);
         }
         return Collections.emptyList();

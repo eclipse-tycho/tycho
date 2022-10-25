@@ -16,7 +16,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.VerificationException;
@@ -43,7 +42,7 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 					}
 				}
 				return true;
-			}).collect(Collectors.toList()));
+			}).toList());
 		}
 		// first pass must download...
 		verifier.executeGoals(List.of("clean", "install"));

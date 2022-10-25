@@ -260,8 +260,7 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
                 .setResolveTransitively(true)//
                 .setCollectionFilter(new ProviderDependencyArtifactFilter())//
                 .setRemoteRepositories(
-                        Stream.concat(pluginRemoteRepositories.stream(), projectRemoteRepositories.stream())
-                                .collect(Collectors.toList()));
+                        Stream.concat(pluginRemoteRepositories.stream(), projectRemoteRepositories.stream()).toList());
         return repositorySystem.resolve(request);
     }
 

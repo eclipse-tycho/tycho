@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -206,7 +204,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         .map(Category::getRepositoryReferences)//
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
-                        .collect(toList());
+                        .toList();
 
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
