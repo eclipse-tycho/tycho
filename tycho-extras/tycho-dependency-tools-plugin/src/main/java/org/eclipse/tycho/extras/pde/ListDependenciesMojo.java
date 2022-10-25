@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -71,7 +70,7 @@ public class ListDependenciesMojo extends AbstractMojo {
             List<ArtifactDescriptor> dependencies = TychoProjectUtils
                     .getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts().stream()
                     .filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
-                    .collect(Collectors.toList());
+                    .toList();
             for (ArtifactDescriptor dependnecy : dependencies) {
                 if (dependnecy.getMavenProject() == null) {
                     File location = dependnecy.getLocation(true);

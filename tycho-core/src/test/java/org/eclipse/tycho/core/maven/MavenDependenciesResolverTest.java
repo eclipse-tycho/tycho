@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.DefaultMavenExecutionRequestPopulator;
@@ -60,7 +59,7 @@ public class MavenDependenciesResolverTest extends AbstractMojoTestCase {
                                 return repo.getId();
                             }
                         }).map(MavenArtifactRepositoryReference.class::cast) //
-                        .collect(Collectors.toList()),
+                        .toList(),
                 session);
         assertEquals(deps.toString(), 1, deps.size());
         FileUtils.deleteDirectory(localRepo);

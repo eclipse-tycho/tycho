@@ -495,7 +495,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
             File fileList = File.createTempFile(name, ".txt");
             fileList.deleteOnExit();
             FileUtils.writeLines(fileList, StandardCharsets.UTF_8.name(),
-                    files.stream().map(f -> f == null ? "" : f.getAbsolutePath()).collect(Collectors.toList()));
+                    files.stream().map(f -> f == null ? "" : f.getAbsolutePath()).toList());
             return fileList;
         } catch (IOException e) {
             throw new MojoExecutionException("failed to generate " + name + " list", e);

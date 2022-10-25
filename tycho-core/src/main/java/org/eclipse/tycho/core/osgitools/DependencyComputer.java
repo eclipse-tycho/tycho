@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.osgi.container.ModuleCapability;
@@ -160,7 +159,7 @@ public class DependencyComputer {
             return Collections.emptyList();
         }
         return module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
-                .map(ModuleWire::getProvider).collect(Collectors.toList());
+                .map(ModuleWire::getProvider).toList();
     }
 
     private static Optional<ModuleRevision> getFragmentHost(ModuleRevision bundleRevision) {
@@ -235,7 +234,7 @@ public class DependencyComputer {
      */
     private Collection<ModuleWire> getRequiredModuleWiresWithVisibilityReexport(ModuleWiring wiring) {
         return wiring.getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
-                .filter(DependencyComputer::hasVisibilityReexport).collect(Collectors.toList());
+                .filter(DependencyComputer::hasVisibilityReexport).toList();
     }
 
     private void addAggregatePackageSource(ModuleCapability packageCap, String packageName, ModuleWire wire,
@@ -327,7 +326,7 @@ public class DependencyComputer {
             return Collections.emptyList();
         }
         return host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
-                .map(ModuleWire::getRequirer).collect(Collectors.toList());
+                .map(ModuleWire::getRequirer).toList();
     }
 
     private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
@@ -394,10 +393,9 @@ public class DependencyComputer {
     public List<AccessRule> computeBootClasspathExtraAccessRules(ModuleContainer container) {
         ModuleRevision systemBundle = container.getModule(Constants.SYSTEM_BUNDLE_ID).getCurrentRevision();
         return systemBundle.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
-                .map(ModuleWire::getRequirer)
-                .flatMap(systemFragment -> systemFragment.getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)
-                        .stream())
-                .map(packageExport -> createRule(systemBundle, packageExport)).collect(Collectors.toList());
+                .map(ModuleWire::getRequirer).flatMap(systemFragment -> systemFragment
+                        .getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE).stream())
+                .map(packageExport -> createRule(systemBundle, packageExport)).toList();
     }
 
     private static boolean isDiscouragedAccess(BundleRevision bundle, Capability export) {

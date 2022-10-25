@@ -364,9 +364,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             this.currentOutputDirectory = entry.getKey();
             this.currentOutputDirectory.mkdirs();
             this.currentSourceRoots = entry.getValue().stream().map(SourcepathEntry::getSourcesRoot)
-                    .map(root -> new File(root.toURI().normalize()).toString()).collect(Collectors.toList());
+                    .map(root -> new File(root.toURI().normalize()).toString()).toList();
             this.currentExcludes = entry.getValue().stream().map(SourcepathEntry::getExcludes).filter(Objects::nonNull)
-                    .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+                    .flatMap(Collection::stream).distinct().toList();
             super.execute();
             doCopyResources();
         }
@@ -408,7 +408,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                                     e.printStackTrace();
                                     return null;
                                 }
-                            }).filter(Objects::nonNull).collect(Collectors.toList());
+                            }).filter(Objects::nonNull).toList();
                     manifestBREEs = ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger)
                             .stream() //
                             .map(name -> name.split("-")) //

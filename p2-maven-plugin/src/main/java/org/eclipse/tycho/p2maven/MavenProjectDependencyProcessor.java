@@ -293,7 +293,7 @@ public class MavenProjectDependencyProcessor {
 		default Collection<MavenProject> getDependencyProjects(MavenProject mavenProject) {
 			ProjectDependencies projectDependecies = getProjectDependecies(mavenProject);
 			List<MavenProject> list = projectDependecies.getDependencies().stream()
-					.flatMap(dependency -> getProject(dependency).stream()).distinct().collect(Collectors.toList());
+					.flatMap(dependency -> getProject(dependency).stream()).distinct().toList();
 			if (isFragment(mavenProject)) {
 				return list;
 			}
@@ -304,7 +304,7 @@ public class MavenProjectDependencyProcessor {
 				}
 				return Stream.concat(Stream.of(project),
 						dependecies.getFragments().stream().flatMap(dependency -> getProject(dependency).stream()));
-			}).distinct().collect(Collectors.toList());
+			}).distinct().toList();
 		}
 
 		/**

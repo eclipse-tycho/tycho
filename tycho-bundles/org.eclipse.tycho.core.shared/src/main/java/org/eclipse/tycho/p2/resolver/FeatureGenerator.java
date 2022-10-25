@@ -159,7 +159,7 @@ public class FeatureGenerator {
                     descriptionElement.getLastChild());
             featureElement.appendChild(descriptionElement);
         }
-        List<MavenLicense> licenses = model.getLicenses().collect(Collectors.toList());
+        List<MavenLicense> licenses = model.getLicenses().toList();
 
         if (licenses.size() > 0) {
             Element licenseElement = doc.createElement("license");

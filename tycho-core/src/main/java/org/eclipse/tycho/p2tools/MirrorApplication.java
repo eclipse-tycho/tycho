@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -166,7 +165,7 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
         sourceDescription.setCapabilities(new IProvidedCapability[] {
                 MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, sourceIUVersion) });
         sourceDescription.addRequirements(units.stream().filter(unit -> unit.satisfies(bundleRequirement))
-                .map(MirrorApplication::createSourceBundleRequirement).collect(Collectors.toList()));
+                .map(MirrorApplication::createSourceBundleRequirement).toList());
         return MetadataFactory.createInstallableUnit(sourceDescription);
     }
 
@@ -182,7 +181,7 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
             throws ProvisionException {
         IMetadataRepository result = super.initializeDestination(toInit, mgr);
         List<? extends IRepositoryReference> iRepoRefs = repositoryReferences.stream()
-                .flatMap(MirrorApplication::toSpiRepositoryReferences).collect(Collectors.toList());
+                .flatMap(MirrorApplication::toSpiRepositoryReferences).toList();
         result.addReferences(iRepoRefs);
         return result;
     }

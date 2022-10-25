@@ -191,13 +191,13 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             Collection<MavenProject> dependencyProjects, String indent, Set<MavenProject> visited) throws IOException {
         if (visited.add(project)) {
             List<IRequirement> projectRequirements = closure.getProjectUnits(project).stream()
-                    .flatMap(iu -> iu.getRequirements().stream()).collect(Collectors.toList());
+                    .flatMap(iu -> iu.getRequirements().stream()).toList();
             String indent2 = indent + "\t";
             for (MavenProject dependency : dependencyProjects) {
                 writer.write(indent + " depends on " + dependency.getId() + ":\r\n");
                 for (IRequirement requirement : projectRequirements) {
                     List<IInstallableUnit> satisfies = closure.getProjectUnits(dependency).stream()
-                            .filter(iu -> iu.satisfies(requirement)).collect(Collectors.toList());
+                            .filter(iu -> iu.satisfies(requirement)).toList();
                     for (IInstallableUnit satIU : satisfies) {
                         writer.write(indent2 + "provides " + satIU + " that satisfies " + requirement + "\r\n");
                     }

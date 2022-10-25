@@ -359,8 +359,7 @@ public class EquinoxResolver {
                         if (value != null) {
                             reqb.add(value);
                         }
-                        reqb.addAll(additionalBundles.stream().map(b -> b + ";resolution:=optional")
-                                .collect(Collectors.toList()));
+                        reqb.addAll(additionalBundles.stream().map(b -> b + ";resolution:=optional").toList());
                         mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", reqb));
                     }
                     projects.put(location, mf);

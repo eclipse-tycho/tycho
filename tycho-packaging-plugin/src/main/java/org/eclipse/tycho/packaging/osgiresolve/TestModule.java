@@ -16,12 +16,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
@@ -57,14 +55,11 @@ public class TestModule implements ConnectContent, ConnectModule {
 	@Override
 	public Iterable<String> getEntries() throws IOException {
 		if (jarFile != null) {
-			return jarFile.stream()
-				.map(JarEntry::getName)
-				.collect(Collectors.toList());
+			return jarFile.stream().map(JarEntry::getName).toList();
 		}
 		if (location != null && location.isDirectory()) {
 			try (Stream<String> stream = Files.walk(location.toPath()).map(p -> p.toString())) {
-				List<String> collect = stream.collect(Collectors.toList());
-				return collect;
+				return stream.toList();
 			}
 		}
 		return Collections.emptyList();

@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 import org.osgi.framework.connect.ConnectContent;
@@ -52,7 +51,7 @@ class PlexusConnectContent implements ConnectContent, ConnectModule {
 		if (jarFile == null) {
 			return Collections.emptyList();
 		}
-		return jarFile.stream().map(JarEntry::getName).collect(Collectors.toList());
+		return jarFile.stream().map(JarEntry::getName).toList();
 	}
 
 	@Override

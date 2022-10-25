@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -346,8 +345,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      */
     private IRawArtifactFileProvider createExternalArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
             List<TargetDefinitionContent> targetDefinitionsContent) {
-        SortedRepositories repos = SortedRepositories.sort(targetDefinitionsContent.stream()
-                .map(TargetDefinitionContent::getArtifactRepository).collect(Collectors.toList()));
+        SortedRepositories repos = SortedRepositories
+                .sort(targetDefinitionsContent.stream().map(TargetDefinitionContent::getArtifactRepository).toList());
         RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
                 repos.remoteRepositories);
         MirroringArtifactProvider remoteArtifactProviderWithCache = MirroringArtifactProvider

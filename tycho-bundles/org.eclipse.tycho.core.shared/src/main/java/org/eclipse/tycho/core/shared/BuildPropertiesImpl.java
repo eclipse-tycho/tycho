@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.eclipse.tycho.BuildProperties;
 
@@ -239,7 +238,7 @@ public class BuildPropertiesImpl implements BuildProperties {
     public Collection<String> getAdditionalBundles() {
         if (additionalBundles != null && !additionalBundles.isBlank()) {
             return Arrays.stream(additionalBundles.split(",")).map(String::strip).filter(Predicate.not(String::isBlank))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return Collections.emptyList();
     }

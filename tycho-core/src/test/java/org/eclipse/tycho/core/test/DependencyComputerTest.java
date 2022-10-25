@@ -222,7 +222,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         assertThat(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle1.fragment")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .map(rule -> rule.getPattern()) //
-                .collect(Collectors.toList()), //
+                .toList(), //
                 hasItem("bundle1/*"));
     }
 

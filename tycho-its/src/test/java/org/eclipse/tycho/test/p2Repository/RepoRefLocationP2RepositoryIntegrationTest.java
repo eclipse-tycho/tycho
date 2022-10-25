@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -93,7 +92,7 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 		List<RepositoryReferenceData> actual = repositories.stream()
 				.map(e -> new RepositoryReferenceData(e.getAttributeValue("uri"), e.getAttributeValue("type"),
 						e.getAttributeValue("options")))
-				.collect(Collectors.toList());
+				.toList();
 		assertThat(actual,
 				containsInAnyOrder(new RepositoryReferenceData("http://some.where", "1", "0"),
 						new RepositoryReferenceData("http://some.where", "0", "0"),

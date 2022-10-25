@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -194,7 +193,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
                 final RetryTracker retryTracker = new RetryTracker();
                 List<IArtifactDescriptor> localArtifactDescriptors = availableDescriptors.stream()
                         .filter(desc -> desc.getRepository() == null || desc.getRepository().equals(childRepository))
-                        .collect(Collectors.toList());
+                        .toList();
                 try {
                     boolean artifactWasRead = getArtifactFromAnyMirror(localArtifactDescriptors, childRepository, sink,
                             statusCollector, retryTracker, monitor);
