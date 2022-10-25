@@ -189,7 +189,7 @@ public final class MavenDependencyInjector {
             return;
         }
         Model model = project.getModel();
-        Set<String> existing = model.getDependencies().stream().map(dep -> getKey(dep))
+        Set<String> existing = model.getDependencies().stream().map(MavenDependencyInjector::getKey)
                 .collect(Collectors.toCollection(HashSet::new));
         for (Dependency dependency : dependencyList) {
             if (existing.add(getKey(dependency))) {

@@ -146,7 +146,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                             session);
                     for (MavenProject project : projects) {
                         Model model = project.getModel();
-                        Set<String> existingDependencies = model.getDependencies().stream().map(dep -> getKey(dep))
+                        Set<String> existingDependencies = model.getDependencies().stream()
+                                .map(TychoMavenLifecycleParticipant::getKey)
                                 .collect(Collectors.toCollection(HashSet::new));
                         Collection<MavenProject> dependencyProjects = closure.getDependencyProjects(project);
                         for (MavenProject dependencyProject : dependencyProjects) {

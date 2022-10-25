@@ -286,8 +286,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<AccessRule> bootClasspathExtraAccessRules = dependencyComputer.computeBootClasspathExtraAccessRules(state);
 
         addPDESourceRoots(project);
-        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream()
-                .collect(Collectors.groupingBy(cpe -> cpe.getArtifactKey(), LinkedHashMap::new, Collectors.toList()));
+        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream().collect(
+                Collectors.groupingBy(ClasspathEntry::getArtifactKey, LinkedHashMap::new, Collectors.toList()));
         if (logger.isDebugEnabled()) {
             for (var entry : classpathMap.entrySet()) {
                 List<ClasspathEntry> list = entry.getValue();
