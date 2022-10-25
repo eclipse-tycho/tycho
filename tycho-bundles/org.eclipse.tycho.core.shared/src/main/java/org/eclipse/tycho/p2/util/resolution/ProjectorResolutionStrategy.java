@@ -99,7 +99,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                 Set<Explanation> explanation = getExplanation(projector); // suppress "Cannot complete the request.  Generating details."
                 if (!data.failOnMissingRequirements()) {
                     List<IRequirement> missingRequirements = computeMissingRequirements(explanation);
-                    if (missingRequirements.size() > 0) {
+                    if (!missingRequirements.isEmpty()) {
                         if (logger.isExtendedDebugEnabled()) {
                             logger.debug(
                                     "At iteration " + iteration + " the following requirements are not yet satisfied:");
