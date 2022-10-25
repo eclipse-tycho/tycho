@@ -96,8 +96,7 @@ public class OSGiResolver {
 		for (Entry<Resource, List<org.eclipse.osgi.report.resolution.ResolutionReport.Entry>> module : entries
 				.entrySet()) {
 			Resource key = module.getKey();
-			if (key instanceof BundleReference) {
-				BundleReference reference = (BundleReference) key;
+			if (key instanceof BundleReference reference) {
 				Bundle bundle = reference.getBundle();
 				if (bundle.getState() == Bundle.INSTALLED) {
 					String message = report.getResolutionReportMessage(key);
