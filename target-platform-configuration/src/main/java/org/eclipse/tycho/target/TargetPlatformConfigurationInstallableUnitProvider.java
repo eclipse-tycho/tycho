@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -66,7 +65,7 @@ public class TargetPlatformConfigurationInstallableUnitProvider implements Insta
                 project);
         List<IRequirement> extraRequirements = configuration.getExtraRequirements().stream().map(key -> {
             return createRequirementFor(key.getType(), key.getId(), new VersionRange(key.getVersion()));
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).filter(Objects::nonNull).toList();
         if (extraRequirements.isEmpty()) {
             return Collections.emptyList();
         }

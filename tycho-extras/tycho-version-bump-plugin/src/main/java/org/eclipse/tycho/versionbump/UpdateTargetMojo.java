@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -107,7 +106,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                 } else {
                     return location;
                 }
-            }).collect(Collectors.toList());
+            }).toList();
         }
 
         @Override
@@ -142,7 +141,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
 
         @Override
         public List<? extends TargetDefinition.Unit> getUnits() {
-            return delegate.getUnits().stream().map(LatestVersionUnit::new).collect(Collectors.toList());
+            return delegate.getUnits().stream().map(LatestVersionUnit::new).toList();
         }
 
         @Override

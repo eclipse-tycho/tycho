@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -109,7 +108,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager, D
         List<MavenArtifactRepositoryReference> repositoryReferences = tpConfiguration.getTargetDefinitions().stream()
                 .flatMap(definition -> definition.getLocations().stream()).filter(MavenGAVLocation.class::isInstance)
                 .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
-                .collect(Collectors.toList());
+                .toList();
         project.setContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE, repositoryReferences);
         return result;
     }

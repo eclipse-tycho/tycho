@@ -28,7 +28,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -53,8 +52,7 @@ public class ArtifactCollection {
     }
 
     public List<ArtifactDescriptor> getArtifacts(Predicate<ArtifactKey> filter) {
-        return artifacts.entrySet().stream().filter(entry -> filter.test(entry.getKey())).map(Entry::getValue)
-                .collect(Collectors.toList());
+        return artifacts.entrySet().stream().filter(entry -> filter.test(entry.getKey())).map(Entry::getValue).toList();
     }
 
     public List<ArtifactDescriptor> getArtifacts() {

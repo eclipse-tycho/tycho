@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
@@ -62,6 +61,6 @@ public class MultiEnvironmentDependencyArtifacts extends DefaultDependencyArtifa
     @Override
     public Collection<ArtifactDescriptor> getFragments() {
         return platforms.values().stream().map(DependencyArtifacts::getFragments).flatMap(Collection::stream).distinct()
-                .collect(Collectors.toList());
+                .toList();
     }
 }

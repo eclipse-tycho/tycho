@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -100,7 +99,7 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
         }
         return ExecutionEnvironmentUtils.getProfileNames(toolchainManager, getSession(), logger).stream()
                 .filter(str -> str.startsWith("JavaSE-"))
-                .filter(profile -> ExecutionEnvironmentUtils.getVersion(profile) >= 11).collect(Collectors.toList());
+                .filter(profile -> ExecutionEnvironmentUtils.getVersion(profile) >= 11).toList();
     }
 
 }

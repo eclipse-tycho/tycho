@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
 import org.eclipse.osgi.container.Module;
 import org.eclipse.osgi.container.ModuleContainer;
@@ -91,7 +90,7 @@ public class OSGiResolver {
 		Bundle[] bundles = systemContext.getBundles();
 		ModuleContainer container = systemContext.getBundle().adapt(Module.class).getContainer();
 		List<Module> list = Arrays.stream(bundles).filter(b -> b != systemContext.getBundle())
-				.map(b -> b.adapt(Module.class)).filter(Objects::nonNull).collect(Collectors.toList());
+				.map(b -> b.adapt(Module.class)).filter(Objects::nonNull).toList();
 		ResolutionReport report = container.resolve(list, false);
 		Map<Resource, List<org.eclipse.osgi.report.resolution.ResolutionReport.Entry>> entries = report.getEntries();
 		for (Entry<Resource, List<org.eclipse.osgi.report.resolution.ResolutionReport.Entry>> module : entries

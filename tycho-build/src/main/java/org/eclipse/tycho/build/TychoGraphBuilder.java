@@ -170,7 +170,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 				}
 			}
 			Queue<ProjectRequest> queue = new ConcurrentLinkedQueue<>(graph.getSortedProjects().stream()
-					.map(p -> new ProjectRequest(p, makeDownstream, makeUpstream, null)).collect(Collectors.toList()));
+					.map(p -> new ProjectRequest(p, makeDownstream, makeUpstream, null)).toList());
 			loggerAdapter.debug("Computing additional " + makeBehavior
 					+ " dependencies based on initial project set of " + queue.stream().map(r -> r.mavenProject)
 							.map(MavenProject::getName).collect(Collectors.joining(", ")));

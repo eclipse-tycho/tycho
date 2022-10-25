@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -246,7 +245,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                                     String packageName = jrePackage.getValue();
                                     String version = jrePackage.getAttribute("version");
                                     return new SystemPackageEntry(packageName, version);
-                                }).collect(Collectors.toList());
+                                }).toList();
                     } catch (BundleException e) {
                         logger.error(e.getMessage(), e);
                         this.systemPackages = Collections.emptyList();
@@ -256,12 +255,12 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                 logger.debug(
                         "No system.packages in profile definition file for " + profileName + "; checking toolchain.");
                 this.systemPackages = readFromToolchains(toolchain, logger).packages.stream()
-                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).toList();
             } else if (Integer.parseInt(compilerSourceLevel) == Runtime.version().feature()) {
                 logger.debug("Currently running JRE matches source level for " + getProfileName()
                         + "; current JRE system packages are used.");
                 this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
-                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).toList();
             }
             if (this.systemPackages == null || this.systemPackages.isEmpty()) {
                 logger.warn("No system packages found in profile nor toolchain for " + profileName
@@ -269,7 +268,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                         + "This can cause faulty dependency resolution, consider adding a definition for a 'jdk' with id="
                         + profileName + " in your toolchains.xml");
                 this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
-                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).toList();
             }
         }
         return systemPackages;

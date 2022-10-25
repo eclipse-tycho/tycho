@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -334,9 +333,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
         NodeList list = element.getChildNodes();
 
         int length = list.getLength();
-        List<Node> nodes = IntStream.range(0, length).mapToObj(list::item).collect(Collectors.toList());
+        List<Node> nodes = IntStream.range(0, length).mapToObj(list::item).toList();
         return nodes.stream().filter(Element.class::isInstance).map(Element.class::cast)
-                .filter(e -> e.getNodeName().equals(tagName)).collect(Collectors.toList());
+                .filter(e -> e.getNodeName().equals(tagName)).toList();
     }
 
     private static Element getChild(Element element, String tagName) {

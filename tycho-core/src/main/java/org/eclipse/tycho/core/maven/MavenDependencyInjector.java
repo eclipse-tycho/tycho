@@ -104,7 +104,7 @@ public final class MavenDependencyInjector {
             dependency.setSystemPath(file.getAbsolutePath());
             dependency.setVersion(project.getVersion());
             return dependency;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).filter(Objects::nonNull).toList();
         generator.addDependencyList(extraJars);
         @SuppressWarnings("unchecked")
         Collection<MavenArtifactRepositoryReference> repositoryReferences = (Collection<MavenArtifactRepositoryReference>) reactorProject

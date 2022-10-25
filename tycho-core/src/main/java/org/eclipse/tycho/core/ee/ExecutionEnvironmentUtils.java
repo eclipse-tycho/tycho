@@ -107,7 +107,7 @@ public class ExecutionEnvironmentUtils {
                     List<String> packages = Arrays
                             .stream(surrogateEE.getProfileProperties()
                                     .getProperty("org.osgi.framework.system.packages", "").split(","))
-                            .map(String::trim).collect(Collectors.toList());
+                            .map(String::trim).toList();
                     Properties profileProperties = createProfileJvm(getVersion(profileName), packages);
                     return new StandardExecutionEnvironment(profileProperties, surrogateEE.getToolchain(),
                             surrogateEE.getLogger());

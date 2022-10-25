@@ -39,7 +39,7 @@ public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
 
     private final class ClasspathSourcepathEntry implements SourcepathEntry {
         private final File sourceDirectory;
-        private File outputDirectory;
+        private final File outputDirectory;
 
         private ClasspathSourcepathEntry(File sourceDirectory, File outputDirectory) {
             this.sourceDirectory = sourceDirectory;

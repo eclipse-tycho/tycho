@@ -55,7 +55,7 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
             return file;
         }
         try (var targetFiles = filesWithExtension(dir.toPath(), TARGET_EXTENSION)) {
-            List<File> files = targetFiles.collect(Collectors.toList());
+            List<File> files = targetFiles.toList();
             if (files.size() == 1) {
                 return files.get(0);
             } else if (files.size() > 1) {

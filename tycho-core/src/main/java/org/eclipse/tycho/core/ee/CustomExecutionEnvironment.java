@@ -52,8 +52,7 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
 
     private void setSystemPackages(List<SystemCapability> systemCapabilities) {
         systemPackages = systemCapabilities.stream().filter(capability -> capability.getType() == Type.JAVA_PACKAGE)
-                .map(capability -> new SystemPackageEntry(capability.getName(), capability.getVersion()))
-                .collect(Collectors.toList());
+                .map(capability -> new SystemPackageEntry(capability.getName(), capability.getVersion())).toList();
         setPropertyIfNotEmpty(Constants.FRAMEWORK_SYSTEMPACKAGES,
                 systemPackages.stream().map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(",")));
     }

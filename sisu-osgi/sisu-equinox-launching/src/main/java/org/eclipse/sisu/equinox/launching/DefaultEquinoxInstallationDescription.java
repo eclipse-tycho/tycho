@@ -24,7 +24,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -118,7 +117,7 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     @Override
     public Collection<BundleReference> getBundles() {
-        return bundles.values().stream().flatMap(map -> map.values().stream()).collect(Collectors.toList());
+        return bundles.values().stream().flatMap(map -> map.values().stream()).toList();
     }
 
     @Override

@@ -312,8 +312,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
             ArtifactKey key = entry.getKey();
             ReactorProject compositeProject = findProjectForKey(reactorProject, key);
-            List<File> compositeFiles = list.stream().flatMap(cpe -> cpe.getLocations().stream())
-                    .collect(Collectors.toList());
+            List<File> compositeFiles = list.stream().flatMap(cpe -> cpe.getLocations().stream()).toList();
             Collection<AccessRule> compositeRules = mergeRules(list);
             return Stream.of(new ClasspathEntry() {
 
@@ -346,7 +345,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 }
 
             });
-        }).collect(Collectors.toList());
+        }).toList();
         return new BundleClassPath(uniqueClasspath, strictBootClasspathAccessRules, bootClasspathExtraAccessRules);
     }
 

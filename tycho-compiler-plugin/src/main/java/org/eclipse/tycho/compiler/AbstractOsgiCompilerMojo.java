@@ -195,14 +195,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * A list of exclusion filters for the compiler.
      */
     @Parameter
-    private Set<String> excludes = new HashSet<>();
+    private final Set<String> excludes = new HashSet<>();
 
     /**
      * A list of exclusion filters for non-java resource files which should not be copied to the
      * output directory.
      */
     @Parameter
-    private Set<String> excludeResources = new HashSet<>();
+    private final Set<String> excludeResources = new HashSet<>();
 
     /**
      * Whether a bundle is required to explicitly import non-java.* packages from the JDK. This is
@@ -254,7 +254,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * prevent it from being inherited.
      */
     @Parameter(defaultValue = "true")
-    private boolean deriveReleaseCompilerArgumentFromTargetLevel = true;
+    private final boolean deriveReleaseCompilerArgumentFromTargetLevel = true;
 
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
@@ -364,9 +364,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             this.currentOutputDirectory = entry.getKey();
             this.currentOutputDirectory.mkdirs();
             this.currentSourceRoots = entry.getValue().stream().map(SourcepathEntry::getSourcesRoot)
-                    .map(root -> new File(root.toURI().normalize()).toString()).collect(Collectors.toList());
+                    .map(root -> new File(root.toURI().normalize()).toString()).toList();
             this.currentExcludes = entry.getValue().stream().map(SourcepathEntry::getExcludes).filter(Objects::nonNull)
-                    .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+                    .flatMap(Collection::stream).distinct().toList();
             super.execute();
             doCopyResources();
         }
@@ -408,7 +408,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                                     e.printStackTrace();
                                     return null;
                                 }
-                            }).filter(Objects::nonNull).collect(Collectors.toList());
+                            }).filter(Objects::nonNull).toList();
                     manifestBREEs = ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger)
                             .stream() //
                             .map(name -> name.split("-")) //
