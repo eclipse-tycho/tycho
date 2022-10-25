@@ -87,7 +87,7 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
         });
         request.setLocalRepository(mavenSession.getLocalRepository());
         request.setResolveTransitively(depth > 0);
-        if (additionalRepositories != null && additionalRepositories.size() > 0) {
+        if (additionalRepositories != null && !additionalRepositories.isEmpty()) {
             List<ArtifactRepository> repositories = new ArrayList<>(
                     mavenSession.getCurrentProject().getRemoteArtifactRepositories());
             for (MavenArtifactRepositoryReference reference : additionalRepositories) {

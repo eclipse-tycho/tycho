@@ -159,7 +159,7 @@ public class FeatureGenerator {
         }
         List<MavenLicense> licenses = model.getLicenses().toList();
 
-        if (licenses.size() > 0) {
+        if (!licenses.isEmpty()) {
             Element licenseElement = doc.createElement("license");
             if (licenses.size() == 1) {
                 MavenLicense license = licenses.get(0);
