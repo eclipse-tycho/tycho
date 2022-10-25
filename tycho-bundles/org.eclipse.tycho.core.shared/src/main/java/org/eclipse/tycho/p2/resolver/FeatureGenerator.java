@@ -13,14 +13,12 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StreamCorruptedException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -83,8 +81,8 @@ public class FeatureGenerator {
     }
 
     private static Feature createFeature(Element featureElement, List<IInstallableUnit> bundles,
-            boolean isSourceFeature, Document doc, MavenLogger logger) throws IOException, TransformerException,
-            FileNotFoundException, StreamCorruptedException, SAXException, MalformedURLException {
+            boolean isSourceFeature, Document doc, MavenLogger logger)
+            throws IOException, TransformerException, SAXException {
         if (isSourceFeature) {
             featureElement.setAttribute(ATTR_ID, featureElement.getAttribute(ATTR_ID) + ".source");
             String nameAttribute = featureElement.getAttribute(ATTR_NAME);
