@@ -20,7 +20,7 @@ import org.hamcrest.TypeSafeMatcher;
 public class StatusMatchers {
 
     public static Matcher<IStatus> errorStatus() {
-        return new TypeSafeMatcher<IStatus>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -35,7 +35,7 @@ public class StatusMatchers {
     }
 
     public static Matcher<IStatus> warningStatus() {
-        return new TypeSafeMatcher<IStatus>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -50,7 +50,7 @@ public class StatusMatchers {
     }
 
     public static Matcher<IStatus> okStatus() {
-        return new TypeSafeMatcher<IStatus>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -65,7 +65,7 @@ public class StatusMatchers {
     }
 
     public static Matcher<IStatus> statusWithMessageWhich(final Matcher<String> messageMatcher) {
-        return new TypeSafeMatcher<IStatus>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {

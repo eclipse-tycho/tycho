@@ -541,7 +541,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     static Matcher<Entry> withId(final String id) {
-        return new TypeSafeMatcher<Entry>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             protected boolean matchesSafely(Entry entry) {

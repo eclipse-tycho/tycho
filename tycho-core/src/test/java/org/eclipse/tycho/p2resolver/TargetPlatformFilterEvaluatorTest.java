@@ -228,7 +228,7 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
     }
 
     static Matcher<Collection<?>> hasSize(final int expectedSize) {
-        return new TypeSafeMatcher<Collection<?>>() {
+        return new TypeSafeMatcher<>() {
             @Override
             public boolean matchesSafely(Collection<?> collection) {
                 return expectedSize == collection.size();

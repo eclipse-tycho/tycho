@@ -27,12 +27,12 @@ public class ArtifactPropertiesMatchers {
 
     public static Matcher<Map<String, String>> containsGAV(final String groupId, final String artifactId,
             final String version, final String classifier) {
-        return new TypeSafeMatcher<Map<String, String>>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("properties specifying the GAV "
-                        + gavString(groupId, artifactId, version, classifier));
+                description.appendText(
+                        "properties specifying the GAV " + gavString(groupId, artifactId, version, classifier));
             }
 
             @Override
@@ -48,7 +48,7 @@ public class ArtifactPropertiesMatchers {
     }
 
     public static Matcher<Map<String, String>> hasProperty(final String key, final String value) {
-        return new TypeSafeMatcher<Map<String, String>>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
