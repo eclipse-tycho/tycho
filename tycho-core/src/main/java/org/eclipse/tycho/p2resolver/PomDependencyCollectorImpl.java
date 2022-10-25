@@ -76,7 +76,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
         this.bundlesPublisher = new TargetPlatformBundlePublisher(project, mavenContext);
         fileRepositoryArtifactProvider = new FileRepositoryArtifactProvider(
-                Collections.singletonList(new FileArtifactRepository(agent, () -> fileDescriptors.iterator())),
+                Collections.singletonList(new FileArtifactRepository(agent, fileDescriptors::iterator)),
                 ArtifactTransferPolicies.forLocalArtifacts());
     }
 

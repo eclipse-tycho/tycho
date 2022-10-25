@@ -295,7 +295,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     && facade.getGroupId().equals(mavenDependency.getGroupId())
                                     && facade.getVersion().equals(mavenDependency.getVersion())
                                     && facade.getPackagingType().equals(POM_PACKAGING_TYPE))
-                            .map(facade -> facade.getLocation()).filter(Objects::nonNull).findFirst();
+                            .map(IArtifactFacade::getLocation).filter(Objects::nonNull).findFirst();
 
                     if (pomFacade.isPresent()) {
                         try {

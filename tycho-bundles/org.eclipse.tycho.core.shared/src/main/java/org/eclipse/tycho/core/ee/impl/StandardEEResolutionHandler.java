@@ -48,9 +48,8 @@ class StandardEEResolutionHandler extends ExecutionEnvironmentResolutionHandler 
             logger.info("The following Execution Environments are currently known but are ignored by configuration:");
             Map<String, Collection<String>> map = targetPlatformContent.stream()//
                     .filter(ExecutionEnvironmentResolutionHints::isJreUnit)//
-                    .flatMap(StandardEEResolutionHandler::getEE)
-                    .collect(Collectors.groupingBy(entry -> entry.getValue(), TreeMap::new,
-                            Collectors.mapping(Entry::getKey, Collectors.toCollection(TreeSet::new))));
+                    .flatMap(StandardEEResolutionHandler::getEE).collect(Collectors.groupingBy(Entry::getValue,
+                            TreeMap::new, Collectors.mapping(Entry::getKey, Collectors.toCollection(TreeSet::new))));
             map.entrySet().forEach(entry -> {
                 logger.info(
                         "    " + entry.getKey() + " -> " + entry.getValue().stream().collect(Collectors.joining(", ")));
