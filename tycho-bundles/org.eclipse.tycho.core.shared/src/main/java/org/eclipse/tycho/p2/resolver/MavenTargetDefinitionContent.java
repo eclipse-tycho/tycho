@@ -80,7 +80,7 @@ import org.xml.sax.SAXException;
 public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private static final String POM_PACKAGING_TYPE = "pom";
     public static final String ECLIPSE_SOURCE_BUNDLE_HEADER = "Eclipse-SourceBundle";
-    private final Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<IArtifactDescriptor, IInstallableUnit>();
+    private final Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<>();
     private SupplierMetadataRepository metadataRepository;
     private FileArtifactRepository artifactRepository;
     private MavenContext mavenContext;
