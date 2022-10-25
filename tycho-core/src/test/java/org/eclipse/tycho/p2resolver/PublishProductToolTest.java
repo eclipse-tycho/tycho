@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 SAP SE and others.
+ * Copyright (c) 2012, 2022 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -278,8 +278,7 @@ public class PublishProductToolTest extends TychoPlexusTestCase {
         assertEquals("org.eclipse.help", seeds.get(1).getId());
         assertThat(seeds.get(1).getInstallableUnit(), is(unitWithId("org.eclipse.help.feature.group")));
         assertEquals("org.eclipse.egit", seeds.get(2).getId());
-        assertThat((IInstallableUnit) seeds.get(2).getInstallableUnit(),
-                is(unitWithId("org.eclipse.egit.feature.group")));
+        assertThat(seeds.get(2).getInstallableUnit(), is(unitWithId("org.eclipse.egit.feature.group")));
         assertEquals(3, seeds.size());
     }
 
