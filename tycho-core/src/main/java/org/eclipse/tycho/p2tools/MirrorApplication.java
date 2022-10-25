@@ -119,16 +119,6 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
             }
 
             @Override
-            protected void processIU(IInstallableUnit iu) {
-                super.processIU(iu);
-            }
-
-            @Override
-            protected boolean isApplicable(IInstallableUnit iu) {
-                return super.isApplicable(iu);
-            }
-
-            @Override
             protected boolean isApplicable(IRequirement req) {
                 throw new UnsupportedOperationException("should never be called!");
             }
