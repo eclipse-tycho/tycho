@@ -90,7 +90,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         int iteration = 0;
         do {
             Projector projector = new Projector(slice(properties, generatedUnits, monitor), selectionContext,
-                    new HashSet<IInstallableUnit>(), false);
+                    new HashSet<>(), false);
             projector.encode(createUnitRequiring("tycho", seedUnits, seedRequires),
                     EMPTY_IU_ARRAY /* alreadyExistingRoots */,
                     new QueryableArray(EMPTY_IU_ARRAY) /* installedIUs */, seedUnits /* newRoots */, monitor);
