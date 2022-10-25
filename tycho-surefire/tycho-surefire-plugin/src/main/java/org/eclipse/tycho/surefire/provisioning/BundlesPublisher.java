@@ -31,7 +31,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherAppli
 public class BundlesPublisher {
 
     private List<File> bundles = new ArrayList<>();
-    private File workingDir;
     private Logger log;
 
     public BundlesPublisher(Logger log) {

@@ -18,7 +18,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.net.URI;
 
-import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -38,8 +37,6 @@ import org.junit.rules.TemporaryFolder;
 
 public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
 
-    private static final boolean OFFLINE = false;
-
     @Rule
     public final TemporaryFolder tempManager = new TemporaryFolder();
     @Rule
@@ -52,9 +49,8 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
 
     @Before
     public void initSubject() throws Exception {
-        File localRepository = tempManager.newFolder("localRepo");
+        tempManager.newFolder("localRepo");
         mavenRepositorySettings = (DefaultMavenRepositorySettings) lookup(MavenRepositorySettings.class);
-        IProxyService service = null;
         subject = lookup(IProvisioningAgent.class);
     }
 

@@ -44,13 +44,11 @@ public class RemoteAgentMetadataRepositoryOfflineCache extends TychoPlexusTestCa
     public final HttpServer localServer = new HttpServer();
     private URI localHttpRepo;
 
-    private File localMavenRepository;
-
     @Before
     public void initLocalMavenRepository() throws Exception {
         localHttpRepo = URI
                 .create(localServer.addServlet(HTTP_REPO_PATH, new File("src/test/resources/repositories/e342")));
-        localMavenRepository = tempManager.newFolder("m2-repo");
+        tempManager.newFolder("m2-repo");
     }
 
     @Override
@@ -62,10 +60,6 @@ public class RemoteAgentMetadataRepositoryOfflineCache extends TychoPlexusTestCa
     public void testOfflineLoadingWithoutCacheFails() throws Exception {
         IProvisioningAgent offlineAgent = newOfflineAgent();
         loadHttpRepository(offlineAgent);
-    }
-
-    private IProvisioningAgent newOnlineAgent() throws Exception {
-        return lookup(IProvisioningAgent.class);
     }
 
     private IProvisioningAgent newOfflineAgent() throws Exception {

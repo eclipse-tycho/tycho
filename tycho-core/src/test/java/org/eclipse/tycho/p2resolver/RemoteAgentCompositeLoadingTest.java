@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2resolver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -43,7 +42,7 @@ public class RemoteAgentCompositeLoadingTest extends TychoPlexusTestCase {
 
     @Before
     public void initSubject() throws Exception {
-        File localRepo = tempManager.newFolder("localRepo");
+        tempManager.newFolder("localRepo");
         subject = lookup(IProvisioningAgent.class);
     }
 
