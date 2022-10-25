@@ -262,18 +262,10 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             }
             for (File categoryFile : getCategoryFiles(location)) {
                 CategoryParser cp = new CategoryParser(null);
-                FileInputStream ins = null;
-                try {
-                    try {
-                        ins = new FileInputStream(categoryFile);
-                        SiteModel siteModel = cp.parse(ins);
-                        actions.add(new CategoryDependenciesAction(siteModel, artifact.getArtifactId(),
-                                artifact.getVersion()));
-                    } finally {
-                        if (ins != null) {
-                            ins.close();
-                        }
-                    }
+                try (FileInputStream ins = new FileInputStream(categoryFile)) {
+                    SiteModel siteModel = cp.parse(ins);
+                    actions.add(
+                            new CategoryDependenciesAction(siteModel, artifact.getArtifactId(), artifact.getVersion()));
                 } catch (Exception e) {
                     throw new RuntimeException("Unable to read category File", e);
                 }
