@@ -232,7 +232,7 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
     }
 
     static <T> Matcher<Collection<T>> bagEquals(final Collection<T> collection) {
-        return new TypeSafeMatcher<Collection<T>>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {

@@ -48,7 +48,7 @@ public class InstallableUnitMatchers {
     public static Matcher<IInstallableUnit> unit(final String id, final String version) {
         final Version parsedVersion = Version.parseVersion(version);
 
-        return new TypeSafeMatcher<IInstallableUnit>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -67,7 +67,7 @@ public class InstallableUnitMatchers {
     }
 
     public static Matcher<IInstallableUnit> productUnit() {
-        return new TypeSafeMatcher<IInstallableUnit>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -89,7 +89,7 @@ public class InstallableUnitMatchers {
             final String classifier) {
         final Matcher<Map<String, String>> propertiesMatcher = ArtifactPropertiesMatchers.containsGAV(groupId,
                 artifactId, version, classifier);
-        return new TypeSafeMatcher<IInstallableUnit>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -104,7 +104,7 @@ public class InstallableUnitMatchers {
     }
 
     public static Matcher<IInstallableUnit> hasSelfCapability() {
-        return new TypeSafeMatcher<IInstallableUnit>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -133,7 +133,7 @@ public class InstallableUnitMatchers {
     }
 
     public static Matcher<IProvidedCapability> packageCapability(final String packageName) {
-        return new TypeSafeMatcher<IProvidedCapability>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             protected boolean matchesSafely(IProvidedCapability item) {
@@ -151,7 +151,7 @@ public class InstallableUnitMatchers {
     public static Matcher<IProvidedCapability> eeCapability(final String eeName, String eeVersion) {
         final Version parsedVersion = Version.parseVersion(eeVersion);
 
-        return new TypeSafeMatcher<IProvidedCapability>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             protected boolean matchesSafely(IProvidedCapability item) {
@@ -185,7 +185,7 @@ public class InstallableUnitMatchers {
 
     public static Matcher<IRequirement> strictRequirement(final String id, final String version) {
         final IRequirement requirement = InstallableUnitUtil.createStrictRequirement(id, version);
-        return new TypeSafeMatcher<IRequirement>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {

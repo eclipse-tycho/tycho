@@ -25,7 +25,7 @@ public class ArtifactRepositoryMatchers {
     }
 
     public static Matcher<IArtifactProvider> contains(final IArtifactKey artifactKey) {
-        return new TypeSafeMatcher<IArtifactProvider>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
