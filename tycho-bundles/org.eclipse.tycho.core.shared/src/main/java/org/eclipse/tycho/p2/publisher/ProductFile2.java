@@ -36,7 +36,7 @@ public class ProductFile2 extends ProductFile {
         String fragment = attributes.getValue(ATTRIBUTE_FRAGMENT);
         String pluginId = attributes.getValue(ATTRIBUTE_ID);
         String pluginVersion = attributes.getValue(ATTRIBUTE_VERSION);
-        boolean isFragment = Boolean.valueOf(fragment);
+        boolean isFragment = Boolean.parseBoolean(fragment);
         FeatureEntry entry = new FeatureEntry(pluginId, pluginVersion != null ? pluginVersion : GENERIC_VERSION_NUMBER,
                 true);
         entry.setFragment(isFragment);
