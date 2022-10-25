@@ -36,9 +36,8 @@ public class CustomBundleInstallableUnitProvider implements InstallableUnitProvi
 	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
 			throws CoreException {
 		List<BundleDependenciesAction> actions = CustomBundleP2MetadataProvider.getCustomArtifacts(project)
-				.map(artifact -> {
-					return new BundleDependenciesAction(artifact.getLocation(), OptionalResolutionAction.REQUIRE);
-				}).toList();
+				.map(artifact -> new BundleDependenciesAction(artifact.getLocation(), OptionalResolutionAction.REQUIRE))
+				.toList();
 		return publisher.publishMetadata(actions);
 	}
 
