@@ -15,6 +15,7 @@ package org.eclipse.tycho.packaging.osgiresolve;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -58,7 +59,7 @@ public class TestModule implements ConnectContent, ConnectModule {
 			return jarFile.stream().map(JarEntry::getName).toList();
 		}
 		if (location != null && location.isDirectory()) {
-			try (Stream<String> stream = Files.walk(location.toPath()).map(p -> p.toString())) {
+			try (Stream<String> stream = Files.walk(location.toPath()).map(Path::toString)) {
 				return stream.toList();
 			}
 		}
