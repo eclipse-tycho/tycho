@@ -805,11 +805,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                     }
                     ArrayList<File> bLocations = new ArrayList<>();
                     bLocations.add(b.getFile()); // TODO properly handle multiple project locations maybe
-                    classpath.add(new DefaultClasspathEntry(bProject,
-                            ((OsgiBundleProject) getBundleProject()).readOrCreateArtifactKey(b.getFile(), () -> {
-                                return new DefaultArtifactKey(b.getType(), b.getGroupId() + "." + b.getArtifactId(),
-                                        b.getVersion());
-                            }), bLocations, null));
+                    classpath
+                            .add(new DefaultClasspathEntry(bProject,
+                                    ((OsgiBundleProject) getBundleProject()).readOrCreateArtifactKey(b.getFile(),
+                                            () -> new DefaultArtifactKey(b.getType(),
+                                                    b.getGroupId() + "." + b.getArtifactId(), b.getVersion())),
+                                    bLocations, null));
                 }
             }
         }

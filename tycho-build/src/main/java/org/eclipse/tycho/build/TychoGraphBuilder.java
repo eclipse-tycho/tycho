@@ -187,11 +187,11 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 					}
 					if (projectRequest.addRequires) {
 						dependencyClosure.dependencies()//
-								.filter(entry -> {
-									return entry.getValue().stream()//
+								.filter(entry -> 
+									entry.getValue().stream()//
 											.flatMap(dependency -> dependencyClosure.getProject(dependency).stream())//
-											.anyMatch(projectRequest::matches);
-								})//
+											.anyMatch(projectRequest::matches)
+								)//
 								.map(Entry::getKey)//
 								.distinct()//
 								.peek(project -> loggerAdapter.debug(" + add project '" + project.getId()
@@ -222,9 +222,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			selectedProjects.stream()
 					.sorted(Comparator.comparing(MavenProject::getGroupId, String.CASE_INSENSITIVE_ORDER)
 							.thenComparing(MavenProject::getArtifactId, String.CASE_INSENSITIVE_ORDER))
-					.forEachOrdered(p -> {
-						log.debug(p.getId());
-					});
+					.forEachOrdered(p -> log.debug(p.getId()));
 			return Result.success(new DefaultProjectDependencyGraph(projects, selectedProjects));
 		} catch (DuplicateProjectException | CycleDetectedException e) {
 			log.error("Can't compute project dependency graph", e);

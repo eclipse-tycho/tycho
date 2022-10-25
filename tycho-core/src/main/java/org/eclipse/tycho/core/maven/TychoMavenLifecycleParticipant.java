@@ -272,9 +272,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         Predicate<MavenProject> takeWhile = Predicate.not(p -> failFast && !resolutionErrors.isEmpty());
         if (degreeOfConcurrency > 1) {
             ForkJoinPool executor = new ForkJoinPool(degreeOfConcurrency);
-            ForkJoinTask<?> future = executor.submit(() -> {
-                projects.parallelStream().takeWhile(takeWhile).forEach(resolveProject);
-            });
+            ForkJoinTask<?> future = executor
+                    .submit(() -> projects.parallelStream().takeWhile(takeWhile).forEach(resolveProject));
             try {
                 future.get();
             } catch (InterruptedException e) {
