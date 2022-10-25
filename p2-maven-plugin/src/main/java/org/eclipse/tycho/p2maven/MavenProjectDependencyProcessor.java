@@ -220,9 +220,8 @@ public class MavenProjectDependencyProcessor {
 
 	private static Stream<IProvidedCapability> getFragmentCapability(IInstallableUnit installableUnit) {
 
-		return installableUnit.getProvidedCapabilities().stream().filter(cap -> {
-			return BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(cap.getNamespace());
-		});
+		return installableUnit.getProvidedCapabilities().stream()
+				.filter(cap -> BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(cap.getNamespace()));
 	}
 
 	private static Stream<IRequirement> getFragmentHostRequirement(IInstallableUnit installableUnit) {
