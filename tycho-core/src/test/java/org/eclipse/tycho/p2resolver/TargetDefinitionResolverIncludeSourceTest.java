@@ -29,7 +29,6 @@ import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.TestRepositories;
@@ -148,7 +147,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
         assertEquals(3, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
     }
 
-    static class WithSourceLocationStub extends LocationStub implements InstallableUnitLocation {
+    static class WithSourceLocationStub extends LocationStub {
 
         private IncludeMode includeMode;
 
@@ -169,7 +168,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
         }
     }
 
-    static class WithoutSourceLocationStub extends LocationStub implements InstallableUnitLocation {
+    static class WithoutSourceLocationStub extends LocationStub {
         private IncludeMode includeMode;
 
         public WithoutSourceLocationStub(IncludeMode includeMode, TestRepositories repositories,
