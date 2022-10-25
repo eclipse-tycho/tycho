@@ -14,7 +14,6 @@ package org.eclipse.tycho.p2maven;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.core.runtime.CoreException;
@@ -44,7 +43,7 @@ public class InstallableUnitPublisher {
 	public Collection<IInstallableUnit> publishMetadata(Collection<? extends IPublisherAction> actions)
 			throws CoreException {
 		if (actions.isEmpty()) {
-			return new HashSet<IInstallableUnit>();
+			return new HashSet<>();
 		}
 		PublisherInfo publisherInfo = new PublisherInfo();
 		publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
@@ -55,7 +54,6 @@ public class InstallableUnitPublisher {
 				throw new CoreException(status);
 			}
 		}
-		Set<IInstallableUnit> publishedUnits = results.query(QueryUtil.ALL_UNITS, null).toSet();
-		return publishedUnits;
+		return results.query(QueryUtil.ALL_UNITS, null).toSet();
 	}
 }

@@ -101,8 +101,8 @@ public class InstallableUnitGenerator {
 			throws CoreException {
 		init();
 		Objects.requireNonNull(session);
-		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
-		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<MavenProject, Collection<IInstallableUnit>>();
+		List<CoreException> errors = new CopyOnWriteArrayList<>();
+		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
 			try {
 				result.put(project, getInstallableUnits(project, session, false));
@@ -242,7 +242,7 @@ public class InstallableUnitGenerator {
 
 	private Collection<InstallableUnitProvider> getProvider(MavenProject project, MavenSession mavenSession)
 			throws CoreException {
-		Set<InstallableUnitProvider> unitProviders = new HashSet<InstallableUnitProvider>(
+		Set<InstallableUnitProvider> unitProviders = new HashSet<>(
 				additionalUnitProviders.values());
 		try {
 			pluginRealmHelper.execute(mavenSession, project, () -> {
