@@ -33,10 +33,6 @@ public class NoopFileLockService implements FileLockService {
             public void lock() {
             }
 
-            public boolean isLocked() {
-                return false;
-            }
-
             @Override
             public void lock(long timeout) throws LockTimeoutException {
             }

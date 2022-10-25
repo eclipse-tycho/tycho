@@ -156,10 +156,6 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
         assertMirroredArtifact(publishedContentDir, bundleID, version, "plugins");
     }
 
-    private static void assertMirroredFeature(File publishedContentDir, String featureID, String version) {
-        assertMirroredArtifact(publishedContentDir, featureID, version, "features");
-    }
-
     private static void assertMirroredArtifact(File publishedContentDir, String id, String version, String folder) {
         String pluginArtifactNamePrefix = id + "_" + version; // without qualifier
         for (File bundle : new File(publishedContentDir, folder).listFiles()) {

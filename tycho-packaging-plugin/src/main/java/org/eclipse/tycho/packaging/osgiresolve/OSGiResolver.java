@@ -17,7 +17,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -48,10 +47,6 @@ import org.osgi.framework.connect.ModuleConnector;
 import org.osgi.resource.Resource;
 
 public class OSGiResolver {
-
-	private static final Comparator<Bundle> bySymbolicName = Comparator.comparing(Bundle::getSymbolicName,
-			String.CASE_INSENSITIVE_ORDER);
-	private static final Comparator<Bundle> byState = Comparator.comparingInt(Bundle::getState);
 
 	private BundleContext systemContext;
 	private Map<String, ConnectModule> moduleMap = new LinkedHashMap<>();

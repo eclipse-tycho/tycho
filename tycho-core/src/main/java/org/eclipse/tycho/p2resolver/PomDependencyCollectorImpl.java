@@ -66,7 +66,6 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     private Map<IArtifactFacade, IArtifactDescriptor> descriptorMap = new HashMap<>();
     private ReactorProject project;
-    private IProvisioningAgent agent;
     private final List<IArtifactDescriptor> fileDescriptors = new ArrayList<>();
     private FileRepositoryArtifactProvider fileRepositoryArtifactProvider;
 
