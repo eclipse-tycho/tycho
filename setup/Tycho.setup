@@ -59,6 +59,16 @@
           key="/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.text.custom_code_templates"
           value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?>&lt;templates>&lt;template autoinsert=&quot;false&quot; context=&quot;filecomment_context&quot; deleted=&quot;false&quot; description=&quot;Comment for created Java files&quot; enabled=&quot;true&quot; id=&quot;org.eclipse.jdt.ui.text.codetemplates.filecomment&quot; name=&quot;filecomment&quot;>/*******************************************************************************&#xD;&#xA; * Copyright (c) $${currentDate:date('yyyy')} $${user} and others.&#xD;&#xA; * All rights reserved. This program and the accompanying materials&#xD;&#xA; * are made available under the terms of the Eclipse Public License v1.0&#xD;&#xA; * which accompanies this distribution, and is available at&#xD;&#xA; * http://www.eclipse.org/legal/epl-v10.html&#xD;&#xA; *&#xD;&#xA; * Contributors:&#xD;&#xA; *    $${user}&#xD;&#xA; *&#xD;&#xA; * TODO: comment here what the class does&#xD;&#xA; *******************************************************************************/&lt;/template>&lt;/templates>"/>
     </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="net.nodj.AutoDerivPlugin">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/net.nodj.AutoDerivPlugin/enabledMarker"
+          value="false">
+        <description>Disable the generation of info markers for automatically derived files.</description>
+      </setupTask>
+    </setupTask>
   </setupTask>
   <setupTask
       xsi:type="jdt:JRETask"
@@ -99,7 +109,9 @@
       value="https://raw.githubusercontent.com/eclipse/tycho/master/setup/Tycho.setup->${git.cloneTycho.location|uri}/setup/Tycho.setup"
       vm="true"/>
   <setupTask
-      xsi:type="setup.p2:P2Task">
+      xsi:type="setup.p2:P2Task"
+      label="m2e"
+      licenseConfirmationDisabled="true">
     <requirement
         name="org.eclipse.m2e.feature.feature.group"/>
     <requirement
@@ -107,6 +119,16 @@
     <repository
         url="https://download.eclipse.org/technology/m2e/releases/latest/"/>
     <description>P2 Update Sites for the m2e connectors</description>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      label="autoderiv"
+      licenseConfirmationDisabled="true">
+    <requirement
+        name="net.nodj.AutoDerivFeature.feature.group"/>
+    <repository
+        url="https://nodj.github.io/AutoDeriv/update"/>
+    <description>Automatically mark all files listed in .derived as derived in the workspace</description>
   </setupTask>
   <setupTask
       xsi:type="git:GitCloneTask"
