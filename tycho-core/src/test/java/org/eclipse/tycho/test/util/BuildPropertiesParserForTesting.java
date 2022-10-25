@@ -35,16 +35,8 @@ public class BuildPropertiesParserForTesting implements BuildPropertiesParser {
     }
 
     private void readBuildProperties(File baseDir, Properties props) {
-        InputStream is = null;
-        try {
-            try {
-                is = new FileInputStream(new File(baseDir, "build.properties"));
-                props.load(is);
-            } finally {
-                if (is != null) {
-                    is.close();
-                }
-            }
+        try (InputStream is = new FileInputStream(new File(baseDir, "build.properties"))) {
+            props.load(is);
         } catch (IOException e) {
             // ignore
         }
