@@ -206,6 +206,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
+    @Override
     public void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException {
         // bug 357513 - force artifact repo recreation which will
         // create the missing md5 checksums
