@@ -325,7 +325,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                             PGPSignature signature = list.get(i);
                             long keyID = signature.getKeyID();
                             if (!publicKeys.containsKey(keyID)) {
-                                List<Exception> errors = new ArrayList<Exception>();
+                                List<Exception> errors = new ArrayList<>();
                                 for (String keyServer : keyServers) {
                                     try {
                                         loadPublicKey(keyID, publicKeys, keyServer);

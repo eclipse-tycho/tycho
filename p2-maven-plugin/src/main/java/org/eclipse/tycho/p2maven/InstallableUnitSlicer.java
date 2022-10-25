@@ -101,12 +101,12 @@ public class InstallableUnitSlicer {
 				}
 			}
 		}
-		return new CollectionResult<IInstallableUnit>(result);
+		return new CollectionResult<>(result);
 	}
 
 	private final class TychoSlicer extends PermissiveSlicer {
 		private TychoSlicer(IQueryable<IInstallableUnit> input) {
-			super(input, new HashMap<String, String>(), //
+			super(input, new HashMap<>(), //
 					true, // includeOptionalDependencies
 					true, // everythingGreedy
 					true, // evalFilterTo

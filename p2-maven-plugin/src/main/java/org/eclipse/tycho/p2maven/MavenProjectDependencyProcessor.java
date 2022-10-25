@@ -84,8 +84,8 @@ public class MavenProjectDependencyProcessor {
 		Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
 				.collect(Collectors.toSet());
 		Map<MavenProject, ProjectDependencies> projectDependenciesMap = computeProjectDependencies(projects,
-				new CollectionResult<IInstallableUnit>(availableIUs), projectIUMap);
-		Map<IInstallableUnit, MavenProject> iuProjectMap = new HashMap<IInstallableUnit, MavenProject>();
+				new CollectionResult<>(availableIUs), projectIUMap);
+		Map<IInstallableUnit, MavenProject> iuProjectMap = new HashMap<>();
 		for (var entry : projectIUMap.entrySet()) {
 			MavenProject mavenProject = entry.getKey();
 			for (IInstallableUnit iu : entry.getValue()) {
@@ -140,7 +140,7 @@ public class MavenProjectDependencyProcessor {
 	private Map<MavenProject, ProjectDependencies> computeProjectDependencies(Collection<MavenProject> projects,
 			IQueryable<IInstallableUnit> avaiableIUs, Map<MavenProject, Collection<IInstallableUnit>> projectIUMap)
 			throws CoreException {
-		List<CoreException> errors = new CopyOnWriteArrayList<CoreException>();
+		List<CoreException> errors = new CopyOnWriteArrayList<>();
 		Map<MavenProject, ProjectDependencies> result = new ConcurrentHashMap<>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
 			try {
@@ -186,13 +186,13 @@ public class MavenProjectDependencyProcessor {
 		if (projectUnits.isEmpty()) {
 			return EMPTY_DEPENDENCIES;
 		}
-		Set<IInstallableUnit> resolved = new LinkedHashSet<IInstallableUnit>(
+		Set<IInstallableUnit> resolved = new LinkedHashSet<>(
 				slicer.computeDirectDependencies(projectUnits, avaiableIUs).toSet());
 		resolved.removeAll(projectUnits);
 		// now we need to filter all fragments that we are a host!
 		// for example SWT creates an explicit requirement to its fragments and we don't
 		// want them included directly
-		Set<IInstallableUnit> projectFragments = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> projectFragments = new HashSet<>();
 		for (Iterator<IInstallableUnit> iterator = resolved.iterator(); iterator.hasNext();) {
 			IInstallableUnit unit = iterator.next();
 			if (hasAnyHost(unit, projectUnits)) {

@@ -83,9 +83,8 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
         boolean onlyFilteredRequirements = options.followOnlyFilteredRequirements();
         boolean considerFilter = (context != null && context.size() > 1) ? true : false;
         IMetadataRepository repository = getCompositeMetadataRepository();
-        PermissiveSlicer slicer = new PermissiveSlicer(repository, context, includeOptionalDependencies,
-                options.isEverythingGreedy(), options.forceFilterTo(), options.considerStrictDependencyOnly(),
-                onlyFilteredRequirements) {
+        return new PermissiveSlicer(repository, context, includeOptionalDependencies, options.isEverythingGreedy(),
+                options.forceFilterTo(), options.considerStrictDependencyOnly(), onlyFilteredRequirements) {
             @Override
             protected boolean isApplicable(IInstallableUnit iu, IRequirement req) {
                 if ((includeRequiredBundles || includeRequiredFeatures) && QueryUtil.isGroup(iu)) {
@@ -150,7 +149,6 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
             }
 
         };
-        return slicer;
     }
 
     private static final IInstallableUnit createSourceUnit(Collection<IInstallableUnit> units) {
@@ -170,10 +168,8 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
     }
 
     private static IRequirement createSourceBundleRequirement(IInstallableUnit unit) {
-        IRequirement optionalGreedySourceBundleRequirement = MetadataFactory.createRequirement("osgi.bundle",
-                unit.getId() + ".source", new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null,
-                true, false, true);
-        return optionalGreedySourceBundleRequirement;
+        return MetadataFactory.createRequirement("osgi.bundle", unit.getId() + ".source",
+                new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, true, false, true);
     }
 
     @Override
