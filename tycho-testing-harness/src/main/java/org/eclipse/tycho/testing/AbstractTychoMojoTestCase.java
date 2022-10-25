@@ -70,8 +70,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
     @Override
     protected String getCustomConfigurationName() {
-        String name = AbstractTychoMojoTestCase.class.getName().replace('.', '/') + ".xml";
-        return name;
+        return AbstractTychoMojoTestCase.class.getName().replace('.', '/') + ".xml";
     }
 
     protected ArtifactRepository getLocalRepository() throws Exception {
@@ -79,9 +78,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
         File path = new File("target/local-repo").getAbsoluteFile();
 
-        ArtifactRepository r = repoSystem.createLocalRepository(path);
-
-        return r;
+        return repoSystem.createLocalRepository(path);
     }
 
     protected MavenExecutionRequest newMavenExecutionRequest(File pom) throws Exception {

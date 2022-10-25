@@ -110,9 +110,7 @@ public class PublishProductToolImpl implements PublishProductTool {
 
     private static String getProductSpecificP2InfName(String productFileName) {
         // This must match org.eclipse.tycho.p2.impl.publisher.ProductDependenciesAction.addPublisherAdvice(IPublisherInfo)
-        final String p2infFilename = productFileName.substring(0, productFileName.length() - ".product".length())
-                + ".p2.inf";
-        return p2infFilename;
+        return productFileName.substring(0, productFileName.length() - ".product".length()) + ".p2.inf";
     }
 
     private static void addRootFeatures(ExpandedProduct product, List<DependencySeed> seeds) {
