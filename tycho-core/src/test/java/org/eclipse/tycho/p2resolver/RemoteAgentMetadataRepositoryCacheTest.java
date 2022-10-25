@@ -47,8 +47,6 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
     public final HttpServer localServer = new HttpServer();
     private URI localHttpRepo;
 
-    private File localMavenRepository;
-
     @Before
     public void startHttpServer() throws Exception {
         localHttpRepo = URI
@@ -57,7 +55,7 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
 
     @Before
     public void initLocalMavenRepository() throws Exception {
-        localMavenRepository = tempManager.newFolder("m2-repo");
+        tempManager.newFolder("m2-repo");
     }
 
     @Test
