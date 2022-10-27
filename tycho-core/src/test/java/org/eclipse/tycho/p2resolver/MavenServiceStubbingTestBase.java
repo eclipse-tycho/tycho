@@ -14,7 +14,6 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -38,15 +37,11 @@ public class MavenServiceStubbingTestBase extends TychoPlexusTestCase {
 
     private IProvisioningAgent provisioningAgent;
 
-    private IProxyService proxyService;
-
     @Before
     public void initServiceInstances() throws Exception {
         //trigger loading of the embedded OSGi framework
         EquinoxServiceFactory serviceFactory = lookup(EquinoxServiceFactory.class, TychoServiceFactory.HINT);
         assertNotNull(serviceFactory);
-        proxyService = serviceFactory.getService(IProxyService.class);
-        assertNotNull(proxyService);
         provisioningAgent = lookup(IProvisioningAgent.class);
         assertNotNull(provisioningAgent);
     }
@@ -65,10 +60,6 @@ public class MavenServiceStubbingTestBase extends TychoPlexusTestCase {
 
     protected FileLockService getFileLockService() {
         return new NoopFileLockService();
-    }
-
-    protected IProxyService getProxyService() {
-        return proxyService;
     }
 
     protected IProvisioningAgent getProvisioningAgent() {

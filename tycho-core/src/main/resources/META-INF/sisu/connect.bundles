@@ -33,7 +33,6 @@ org.eclipse.tycho.core.shared,true
 org.eclipse.tycho.p2.maven.repository,true
 org.eclipse.tycho.embedder-api,true
 org.eclipse.equinox.security,true
-org.eclipse.core.net,true
 
 org.eclipse.osgi.compatibility.state
 org.eclipse.core.jobs

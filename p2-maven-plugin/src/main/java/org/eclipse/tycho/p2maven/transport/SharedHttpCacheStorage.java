@@ -20,16 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
-import java.net.Proxy;
-import java.net.Proxy.Type;
-import java.net.SocketAddress;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,10 +41,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.core.net.proxy.IProxyData;
-import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
+import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
 public class SharedHttpCacheStorage {
 
@@ -114,7 +108,7 @@ public class SharedHttpCacheStorage {
         return new CacheEntry() {
 
             @Override
-            public long getLastModified(IProxyService proxyService, Function<URI, Credentials> credentialsProvider)
+			public long getLastModified(ProxyHelper proxyService, Function<URI, Credentials> credentialsProvider)
                     throws IOException {
                 if (cacheConfig.offline) {
                     return cacheLine.getLastModified(uri, proxyService, credentialsProvider,
@@ -136,7 +130,7 @@ public class SharedHttpCacheStorage {
             }
 
             @Override
-            public File getCacheFile(IProxyService proxyService, Function<URI, Credentials> credentialsProvider)
+			public File getCacheFile(ProxyHelper proxyService, Function<URI, Credentials> credentialsProvider)
                     throws IOException {
                 if (cacheConfig.offline) {
                     return cacheLine.getFile(uri, proxyService, credentialsProvider,
@@ -189,12 +183,12 @@ public class SharedHttpCacheStorage {
             httpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         }
 
-        public synchronized long fetchLastModified(URI uri, IProxyService proxyService,
+		public synchronized long fetchLastModified(URI uri, ProxyHelper proxyService,
 				Function<URI, Credentials> credentialsProvider, Logger logger) throws IOException {
             //TODO its very likely that the file is downloaded here if it has changed... so probably just download it right now?
-            RepositoryAuthenticator authenticator = new RepositoryAuthenticator(getProxyData(proxyService, uri),
+			RepositoryAuthenticator authenticator = new RepositoryAuthenticator(proxyService, uri,
                     credentialsProvider.apply(uri));
-            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(authenticator.getProxy());
+			HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(proxyService.getProxy(uri));
             connection.setAuthenticator(authenticator);
             connection.setRequestMethod("HEAD");
             authenticator.preemtiveAuth(connection);
@@ -219,7 +213,7 @@ public class SharedHttpCacheStorage {
             }
         }
 
-        public synchronized long getLastModified(URI uri, IProxyService proxyService,
+		public synchronized long getLastModified(URI uri, ProxyHelper proxyService,
                 Function<URI, Credentials> credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
 				Logger logger) throws IOException {
             int code = getResponseCode();
@@ -245,15 +239,15 @@ public class SharedHttpCacheStorage {
             }
         }
 
-        public synchronized File fetchFile(URI uri, IProxyService proxyService,
+		public synchronized File fetchFile(URI uri, ProxyHelper proxyService,
 				Function<URI, Credentials> credentialsProvider, Logger logger) throws IOException {
             boolean exits = file.isFile();
             if (exits && !mustValidate()) {
                 return file;
             }
-            RepositoryAuthenticator authenticator = new RepositoryAuthenticator(getProxyData(proxyService, uri),
+			RepositoryAuthenticator authenticator = new RepositoryAuthenticator(proxyService, uri,
                     credentialsProvider.apply(uri));
-            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(authenticator.getProxy());
+			HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(proxyService.getProxy(uri));
             connection.setAuthenticator(authenticator);
             authenticator.preemtiveAuth(connection);
             Properties lastHeader = getHeader();
@@ -297,7 +291,7 @@ public class SharedHttpCacheStorage {
             return file;
         }
 
-        public synchronized File getFile(URI uri, IProxyService proxyService,
+		public synchronized File getFile(URI uri, ProxyHelper proxyService,
                 Function<URI, Credentials> credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
 				Logger logger) throws IOException {
             int code = getResponseCode();
@@ -455,17 +449,6 @@ public class SharedHttpCacheStorage {
         }
     }
 
-    private static IProxyData getProxyData(IProxyService proxyService, URI uri) throws IOException {
-        if (proxyService != null) {
-            IProxyData[] selected = proxyService.select(uri);
-            if (selected.length > 0) {
-                return Arrays.stream(selected).filter(p -> p.getType().equalsIgnoreCase(uri.getScheme())).findFirst()
-                        .orElse(selected[0]);
-            }
-        }
-        return null;
-    }
-
     private static boolean isRedirected(int code) {
         return code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP;
     }
@@ -514,18 +497,21 @@ public class SharedHttpCacheStorage {
 
     private static final class RepositoryAuthenticator extends Authenticator {
 
-        private IProxyData proxyData;
+		private ProxyHelper proxyData;
         private Credentials credentials;
+		private URI uri;
 
-        public RepositoryAuthenticator(IProxyData proxyData, Credentials credentials) {
+		public RepositoryAuthenticator(ProxyHelper proxyData, URI uri, Credentials credentials) {
             this.proxyData = proxyData;
+			this.uri = uri;
             this.credentials = credentials;
         }
 
         public void preemtiveAuth(HttpURLConnection connection) {
             // as everything is known and we can't ask the user anyways, preemtive auth is a good choice here to prevent successive requests
-            addAuthHeader(connection, getPasswordAuthentication(RequestorType.PROXY), PROXY_AUTHORIZATION_HEADER);
-            addAuthHeader(connection, getPasswordAuthentication(RequestorType.SERVER), AUTHORIZATION_HEADER);
+			addAuthHeader(connection, getAuth(RequestorType.PROXY),
+					PROXY_AUTHORIZATION_HEADER);
+			addAuthHeader(connection, getAuth(RequestorType.SERVER), AUTHORIZATION_HEADER);
         }
 
         private void addAuthHeader(HttpURLConnection connection, PasswordAuthentication authentication, String header) {
@@ -540,50 +526,23 @@ public class SharedHttpCacheStorage {
 
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
-            return getPasswordAuthentication(getRequestorType());
-        }
+			return getAuth(getRequestorType());
+		}
 
-        protected PasswordAuthentication getPasswordAuthentication(RequestorType type) {
-            if (type == RequestorType.PROXY) {
-                if (proxyData != null) {
-                    String userId = proxyData.getUserId();
-                    if (userId != null) {
-                        String password = proxyData.getPassword();
-                        return new PasswordAuthentication(userId,
-                                password == null ? new char[0] : password.toCharArray());
-                    }
-                }
-            } else if (type == RequestorType.SERVER) {
-                if (credentials != null) {
-                    String userName = credentials.getUserName();
-                    if (userName != null) {
-                        String password = credentials.getPassword();
-                        return new PasswordAuthentication(userName,
-                                password == null ? new char[0] : password.toCharArray());
-                    }
-                }
-            }
-            return null;
-        }
+		private PasswordAuthentication getAuth(RequestorType type) {
+			if (type == RequestorType.PROXY) {
+				return proxyData.getPasswordAuthentication(uri, type);
+			} else if (credentials != null) {
+				String userName = credentials.getUserName();
+				if (userName != null) {
+					String password = credentials.getPassword();
+					return new PasswordAuthentication(userName,
+							password == null ? new char[0] : password.toCharArray());
+				}
+			}
+			return null;
+		}
 
-        public Proxy getProxy() {
-            if (proxyData == null) {
-                return Proxy.NO_PROXY;
-            }
-            return new Proxy(convertType(proxyData), convertAddress(proxyData));
-        }
-
-        private static SocketAddress convertAddress(IProxyData data) {
-            return new InetSocketAddress(data.getHost(), data.getPort());
-        }
-
-        private static Type convertType(IProxyData data) {
-            return switch (data.getType()) {
-            case IProxyData.HTTPS_PROXY_TYPE, IProxyData.HTTP_PROXY_TYPE -> Type.HTTP;
-            case IProxyData.SOCKS_PROXY_TYPE -> Type.SOCKS;
-            default -> Type.DIRECT;
-            };
-        }
     }
 
 }

@@ -32,13 +32,13 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
+import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 @Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.internal.p2.repository.Transport")
@@ -54,6 +54,9 @@ public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactor
     private MavenRepositorySettings mavenRepositorySettings;
 	@Requirement
 	private Logger logger;
+
+	@Requirement
+	private ProxyHelper proxyHelper;
 
 	private File repoDir;
 
@@ -77,7 +80,7 @@ public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactor
 
 		SharedHttpCacheStorage cache = SharedHttpCacheStorage.getStorage(cacheLocation, offline, update);
 
-		return new TychoRepositoryTransport(logger, serviceFactory.getService(IProxyService.class), cache, uri -> {
+		return new TychoRepositoryTransport(logger, proxyHelper, cache, uri -> {
             IRepositoryIdManager repositoryIdManager = agent.getService(IRepositoryIdManager.class);
 			Stream<MavenRepositoryLocation> locations = repositoryLocations.stream();
             locations = Stream.concat(locations, repositoryIdManager.getKnownMavenRepositoryLocations());
