@@ -175,12 +175,6 @@
 		    <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
 		    <version>2.2.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.core.net</artifactId>
-			<version>1.4.0</version>
-		</dependency>
-
 		<!-- felix -->
 		<dependency>
 		    <groupId>org.apache.felix</groupId>

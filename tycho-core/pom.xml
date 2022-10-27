@@ -231,11 +231,6 @@
 			<version>3.26.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.core.net</artifactId>
-			<version>1.4.0</version>
-		</dependency>
-		<dependency>
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bndlib</artifactId>
 		</dependency>

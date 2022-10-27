@@ -17,12 +17,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.function.Function;
 
-import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
+import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
 public interface CacheEntry {
 
-    long getLastModified(IProxyService proxyService, Function<URI, Credentials> credentialsProvider) throws IOException;
+	long getLastModified(ProxyHelper proxyService, Function<URI, Credentials> credentialsProvider) throws IOException;
 
-    File getCacheFile(IProxyService proxyService, Function<URI, Credentials> credentialsProvider) throws IOException;
+	File getCacheFile(ProxyHelper proxyService, Function<URI, Credentials> credentialsProvider) throws IOException;
 }
