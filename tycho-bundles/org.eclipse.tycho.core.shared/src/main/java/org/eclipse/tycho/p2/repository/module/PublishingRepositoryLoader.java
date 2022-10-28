@@ -26,7 +26,6 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 
 class PublishingRepositoryLoader {
 
-    private static final Map<String, String> EMPTY_MAP = Collections.emptyMap();
     /**
      * This value is ignored anyway. See for example
      * {@link ModuleMetadataRepositoryFactory#create(URI, String, String, Map)}
@@ -69,7 +68,7 @@ class PublishingRepositoryLoader {
             URI location) {
         try {
             return (ModuleMetadataRepository) repoManager.createRepository(location, BUILD_REPOSITORY_NAME,
-                    ModuleMetadataRepository.REPOSITORY_TYPE, EMPTY_MAP);
+                    ModuleMetadataRepository.REPOSITORY_TYPE, Collections.emptyMap());
         } catch (ProvisionException e) {
             throw new RuntimeException(e);
         }
@@ -108,7 +107,7 @@ class PublishingRepositoryLoader {
             URI location) {
         try {
             return (ModuleArtifactRepository) repoManager.createRepository(location, BUILD_REPOSITORY_NAME,
-                    ModuleArtifactRepository.REPOSITORY_TYPE, EMPTY_MAP);
+                    ModuleArtifactRepository.REPOSITORY_TYPE, Collections.emptyMap());
         } catch (ProvisionException e) {
             throw new RuntimeException(e);
         }

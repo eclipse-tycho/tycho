@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Guillaume Dufour and others.
+ * Copyright (c) 2019, 2022 Guillaume Dufour and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -41,16 +40,14 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
 
     //This is used to detect cycle that could be caused while delegating the loading to other classloaders
     //It keeps track on a thread basis of the set of requested classes and resources
-    private static ThreadLocal<Set<String>> cycleDetector = new ThreadLocal<Set<String>>();
+    private static ThreadLocal<Set<String>> cycleDetector = new ThreadLocal<>();
     static ClassLoader finderClassLoader;
     static ContextFinderWithoutTychoBundle.Finder contextFinder;
     static {
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                finderClassLoader = ContextFinderWithoutTychoBundle.class.getClassLoader();
-                contextFinder = new Finder();
-                return null;
-            }
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            finderClassLoader = ContextFinderWithoutTychoBundle.class.getClassLoader();
+            contextFinder = new Finder();
+            return null;
         });
     }
 
@@ -70,7 +67,7 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
     // We assume that the bootclassloader never uses the context classloader to find classes in itself.
     List<ClassLoader> basicFindClassLoaders() {
         Class<?>[] stack = contextFinder.getClassContext();
-        List<ClassLoader> result = new ArrayList<ClassLoader>(1);
+        List<ClassLoader> result = new ArrayList<>(1);
         ClassLoader previousLoader = null;
         for (int i = 1; i < stack.length; i++) {
             ClassLoader tmp = stack[i].getClassLoader();
@@ -131,7 +128,7 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
             return false;
 
         if (classesAndResources == null) {
-            classesAndResources = new HashSet<String>(3);
+            classesAndResources = new HashSet<>(3);
             cycleDetector.set(classesAndResources);
         }
         classesAndResources.add(name);
@@ -150,9 +147,9 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
 
         try {
             List<ClassLoader> toConsult = findClassLoaders();
-            for (Iterator<ClassLoader> loaders = toConsult.iterator(); loaders.hasNext();)
+            for (ClassLoader classLoader : toConsult)
                 try {
-                    return loaders.next().loadClass(arg0);
+                    return classLoader.loadClass(arg0);
                 } catch (ClassNotFoundException e) {
                     // go to the next class loader
                 }
@@ -170,8 +167,8 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
             return null;
         try {
             List<ClassLoader> toConsult = findClassLoaders();
-            for (Iterator<ClassLoader> loaders = toConsult.iterator(); loaders.hasNext();) {
-                URL result = loaders.next().getResource(arg0);
+            for (ClassLoader classLoader : toConsult) {
+                URL result = classLoader.getResource(arg0);
                 if (result != null)
                     return result;
                 // go to the next class loader
@@ -186,13 +183,13 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
     public Enumeration<URL> getResources(String arg0) throws IOException {
         //Shortcut cycle
         if (startLoading(arg0) == false) {
-            return Collections.enumeration(Collections.<URL> emptyList());
+            return Collections.enumeration(Collections.emptyList());
         }
         try {
             List<ClassLoader> toConsult = findClassLoaders();
             Enumeration<URL> result = null;
-            for (Iterator<ClassLoader> loaders = toConsult.iterator(); loaders.hasNext();) {
-                result = loaders.next().getResources(arg0);
+            for (ClassLoader classLoader : toConsult) {
+                result = classLoader.getResources(arg0);
                 if (result != null && result.hasMoreElements()) {
                     // For context finder we do not compound results after this first loader that has resources
                     break;
@@ -207,10 +204,10 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
 
     public static <E> Enumeration<E> compoundEnumerations(Enumeration<E> list1, Enumeration<E> list2) {
         if (list2 == null || !list2.hasMoreElements())
-            return list1 == null ? Collections.<E> emptyEnumeration() : list1;
+            return list1 == null ? Collections.emptyEnumeration() : list1;
         if (list1 == null || !list1.hasMoreElements())
-            return list2 == null ? Collections.<E> emptyEnumeration() : list2;
-        List<E> compoundResults = new ArrayList<E>();
+            return list2 == null ? Collections.emptyEnumeration() : list2;
+        List<E> compoundResults = new ArrayList<>();
         while (list1.hasMoreElements())
             compoundResults.add(list1.nextElement());
         while (list2.hasMoreElements()) {

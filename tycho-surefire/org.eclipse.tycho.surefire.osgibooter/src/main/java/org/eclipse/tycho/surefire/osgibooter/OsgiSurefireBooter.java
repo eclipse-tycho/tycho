@@ -44,7 +44,6 @@ import org.apache.maven.plugin.surefire.log.api.PrintStreamLogger;
 import org.apache.maven.plugin.surefire.report.ConsoleReporter;
 import org.apache.maven.plugin.surefire.report.DefaultReporterFactory;
 import org.apache.maven.surefire.api.booter.Shutdown;
-import org.apache.maven.surefire.api.cli.CommandLineOption;
 import org.apache.maven.surefire.api.report.ReporterConfiguration;
 import org.apache.maven.surefire.api.report.ReporterFactory;
 import org.apache.maven.surefire.api.suite.RunResult;
@@ -96,7 +95,7 @@ public class OsgiSurefireBooter {
         boolean trimStackTrace = Boolean.parseBoolean(testProps.getProperty("trimStackTrace", "false"));
         int skipAfterFailureCount = Integer.parseInt(testProps.getProperty("skipAfterFailureCount", "0"));
         int rerunFailingTestsCount = Integer.parseInt(testProps.getProperty("rerunFailingTestsCount", "0"));
-        Map<String, String> propertiesMap = new HashMap<String, String>();
+        Map<String, String> propertiesMap = new HashMap<>();
         for (String key : testProps.stringPropertyNames()) {
             propertiesMap.put(key, testProps.getProperty(key));
         }
@@ -117,19 +116,18 @@ public class OsgiSurefireBooter {
         ClasspathConfiguration classPathConfig = new ClasspathConfiguration(false, false);
         StartupConfiguration startupConfiguration = new StartupConfiguration(provider, classPathConfig,
                 new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), ProcessCheckerType.ALL,
-                new LinkedList<String[]>());
+                new LinkedList<>());
         // TODO dir scanning with no includes done here (done in TestMojo already)
         // but without dirScannerParams we get an NPE accessing runOrder
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
-                Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
-                failIfNoTests, runOrder);
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), failIfNoTests, runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
                 TestListResolver.getEmptyTestListResolver(), rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
                 new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
-                extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
-                skipAfterFailureCount, Shutdown.DEFAULT, 30);
+                extractProviderProperties(testProps), null, false, Collections.emptyList(), skipAfterFailureCount,
+                Shutdown.DEFAULT, 30);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
                 ConsoleReporter.PLAIN, false, reportsDir, trimStackTrace, null, new File(reportsDir, "TESTHASH"), false,
                 rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(), false,
@@ -219,7 +217,7 @@ public class OsgiSurefireBooter {
      * See TestMojo#mergeProviderProperties
      */
     private static Map<String, String> extractProviderProperties(Properties surefireProps) {
-        Map<String, String> providerProps = new HashMap<String, String>();
+        Map<String, String> providerProps = new HashMap<>();
         for (String entry : surefireProps.stringPropertyNames()) {
             if (entry.startsWith("__provider.")) {
                 providerProps.put(entry.substring("__provider.".length()), surefireProps.getProperty(entry));
@@ -294,11 +292,8 @@ public class OsgiSurefireBooter {
 
     private static Properties loadProperties(File file) throws IOException {
         Properties p = new Properties();
-        BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
-        try {
+        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
             p.load(in);
-        } finally {
-            in.close();
         }
         return p;
     }
@@ -311,7 +306,7 @@ public class OsgiSurefireBooter {
             if (ex.getType() == BundleException.RESOLVE_ERROR) {
                 System.err.println("Resolution errors for " + bundle.toString());
                 Set<ResolverError> errors = Activator.getResolutionErrors(bundle);
-                if (errors.size() > 0) {
+                if (!errors.isEmpty()) {
                     for (ResolverError error : errors) {
                         System.err.println("\t" + error.toString());
                     }

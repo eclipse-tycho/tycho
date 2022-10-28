@@ -90,7 +90,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
             IProgressMonitor monitor) throws ResolverException {
         if (ignoreFilters) {
             // short cut: properties would ignored for each single resolution, so resolve just once 
-            return resolve(Collections.<String, String> emptyMap(), monitor);
+            return resolve(Collections.emptyMap(), monitor);
         }
         return super.multiPlatformResolve(environments, monitor);
     }
