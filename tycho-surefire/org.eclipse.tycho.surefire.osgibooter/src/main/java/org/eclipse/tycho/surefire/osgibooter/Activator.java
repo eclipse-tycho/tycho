@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -37,9 +37,9 @@ public class Activator implements BundleActivator {
     }
 
     public void start(BundleContext context) throws Exception {
-        ServiceReference<?> platformAdminRef = context.getServiceReference(PlatformAdmin.class.getName());
+        ServiceReference<PlatformAdmin> platformAdminRef = context.getServiceReference(PlatformAdmin.class);
         if (platformAdminRef != null) {
-            platformAdmin = (PlatformAdmin) context.getService(platformAdminRef);
+            platformAdmin = context.getService(platformAdminRef);
         }
     }
 
@@ -65,7 +65,7 @@ public class Activator implements BundleActivator {
     }
 
     public static Set<ResolverError> getResolutionErrors(Bundle bundle) {
-        Set<ResolverError> errors = new LinkedHashSet<ResolverError>();
+        Set<ResolverError> errors = new LinkedHashSet<>();
         try {
             if (platformAdmin == null) {
                 System.err.println(

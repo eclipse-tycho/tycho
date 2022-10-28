@@ -74,7 +74,7 @@ public class SharedHttpCacheStorage {
     private SharedHttpCacheStorage(CacheConfig cacheConfig) {
 
         this.cacheConfig = cacheConfig;
-        entryCache = new LinkedHashMap<File, CacheLine>(100, 0.75f, true) {
+		entryCache = new LinkedHashMap<>(100, 0.75f, true) {
 
             private static final long serialVersionUID = 1L;
 
