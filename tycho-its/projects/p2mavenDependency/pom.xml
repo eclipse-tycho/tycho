@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.eclipse.tycho-its</groupId>
+	<artifactId>p2mavendependency</artifactId>
+	<version>1.0.0</version>
+
+	<packaging>jar</packaging>
+
+	<properties>
+		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
+		<p2-repo>https://download.eclipse.org/tools/orbit/downloads/2022-03/</p2-repo>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>p2-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>p2-data-repo</id>
+			<layout>p2</layout>
+			<url>${p2-repo}</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>p2.plugin</groupId>
+			<artifactId>org.slf4j.api</artifactId>
+			<version>1.7.30</version>
+			<type>eclipse-plugin</type>
+		</dependency>
+	</dependencies>
+
+</project>

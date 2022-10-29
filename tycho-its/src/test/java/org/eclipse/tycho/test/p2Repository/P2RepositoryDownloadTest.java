@@ -62,4 +62,11 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 			}
 		}
 	}
+
+	@Test
+	public void testP2Resolves() throws Exception {
+		Verifier verifier = getVerifier("p2mavenDependency", false, true);
+		verifier.executeGoals(List.of("clean", "install"));
+		verifier.verifyErrorFreeLog();
+	}
 }

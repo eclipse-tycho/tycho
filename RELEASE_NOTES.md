@@ -4,6 +4,12 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+#### P2 repository now actually lookup artifacts
+
+Previously the P2 repository was just a "marker" for Tycho to know what repositories are there and was actually disabled.
+From now on P2 repositories can be used to actually look up artifacts even if not a Tycho build is executed, this becomes useful if you want to consume a P2 item in a regular maven build.
+A full example can be found here: https://github.com/eclipse/tycho/tree/master/tycho-its/projects/p2mavenDependency/pom.xml
+
 ### Migration guide 3.x > 4.x
 
 #### Properties for tycho-surefire-plugin's 'useUIThread' and 'useUIHarness' parameters
