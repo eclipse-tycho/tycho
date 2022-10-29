@@ -17,31 +17,23 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
@@ -66,16 +58,17 @@ import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
-import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.PGPService;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplication;
 
@@ -124,15 +117,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     private static final boolean INCLUDE_PGP_DEFAULT = false;
 
-    private static final String CACHE_RELPATH = ".cache/tycho/pgpkeys";
-
-    //See GpgSigner.SIGNATURE_EXTENSION
-    private static final String SIGNATURE_EXTENSION = ".asc";
-
-    public static final String MAVEN_CENTRAL_KEY_SERVER = "http://pgp.mit.edu/pks/lookup?op=get&search={0}";
-    public static final String UBUNTU_KEY_SERVER = "https://keyserver.ubuntu.com/pks/lookup?op=get&search={0}";
-
-    private static final List<String> DEFAULT_KEY_SERVER = List.of(UBUNTU_KEY_SERVER, MAVEN_CENTRAL_KEY_SERVER);
+    private static final List<String> DEFAULT_KEY_SERVER = List.of(PGPService.UBUNTU_KEY_SERVER,
+            PGPService.MAVEN_CENTRAL_KEY_SERVER);
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -201,6 +187,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Component
     private IProvisioningAgent agent;
 
+    @Component
+    private PGPService pgpService;
+
     /**
      * The output directory of the jar file
      * 
@@ -264,19 +253,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 }
                 Artifact artifact = mavenProject.getArtifact();
                 File file = artifact.getFile();
-                String attachedSignature = artifact.getArtifactHandler().getExtension() + SIGNATURE_EXTENSION;
                 File attachedSignatureFile = null;
                 if (includePGPSignature) {
-                    for (Artifact attached : mavenProject.getAttachedArtifacts()) {
-                        if (attached.getType().equals(attachedSignature)) {
-                            //check that this is the "main" artifact signature
-                            if (Objects.equals(attached.getArtifactId(), artifact.getArtifactId())
-                                    && Objects.equals(attached.getGroupId(), artifact.getGroupId())
-                                    && (attached.getClassifier() == null || attached.getClassifier().isEmpty())) {
-                                attachedSignatureFile = attached.getFile();
-                            }
-                        }
-                    }
+                    attachedSignatureFile = pgpService.getAttachedSignature(mavenProject);
                 }
                 bundles.add(file);
                 advices.add(createMavenAdvice(artifact));
@@ -328,7 +307,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
                                 List<Exception> errors = new ArrayList<>();
                                 for (String keyServer : keyServers) {
                                     try {
-                                        loadPublicKey(keyID, publicKeys, keyServer);
+                                        PGPPublicKeyRing publicKey = pgpService.getPublicKey(keyID, keyServer, session,
+                                                keyServerRetry);
+                                        if (publicKey != null) {
+                                            publicKeys.put(keyID, publicKey);
+                                        }
                                         break;
                                     } catch (IOException | PGPException e) {
                                         errors.add(e);
@@ -430,66 +413,6 @@ public class MavenP2SiteMojo extends AbstractMojo {
         return DEFAULT_KEY_SERVER;
     }
 
-    private void loadPublicKey(long keyID, Map<Long, PGPPublicKeyRing> publicKeys, String keyServerUrl)
-            throws MojoExecutionException, IOException, PGPException {
-        String hexKey = "0x" + Long.toHexString(keyID).toUpperCase();
-        logger.info("Fetching PGP key with id " + hexKey + "...");
-        File localRepoRoot = new File(session.getLocalRepository().getBasedir());
-        File keyCacheFile = new File(new File(localRepoRoot, CACHE_RELPATH), hexKey + ".pub");
-        InputStream keyStream;
-        if (keyCacheFile.isFile()) {
-            logger.debug("Fetching key from cache: " + keyCacheFile.getAbsolutePath());
-            keyStream = new FileInputStream(keyCacheFile);
-        } else {
-            URL url = new URL(MessageFormat.format(keyServerUrl, hexKey));
-            logger.debug("Fetching key from url: " + url);
-            InputStream urlStream = openStream(url, keyServerRetry);
-            FileUtils.copyInputStreamToFile(urlStream, keyCacheFile);
-            keyStream = new FileInputStream(keyCacheFile);
-        }
-        PGPPublicKeyRingCollection publicKeyRing = new BcPGPPublicKeyRingCollection(
-                PGPUtil.getDecoderStream(keyStream));
-        PGPPublicKeyRing publicKey = publicKeyRing.getPublicKeyRing(keyID);
-        if (publicKey != null) {
-            publicKeys.put(keyID, publicKey);
-        }
-        keyStream.close();
-
-    }
-
-    protected InputStream openStream(URL url, int retry) throws IOException {
-        while (retry > 0) {
-            retry--;
-            URLConnection connection = url.openConnection();
-            connection.connect();
-            if (connection instanceof HttpURLConnection http) {
-                int code = http.getResponseCode();
-                if (code == HttpURLConnection.HTTP_UNAVAILABLE || code == HttpURLConnection.HTTP_CLIENT_TIMEOUT
-                        || code == HttpURLConnection.HTTP_BAD_GATEWAY) {
-                    String field = http.getHeaderField("Retry-After");
-                    http.disconnect();
-                    long wait;
-                    if (field == null || !field.isBlank() || !Character.isDigit(field.charAt(0))) {
-                        wait = 10;
-                    } else {
-                        wait = Integer.parseInt(field);
-                    }
-                    try {
-                        TimeUnit.SECONDS.sleep(wait);
-                        logger.debug("Server is temporary unavailable [code=" + code + "], waiting " + wait
-                                + " seconds before retry, " + retry + " retries left...");
-                        continue;
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new InterruptedIOException();
-                    }
-                }
-            }
-            return connection.getInputStream();
-        }
-        throw new IOException("retry count exceeded");
-    }
-
     protected File writeFileList(List<File> files, String name) throws MojoExecutionException {
         try {
             File fileList = File.createTempFile(name, ".txt");
@@ -580,48 +503,11 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     private File getSignatureFile(Artifact artifact) {
         if (includePGPSignature) {
-            final Artifact signatureArtifact = repositorySystem.createArtifactWithClassifier(artifact.getGroupId(),
-                    artifact.getArtifactId(), artifact.getVersion(), artifact.getType(), artifact.getClassifier());
-
-            signatureArtifact.setArtifactHandler(new ArtifactHandler() {
-
-                @Override
-                public boolean isIncludesDependencies() {
-                    return artifact.getArtifactHandler().isIncludesDependencies();
-                }
-
-                @Override
-                public boolean isAddedToClasspath() {
-                    return artifact.getArtifactHandler().isAddedToClasspath();
-                }
-
-                @Override
-                public String getPackaging() {
-                    return artifact.getArtifactHandler().getPackaging();
-                }
-
-                @Override
-                public String getLanguage() {
-                    return artifact.getArtifactHandler().getLanguage();
-                }
-
-                @Override
-                public String getExtension() {
-                    return artifact.getArtifactHandler().getExtension() + SIGNATURE_EXTENSION;
-                }
-
-                @Override
-                public String getDirectory() {
-                    return artifact.getArtifactHandler().getDirectory();
-                }
-
-                @Override
-                public String getClassifier() {
-                    return artifact.getArtifactHandler().getClassifier();
-                }
-            });
-            for (Artifact signature : resolveArtifact(signatureArtifact, false)) {
-                return signature.getFile();
+            try {
+                return pgpService.getSignatureFile(artifact, session.getRepositorySession(),
+                        project.getRemoteProjectRepositories());
+            } catch (ArtifactResolutionException e) {
+                // in this case we can't use any signature, signatures might be mandatory for central but not for private repositories maybe!
             }
         }
         return null;
