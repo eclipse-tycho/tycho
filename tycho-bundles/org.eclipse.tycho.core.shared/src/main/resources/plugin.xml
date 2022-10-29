@@ -9,14 +9,6 @@
       </artifactChecksum>
    </extension>
    <extension
-         id="tycho"
-         point="org.eclipse.equinox.security.secureStorage">
-      <provider
-            class="org.eclipse.tycho.security.storage.TychoPasswordProvider"
-            priority="0">
-      </provider>
-   </extension>
-   <extension
          id="org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository"
          point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
       <factory
