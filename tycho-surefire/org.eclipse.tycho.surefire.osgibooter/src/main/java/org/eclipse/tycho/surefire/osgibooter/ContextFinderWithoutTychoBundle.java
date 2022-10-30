@@ -116,6 +116,7 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
         return AccessController.doPrivileged(this);
     }
 
+    @Override
     public List<ClassLoader> run() {
         return basicFindClassLoaders();
     }

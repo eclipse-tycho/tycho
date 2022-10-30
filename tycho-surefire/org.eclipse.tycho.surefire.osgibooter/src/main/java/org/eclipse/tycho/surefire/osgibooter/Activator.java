@@ -36,6 +36,7 @@ public class Activator implements BundleActivator {
     public Activator() {
     }
 
+    @Override
     public void start(BundleContext context) throws Exception {
         ServiceReference<PlatformAdmin> platformAdminRef = context.getServiceReference(PlatformAdmin.class);
         if (platformAdminRef != null) {
@@ -43,6 +44,7 @@ public class Activator implements BundleActivator {
         }
     }
 
+    @Override
     public void stop(BundleContext context) throws Exception {
     }
 
