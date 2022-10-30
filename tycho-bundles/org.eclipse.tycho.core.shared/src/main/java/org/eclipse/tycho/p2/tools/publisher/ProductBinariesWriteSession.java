@@ -20,7 +20,6 @@ import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 /**
  * {@link WriteSessionContext} for publishing the binary executables artifacts.
  */
-@SuppressWarnings("restriction")
 public class ProductBinariesWriteSession implements WriteSessionContext {
 
     private final String artifactPrefix;

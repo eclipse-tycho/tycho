@@ -29,7 +29,6 @@ import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 
-@SuppressWarnings("restriction")
 public class ProductDependenciesAction extends AbstractDependenciesAction {
     private final IProductDescriptor product;
 

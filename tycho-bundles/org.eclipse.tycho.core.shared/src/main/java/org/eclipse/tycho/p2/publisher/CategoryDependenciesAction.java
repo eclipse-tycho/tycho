@@ -14,7 +14,6 @@ package org.eclipse.tycho.p2.publisher;
 
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
 
-@SuppressWarnings("restriction")
 public class CategoryDependenciesAction extends AbstractSiteDependenciesAction {
     private final SiteModel siteModel;
 

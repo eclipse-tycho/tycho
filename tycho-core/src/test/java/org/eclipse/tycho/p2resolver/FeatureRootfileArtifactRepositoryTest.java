@@ -34,7 +34,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-@SuppressWarnings("restriction")
 public class FeatureRootfileArtifactRepositoryTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();

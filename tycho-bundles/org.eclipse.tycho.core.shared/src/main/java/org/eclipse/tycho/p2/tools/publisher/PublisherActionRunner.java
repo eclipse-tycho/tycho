@@ -31,7 +31,6 @@ import org.eclipse.tycho.repository.util.StatusTool;
 /**
  * Helper for running publisher actions in the context of a project.
  */
-@SuppressWarnings("restriction")
 public class PublisherActionRunner {
 
     private IMetadataRepository contextIUs;

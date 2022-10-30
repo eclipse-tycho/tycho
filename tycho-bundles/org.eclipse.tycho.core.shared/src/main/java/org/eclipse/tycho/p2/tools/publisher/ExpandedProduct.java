@@ -35,7 +35,7 @@ import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.VersioningHelper;
 
-@SuppressWarnings({ "restriction" })
+@SuppressWarnings({})
 class ExpandedProduct implements IProductDescriptor {
 
     private final IProductDescriptor defaults;

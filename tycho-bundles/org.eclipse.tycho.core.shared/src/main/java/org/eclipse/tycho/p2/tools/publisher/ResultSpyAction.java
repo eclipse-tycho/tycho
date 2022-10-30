@@ -28,7 +28,6 @@ import org.eclipse.equinox.p2.publisher.Publisher;
  * by the publisher. This is a workaround for missing getters in {@link Publisher}.
  */
 // TODO Provide patch to Eclipse to get rid of this workaround
-@SuppressWarnings("restriction")
 public class ResultSpyAction implements IPublisherAction {
     private Collection<IInstallableUnit> rootIUs = null;
 
@@ -47,7 +46,7 @@ public class ResultSpyAction implements IPublisherAction {
     /**
      * Returns the root IUs in the publisher result at the time when this action was invoked by the
      * {@link Publisher}.
-     * 
+     *
      * @throws IllegalStateException
      *             if the action has not been performed.
      */
@@ -59,7 +58,7 @@ public class ResultSpyAction implements IPublisherAction {
     /**
      * Returns all IUs in the publisher result at the time when this action was invoked by the
      * {@link Publisher}.
-     * 
+     *
      * @throws IllegalStateException
      *             if the action has not been performed.
      */

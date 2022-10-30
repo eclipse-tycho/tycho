@@ -52,14 +52,14 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This class reads and writes artifact repository metadata (e.g. table of contents files);
- * 
+ * This class reads and writes artifact repository metadata (e.g. table of
+ * contents files);
+ *
  * This class is not used for reading or writing the actual artifacts.
  */
 
 // TODO: Should a registration/factory mechanism be supported
 //		 for getting a repository reader/writer given a repository type
-@SuppressWarnings("restriction")
 public class SimpleArtifactRepositoryIO {
 
     /**
@@ -77,11 +77,11 @@ public class SimpleArtifactRepositoryIO {
     }
 
     /**
-     * Reads the artifact repository from the given stream, and returns the contained array of
-     * abstract artifact repositories.
-     * 
-     * This method performs buffering, and closes the stream when finished.
-     */
+	 * Reads the artifact repository from the given stream, and returns the
+	 * contained array of abstract artifact repositories.
+	 *
+	 * This method performs buffering, and closes the stream when finished.
+	 */
     public IArtifactRepository read(URL location, InputStream input) throws ProvisionException {
         try (BufferedInputStream bufferedInput = new BufferedInputStream(input)) {
             Parser repositoryParser = new Parser(Activator.ID);

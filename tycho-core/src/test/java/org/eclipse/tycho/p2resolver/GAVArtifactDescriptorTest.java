@@ -25,7 +25,6 @@ import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class GAVArtifactDescriptorTest {
 
     private static final IArtifactKey TEST_KEY = new ArtifactKey("p2.class", "p2.id", Version.create("4.3.0.20130614"));

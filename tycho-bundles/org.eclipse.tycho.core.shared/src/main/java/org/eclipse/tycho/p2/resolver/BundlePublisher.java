@@ -24,7 +24,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 
-@SuppressWarnings("restriction")
 public class BundlePublisher extends BundlesAction {
 
     private BundlePublisher(BundleDescription bundleDescription) {

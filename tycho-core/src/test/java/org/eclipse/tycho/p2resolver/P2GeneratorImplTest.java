@@ -47,7 +47,6 @@ import org.eclipse.tycho.test.util.MockMavenContext;
 import org.junit.Rule;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class P2GeneratorImplTest {
 
     @Rule

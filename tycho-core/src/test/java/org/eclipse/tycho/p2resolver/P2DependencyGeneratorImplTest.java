@@ -39,7 +39,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class P2DependencyGeneratorImplTest {
     private static final String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
     private static final String DEFAULT_GROUP_ID = "org.eclipse.tycho.p2.impl.test";

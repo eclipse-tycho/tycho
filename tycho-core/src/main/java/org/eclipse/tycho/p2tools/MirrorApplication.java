@@ -47,7 +47,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 
-@SuppressWarnings("restriction")
 public class MirrorApplication extends org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication {
 
     private final Map<String, String> extraArtifactRepositoryProperties;

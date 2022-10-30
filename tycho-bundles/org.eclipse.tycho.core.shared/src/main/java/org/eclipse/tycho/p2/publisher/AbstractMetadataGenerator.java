@@ -46,7 +46,6 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.repository.util.StatusTool;
 
-@SuppressWarnings("restriction")
 public abstract class AbstractMetadataGenerator {
 
     private IProgressMonitor monitor = new NullProgressMonitor();

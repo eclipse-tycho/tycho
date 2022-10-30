@@ -33,7 +33,6 @@ import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
-@SuppressWarnings("restriction")
 public abstract class AbstractDependenciesAction extends AbstractPublisherAction {
 
     protected static final Version OSGi_versionMin = Version.createOSGi(0, 0, 0);

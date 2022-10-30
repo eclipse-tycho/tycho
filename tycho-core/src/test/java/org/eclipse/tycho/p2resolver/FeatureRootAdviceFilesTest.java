@@ -35,7 +35,6 @@ import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.p2.publisher.rootfiles.FileToPathMap;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class FeatureRootAdviceFilesTest {
 
     @Test

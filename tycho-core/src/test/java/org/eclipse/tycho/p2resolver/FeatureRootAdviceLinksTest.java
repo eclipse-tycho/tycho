@@ -27,7 +27,6 @@ import java.util.Properties;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class FeatureRootAdviceLinksTest {
     @Test
     public void testNoLinks() {

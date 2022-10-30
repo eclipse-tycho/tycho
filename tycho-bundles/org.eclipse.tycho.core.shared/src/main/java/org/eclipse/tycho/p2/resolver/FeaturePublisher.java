@@ -39,7 +39,6 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
-@SuppressWarnings("restriction")
 public class FeaturePublisher {
 
     public static void publishFeatures(List<Feature> features,

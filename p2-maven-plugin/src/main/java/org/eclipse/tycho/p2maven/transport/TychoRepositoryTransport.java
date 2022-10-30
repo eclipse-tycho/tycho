@@ -37,7 +37,6 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
-@SuppressWarnings("restriction")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
         implements IAgentServiceFactory {
 

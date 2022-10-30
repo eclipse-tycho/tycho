@@ -12,7 +12,7 @@
  *    Christoph Läubrich    - [Bug 538144] Support other target locations (Directory, Features, Installations)
  *                          - [Bug 533747] Target file is read and parsed over and over again
  *                          - [Bug 568729] Support new "Maven" Target location
- *                          - [Bug 569060] All ids of target file must be different 
+ *                          - [Bug 569060] All ids of target file must be different
  *                          - [Bug 569481] Support for maven target location includeSource="true" attribute
  *                          - [Issue #401] Support nested targets
  *******************************************************************************/
@@ -76,7 +76,7 @@ import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 /**
  * Class which performs target definition resolution. This class is used by the
  * {@link TargetDefinitionResolverService} instance.
- * 
+ *
  * @see TargetDefinitionResolverService
  */
 public final class TargetDefinitionResolver {
@@ -167,7 +167,6 @@ public final class TargetDefinitionResolver {
                         unitResultSet.addAll(
                                 fileRepositoryRolver.query(QueryUtil.ALL_UNITS, new LoggingProgressMonitor(logger)));
                     } else if (pathLocation instanceof FeaturesLocation featuresLocation) {
-                        @SuppressWarnings("restriction")
                         IArtifactKey key = org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction
                                 .createFeatureArtifactKey(featuresLocation.getId(), featuresLocation.getVersion());
                         unitResultSet.addAll(fileRepositoryRolver.query(QueryUtil.createIUQuery(key),

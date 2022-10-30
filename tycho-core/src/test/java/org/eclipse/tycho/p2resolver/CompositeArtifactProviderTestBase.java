@@ -64,7 +64,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactProvider> extends TychoPlexusTestCase {
 
     protected ProbeArtifactSink testSink;

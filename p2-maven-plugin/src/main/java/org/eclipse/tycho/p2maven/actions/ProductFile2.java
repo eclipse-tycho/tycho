@@ -19,7 +19,6 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.xml.sax.Attributes;
 
-@SuppressWarnings({ "restriction" })
 public class ProductFile2 extends ProductFile {
     protected static final String ATTRIBUTE_OS = "os";
 

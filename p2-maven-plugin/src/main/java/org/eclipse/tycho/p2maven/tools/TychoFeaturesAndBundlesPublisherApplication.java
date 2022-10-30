@@ -55,7 +55,6 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.p2maven.advices.PGPSignatureAdvice;
 import org.osgi.framework.BundleException;
 
-@SuppressWarnings("restriction")
 public class TychoFeaturesAndBundlesPublisherApplication extends AbstractPublisherApplication {
 
     private static final String MAVEN_PREFIX = "maven-";

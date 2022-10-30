@@ -54,7 +54,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-@SuppressWarnings("restriction")
 public class FeatureGenerator {
 
     private static final String ELEMENT_DESCRIPTION = "description";
