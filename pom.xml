@@ -42,19 +42,11 @@
 	</scm>
 	<developers>
 		<developer>
-			<name>Igor Fedorenko</name>
-			<organization>Sonatype</organization>
-			<organizationUrl>https://www.sonatype.com</organizationUrl>
-		</developer>
-		<developer>
-			<name>Tobias Oberlies</name>
-			<organization>SAP</organization>
-			<organizationUrl>https://www.sap.com</organizationUrl>
-		</developer>
-		<developer>
-			<name>Jan Sievers</name>
-			<organization>SAP</organization>
-			<organizationUrl>https://www.sap.com</organizationUrl>
+			<id>tycho</id>
+			<name>Tycho</name>
+			<email>tycho-dev@eclipse.org</email> <!-- Tycho developer mailing list -->
+			<organization>Eclipse Tycho Project</organization>
+			<organizationUrl>https://projects.eclipse.org/projects/technology.tycho</organizationUrl>
 		</developer>
 	</developers>
 	<prerequisites>
