@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 
-@SuppressWarnings("restriction")
 public class TychoRepositoryTransportCacheManager extends CacheManager {
 
     public static final String CACHE_RELPATH = ".cache/tycho/p2-repository-metadata";

@@ -32,7 +32,6 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
-@SuppressWarnings("restriction")
 public abstract class AbstractResolutionStrategy {
     protected static final IInstallableUnit[] EMPTY_IU_ARRAY = new IInstallableUnit[0];
 

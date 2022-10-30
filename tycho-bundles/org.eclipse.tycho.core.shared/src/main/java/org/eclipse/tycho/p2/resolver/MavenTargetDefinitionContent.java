@@ -76,7 +76,6 @@ import org.osgi.framework.Constants;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-@SuppressWarnings("restriction")
 public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private static final String POM_PACKAGING_TYPE = "pom";
     public static final String ECLIPSE_SOURCE_BUNDLE_HEADER = "Eclipse-SourceBundle";

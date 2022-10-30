@@ -42,7 +42,6 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.osgi.framework.BundleException;
 
-@SuppressWarnings("restriction")
 public class FileTargetDefinitionContent implements TargetDefinitionContent {
 
     private Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<IArtifactDescriptor, IInstallableUnit>();

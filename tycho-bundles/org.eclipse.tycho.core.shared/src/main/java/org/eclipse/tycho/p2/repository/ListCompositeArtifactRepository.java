@@ -52,7 +52,6 @@ import org.eclipse.osgi.util.NLS;
  * aggregates all data, besides this, it also implements {@link IFileArtifactRepository} on top
  *
  */
-@SuppressWarnings("restriction")
 public class ListCompositeArtifactRepository extends AbstractArtifactRepository
         implements ICompositeRepository<IArtifactKey>, IFileArtifactRepository {
 

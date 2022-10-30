@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 
-@SuppressWarnings("restriction")
 public class InstallableUnitUtil {
 
     static final String IU_CAPABILITY_NS = "org.eclipse.equinox.p2.iu"; // see IInstallableUnit.NAMESPACE_IU_ID;

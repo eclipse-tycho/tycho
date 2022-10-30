@@ -30,7 +30,6 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
-@SuppressWarnings("restriction")
 public class TargetPlatformFilterEvaluator {
 
     private final List<TargetPlatformFilter> filters;
@@ -51,9 +50,9 @@ public class TargetPlatformFilterEvaluator {
 
     /**
      * Applies the filters to the given set. Prints out log messages.
-     * 
+     *
      * TODO "filter" usually returns filtered results, consider different name
-     * 
+     *
      * @param targetPlatformUnits
      *            The set of units to be filtered. Collection is modified by the method.
      */
@@ -163,7 +162,7 @@ public class TargetPlatformFilterEvaluator {
     /**
      * Wraps the given {@link CapabilityPattern} in a new instance with default values filled in and
      * typed version/version range attributes.
-     * 
+     *
      * @param pattern
      *            The pattern to be wrapped.
      * @param defaultValues
@@ -171,7 +170,8 @@ public class TargetPlatformFilterEvaluator {
      *            Background: The action filter can inherit values from the scope filter to allow
      *            shorter notations.
      */
-    private static ParsedCapabilityPattern parsePattern(CapabilityPattern pattern, ParsedCapabilityPattern defaultValues) {
+    private static ParsedCapabilityPattern parsePattern(CapabilityPattern pattern,
+            ParsedCapabilityPattern defaultValues) {
         return new ParsedCapabilityPattern(pattern, defaultValues);
     }
 

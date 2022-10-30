@@ -6,7 +6,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc. - query indexes
@@ -28,7 +28,6 @@ import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
 
 // This class was copied from org.eclipse.equinox.internal.p2.director.QueryableArray
-@SuppressWarnings("restriction")
 public class QueryableCollection extends IndexProvider<IInstallableUnit> {
     private final Collection<IInstallableUnit> dataSet;
     private IIndex<IInstallableUnit> capabilityIndex;

@@ -41,7 +41,6 @@ public class ImmutableInMemoryMetadataRepository implements IMetadataRepository 
         this.units = new QueryableCollection(units);
     }
 
-    @SuppressWarnings("restriction")
     @Override
     public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
         return units.query(query, monitor);

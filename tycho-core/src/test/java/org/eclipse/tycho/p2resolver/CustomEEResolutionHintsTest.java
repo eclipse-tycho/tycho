@@ -30,7 +30,6 @@ import org.eclipse.tycho.core.ee.impl.InvalidEENameException;
 import org.eclipse.tycho.test.util.InstallableUnitUtil;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class CustomEEResolutionHintsTest {
 
     private static final IInstallableUnit CUSTOM_PROFILE_IU = createCandidateIU("a.jre.custom", "1.1.0");

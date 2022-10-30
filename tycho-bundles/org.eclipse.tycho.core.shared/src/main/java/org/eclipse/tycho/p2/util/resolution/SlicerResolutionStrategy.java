@@ -30,7 +30,6 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
-@SuppressWarnings("restriction")
 public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
     private boolean ignoreFilters;
@@ -89,7 +88,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
     public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
             IProgressMonitor monitor) throws ResolverException {
         if (ignoreFilters) {
-            // short cut: properties would ignored for each single resolution, so resolve just once 
+            // short cut: properties would ignored for each single resolution, so resolve just once
             return resolve(Collections.emptyMap(), monitor);
         }
         return super.multiPlatformResolve(environments, monitor);

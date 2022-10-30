@@ -33,7 +33,6 @@ import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class FeatureRootAdvicePermissionsTest {
 
     @Test

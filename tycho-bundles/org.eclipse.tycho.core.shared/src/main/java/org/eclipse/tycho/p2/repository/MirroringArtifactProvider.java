@@ -10,7 +10,7 @@
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
  *    Christoph Läubrich    - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...)
- *                          - Issue #692 - Check Hashsums for local cached artifacts 
+ *                          - Issue #692 - Check Hashsums for local cached artifacts
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
@@ -55,7 +55,7 @@ import org.eclipse.tycho.repository.util.StatusTool;
 /**
  * {@link IRawArtifactFileProvider} which caches all accessed artifacts in the local Maven
  * repository.
- * 
+ *
  * <p>
  * Note that a <tt>MirroringArtifactProvider</tt> is not a transparent cache of the remote
  * providers. The content provided by this instance differs from the remote providers' content in
@@ -82,7 +82,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     /**
      * Creates a new {@link MirroringArtifactProvider} instance.
-     * 
+     *
      * @param localArtifactRepository
      *            The local Maven repository
      * @param remoteProviders
@@ -118,7 +118,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     }
 
     @Override
-    @SuppressWarnings({ "restriction", "unchecked" })
+    @SuppressWarnings({ "unchecked" })
     public final IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
         IQueryable<IArtifactKey>[] sources = new IQueryable[] { localArtifactRepository, remoteProviders };
         return new CompoundQueryable<>(sources).query(query, nonNull(monitor));
@@ -180,7 +180,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     /**
      * Downloads the artifact from remote if it isn't available locally yet.
-     * 
+     *
      * @return <code>false</code> if the artifact is neither already cached locally nor available
      *         remotely.
      * @throws MirroringFailedException

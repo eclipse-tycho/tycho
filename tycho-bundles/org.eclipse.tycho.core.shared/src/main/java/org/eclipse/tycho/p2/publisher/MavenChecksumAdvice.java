@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
-@SuppressWarnings("restriction")
 public class MavenChecksumAdvice implements IPropertyAdvice {
     //We use a fixed list here of default supported ones, actually one can provide a ChecksumAlgorithmFactory to extend the default algorithms
     Map<String, String> mavenExtensions = Map.of(//

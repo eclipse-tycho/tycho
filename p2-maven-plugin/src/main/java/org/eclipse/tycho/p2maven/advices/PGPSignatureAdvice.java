@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
-@SuppressWarnings("restriction")
 public class PGPSignatureAdvice extends AbstractAdvice implements IPropertyAdvice {
     private final String id;
     private final Version version;

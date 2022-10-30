@@ -30,7 +30,6 @@ import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class FeatureRootAdviceTest {
     static final String GLOBAL_SPEC = "";
 

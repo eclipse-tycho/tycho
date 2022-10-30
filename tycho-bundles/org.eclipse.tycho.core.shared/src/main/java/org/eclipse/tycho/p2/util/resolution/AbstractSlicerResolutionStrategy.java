@@ -53,7 +53,6 @@ import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.repository.util.StatusTool;
 
-@SuppressWarnings("restriction")
 abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrategy {
 
     protected AbstractSlicerResolutionStrategy(MavenLogger logger) {

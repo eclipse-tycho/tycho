@@ -46,7 +46,6 @@ import org.eclipse.tycho.repository.publishing.PublishingRepository;
  * Tool for transforming product definition source files into p2 metadata and artifacts. Includes
  * more steps than classic publisher would do, e.g. qualifier expansion.
  */
-@SuppressWarnings("restriction")
 public class PublishProductToolImpl implements PublishProductTool {
 
     private final P2TargetPlatform targetPlatform;

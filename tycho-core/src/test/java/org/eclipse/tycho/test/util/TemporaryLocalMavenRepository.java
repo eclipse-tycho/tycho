@@ -28,7 +28,6 @@ import org.junit.rules.TemporaryFolder;
  * repository directory, or other objects needed for testing an {@link LocalArtifactRepository}
  * instance.
  */
-@SuppressWarnings("restriction")
 public class TemporaryLocalMavenRepository extends ExternalResource {
 
     public LogVerifier logVerifier = new LogVerifier();

@@ -26,7 +26,6 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
-@SuppressWarnings("restriction")
 public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     private final Map<String, String> properties = new LinkedHashMap<>();
@@ -67,7 +66,7 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     @Override
     public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
-        // TODO this is a nasty hack, workaround for Bug 539672 
+        // TODO this is a nasty hack, workaround for Bug 539672
         setDescriptorProperties(descriptor);
         return null;
     }

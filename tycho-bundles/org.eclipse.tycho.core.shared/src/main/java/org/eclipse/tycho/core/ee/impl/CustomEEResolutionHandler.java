@@ -25,7 +25,6 @@ import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
-@SuppressWarnings("restriction")
 class CustomEEResolutionHandler extends ExecutionEnvironmentResolutionHandler {
 
     private ExecutionEnvironmentConfiguration eeConfiguration;

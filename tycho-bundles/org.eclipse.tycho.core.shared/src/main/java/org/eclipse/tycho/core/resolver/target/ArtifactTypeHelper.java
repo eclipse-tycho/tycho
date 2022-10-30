@@ -31,7 +31,6 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 
-@SuppressWarnings("restriction")
 public class ArtifactTypeHelper {
 
     // p2 installable units
@@ -39,7 +38,7 @@ public class ArtifactTypeHelper {
     /**
      * Returns a query matching the installable units representing the specified Eclipse
      * artifact(s).
-     * 
+     *
      * @param type
      *            Eclipse artifact type as defined in Tycho's {@link ArtifactType}
      */

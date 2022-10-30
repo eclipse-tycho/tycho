@@ -49,7 +49,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-@SuppressWarnings("restriction")
 public class PublisherServiceTest extends TychoPlexusTestCase {
 
     private static final String DEFAULT_QUALIFIER = "1.2.3.testqual";

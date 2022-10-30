@@ -31,7 +31,6 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 
-@SuppressWarnings("restriction")
 public class PublisherServiceImpl implements PublisherService {
 
     private final PublisherActionRunner publisherRunner;

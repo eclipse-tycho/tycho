@@ -36,7 +36,6 @@ import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
  * https://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles.htm
  * <br>
  */
-@SuppressWarnings("restriction")
 public class FeatureRootAdvice implements IFeatureRootAdvice {
 
     private final String artifactId;
@@ -79,7 +78,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
      * <li>the location of the feature artifact is absolute and points to the built feature.jar</li>
      * <li>the build output folder is located in a subfolder of the project base directory</li>
      * </ul>
-     * 
+     *
      * @return the project base directory of the given artifact if found under the above
      *         assumptions, otherwise null
      */

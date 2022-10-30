@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
-@SuppressWarnings("restriction")
 public final class CustomEEResolutionHints implements ExecutionEnvironmentResolutionHints {
 
     // primary members

@@ -62,7 +62,6 @@ import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
  * {@link #getComparableDescriptor(IArtifactDescriptor)}</li>
  * </ul>
  */
-@SuppressWarnings("restriction")
 public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IArtifactDescriptor>
         extends AbstractArtifactRepository2 implements IFileArtifactRepository, IRawArtifactFileProvider {
 
@@ -91,11 +90,11 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
      * copying that foreign artifact to this repository with
      * {@link #getOutputStream(IArtifactDescriptor)} would not add a new artifact to this
      * repository.
-     * 
+     *
      * <p>
      * This method may be called by any API method with an {@link IArtifactDescriptor} argument.
      * </p>
-     * 
+     *
      * @param descriptor
      *            An {@link IArtifactDescriptor} from any artifact repository.
      */
@@ -143,12 +142,12 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
      * <code>ArtifactDescriptorT</code> which may be added to the index. Implementations may require
      * that the descriptor argument is a descriptor instance created by this repository &ndash; see
      * {@link #createArtifactDescriptor(IArtifactKey)}.
-     * 
+     *
      * <p>
      * This method is called by methods that add entries to the index, i.e. from
      * {@link #newAddingArtifactSink(IArtifactKey)}.
      * </p>
-     * 
+     *
      * @param descriptor
      *            An {@link IArtifactDescriptor} instance
      * @throws IllegalArgumentException
@@ -205,7 +204,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     /**
      * Persists the index of this repository.
-     * 
+     *
      * <p>
      * This method is called after every (bulk) change to the index.
      * </p>
@@ -221,7 +220,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
      * Returns the file system location where the given artifact is or would be stored. Unlike
      * {@link #getArtifactFile(IArtifactDescriptor)}, this method does not check if the given
      * artifact exists in the repository and never returns <code>null</code>.
-     * 
+     *
      * <p>
      * This method may be called by any API method for reading or writing artifacts.
      * </p>
@@ -253,7 +252,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @deprecated Obsolete. Use {@link #getArtifact(IArtifactSink, IProgressMonitor)} instead.
      */
     @Deprecated
@@ -262,7 +261,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             IProgressMonitor monitor) {
         /*
          * TODO remove this method?
-         * 
+         *
          * The difference of this implementation to overridden implementation is that here, the
          * internal format for getting the artifact (in canonical format) can be selected by the
          * caller. AFAIK, the only use case for this is to implement the retry logic on the outside

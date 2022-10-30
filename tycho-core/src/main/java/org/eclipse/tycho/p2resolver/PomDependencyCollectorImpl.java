@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
- *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
+ *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
@@ -56,7 +56,6 @@ import org.eclipse.tycho.p2.repository.MetadataIO;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.osgi.framework.BundleException;
 
-@SuppressWarnings("restriction")
 public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
     private final TargetPlatformBundlePublisher bundlesPublisher;

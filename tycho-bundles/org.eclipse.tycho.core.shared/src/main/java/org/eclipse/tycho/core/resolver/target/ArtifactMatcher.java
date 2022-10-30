@@ -33,7 +33,6 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 
-@SuppressWarnings("restriction")
 public class ArtifactMatcher {
 
     public static IInstallableUnit resolveReference(String type, String id, VersionRange versionRange,

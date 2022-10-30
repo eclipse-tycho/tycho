@@ -39,7 +39,6 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.repository.util.StatusTool;
 
-@SuppressWarnings("restriction")
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
     /**
      * Internal property to control the maximum number of iterations performed to resolve an
@@ -123,7 +122,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                         }
                     }
                 }
-                // log all transitive requirements which cannot be satisfied; this doesn't print the dependency chain from the seed to the units with missing requirements, so this is less useful than the "explanation" 
+                // log all transitive requirements which cannot be satisfied; this doesn't print the dependency chain from the seed to the units with missing requirements, so this is less useful than the "explanation"
                 logger.debug(StatusTool.collectProblems(s));
                 explainProblems(explanation, MavenLogger::error);
                 throw new ResolverException(

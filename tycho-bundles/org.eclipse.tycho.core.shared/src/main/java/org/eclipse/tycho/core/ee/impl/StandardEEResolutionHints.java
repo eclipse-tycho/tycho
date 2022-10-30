@@ -41,7 +41,6 @@ import org.osgi.framework.Constants;
  * Resolution hints for a standard execution environment, e.g. "CDC-1.0/Foundation-1.0" or
  * "JavaSE-1.7"
  */
-@SuppressWarnings("restriction")
 public final class StandardEEResolutionHints implements ExecutionEnvironmentResolutionHints {
 
     private final Map<VersionedId, IInstallableUnit> additionalUnits;
@@ -72,7 +71,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     /**
      * Return IUs that represent packages provided by target JRE
-     * 
+     *
      * @param executionEnvironment
      */
     private static Map<VersionedId, IInstallableUnit> computeAdditionalUnits(

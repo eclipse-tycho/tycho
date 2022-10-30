@@ -12,8 +12,8 @@
  *    Rapicorp, Inc. - add support for IU type (428310)
  *    Christoph Läubrich - Bug 572481 - Tycho does not understand "additional.bundles" directive in build.properties
  *                       - Issue #82  - Support resolving of non-project IUs in P2Resolver
- *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
- *                       - Issue #626 - Classpath computation must take fragments into account 
+ *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation
+ *                       - Issue #626 - Classpath computation must take fragments into account
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
@@ -83,7 +83,6 @@ import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
-@SuppressWarnings("restriction")
 public class P2ResolverImpl implements P2Resolver {
 
     private final MavenLogger logger;
@@ -501,7 +500,7 @@ public class P2ResolverImpl implements P2Resolver {
     /**
      * Check if the Metadata contains any constraints that forbid the given
      * {@link TargetEnvironment}
-     * 
+     *
      * @param metadata
      * @param environment
      * @return

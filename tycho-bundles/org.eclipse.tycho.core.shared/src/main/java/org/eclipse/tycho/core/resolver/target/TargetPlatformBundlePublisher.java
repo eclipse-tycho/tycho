@@ -45,7 +45,6 @@ import org.eclipse.tycho.p2.resolver.WrappedArtifact;
 import org.eclipse.tycho.repository.util.StatusTool;
 import org.osgi.framework.BundleException;
 
-@SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
 
     private final MavenLogger logger;
@@ -78,7 +77,7 @@ public class TargetPlatformBundlePublisher {
      * adds GAV properties to the generated IU. This is justified by the potential benefits of
      * tracing the origin of artifact.
      * </p>
-     * 
+     *
      * @param mavenArtifact
      *            An artifact in local file system.
      * @return the p2 metadata of the artifact, or <code>null</code> if the artifact isn't a valid

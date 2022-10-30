@@ -32,7 +32,6 @@ import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.publisher.FeatureDependenciesAction;
 import org.eclipse.tycho.p2.repository.QueryableCollection;
 
-@SuppressWarnings("restriction")
 public class DependencyCollector extends AbstractResolutionStrategy {
 
     public DependencyCollector(MavenLogger logger) {

@@ -35,7 +35,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings("restriction")
 public class FeatureDependenciesAction extends AbstractDependenciesAction {
     /**
      * Comma separated list of IInstallableUnit ids that are included (as opposed to required by)

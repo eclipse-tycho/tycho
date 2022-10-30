@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 
-@SuppressWarnings("restriction")
 public final class TestRepositoryContent {
 
     public static final IArtifactKey BUNDLE_A_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.osgi",

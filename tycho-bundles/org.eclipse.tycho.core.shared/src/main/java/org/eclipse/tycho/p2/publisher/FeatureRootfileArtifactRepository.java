@@ -37,7 +37,6 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 
-@SuppressWarnings("restriction")
 public class FeatureRootfileArtifactRepository extends TransientArtifactRepository {
     private final File outputDirectory;
 

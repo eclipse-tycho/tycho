@@ -33,7 +33,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 
-@SuppressWarnings("restriction")
 public class TransientArtifactRepository extends AbstractArtifactRepository {
 
     protected Set<IArtifactDescriptor> descriptors = new LinkedHashSet<>();
