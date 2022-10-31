@@ -71,6 +71,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     private ModelWriter writer;
     private boolean extensionMode;
+    @SuppressWarnings("unused")
     private File multiModuleProjectDirectory;
     private String snapshotFormat;
 

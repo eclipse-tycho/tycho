@@ -41,6 +41,7 @@ public class TychoMirrorSelectorTest {
         RepositorySystem repo = mock(RepositorySystem.class);
         doAnswer(new Answer<Mirror>() {
 
+            @SuppressWarnings("unchecked")
             @Override
             public Mirror answer(InvocationOnMock invocation) throws Throwable {
 

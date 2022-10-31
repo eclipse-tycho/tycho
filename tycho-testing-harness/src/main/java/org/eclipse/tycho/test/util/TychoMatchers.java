@@ -21,17 +21,17 @@ import org.hamcrest.TypeSafeMatcher;
 
 /**
  * Additional {@link Matcher}s for assertions in Tycho's tests.
- * 
+ *
  * @see CoreMatchers
  */
 public class TychoMatchers {
 
     /**
      * Creates a matcher matching any list that contains the given sequence of elements.
-     * 
+     *
      * @see CoreMatchers#hasItem(Matcher)
      */
-    public static <T> Matcher<List<T>> hasSequence(final T... sequence) {
+    public static <T> Matcher<List<T>> hasSequence(@SuppressWarnings("unchecked") final T... sequence) {
         if (sequence.length == 0) {
             throw new IllegalArgumentException();
         }
