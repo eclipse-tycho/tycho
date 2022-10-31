@@ -9,7 +9,7 @@
  *
  * Contributors:
  *    Tobias Oberlies (SAP SE) - initial API and implementation
- *    Christoph Läubrich - Bug 538144 - Support other target locations (Directory, Features, Installations) 
+ *    Christoph Läubrich - Bug 538144 - Support other target locations (Directory, Features, Installations)
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
@@ -380,7 +380,6 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
 
     }
 
-    @SuppressWarnings("serial")
     private static class ArtifactSinkExceptionWrapper extends RuntimeException {
         private final ArtifactSinkException wrappedException;
 
