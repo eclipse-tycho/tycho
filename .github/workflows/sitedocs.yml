@@ -42,7 +42,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-site-
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.4
+      uses: stCarolas/setup-maven@v4.5
       with:
         maven-version: 3.8.6
     - name: Build site-doc
