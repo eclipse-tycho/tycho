@@ -85,6 +85,8 @@ public class OsgiSurefireBooter {
 
     public static int run(String[] args, Properties testProps) throws Exception {
         boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
+        // TODO eventually make use of parameter redirectTestOutputToFile
+        @SuppressWarnings("unused")
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
         String testPlugin = testProps.getProperty("testpluginname");

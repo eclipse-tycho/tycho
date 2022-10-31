@@ -182,7 +182,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * Contains the full list of projects in the reactor.
      */
     @Parameter(property = "reactorProjects", readonly = true)
-    protected List reactorProjects;
+    protected List<MavenProject> reactorProjects;
 
     /**
      * NOT SUPPORTED. Whether creating the archive should be forced. If set to true, the jar will
