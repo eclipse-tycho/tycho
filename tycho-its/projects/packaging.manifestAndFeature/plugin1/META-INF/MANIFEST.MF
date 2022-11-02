@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Example Plugin
+Bundle-SymbolicName: plugin1;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ${vendorName}
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: packaging.manifestAndFeature.plugin1
