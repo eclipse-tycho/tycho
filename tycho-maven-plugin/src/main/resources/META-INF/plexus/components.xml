@@ -137,8 +137,9 @@
               <initialize>
                 org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform
               </initialize>
-              <generate-resources>
-              </generate-resources>
+              <process-resources>
+                org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
+              </process-resources>
               <prepare-package>
                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:update-consumer-pom
               </prepare-package>
