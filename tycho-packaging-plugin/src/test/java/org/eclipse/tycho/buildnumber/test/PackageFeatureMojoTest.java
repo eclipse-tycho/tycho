@@ -42,6 +42,7 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
         setVariableValueToObject(mojo, "project", project);
         setVariableValueToObject(mojo, "session", session);
         setVariableValueToObject(mojo, "finalName", "feature");
+        setVariableValueToObject(mojo, "featureFile", new File(project.getBasedir(), "feature.xml"));
 
         mojo.execute();
 
@@ -87,6 +88,7 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
         PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
         setVariableValueToObject(mojo, "project", project);
         setVariableValueToObject(mojo, "session", session);
+        setVariableValueToObject(mojo, "featureFile", new File(project.getBasedir(), "feature.xml"));
 
         mojo.execute();
 
@@ -109,6 +111,7 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
         PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
         setVariableValueToObject(mojo, "project", project);
         setVariableValueToObject(mojo, "session", session);
+        setVariableValueToObject(mojo, "featureFile", new File(project.getBasedir(), "feature.xml"));
 
         mojo.execute();
 

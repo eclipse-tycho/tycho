@@ -28,6 +28,8 @@ public interface TychoConstants {
     // static final String CTX_TARGET_PLATFORM -> moved to TargetPlatform.FINAL_TARGET_PLATFORM_KEY;
     static final String CTX_DEPENDENCY_ARTIFACTS = CTX_BASENAME + "/dependencyArtifacts";
     static final String CTX_REPOSITORY_REFERENCE = CTX_BASENAME + "/repositoryReference";
+    static final String CTX_METADATA_ARTIFACT_LOCATION = CTX_BASENAME + "/metadataArtifactLocation";
+
     /**
      * Stores test-specific dependencies (usually derived from .classpath)
      */

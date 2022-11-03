@@ -25,6 +25,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.PackagingType;
@@ -40,7 +41,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  * <p>
  * Publishes the category definitions from the <tt>category.xml</tt> in the root of the project.
  * </p>
- * 
+ *
  * @see https://wiki.eclipse.org/Equinox/p2/Publisher
  */
 @Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
@@ -48,6 +49,14 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
+
+    /**
+     * The directory where <code>category.xml</code> files are located.
+     * <p>
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}")
+    private File categoriesDirectory;
 
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
@@ -57,7 +66,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
         try {
             List<DependencySeed> categoryIUs = new ArrayList<>();
-            for (Category category : getCategories()) {
+            for (Category category : getCategories(categoriesDirectory)) {
                 final File buildCategoryFile = prepareBuildCategory(category, getBuildDirectory());
 
                 Collection<DependencySeed> ius = publisherService.publishCategories(buildCategoryFile);
@@ -100,7 +109,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
         }
     }
 
-    private List<Category> getCategories() {
-        return eclipseRepositoryProject.loadCategories(getReactorProject());
+    private List<Category> getCategories(final File categoriesDirectory) {
+        return eclipseRepositoryProject.loadCategories(categoriesDirectory);
     }
 }
