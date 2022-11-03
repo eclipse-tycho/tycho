@@ -82,6 +82,14 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
 
+    /**
+     * The directory where <code>.product</code> files are located.
+     * <p>
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}")
+    private File productsDirectory;
+
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
@@ -90,7 +98,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 getEnvironments(), getQualifier(), interpolator);
 
         List<DependencySeed> seeds = new ArrayList<>();
-        for (File productFile : eclipseRepositoryProject.getProductFiles(getReactorProject())) {
+        for (File productFile : eclipseRepositoryProject.getProductFiles(productsDirectory)) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
                 if (productConfiguration.getId() == null || productConfiguration.getId().isEmpty()) {

@@ -17,6 +17,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.PackagingType;
 
 /**
@@ -24,10 +25,15 @@ import org.eclipse.tycho.PackagingType;
  */
 @Mojo(name = "validate-id", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class ValidateIdMojo extends AbstractVersionMojo {
+    /**
+     * Whether to skip the project's artifact ID validation against the OSGi ID.
+     */
+    @Parameter
+    private boolean skip;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (!project.getArtifactId().equals(getOSGiId())) {
+        if (!skip && !project.getArtifactId().equals(getOSGiId())) {
             failBuildDueToIdMismatch();
         }
     }

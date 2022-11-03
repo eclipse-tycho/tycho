@@ -46,6 +46,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 
+import static org.eclipse.tycho.model.Feature.FEATURE_XML;
+
 @Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     private static final Object LOCK = new Object();
@@ -87,6 +89,14 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     private File basedir;
 
     /**
+     * The path to the <code>feature.xml</code> file.
+     * <p>
+     * Defaults to the <code>feature.xml</code> under the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}/" + FEATURE_XML)
+    private File featureFile;
+
+    /**
      * Name of the generated JAR.
      */
     @Parameter(property = "project.build.finalName", alias = "jarName", required = true)
@@ -113,13 +123,23 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         synchronized (LOCK) {
             outputDirectory.mkdirs();
 
-            Feature feature = Feature.loadFeature(basedir);
+            if (!featureFile.isFile()) {
+                throw new MojoExecutionException("The featureFile parameter must represent a valid file");
+            }
+
+            Feature feature;
+
+            try {
+                feature = Feature.read(featureFile);
+            } catch (final IOException e) {
+                throw new MojoExecutionException("Error reading " + featureFile, e);
+            }
 
             File licenseFeature = licenseFeatureHelper.getLicenseFeature(feature, project);
 
             updateLicenseProperties(feature, licenseFeature);
 
-            File featureXml = new File(outputDirectory, Feature.FEATURE_XML);
+            File featureXml = new File(outputDirectory, FEATURE_XML);
             try {
                 expandVersionQualifiers(feature);
                 Feature.write(feature, featureXml);
@@ -147,7 +167,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
                     archiver.getArchiver()
                             .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
                 }
-                archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
+                archiver.getArchiver().addFile(featureXml, FEATURE_XML);
                 if (featureProperties != null) {
                     archiver.getArchiver().addFile(featureProperties, FEATURE_PROPERTIES);
                 }
@@ -235,7 +255,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
      */
     private FileSet getManuallyIncludedFiles(BuildProperties buildProperties) {
         List<String> binExcludes = new ArrayList<>(buildProperties.getBinExcludes());
-        binExcludes.add(Feature.FEATURE_XML); // we'll include updated feature.xml
+        binExcludes.add(FEATURE_XML); // we'll include updated feature.xml
         binExcludes.add(FEATURE_PROPERTIES); // we'll include updated feature.properties
         return getFileSet(basedir, buildProperties.getBinIncludes(), binExcludes);
     }

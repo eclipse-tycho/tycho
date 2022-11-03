@@ -120,6 +120,14 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private String repositoryName;
 
     /**
+     * The directory where <code>category.xml</code> files are located.
+     * <p>
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}")
+    private File categoriesDirectory;
+
+    /**
      * <p>
      * Additional properties against which p2 filters are evaluated while aggregating.
      * </p>
@@ -159,7 +167,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
                 MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
 
-                List<RepositoryReference> repositoryRefrences = getCategories().stream()//
+                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory)
+                        .stream()//
                         .map(Category::getRepositoryReferences)//
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
@@ -167,7 +176,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
-                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryRefrences);
+                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                         includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
             } catch (FacadeException e) {
@@ -193,8 +202,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
     }
 
-    private List<Category> getCategories() {
-        return eclipseRepositoryProject.loadCategories(getReactorProject());
+    private List<Category> getCategories(final File categoriesDirectory) {
+        return eclipseRepositoryProject.loadCategories(categoriesDirectory);
     }
 
 }
