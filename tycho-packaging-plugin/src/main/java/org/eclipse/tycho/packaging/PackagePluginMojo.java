@@ -317,10 +317,19 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	}
 
 	protected Manifest getManifest() throws IOException, MojoExecutionException {
+		// If the user explicitly set a MANIFEST file in the archive configuration,
+		// read and update that one instead of looking under the source files
+		final File archiveManifestFile = archive.getManifestFile();
+		final File manifestFile = archiveManifestFile != null
+				? archiveManifestFile
+				: new File(project.getBasedir(), "META-INF/MANIFEST.MF");
+
 		Manifest mf;
-		try (InputStream is = new FileInputStream(new File(project.getBasedir(), "META-INF/MANIFEST.MF"))) {
+
+		try (final InputStream is = new FileInputStream(manifestFile)) {
 			mf = new Manifest(is);
 		}
+
 		Attributes attributes = mf.getMainAttributes();
 
 		if (attributes.getValue(Name.MANIFEST_VERSION) == null) {

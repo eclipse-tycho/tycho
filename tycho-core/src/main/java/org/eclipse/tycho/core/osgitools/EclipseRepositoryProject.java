@@ -72,19 +72,31 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
 
     /**
      * Parses the category configuration files
-     * 
-     * @param project
-     * @return
+     *
+     * @param project the project containing the category files
+     * @return the parsed category configurations
      */
     public List<Category> loadCategories(final ReactorProject project) {
-        List<Category> categories = new ArrayList<>();
-        for (File file : getCategoryFiles(project)) {
+        return loadCategories(project.getBasedir());
+    }
+
+    /**
+     * Parses the category configuration files
+     *
+     * @param categoriesDirectory the directory where the category files are stored
+     * @return the parsed category configurations
+     */
+    public List<Category> loadCategories(final File categoriesDirectory) {
+        final List<Category> categories = new ArrayList<>();
+
+        for (final File file : getCategoryFiles(categoriesDirectory)) {
             try {
                 categories.add(Category.read(file));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException("Could not read product configuration file " + file.getAbsolutePath(), e);
             }
         }
+
         return categories;
     }
 
@@ -106,30 +118,45 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
         return products;
     }
 
-    private List<File> getCategoryFiles(ReactorProject project) {
-        List<File> res = new ArrayList<>();
-        File categoryFile = new File(project.getBasedir(), "category.xml");
+    private List<File> getCategoryFiles(final File basedir) {
+        final List<File> files = new ArrayList<>();
+        final File categoryFile = new File(basedir, "category.xml");
+
         if (categoryFile.exists()) {
-            res.add(categoryFile);
+            files.add(categoryFile);
         }
-        return res;
+
+        return files;
     }
 
     /**
-     * Looks for all files at the base of the project that extension is ".product" Duplicated in the
-     * P2GeneratorImpl
-     * 
-     * @param project
+     * Looks for all files at the base of the project that extension is ".product"
+     * Duplicated in the P2GeneratorImpl
+     *
+     * @param project the project containing the product files
      * @return The list of product files to parse for an eclipse-repository project
      */
-    public List<File> getProductFiles(ReactorProject project) {
-        File projectLocation = project.getBasedir();
-        List<File> res = new ArrayList<>();
-        for (File f : projectLocation.listFiles()) {
-            if (f.isFile() && f.getName().endsWith(".product") && !f.getName().startsWith(".polyglot")) {
-                res.add(f);
+    public List<File> getProductFiles(final ReactorProject project) {
+        final File projectLocation = project.getBasedir();
+        return getProductFiles(projectLocation);
+    }
+
+    /**
+     * Looks for all files with the extension ".product" under a specific directory.
+     *
+     * @param basedir the directory containing the product files
+     * @return The list of product files to parse for an eclipse-repository project
+     */
+    public List<File> getProductFiles(final File basedir) {
+        final List<File> files = new ArrayList<>();
+
+        // noinspection ConstantConditions
+        for (final File file : basedir.listFiles()) {
+            if (file.isFile() && file.getName().endsWith(".product") && !file.getName().startsWith(".polyglot")) {
+                files.add(file);
             }
         }
-        return res;
+
+        return files;
     }
 }

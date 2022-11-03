@@ -21,10 +21,7 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.*;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -74,6 +71,14 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
 
+    /**
+     * The directory where <code>.product</code> files are located.
+     * <p>
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}")
+    private File productsDirectory;
+
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
@@ -82,7 +87,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 getEnvironments(), getQualifier(), interpolator);
 
         List<DependencySeed> seeds = new ArrayList<>();
-        for (File productFile : eclipseRepositoryProject.getProductFiles(getReactorProject())) {
+        for (final File productFile : eclipseRepositoryProject.getProductFiles(productsDirectory)) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
                 if (productConfiguration.getId() == null || productConfiguration.getId().isEmpty()) {

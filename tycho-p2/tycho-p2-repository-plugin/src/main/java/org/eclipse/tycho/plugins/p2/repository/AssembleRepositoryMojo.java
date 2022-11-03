@@ -24,8 +24,10 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -164,6 +166,14 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private String repositoryName;
 
     /**
+     * The directory where <code>category.xml</code> files are located.
+     * <p>
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}")
+    private File categoriesDirectory;
+
+    /**
      * <p>
      * Additional properties against which p2 filters are evaluated while aggregating.
      * </p>
@@ -177,7 +187,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component()
+    @Component
     MirrorApplicationService mirrorApp;
 
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
@@ -197,10 +207,13 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                     return;
                 }
 
-                RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(),
+                final MavenProject project = getProject();
+                project.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
+                RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(project,
                         getSession(), RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
 
-                List<RepositoryReference> repositoryRefrences = getCategories().stream()//
+                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory)
+                        .stream()//
                         .map(Category::getRepositoryReferences)//
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
@@ -208,7 +221,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
-                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryRefrences);
+                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                         includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
                         profileProperties);
@@ -230,8 +243,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         }
     }
 
-    private List<Category> getCategories() {
-        return eclipseRepositoryProject.loadCategories(getReactorProject());
+    private List<Category> getCategories(final File categoriesDirectory) {
+        return eclipseRepositoryProject.loadCategories(categoriesDirectory);
     }
 
 }
