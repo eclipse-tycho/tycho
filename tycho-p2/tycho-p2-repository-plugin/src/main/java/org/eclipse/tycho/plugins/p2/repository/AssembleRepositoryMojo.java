@@ -29,6 +29,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
@@ -160,6 +161,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                     throw new MojoFailureException("No content specified for p2 repository");
                 }
 
+                getProject().setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
                 RepositoryReferences sources = getVisibleRepositories();
 
                 TargetPlatformConfiguration configuration = TychoProjectUtils
@@ -167,8 +169,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
                 MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
 
-                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory)
-                        .stream()//
+                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory).stream()//
                         .map(Category::getRepositoryReferences)//
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
