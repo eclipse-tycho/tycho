@@ -14,6 +14,7 @@ package org.eclipse.tycho.targetplatform;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
@@ -32,7 +33,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 @Component(role = TargetPlatformArtifactResolver.class)
 public class TargetPlatformArtifactResolver {
 
-	private static final String TARGET_TYPE = "target";
+	public static final String TARGET_TYPE = "target";
 
     @Requirement
     private RepositorySystem repositorySystem;
@@ -53,39 +54,10 @@ public class TargetPlatformArtifactResolver {
     public File resolveTargetFile(String groupId, String artifactId, String version, String classifier,
 			MavenSession session, List<ArtifactRepository> remoteRepositories) throws TargetResolveException {
         //check if target is part of reactor-build
-        for (MavenProject project : session.getProjects()) {
-            if (groupId.equals(project.getGroupId()) && artifactId.equals(project.getArtifactId())
-                    && version.equals(project.getVersion())) {
-                if (classifier == null) {
-                    File[] targetFiles = TargetDefinitionFile
-                            .listTargetFiles(project.getBasedir());
-					if (targetFiles == null || targetFiles.length == 0) {
-						throw new TargetResolveException(
-								"No target definition file(s) found in project '" + project.getName() + "'.");
-					}
-					if (targetFiles.length == 1) {
-						return targetFiles[0];
-					}
-                    for (File targetFile : targetFiles) {
-						String baseName = FilenameUtils.getBaseName(targetFile.getName());
-						if (baseName.equalsIgnoreCase(project.getArtifactId())) {
-                            return targetFile;
-                        }
-                    }
-					throw new TargetResolveException("One target file must be named  '" + project.getArtifactId()
-							+ TargetDefinitionFile.FILE_EXTENSION + "' when multiple targets are present");
-                } else {
-                    File target = new File(project.getBasedir(),
-                            classifier + TargetDefinitionFile.FILE_EXTENSION);
-                    if (TargetDefinitionFile.isTargetFile(target)) {
-                        return target;
-                    } else {
-						throw new TargetResolveException("target definition file '" + target
-                                + "' not found in project '" + project.getName() + "'.");
-                    }
-                }
-            }
-        }
+		Optional<File> reactorTargetFile = getReactorTargetFile(groupId, artifactId, version, classifier, session);
+		if (reactorTargetFile.isPresent()) {
+			return reactorTargetFile.get();
+		}
         // resolve using maven
 		Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, TARGET_TYPE,
 				classifier);
@@ -101,5 +73,55 @@ public class TargetPlatformArtifactResolver {
         }
 		throw new TargetResolveException("Could not resolve target platform specification artifact " + artifact);
     }
+
+	/**
+	 * Lookup a given target artifact in the current reactor
+	 * 
+	 * @param groupId
+	 * @param artifactId
+	 * @param version
+	 * @param classifier
+	 * @param session
+	 * @return an empty optional if no reactor project matches or an optional
+	 *         describing the local file of this target artifact in the reactor
+	 * @throws TargetResolveException
+	 */
+	public Optional<File> getReactorTargetFile(String groupId, String artifactId, String version, String classifier,
+			MavenSession session) throws TargetResolveException {
+		for (MavenProject project : session.getProjects()) {
+            if (groupId.equals(project.getGroupId()) && artifactId.equals(project.getArtifactId())
+                    && version.equals(project.getVersion())) {
+				if (classifier == null || classifier.isBlank()) {
+                    File[] targetFiles = TargetDefinitionFile
+                            .listTargetFiles(project.getBasedir());
+					if (targetFiles == null || targetFiles.length == 0) {
+						throw new TargetResolveException(
+								"No target definition file(s) found in project '" + project.getName() + "'.");
+					}
+					if (targetFiles.length == 1) {
+						return Optional.of(targetFiles[0]);
+					}
+                    for (File targetFile : targetFiles) {
+						String baseName = FilenameUtils.getBaseName(targetFile.getName());
+						if (baseName.equalsIgnoreCase(project.getArtifactId())) {
+							return Optional.of(targetFile);
+                        }
+                    }
+					throw new TargetResolveException("One target file must be named  '" + project.getArtifactId()
+							+ TargetDefinitionFile.FILE_EXTENSION + "' when multiple targets are present");
+                } else {
+                    File target = new File(project.getBasedir(),
+                            classifier + TargetDefinitionFile.FILE_EXTENSION);
+                    if (TargetDefinitionFile.isTargetFile(target)) {
+						return Optional.of(target);
+                    } else {
+						throw new TargetResolveException("target definition file '" + target
+                                + "' not found in project '" + project.getName() + "'.");
+                    }
+                }
+            }
+        }
+		return Optional.empty();
+	}
 
 }
