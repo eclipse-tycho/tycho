@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.IArtifactFacade;
 
 public final class MavenArtifactFacade implements IArtifactFacade {
 

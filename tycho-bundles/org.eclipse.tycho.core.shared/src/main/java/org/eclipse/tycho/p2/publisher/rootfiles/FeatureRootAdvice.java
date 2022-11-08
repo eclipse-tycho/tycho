@@ -26,9 +26,9 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 
 /**

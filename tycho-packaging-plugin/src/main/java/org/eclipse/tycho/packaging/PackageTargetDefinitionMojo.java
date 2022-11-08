@@ -26,6 +26,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 /**
  * Registers all target definition files in the basedir of a project as maven artifact.
@@ -42,7 +43,7 @@ public class PackageTargetDefinitionMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File[] targetFiles = DefaultTargetPlatformConfigurationReader.listTargetFiles(project.getBasedir());
+        File[] targetFiles = TargetDefinitionFile.listTargetFiles(project.getBasedir());
         for (File targetFile : targetFiles) {
             if (DefaultTargetPlatformConfigurationReader.isPrimaryTarget(project, targetFile, targetFiles)) {
                 project.getArtifact().setFile(targetFile);

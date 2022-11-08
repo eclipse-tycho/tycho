@@ -37,12 +37,12 @@ import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.repository.util.StatusTool;
 

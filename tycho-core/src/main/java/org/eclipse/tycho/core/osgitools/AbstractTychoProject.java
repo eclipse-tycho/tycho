@@ -28,7 +28,7 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.targetplatform.TargetDefinition;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
 

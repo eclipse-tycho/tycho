@@ -38,9 +38,9 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
-import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 

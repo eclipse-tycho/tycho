@@ -39,11 +39,6 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
@@ -52,6 +47,11 @@ import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.p2.util.resolution.SlicerResolutionStrategy;
 import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
+import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
+import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
+import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
 
 public class InstallableUnitResolver {
 

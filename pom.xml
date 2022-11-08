@@ -493,6 +493,7 @@
 		<module>tycho-extras</module>
 		<module>tycho-build</module>
 		<module>tycho-apitools-plugin</module>
+		<module>tycho-targetplatform</module>
 	</modules>
 
 	<profiles>

@@ -31,7 +31,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 public class TargetPlatformConfiguration implements DependencyResolverConfiguration {
 

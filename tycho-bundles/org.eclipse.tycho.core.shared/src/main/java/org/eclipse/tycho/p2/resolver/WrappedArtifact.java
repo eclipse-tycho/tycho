@@ -20,8 +20,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.jar.Manifest;
 
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.ArtifactFacadeProxy;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 import aQute.bnd.osgi.Analyzer;
 import aQute.bnd.osgi.Jar;

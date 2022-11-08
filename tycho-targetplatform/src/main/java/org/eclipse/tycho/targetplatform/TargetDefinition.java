@@ -16,15 +16,15 @@
  *                          [Issue 194]  - Support additional repositories defined in the maven-target location
  *                          [Issue 401]  - Support nested targets
  *******************************************************************************/
-package org.eclipse.tycho.p2.target.facade;
+package org.eclipse.tycho.targetplatform;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.w3c.dom.Element;
 
 // TODO javadoc

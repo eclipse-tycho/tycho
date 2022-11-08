@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.tycho.IArtifactFacade;
+
 public interface P2Generator {
     /**
      * @param artifacts

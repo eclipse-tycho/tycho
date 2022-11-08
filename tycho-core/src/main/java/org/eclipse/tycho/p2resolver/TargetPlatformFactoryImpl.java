@@ -46,6 +46,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
@@ -62,7 +63,6 @@ import org.eclipse.tycho.core.resolver.target.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.repository.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
@@ -76,13 +76,13 @@ import org.eclipse.tycho.p2.repository.MirroringArtifactProvider;
 import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
+import org.eclipse.tycho.targetplatform.TargetDefinition;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 

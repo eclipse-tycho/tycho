@@ -22,9 +22,9 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 public class MavenPropertiesAdvice implements IPropertyAdvice {
 

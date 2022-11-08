@@ -28,7 +28,7 @@ import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
 import org.eclipse.tycho.p2.repository.LazyArtifactRepository;
 import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 
 public class URITargetDefinitionContent implements TargetDefinitionContent {
 

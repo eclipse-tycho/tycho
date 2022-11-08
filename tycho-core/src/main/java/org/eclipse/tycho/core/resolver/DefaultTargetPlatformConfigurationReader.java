@@ -21,16 +21,14 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -47,6 +45,9 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
+import org.eclipse.tycho.targetplatform.TargetResolveException;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {
@@ -67,19 +68,17 @@ public class DefaultTargetPlatformConfigurationReader {
     private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
     private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
     private static final String OPTIONAL_RESOLUTION_OPTIONAL = "optional";
-    private static final String FILE_EXTENSION = ".target";
-
     @Requirement
     private Logger logger;
-
-    @Requirement
-    private RepositorySystem repositorySystem;
 
     @Requirement
     private Map<String, TychoProject> projectTypes;
 
     @Requirement
     private TargetPlatformFilterConfigurationReader filterReader;
+
+    @Requirement
+    private TargetPlatformArtifactResolver platformArtifactResolver;
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project)
             throws BuildFailureException {
@@ -374,7 +373,7 @@ public class DefaultTargetPlatformConfigurationReader {
             for (Xpp3Dom fileDom : fileDomArray) {
                 String file = fileDom.getValue();
                 File target = basedir.resolve(file).toFile();
-                if (isTargetFile(target)) {
+                if (TargetDefinitionFile.isTargetFile(target)) {
                     result.addTarget(target);
                     return;
                 } else {
@@ -412,48 +411,13 @@ public class DefaultTargetPlatformConfigurationReader {
         String artifactId = artifactIdDom.getValue();
         String version = versionDom.getValue();
         String classifier = classifierDom != null ? classifierDom.getValue() : null;
-
-        //check if target is part of reactor-build
-        for (MavenProject otherProject : session.getProjects()) {
-            if (groupId.equals(otherProject.getGroupId()) && artifactId.equals(otherProject.getArtifactId())
-                    && version.equals(otherProject.getVersion())) {
-                if (classifier == null) {
-                    File[] targetFiles = listTargetFiles(otherProject.getBasedir());
-                    for (File targetFile : targetFiles) {
-                        if (isPrimaryTarget(otherProject, targetFile, targetFiles)) {
-                            result.addTarget(targetFile);
-                            return;
-                        }
-                    }
-                    throwNoPrimaryTargetFound(otherProject, targetFiles);
-                } else {
-                    File target = new File(otherProject.getBasedir(), classifier + FILE_EXTENSION);
-                    if (isTargetFile(target)) {
-                        result.addTarget(target);
-                        return;
-                    } else {
-                        throw new MojoExecutionException("target definition file '" + target
-                                + "' not found in project '" + project.getName() + "'.");
-                    }
-                }
-            }
+        try {
+            result.addTarget(platformArtifactResolver.resolveTargetFile(groupId, artifactId, version, classifier,
+                    session, project.getRemoteArtifactRepositories()));
+        } catch (TargetResolveException e) {
+            throw new MojoExecutionException("resolve target artifact " + groupId + ":" + artifactId + ":" + version
+                    + ":" + Objects.requireNonNullElse(classifier, "no classifier") + " failed!", e);
         }
-        // resolve using maven
-
-        Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, TARGET,
-                classifier);
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request.setArtifact(artifact);
-        request.setLocalRepository(session.getLocalRepository());
-        request.setRemoteRepositories(project.getRemoteArtifactRepositories());
-        repositorySystem.resolve(request);
-
-        if (artifact.isResolved()) {
-            result.addTarget(artifact.getFile());
-            return;
-        }
-        throw new RuntimeException("Could not resolve target platform specification artifact " + artifact);
-
     }
 
     private void setTargetPlatformResolver(TargetPlatformConfiguration result, Xpp3Dom configuration) {
@@ -535,34 +499,6 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     /**
-     * List all target files in the given folder
-     * 
-     * @param folder
-     * @return the found target files or empty array if nothing was found, folder is not a directory
-     *         or the directory could not be read
-     */
-    public static File[] listTargetFiles(File folder) {
-        if (folder.isDirectory()) {
-            File[] targetFiles = folder.listFiles(DefaultTargetPlatformConfigurationReader::isTargetFile);
-            if (targetFiles != null) {
-                return targetFiles;
-            }
-        }
-        return new File[0];
-    }
-
-    /**
-     * 
-     * @param file
-     * @return <code>true</code> if the given files likely denotes are targetfile based on file
-     *         naming, <code>false</code> otherwise
-     */
-    public static boolean isTargetFile(File file) {
-        return file != null && file.isFile() && file.getName().toLowerCase().endsWith(FILE_EXTENSION)
-                && !file.getName().startsWith(".polyglot.");
-    }
-
-    /**
      * Checks if the given target file is the "primary" target artifact file among others
      * 
      * @param project
@@ -575,10 +511,10 @@ public class DefaultTargetPlatformConfigurationReader {
      */
     public static boolean isPrimaryTarget(MavenProject project, File targetFile, File[] otherTargetFiles) {
         if (otherTargetFiles != null && otherTargetFiles.length == 1) {
-            return isTargetFile(otherTargetFiles[0]);
+            return TargetDefinitionFile.isTargetFile(otherTargetFiles[0]);
         }
         String name = targetFile.getName();
-        if (name.toLowerCase().endsWith(FILE_EXTENSION)) {
+        if (name.toLowerCase().endsWith(TargetDefinitionFile.FILE_EXTENSION)) {
             String baseName = FilenameUtils.getBaseName(name);
             if (baseName.equalsIgnoreCase(project.getArtifactId())) {
                 return true;
@@ -593,8 +529,8 @@ public class DefaultTargetPlatformConfigurationReader {
             throw new MojoExecutionException(
                     "No target definition file(s) found in project '" + project.getName() + "'.");
         }
-        throw new MojoExecutionException("One target file must be named  '" + project.getArtifactId() + FILE_EXTENSION
-                + "' when multiple targets are present");
+        throw new MojoExecutionException("One target file must be named  '" + project.getArtifactId()
+                + TargetDefinitionFile.FILE_EXTENSION + "' when multiple targets are present");
     }
 
 }

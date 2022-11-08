@@ -25,20 +25,20 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
-import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
+import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 
 @Component(role = ReactorRepositoryManager.class)
 public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager, Disposable {
