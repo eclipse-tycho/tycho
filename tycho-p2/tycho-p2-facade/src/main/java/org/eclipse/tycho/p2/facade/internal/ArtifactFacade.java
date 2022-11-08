@@ -17,7 +17,7 @@ import java.io.File;
 import java.util.Objects;
 
 import org.apache.maven.artifact.Artifact;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.IArtifactFacade;
 
 public final class ArtifactFacade implements IArtifactFacade {
 

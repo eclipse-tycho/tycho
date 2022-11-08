@@ -11,7 +11,7 @@
  *     SAP AG - initial API and implementation
  *     Christoph Läubrich - enhance Javadoc
  *******************************************************************************/
-package org.eclipse.tycho.p2.metadata;
+package org.eclipse.tycho;
 
 import java.io.File;
 import java.util.Collections;

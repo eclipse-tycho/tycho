@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.target.facade;
+package org.eclipse.tycho.targetplatform;
 
 public class TargetDefinitionSyntaxException extends RuntimeException {
 

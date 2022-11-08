@@ -17,7 +17,7 @@ package org.eclipse.tycho.p2.target.facade;
 import java.util.Map;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.IArtifactFacade;
 
 /**
  * Object that allows to collect POM dependency artifacts and their p2 metadata.

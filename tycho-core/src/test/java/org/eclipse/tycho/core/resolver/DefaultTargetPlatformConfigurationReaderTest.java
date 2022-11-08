@@ -85,10 +85,20 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         MavenSession session = setupMockSession();
         TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
         try {
-            configurationReader.addTargetArtifact(configuration, session, null, dom);
+            configurationReader.addTargetArtifact(configuration, session, new MavenProject(), dom);
         } catch (MojoExecutionException e) {
-            assertTrue(e.getMessage().contains("No target definition file(s) found in project"));
+            assertMessageContains(e, "No target definition file(s) found in project");
         }
+    }
+
+    private void assertMessageContains(Throwable throwable, String string) {
+        if (throwable == null) {
+            fail("Message " + string + " was not found in the exception stack!");
+        }
+        if (throwable.getMessage().contains(string)) {
+            return;
+        }
+        assertMessageContains(throwable.getCause(), string);
     }
 
     @Test

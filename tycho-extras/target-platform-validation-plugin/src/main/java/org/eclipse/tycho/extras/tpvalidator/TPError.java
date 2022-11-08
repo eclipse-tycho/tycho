@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 
 public class TPError extends Exception {
 

@@ -18,7 +18,7 @@
  *                          - [Issue 194]  - Support additional repositories defined in the maven-target location
  *                          - [Issue 401]  - Support nested targets
  *******************************************************************************/
-package org.eclipse.tycho.p2.target.facade;
+package org.eclipse.tycho.targetplatform;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -48,10 +48,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation.DependencyDepth;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.MavenGAVLocation.MissingManifestStrategy;
+import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.MavenArtifactRepositoryReference;
+import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.DependencyDepth;
+import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.MissingManifestStrategy;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,6 +70,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private boolean hasIncludeBundles;
 
     private String targetEE;
+	public static final String FILE_EXTENSION = ".target";
 
     private abstract static class AbstractPathLocation implements TargetDefinition.PathLocation {
         private String path;
@@ -186,7 +187,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
             this.featureTemplate = featureTemplate == null ? null : (Element) featureTemplate.cloneNode(true);
         }
 
-        public Collection<String> getIncludeDependencyScopes() {
+        @Override
+		public Collection<String> getIncludeDependencyScopes() {
             return includeDependencyScopes;
         }
 
@@ -532,7 +534,36 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return "TargetDefinitionFile[" + origin + "]";
     }
 
-    private static List<? extends TargetDefinition.Location> parseLocations(Element dom) {
+    /**
+	 * List all target files in the given folder
+	 * 
+	 * @param folder
+	 * @return the found target files or empty array if nothing was found, folder is not a directory
+	 *         or the directory could not be read
+	 */
+	public static File[] listTargetFiles(File folder) {
+	    if (folder.isDirectory()) {
+	        File[] targetFiles = folder.listFiles(TargetDefinitionFile::isTargetFile);
+	        if (targetFiles != null) {
+	            return targetFiles;
+	        }
+	    }
+	    return new File[0];
+	}
+
+	/**
+	 * 
+	 * @param file
+	 * @return <code>true</code> if the given files likely denotes are targetfile based on file
+	 *         naming, <code>false</code> otherwise
+	 */
+	public static boolean isTargetFile(File file) {
+		return file != null && file.isFile()
+				&& file.getName().toLowerCase().endsWith(TargetDefinitionFile.FILE_EXTENSION)
+	            && !file.getName().startsWith(".polyglot.");
+	}
+
+	private static List<? extends TargetDefinition.Location> parseLocations(Element dom) {
         ArrayList<TargetDefinition.Location> locations = new ArrayList<>();
         Element locationsDom = getChild(dom, "locations");
         if (locationsDom != null) {

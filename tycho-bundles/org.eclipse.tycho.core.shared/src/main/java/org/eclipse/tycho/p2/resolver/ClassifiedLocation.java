@@ -15,7 +15,7 @@ package org.eclipse.tycho.p2.resolver;
 import java.io.File;
 import java.util.Objects;
 
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.IArtifactFacade;
 
 public class ClassifiedLocation {
     public final File location;

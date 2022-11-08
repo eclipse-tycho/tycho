@@ -16,6 +16,8 @@ package org.eclipse.tycho.p2.metadata;
 import java.io.File;
 import java.util.Objects;
 
+import org.eclipse.tycho.IArtifactFacade;
+
 /**
  * Abstract proxy class for implementors who wish to modify some aspects of a facade. implementor
  * should consider the following:

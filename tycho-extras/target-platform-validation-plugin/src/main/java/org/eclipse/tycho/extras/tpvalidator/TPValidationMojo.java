@@ -43,14 +43,14 @@ import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
+import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
+import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
 
 /**
  * Validates that specified target platforms (.target files) contents can be resolved.
@@ -126,7 +126,7 @@ public class TPValidationMojo extends AbstractMojo {
             targetFilesToValidate = this.targetFiles;
         } else if (this.project != null
                 && PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION.equals(this.project.getPackaging())) {
-            File[] targetFiles = DefaultTargetPlatformConfigurationReader.listTargetFiles(project.getBasedir());
+            File[] targetFiles = TargetDefinitionFile.listTargetFiles(project.getBasedir());
             Optional<File> primaryTarget = Arrays.stream(targetFiles)
                     .filter(targetFile -> DefaultTargetPlatformConfigurationReader.isPrimaryTarget(project, targetFile,
                             targetFiles))

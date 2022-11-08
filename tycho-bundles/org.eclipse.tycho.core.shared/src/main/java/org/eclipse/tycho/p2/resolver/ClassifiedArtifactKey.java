@@ -16,7 +16,7 @@ import java.util.Objects;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.IArtifactFacade;
 
 public class ClassifiedArtifactKey {
     public final ArtifactKey artifactKey;

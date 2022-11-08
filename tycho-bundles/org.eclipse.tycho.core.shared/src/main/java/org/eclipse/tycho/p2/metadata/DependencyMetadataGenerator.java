@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2.metadata;
 
 import java.util.List;
 
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;

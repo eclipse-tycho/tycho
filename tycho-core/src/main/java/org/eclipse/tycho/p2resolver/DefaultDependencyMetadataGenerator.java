@@ -16,10 +16,10 @@ import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 
