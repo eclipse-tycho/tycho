@@ -30,6 +30,7 @@ jobs:
         java-version: |
             8
             11
+            19
             17
         distribution: 'temurin'
     - name: Cache local Maven repository
