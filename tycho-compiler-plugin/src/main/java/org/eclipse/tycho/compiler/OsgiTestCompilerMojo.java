@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -86,6 +87,11 @@ public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         return getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project));
+    }
+
+    @Override
+    protected String getDependencyScope() {
+        return Artifact.SCOPE_TEST;
     }
 
 }

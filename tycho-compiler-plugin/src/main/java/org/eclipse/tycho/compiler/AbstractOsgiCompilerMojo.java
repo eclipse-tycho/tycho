@@ -40,6 +40,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -87,6 +88,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
+import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
 import org.osgi.framework.Constants;
@@ -255,6 +257,23 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      */
     @Parameter(defaultValue = "true")
     private boolean deriveReleaseCompilerArgumentFromTargetLevel = true;
+
+    /**
+     * Controls how additional pom dependencies are handled that are not used in the dependency
+     * computation of the bundle. This can be used to have compile only dependencies, e.g.
+     * annotations that are only have class or source retention.
+     * 
+     * Possible values are:
+     * <ul>
+     * <li>consider (default) - pom dependencies not used already are added to the compile class
+     * path</li>
+     * <li>ignore - pom dependencies not used already are ignored</li>
+     * <li>wrapAsBundle - currently not used (but for future enhancements) treated as if 'consider'
+     * was given</li>
+     * </ul>
+     */
+    @Parameter(defaultValue = "consider")
+    private PomDependencies pomOnlyDependencies = PomDependencies.consider;
 
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
@@ -485,10 +504,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     public List<String> getClasspathElements() throws MojoExecutionException {
         final List<String> classpath = new ArrayList<>();
         Set<String> seen = new HashSet<>();
+        Set<String> includedPathes = new HashSet<>();
         for (ClasspathEntry cpe : getClasspath()) {
             for (File location : cpe.getLocations()) {
-                String entry = location.getAbsolutePath() + toString(cpe.getAccessRules());
+                String path = location.getAbsolutePath();
+                String entry = path + toString(cpe.getAccessRules());
                 if (seen.add(entry)) {
+                    includedPathes.add(path);
                     classpath.add(entry);
                 }
             }
@@ -502,13 +524,45 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                     if (cpe instanceof M2ClasspathVariable cpv) {
                         String entry = new File(basedir, cpv.getRepositoryPath()).getAbsolutePath();
                         if (seen.add(entry)) {
+                            includedPathes.add(entry);
                             classpath.add(entry);
                         }
                     }
                 }
             }
         }
+        if (pomOnlyDependencies != PomDependencies.ignore) {
+            String dependencyScope = getDependencyScope();
+            //project.getCompileDependencies()
+            Set<Artifact> artifacts = project.getArtifacts();
+
+            if ((artifacts != null) && !artifacts.isEmpty()) {
+                Collection<String> initialDependencies = getBundleProject()
+                        .getInitialDependencies(DefaultReactorProject.adapt(project)).stream().map(d -> getKey(d))
+                        .collect(Collectors.toSet());
+                ScopeArtifactFilter artifactFilter = new ScopeArtifactFilter(dependencyScope);
+                List<Artifact> additionalClasspathEntries = artifacts.stream().filter(a -> a.getFile() != null)
+                        .filter(a -> includedPathes.add(a.getFile().getAbsolutePath()))
+                        .filter(a -> initialDependencies.contains(getKey(a))).filter(a -> artifactFilter.include(a))
+                        .toList();
+                for (Artifact artifact : additionalClasspathEntries) {
+                    String path = artifact.getFile().getAbsolutePath();
+                    getLog().debug("Add an pom only classpath entry: " + artifact + " @ " + path);
+                    classpath.add(path);
+                }
+            }
+        }
         return classpath;
+    }
+
+    private static String getKey(Dependency dependency) {
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ":"
+                + dependency.getType() + ":" + Objects.requireNonNullElse(dependency.getClassifier(), "");
+    }
+
+    private static String getKey(Artifact artifact) {
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":"
+                + artifact.getType() + ":" + Objects.requireNonNullElse(artifact.getClassifier(), "");
     }
 
     protected BundleProject getBundleProject() throws MojoExecutionException {
@@ -776,7 +830,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         TychoProject projectType = getBundleProject();
-        ArrayList<ClasspathEntry> classpath = new ArrayList<>(
+        List<ClasspathEntry> classpath = new ArrayList<>(
                 ((BundleProject) projectType).getClasspath(DefaultReactorProject.adapt(project)));
 
         if (extraClasspathElements != null) {
@@ -816,6 +870,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
         return classpath;
     }
+
+    protected abstract String getDependencyScope();
 
     @Override
     public String getExecutionEnvironment() throws MojoExecutionException {

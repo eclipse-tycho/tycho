@@ -6,6 +6,28 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Migration guide 3.x > 4.x
 
+#### pom declared dependencies are considered for compile
+
+Previously dependencies declared in the pom are ignored by Tycho completely and even though one could enable these to be considered in target platform
+this still requires them to be imported in the bundle manifest to finally be usable for compilation.
+
+Now each pom defined dependency is always considered for compilation as this matches the expectation of most maven users and finally allows to have 'compile only' dependencies to be used,
+for example with annotations that are only retained at source or class level.
+
+One example that uses [API-Guardian](https://github.com/apiguardian-team/apiguardian) annotations can be found here: https://github.com/eclipse/tycho/tree/master/tycho-its/projects/compiler-pomdependencies
+
+You can disable this feature through the `tycho-compiler-plugin` configuration:
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-compiler-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<pomOnlyDependencies>ignore</pomOnlyDependencies>
+	</configuration>
+</plugin>
+```
+
 #### Properties for tycho-surefire-plugin's 'useUIThread' and 'useUIHarness' parameters
 
 The configuration parameters `useUIThread` and `useUIHarness` parameter of the `tycho-surefire-plugin` can now be set via the properties `tycho.surefire.useUIHarness` respectively `tycho.surefire.useUIThread`.
