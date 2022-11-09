@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
@@ -109,6 +110,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private static final String CTX_ARTIFACT_KEY = CTX_OSGI_BUNDLE_BASENAME + "/artifactKey";
     private static final String CTX_MAVEN_SESSION = CTX_OSGI_BUNDLE_BASENAME + "/mavenSession";
     private static final String CTX_MAVEN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/mavenProject";
+    private static final String CTX_INITIAL_MAVEN_DEPENDENCIES = CTX_OSGI_BUNDLE_BASENAME + "/initialDependencies";
     private static final String CTX_CLASSPATH = CTX_OSGI_BUNDLE_BASENAME + "/classPath";
 
     @Requirement
@@ -190,6 +192,17 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         reactorProject.setContextValue(CTX_ARTIFACT_KEY, key);
         reactorProject.setContextValue(CTX_MAVEN_SESSION, session);
         reactorProject.setContextValue(CTX_MAVEN_PROJECT, project);
+        reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES, List.copyOf(project.getDependencies()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<Dependency> getInitialDependencies(ReactorProject reactorProject) {
+        Object contextValue = reactorProject.getContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES);
+        if (contextValue instanceof Collection<?>) {
+            return (Collection<Dependency>) contextValue;
+        }
+        return Collections.emptyList();
     }
 
     private MavenSession getMavenSession(ReactorProject reactorProject) {

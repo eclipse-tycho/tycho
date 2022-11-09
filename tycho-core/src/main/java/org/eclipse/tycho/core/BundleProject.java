@@ -12,8 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -42,5 +44,11 @@ public interface BundleProject extends TychoProject {
     public List<ClasspathEntry> getTestClasspath(ReactorProject project);
 
     public List<ClasspathEntry> getTestClasspath(ReactorProject project, boolean complete);
+
+    /**
+     * @return a collection of dependencies that where present before Tycho has injected the target
+     *         content of the project into the model
+     */
+    Collection<Dependency> getInitialDependencies(ReactorProject reactorProject);
 
 }

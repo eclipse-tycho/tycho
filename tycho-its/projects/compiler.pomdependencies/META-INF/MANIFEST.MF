@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Exclude
+Bundle-SymbolicName: compiler-pomdependencies
+Bundle-Version: 1.0.0
+Bundle-Activator: guardian.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
