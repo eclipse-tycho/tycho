@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.core.resolver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
 

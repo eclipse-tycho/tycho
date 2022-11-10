@@ -28,8 +28,8 @@ import org.eclipse.tycho.model.IU;
 public class P2IUProject extends AbstractArtifactBasedProject {
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
-                project, environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
+                getEnvironments(project, environment)) {
             @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 //Nothing to do
@@ -46,6 +46,7 @@ public class P2IUProject extends AbstractArtifactBasedProject {
 
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
+        super.setupProject(session, project);
         //Load the XML here to fail as early as possible like it is done in EclipseFeatureProject
         IU.loadIU(project.getBasedir());
     }

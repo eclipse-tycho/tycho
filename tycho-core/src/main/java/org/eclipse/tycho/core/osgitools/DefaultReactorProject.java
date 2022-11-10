@@ -250,6 +250,9 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public <T> T adapt(Class<T> target) {
+        if (target == MavenSession.class) {
+            //TODO
+        }
         if (target == MavenProject.class) {
             return target.cast(project);
         }

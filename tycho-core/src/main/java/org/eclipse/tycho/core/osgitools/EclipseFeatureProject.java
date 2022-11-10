@@ -34,8 +34,8 @@ public class EclipseFeatureProject extends AbstractArtifactBasedProject {
     protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         final File location = project.getBasedir();
         final Feature feature = Feature.loadFeature(location);
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
-                project, environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
+                getEnvironments(project, environment)) {
             @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseFeature(location, feature, visitor);
@@ -51,6 +51,7 @@ public class EclipseFeatureProject extends AbstractArtifactBasedProject {
 
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
+        super.setupProject(session, project);
         // validate feature.xml
         Feature.loadFeature(project.getBasedir());
     }

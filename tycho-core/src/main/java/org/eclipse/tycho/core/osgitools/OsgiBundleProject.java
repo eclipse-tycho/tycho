@@ -28,19 +28,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
@@ -89,15 +85,15 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
+import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -110,9 +106,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             "org.osgi.annotation.versioning", "org.osgi.service.component.annotations");
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/osgiBundle";
     private static final String CTX_ARTIFACT_KEY = CTX_OSGI_BUNDLE_BASENAME + "/artifactKey";
-    private static final String CTX_MAVEN_SESSION = CTX_OSGI_BUNDLE_BASENAME + "/mavenSession";
-    private static final String CTX_MAVEN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/mavenProject";
-    private static final String CTX_INITIAL_MAVEN_DEPENDENCIES = CTX_OSGI_BUNDLE_BASENAME + "/initialDependencies";
     private static final String CTX_CLASSPATH = CTX_OSGI_BUNDLE_BASENAME + "/classPath";
 
     @Requirement
@@ -192,51 +185,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         ArtifactKey key = readArtifactKey(project.getBasedir());
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         reactorProject.setContextValue(CTX_ARTIFACT_KEY, key);
-        reactorProject.setContextValue(CTX_MAVEN_SESSION, session);
-        reactorProject.setContextValue(CTX_MAVEN_PROJECT, project);
-        reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES, List.copyOf(project.getDependencies()));
-    }
-
-    @Override
-    public Map<Dependency, Artifact> getInitialArtifactMap(ReactorProject reactorProject) {
-        Object contextValue = reactorProject.getContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES);
-        if (contextValue instanceof Collection<?>) {
-            @SuppressWarnings("unchecked")
-            Collection<Dependency> dependencies = (Collection<Dependency>) contextValue;
-            Map<String, Dependency> initialDependencies = dependencies.stream()
-                    .collect(Collectors.toMap(d -> getKey(d), Function.identity(), (a, b) -> a));
-            Map<Dependency, Artifact> map = new HashMap<>();
-            MavenProject mavenProject = getMavenProject(reactorProject);
-            Set<Artifact> artifacts = mavenProject.getArtifacts();
-            for (Artifact artifact : artifacts) {
-                Dependency dependency = initialDependencies.get(getKey(artifact));
-                if (dependency != null) {
-                    map.put(dependency, artifact);
-                }
-            }
-            return map;
-        }
-        return Collections.emptyMap();
-    }
-
-    private static String getKey(Dependency dependency) {
-        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ":"
-                + dependency.getType() + ":" + Objects.requireNonNullElse(dependency.getClassifier(), "");
-    }
-
-    private static String getKey(Artifact artifact) {
-        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":"
-                + artifact.getType() + ":" + Objects.requireNonNullElse(artifact.getClassifier(), "");
-    }
-
-    private static MavenSession getMavenSession(ReactorProject reactorProject) {
-        return Objects.requireNonNull((MavenSession) reactorProject.getContextValue(CTX_MAVEN_SESSION),
-                "Project not setup correctly");
-    }
-
-    private static MavenProject getMavenProject(ReactorProject reactorProject) {
-        return Objects.requireNonNull((MavenProject) reactorProject.getContextValue(CTX_MAVEN_PROJECT),
-                "Project not setup correctly");
+        super.setupProject(session, project);
     }
 
     public ArtifactKey readArtifactKey(File location) {

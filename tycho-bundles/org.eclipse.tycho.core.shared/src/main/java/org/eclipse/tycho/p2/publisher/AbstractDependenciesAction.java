@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.TychoConstants;
 
 public abstract class AbstractDependenciesAction extends AbstractPublisherAction {
 
@@ -41,7 +41,7 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
      * Conventional qualifier used to denote "ANY QUALIFIER" in feature.xml and .product files. See
      * TYCHO-383.
      */
-    protected static final String ANY_QUALIFIER = P2Resolver.ANY_QUALIFIER;
+    protected static final String ANY_QUALIFIER = TychoConstants.ANY_QUALIFIER;
 
     /**
      * copy&paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
