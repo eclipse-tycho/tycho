@@ -11,7 +11,7 @@
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich - #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.resolution;
+package org.eclipse.tycho.p2resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 
 public class ResolutionDataImpl implements ResolutionData {
 
@@ -41,6 +42,8 @@ public class ResolutionDataImpl implements ResolutionData {
     private boolean failOnMissing = true;
 
     private Predicate<IInstallableUnit> slicerPredicate;
+
+    private IQueryable<IInstallableUnit> additionalUnitStore;
 
     public ResolutionDataImpl(ExecutionEnvironmentResolutionHints eeResolutionHints) {
         this.eeResolutionHints = eeResolutionHints;
@@ -151,6 +154,15 @@ public class ResolutionDataImpl implements ResolutionData {
 
     public void setSlicerPredicate(Predicate<IInstallableUnit> slicerPredicate) {
         this.slicerPredicate = slicerPredicate;
+    }
+
+    @Override
+    public IQueryable<IInstallableUnit> getAdditionalUnitStore() {
+        return additionalUnitStore;
+    }
+
+    public void setAdditionalUnitStore(IQueryable<IInstallableUnit> additionalUnitStore) {
+        this.additionalUnitStore = additionalUnitStore;
     }
 
 }

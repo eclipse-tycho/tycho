@@ -32,8 +32,8 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 

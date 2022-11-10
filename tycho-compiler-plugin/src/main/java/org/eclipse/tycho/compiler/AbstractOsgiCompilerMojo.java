@@ -533,36 +533,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         }
         if (pomOnlyDependencies != PomDependencies.ignore) {
             String dependencyScope = getDependencyScope();
-            //project.getCompileDependencies()
-            Set<Artifact> artifacts = project.getArtifacts();
-
-            if ((artifacts != null) && !artifacts.isEmpty()) {
-                Collection<String> initialDependencies = getBundleProject()
-                        .getInitialDependencies(DefaultReactorProject.adapt(project)).stream().map(d -> getKey(d))
-                        .collect(Collectors.toSet());
-                ScopeArtifactFilter artifactFilter = new ScopeArtifactFilter(dependencyScope);
-                List<Artifact> additionalClasspathEntries = artifacts.stream().filter(a -> a.getFile() != null)
-                        .filter(a -> includedPathes.add(a.getFile().getAbsolutePath()))
-                        .filter(a -> initialDependencies.contains(getKey(a))).filter(a -> artifactFilter.include(a))
-                        .toList();
-                for (Artifact artifact : additionalClasspathEntries) {
-                    String path = artifact.getFile().getAbsolutePath();
-                    getLog().debug("Add an pom only classpath entry: " + artifact + " @ " + path);
-                    classpath.add(path);
-                }
+            ScopeArtifactFilter artifactFilter = new ScopeArtifactFilter(dependencyScope);
+            List<Artifact> additionalClasspathEntries = getBundleProject()
+                    .getInitialArtifactMap(DefaultReactorProject.adapt(project)).values().stream() //
+                    .filter(a -> a.getFile() != null) //
+                    .filter(a -> includedPathes.add(a.getFile().getAbsolutePath())) //
+                    .filter(a -> artifactFilter.include(a)).toList();
+            for (Artifact artifact : additionalClasspathEntries) {
+                String path = artifact.getFile().getAbsolutePath();
+                getLog().debug("Add a pom only classpath entry: " + artifact + " @ " + path);
+                classpath.add(path);
             }
         }
         return classpath;
-    }
-
-    private static String getKey(Dependency dependency) {
-        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ":"
-                + dependency.getType() + ":" + Objects.requireNonNullElse(dependency.getClassifier(), "");
-    }
-
-    private static String getKey(Artifact artifact) {
-        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":"
-                + artifact.getType() + ":" + Objects.requireNonNullElse(artifact.getClassifier(), "");
     }
 
     protected BundleProject getBundleProject() throws MojoExecutionException {

@@ -228,10 +228,9 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             throw new IllegalArgumentException();
         }
 
-        List<IPublisherAction> actions = new ArrayList<>();
-
         String packaging = artifact.getPackagingType();
         File location = artifact.getLocation();
+        List<IPublisherAction> actions = new ArrayList<>();
         if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
                 || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
             if (dependenciesOnly && optionalAction != null) {

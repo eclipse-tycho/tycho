@@ -38,7 +38,6 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
 import org.eclipse.tycho.core.resolver.target.SupplierMetadataRepository;
 import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
-import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.osgi.framework.BundleException;
 

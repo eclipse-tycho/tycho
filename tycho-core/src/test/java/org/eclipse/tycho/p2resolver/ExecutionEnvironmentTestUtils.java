@@ -17,11 +17,11 @@ import java.util.Collections;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.core.ee.impl.CustomEEResolutionHints;
 import org.eclipse.tycho.core.ee.impl.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.core.ee.impl.StandardEEResolutionHints;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 public class ExecutionEnvironmentTestUtils {
 

@@ -63,6 +63,7 @@ import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -75,8 +76,6 @@ import org.eclipse.tycho.resolver.TychoResolver;
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
     static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump") || Boolean.getBoolean("tycho.p2.dump.model");
-
-    static final boolean USE_OLD_RESOLVER = Boolean.parseBoolean(System.getProperty("tycho.resolver.classic", "true"));
 
     private static final String TYCHO_GROUPID = "org.eclipse.tycho";
     private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<>(
@@ -138,7 +137,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 reactorProject.setContextValue(ReactorProject.CTX_BUILDPROPERTIESPARSER, buildPropertiesParser);
                 resolver.setupProject(session, project, reactorProject);
             }
-            if (USE_OLD_RESOLVER) {
+            if (TychoConstants.USE_OLD_RESOLVER) {
                 resolveProjects(session, projects);
             } else {
                 try {

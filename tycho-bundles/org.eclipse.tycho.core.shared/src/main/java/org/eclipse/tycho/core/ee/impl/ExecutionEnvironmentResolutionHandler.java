@@ -16,9 +16,9 @@ package org.eclipse.tycho.core.ee.impl;
 import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 public abstract class ExecutionEnvironmentResolutionHandler {
 

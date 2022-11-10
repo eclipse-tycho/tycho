@@ -11,7 +11,7 @@
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich - [Bug 538144] Support other target locations (Directory, Features, Installations) 
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,22 +36,17 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
-import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
-import org.eclipse.tycho.p2.util.resolution.ResolutionData;
-import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
-import org.eclipse.tycho.p2.util.resolution.ResolverException;
-import org.eclipse.tycho.p2.util.resolution.SlicerResolutionStrategy;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
-import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
-import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
+import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
 
 public class InstallableUnitResolver {
 

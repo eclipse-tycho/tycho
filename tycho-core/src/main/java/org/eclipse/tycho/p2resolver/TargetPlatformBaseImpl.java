@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -36,7 +37,6 @@ import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
 

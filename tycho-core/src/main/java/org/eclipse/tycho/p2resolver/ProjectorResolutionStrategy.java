@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.resolution;
+package org.eclipse.tycho.p2resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {

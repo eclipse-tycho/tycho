@@ -24,13 +24,13 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.resolver.target.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 

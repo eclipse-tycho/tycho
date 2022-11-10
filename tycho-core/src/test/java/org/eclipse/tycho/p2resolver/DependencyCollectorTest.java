@@ -28,8 +28,6 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
-import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.test.util.ExecutionEnvironmentTestUtils;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Assert;

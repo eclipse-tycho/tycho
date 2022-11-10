@@ -21,8 +21,8 @@ import java.util.Objects;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 public class AllKnownEEsResolutionHints implements ExecutionEnvironmentResolutionHints {
 

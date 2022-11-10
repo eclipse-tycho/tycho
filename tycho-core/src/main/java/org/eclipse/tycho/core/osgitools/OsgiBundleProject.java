@@ -31,12 +31,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
@@ -195,22 +197,44 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES, List.copyOf(project.getDependencies()));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Collection<Dependency> getInitialDependencies(ReactorProject reactorProject) {
+    public Map<Dependency, Artifact> getInitialArtifactMap(ReactorProject reactorProject) {
         Object contextValue = reactorProject.getContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES);
         if (contextValue instanceof Collection<?>) {
-            return (Collection<Dependency>) contextValue;
+            @SuppressWarnings("unchecked")
+            Collection<Dependency> dependencies = (Collection<Dependency>) contextValue;
+            Map<String, Dependency> initialDependencies = dependencies.stream()
+                    .collect(Collectors.toMap(d -> getKey(d), Function.identity(), (a, b) -> a));
+            Map<Dependency, Artifact> map = new HashMap<>();
+            MavenProject mavenProject = getMavenProject(reactorProject);
+            Set<Artifact> artifacts = mavenProject.getArtifacts();
+            for (Artifact artifact : artifacts) {
+                Dependency dependency = initialDependencies.get(getKey(artifact));
+                if (dependency != null) {
+                    map.put(dependency, artifact);
+                }
+            }
+            return map;
         }
-        return Collections.emptyList();
+        return Collections.emptyMap();
     }
 
-    private MavenSession getMavenSession(ReactorProject reactorProject) {
+    private static String getKey(Dependency dependency) {
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ":"
+                + dependency.getType() + ":" + Objects.requireNonNullElse(dependency.getClassifier(), "");
+    }
+
+    private static String getKey(Artifact artifact) {
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":"
+                + artifact.getType() + ":" + Objects.requireNonNullElse(artifact.getClassifier(), "");
+    }
+
+    private static MavenSession getMavenSession(ReactorProject reactorProject) {
         return Objects.requireNonNull((MavenSession) reactorProject.getContextValue(CTX_MAVEN_SESSION),
                 "Project not setup correctly");
     }
 
-    private MavenProject getMavenProject(ReactorProject reactorProject) {
+    private static MavenProject getMavenProject(ReactorProject reactorProject) {
         return Objects.requireNonNull((MavenProject) reactorProject.getContextValue(CTX_MAVEN_PROJECT),
                 "Project not setup correctly");
     }

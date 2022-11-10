@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.resolution;
+package org.eclipse.tycho.p2resolver;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 
 public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 

@@ -12,22 +12,43 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
+import org.osgi.framework.BundleException;
 
 public class BundlePublisher extends BundlesAction {
 
     private BundlePublisher(BundleDescription bundleDescription) {
         super(new BundleDescription[] { bundleDescription });
+    }
+
+    public static Optional<IInstallableUnit> getBundleIU(File bundleLocation) throws IOException, BundleException {
+        BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleLocation);
+        if (bundleDescription == null) {
+            //seems it is not a bundle
+            return Optional.empty();
+        }
+        PublisherInfo publisherInfo = new PublisherInfo();
+        publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
+        IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
+                bundleDescription.getVersion().toString());
+        IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key);
+        return Optional.ofNullable(publishBundle(bundleDescription, descriptor, publisherInfo));
     }
 
     public static IInstallableUnit publishBundle(BundleDescription bundleDescription, IArtifactDescriptor descriptor,

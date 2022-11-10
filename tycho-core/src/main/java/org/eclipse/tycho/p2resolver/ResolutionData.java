@@ -11,7 +11,7 @@
  *    SAP AG - initial API and implementation
  *    Christoph Läubrich - #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.resolution;
+package org.eclipse.tycho.p2resolver;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +20,8 @@ import java.util.function.Predicate;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 
 public interface ResolutionData {
 
@@ -48,4 +50,6 @@ public interface ResolutionData {
      * @return a predicate that us used to check if a given unit should be accepted by the slicer
      */
     Predicate<IInstallableUnit> getIInstallableUnitAcceptor();
+
+    IQueryable<IInstallableUnit> getAdditionalUnitStore();
 }

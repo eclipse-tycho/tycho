@@ -54,7 +54,6 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.eclipse.tycho.p2.util.resolution.ResolutionData;
 
 @Component(role = P2ResolverFactory.class)
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
