@@ -11,7 +11,7 @@
  *    SAP SE - initial API and implementation
  *    Christoph Läubrich - add public constructors
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.resolution;
+package org.eclipse.tycho.p2.resolver;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.tycho.repository.util.StatusTool;
@@ -32,7 +32,7 @@ public class ResolverException extends Exception {
         details = "N/A";
     }
 
-    ResolverException(String details, String selectionContext, Throwable cause) {
+    public ResolverException(String details, String selectionContext, Throwable cause) {
         super("See log for details", cause);
         this.details = details;
         this.selectionContext = selectionContext;

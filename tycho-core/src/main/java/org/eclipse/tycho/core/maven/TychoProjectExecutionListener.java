@@ -29,6 +29,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.resolver.TychoResolver;
 
@@ -67,7 +68,7 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
 
     @Override
     public void beforeProjectLifecycleExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
-        if (TychoMavenLifecycleParticipant.USE_OLD_RESOLVER || !requiresDependencies(event)) {
+        if (TychoConstants.USE_OLD_RESOLVER || !requiresDependencies(event)) {
             return;
         }
         MavenProject mavenProject = event.getProject();

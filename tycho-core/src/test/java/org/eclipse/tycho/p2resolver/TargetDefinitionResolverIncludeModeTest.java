@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
-import org.eclipse.tycho.p2.util.resolution.ResolverException;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.targetplatform.TargetDefinition;

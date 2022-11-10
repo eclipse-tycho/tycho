@@ -73,14 +73,10 @@ import org.eclipse.tycho.p2.publisher.AuthoredIUAction;
 import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.resolver.DefaultP2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.MetadataOnlyP2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
-import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
-import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
-import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
-import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 public class P2ResolverImpl implements P2Resolver {

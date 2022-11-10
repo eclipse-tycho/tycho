@@ -11,9 +11,9 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.resolution;
+package org.eclipse.tycho.p2resolver;
 
-import static org.eclipse.tycho.p2.util.resolution.ResolverDebugUtils.toDebugString;
+import static org.eclipse.tycho.p2resolver.ResolverDebugUtils.toDebugString;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,10 +47,13 @@ import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.ee.impl.NoExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.QueryableCollection;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrategy {
@@ -98,7 +101,22 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
             seedIUs.add(createUnitRequiring("tycho-ee", null, data.getEEResolutionHints().getMandatoryRequires()));
         }
 
-        Slicer slicer = newSlicer(new QueryableCollection(availableIUs), properties);
+        QueryableCollection baseIUCollection = new QueryableCollection(availableIUs);
+        Slicer slicer = newSlicer(new IQueryable<IInstallableUnit>() {
+
+            @Override
+            public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+
+                IQueryResult<IInstallableUnit> queryResult = baseIUCollection.query(query, monitor);
+                if (queryResult.isEmpty()) {
+                    IQueryable<IInstallableUnit> additionalUnitStore = data.getAdditionalUnitStore();
+                    if (additionalUnitStore != null) {
+                        return additionalUnitStore.query(query, monitor);
+                    }
+                }
+                return queryResult;
+            }
+        }, properties);
         IQueryable<IInstallableUnit> slice = slicer.slice(seedIUs.toArray(EMPTY_IU_ARRAY), monitor);
         MultiStatus slicerStatus = slicer.getStatus();
         if (slice == null || isSlicerError(slicerStatus)) {

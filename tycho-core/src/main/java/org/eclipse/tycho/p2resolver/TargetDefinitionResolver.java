@@ -42,6 +42,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.BuildFailureException;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -53,16 +54,11 @@ import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.p2.repository.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2.repository.ListCompositeMetadataRepository;
 import org.eclipse.tycho.p2.resolver.FileTargetDefinitionContent;
-import org.eclipse.tycho.p2.resolver.InstallableUnitResolver;
 import org.eclipse.tycho.p2.resolver.MavenTargetDefinitionContent;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.resolver.URITargetDefinitionContent;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
-import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
-import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
-import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetDefinition.DirectoryLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.FeaturesLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
@@ -72,6 +68,9 @@ import org.eclipse.tycho.targetplatform.TargetDefinition.PathLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.ProfileLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.targetplatform.TargetDefinition.TargetReferenceLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
+import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
 
 /**
  * Class which performs target definition resolution. This class is used by the

@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 
 public interface TychoConstants {
 
+    static final boolean USE_OLD_RESOLVER = Boolean.parseBoolean(System.getProperty("tycho.resolver.classic", "true"));
+
     static final String P2_GROUPID_PREFIX = "p2.";
 
     static final String CONFIG_INI_PATH = "configuration/config.ini";

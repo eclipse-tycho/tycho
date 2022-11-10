@@ -24,9 +24,9 @@ import java.util.stream.Stream;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 class StandardEEResolutionHandler extends ExecutionEnvironmentResolutionHandler {
 

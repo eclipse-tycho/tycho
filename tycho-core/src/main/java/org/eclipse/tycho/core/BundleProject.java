@@ -12,9 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
@@ -49,6 +50,6 @@ public interface BundleProject extends TychoProject {
      * @return a collection of dependencies that where present before Tycho has injected the target
      *         content of the project into the model
      */
-    Collection<Dependency> getInitialDependencies(ReactorProject reactorProject);
+    Map<Dependency, Artifact> getInitialArtifactMap(ReactorProject reactorProject);
 
 }

@@ -14,7 +14,7 @@ import java.util.Collections;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
+import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 
 public class NoExecutionEnvironmentResolutionHints implements ExecutionEnvironmentResolutionHints {
 
