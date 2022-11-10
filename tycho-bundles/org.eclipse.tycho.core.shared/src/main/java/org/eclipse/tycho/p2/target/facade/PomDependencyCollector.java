@@ -22,7 +22,7 @@ import org.eclipse.tycho.IArtifactFacade;
 /**
  * Object that allows to collect POM dependency artifacts and their p2 metadata.
  * 
- * @see org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory#newPomDependencyCollector()
+ * @see org.eclipse.tycho.core.resolver.P2ResolverFactory#newPomDependencyCollector()
  */
 public interface PomDependencyCollector {
 

@@ -38,8 +38,8 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 @Component(role = WorkspaceReader.class, hint = "TychoWorkspaceReader")
 public class TychoWorkspaceReader implements MavenWorkspaceReader {

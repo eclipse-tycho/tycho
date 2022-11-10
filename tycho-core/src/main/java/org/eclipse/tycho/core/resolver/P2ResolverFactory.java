@@ -12,7 +12,7 @@
  *    Christoph Läubrich - Bug 567098 - pomDependencies=consider should wrap non-osgi jars
  *                       - Issue #443 - Use regular Maven coordinates -when possible- for dependencies
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver.facade;
+package org.eclipse.tycho.core.resolver;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.MavenDependencyDescriptor;
@@ -43,4 +43,5 @@ public interface P2ResolverFactory {
      * @return the resolved maven origin or <code>null</code> if none could be found in the metadata
      */
     MavenDependencyDescriptor resolveDependencyDescriptor(ArtifactDescriptor artifactDescriptor);
+
 }

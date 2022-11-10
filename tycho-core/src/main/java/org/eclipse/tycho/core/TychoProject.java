@@ -12,6 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import java.util.Map;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -19,9 +23,8 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 
 /**
- * tycho-specific behaviour associated with MavenProject instances. stateless.
+ * tycho-specific behavior associated with MavenProject instances. stateless.
  * 
- * TODO take target environments into account!
  */
 public interface TychoProject {
     /**
@@ -49,5 +52,11 @@ public interface TychoProject {
      * Eclipse-PlatformFilter OSGi bundle manifest attribute.
      */
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project);
+
+    /**
+     * @return a collection of dependencies that where present before Tycho has injected the target
+     *         content of the project into the model
+     */
+    Map<Dependency, Artifact> getInitialArtifactMap(ReactorProject reactorProject);
 
 }

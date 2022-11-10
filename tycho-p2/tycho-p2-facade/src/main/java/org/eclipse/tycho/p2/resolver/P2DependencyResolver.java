@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,12 +35,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
-import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -77,7 +73,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
@@ -87,6 +83,9 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
@@ -95,9 +94,6 @@ import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
@@ -117,10 +113,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     private RepositorySystem repositorySystem;
 
     @Requirement
-    private ProjectDependenciesResolver projectDependenciesResolver;
-
-    @Requirement(role = TychoProject.class)
-    private Map<String, TychoProject> projectTypes;
+    private TychoProjectManager projectManager;
 
     @Requirement
     private PlexusContainer plexus;
@@ -276,7 +269,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         };
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public PomDependencyCollector resolvePomDependencies(MavenSession session, MavenProject project) {
 
@@ -298,32 +290,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 nonTychoReactorProjects.put(key, p);
             }
         }
-
         ArrayList<String> scopes = new ArrayList<>();
         scopes.add(Artifact.SCOPE_COMPILE);
-        Collection<Artifact> artifacts;
-        try {
-            artifacts = projectDependenciesResolver.resolve(project, scopes, session);
-        } catch (MultipleArtifactsNotFoundException e) {
-            Collection<Artifact> missing = new HashSet<>(e.getMissingArtifacts());
-
-            for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
-                Artifact a = it.next();
-                String key = ArtifactUtils.key(a.getGroupId(), a.getArtifactId(), a.getBaseVersion());
-                if (projectIds.contains(key)) {
-                    it.remove();
-                }
-            }
-
-            if (!missing.isEmpty()) {
-                throw new RuntimeException("Could not resolve project dependencies", e);
-            }
-
-            artifacts = e.getResolvedArtifacts();
-            artifacts.removeAll(e.getMissingArtifacts());
-        } catch (AbstractArtifactResolutionException e) {
-            throw new RuntimeException("Could not resolve project dependencies", e);
-        }
+        Collection<Artifact> artifacts = projectManager.getTychoProject(project)
+                .map(tp -> tp.getInitialArtifactMap(reactorProject).values()).orElse(Collections.emptyList());
         List<Artifact> externalArtifacts = new ArrayList<>(artifacts.size());
         for (Artifact artifact : artifacts) {
             String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
@@ -450,6 +420,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
             return multiPlatform;
         } else {
+            //FIXME this reference to removed update site, check if we can remove this!
             P2ResolutionResult result = resolver.collectProjectDependencies(targetPlatform,
                     optionalDependencyPreparedProject);
 

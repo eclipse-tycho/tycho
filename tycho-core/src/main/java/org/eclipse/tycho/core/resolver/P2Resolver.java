@@ -13,7 +13,7 @@
  *                       - Issue #82 - Support resolving of non-project IUs in P2Resolver
  *                       - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver.facade;
+package org.eclipse.tycho.core.resolver;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +29,6 @@ import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public interface P2Resolver {
-    public static final String ANY_QUALIFIER = "qualifier";
 
     public void setEnvironments(List<TargetEnvironment> environments);
 

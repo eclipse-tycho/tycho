@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.core.resolver;
 
 import java.io.File;
 import java.util.LinkedHashSet;
@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry {
     private String type;

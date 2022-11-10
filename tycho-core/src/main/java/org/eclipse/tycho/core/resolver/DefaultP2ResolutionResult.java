@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Issue #626 - Classpath computation must take fragments into account 
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.core.resolver;
 
 import java.io.File;
 import java.util.Collection;
@@ -30,7 +30,8 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.ClassifiedArtifactKey;
+import org.eclipse.tycho.p2.resolver.ClassifiedLocation;
 
 public class DefaultP2ResolutionResult implements P2ResolutionResult {
 

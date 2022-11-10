@@ -45,6 +45,8 @@ import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
@@ -52,7 +54,6 @@ import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 
 @Component(role = P2ResolverFactory.class)
@@ -72,6 +73,9 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     @Requirement
     private TargetDefinitionResolverService targetDefinitionResolverService;
     private ConcurrentMap<IInstallableUnit, Optional<Entry<IInstallableUnit, IRequiredCapability>>> hostRequirementMap = new ConcurrentHashMap<>();
+
+    @Requirement
+    private TychoProjectManager projectManager;
 
     private synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
             LocalRepositoryP2Indices localRepoIndices) {
@@ -259,5 +263,9 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
                         }
                     };
                 }).filter(Objects::nonNull).findFirst().orElse(null);
+    }
+
+    public TychoProjectManager getProjectManager() {
+        return projectManager;
     }
 }
