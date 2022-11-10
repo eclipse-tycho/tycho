@@ -72,7 +72,7 @@ git log --grep="Also-[bB]y:" tycho-<previousVersion>..tycho-<newVersion> | grep 
    ```
    is:closed is:issue label:sponsored milestone:<version mile stone> 
    ```
-   - [ ] Prepare (in a text editor) announcement, thanking the contributors:
+   - [ ] [Draft a release](https://github.com/eclipse/lsp4j/releases/new), thanking the contributors:
 ```
 Subject: Tycho <VERSION> is released
 
@@ -100,6 +100,8 @@ Regards,
   - [ ] Generate site docs using `mvn install site site:stage -DskipTests` and check the result from `target/staging` seems viable.
   - [ ] Prepare documentation on the webite, using git repo https://git.eclipse.org/c/www.eclipse.org/tycho.git/ : copy the local site docs folders `target/staging/sitedocs` to the existing `sitedocs` folder and then submit as Gerrit review (don't merge yet)
 - Announce the release
-  - [ ] Send prepared announce of the release to [GitHub discussions](https://github.com/eclipse/tycho/discussions) and tycho-dev@eclipse.org,
+  - [ ] Publish the draft release you made above. This will also send an email to watchers of the project.
+  - [ ] Forward the above email to tycho-dev@eclipse.org
+  - [ ] Add a link to the above release on the discussion started earlier.
   - [ ] Optionally, announce on other medias (Twitter)
 - [ ] Create, push and merge patch changing the bootstrap Tycho version for Tycho build (eg https://git.eclipse.org/r/c/tycho/org.eclipse.tycho/+/174964 )
