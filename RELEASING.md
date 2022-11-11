@@ -72,7 +72,7 @@ git log --grep="Also-[bB]y:" tycho-<previousVersion>..tycho-<newVersion> | grep 
    ```
    is:closed is:issue label:sponsored milestone:<version mile stone> 
    ```
-   - [ ] [Draft a release](https://github.com/eclipse/lsp4j/releases/new), thanking the contributors:
+   - [ ] [Draft a release](https://github.com/eclipse-tycho/tycho/releases/new), thanking the contributors:
 ```
 Subject: Tycho <VERSION> is released
 
