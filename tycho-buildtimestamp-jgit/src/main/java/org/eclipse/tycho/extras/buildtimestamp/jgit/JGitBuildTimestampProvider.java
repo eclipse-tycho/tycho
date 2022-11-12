@@ -75,7 +75,7 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  *         &lt;version&gt;${tycho-version}&lt;/version&gt;
  *         &lt;dependencies&gt;
  *           &lt;dependency&gt;
- *             &lt;groupId&gt;org.eclipse.tycho.extras&lt;/groupId&gt;
+ *             &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
  *             &lt;artifactId&gt;tycho-buildtimestamp-jgit&lt;/artifactId&gt;
  *             &lt;version&gt;${tycho-version}&lt;/version&gt;
  *           &lt;/dependency&gt;
