@@ -293,7 +293,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         ArrayList<String> scopes = new ArrayList<>();
         scopes.add(Artifact.SCOPE_COMPILE);
         Collection<Artifact> artifacts = projectManager.getTychoProject(project)
-                .map(tp -> tp.getInitialArtifactMap(reactorProject).values()).orElse(Collections.emptyList());
+                .map(tp -> tp.getInitialArtifacts(reactorProject, List.of(Artifact.SCOPE_COMPILE)))
+                .orElse(Collections.emptyList());
         List<Artifact> externalArtifacts = new ArrayList<>(artifacts.size());
         for (Artifact artifact : artifacts) {
             String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());

@@ -40,7 +40,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -532,13 +531,11 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             }
         }
         if (pomOnlyDependencies != PomDependencies.ignore) {
-            String dependencyScope = getDependencyScope();
-            ScopeArtifactFilter artifactFilter = new ScopeArtifactFilter(dependencyScope);
             List<Artifact> additionalClasspathEntries = getBundleProject()
-                    .getInitialArtifactMap(DefaultReactorProject.adapt(project)).values().stream() //
+                    .getInitialArtifacts(DefaultReactorProject.adapt(project), List.of(getDependencyScope())).stream() //
                     .filter(a -> a.getFile() != null) //
                     .filter(a -> includedPathes.add(a.getFile().getAbsolutePath())) //
-                    .filter(a -> artifactFilter.include(a)).toList();
+                    .toList();
             for (Artifact artifact : additionalClasspathEntries) {
                 String path = artifact.getFile().getAbsolutePath();
                 getLog().debug("Add a pom only classpath entry: " + artifact + " @ " + path);
