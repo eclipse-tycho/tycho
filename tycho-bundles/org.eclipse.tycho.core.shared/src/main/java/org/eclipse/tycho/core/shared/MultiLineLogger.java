@@ -47,6 +47,11 @@ public class MultiLineLogger implements MavenLogger {
 
     }
 
+    @Override
+    public <T> T adapt(Class<T> adapt) {
+        return delegate.adapt(adapt);
+    }
+
     public void error(String message, String prefix) {
         for (String messageLine : message.split("\n")) {
             delegate.error(prefix + messageLine);

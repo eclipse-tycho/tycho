@@ -49,8 +49,8 @@ public class CustomEEResolutionHandlerTest extends TychoPlexusTestCase {
 
     @Before
     public void setUpContext() throws Exception {
-        tpFactory = new TestResolverFactory(logVerifier.getMavenLogger(), lookup(IProvisioningAgent.class))
-                .getTargetPlatformFactory();
+        tpFactory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
+                lookup(IProvisioningAgent.class)).getTargetPlatformFactory();
         tpConfig = new TargetPlatformConfigurationStub();
     }
 

@@ -144,8 +144,8 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
                 jar.setManifest(manifest);
                 jar.write(wrappedFile);
                 return new WrappedArtifact(wrappedFile, mavenArtifact, wrappedClassifier,
-                        manifest.getMainAttributes().getValue(Analyzer.BUNDLE_SYMBOLICNAME),
-                        manifest.getMainAttributes().getValue(Analyzer.BUNDLE_VERSION), manifest);
+                        manifest.getMainAttributes().getValue(Analyzer.BUNDLE_SYMBOLICNAME).trim(),
+                        manifest.getMainAttributes().getValue(Analyzer.BUNDLE_VERSION).trim(), manifest);
             }
         }
     }
@@ -163,12 +163,15 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
         return properties;
     }
 
-    public static String createClassifierFromArtifact(IArtifactFacade mavenArtifact) {
-        String classifier = mavenArtifact.getClassifier();
+    public static String createClassifierFromArtifact(String classifier) {
         if (classifier != null && !classifier.isEmpty()) {
             return classifier + "-" + WRAPPED_CLASSIFIER;
         }
         return WRAPPED_CLASSIFIER;
+    }
+
+    public static String createClassifierFromArtifact(IArtifactFacade mavenArtifact) {
+        return createClassifierFromArtifact(mavenArtifact.getClassifier());
     }
 
     public static String createBundleSymbolicNameFromArtifact(String prefix, IArtifactFacade mavenArtifact) {

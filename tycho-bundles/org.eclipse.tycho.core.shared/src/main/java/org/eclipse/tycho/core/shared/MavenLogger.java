@@ -37,4 +37,6 @@ public interface MavenLogger {
 
     public boolean isExtendedDebugEnabled();
 
+    <T> T adapt(Class<T> adapt);
+
 }

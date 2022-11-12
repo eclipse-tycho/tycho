@@ -26,7 +26,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.jar.JarFile;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
@@ -57,6 +60,7 @@ import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
+import org.osgi.framework.Constants;
 import org.xml.sax.SAXException;
 
 /**
@@ -89,6 +93,11 @@ public class InstallableUnitGenerator {
 	@Requirement
 	private PlexusContainer plexus;
 
+	@Requirement
+	ArtifactHandlerManager artifactHandlerManager;
+
+	private Map<Artifact, ArtifactUnits> artifactUnitMap = new ConcurrentHashMap<>();
+
 	/**
 	 * Computes the {@link IInstallableUnit}s for a collection of projects.
 	 * 
@@ -97,8 +106,7 @@ public class InstallableUnitGenerator {
 	 * @throws CoreException if computation for any project failed
 	 */
 	public Map<MavenProject, Collection<IInstallableUnit>> getInstallableUnits(Collection<MavenProject> projects,
-			MavenSession session)
-			throws CoreException {
+			MavenSession session) throws CoreException {
 		init();
 		Objects.requireNonNull(session);
 		List<CoreException> errors = new CopyOnWriteArrayList<>();
@@ -144,8 +152,7 @@ public class InstallableUnitGenerator {
 	 */
 	@SuppressWarnings("unchecked")
 	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session,
-			boolean forceUpdate)
-			throws CoreException {
+			boolean forceUpdate) throws CoreException {
 		init();
 		Objects.requireNonNull(session);
 		log.debug("Computing installable units for " + project + ", force update = " + forceUpdate);
@@ -163,58 +170,15 @@ public class InstallableUnitGenerator {
 					}
 				}
 			}
-			List<IPublisherAction> actions = new ArrayList<>();
 			File basedir = project.getBasedir();
 			if (basedir == null || !basedir.isDirectory()) {
 				log.warn("No valid basedir for " + project + "!");
 				return Collections.emptyList();
 			}
 			String packaging = project.getPackaging();
-			switch (packaging) {
-			case PackagingType.TYPE_ECLIPSE_TEST_PLUGIN:
-			case PackagingType.TYPE_ECLIPSE_PLUGIN: {
-				actions.add(new BundlesAction(new File[] { basedir }));
-				break;
-			}
-			case PackagingType.TYPE_ECLIPSE_FEATURE: {
-				FeatureParser parser = new FeatureParser();
-				Feature feature = parser.parse(basedir);
-				feature.setLocation(basedir.getAbsolutePath());
-				FeatureDependenciesAction action = new FeatureDependenciesAction(feature);
-				actions.add(action);
-				break;
-			}
-			case PackagingType.TYPE_ECLIPSE_REPOSITORY: {
-				File categoryFile = new File(basedir, "category.xml");
-				if (categoryFile.exists()) {
-					try (InputStream stream = new FileInputStream(categoryFile)) {
-						SiteModel siteModel = new CategoryParser(null).parse(stream);
-						actions.add(new CategoryDependenciesAction(siteModel, project.getArtifactId(),
-								project.getVersion()));
-					} catch (IOException | SAXException e) {
-						throw new CoreException(Status.error("Error reading " + categoryFile.getAbsolutePath()));
-					}
-				}
-				for (File f : basedir.listFiles(File::isFile)) {
-					if (f.getName().endsWith(".product") && !f.getName().startsWith(".polyglot")) {
-						try {
-							IProductDescriptor productDescriptor = new ProductFile2(f.getAbsolutePath());
-							actions.add(new ProductDependenciesAction(productDescriptor));
-						} catch (CoreException e) {
-							throw e;
-						} catch (Exception e) {
-							throw new CoreException(Status.error("Error reading " + f.getAbsolutePath() + ": " + e, e));
-						}
-					}
-				}
-				break;
-			}
-			case PackagingType.TYPE_P2_IU: {
-				actions.add(new AuthoredIUAction(basedir));
-				break;
-			}
-			default:
-			}
+			String version = project.getVersion();
+			String artifactId = project.getArtifactId();
+			List<IPublisherAction> actions = getPublisherActions(packaging, basedir, version, artifactId);
 			Collection<IInstallableUnit> publishedUnits = publisher.publishMetadata(actions);
 			for (InstallableUnitProvider unitProvider : getProvider(project, session)) {
 				log.debug("Asking: " + unitProvider + " for additional units for " + project + "...");
@@ -240,10 +204,63 @@ public class InstallableUnitGenerator {
 		}
 	}
 
+	private List<IPublisherAction> getPublisherActions(String packaging, File basedir, String version,
+			String artifactId) throws CoreException {
+		List<IPublisherAction> actions = new ArrayList<>();
+		switch (packaging) {
+		case PackagingType.TYPE_ECLIPSE_TEST_PLUGIN:
+		case PackagingType.TYPE_ECLIPSE_PLUGIN: {
+			actions.add(new BundlesAction(new File[] { basedir }));
+			break;
+		}
+		case PackagingType.TYPE_ECLIPSE_FEATURE: {
+			FeatureParser parser = new FeatureParser();
+			Feature feature = parser.parse(basedir);
+			feature.setLocation(basedir.getAbsolutePath());
+			FeatureDependenciesAction action = new FeatureDependenciesAction(feature);
+			actions.add(action);
+			break;
+		}
+		case PackagingType.TYPE_ECLIPSE_REPOSITORY: {
+			File categoryFile = new File(basedir, "category.xml");
+			if (categoryFile.exists()) {
+				try (InputStream stream = new FileInputStream(categoryFile)) {
+					SiteModel siteModel = new CategoryParser(null).parse(stream);
+					actions.add(new CategoryDependenciesAction(siteModel, artifactId, version));
+				} catch (IOException | SAXException e) {
+					throw new CoreException(Status.error("Error reading " + categoryFile.getAbsolutePath()));
+				}
+			}
+			for (File f : basedir.listFiles(File::isFile)) {
+				if (f.getName().endsWith(".product") && !f.getName().startsWith(".polyglot")) {
+					try {
+						IProductDescriptor productDescriptor = new ProductFile2(f.getAbsolutePath());
+						actions.add(new ProductDependenciesAction(productDescriptor));
+					} catch (CoreException e) {
+						throw e;
+					} catch (Exception e) {
+						throw new CoreException(Status.error("Error reading " + f.getAbsolutePath() + ": " + e, e));
+					}
+				}
+			}
+			break;
+		}
+		case PackagingType.TYPE_P2_IU: {
+			actions.add(new AuthoredIUAction(basedir));
+			break;
+		}
+		default:
+		}
+		return actions;
+	}
+
+	public Collection<IInstallableUnit> getInstallableUnits(Artifact artifact) {
+		return artifactUnitMap.computeIfAbsent(artifact, x -> new ArtifactUnits()).getUnits(artifact);
+	}
+
 	private Collection<InstallableUnitProvider> getProvider(MavenProject project, MavenSession mavenSession)
 			throws CoreException {
-		Set<InstallableUnitProvider> unitProviders = new HashSet<>(
-				additionalUnitProviders.values());
+		Set<InstallableUnitProvider> unitProviders = new HashSet<>(additionalUnitProviders.values());
 		try {
 			pluginRealmHelper.execute(mavenSession, project, () -> {
 				try {
@@ -280,6 +297,73 @@ public class InstallableUnitGenerator {
 		}
 		return pluginDescriptor.getDependencies().stream().filter(dep -> P2Plugin.GROUP_ID.equals(dep.getGroupId()))
 				.filter(dep -> P2Plugin.ARTIFACT_ID.equals(dep.getArtifactId())).findAny().isPresent();
+	}
+
+	private final class ArtifactUnits {
+
+		private Collection<IInstallableUnit> units;
+		private long lastModified;
+
+		public synchronized Collection<IInstallableUnit> getUnits(Artifact artifact) {
+			if (units != null && !hasChanges(artifact)) {
+				return units;
+			}
+			try {
+				// TODO in case of "java-source" type, we might want to generate the source IU
+				// based on the parent artifact!
+				File file = artifact.getFile();
+				if (isValidFile(file)) {
+					lastModified = file.lastModified();
+					String type = artifact.getType();
+					if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(type)
+							|| PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(type) || "bundle".equals(type)) {
+						List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_PLUGIN, file,
+								artifact.getVersion(), artifact.getArtifactId());
+						return units = publisher.publishMetadata(actions);
+					} else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(type)) {
+						List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_FEATURE, file,
+								artifact.getVersion(), artifact.getArtifactId());
+						return units = publisher.publishMetadata(actions);
+					} else {
+						boolean isBundle = false;
+						boolean isFeature = false;
+						try (JarFile jarFile = new JarFile(file)) {
+							isBundle = jarFile.getManifest().getMainAttributes()
+									.getValue(Constants.BUNDLE_SYMBOLICNAME) != null;
+							isFeature = jarFile.getEntry("feature.xml") != null;
+						} catch (IOException e) {
+							// can't determine the type then...
+						}
+						if (isBundle) {
+							List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_PLUGIN,
+									file, artifact.getVersion(), artifact.getArtifactId());
+							return units = publisher.publishMetadata(actions);
+						}
+						if (isFeature) {
+							List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_FEATURE,
+									file, artifact.getVersion(), artifact.getArtifactId());
+							return units = publisher.publishMetadata(actions);
+						}
+					}
+				}
+			} catch (CoreException e) {
+				// can't generate one then...
+			}
+			return units = Collections.emptyList();
+		}
+
+		private boolean isValidFile(File file) {
+			return file != null && file.getName().toLowerCase().endsWith(".jar") && file.exists();
+		}
+
+		private boolean hasChanges(Artifact artifact) {
+			File file = artifact.getFile();
+			if (isValidFile(file)) {
+				return file.lastModified() != lastModified;
+			}
+			return false;
+		}
+
 	}
 
 }

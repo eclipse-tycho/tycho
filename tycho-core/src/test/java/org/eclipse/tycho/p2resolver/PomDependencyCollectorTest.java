@@ -53,8 +53,8 @@ public class PomDependencyCollectorTest extends TychoPlexusTestCase {
     @Before
     public void setUpSubject() throws Exception {
         MavenContextImpl mavenContext = new MockMavenContext(new File("dummy"), logVerifier.getLogger());
-        subject = new PomDependencyCollectorImpl(mavenContext, new ReactorProjectStub(tempManager.newFolder(), "test"),
-                lookup(IProvisioningAgent.class));
+        subject = new PomDependencyCollectorImpl(logVerifier.getLogger(),
+                new ReactorProjectStub(tempManager.newFolder(), "test"), lookup(IProvisioningAgent.class));
     }
 
     @Test

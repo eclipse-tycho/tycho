@@ -65,7 +65,6 @@ import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.test.util.InstallableUnitUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.eclipse.tycho.test.util.ReactorProjectStub;
 import org.eclipse.tycho.test.util.TestResolverFactory;
@@ -99,14 +98,13 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
     @Before
     public void setUpSubjectAndContext() throws Exception {
         TestResolverFactory testResolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(),
-                lookup(IProvisioningAgent.class));
+                logVerifier.getLogger(), lookup(IProvisioningAgent.class));
         subject = testResolverFactory.getTargetPlatformFactoryImpl();
         localM2Repo = testResolverFactory.mavenContext.getLocalRepositoryRoot().getAbsoluteFile().toPath();
 
         tpConfig = new TargetPlatformConfigurationStub();
         tpConfig.setEnvironments(Collections.singletonList(new TargetEnvironment(null, null, null))); // dummy value for target file resolution
-        pomDependencyCollector = new PomDependencyCollectorImpl(
-                new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger()),
+        pomDependencyCollector = new PomDependencyCollectorImpl(logVerifier.getLogger(),
                 new ReactorProjectStub(tempManager.newFolder(), "test"), lookup(IProvisioningAgent.class));
     }
 
@@ -255,7 +253,7 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testIncludeLocalMavenRepo() throws Exception {
-        TestResolverFactory factory = new TestResolverFactory(logVerifier.getMavenLogger(),
+        TestResolverFactory factory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
                 lookup(IProvisioningAgent.class));
         LocalMetadataRepository localMetadataRepo = factory.getLocalMetadataRepository();
         // add one IU to local repo

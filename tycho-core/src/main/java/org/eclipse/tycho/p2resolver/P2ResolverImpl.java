@@ -48,7 +48,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -228,18 +227,10 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setData(data);
         Collection<IInstallableUnit> newState;
         try {
-            data.setFailOnMissing(pomDependencies == PomDependencies.ignore);
-            newState = strategy.resolve(environment, monitor);
-            if (pomDependencies != PomDependencies.ignore) {
-                Collection<IRequirement> missingRequirements = data.getMissingRequirements();
-                if (!missingRequirements.isEmpty()) {
-                    logger.info(
-                            "The following requirements are not satisfied yet and must be provided through pom dependencies:");
-                    for (IRequirement requirement : missingRequirements) {
-                        logger.info("   - " + requirement);
-                    }
-                }
+            if (pomDependencies != PomDependencies.ignore || !TychoConstants.USE_OLD_RESOLVER) {
+                data.setAdditionalUnitStore(p2ResolverFactoryImpl.getPomUnits().createPomQueryable(project));
             }
+            newState = strategy.resolve(environment, monitor);
         } catch (ResolverException e) {
             logger.info(e.getSelectionContext());
             logger.error("Cannot resolve project dependencies:");
@@ -381,15 +372,6 @@ public class P2ResolverImpl implements P2Resolver {
         return Boolean.parseBoolean(iu.getProperty(AuthoredIUAction.IU_TYPE));
     }
 
-    private static String getFeatureId(IInstallableUnit iu) {
-        for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
-            if (PublisherHelper.CAPABILITY_NS_UPDATE_FEATURE.equals(provided.getNamespace())) {
-                return provided.getName();
-            }
-        }
-        return null;
-    }
-
     private static boolean isBundleOrFragmentWithId(IInstallableUnit iu, String id) {
         for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
             if (BundlesAction.CAPABILITY_NS_OSGI_BUNDLE.equals(provided.getNamespace())) {
@@ -423,7 +405,7 @@ public class P2ResolverImpl implements P2Resolver {
             contributingArtifactType = ArtifactType.TYPE_ECLIPSE_PLUGIN;
             contributingArtifactId = id;
         } else {
-            String featureId = getFeatureId(iu);
+            String featureId = ArtifactTypeHelper.getFeatureId(iu);
             if (featureId != null) {
                 contributingArtifactType = ArtifactType.TYPE_ECLIPSE_FEATURE;
                 // feature can have additional IUs injected via p2.inf
@@ -471,22 +453,11 @@ public class P2ResolverImpl implements P2Resolver {
 
     private static void addArtifactFile(DefaultP2ResolutionResult result, IInstallableUnit iu,
             IArtifactKey p2ArtifactKey, P2TargetPlatform context) {
-        String id = iu.getId();
-        String version = iu.getVersion().toString();
         String mavenClassifier = null;
 
-        if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
-            ArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version);
+        ArtifactKey artifactKey = ArtifactTypeHelper.toTychoArtifactKey(iu, p2ArtifactKey);
+        if (artifactKey != null) {
             result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey);
-        } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
-            String featureId = getFeatureId(iu);
-            if (featureId != null) {
-                ArtifactKey artifactKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, version);
-                result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey);
-            }
-        } else {
-            ArtifactKey key = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT, id, version);
-            result.addArtifact(key, mavenClassifier, iu, p2ArtifactKey);
         }
 
         // ignore other/unknown artifacts, like binary blobs for now.

@@ -6,6 +6,22 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Migration guide 3.x > 4.x
 
+#### mixed reactor setups require the new resolver now
+
+If you want to use so called mixed-reactor setups, that is you have bundles build by other techniques than Tycho (e.g. bnd/felix-maven-plugin) mixed with ones build by Tycho,
+previously this was only possible with enabling an incomplete resolver mode and using `pomDependencies=consider`.
+
+From now on such setups require the use of the new resolver mode (`-Dtycho.resolver.classic=false`) supporting the usual resolver mode and thus incomplete resolver mode was removed completely.
+
+#### pom declared dependencies handling has slightly changed
+
+With the new resolver mode (`-Dtycho.resolver.classic=false`) pom dependencies are considered by default, also the way how they are handled have slightly changed:
+
+Previously all units where always added to the full target resolution result. This has often lead to undesired effects, especially when there are large (transitive) dependency chains
+as things can easily slip in.
+
+From now on the target platform is always queried first for a unit fulfilling the requirement and only if not found the pom dependencies are queried for an alternative.
+
 #### pom declared dependencies are considered for compile
 
 Previously dependencies declared in the pom are ignored by Tycho completely and even though one could enable these to be considered in target platform

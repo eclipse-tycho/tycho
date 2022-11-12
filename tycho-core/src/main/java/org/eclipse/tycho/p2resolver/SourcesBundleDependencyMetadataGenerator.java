@@ -30,13 +30,13 @@ import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.publisher.TychoMavenPropertiesAdvice;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.AbstractMetadataGenerator;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
-import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
 import org.osgi.framework.BundleException;
 
 @Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
@@ -97,7 +97,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options) {
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
 
-        advice.add(new MavenPropertiesAdvice(artifact, "sources", mavenContext));
+        advice.add(new TychoMavenPropertiesAdvice(artifact, "sources", mavenContext));
 
         if (options.generateDownloadStatsProperty) {
             advice.add(new DownloadStatsAdvice());

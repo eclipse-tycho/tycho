@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -77,6 +78,12 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     @Requirement
     private TychoProjectManager projectManager;
 
+    @Requirement
+    private PomUnits pomUnits;
+
+    @Requirement
+    private Logger logger;
+
     private synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
             LocalRepositoryP2Indices localRepoIndices) {
         if (localMetadataRepository == null) {
@@ -104,9 +111,13 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         return agent;
     }
 
+    public PomUnits getPomUnits() {
+        return pomUnits;
+    }
+
     @Override
     public PomDependencyCollector newPomDependencyCollector(ReactorProject project) {
-        return new PomDependencyCollectorImpl(mavenContext, project, getAgent());
+        return new PomDependencyCollectorImpl(logger, project, getAgent());
     }
 
     @Override

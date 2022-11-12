@@ -41,6 +41,14 @@ public class MavenLoggerAdapter implements MavenLogger {
     }
 
     @Override
+    public <T> T adapt(Class<T> adapt) {
+        if (adapt == Logger.class) {
+            return adapt.cast(logger);
+        }
+        return null;
+    }
+
+    @Override
     public void info(String message) {
         if (!isEmpty(message)) {
             logger.info(message);

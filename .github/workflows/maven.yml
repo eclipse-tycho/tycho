@@ -37,9 +37,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
+        key: ${{ runner.os }}-tycho4-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
         restore-keys: |
-          ${{ runner.os }}-maven-${{ matrix.os }}-
+          ${{ runner.os }}-tycho4-${{ matrix.os }}-
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
       with:
