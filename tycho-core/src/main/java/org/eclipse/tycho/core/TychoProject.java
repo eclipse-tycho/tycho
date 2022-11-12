@@ -12,10 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
-import java.util.Map;
+import java.util.Collection;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -54,9 +53,10 @@ public interface TychoProject {
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project);
 
     /**
-     * @return a collection of dependencies that where present before Tycho has injected the target
-     *         content of the project into the model
+     * @return a collection of dependencies (and their transitive dependencies) that where present
+     *         before Tycho has injected the target content of the project into the model, also
+     *         known as "pom considered dependencies"
      */
-    Map<Dependency, Artifact> getInitialArtifactMap(ReactorProject reactorProject);
+    Collection<Artifact> getInitialArtifacts(ReactorProject reactorProject, Collection<String> scopes);
 
 }

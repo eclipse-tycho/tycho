@@ -13,24 +13,21 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
@@ -38,6 +35,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
@@ -50,7 +48,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     private static final String CTX_INITIAL_MAVEN_DEPENDENCIES = CTX_OSGI_BUNDLE_BASENAME + "/initialDependencies";
 
     @Requirement
-    ProjectDependenciesResolver projectDependenciesResolver;
+    MavenDependenciesResolver projectDependenciesResolver;
 
     @Override
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project) {
@@ -134,42 +132,34 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     }
 
     @Override
-    public Map<Dependency, Artifact> getInitialArtifactMap(ReactorProject reactorProject) {
+    public Collection<Artifact> getInitialArtifacts(ReactorProject reactorProject, Collection<String> scopes) {
         Object contextValue = reactorProject.getContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES);
         if (contextValue instanceof Collection<?>) {
             @SuppressWarnings("unchecked")
             Collection<Dependency> dependencies = (Collection<Dependency>) contextValue;
             if (dependencies.isEmpty()) {
-                return Collections.emptyMap();
+                return Collections.emptyList();
             }
-            Map<String, Dependency> initialDependencies = dependencies.stream()
-                    .collect(Collectors.toMap(d -> getKey(d), Function.identity(), (a, b) -> a));
-            Map<Dependency, Artifact> map = new HashMap<>();
-            Collection<Artifact> artifacts = getProjectArtifacts(reactorProject);
-            for (Artifact artifact : artifacts) {
-                Dependency dependency = initialDependencies.get(getKey(artifact));
-                if (dependency != null) {
-                    map.put(dependency, artifact);
-                }
-            }
-            return map;
+            return getProjectArtifacts(reactorProject, dependencies);
         }
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 
-    private Collection<Artifact> getProjectArtifacts(ReactorProject project) {
+    private Collection<Artifact> getProjectArtifacts(ReactorProject project, Collection<Dependency> dependencies) {
         MavenProject mavenProject = getMavenProject(project);
         Set<Artifact> artifacts = mavenProject.getArtifacts();
         if (artifacts.isEmpty()) {
             MavenSession mavenSession = getMavenSession(project);
             try {
-                return projectDependenciesResolver.resolve(mavenProject, List.of(Artifact.SCOPE_COMPILE), mavenSession);
-            } catch (AbstractArtifactResolutionException e) {
-                //can't do anything then...
+                return new ArrayList<>(projectDependenciesResolver.resolve(mavenProject, dependencies,
+                        List.of(Artifact.SCOPE_COMPILE), mavenSession));
+            } catch (DependencyCollectionException e) {
+                return Collections.emptyList();
+            } catch (DependencyResolutionException e) {
                 return Collections.emptyList();
             }
         }
-        return artifacts;
+        return new ArrayList<>(artifacts);
     }
 
     protected static String getKey(Dependency dependency) {
