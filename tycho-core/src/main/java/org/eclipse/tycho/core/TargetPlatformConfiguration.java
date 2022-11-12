@@ -48,7 +48,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private final List<URI> targets = new ArrayList<>();
     private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
-    private PomDependencies pomDependencies = PomDependencies.ignore;
+    private PomDependencies pomDependencies = PomDependencies.DEFAULT;
 
     private Boolean allowConflictingDependencies;
 

@@ -36,16 +36,6 @@ public interface ResolutionData {
     Map<String, String> getAdditionalFilterProperties();
 
     /**
-     * @return <code>true</code> if the resolve operation should fail if there are missing
-     *         requirements
-     */
-    boolean failOnMissingRequirements();
-
-    void addMissingRequirement(IRequirement requirement);
-
-    Collection<IRequirement> getMissingRequirements();
-
-    /**
      * 
      * @return a predicate that us used to check if a given unit should be accepted by the slicer
      */

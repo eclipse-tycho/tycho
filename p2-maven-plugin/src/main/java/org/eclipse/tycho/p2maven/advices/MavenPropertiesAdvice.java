@@ -11,10 +11,14 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Issue #658 - preserve p2 artifact properties (eg PGP, maven info...)
  *******************************************************************************/
-package org.eclipse.tycho.p2.publisher;
+package org.eclipse.tycho.p2maven.advices;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -22,23 +26,11 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.shared.MavenContext;
 
 public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     private final Map<String, String> properties = new LinkedHashMap<>();
-
-    public MavenPropertiesAdvice(IArtifactFacade artifactFacade, MavenContext mavenContext) {
-        this(artifactFacade, artifactFacade.getClassifier(), mavenContext);
-    }
-
-    public MavenPropertiesAdvice(IArtifactFacade artifactFacade, String classifier, MavenContext mavenContext) {
-        this(artifactFacade.getGroupId(), artifactFacade.getArtifactId(), artifactFacade.getVersion(), classifier,
-                mavenContext.getExtension(artifactFacade.getPackagingType()), artifactFacade.getPackagingType(),
-                artifactFacade.getRepository());
-    }
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version) {
         properties.put(TychoConstants.PROP_GROUP_ID, groupId);
@@ -90,5 +82,28 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
     public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
         return true;
     }
+
+	public static String getRepository(File file) {
+		if (file != null) {
+			File repositoriesFile = new File(file.getParentFile(), "_remote.repositories");
+			if (repositoriesFile.isFile()) {
+				Properties properties = new Properties();
+				try {
+					properties.load(new FileInputStream(repositoriesFile));
+					for (String name : properties.stringPropertyNames()) {
+						String[] split = name.split(">", 2);
+						if (split.length == 2) {
+							if (split[0].equals(file.getName())) {
+								return split[1];
+							}
+						}
+					}
+				} catch (IOException e) {
+					// can't find the repository id then!
+				}
+			}
+		}
+		return null;
+	}
 
 }

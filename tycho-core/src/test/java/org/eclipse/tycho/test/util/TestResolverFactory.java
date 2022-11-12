@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.IRepositoryIdManager;
@@ -56,8 +57,10 @@ public class TestResolverFactory implements P2ResolverFactory {
     private LocalArtifactRepository localArtifactRepo;
     private IProvisioningAgent agent;
     private IRepositoryIdManager idManager;
+    private Logger logger2;
 
-    public TestResolverFactory(MavenLogger logger, IProvisioningAgent agent) {
+    public TestResolverFactory(MavenLogger logger, Logger logger2, IProvisioningAgent agent) {
+        this.logger2 = logger2;
         this.agent = agent;
         this.idManager = agent.getService(IRepositoryIdManager.class);
         boolean offline = false;
@@ -127,8 +130,7 @@ public class TestResolverFactory implements P2ResolverFactory {
 
     @Override
     public PomDependencyCollectorImpl newPomDependencyCollector(ReactorProject project) {
-        return new PomDependencyCollectorImpl(
-                new MockMavenContext(mavenContext.getLocalRepositoryRoot(), mavenContext.getLogger()), project, agent);
+        return new PomDependencyCollectorImpl(logger2, project, agent);
     }
 
     public PomDependencyCollectorImpl newPomDependencyCollector() {

@@ -39,8 +39,6 @@ public class ResolutionDataImpl implements ResolutionData {
     private List<IRequirement> additionalRequirements;
     private Map<String, String> additionalFilterProperties;
     private Collection<IRequirement> missing = new ArrayList<>();
-    private boolean failOnMissing = true;
-
     private Predicate<IInstallableUnit> slicerPredicate;
 
     private IQueryable<IInstallableUnit> additionalUnitStore;
@@ -122,29 +120,6 @@ public class ResolutionDataImpl implements ResolutionData {
 
     public void setAdditionalFilterProperties(Map<String, String> additionalFilterProperties) {
         this.additionalFilterProperties = additionalFilterProperties;
-    }
-
-    @Override
-    public boolean failOnMissingRequirements() {
-        return failOnMissing;
-    }
-
-    public void setFailOnMissing(boolean failOnMissing) {
-        this.failOnMissing = failOnMissing;
-    }
-
-    @Override
-    public void addMissingRequirement(IRequirement requirement) {
-        missing.add(requirement);
-    }
-
-    @Override
-    public Collection<IRequirement> getMissingRequirements() {
-        return Collections.unmodifiableCollection(missing);
-    }
-
-    public void clearMissingRequirements() {
-        missing.clear();
     }
 
     @Override

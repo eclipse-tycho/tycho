@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
@@ -465,7 +466,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             pomDependenciesContent = source;
         } else {
             logger.debug("Using empty PomDependencyCollector instead of given = " + pomDependencies);
-            pomDependenciesContent = new PomDependencyCollectorImpl(mavenContext, null, remoteAgent);
+            pomDependenciesContent = new PomDependencyCollectorImpl(mavenContext.getLogger().adapt(Logger.class), null,
+                    remoteAgent);
         }
         return createTargetPlatformWithUpdatedReactorUnits(baseTargetPlatform,
                 extractProjectResultIUs((List<PublishingRepository>) upstreamProjectResults),

@@ -14,8 +14,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.IArtifactFacade;
 
@@ -26,7 +30,8 @@ import org.eclipse.tycho.IArtifactFacade;
  */
 public interface PomDependencyCollector {
 
-    public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle);
+    public Entry<ArtifactKey, IArtifactDescriptor> addMavenArtifact(IArtifactFacade artifact,
+            Collection<IInstallableUnit> installableUnits);
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
 

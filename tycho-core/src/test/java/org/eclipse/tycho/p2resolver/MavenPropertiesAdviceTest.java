@@ -19,7 +19,7 @@ import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
+import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 import org.junit.Test;
 
 public class MavenPropertiesAdviceTest {

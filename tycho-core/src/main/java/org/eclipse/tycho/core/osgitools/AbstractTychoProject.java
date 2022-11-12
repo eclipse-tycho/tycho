@@ -159,7 +159,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         if (artifacts.isEmpty()) {
             MavenSession mavenSession = getMavenSession(project);
             try {
-                return new ArrayList<>(projectDependenciesResolver.resolve(mavenProject, dependencies,
+                return new HashSet<>(projectDependenciesResolver.resolve(mavenProject, dependencies,
                         List.of(Artifact.SCOPE_COMPILE), mavenSession));
             } catch (DependencyCollectionException e) {
                 return Collections.emptyList();

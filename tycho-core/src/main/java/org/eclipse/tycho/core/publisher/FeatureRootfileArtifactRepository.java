@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.publisher;
+package org.eclipse.tycho.core.publisher;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -35,7 +35,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
+import org.eclipse.tycho.p2.publisher.P2Artifact;
+import org.eclipse.tycho.p2.publisher.TransientArtifactRepository;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
+import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 
 public class FeatureRootfileArtifactRepository extends TransientArtifactRepository {
     private final File outputDirectory;

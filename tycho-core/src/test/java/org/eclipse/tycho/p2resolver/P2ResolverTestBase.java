@@ -56,7 +56,8 @@ public class P2ResolverTestBase extends TychoPlexusTestCase {
 
     @Before
     final public void prepare() throws Exception {
-        resolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(), lookup(IProvisioningAgent.class));
+        resolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
+                lookup(IProvisioningAgent.class));
         MockMavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
         fullGenerator = new P2GeneratorImpl(true);
         fullGenerator.setMavenContext(mavenContext);

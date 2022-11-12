@@ -30,7 +30,10 @@ public class P2ArtifactMappingToMavenRepoTest extends AbstractTychoIntegrationTe
 		verifier.verifyErrorFreeLog();
 		File repository = new File(verifier.getBasedir(), "target/repository");
 		File artifactsXML = new File(repository, "artifacts.xml");
-		assertTrue(Files.readAllLines(artifactsXML.toPath()).stream()
-				.anyMatch(line -> line.contains(RepositorySystem.DEFAULT_REMOTE_REPO_URL)));
+		assertTrue(
+				artifactsXML.getAbsoluteFile() + " does not contain required line "
+						+ RepositorySystem.DEFAULT_REMOTE_REPO_URL,
+				Files.readAllLines(artifactsXML.toPath()).stream()
+						.anyMatch(line -> line.contains(RepositorySystem.DEFAULT_REMOTE_REPO_URL)));
 	}
 }

@@ -17,49 +17,42 @@ package org.eclipse.tycho.p2resolver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
-import org.eclipse.tycho.core.resolver.target.MavenBundleInfo;
-import org.eclipse.tycho.core.resolver.target.TargetPlatformBundlePublisher;
-import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
-import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
-import org.eclipse.tycho.p2.repository.CompositeArtifactProvider;
 import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.MetadataIO;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.osgi.framework.BundleException;
 
 public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
-    private final TargetPlatformBundlePublisher bundlesPublisher;
-    private final MavenLogger logger;
+    private final Logger logger;
 
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<>();
 
@@ -68,11 +61,9 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     private final List<IArtifactDescriptor> fileDescriptors = new ArrayList<>();
     private FileRepositoryArtifactProvider fileRepositoryArtifactProvider;
 
-    public PomDependencyCollectorImpl(MavenContext mavenContext, ReactorProject project, IProvisioningAgent agent) {
+    public PomDependencyCollectorImpl(Logger logger, ReactorProject project, IProvisioningAgent agent) {
+        this.logger = logger;
         this.project = project;
-        this.logger = mavenContext.getLogger();
-
-        this.bundlesPublisher = new TargetPlatformBundlePublisher(project, mavenContext);
         fileRepositoryArtifactProvider = new FileRepositoryArtifactProvider(
                 Collections.singletonList(new FileArtifactRepository(agent, fileDescriptors::iterator)),
                 ArtifactTransferPolicies.forLocalArtifacts());
@@ -86,43 +77,22 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     }
 
     @Override
-    public void addMavenArtifact(IArtifactFacade artifact, boolean allowGenerateOSGiBundle) {
-        if (artifact instanceof ReactorProjectFacade projectFacade) {
-            ReactorProject reactorProject = projectFacade.getReactorProject();
-            String packaging = reactorProject.getPackaging();
-            if ("bundle".equalsIgnoreCase(packaging) || "jar".equalsIgnoreCase(packaging)) {
-                File artifactFile = reactorProject.getArtifact();
-                if (artifactFile != null) {
-                    try {
-                        BundleDescription bundleDescription = BundlesAction.createBundleDescription(artifactFile);
-                        if (bundleDescription != null && bundleDescription.getSymbolicName() != null) {
-                            IArtifactKey key = BundlesAction.createBundleArtifactKey(
-                                    bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
-                            PublisherInfo publisherInfo = new PublisherInfo();
-                            publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-                            IArtifactDescriptor descriptor = FileArtifactRepository.forFile(artifactFile, key);
-                            fileDescriptors.add(descriptor);
-                            IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, key, publisherInfo);
-                            mavenInstallableUnits.put(iu, projectFacade);
-                            descriptorMap.put(projectFacade, descriptor);
-                        } else {
-                            if (allowGenerateOSGiBundle) {
-                                logger.warn("Referenced reactor project " + projectFacade
-                                        + " has no valid OSGi metadata and allowGenerateOSGiBundle=true is not applicable for reactor projects, consider adding felix- or bnd-maven-plugin to this project to generate appropriate OSGi headers in the first place.");
-                            }
-                        }
-                    } catch (IOException | BundleException e) {
-                        logger.warn("Referenced reactor project " + projectFacade + " could not be read!", e);
-                    }
+    public Entry<ArtifactKey, IArtifactDescriptor> addMavenArtifact(IArtifactFacade artifact,
+            Collection<IInstallableUnit> installableUnits) {
+        Entry<ArtifactKey, IArtifactDescriptor> resultArtifactKey = null;
+        for (IInstallableUnit unit : installableUnits) {
+            mavenInstallableUnits.put(unit, artifact);
+            for (IArtifactKey key : unit.getArtifacts()) {
+                ArtifactKey artifactKey = ArtifactTypeHelper.toTychoArtifactKey(unit, key);
+                if (artifactKey != null) {
+                    IArtifactDescriptor descriptor = FileArtifactRepository.forFile(artifact.getLocation(), key);
+                    fileDescriptors.add(descriptor);
+                    descriptorMap.put(artifact, descriptor);
+                    resultArtifactKey = new SimpleEntry<>(artifactKey, descriptor);
                 }
             }
-        } else {
-            MavenBundleInfo bundleIU = bundlesPublisher.attemptToPublishBundle(artifact, allowGenerateOSGiBundle);
-            if (bundleIU != null) {
-                addMavenArtifact(bundleIU.getArtifact(), Collections.singleton(bundleIU.getUnit()));
-                descriptorMap.put(bundleIU.getArtifact(), bundleIU.getDescriptor());
-            }
         }
+        return resultArtifactKey;
     }
 
     @Override
@@ -174,8 +144,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     }
 
     IRawArtifactFileProvider getArtifactRepoOfPublishedBundles() {
-        return new CompositeArtifactProvider(bundlesPublisher.getArtifactRepoOfPublishedBundles(),
-                fileRepositoryArtifactProvider);
+        return fileRepositoryArtifactProvider;
     }
 
     @Override

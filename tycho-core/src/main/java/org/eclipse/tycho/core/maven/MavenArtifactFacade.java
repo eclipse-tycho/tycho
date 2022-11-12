@@ -14,16 +14,14 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 
 public final class MavenArtifactFacade implements IArtifactFacade {
 
@@ -36,27 +34,7 @@ public final class MavenArtifactFacade implements IArtifactFacade {
         if (repository != null) {
             repositoryId = repository.getId();
         } else {
-            File file = mavenArtifact.getFile();
-            if (file != null) {
-                File repositoriesFile = new File(file.getParentFile(), "_remote.repositories");
-                if (repositoriesFile.isFile()) {
-                    Properties properties = new Properties();
-                    try {
-                        properties.load(new FileInputStream(repositoriesFile));
-                        for (String name : properties.stringPropertyNames()) {
-                            String[] split = name.split(">", 2);
-                            if (split.length == 2) {
-                                if (split[0].equals(file.getName())) {
-                                    repositoryId = split[1];
-                                    break;
-                                }
-                            }
-                        }
-                    } catch (IOException e) {
-                        //can't find the repository id then!
-                    }
-                }
-            }
+            repositoryId = MavenPropertiesAdvice.getRepository(mavenArtifact.getFile());
         }
     }
 

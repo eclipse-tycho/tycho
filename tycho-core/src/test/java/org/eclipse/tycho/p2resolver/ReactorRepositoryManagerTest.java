@@ -31,7 +31,6 @@ import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
-import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.eclipse.tycho.test.util.ReactorProjectStub;
 import org.junit.Before;
@@ -49,8 +48,7 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
 
     @Before
     public void setUpContext() throws Exception {
-        pomDependencyCollector = new PomDependencyCollectorImpl(
-                new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger()),
+        pomDependencyCollector = new PomDependencyCollectorImpl(logVerifier.getLogger(),
                 new ReactorProjectStub(tempManager.newFolder(), "test"), getProvisioningAgent());
     }
 

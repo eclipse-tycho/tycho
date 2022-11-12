@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.core.resolver;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -53,6 +53,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.core.publisher.TychoMavenPropertiesAdvice;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
 import org.eclipse.tycho.core.resolver.target.SupplierMetadataRepository;
@@ -62,15 +63,19 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
-import org.eclipse.tycho.p2.publisher.MavenChecksumAdvice;
-import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
+import org.eclipse.tycho.p2.resolver.BundlePublisher;
+import org.eclipse.tycho.p2.resolver.FeatureGenerator;
+import org.eclipse.tycho.p2.resolver.FeaturePublisher;
+import org.eclipse.tycho.p2.resolver.WrappedArtifact;
+import org.eclipse.tycho.p2maven.advices.MavenChecksumAdvice;
+import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 import org.eclipse.tycho.targetplatform.TargetDefinition.BNDInstructions;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenDependency;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.DependencyDepth;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.MissingManifestStrategy;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.w3c.dom.Element;
@@ -369,7 +374,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key);
         PublisherInfo publisherInfo = new PublisherInfo();
         if (mavenArtifact != null) {
-            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact, mavenContext);
+            MavenPropertiesAdvice advice = new TychoMavenPropertiesAdvice(mavenArtifact, mavenContext);
             publisherInfo.addAdvice(advice);
         }
         publisherInfo.addAdvice(new MavenChecksumAdvice(bundleLocation));

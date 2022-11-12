@@ -49,6 +49,8 @@ import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.publisher.FeatureRootfileArtifactRepository;
+import org.eclipse.tycho.core.publisher.TychoMavenPropertiesAdvice;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
@@ -61,8 +63,6 @@ import org.eclipse.tycho.p2.publisher.CategoryDependenciesAction;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.eclipse.tycho.p2.publisher.FeatureDependenciesAction;
-import org.eclipse.tycho.p2.publisher.FeatureRootfileArtifactRepository;
-import org.eclipse.tycho.p2.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.publisher.P2Artifact;
 import org.eclipse.tycho.p2.publisher.ProductDependenciesAction;
 import org.eclipse.tycho.p2.publisher.ProductFile2;
@@ -316,7 +316,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 ? reactorFacade.getReactorProject().getInterpolator()
                 : null;
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
-        advice.add(new MavenPropertiesAdvice(artifact, mavenContext));
+        advice.add(new TychoMavenPropertiesAdvice(artifact, mavenContext));
         advice.add(getExtraEntriesAdvice(artifact, interpolator));
 
         if (options.generateDownloadStatsProperty) {

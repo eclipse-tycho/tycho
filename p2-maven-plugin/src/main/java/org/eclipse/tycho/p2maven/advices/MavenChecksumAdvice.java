@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.publisher;
+package org.eclipse.tycho.p2maven.advices;
 
 import java.io.File;
 import java.io.IOException;
