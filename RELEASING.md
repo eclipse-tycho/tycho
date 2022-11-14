@@ -3,16 +3,16 @@
 This describes the steps to perform a release of Tycho:
 
 - [ ] Make sure all fixed issues and merged PRs have the correct milestone for this release, to finding PRs without milestone you can use the following filter `is:pr is:merged no:milestone` issues without milestone can be found with `is:issue no:milestone is:closed`
-- [ ] Prepare the [release notes](https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md) which should provide a quick overview of new features and bug fixes
+- [ ] Prepare the [release notes](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md) which should provide a quick overview of new features and bug fixes
 - [ ] When no more incoming change is expected for this release, create branch `tycho-N.M.x` (e.g. `tycho-2.4.x`) for upcoming release and push it to remote; this branch should remain frozen until the release, only major fixes for regressions could be merged in before release. Work can still happen regularly for the following version on the `master` branch.
-- [ ] Create release record on https://projects.eclipse.org/projects/technology.tycho projects.eclipse.org, link the N&N to https://github.com/eclipse/tycho/blob/[branch-name]/RELEASE_NOTES.md release notes]
+- [ ] Create release record on https://projects.eclipse.org/projects/technology.tycho projects.eclipse.org, link the N&N to https://github.com/eclipse-tycho/tycho/blob/[branch-name]/RELEASE_NOTES.md release notes]
 - [ ] Update the Jenkinsfile on the `tycho-N.M.x` and adjust the `stage('Deploy Snapshot')` to reference the new branch in the when conditional.
 - [ ] Update versions on `master `to future release with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT` and push to remote
-- [ ] Announce the intent to release and request feedback about snapshots on the [GitHub discussions](https://github.com/eclipse/tycho/discussions):
+- [ ] Announce the intent to release and request feedback about snapshots on the [GitHub discussions](https://github.com/eclipse-tycho/tycho/discussions):
 ```
 Subject: Tycho <VERSION> release
 
-We plan to release Tycho <VERSION> next week. For details of new features and bugfixes, see [release notes](https://github.com/eclipse/tycho/blob/tycho-x.y.z/RELEASE_NOTES.md).
+We plan to release Tycho <VERSION> next week. For details of new features and bugfixes, see [release notes](https://github.com/eclipse-tycho/tycho/blob/tycho-x.y.z/RELEASE_NOTES.md).
 Please help by testing the SNAPSHOTS build. To use it, change your tycho version to <VERSION>-SNAPSHOT and add the following snippet to your pom.
 
 <pluginRepositories>
@@ -78,8 +78,8 @@ Subject: Tycho <VERSION> is released
 
 Tycho <VERSION> has been released and is available from Maven Central repository.
 
-🆕 https://github.com/eclipse/tycho/blob/master/RELEASE_NOTES.md#xyz
-🏷️ https://github.com/eclipse/tycho/tree/tycho-x.y.z
+🆕 https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md#xyz
+🏷️ https://github.com/eclipse-tycho/tycho/tree/tycho-x.y.z
 👔 https://projects.eclipse.org/projects/technology.tycho/releases/x.y.z
 🙏 contributors who contributed patches for this release:
     <contributors>

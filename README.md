@@ -1,7 +1,7 @@
 Eclipse Tycho
 =============
 
-[![Build Tycho](https://github.com/eclipse/tycho/actions/workflows/maven.yml/badge.svg)](https://github.com/eclipse/tycho/actions/workflows/maven.yml) [![Unit Test Results](https://github.com/eclipse/tycho/actions/workflows/check.yml/badge.svg)](https://github.com/eclipse/tycho/actions/workflows/check.yml) [![License check](https://github.com/eclipse/tycho/actions/workflows/licensecheck.yml/badge.svg)](https://github.com/eclipse/tycho/actions/workflows/licensecheck.yml)
+[![Build Tycho](https://github.com/eclipse-tycho/tycho/actions/workflows/maven.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/maven.yml) [![Unit Test Results](https://github.com/eclipse-tycho/tycho/actions/workflows/check.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/check.yml) [![License check](https://github.com/eclipse-tycho/tycho/actions/workflows/licensecheck.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/licensecheck.yml)
 
 Tycho is a manifest-first way to build
 
@@ -44,7 +44,7 @@ In general, if Tycho is key technology for your Organization, you can help with 
 Test snapshots of Tycho early and often so that regressions are found early before we start the release process, this gives faster release and maybe even more often releases if we are certain that snapshots are production-ready.
 
 ### Donate some time
-Consider donate some developer time to improve code (e.g. fixing bugs), enhancing documentation, help with review of open PRs, [answer questions on the discussions](https://github.com/eclipse/tycho/discussions), or [providing integration test](https://github.com/eclipse/tycho/wiki#providing-an-integration-test) to cover your important features.
+Consider donate some developer time to improve code (e.g. fixing bugs), enhancing documentation, help with review of open PRs, [answer questions on the discussions](https://github.com/eclipse-tycho/tycho/discussions), or [providing integration test](https://github.com/eclipse-tycho/tycho/wiki#providing-an-integration-test) to cover your important features.
 
 ## Sponsor individual contributors
 If you want to help with development of Tycho itself but can't afford to do it by yourself, you can sponsor some of the contributors of Tycho directly:
