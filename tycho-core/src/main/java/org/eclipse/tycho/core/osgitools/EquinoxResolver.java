@@ -346,7 +346,7 @@ public class EquinoxResolver {
         List<ArtifactDescriptor> list = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
         for (ArtifactDescriptor artifact : list) {
             File location = artifact.getLocation(true);
-            OsgiManifest mf = loadManifest(location);
+            OsgiManifest mf = loadManifest(location, artifact);
             if (isFrameworkImplementation(mf)) {
                 systemBundles.put(location, mf);
             } else {
@@ -490,9 +490,10 @@ public class EquinoxResolver {
         return ":List<String>=\"" + String.join(",", elements) + "\"";
     }
 
-    private OsgiManifest loadManifest(File bundleLocation) {
+    private OsgiManifest loadManifest(File bundleLocation, ArtifactDescriptor artifact) {
         if (bundleLocation == null || !bundleLocation.exists()) {
-            throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation);
+            throw new IllegalArgumentException(
+                    "bundleLocation not found: " + bundleLocation + " for artifact " + artifact);
         }
         return manifestReader.loadManifest(bundleLocation);
     }

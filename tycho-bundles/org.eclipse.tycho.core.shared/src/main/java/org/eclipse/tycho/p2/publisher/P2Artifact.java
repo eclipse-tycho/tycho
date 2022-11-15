@@ -50,4 +50,10 @@ public class P2Artifact implements IP2Artifact {
         return artifactDescriptor;
     }
 
+    @Override
+    public String toString() {
+        return "P2Artifact [location=" + location + ", installableUnits=" + installableUnits + ", artifactDescriptor="
+                + artifactDescriptor + "]";
+    }
+
 }

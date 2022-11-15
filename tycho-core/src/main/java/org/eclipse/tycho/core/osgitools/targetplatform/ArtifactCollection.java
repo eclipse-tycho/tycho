@@ -15,6 +15,7 @@ package org.eclipse.tycho.core.osgitools.targetplatform;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -59,11 +60,12 @@ public class ArtifactCollection {
         return new ArrayList<>(artifacts.values());
     }
 
-    public void addArtifactFile(ArtifactKey key, File location, Set<IInstallableUnit> installableUnits) {
+    public void addArtifactFile(ArtifactKey key, File location, Collection<IInstallableUnit> installableUnits) {
         addArtifact(new DefaultArtifactDescriptor(key, location, null, null, installableUnits));
     }
 
-    public void addArtifactFile(ArtifactKey key, Supplier<File> location, Set<IInstallableUnit> installableUnits) {
+    public void addArtifactFile(ArtifactKey key, Supplier<File> location,
+            Collection<IInstallableUnit> installableUnits) {
         addArtifact(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
     }
 
@@ -76,12 +78,12 @@ public class ArtifactCollection {
             throw new IllegalAccessError();
         }
 
-        ArtifactKey key = normalizePluginType(artifact.getKey());
+        ArtifactKey normalizedKey = normalizeKey(artifact.getKey());
 
-        ArtifactDescriptor original = artifacts.get(key);
+        ArtifactDescriptor original = artifacts.get(normalizedKey);
 
-        Set<IInstallableUnit> units = null;
-
+        Collection<IInstallableUnit> units;
+        Collection<IInstallableUnit> artifactIUs = artifact.getInstallableUnits();
         if (original != null) {
             // can't use DefaultArtifactDescriptor.equals because artifact.location is not normalized
             if (!Objects.equals(original.getClassifier(), artifact.getClassifier())
@@ -91,43 +93,75 @@ public class ArtifactCollection {
             }
 
             // artifact equals to original
-            if (Objects.equals(original.getInstallableUnits(), artifact.getInstallableUnits())) {
+            Collection<IInstallableUnit> originalIUs = original.getInstallableUnits();
+            if (unitSetCompare(artifactIUs, originalIUs)) {
+                if (original instanceof DefaultArtifactDescriptor def) {
+                    if (original.getLocation(false) == null) {
+                        //they equal but maybe we can fetch the file form the other one because it is already resolved?
+                        if (original.getMavenProject() == null) {
+                            def.setMavenProject(artifact.getMavenProject());
+                        }
+                        File newLocation = artifact.getLocation(false);
+                        if (newLocation != null) {
+                            def.resolve(newLocation);
+                            registerArtifactLocation(newLocation, original);
+                        }
+                    }
+                }
                 return;
             }
-
             if (!merge) {
-                // TODO better error message
-                throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey());
+                if (artifactIUs.size() != originalIUs.size()) {
+                    throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey()
+                            + " number of IUs differ in size, existing IUs=" + originalIUs + ", artifact IUs="
+                            + artifactIUs);
+                }
+                if (artifactIUs.size() == 1 && originalIUs.size() == 1) {
+                    IInstallableUnit artifactUnit = artifactIUs.iterator().next();
+                    IInstallableUnit originalUnit = originalIUs.iterator().next();
+                    throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey()
+                            + " existing IU = " + originalUnit + ", artifact IU = " + artifactUnit);
+                }
+                throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey() + "existing IUs="
+                        + originalIUs + ", artifact IUs=" + artifactIUs);
             }
 
-            units = new LinkedHashSet<>(original.getInstallableUnits());
-            units.addAll(artifact.getInstallableUnits());
+            units = new LinkedHashSet<>(originalIUs);
+            units.addAll(artifactIUs);
         } else {
-            units = artifact.getInstallableUnits();
+            units = artifactIUs;
         }
 
-        // reuse artifact keys to reduce memory usage
-        key = normalize(key);
-
         if (units != null) {
-            units = Collections.unmodifiableSet(units);
+            units = Collections.unmodifiableCollection(units);
         }
 
         // recreate artifact descriptor to use normalized location, key and units
         File location = artifact.getLocation(false);
         ArtifactDescriptor normalizedArtifact = location != null
-                ? new DefaultArtifactDescriptor(key, location, artifact.getMavenProject(), artifact.getClassifier(),
-                        units)
-                : new DefaultArtifactDescriptor(key, thisArtifact -> {
+                ? new DefaultArtifactDescriptor(normalizedKey, location, artifact.getMavenProject(),
+                        artifact.getClassifier(), units)
+                : new DefaultArtifactDescriptor(normalizedKey, thisArtifact -> {
                     File resolvedLocation = artifact.getLocation(true);
                     registerArtifactLocation(resolvedLocation, thisArtifact);
                     return resolvedLocation;
                 }, artifact.getMavenProject(), artifact.getClassifier(), units);
 
-        artifacts.put(artifact.getKey(), normalizedArtifact);
+        artifacts.put(normalizedKey, normalizedArtifact);
         if (location != null) {
             registerArtifactLocation(location, normalizedArtifact);
         }
+    }
+
+    private boolean unitSetCompare(Collection<IInstallableUnit> unitsA, Collection<IInstallableUnit> unitsB) {
+        //usual and easy case ...
+        if (unitsA.size() == 1 && unitsB.size() == 1) {
+            IInstallableUnit a = unitsA.iterator().next();
+            IInstallableUnit b = unitsB.iterator().next();
+            return Objects.equals(a, b);
+        }
+        //if more then we create sets and compare them ...
+        return Set.copyOf(unitsB).equals(Set.copyOf(unitsA));
     }
 
     private void registerArtifactLocation(File location, ArtifactDescriptor normalizedArtifact) {
@@ -161,11 +195,14 @@ public class ArtifactCollection {
         return key;
     }
 
-    protected ArtifactKey normalizePluginType(ArtifactKey key) {
+    private ArtifactKey normalizeKey(ArtifactKey key) {
         // normalize eclipse-test-plugin... after all, a bundle is a bundle.
         // TODO ArtifactKey should never use packaging types
         if (PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(key.getType())) {
             key = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, key.getId(), key.getVersion());
+        }
+        if (!(key instanceof DefaultArtifactKey)) {
+            return new DefaultArtifactKey(key.getType(), key.getId(), key.getVersion());
         }
         return key;
     }
@@ -229,7 +266,7 @@ public class ArtifactCollection {
     }
 
     public void addReactorArtifact(ArtifactKey key, ReactorProject project, String classifier,
-            Set<IInstallableUnit> installableUnits) {
+            Collection<IInstallableUnit> installableUnits) {
         DefaultArtifactDescriptor artifact = new DefaultArtifactDescriptor(key, project.getBasedir(), project,
                 classifier, installableUnits);
         addArtifact(artifact);
@@ -257,7 +294,7 @@ public class ArtifactCollection {
     }
 
     public ArtifactDescriptor getArtifact(ArtifactKey key) {
-        return artifacts.get(normalizePluginType(key));
+        return artifacts.get(normalizeKey(key));
     }
 
     public void removeAll(String type, String id) {

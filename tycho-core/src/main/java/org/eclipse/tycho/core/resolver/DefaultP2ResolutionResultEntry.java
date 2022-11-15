@@ -104,4 +104,11 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
         this.version = version;
     }
 
+    @Override
+    public String toString() {
+        return "DefaultP2ResolutionResultEntry [type=" + type + ", id=" + id + ", version=" + version
+                + ", installableUnits=" + installableUnits + ", classifier=" + classifier + ", location=" + location
+                + ", resolvedFile=" + resolvedFile + "]";
+    }
+
 }

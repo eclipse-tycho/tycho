@@ -16,6 +16,7 @@ package org.eclipse.tycho;
 import java.io.File;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 /**
  * A Tycho project in the reactor.
@@ -64,6 +65,8 @@ public interface ReactorProject extends IDependencyMetadata {
     // context values
 
     public Object getContextValue(String key);
+
+    public <T> T computeContextValue(String key, Supplier<T> initalValueSupplier);
 
     public void setContextValue(String key, Object value);
 
