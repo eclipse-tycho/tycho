@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -98,6 +99,7 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.p2resolver.PomReactorProjectFacade;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
@@ -258,6 +260,11 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                     return DefaultReactorProject.adapt(project).getContextValue(key);
                 }
                 return value;
+            }
+
+            @Override
+            public <T> T computeContextValue(String key, Supplier<T> initalValueSupplier) {
+                return DefaultReactorProject.adapt(project).computeContextValue(key, initalValueSupplier);
             }
 
             @Override

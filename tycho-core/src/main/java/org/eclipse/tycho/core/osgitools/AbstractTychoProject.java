@@ -16,11 +16,15 @@ package org.eclipse.tycho.core.osgitools;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
@@ -28,6 +32,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
@@ -35,9 +41,11 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.p2resolver.PomReactorProjectFacade;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
@@ -160,6 +168,44 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
             }
         }
         return new ArrayList<>(artifacts);
+    }
+
+    @Override
+    public Map<Artifact, IArtifactFacade> getArtifactFacades(ReactorProject reactorProject,
+            Collection<Artifact> artifacts) {
+        MavenSession session = getMavenSession(reactorProject);
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+        Map<String, ReactorProject> nonTychoReactorProjects = new HashMap<>();
+        Set<String> projectIds = new HashSet<>();
+        for (ReactorProject p : reactorProjects) {
+            String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
+            projectIds.add(key);
+            String packaging = p.getPackaging();
+            if (!PackagingType.TYCHO_PACKAGING_TYPES.contains(packaging)) {
+                nonTychoReactorProjects.put(key, p);
+            }
+        }
+        List<Artifact> externalArtifacts = new ArrayList<>(artifacts.size());
+        for (Artifact artifact : artifacts) {
+            String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
+            if (projectIds.contains(key)) {
+                // resolved to an older snapshot from the repo, we only want the current project in the reactor
+                continue;
+            }
+            externalArtifacts.add(artifact);
+        }
+        Map<Artifact, IArtifactFacade> resultMap = new HashMap<>();
+        for (Artifact artifact : artifacts) {
+            String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
+            if (nonTychoReactorProjects.containsKey(key)) {
+                PomReactorProjectFacade projectFacade = new PomReactorProjectFacade(artifact,
+                        nonTychoReactorProjects.get(key));
+                resultMap.put(artifact, projectFacade);
+            } else {
+                resultMap.put(artifact, new MavenArtifactFacade(artifact));
+            }
+        }
+        return resultMap;
     }
 
     protected static String getKey(Dependency dependency) {

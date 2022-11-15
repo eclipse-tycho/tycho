@@ -13,7 +13,7 @@
 package org.eclipse.tycho;
 
 import java.io.File;
-import java.util.Set;
+import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
@@ -59,5 +59,6 @@ public interface ArtifactDescriptor {
      * @TODO this should probably be Map<String,Set<IInstallableUnit>>
      * @TODO is this dependency-only or final metadata?
      */
-    public Set<IInstallableUnit> getInstallableUnits();
+    public Collection<IInstallableUnit> getInstallableUnits();
+
 }

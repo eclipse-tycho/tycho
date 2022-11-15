@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 import java.util.Objects;
@@ -19,7 +19,12 @@ import org.apache.maven.artifact.Artifact;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 
-final class PomReactorProjectFacade implements ReactorProjectFacade {
+public final class PomReactorProjectFacade implements ReactorProjectFacade {
+
+    @Override
+    public String toString() {
+        return "PomReactorProjectFacade [project=" + project + ", artifact=" + artifact + "]";
+    }
 
     private ReactorProject project;
     private Artifact artifact;

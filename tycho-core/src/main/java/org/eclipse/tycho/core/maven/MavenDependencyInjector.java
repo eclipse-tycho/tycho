@@ -405,7 +405,7 @@ public final class MavenDependencyInjector {
         }
 
         @Override
-        public Set<IInstallableUnit> getInstallableUnits() {
+        public Collection<IInstallableUnit> getInstallableUnits() {
             return getDescriptor().getInstallableUnits();
         }
 

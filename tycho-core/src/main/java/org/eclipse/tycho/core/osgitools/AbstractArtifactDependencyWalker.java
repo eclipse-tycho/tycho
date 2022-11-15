@@ -82,7 +82,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         ArtifactKey key = artifact.getKey();
         ReactorProject project = artifact.getMavenProject();
         String classifier = artifact.getClassifier();
-        Set<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
+        Collection<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
 
         DefaultFeatureDescription description = new DefaultFeatureDescription(key, location, project, classifier,
                 feature, featureRef, installableUnits);
@@ -208,7 +208,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             File location = artifact.getLocation(true);
             ReactorProject project = artifact.getMavenProject();
             String classifier = artifact.getClassifier();
-            Set<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
+            Collection<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
 
             PluginDescription description = new DefaultPluginDescription(key, location, project, classifier, ref,
                     installableUnits);

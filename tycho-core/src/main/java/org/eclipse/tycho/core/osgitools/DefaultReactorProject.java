@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -167,6 +168,14 @@ public class DefaultReactorProject implements ReactorProject {
     public Object getContextValue(String key) {
         Object value = context.get(key);
         return (value != null) ? value : project.getContextValue(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T computeContextValue(String key, Supplier<T> initalValueSupplier) {
+        return (T) context.computeIfAbsent(key, nil -> {
+            return initalValueSupplier.get();
+        });
     }
 
     @Override

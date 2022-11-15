@@ -16,10 +16,11 @@ package org.eclipse.tycho.test.util;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.BuildDirectory;
@@ -41,7 +42,7 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
 
     private String packagingType;
 
-    private Map<String, Object> contextValues = new HashMap<>();
+    private Map<String, Object> contextValues = new ConcurrentHashMap<>();
 
     private Set<IInstallableUnit> dependencyMetadata = new LinkedHashSet<>();
 
@@ -213,6 +214,12 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     public <T> T adapt(Class<T> target) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T computeContextValue(String key, Supplier<T> initalValueSupplier) {
+        return (T) contextValues.computeIfAbsent(key, x -> initalValueSupplier.get());
     }
 
 }

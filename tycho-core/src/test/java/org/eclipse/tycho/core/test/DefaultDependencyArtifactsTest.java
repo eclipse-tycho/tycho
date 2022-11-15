@@ -16,6 +16,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -155,7 +156,7 @@ public class DefaultDependencyArtifactsTest {
 
         Assert.assertEquals(1, artifacts.size());
 
-        Set<IInstallableUnit> units = artifacts.get(0).getInstallableUnits();
+        Collection<IInstallableUnit> units = artifacts.get(0).getInstallableUnits();
         Assert.assertEquals(2, units.size());
         Assert.assertTrue(units.contains(unit("a")));
         Assert.assertTrue(units.contains(unit("b")));

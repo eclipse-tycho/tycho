@@ -13,7 +13,7 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
-import java.util.Set;
+import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
@@ -26,7 +26,7 @@ public class DefaultPluginDescription extends DefaultArtifactDescriptor implemen
     private PluginRef pluginRef;
 
     public DefaultPluginDescription(ArtifactKey key, File location, ReactorProject project, String classifier,
-            PluginRef pluginRef, Set<IInstallableUnit> installableUnits) {
+            PluginRef pluginRef, Collection<IInstallableUnit> installableUnits) {
         super(key, location, project, classifier, installableUnits);
         this.pluginRef = pluginRef;
     }

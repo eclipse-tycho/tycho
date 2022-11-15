@@ -13,10 +13,12 @@
 package org.eclipse.tycho.core;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -58,5 +60,14 @@ public interface TychoProject {
      *         known as "pom considered dependencies"
      */
     Collection<Artifact> getInitialArtifacts(ReactorProject reactorProject, Collection<String> scopes);
+
+    /**
+     * Computes a map for the given artifacts to their facades
+     * 
+     * @param artifacts
+     *            the artifacts to map
+     * @return
+     */
+    Map<Artifact, IArtifactFacade> getArtifactFacades(ReactorProject reactorProject, Collection<Artifact> artifacts);
 
 }

@@ -13,8 +13,8 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -30,14 +30,14 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     private Function<ArtifactDescriptor, File> locationSupplier;
     private File location;
 
-    private final ReactorProject project;
+    private ReactorProject project;
 
     private final String classifier;
 
-    private final Set<IInstallableUnit> installableUnits;
+    private final Collection<IInstallableUnit> installableUnits;
 
     public DefaultArtifactDescriptor(ArtifactKey key, File location, ReactorProject project, String classifier,
-            Set<IInstallableUnit> installableUnits) {
+            Collection<IInstallableUnit> installableUnits) {
         this.key = key;
         this.location = ArtifactCollection.normalizeLocation(location);
         this.project = project;
@@ -46,7 +46,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     }
 
     public DefaultArtifactDescriptor(ArtifactKey key, Function<ArtifactDescriptor, File> location,
-            ReactorProject project, String classifier, Set<IInstallableUnit> installableUnits) {
+            ReactorProject project, String classifier, Collection<IInstallableUnit> installableUnits) {
         this.key = key;
         this.locationSupplier = location;
         this.project = project;
@@ -87,7 +87,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     }
 
     @Override
-    public Set<IInstallableUnit> getInstallableUnits() {
+    public Collection<IInstallableUnit> getInstallableUnits() {
         return installableUnits;
     }
 
@@ -123,6 +123,14 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
                         || Objects.equals(locationSupplier, other.locationSupplier))
                 && Objects.equals(project, other.project) && Objects.equals(classifier, other.classifier)
                 && Objects.equals(installableUnits, other.installableUnits);
+    }
+
+    public void resolve(File newLocation) {
+        location = newLocation;
+    }
+
+    public void setMavenProject(ReactorProject mavenProject) {
+        project = mavenProject;
     }
 
 }

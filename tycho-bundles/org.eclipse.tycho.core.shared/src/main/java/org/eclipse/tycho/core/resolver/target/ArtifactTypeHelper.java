@@ -18,6 +18,7 @@ import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_PLUGIN;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -27,9 +28,12 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.PackagingType;
 
 public class ArtifactTypeHelper {
 
@@ -131,9 +135,48 @@ public class ArtifactTypeHelper {
         }
     }
 
+    public static ArtifactKey toTychoArtifactKey(IInstallableUnit iu, IArtifactKey p2ArtifactKey) {
+        String id = iu.getId();
+        String version = iu.getVersion().toString();
+        if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
+            return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version);
+        } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(p2ArtifactKey.getClassifier())) {
+            String featureId = getFeatureId(iu);
+            if (featureId == null) {
+                return null;
+            }
+            return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, version);
+        } else {
+            return new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT, id, version);
+        }
+    }
+
+    public static String getFeatureId(IInstallableUnit iu) {
+        for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
+            if (PublisherHelper.CAPABILITY_NS_UPDATE_FEATURE.equals(provided.getNamespace())) {
+                return provided.getName();
+            }
+        }
+        return null;
+    }
+
     private static IArtifactKey createP2ArtifactKey(String type, org.eclipse.tycho.ArtifactKey artifact) {
         return new org.eclipse.equinox.internal.p2.metadata.ArtifactKey(type, artifact.getId(),
                 Version.parseVersion(artifact.getVersion()));
+    }
+
+    public static String getType(IArtifactFacade artifactFacade) {
+        String packagingType = artifactFacade.getPackagingType();
+        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packagingType) || "bundle".equals(packagingType)) {
+            return ArtifactType.TYPE_ECLIPSE_PLUGIN;
+        }
+        if (PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packagingType)) {
+            return ArtifactType.TYPE_ECLIPSE_TEST_PLUGIN;
+        }
+        if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packagingType)) {
+            return ArtifactType.TYPE_ECLIPSE_FEATURE;
+        }
+        return ArtifactType.TYPE_INSTALLABLE_UNIT;
     }
 
 }
