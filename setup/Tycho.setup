@@ -143,7 +143,7 @@
   <setupTask
       xsi:type="git:GitCloneTask"
       id="git.cloneTycho"
-      remoteURI="eclipse/tycho"
+      remoteURI="eclipse-tycho/tycho"
       pushURI="">
     <annotation
         source="http://www.eclipse.org/oomph/setup/InducedChoices">
