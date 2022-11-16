@@ -13,9 +13,11 @@
 package org.eclipse.tycho.test.versionsplugin;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.Files;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
@@ -24,7 +26,7 @@ import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-public class TychoVersionsPluginCompatibilityTest extends AbstractTychoIntegrationTest {
+public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 	/**
 	 * <p>
@@ -47,7 +49,7 @@ public class TychoVersionsPluginCompatibilityTest extends AbstractTychoIntegrati
 	public void invokeVersionsPluginOnTycho0120Project() throws Exception {
 		String expectedNewVersion = "1.2.3";
 
-		Verifier verifier = getVerifier("TychoVersionsPluginTest", true);
+		Verifier verifier = getVerifier("TychoVersionsPluginTest/compat", true);
 
 		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
 		verifier.executeGoal(
@@ -58,6 +60,23 @@ public class TychoVersionsPluginCompatibilityTest extends AbstractTychoIntegrati
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
 		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), "pom.xml")));
 		assertEquals("<version> in pom.xml has not been changed!", expectedNewVersion, pomModel.getVersion());
+	}
+
+	@Test
+	public void updateTargetVersionTest() throws Exception {
+		String expectedNewVersion = "1.2.3";
+
+		Verifier verifier = getVerifier("TychoVersionsPluginTest/update-target", true);
+
+		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.executeGoal(
+				"org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":set-version");
+
+		verifier.verifyErrorFreeLog();
+		String targetContent = Files.readString(new File(verifier.getBasedir(), "including/including.target").toPath());
+		assertTrue("Actual Target content = " + targetContent,
+				targetContent.contains("mvn:org.tycho.its:other:" + expectedNewVersion + ":target")
+						&& targetContent.contains("sequenceNumber=\"12\""));
 	}
 
 }
