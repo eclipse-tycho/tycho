@@ -72,14 +72,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
-import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.BuildDirectory;
-import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.OptionalResolutionAction;
-import org.eclipse.tycho.PlatformPropertiesUtils;
-import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.*;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
@@ -139,6 +132,15 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "true")
     private boolean deleteOsgiDataDirectory;
+
+    /**
+     * The directory where OSGi/PDE metadata files (e.g., <code>MANIFEST.MF</code>) are located.
+     * Useful in case said metadata is changed at build time, using filtering.
+     * <p>
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}")
+    private File metadataDirectory;
 
     @Parameter(property = "project", readonly = true)
     protected MavenProject project;
@@ -699,6 +701,10 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             return;
         }
         if (shouldRun()) {
+            // Allow constructing the test runtime against filtered OSGi/PDE metadata
+            final ReactorProject reactorProject = getReactorProject();
+            reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, metadataDirectory);
+
             EquinoxInstallation equinoxTestRuntime;
             synchronized (AbstractTestMojo.class) {
                 if ("p2Installed".equals(testRuntime)) {
@@ -864,8 +870,10 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             // all other projects are added as bundle jars.
             ReactorProject otherProject = artifact.getMavenProject();
             if (otherProject != null) {
-                if (otherProject.sameProject(project)) {
-                    addBundle(testRuntime, artifact.getKey(), project.getBasedir());
+                // Contrary to what's written above, we use the project's root directory only when
+                // we do not need custom metadata. If we need, we load the test bundle as JAR instead
+                if (otherProject.sameProject(project) && project.getBasedir().equals(metadataDirectory)) {
+                    addBundle(testRuntime, artifact.getKey(), metadataDirectory);
                     continue;
                 }
                 File file = otherProject.getArtifact(artifact.getClassifier());

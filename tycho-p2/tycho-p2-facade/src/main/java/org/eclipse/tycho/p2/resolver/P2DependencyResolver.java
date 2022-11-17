@@ -165,7 +165,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
             final MavenProject project, final List<TargetEnvironment> environments,
             final OptionalResolutionAction optionalAction) {
-        final File artifactLocation = (File) project.getContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION);
+        final ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        final File artifactLocation = (File) reactorProject.getContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION);
         final File location = artifactLocation != null ? artifactLocation : project.getBasedir();
         final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<>();
         metadata.put(null, generator.generateMetadata(new AttachedArtifact(project, location, null), environments,

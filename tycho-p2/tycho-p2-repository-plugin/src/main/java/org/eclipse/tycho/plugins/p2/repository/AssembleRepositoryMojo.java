@@ -27,6 +27,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
@@ -201,15 +202,15 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 destination.mkdirs();
                 copyResources(destination);
 
-                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getReactorProject());
+                final ReactorProject reactorProject = getReactorProject();
+                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(reactorProject);
                 if (projectSeeds.isEmpty()) {
                     getLog().warn("No content specified for p2 repository");
                     return;
                 }
 
-                final MavenProject project = getProject();
-                project.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
-                RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(project,
+                reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
+                RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(),
                         getSession(), RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
 
                 List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory)
