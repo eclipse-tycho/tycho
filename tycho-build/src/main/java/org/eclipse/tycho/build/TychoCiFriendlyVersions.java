@@ -46,6 +46,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.tycho.BuildTimestampProvider;
 
 @Priority(100)
 @Component(role = ModelVersionProcessor.class)

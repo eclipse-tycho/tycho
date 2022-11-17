@@ -33,7 +33,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;

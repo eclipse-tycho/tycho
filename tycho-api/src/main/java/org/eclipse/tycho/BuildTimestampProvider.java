@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.build;
+package org.eclipse.tycho;
 
 import java.util.Date;
 

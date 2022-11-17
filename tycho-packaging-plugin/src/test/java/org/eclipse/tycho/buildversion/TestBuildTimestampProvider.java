@@ -22,7 +22,7 @@ import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.build.BuildTimestampProvider;
+import org.eclipse.tycho.BuildTimestampProvider;
 
 @Component(role = BuildTimestampProvider.class, hint = "test")
 public class TestBuildTimestampProvider implements BuildTimestampProvider {

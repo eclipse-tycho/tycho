@@ -44,7 +44,7 @@ import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.tycho.resolver.TychoResolver;
+import org.eclipse.tycho.TychoResolver;
 
 public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 

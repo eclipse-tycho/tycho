@@ -16,9 +16,9 @@ import java.util.List;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.classpath.ClasspathEntry;
-import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
+import org.eclipse.tycho.ClasspathEntry.AccessRule;
 
 public interface BundleProject extends TychoProject {
     public List<ClasspathEntry> getClasspath(ReactorProject project);

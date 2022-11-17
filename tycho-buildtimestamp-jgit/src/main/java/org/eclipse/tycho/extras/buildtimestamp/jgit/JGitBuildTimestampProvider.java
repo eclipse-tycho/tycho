@@ -41,7 +41,7 @@ import org.eclipse.jgit.submodule.SubmoduleWalk.IgnoreSubmoduleMode;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.eclipse.tycho.build.BuildTimestampProvider;
+import org.eclipse.tycho.BuildTimestampProvider;
 
 /**
  * Build timestamp provider that returns date of the most recent git commit that

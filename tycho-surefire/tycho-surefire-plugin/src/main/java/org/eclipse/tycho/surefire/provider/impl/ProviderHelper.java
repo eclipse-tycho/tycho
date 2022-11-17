@@ -27,7 +27,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 

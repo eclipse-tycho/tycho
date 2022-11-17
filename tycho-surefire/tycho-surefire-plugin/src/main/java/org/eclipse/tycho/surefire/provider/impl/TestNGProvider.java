@@ -21,7 +21,7 @@ import java.util.Properties;
 import org.apache.maven.model.Dependency;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 

@@ -17,10 +17,9 @@
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
 		<version>4.0.0-SNAPSHOT</version>
-		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>org.eclipse.tycho.embedder.shared</artifactId>
+	<artifactId>tycho-api</artifactId>
 	<packaging>jar</packaging>
 
 	<name>Tycho Embedder API Maven/OSGi Shared Classes</name>
@@ -30,6 +29,10 @@
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.metadata</artifactId>
 			<version>2.6.300</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

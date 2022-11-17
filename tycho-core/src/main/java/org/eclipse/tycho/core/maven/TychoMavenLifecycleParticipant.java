@@ -64,13 +64,13 @@ import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.TychoResolver;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
-import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {

@@ -10,13 +10,12 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.resolver;
+package org.eclipse.tycho;
 
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.ReactorProject;
 
 public interface TychoResolver {
     // TODO project and reactorProject represent the same thing!? -> should be one paramenter

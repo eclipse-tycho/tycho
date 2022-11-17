@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.resolver;
+package org.eclipse.tycho.core;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 

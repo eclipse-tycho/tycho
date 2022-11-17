@@ -10,14 +10,11 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.classpath;
+package org.eclipse.tycho;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ReactorProject;
 
 /**
  * @author igor

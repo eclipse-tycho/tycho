@@ -30,8 +30,8 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.TychoResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = ProjectExecutionListener.class, hint = "tycho")
 public class TychoProjectExecutionListener implements ProjectExecutionListener {

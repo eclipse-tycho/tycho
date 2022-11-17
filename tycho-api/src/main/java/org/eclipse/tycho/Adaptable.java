@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.runtime;
+package org.eclipse.tycho;
 
 public interface Adaptable {
     public <T> T getAdapter(Class<T> adapter);

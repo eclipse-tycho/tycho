@@ -66,13 +66,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.embedder.shared</artifactId>
+			<artifactId>tycho-api</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<version>${project.version}</version>
-			<artifactId>tycho-embedder-api</artifactId>
 		</dependency>
 	</dependencies>
 

@@ -18,6 +18,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.BuildTimestampProvider;
 
 /**
  * Build timestamp provider that returns the same timestamp for all projects, the

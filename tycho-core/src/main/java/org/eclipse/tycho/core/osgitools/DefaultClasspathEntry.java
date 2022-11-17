@@ -20,8 +20,8 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.classpath.ClasspathEntry;
 
 public class DefaultClasspathEntry implements ClasspathEntry {
     private final ReactorProject project;

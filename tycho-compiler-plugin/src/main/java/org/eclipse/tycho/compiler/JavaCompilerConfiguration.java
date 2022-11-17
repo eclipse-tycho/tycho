@@ -10,18 +10,19 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.classpath;
+package org.eclipse.tycho.compiler;
 
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.eclipse.tycho.runtime.Adaptable;
+import org.eclipse.tycho.Adaptable;
+import org.eclipse.tycho.ClasspathEntry;
+import org.eclipse.tycho.SourcepathEntry;
 
 /**
  * Computes and returns Tycho java compiler configuration, i.e. compile or test-compile mojos of
- * org.eclipse.tycho:tycho-compiler-plugin
- * Use {@link Adaptable#getAdapter(Class)} on compile or test-compile mojos to get instance of this
- * intergace
+ * org.eclipse.tycho:tycho-compiler-plugin Use {@link Adaptable#getAdapter(Class)} on compile or
+ * test-compile mojos to get instance of this intergace
  * 
  * @author igor
  * @noimplement This interface is not intended to be implemented by clients.
