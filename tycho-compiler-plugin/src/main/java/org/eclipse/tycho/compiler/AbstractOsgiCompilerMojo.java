@@ -506,6 +506,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         Set<String> includedPathes = new HashSet<>();
         for (ClasspathEntry cpe : getClasspath()) {
             for (File location : cpe.getLocations()) {
+                if (!location.exists() || (location.isFile() && location.length() == 0)) {
+                    continue;
+                }
                 String path = location.getAbsolutePath();
                 String entry = path + toString(cpe.getAccessRules());
                 if (seen.add(entry)) {
