@@ -154,6 +154,12 @@ public class ArtifactCollection {
     }
 
     private boolean unitSetCompare(Collection<IInstallableUnit> unitsA, Collection<IInstallableUnit> unitsB) {
+        if (unitsA == null) {
+            unitsA = Collections.emptyList();
+        }
+        if (unitsB == null) {
+            unitsB = Collections.emptyList();
+        }
         //usual and easy case ...
         if (unitsA.size() == 1 && unitsB.size() == 1) {
             IInstallableUnit a = unitsA.iterator().next();
