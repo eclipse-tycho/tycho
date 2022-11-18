@@ -17,6 +17,7 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +29,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.zip.ZipException;
 
@@ -436,6 +439,10 @@ public final class MavenDependencyInjector {
             try {
                 fileNotYetAvailable = File.createTempFile("file not yet available", null);
                 fileNotYetAvailable.deleteOnExit();
+                try (JarOutputStream stream = new JarOutputStream(new FileOutputStream(fileNotYetAvailable),
+                        new Manifest())) {
+                    //create an empty jar just in case...
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
