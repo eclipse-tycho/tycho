@@ -165,14 +165,14 @@ public class InstallableUnitGenerator {
 						log.debug("Using cached value for " + project);
 						return collection;
 					} else {
-						log.debug("Can't use cached value for " + project
-								+ " because of incompatible classloaders, update is forced!");
+						log.debug("Cannot use cached value for " + project
+								+ " because of incompatible classloaders, update is forced");
 					}
 				}
 			}
 			File basedir = project.getBasedir();
 			if (basedir == null || !basedir.isDirectory()) {
-				log.warn("No valid basedir for " + project + "!");
+				log.warn("No valid basedir for " + project + " found");
 				return Collections.emptyList();
 			}
 			String packaging = project.getPackaging();
@@ -181,7 +181,7 @@ public class InstallableUnitGenerator {
 			List<IPublisherAction> actions = getPublisherActions(packaging, basedir, version, artifactId);
 			Collection<IInstallableUnit> publishedUnits = publisher.publishMetadata(actions);
 			for (InstallableUnitProvider unitProvider : getProvider(project, session)) {
-				log.debug("Asking: " + unitProvider + " for additional units for " + project + "...");
+				log.debug("Asking " + unitProvider + " for additional units for " + project + "...");
 				Collection<IInstallableUnit> installableUnits = unitProvider.getInstallableUnits(project, session);
 				log.debug("Provider " + unitProvider + " generated " + installableUnits.size() + " (" + installableUnits
 						+ ") units for " + project);
@@ -196,7 +196,7 @@ public class InstallableUnitGenerator {
 				}
 			}
 			if (result.isEmpty()) {
-				log.debug("Can't generate any InstallableUnit for packaging type '" + packaging + "' for " + project);
+				log.debug("Cannot generate any InstallableUnit for packaging type '" + packaging + "' for " + project);
 			}
 			project.setContextValue(KEY_UNITS, result);
 			return result;

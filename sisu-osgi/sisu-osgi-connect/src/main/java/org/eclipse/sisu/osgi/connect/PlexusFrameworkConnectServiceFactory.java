@@ -113,7 +113,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		}
 		Collection<ClassRealm> realms = collectRealms(realm, new LinkedHashSet<>());
 
-		log.debug("Create framework for " + this + " with realm " + realm);
+		log.debug("Create framework for " + this + " with Realm " + realm);
 		Logger fwLogger = new PlexusConnectFramework(null, log, this, realm, false);
 		Map<String, String> p = readProperties(realm, fwLogger);
 		p.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
@@ -212,7 +212,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			try (InputStream stream = url.openStream()) {
 				properties.load(stream);
 			} catch (IOException e) {
-				logger.warn("Can't read properties from url " + url);
+				logger.warn("Cannot read properties from URL " + url);
 			}
 			for (String property : properties.stringPropertyNames()) {
 				String value = properties.getProperty(property);
@@ -249,7 +249,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 							}
 						});
 			} else {
-				log.info("No service component runtime installed (or started) in this framework!");
+				log.info("No service component runtime installed (or started) in this framework");
 			}
 		} finally {
 			st.close();

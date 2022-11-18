@@ -341,7 +341,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         if (versionToProjectsMap.size() > 1) {
             List<String> versions = new ArrayList<>(versionToProjectsMap.keySet());
             Collections.sort(versions);
-            log.error("Several versions of tycho plugins are configured " + versions + ":");
+            log.error("Several versions of Tycho plugins are configured " + versions + ":");
             for (String version : versions) {
                 log.error(version + ":");
                 for (MavenProject project : versionToProjectsMap.get(version)) {

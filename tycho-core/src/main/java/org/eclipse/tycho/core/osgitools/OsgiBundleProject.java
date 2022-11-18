@@ -649,7 +649,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         }
                     });
                 } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
-                    logger.debug("Can't find package " + annotationPackage + " in target platform");
+                    logger.debug("Cannot find package " + annotationPackage + " in target platform");
                 }
             }
         }

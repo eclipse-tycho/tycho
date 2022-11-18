@@ -282,7 +282,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             l10nPropsFile = new File(project.getBasedir(), bundleL10nBase + ".properties");
             if (!l10nPropsFile.isFile()) {
                 if (hasL10nProperty) {
-                    getLog().warn("bundle localization file " + l10nPropsFile + " not found");
+                    getLog().warn("Bundle localization file " + l10nPropsFile + " not found");
                 }
                 return null;
             }
@@ -346,7 +346,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             mavenArchiveConfiguration.addManifestEntry(BUNDLE_VENDOR, I18N_KEY_PREFIX + I18N_KEY_BUNDLE_VENDOR);
             mavenArchiveConfiguration.addManifestEntry(BUNDLE_LOCALIZATION, MANIFEST_BUNDLE_LOCALIZATION_BASENAME);
         } else {
-            getLog().info("NOT adding source bundle manifest entries. Incomplete or no bundle information available.");
+            getLog().info("NOT adding source bundle MANIFEST.MF entries. Incomplete or no bundle information available.");
         }
     }
 

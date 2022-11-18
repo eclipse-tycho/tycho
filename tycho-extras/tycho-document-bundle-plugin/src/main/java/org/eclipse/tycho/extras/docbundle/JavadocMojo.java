@@ -237,7 +237,7 @@ public class JavadocMojo extends AbstractMojo {
 	public void execute() throws MojoExecutionException {
 		getLog().info("Scopes: " + this.scopes);
 		getLog().info("Output directory: " + this.outputDirectory);
-		getLog().info("BaseDir: " + this.basedir);
+		getLog().info("Basedir: " + this.basedir);
 
 		if (this.cleanFirst) {
 			getLog().info("Cleaning up first");

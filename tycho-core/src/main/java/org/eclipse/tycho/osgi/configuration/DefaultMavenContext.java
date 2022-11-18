@@ -153,7 +153,7 @@ public class DefaultMavenContext implements MavenContext {
 
     private Optional<MavenSession> getSession() {
         if (legacySupport == null) {
-            logger.warn("legacy support not available!");
+            logger.warn("Legacy support not available");
             return Optional.empty();
         }
         MavenSession session = legacySupport.getSession();
@@ -161,7 +161,7 @@ public class DefaultMavenContext implements MavenContext {
             if (logger.isDebugEnabled()) {
                 Thread.dumpStack();
             }
-            logger.warn("not called from a maven thread!");
+            logger.warn("Not called from a maven thread");
             return Optional.empty();
         }
         return Optional.of(session);

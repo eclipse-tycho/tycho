@@ -90,7 +90,7 @@ public class TestPluginMojo extends AbstractTestMojo {
 
     @Override
     protected void handleNoTestsFound() throws MojoFailureException {
-        String message = "No tests found.";
+        String message = "No tests found";
         if (failIfNoTests) {
             throw new MojoFailureException(message);
         } else {
@@ -101,7 +101,7 @@ public class TestPluginMojo extends AbstractTestMojo {
 
     @Override
     protected void handleSuccess() {
-        getLog().info("All tests passed!");
+        getLog().info("All tests passed");
     }
 
     @Override

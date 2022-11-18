@@ -83,7 +83,7 @@ public class VerifyPomMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (skip) {
-			getLog().info("Execution was skipped.");
+			getLog().info("Execution was skipped");
 			return;
 		}
 		File pom;
@@ -93,7 +93,7 @@ public class VerifyPomMojo extends AbstractMojo {
 		if (isPlugin || isFeature) {
 			pom = project.getFile();
 		} else {
-			log.info("Skip project because of incompatible packaging type.");
+			log.info("Skipped project because of incompatible packaging type");
 			return;
 		}
 		try {
@@ -153,9 +153,9 @@ public class VerifyPomMojo extends AbstractMojo {
 						bundleMap.put(install, tracked);
 					} else {
 						// might not be an OSGi bundle... but maybe not an issue...
-						log.debug("Can't install resolved dependency " + tracked.id + " ("
+						log.debug("Cannot install resolved dependency " + tracked.id + " ("
 								+ tracked.file.getAbsolutePath()
-								+ ") for verification inside OSGi, maven compilation might still work!");
+								+ ") for verification inside OSGi, maven compilation might still work");
 					}
 				} catch (BundleException e) {
 					logError(tracked, e.getMessage(), pom);
@@ -163,7 +163,7 @@ public class VerifyPomMojo extends AbstractMojo {
 			}
 			Map<Bundle, String> resolveErrors = resolver.resolve();
 			if (resolveErrors.isEmpty()) {
-				log.info("No consistency errors found!");
+				log.info("No consistency errors found");
 			} else {
 				Iterator<Entry<Bundle, String>> iterator = resolveErrors.entrySet().stream()
 						.sorted(Comparator.comparing(Entry::getKey,

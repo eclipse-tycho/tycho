@@ -629,7 +629,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             String prefsFilePath = project.getBasedir() + File.separator + PREFS_FILE_PATH;
             if (!new File(prefsFilePath).exists()) {
                 getLog().warn("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
-                        + "' could not be found!");
+                        + "' could not be found");
             } else {
                 // make sure that "-properties" is the first custom argument, otherwise it's not possible to override
                 // any project setting on the command line because the last argument wins.

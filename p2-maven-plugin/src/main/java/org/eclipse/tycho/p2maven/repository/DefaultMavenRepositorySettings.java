@@ -78,7 +78,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
         MavenSession session = context.getSession();
 		if (session == null) {
 			logger.warn(
-					"Called MavenRepositorySettings.getMirror() outside maven thread, mirrors can't be determined!");
+					"Called MavenRepositorySettings.getMirror() outside maven thread, mirrors cannot be determined");
 			return null;
 		}
 		Mirror mirror = getTychoMirror(locationAsMavenRepository, session.getRequest().getMirrors());

@@ -693,7 +693,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!isCompatiblePackagingType(project.getPackaging())) {
-            getLog().debug("Skip because of incompatible packaging type: " + project.getPackaging());
+            getLog().debug("Execution was skipped because of incompatible packaging type: " + project.getPackaging());
             return;
         }
         if (shouldSkip()) {
@@ -737,7 +737,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     protected boolean shouldSkip() {
         if (skip != null && skipTests != null && !skip.equals(skipTests)) {
             getLog().warn(
-                    "Both parameter 'skipTests' and 'maven.test.skip' are set, 'skipTests' has a higher priority!");
+                    "Both parameter 'skipTests' and 'maven.test.skip' are set, 'skipTests' has a higher priority");
         }
         if (skipTests != null) {
             return skipTests;
@@ -1055,7 +1055,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             getLog().debug("Class " + clazz + " matches the current filter.");
         }
         if (classes.isEmpty()) {
-            getLog().debug("Nothing matches pattern = " + includeList + " excluding " + excludeList + " in "
+            getLog().debug("Nothing matches pattern " + includeList + ", excluding " + excludeList + " in "
                     + getTestClassesDirectory());
         }
         return scanResult;
@@ -1090,7 +1090,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                 FileUtils.deleteDirectory(osgiDataDirectory);
             }
             cli = createCommandLine(testRuntime);
-            getLog().info("Executing Test Runtime with timeout " + forkedProcessTimeoutInSeconds
+            getLog().info("Executing test runtime with timeout " + forkedProcessTimeoutInSeconds
                     + ", logs (if any) will be placed at: " + logFile.getAbsolutePath());
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {

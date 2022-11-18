@@ -55,7 +55,7 @@ public class ListDependenciesMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
-            getLog().info("Skipped");
+            getLog().info("Execution was skipped");
             return;
         }
         File outputFile = new File(project.getBuild().getDirectory(), "dependencies-list.txt");

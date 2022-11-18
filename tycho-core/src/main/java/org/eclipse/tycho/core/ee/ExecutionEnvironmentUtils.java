@@ -128,7 +128,7 @@ public class ExecutionEnvironmentUtils {
             for (String profileFile : listProps.getProperty("java.profiles").split(",")) {
                 Properties props = readProperties(findInSystemBundle(profileFile.trim()));
                 if (props == null) {
-                    logger.warn("can't read profile " + profileFile + " from system path");
+                    logger.warn("Cannot read profile " + profileFile + " from system path");
                     continue;
                 }
                 String name = props.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim();

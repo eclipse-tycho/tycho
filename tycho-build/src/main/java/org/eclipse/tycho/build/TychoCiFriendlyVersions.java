@@ -112,7 +112,7 @@ public class TychoCiFriendlyVersions extends DefaultModelVersionProcessor implem
 							timestampProvider.setQuiet(false);
 						}
 					} catch (ComponentLookupException | MojoExecutionException e) {
-						logger.warn("Can't use '" + provider
+						logger.warn("Cannot use '" + provider
 								+ "' as a timestamp provider for tycho-ci-friendly-versions (" + e + ")");
 					}
 

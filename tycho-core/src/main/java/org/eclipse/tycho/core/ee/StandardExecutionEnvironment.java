@@ -138,7 +138,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                         sb.append(System.lineSeparator());
                         sb.append(line);
                     }
-                    logger.debug("[ReadPackagesFromToolchains] Can't read java version for " + java
+                    logger.debug("[ReadPackagesFromToolchains] Cannot read java version for " + java
                             + ", full output was: " + sb);
                     return new JavaInfo(-1, List.of());
                 }

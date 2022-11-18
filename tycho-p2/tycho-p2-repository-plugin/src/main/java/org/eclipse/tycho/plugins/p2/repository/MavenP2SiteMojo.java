@@ -544,7 +544,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         String property = mavenProject.getProperties().getProperty("maven.deploy.skip");
         if (property != null) {
             boolean skip = Boolean.parseBoolean(property);
-            getLog().debug("deploy is " + (skip ? "" : "not") + " skipped in MavenProject " + mavenProject.getName()
+            getLog().debug("Deploy is " + (skip ? "" : "not") + " skipped in MavenProject " + mavenProject.getName()
                     + " because of property 'maven.deploy.skip'");
             return skip;
         }
@@ -552,14 +552,14 @@ public class MavenP2SiteMojo extends AbstractMojo {
         property = getPluginParameter(mavenProject, pluginId, "skip");
         if (property != null) {
             boolean skip = Boolean.parseBoolean(property);
-            getLog().debug("deploy is " + (skip ? "" : "not") + " skipped in MavenProject " + mavenProject.getName()
+            getLog().debug("Deploy is " + (skip ? "" : "not") + " skipped in MavenProject " + mavenProject.getName()
                     + " because of configuration of the plugin 'org.apache.maven.plugins:maven-deploy-plugin'");
             return skip;
         }
         if (mavenProject.getParent() != null) {
             return isSkippedDeploy(mavenProject.getParent());
         }
-        getLog().debug("not skipping deploy of MavenProject '" + mavenProject.getName() + "'");
+        getLog().debug("Not skipping deploy of MavenProject '" + mavenProject.getName() + "'");
         return false;
     }
 

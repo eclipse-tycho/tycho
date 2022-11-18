@@ -118,7 +118,7 @@ public class BaselineValidator {
                         File reactorFile = reactorMetadata.get(classifier).getLocation();
                         if (baseLineFile.isFile() && baseLineFile.length() == 0L) {
                             // workaround for possibly corrupted download - bug 484003
-                            log.error("baseline file " + baseLineFile.getAbsolutePath() + " is empty. Will not replace "
+                            log.error("Baseline file " + baseLineFile.getAbsolutePath() + " is empty. Will not replace "
                                     + reactorFile);
                         } else {
                             FileUtils.copyFile(baseLineFile, reactorFile);
@@ -150,7 +150,7 @@ public class BaselineValidator {
                                     MethodUtils.invokeMethod(project, true, "setAttachedArtifacts", list);
                                 } catch (ReflectiveOperationException ignored) {
                                     log.warn("The attached artifact " + classifier
-                                            + " is not present in the baseline but could not be removed!");
+                                            + " is not present in the baseline, but could not be removed");
                                 }
                             }
                             artifact.getLocation().delete();

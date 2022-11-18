@@ -73,7 +73,7 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
             return executor.execute(cli, getMergedEnvironment(configuration));
         } catch (ExecuteException e) {
             if (watchdog != null && watchdog.killedProcess()) {
-                log.error("Timeout " + forkedProcessTimeoutInSeconds + " s exceeded. Process was killed.");
+                log.error("Timeout of " + forkedProcessTimeoutInSeconds + "s exceeded. Process was killed.");
             }
             return e.getExitValue();
         } catch (IOException e) {

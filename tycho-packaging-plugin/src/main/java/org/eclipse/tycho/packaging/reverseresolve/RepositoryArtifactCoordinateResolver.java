@@ -102,7 +102,7 @@ public class RepositoryArtifactCoordinateResolver implements ArtifactCoordinateR
 				}
 
 			} catch (Exception e) {
-				log.debug("Can't process " + path + " because of " + e, e);
+				log.debug("Cannot process " + path + " because of " + e, e);
 			}
 
 			return Optional.empty();
