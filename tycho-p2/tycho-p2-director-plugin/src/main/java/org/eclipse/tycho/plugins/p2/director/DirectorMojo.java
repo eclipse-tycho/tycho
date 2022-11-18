@@ -115,7 +115,7 @@ public final class DirectorMojo extends AbstractProductMojo {
         synchronized (LOCK) {
             List<Product> products = getProductConfig().getProducts();
             if (products.isEmpty()) {
-                getLog().info("No product definitions found. Nothing to do.");
+                getLog().info("No product definitions found, nothing to do");
             }
             DirectorRuntime director = getDirectorRuntime();
             RepositoryReferences sources = getSourceRepositories();

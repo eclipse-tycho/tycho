@@ -81,7 +81,7 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 					}
 				}
 			} catch (Exception e) {
-				log.debug("Can't check " + path + " from central because of " + e, e);
+				log.debug("Cannot check " + path + " from central because of " + e, e);
 			}
 			return null;
 		});

@@ -96,7 +96,7 @@ public class DependenciesTreeMojo extends AbstractMojo {
             printUnit(unit, null, units, projectMap, 0, i == size - 1);
         }
         if (!units.isEmpty()) {
-            getLog().info("---- units that can't be matched to any requirement ----");
+            getLog().info("Units that cannot be matched to any requirement:");
             for (IInstallableUnit unit : units) {
                 getLog().info(unit.toString());
             }

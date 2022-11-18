@@ -183,7 +183,7 @@ public final class TargetDefinitionResolver {
                         new LoggingProgressMonitor(logger));
                 unitResultSet.addAll(result);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("The following artifacts where resolved from location " + location);
+                    logger.debug("The following artifacts were resolved from location " + location);
                     for (IInstallableUnit iu : result.toUnmodifiableSet()) {
                         logger.debug("\t" + iu);
                     }
@@ -324,7 +324,7 @@ public final class TargetDefinitionResolver {
         }
         //if we can't resolve this, we will return the original one as this might be intentional to not include the project in the build
         String defaultValue = "${project_loc:" + projectName + "}";
-        logger.warn("Can't resolve " + defaultValue + " target resoloution might be incomplete");
+        logger.warn("Cannot resolve " + defaultValue + " target resoloution might be incomplete");
         return defaultValue;
     }
 

@@ -147,7 +147,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			try {
 				dependencyClosure = dependencyProcessor.computeProjectDependencyClosure(projects, session);
 			} catch (CoreException e) {
-				log.error("Can't resolve projects", e);
+				log.error("Cannot resolve projects", e);
 				return Result.error(graph, toProblems(e.getStatus(), new ArrayList<>()));
 			}
 
@@ -217,7 +217,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		}
 
 		try {
-			log.debug("=============== SELECTED PROJECTS ==================");
+			log.debug("=============== Selected Projects ==================");
 
 			selectedProjects.stream()
 					.sorted(Comparator.comparing(MavenProject::getGroupId, String.CASE_INSENSITIVE_ORDER)
@@ -225,7 +225,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 					.forEachOrdered(p -> log.debug(p.getId()));
 			return Result.success(new DefaultProjectDependencyGraph(projects, selectedProjects));
 		} catch (DuplicateProjectException | CycleDetectedException e) {
-			log.error("Can't compute project dependency graph", e);
+			log.error("Cannot compute project's dependency graph", e);
 			return Result.error(graph);
 		}
 	}

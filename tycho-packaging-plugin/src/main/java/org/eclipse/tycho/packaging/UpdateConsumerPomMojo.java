@@ -152,7 +152,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			outputDirectory = project.getBasedir();
 		}
 		Log log = getLog();
-		log.debug("Generate pom descriptor with updated dependencies...");
+		log.debug("Generating pom descriptor with updated dependencies...");
 		Model projectModel;
 		try {
 			projectModel = modelReader.read(project.getFile(), null);
@@ -196,11 +196,11 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			output.deleteOnExit();
 		}
 		if (p2Skipped.isEmpty()) {
-			log.info("All system scoped dependencies where mapped to maven artifacts.");
+			log.info("All system scoped dependencies were mapped to maven artifacts");
 		} else {
-			log.warn(resolved + " system scoped dependencies where mapped to maven artifacts, "
+			log.warn(resolved + " system scoped dependencies were mapped to maven artifacts, "
 					+ p2Skipped.size()
-					+ " where skipped!");
+					+ " were skipped");
 			if (log.isDebugEnabled()) {
 				for (String skipped : p2Skipped) {
 					log.debug("Skipped: " + skipped);

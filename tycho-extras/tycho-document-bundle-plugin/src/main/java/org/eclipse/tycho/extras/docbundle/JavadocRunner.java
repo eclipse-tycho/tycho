@@ -105,9 +105,9 @@ public class JavadocRunner {
 			final int rc = CommandLineUtils.executeCommandLine(cli, new DefaultConsumer(), new DefaultConsumer());
 			if (rc != 0) {
 				if (!this.options.isIgnoreError()) {
-					throw new MojoExecutionException("Failed to execute javadoc - rc = " + rc);
+					throw new MojoExecutionException("Failed to execute javadoc with return code: " + rc);
 				} else {
-					this.log.info("execution failed with rc = " + rc);
+					this.log.info("Execution failed with return code: " + rc);
 				}
 			}
 		}

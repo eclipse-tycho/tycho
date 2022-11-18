@@ -61,7 +61,7 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 		} catch (ComponentLookupException e) {
 			log.debug("Service " + serviceName + " was not found in PlexusContainer");
 		}
-		log.warn("Can't locate service = " + serviceName + " because no provisioning agent was found!");
+		log.warn("Cannot locate service " + serviceName + " because no provisioning agent was found");
 		return null;
 
 	}

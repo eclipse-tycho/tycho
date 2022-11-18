@@ -254,10 +254,10 @@ class ExpandedProduct implements IProductDescriptor {
                     }
                 }
                 logger.warn("Icon path " + path
-                        + " does not exist and can't be determined by tycho, make sure that either the icon path is relative to the product file, or denotes a folder in the parent path of the product! (current product path is "
+                        + " does not exist and cannot be determined by Tycho, make sure that either the icon path is relative to the product file, or denotes a folder in the parent path of the product (current product path is "
                         + productPath + ")");
             } catch (IOException e) {
-                logger.warn("can't guess icon path because of I/O problem", e);
+                logger.warn("Cannot guess icon path because of I/O problem", e);
             }
         }
         return path;

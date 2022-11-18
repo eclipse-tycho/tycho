@@ -73,7 +73,7 @@ public class P2ArtifactCoordinateResolver implements ArtifactCoordinateResolver 
 							return result;
 						}
 					} catch (Exception e) {
-						log.debug("Can't resolve from repository system because of " + e, e);
+						log.debug("Cannot resolve from repository system because of " + e, e);
 					}
 				}
 				return null;

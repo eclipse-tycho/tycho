@@ -60,9 +60,9 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
                 return files.get(0);
             } else if (files.size() > 1) {
                 String sb = files.stream().map(File::getName).collect(Collectors.joining(", "));
-                throw new IllegalArgumentException("only one " + TARGET_EXTENSION
+                throw new IllegalArgumentException("Only one " + TARGET_EXTENSION
                         + " file is allowed per target project, or target must be named like the folder (<foldername>"
-                        + TARGET_EXTENSION + "), the following targets where found: " + sb);
+                        + TARGET_EXTENSION + "), the following targets were found: " + sb);
             }
         } catch (IOException e) { // ignore
         }

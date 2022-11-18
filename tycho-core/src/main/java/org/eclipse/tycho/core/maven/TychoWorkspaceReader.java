@@ -84,7 +84,7 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
                         modelWriter.write(pomFile, new HashMap<>(), findModel);
                         return pomFile;
                     } catch (IOException e) {
-                        logger.debug("Can't write model!", e);
+                        logger.debug("Cannot write model", e);
                     }
                 }
             }

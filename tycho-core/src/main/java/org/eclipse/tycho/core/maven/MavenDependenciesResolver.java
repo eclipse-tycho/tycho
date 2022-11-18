@@ -119,7 +119,7 @@ public class MavenDependenciesResolver {
 
                 }
             } else {
-                logger.error("Can't resolve " + dependency);
+                logger.error("Cannot resolve " + dependency);
                 for (Exception e : ar.getExceptions()) {
                     logger.error("", e);
                 }

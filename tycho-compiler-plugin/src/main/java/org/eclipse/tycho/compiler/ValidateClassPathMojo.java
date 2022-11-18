@@ -51,7 +51,7 @@ public class ValidateClassPathMojo extends AbstractMojo {
             if (TychoProjectUtils.getOptionalDependencyArtifacts(reactorProject).isPresent()) {
                 bundleProject.getClasspath(reactorProject);
             } else {
-                getLog().info("Skip classpath validation because project is currently not resolved.");
+                getLog().info("Skipped classpath validation as project is currently not resolved");
             }
         }
     }

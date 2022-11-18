@@ -122,7 +122,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
-            getLog().info("Skipped");
+            getLog().info("Execution was skipped");
             return;
         }
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);

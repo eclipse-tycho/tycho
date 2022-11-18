@@ -273,7 +273,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 				// optimized archive creation not supported for now because of build qualifier
 				// mismatch issues
 				// see TYCHO-502
-				getLog().warn("ignoring unsupported archive forced = false parameter.");
+				getLog().warn("Ignoring unsupported archive 'forced = false' parameter");
 				archive.setForced(true);
 			}
 			archiver.createArchive(session, mavenProject, archive);

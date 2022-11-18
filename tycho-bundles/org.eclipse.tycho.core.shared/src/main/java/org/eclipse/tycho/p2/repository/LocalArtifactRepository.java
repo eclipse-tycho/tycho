@@ -85,7 +85,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                 }
             } catch (IOException e) {
                 index.removeGav(gav);
-                localRepoIndices.getMavenContext().getLogger().debug("can't read stored meta-data", e);
+                localRepoIndices.getMavenContext().getLogger().debug("Cannot read stored metadata", e);
             }
         }
 

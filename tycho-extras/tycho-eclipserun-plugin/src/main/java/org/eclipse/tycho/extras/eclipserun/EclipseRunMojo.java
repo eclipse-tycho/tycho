@@ -280,7 +280,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (skip) {
-			getLog().debug("skipping mojo execution");
+			getLog().info("Execution was skipped");
 			return;
 		}
 		EquinoxInstallation installation;

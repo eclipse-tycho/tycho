@@ -149,7 +149,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 		for (URL url : realm.getURLs()) {
 			File file = getFile(url);
 			if (file == null) {
-				logger.debug("Can't convert url " + url + " to file!");
+				logger.debug("Cannot convert URL " + url + " to File");
 				continue;
 			}
 			try {
@@ -208,11 +208,11 @@ final class PlexusModuleConnector implements ModuleConnector {
 						}
 					}
 				} catch (IOException e) {
-					logger.warn("Can't process jar at " + file, e);
+					logger.warn("Cannot process jar at " + file, e);
 					jarFile.close();
 				}
 			} catch (IOException e) {
-				logger.warn("Can't open jar at " + file, e);
+				logger.warn("Cannot open jar at " + file, e);
 			}
 		}
 	}
@@ -250,7 +250,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 			try (InputStream stream = url.openStream()) {
 				parseCoreExports(stream, exports);
 			} catch (IOException e) {
-				logger.warn("Can't process extension descriptor from " + url, e);
+				logger.warn("Cannot process extension descriptor from " + url, e);
 			}
 		}
 		readBundles(classRealm, exports.bundleStartMap, logger);
@@ -270,9 +270,9 @@ final class PlexusModuleConnector implements ModuleConnector {
 			return bundle;
 		} catch (BundleException e) {
 			if (logger.isDebugEnabled()) {
-				logger.warn("Can't install bundle at " + location, e);
+				logger.warn("Cannot install bundle at " + location, e);
 			} else {
-				logger.warn("Can't install bundle at " + location + ": " + e.getMessage());
+				logger.warn("Cannot install bundle at " + location + ": " + e.getMessage());
 			}
 			PlexusConnectContent content = modulesMap.remove(location);
 			if (content != null) {
@@ -338,9 +338,9 @@ final class PlexusModuleConnector implements ModuleConnector {
 						bundle.uninstall();
 					} catch (BundleException e) {
 						if (logger.isDebugEnabled()) {
-							logger.warn("Can't uninstall bundle " + bundle.getSymbolicName(), e);
+							logger.warn("Cannot uninstall bundle " + bundle.getSymbolicName(), e);
 						} else {
-							logger.warn("Can't uninstall bundle " + bundle.getSymbolicName() + ": " + e);
+							logger.warn("Cannot uninstall bundle " + bundle.getSymbolicName() + ": " + e);
 						}
 					}
 				}
@@ -404,7 +404,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 					map.put(split[0], start);
 				});
 			} catch (IOException e) {
-				logger.warn("Can't read bundle infos from url " + url);
+				logger.warn("Cannot read bundle infos from url " + url);
 			}
 		}
 	}
