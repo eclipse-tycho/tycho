@@ -506,7 +506,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         Set<String> includedPathes = new HashSet<>();
         for (ClasspathEntry cpe : getClasspath()) {
             for (File location : cpe.getLocations()) {
-                if (!location.exists() || (location.isFile() && location.length() == 0)) {
+                if (!isValidLocation(location)) {
                     continue;
                 }
                 String path = location.getAbsolutePath();
@@ -536,7 +536,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         if (pomOnlyDependencies != PomDependencies.ignore) {
             List<Artifact> additionalClasspathEntries = getBundleProject()
                     .getInitialArtifacts(DefaultReactorProject.adapt(project), List.of(getDependencyScope())).stream() //
-                    .filter(a -> a.getFile() != null) //
+                    .filter(a -> isValidLocation(a.getFile())) //
                     .filter(a -> includedPathes.add(a.getFile().getAbsolutePath())) //
                     .toList();
             for (Artifact artifact : additionalClasspathEntries) {
@@ -546,6 +546,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             }
         }
         return classpath;
+    }
+
+    private static boolean isValidLocation(File location) {
+        if (location == null || !location.exists() || (location.isFile() && location.length() == 0)) {
+            return false;
+        }
+        return true;
     }
 
     protected BundleProject getBundleProject() throws MojoExecutionException {
