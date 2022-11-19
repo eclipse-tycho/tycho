@@ -50,6 +50,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencies;
@@ -89,7 +90,11 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			// on second pass nothing to do for tycho, or already error ...
 			return graphResult;
 		}
-		session.getUserProperties().put("tycho.mode", "extension");
+		session.getUserProperties().put(TychoConstants.SESSION_PROPERTY_TYCHO_MODE, "extension");
+		if (TychoConstants.USE_SMART_BUILDER && session.getRequest().getDegreeOfConcurrency() > 1) {
+			request.setBuilderId("smart");
+			session.getUserProperties().put(TychoConstants.SESSION_PROPERTY_TYCHO_BUILDER, "smart");
+		}
 		MavenLogger loggerAdapter = new MavenLoggerAdapter(log,
 				Boolean.valueOf(session.getUserProperties().getProperty("tycho.debug.resolver")));
 		String makeBehavior = request.getMakeBehavior();
@@ -187,19 +192,16 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 					}
 					if (projectRequest.addRequires) {
 						dependencyClosure.dependencies()//
-								.filter(entry -> 
-									entry.getValue().stream()//
-											.flatMap(dependency -> dependencyClosure.getProject(dependency).stream())//
-											.anyMatch(projectRequest::matches)
-								)//
+								.filter(entry -> entry.getValue().stream()//
+										.flatMap(dependency -> dependencyClosure.getProject(dependency).stream())//
+										.anyMatch(projectRequest::matches))//
 								.map(Entry::getKey)//
 								.distinct()//
 								.peek(project -> loggerAdapter.debug(" + add project '" + project.getId()
 										+ "' that depends on '" + projectRequest.mavenProject.getId() + "'..."))//
 								// request dependencies of dependants, otherwise, -amd would not be able to
 								// produce a satisfiable build graph
-								.forEach(
-										project -> queue.add(new ProjectRequest(project, true, true, projectRequest)));
+								.forEach(project -> queue.add(new ProjectRequest(project, true, true, projectRequest)));
 					}
 				}
 			}
@@ -270,8 +272,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		 */
 		final boolean addDependencies;
 
-		ProjectRequest(MavenProject mavenProject, boolean addRequires, boolean addDependencies,
-				ProjectRequest parent) {
+		ProjectRequest(MavenProject mavenProject, boolean addRequires, boolean addDependencies, ProjectRequest parent) {
 			this.addRequires = addRequires;
 			this.addDependencies = addDependencies;
 			this.parent = parent;
