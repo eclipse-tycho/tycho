@@ -322,8 +322,8 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     features.add(FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationBundles, false,
                             logger));
                     if (includeSource) {
-                        features.add(FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationBundles, true,
-                                logger));
+                        features.add(FeatureGenerator.createFeatureFromTemplate(featureTemplate, locationSourceBundles,
+                                true, logger));
                     }
                 } catch (IOException | ParserConfigurationException | TransformerException | SAXException e) {
                     throw new TargetDefinitionResolutionException("feature generation failed!", e);

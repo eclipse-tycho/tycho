@@ -17,6 +17,7 @@
    <features>
       <feature id="test.feature"/>
       <feature id="org.apache.commons.io.feature" installMode="root"/>
+      <feature id="org.apache.commons.io.feature.source" installMode="root"/>
    </features>
 
 
