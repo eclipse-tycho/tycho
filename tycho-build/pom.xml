@@ -31,13 +31,6 @@
 			<version>0.6.1</version>
 		</dependency>
 		<dependency>
-			<groupId>io.takari.aether</groupId>
-			<artifactId>takari-local-repository</artifactId>
-			<version>0.11.3</version>
-		</dependency>
-
-
-		<dependency>
 			<groupId>org.eclipse.tycho.extras</groupId>
 			<artifactId>tycho-pomless</artifactId>
 			<version>${project.version}</version>
