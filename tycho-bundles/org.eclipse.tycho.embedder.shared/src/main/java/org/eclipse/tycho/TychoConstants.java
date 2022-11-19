@@ -15,6 +15,10 @@ package org.eclipse.tycho;
 
 public interface TychoConstants {
 
+    static final boolean USE_SMART_BUILDER = Boolean
+            .parseBoolean(System.getProperty("tycho.build.smartbuilder", "false"));
+    static final String SESSION_PROPERTY_TYCHO_BUILDER = "tycho.builder";
+
     static final String P2_GROUPID_PREFIX = "p2.";
 
     static final String CONFIG_INI_PATH = "configuration/config.ini";

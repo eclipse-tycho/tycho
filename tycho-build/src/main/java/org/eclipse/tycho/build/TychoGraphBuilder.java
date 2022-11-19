@@ -50,6 +50,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencies;
@@ -91,6 +92,10 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			return graphResult;
 		}
 		session.getUserProperties().put("tycho.mode", "extension");
+		if (TychoConstants.USE_SMART_BUILDER && session.getRequest().getDegreeOfConcurrency() > 1) {
+			request.setBuilderId("smart");
+			session.getUserProperties().put(TychoConstants.SESSION_PROPERTY_TYCHO_BUILDER, "smart");
+		}
 		MavenLogger loggerAdapter = new MavenLoggerAdapter(log,
 				Boolean.valueOf(session.getUserProperties().getProperty("tycho.debug.resolver")));
 		String makeBehavior = request.getMakeBehavior();
