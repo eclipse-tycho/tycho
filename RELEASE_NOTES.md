@@ -2,6 +2,12 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 3.0.4
+
+### Backports
+
+- Include smartbuilder (but disabled by default), can be enabled with `-Dtycho.build.smartbuilder=true`)
+
 ## 3.0.3
 
 ### Dependency upgrades and Maven 3.9.0 support
