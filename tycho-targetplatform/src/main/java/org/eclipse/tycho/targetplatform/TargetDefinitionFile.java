@@ -499,7 +499,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     public static TargetDefinitionFile read(URI uri) {
         try {
-            return FILE_CACHE.computeIfAbsent(uri, key -> {
+			return FILE_CACHE.computeIfAbsent(uri.normalize(), key -> {
                 try {
                     try (InputStream input = uri.toURL().openStream()) {
                         return parse(parseDocument(input), uri.toASCIIString());
