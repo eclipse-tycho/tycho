@@ -10,9 +10,9 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.test;
+package org.eclipse.tycho.p2resolver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,17 +30,17 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.p2.facade.MetadataSerializableImpl;
+import org.eclipse.tycho.p2tools.MetadataSerializableImpl;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 public class MetadataSerializableImplTest extends TychoPlexusTestCase {
 
     private IProvisioningAgent agent;
 
-    @BeforeEach
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         agent = lookup(IProvisioningAgent.class);
     }
 

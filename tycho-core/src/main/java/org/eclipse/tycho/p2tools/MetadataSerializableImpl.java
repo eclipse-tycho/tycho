@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade;
+package org.eclipse.tycho.p2tools;
 
 import java.io.IOException;
 import java.io.OutputStream;

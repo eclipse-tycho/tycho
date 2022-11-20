@@ -12,12 +12,12 @@
  *    SAP SE - additional test cases
  *    Christoph Läubrich - Adjust to new API
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2resolver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,20 +25,20 @@ import java.net.URI;
 import java.util.List;
 
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
-import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetDefinition.DirectoryLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.FeaturesLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.ProfileLocation;
-import org.junit.jupiter.api.Test;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
+import org.junit.Test;
 
-class TargetDefinitionFileTest {
+public class TargetDefinitionFileTest {
 
     @Test
-    void testTarget() throws Exception {
+    public void testTarget() throws Exception {
         List<? extends Location> locations = readTarget("target.target").getLocations();
         assertEquals(2, locations.size());
 
@@ -60,7 +60,7 @@ class TargetDefinitionFileTest {
     }
 
     @Test
-    void testLocationTypes() throws Exception {
+    public void testLocationTypes() throws Exception {
         List<? extends Location> locations = readTarget("locationtypes.target").getLocations();
         assertEquals("Directory", locations.get(0).getTypeDescription());
         assertEquals("Profile", locations.get(1).getTypeDescription());
@@ -73,7 +73,7 @@ class TargetDefinitionFileTest {
     }
 
     @Test
-    void testDefaultIncludeModeValues() throws Exception {
+    public void testDefaultIncludeModeValues() throws Exception {
         List<? extends Location> locations = readTarget("includeModes.target").getLocations();
         InstallableUnitLocation locationWithDefaults = (InstallableUnitLocation) locations.get(0);
         assertEquals(IncludeMode.PLANNER, locationWithDefaults.getIncludeMode());
@@ -81,7 +81,7 @@ class TargetDefinitionFileTest {
     }
 
     @Test
-    void testExplictIncludeModeValues() throws Exception {
+    public void testExplictIncludeModeValues() throws Exception {
         List<? extends Location> locations = readTarget("includeModes.target").getLocations();
         InstallableUnitLocation locationWithPlanner = (InstallableUnitLocation) locations.get(1);
         InstallableUnitLocation locationWithSlicer = (InstallableUnitLocation) locations.get(2);
@@ -94,7 +94,7 @@ class TargetDefinitionFileTest {
     }
 
     @Test
-    void testIncludeSource() throws Exception {
+    public void testIncludeSource() throws Exception {
         List<? extends Location> locations = readTarget("includeSource.target", IncludeSourceMode.honor).getLocations();
         InstallableUnitLocation locationWithSources = (InstallableUnitLocation) locations.get(0);
         InstallableUnitLocation locationWithoutSources = (InstallableUnitLocation) locations.get(1);
@@ -105,7 +105,7 @@ class TargetDefinitionFileTest {
     }
 
     @Test
-    void testInvalidXML() throws Exception {
+    public void testInvalidXML() throws Exception {
         RuntimeException e = assertThrows(RuntimeException.class, () -> readTarget("invalidXML.target").getLocations());
         assertEquals(TargetDefinitionSyntaxException.class, e.getCause().getClass());
     }
@@ -120,13 +120,13 @@ class TargetDefinitionFileTest {
     }
 
     @Test
-    void testBundleSelectionList() throws Exception {
+    public void testBundleSelectionList() throws Exception {
         TargetDefinitionFile targetFile = readTarget("withBundleSelection.target");
         assertTrue(targetFile.hasIncludedBundles());
     }
 
     @Test
-    void testNoBundleSelectionList() throws Exception {
+    public void testNoBundleSelectionList() throws Exception {
         TargetDefinitionFile targetFile = readTarget("target.target");
         assertFalse(targetFile.hasIncludedBundles());
     }

@@ -10,7 +10,7 @@
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.test;
+package org.eclipse.tycho.p2resolver;
 
 import java.util.Arrays;
 import java.util.Collection;

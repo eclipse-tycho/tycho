@@ -35,10 +35,10 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
-import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
+import org.eclipse.tycho.p2resolver.AttachedArtifact;
+import org.eclipse.tycho.p2resolver.P2MetadataProvider;
 
 /**
  * This component is invoked during Tycho dependency resolution and provides P2

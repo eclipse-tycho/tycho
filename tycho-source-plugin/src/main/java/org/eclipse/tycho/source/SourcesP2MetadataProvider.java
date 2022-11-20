@@ -26,10 +26,10 @@ import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
-import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
+import org.eclipse.tycho.p2resolver.AttachedArtifact;
+import org.eclipse.tycho.p2resolver.P2MetadataProvider;
 
 @Component(role = P2MetadataProvider.class, hint = "SourcesP2MetadataProvider")
 public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializable {

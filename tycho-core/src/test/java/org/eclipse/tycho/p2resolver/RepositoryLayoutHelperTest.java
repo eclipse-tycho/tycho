@@ -10,17 +10,17 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.test;
+package org.eclipse.tycho.p2resolver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-class RepositoryLayoutHelperTest {
+public class RepositoryLayoutHelperTest {
     @Test
-    void testRelpath() {
+    public void testRelpath() {
         GAV gav = new GAV("a.b.c", "d.e.f", "1.0.0");
         assertEquals("a/b/c/d.e.f/1.0.0/d.e.f-1.0.0-foo.bar",
                 RepositoryLayoutHelper.getRelativePath(gav, "foo", "bar"));
@@ -30,7 +30,7 @@ class RepositoryLayoutHelperTest {
     }
 
     @Test
-    void testRelpathSimpleGroupId() {
+    public void testRelpathSimpleGroupId() {
         GAV gav = new GAV("a", "b", "1.0.0");
         assertEquals("a/b/1.0.0/b-1.0.0.jar", RepositoryLayoutHelper.getRelativePath(gav, null, null));
 
