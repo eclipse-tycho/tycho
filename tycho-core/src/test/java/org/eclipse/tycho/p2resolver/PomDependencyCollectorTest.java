@@ -26,11 +26,9 @@ import java.util.Collection;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.test.util.ArtifactMock;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.ReactorProjectStub;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
@@ -52,7 +50,6 @@ public class PomDependencyCollectorTest extends TychoPlexusTestCase {
 
     @Before
     public void setUpSubject() throws Exception {
-        MavenContextImpl mavenContext = new MockMavenContext(new File("dummy"), logVerifier.getLogger());
         subject = new PomDependencyCollectorImpl(logVerifier.getLogger(),
                 new ReactorProjectStub(tempManager.newFolder(), "test"), lookup(IProvisioningAgent.class));
     }

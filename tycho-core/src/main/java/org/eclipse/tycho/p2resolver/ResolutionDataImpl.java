@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -38,7 +37,6 @@ public class ResolutionDataImpl implements ResolutionData {
     private Collection<IInstallableUnit> rootIUs;
     private List<IRequirement> additionalRequirements;
     private Map<String, String> additionalFilterProperties;
-    private Collection<IRequirement> missing = new ArrayList<>();
     private Predicate<IInstallableUnit> slicerPredicate;
 
     private IQueryable<IInstallableUnit> additionalUnitStore;

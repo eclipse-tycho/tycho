@@ -40,12 +40,6 @@ import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
-    /**
-     * Internal property to control the maximum number of iterations performed to resolve an
-     * incomplete solution
-     */
-    private static final int MAX_ITERATIONS = Integer
-            .getInteger("tycho.internal.ProjectorResolutionStrategy.maxIterations", 1000);
 
     public ProjectorResolutionStrategy(MavenLogger logger) {
         super(logger);
