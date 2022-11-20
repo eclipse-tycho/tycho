@@ -27,10 +27,16 @@ public class TychoProjectManager {
     Map<String, TychoProject> projectTypes;
 
     public Optional<TychoProject> getTychoProject(MavenProject project) {
+        if (project == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(projectTypes.get(project.getPackaging()));
     }
 
     public Optional<TychoProject> getTychoProject(ReactorProject project) {
+        if (project == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(projectTypes.get(project.getPackaging()));
     }
 

@@ -227,7 +227,7 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setData(data);
         Collection<IInstallableUnit> newState;
         try {
-            if (pomDependencies != PomDependencies.ignore || !TychoConstants.USE_OLD_RESOLVER) {
+            if ((pomDependencies != PomDependencies.ignore || !TychoConstants.USE_OLD_RESOLVER) && project != null) {
                 data.setAdditionalUnitStore(p2ResolverFactoryImpl.getPomUnits().createPomQueryable(project));
             }
             newState = strategy.resolve(environment, monitor);
