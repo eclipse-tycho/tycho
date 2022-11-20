@@ -50,15 +50,6 @@ public class DefaultDependencyResolverFactory {
         if (properties.getProperty("tycho.targetPlatform") != null) {
             throw new RuntimeException("-Dtycho.targetPlatform was deprecated and IS REMOVED in this tycho version.");
         }
-        if (properties.getProperty("tycho.test.targetPlatform") != null) {
-            try {
-                @SuppressWarnings("deprecation")
-                String hint = org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver.ROLE_HINT;
-                return container.lookup(DependencyResolver.class, hint);
-            } catch (ComponentLookupException e) {
-                throw new RuntimeException("Could not instantiate required component", e);
-            }
-        }
         String resolverRole = Objects.requireNonNullElse(configuration.getTargetPlatformResolver(),
                 DEFAULT_RESOLVER_HINT);
         try {
