@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.actions;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -99,18 +98,11 @@ public class BundleDependenciesAction extends BundlesAction {
         Map<String, String> advice = new LinkedHashMap<>();
 
         try {
-            InputStream is = new BufferedInputStream(new FileInputStream(adviceFile));
-            try {
+			try (InputStream is = new FileInputStream(adviceFile)) {
                 Properties props = new Properties();
                 props.load(is);
                 for (Map.Entry<Object, Object> p : props.entrySet()) {
                     advice.put((String) p.getKey(), (String) p.getValue());
-                }
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException secondary) {
-                    // secondary exception
                 }
             }
         } catch (IOException e) {

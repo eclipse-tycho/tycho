@@ -60,8 +60,6 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
     @Requirement
     private LegacySupport legacySupport;
 
-    private volatile boolean hasFailures;
-
     private Set<MavenProject> finished = ConcurrentHashMap.newKeySet();
 
     @Requirement
@@ -176,7 +174,6 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
     @Override
     public void afterProjectExecutionFailure(ProjectExecutionEvent event) {
         finished.add(event.getProject());
-        hasFailures = true;
     }
 
 }

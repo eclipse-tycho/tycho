@@ -54,9 +54,9 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
@@ -259,20 +259,22 @@ public class SourceFeatureMojo extends AbstractMojo {
                 projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
                 if (!isP2GenerationEnabled()) {
                     logger.warn(
-                            "org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated source-feature is used in an update-site or another feature. You can add the following snippet to your pom: \n" //
-                                    + "            <plugin>\n"
-                                    + "                <groupId>org.eclipse.tycho</groupId>\n" //
-                                    + "                <artifactId>tycho-p2-plugin</artifactId>\n" //
-                                    + "                <executions>\n" //
-                                    + "                    <execution>\n" //
-                                    + "                        <id>attach-p2-metadata</id>\n" //
-                                    + "                        <phase>package</phase>\n" //
-                                    + "                        <goals>\n" //
-                                    + "                            <goal>p2-metadata</goal>\n" //
-                                    + "                        </goals>\n" //
-                                    + "                    </execution>\n" //
-                                    + "                </executions>\n"//
-                                    + "            </plugin>");
+                            """
+                                    org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated source-feature is used in an update-site or another feature. You can add the following snippet to your pom:\s
+                                                <plugin>
+                                                    <groupId>org.eclipse.tycho</groupId>
+                                                    <artifactId>tycho-p2-plugin</artifactId>
+                                                    <executions>
+                                                        <execution>
+                                                            <id>attach-p2-metadata</id>
+                                                            <phase>package</phase>
+                                                            <goals>
+                                                                <goal>p2-metadata</goal>
+                                                            </goals>
+                                                        </execution>
+                                                    </executions>
+                                                </plugin>
+                                    """);
                 }
             } catch (MojoExecutionException e) {
                 throw e;

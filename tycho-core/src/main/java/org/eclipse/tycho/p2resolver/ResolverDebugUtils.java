@@ -35,25 +35,21 @@ class ResolverDebugUtils {
         if (ius == null || ius.isEmpty()) {
             return "<empty>";
         }
-
-        StringBuilder sb = new StringBuilder();
         if (verbose) {
             try {
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                try {
+                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
                     new MetadataIO().writeXML(new LinkedHashSet<>(ius), os);
-                } finally {
-                    os.close();
+                    return os.toString(StandardCharsets.UTF_8);
                 }
-                sb.append(os.toString(StandardCharsets.UTF_8));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
+            StringBuilder sb = new StringBuilder();
             for (IInstallableUnit iu : ius) {
                 sb.append("  ").append(iu.toString()).append("\n");
             }
+            return sb.toString();
         }
-        return sb.toString();
     }
 }
