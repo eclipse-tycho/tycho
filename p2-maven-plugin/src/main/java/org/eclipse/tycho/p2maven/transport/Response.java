@@ -12,12 +12,21 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
-public interface CacheEntry {
+public interface Response<T> extends AutoCloseable {
 
-	long getLastModified(HttpTransportFactory transportFactory) throws IOException;
+	int statusCode() throws IOException;
 
-	File getCacheFile(HttpTransportFactory transportFactory) throws IOException;
+	Map<String, List<String>> headers();
+
+	@Override
+	void close();
+
+	T body() throws IOException;
+
+	String getHeader(String header);
+
 }
