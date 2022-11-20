@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - implement ReactorProjectFacade, add hashCode/equals/toString
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.internal;
+package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 import java.util.Objects;

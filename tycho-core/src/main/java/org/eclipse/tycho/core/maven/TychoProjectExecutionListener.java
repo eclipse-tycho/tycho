@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectExecutionEvent;
@@ -44,6 +46,10 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
 
     @Requirement
     private LegacySupport legacySupport;
+
+    private volatile boolean hasFailures;
+
+    private Set<MavenProject> finished = ConcurrentHashMap.newKeySet();
 
     @Override
     public void beforeProjectExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
@@ -96,6 +102,7 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
 
     @Override
     public void afterProjectExecutionFailure(ProjectExecutionEvent event) {
+        hasFailures = true;
     }
 
 }

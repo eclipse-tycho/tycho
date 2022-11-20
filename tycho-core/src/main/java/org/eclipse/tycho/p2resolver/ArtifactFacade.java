@@ -11,7 +11,7 @@
  *     SAP SE - initial API and implementation
  *     Christoph Läubrich - add toString/equals/hashCode
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.internal;
+package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 import java.util.Objects;

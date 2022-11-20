@@ -20,8 +20,8 @@ import org.apache.maven.plugins.annotations.Component;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
+import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
     private static final Object LOCK = new Object();

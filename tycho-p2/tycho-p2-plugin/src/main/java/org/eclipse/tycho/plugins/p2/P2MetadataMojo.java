@@ -42,10 +42,10 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
+import org.eclipse.tycho.p2resolver.ArtifactFacade;
 
 @Mojo(name = "p2-metadata", threadSafe = true)
 public class P2MetadataMojo extends AbstractMojo {

@@ -15,7 +15,7 @@
  *                          - [Issue #462] Delay Pom considered items to the final Target Platform calculation 
  *                          - [Issue #626] Classpath computation must take fragments into account 
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -86,7 +86,6 @@ import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
@@ -94,7 +93,6 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
-import org.eclipse.tycho.p2resolver.PomUnits;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
@@ -166,7 +164,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             final MavenProject project, final List<TargetEnvironment> environments,
             final OptionalResolutionAction optionalAction) {
         final ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        final File artifactLocation = (File) reactorProject.getContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION);
+        final File artifactLocation = (File) reactorProject
+                .getContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION);
         final File location = artifactLocation != null ? artifactLocation : project.getBasedir();
         final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<>();
         metadata.put(null, generator.generateMetadata(new AttachedArtifact(project, location, null), environments,
@@ -195,12 +194,12 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     }
 
     protected boolean isTychoP2Plugin(PluginDescriptor pluginDescriptor) {
-        if (pluginDescriptor.getArtifactMap().containsKey("org.eclipse.tycho:tycho-p2-facade")) {
+        if (pluginDescriptor.getArtifactMap().containsKey("org.eclipse.tycho:tycho-core")) {
             return true;
         }
         for (ComponentDependency dependency : pluginDescriptor.getDependencies()) {
             if ("org.eclipse.tycho".equals(dependency.getGroupId())
-                    && "tycho-p2-facade".equals(dependency.getArtifactId())) {
+                    && "tycho-core".equals(dependency.getArtifactId())) {
                 return true;
             }
         }

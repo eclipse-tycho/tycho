@@ -26,10 +26,10 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.osgi.TychoServiceFactory;
-import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFactory;
 
 /**
