@@ -9,7 +9,10 @@
  *******************************************************************************/
 package org.apache.maven.plugins.gpg;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.Os;
@@ -32,14 +35,14 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
         delegate.generateSignatureForFile(file, signature);
     }
 
-    public String getPublicKeys() throws MojoExecutionException {
+    protected Commandline getDefaultGpgCommandLine() {
         Commandline cmd = new Commandline();
 
-//        if ( StringUtils.isNotEmpty( executable ) ) {
-//            cmd.setExecutable( executable );
-//        } else {
+//      if ( StringUtils.isNotEmpty( executable ) ) {
+//          cmd.setExecutable( executable );
+//      } else {
         cmd.setExecutable("gpg" + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : ""));
-//        }
+//      }
 
         if (delegate.args != null) {
             for (String arg : delegate.args) {
@@ -52,9 +55,6 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
             cmd.createArg().setFile(delegate.homeDir);
         }
 
-        cmd.createArg().setValue("--export");
-        cmd.createArg().setValue("--armor");
-
         if (!delegate.defaultKeyring) {
             cmd.createArg().setValue("--no-default-keyring");
         }
@@ -63,15 +63,10 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
             cmd.createArg().setValue("--keyring");
             cmd.createArg().setValue(delegate.publicKeyring);
         }
+        return cmd;
+    }
 
-        if (delegate.keyname != null) {
-            cmd.createArg().setValue(delegate.keyname);
-        }
-
-        // ----------------------------------------------------------------------------
-        // Execute the command line
-        // ----------------------------------------------------------------------------
-
+    static String executeAndGetOutput(Commandline cmd) throws MojoExecutionException {
         try {
             StringStreamConsumer systemOut = new StringStreamConsumer();
             int exitCode = CommandLineUtils.executeCommandLine(cmd, null, systemOut, systemOut);
@@ -82,6 +77,46 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
         } catch (CommandLineException e) {
             throw new MojoExecutionException("Unable to execute gpg command", e);
         }
+    }
+
+    String getDefaultKeyFingerprint() throws MojoExecutionException, IOException {
+        Commandline cmd = getDefaultGpgCommandLine();
+        cmd.createArg().setValue("--list-secret-keys");
+        cmd.createArg().setValue("--with-colons");
+        return extractFingerprint(executeAndGetOutput(cmd));
+    }
+
+    static String extractFingerprint(String output) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new StringReader(output))) {
+            String fprLine = reader.lines().filter(l -> l.startsWith("fpr")).findFirst().orElse("");
+            String[] parts = fprLine.split(":");
+            if (parts.length < 10) {
+                throw new IllegalArgumentException(
+                        "Could not extract first fingerprint from output: " + System.lineSeparator() + output);
+            }
+            return parts[9];
+        }
+    }
+
+    public String getPublicKeys() throws MojoExecutionException {
+        Commandline cmd = getDefaultGpgCommandLine();
+
+        cmd.createArg().setValue("--export");
+        cmd.createArg().setValue("--armor");
+
+        if (delegate.keyname != null) {
+            cmd.createArg().setValue(delegate.keyname);
+        } else {
+            try {
+                String defaultKeyFingerprint = getDefaultKeyFingerprint();
+                getLog().info("Using public key of first secret keypair \"" + defaultKeyFingerprint + "\"");
+                cmd.createArg().setValue(defaultKeyFingerprint);
+            } catch (IOException | IllegalArgumentException e) {
+                throw new MojoExecutionException("Could not determine default fingerprint", e);
+            }
+        }
+
+        return executeAndGetOutput(cmd);
     }
 
 }
