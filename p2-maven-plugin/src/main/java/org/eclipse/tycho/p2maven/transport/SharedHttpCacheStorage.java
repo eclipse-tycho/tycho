@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
 public class SharedHttpCacheStorage {
 
@@ -102,14 +101,14 @@ public class SharedHttpCacheStorage {
         return new CacheEntry() {
 
             @Override
-			public long getLastModified(ProxyHelper proxyService, MavenAuthenticator credentialsProvider)
+			public long getLastModified(HttpTransportFactory transportFactory)
                     throws IOException {
                 if (cacheConfig.offline) {
-                    return cacheLine.getLastModified(uri, proxyService, credentialsProvider,
+                    return cacheLine.getLastModified(uri, transportFactory,
                             SharedHttpCacheStorage::mavenIsOffline, logger);
                 }
                 try {
-                    return cacheLine.fetchLastModified(uri, proxyService, credentialsProvider, logger);
+					return cacheLine.fetchLastModified(uri, transportFactory, logger);
                 } catch (FileNotFoundException | AuthenticationFailedException e) {
                     //for not found and failed authentication we can't do anything useful
                     throw e;
@@ -117,21 +116,21 @@ public class SharedHttpCacheStorage {
                     if (!cacheConfig.update && cacheLine.getResponseCode() > 0) {
                         //if we have something cached, use that ...
                         logger.warn("Request to " + uri + " failed, trying cache instead...");
-                        return cacheLine.getLastModified(uri, proxyService, credentialsProvider, nil -> e, logger);
+						return cacheLine.getLastModified(uri, transportFactory, nil -> e, logger);
                     }
                     throw e;
                 }
             }
 
             @Override
-			public File getCacheFile(ProxyHelper proxyService, MavenAuthenticator credentialsProvider)
+			public File getCacheFile(HttpTransportFactory transportFactory)
                     throws IOException {
                 if (cacheConfig.offline) {
-                    return cacheLine.getFile(uri, proxyService, credentialsProvider,
+					return cacheLine.getFile(uri, transportFactory,
                             SharedHttpCacheStorage::mavenIsOffline, logger);
                 }
                 try {
-                    return cacheLine.fetchFile(uri, proxyService, credentialsProvider, logger);
+					return cacheLine.fetchFile(uri, transportFactory, logger);
                 } catch (FileNotFoundException | AuthenticationFailedException e) {
                     //for not found and failed authentication we can't do anything useful
                     throw e;
@@ -139,7 +138,7 @@ public class SharedHttpCacheStorage {
                     if (!cacheConfig.update && cacheLine.getResponseCode() > 0) {
                         //if we have something cached, use that ...
                         logger.warn("Request to " + uri + " failed, trying cache instead...");
-                        return cacheLine.getFile(uri, proxyService, credentialsProvider, nil -> e, logger);
+						return cacheLine.getFile(uri, transportFactory, nil -> e, logger);
                     }
                     throw e;
                 }
@@ -177,36 +176,30 @@ public class SharedHttpCacheStorage {
             httpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         }
 
-		public synchronized long fetchLastModified(URI uri, ProxyHelper proxyService,
-				MavenAuthenticator credentialsProvider, Logger logger) throws IOException {
+		public synchronized long fetchLastModified(URI uri, HttpTransportFactory transportFactory, Logger logger)
+				throws IOException {
             //TODO its very likely that the file is downloaded here if it has changed... so probably just download it right now?
-			HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(proxyService.getProxy(uri));
-			connection.setAuthenticator(credentialsProvider);
-            connection.setRequestMethod("HEAD");
-			credentialsProvider.preemtiveAuth((k, v) -> connection.setRequestProperty(k, v), uri);
-            connection.connect();
-            try {
-                int code = connection.getResponseCode();
+			HttpTransport transport = transportFactory.createTransport(uri);
+
+			try (Response<Void> response = transport.head()) {
+				int code = response.statusCode();
                 if (isAuthFailure(code)) {
                     throw new AuthenticationFailedException(); //FIXME why is there no constructor to give a cause?
                 }
                 if (isNotFound(code)) {
-                    updateHeader(connection, code);
+					updateHeader(response, code);
                     throw new FileNotFoundException(uri.toString());
                 }
                 if (isRedirected(code)) {
-                    updateHeader(connection, code);
-                    return SharedHttpCacheStorage.this.getCacheEntry(uri, logger).getLastModified(proxyService,
-                            credentialsProvider);
+					updateHeader(response, code);
+					return SharedHttpCacheStorage.this.getCacheEntry(uri, logger).getLastModified(transportFactory);
                 }
-                return connection.getLastModified();
-            } finally {
-                closeConnection(connection);
+				return response.getLastModified();
             }
         }
 
-		public synchronized long getLastModified(URI uri, ProxyHelper proxyService,
-				MavenAuthenticator credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
+		public synchronized long getLastModified(URI uri, HttpTransportFactory transportFactory,
+				Function<URI, IOException> notAviableExceptionSupplier,
 				Logger logger) throws IOException {
             int code = getResponseCode();
             if (code > 0) {
@@ -217,8 +210,7 @@ public class SharedHttpCacheStorage {
                     throw new FileNotFoundException(uri.toString());
                 }
                 if (isRedirected(code)) {
-                    return SharedHttpCacheStorage.this.getCacheEntry(uri, logger).getLastModified(proxyService,
-                            credentialsProvider);
+					return SharedHttpCacheStorage.this.getCacheEntry(uri, logger).getLastModified(transportFactory);
                 }
                 Properties offlineHeader = getHeader();
                 Date lastModified = pareHttpDate(offlineHeader.getProperty(LAST_MODIFIED_HEADER.toLowerCase()));
@@ -231,58 +223,54 @@ public class SharedHttpCacheStorage {
             }
         }
 
-		public synchronized File fetchFile(URI uri, ProxyHelper proxyService,
-				MavenAuthenticator credentialsProvider, Logger logger) throws IOException {
+		public synchronized File fetchFile(URI uri, HttpTransportFactory transportFactory, Logger logger)
+				throws IOException {
             boolean exits = file.isFile();
             if (exits && !mustValidate()) {
                 return file;
             }
-			HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(proxyService.getProxy(uri));
-			connection.setAuthenticator(credentialsProvider);
-			credentialsProvider.preemtiveAuth((k, v) -> connection.setRequestProperty(k, v), uri);
+			HttpTransport transport = transportFactory.createTransport(uri);
             Properties lastHeader = getHeader();
             if (exits) {
                 if (lastHeader.containsKey(ETAG_HEADER.toLowerCase())) {
-                    connection.setRequestProperty("If-None-Match", lastHeader.getProperty(ETAG_HEADER.toLowerCase()));
+					transport.setHeader("If-None-Match", lastHeader.getProperty(ETAG_HEADER.toLowerCase()));
                 }
                 if (lastHeader.contains(LAST_MODIFIED_HEADER.toLowerCase())) {
-                    connection.setRequestProperty("If-Modified-Since",
+					transport.setHeader("If-Modified-Since",
                             lastHeader.getProperty(LAST_MODIFIED_HEADER.toLowerCase()));
                 }
             }
-            connection.setInstanceFollowRedirects(false);
-            connection.connect();
-            int code = connection.getResponseCode();
-            if (exits && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                updateHeader(connection, getResponseCode());
-                return file;
-            }
-            if (isAuthFailure(code)) {
-                throw new AuthenticationFailedException(); //FIXME why is there no constructor to give a cause?
-            }
-            updateHeader(connection, code);
-            if (isRedirected(code)) {
-                closeConnection(connection);
-                return SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri), logger).getCacheFile(proxyService,
-                        credentialsProvider);
-            }
-            if (exits) {
-                FileUtils.forceDelete(file);
-            }
-            File tempFile = File.createTempFile("download", ".tmp", file.getParentFile());
-            try (InputStream inputStream = connection.getInputStream();
-                    FileOutputStream os = new FileOutputStream(tempFile)) {
-                inputStream.transferTo(os);
-            } catch (IOException e) {
-                tempFile.delete();
-                throw e;
-            }
-            FileUtils.moveFile(tempFile, file);
-            return file;
+			try (Response<InputStream> response = transport.get()) {
+				int code = response.statusCode();
+				if (exits && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
+					updateHeader(response, getResponseCode());
+					return file;
+				}
+				if (isAuthFailure(code)) {
+					throw new AuthenticationFailedException(); // FIXME why is there no constructor to give a cause?
+				}
+				updateHeader(response, code);
+				if (isRedirected(code)) {
+					return SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri), logger)
+							.getCacheFile(transportFactory);
+				}
+				if (exits) {
+					FileUtils.forceDelete(file);
+				}
+				File tempFile = File.createTempFile("download", ".tmp", file.getParentFile());
+				try (InputStream inputStream = response.body(); FileOutputStream os = new FileOutputStream(tempFile)) {
+					inputStream.transferTo(os);
+				} catch (IOException e) {
+					tempFile.delete();
+					throw e;
+				}
+				FileUtils.moveFile(tempFile, file);
+			}
+			return file;
         }
 
-		public synchronized File getFile(URI uri, ProxyHelper proxyService,
-				MavenAuthenticator credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
+		public synchronized File getFile(URI uri, HttpTransportFactory transportFactory,
+				Function<URI, IOException> notAviableExceptionSupplier,
 				Logger logger) throws IOException {
             int code = getResponseCode();
             if (code > 0) {
@@ -294,7 +282,7 @@ public class SharedHttpCacheStorage {
                 }
                 if (isRedirected(code)) {
                     return SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri), logger)
-                            .getCacheFile(proxyService, credentialsProvider);
+							.getCacheFile(transportFactory);
                 }
                 if (file.isFile()) {
                     return file;
@@ -360,11 +348,12 @@ public class SharedHttpCacheStorage {
             return code == HttpURLConnection.HTTP_PROXY_AUTH || code == HttpURLConnection.HTTP_UNAUTHORIZED;
         }
 
-        protected void updateHeader(HttpURLConnection connection, int code) throws IOException, FileNotFoundException {
+		protected void updateHeader(Response<?> response, int code)
+				throws IOException, FileNotFoundException {
             header = new Properties();
             header.setProperty(RESPONSE_CODE, String.valueOf(code));
             header.setProperty(LAST_UPDATED, String.valueOf(System.currentTimeMillis()));
-            Map<String, List<String>> headerFields = connection.getHeaderFields();
+			Map<String, List<String>> headerFields = response.headers();
             for (var entry : headerFields.entrySet()) {
                 String key = entry.getKey();
                 if (key == null) {
@@ -403,14 +392,6 @@ public class SharedHttpCacheStorage {
                 }
             }
             return null;
-        }
-
-        private void closeConnection(HttpURLConnection connection) {
-            try {
-                connection.getInputStream().close();
-            } catch (IOException e) {
-                //we just wan't to signal that we are done with this connection...
-            }
         }
 
         public int getResponseCode() {

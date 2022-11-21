@@ -33,7 +33,6 @@ import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
-import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
         implements IAgentServiceFactory {
@@ -47,15 +46,12 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     private LongAdder requests = new LongAdder();
     private LongAdder indexRequests = new LongAdder();
 
-	private ProxyHelper proxyService;
+	private HttpTransportFactory transportFactory;
 
-	private MavenAuthenticator credentialsProvider;
-
-	public TychoRepositoryTransport(Logger logger, ProxyHelper proxyService, SharedHttpCacheStorage httpCache,
-			MavenAuthenticator credentialsProvider) {
+	public TychoRepositoryTransport(Logger logger, SharedHttpCacheStorage httpCache,
+			HttpTransportFactory transportFactory) {
 		this.logger = logger;
-        this.proxyService = proxyService;
-        this.credentialsProvider = credentialsProvider;
+		this.transportFactory = transportFactory;
         numberFormat.setMaximumFractionDigits(2);
 		this.httpCache = httpCache;
     }
@@ -136,8 +132,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         //TODO P2 cache manager relies on this method to throw an exception to work correctly
         try {
             if (isHttp(toDownload)) {
-				return httpCache.getCacheEntry(toDownload, logger).getLastModified(proxyService,
-                        credentialsProvider);
+				return httpCache.getCacheEntry(toDownload, logger).getLastModified(transportFactory);
             }
             URLConnection connection = toDownload.toURL().openConnection();
             long lastModified = connection.getLastModified();
@@ -163,8 +158,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     public File getCachedFile(URI remoteFile) throws IOException {
 
         if (isHttp(remoteFile)) {
-			return httpCache.getCacheEntry(remoteFile, logger).getCacheFile(proxyService,
-                    credentialsProvider);
+			return httpCache.getCacheEntry(remoteFile, logger).getCacheFile(transportFactory);
         }
         return null;
     }
