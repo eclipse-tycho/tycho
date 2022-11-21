@@ -31,10 +31,12 @@ import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+@Ignore
 public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
 
     @Rule

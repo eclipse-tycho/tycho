@@ -27,6 +27,7 @@ import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -34,6 +35,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * Tests for verifying the caching behavior of the RemoteAgent's metadata repository manager.
  */
+@Ignore
 public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase {
 
     private static final String HTTP_REPO_PATH = "e342";
