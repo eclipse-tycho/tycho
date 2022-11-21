@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -117,6 +118,7 @@ public class SharedHttpCacheStorage {
 
 			@Override
 			public long getLastModified(HttpTransportFactory transportFactory) throws IOException {
+				System.out.println("Last modified? " + uri);
 				if (cacheConfig.offline) {
 					return cacheLine.getLastModified(uri, SharedHttpCacheStorage::mavenIsOffline, transportFactory,
 							logger);
@@ -138,6 +140,7 @@ public class SharedHttpCacheStorage {
 
 			@Override
 			public File getCacheFile(HttpTransportFactory transportFactory) throws IOException {
+				System.out.println("Get file " + uri);
 				if (cacheConfig.offline) {
 					return cacheLine.getFile(uri, SharedHttpCacheStorage::mavenIsOffline, transportFactory, logger);
 				}
@@ -159,7 +162,7 @@ public class SharedHttpCacheStorage {
 		};
 	}
 
-	public static long getLastModifiedTimeFromHeader(String lastModifiedHeader) throws IOException {
+	private static long getLastModifiedTimeFromHeader(String lastModifiedHeader) throws IOException {
 		if (lastModifiedHeader == null)
 			return 0L;
 		// first check if there are any quotes around and remove them
@@ -206,7 +209,7 @@ public class SharedHttpCacheStorage {
 			httpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		}
 
-		public synchronized long fetchLastModified(URI uri, HttpTransportFactory transportFactory, Logger logger)
+		private synchronized long fetchLastModified(URI uri, HttpTransportFactory transportFactory, Logger logger)
 				throws IOException {
 			// TODO its very likely that the file is downloaded here if it has changed... so
 			// probably just download it right now and put it in the cache?
@@ -229,7 +232,7 @@ public class SharedHttpCacheStorage {
 			}
 		}
 
-		public synchronized long getLastModified(URI uri, Function<URI, IOException> notAviableExceptionSupplier,
+		private synchronized long getLastModified(URI uri, Function<URI, IOException> notAviableExceptionSupplier,
 				HttpTransportFactory transportFactory, Logger logger) throws IOException {
 			int code = getResponseCode();
 			if (code > 0) {
@@ -257,6 +260,7 @@ public class SharedHttpCacheStorage {
 				throws IOException {
 			boolean exits = file.isFile();
 			if (exits && !mustValidate()) {
+				System.out.println("URI " + uri + " is up to date!");
 				return file;
 			}
 			HttpTransport httpTransport = transportFactory.createTransport(uri);
@@ -274,6 +278,7 @@ public class SharedHttpCacheStorage {
 			try (Response<InputStream> response = httpTransport.get()) {
 				int code = response.statusCode();
 				if (exits && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
+					System.out.println("File is not modified!");
 					updateHeader(response, getResponseCode());
 					return file;
 				}
@@ -289,7 +294,9 @@ public class SharedHttpCacheStorage {
 					FileUtils.forceDelete(file);
 				}
 				File tempFile = File.createTempFile("download", ".tmp", file.getParentFile());
-				try (InputStream inputStream = response.body(); FileOutputStream os = new FileOutputStream(tempFile)) {
+				System.out.println("download to file: " + tempFile);
+				try (InputStream inputStream = new BufferedInputStream(response.body(), 1024 * 1024 * 10);
+						FileOutputStream os = new FileOutputStream(tempFile)) {
 					if (GZIP_ENCODING.equalsIgnoreCase(response.getHeader(CONTENT_ENCODING_HEADER))) {
 						new GZIPInputStream(inputStream).transferTo(os);
 					} else {
@@ -301,7 +308,7 @@ public class SharedHttpCacheStorage {
 				}
 				FileUtils.moveFile(tempFile, file);
 			}
-
+			System.out.println("Return file...");
 			return file;
 		}
 
@@ -328,12 +335,14 @@ public class SharedHttpCacheStorage {
 
 		private boolean mustValidate() {
 			if (cacheConfig.update) {
+				System.out.println("Updates are forced!");
 				// user enforced validation
 				return true;
 			}
 			String[] cacheControls = getCacheControl();
 			for (String directive : cacheControls) {
 				if (MUST_REVALIDATE_DIRECTIVE.equals(directive)) {
+					System.out.println("Server enforces cache control revalidation!");
 					// server enforced validation
 					return true;
 				}
@@ -341,6 +350,7 @@ public class SharedHttpCacheStorage {
 			Properties properties = getHeader();
 			long lastUpdated = parseLong(properties.getProperty(LAST_UPDATED));
 			if (lastUpdated + TimeUnit.MINUTES.toMillis(MIN_CACHE_PERIOD) > System.currentTimeMillis()) {
+				System.out.println("File is uptodate");
 				return false;
 			}
 			// Cache-Control header with "max-age" directive takes precedence over Expires
