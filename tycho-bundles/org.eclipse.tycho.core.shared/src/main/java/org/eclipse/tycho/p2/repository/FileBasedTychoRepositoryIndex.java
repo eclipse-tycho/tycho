@@ -110,6 +110,10 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
 
     @Override
     public synchronized void save() throws IOException {
+        if (addedGavs.isEmpty() && removedGavs.isEmpty() && indexFile.isFile()) {
+            // avoid touching the file on disk if saving is a no-op
+            return;
+        }
         File parentDir = indexFile.getParentFile();
         if (!parentDir.isDirectory()) {
             parentDir.mkdirs();
