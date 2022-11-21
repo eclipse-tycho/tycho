@@ -18,14 +18,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,7 +39,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
 public class SharedHttpCacheStorage {
@@ -53,8 +49,6 @@ public class SharedHttpCacheStorage {
     //TODO can we sync this with the time where maven updates snapshots?
     public static final long MIN_CACHE_PERIOD = Long.getLong("tycho.p2.transport.min-cache-minutes",
             TimeUnit.HOURS.toMinutes(1));
-    private static final String PROXY_AUTHORIZATION_HEADER = "Proxy-Authorization";
-    private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String LAST_MODIFIED_HEADER = "Last-Modified";
     private static final String EXPIRES_HEADER = "Expires";
     private static final String CACHE_CONTROL_HEADER = "Cache-Control";
@@ -108,7 +102,7 @@ public class SharedHttpCacheStorage {
         return new CacheEntry() {
 
             @Override
-			public long getLastModified(ProxyHelper proxyService, Function<URI, Credentials> credentialsProvider)
+			public long getLastModified(ProxyHelper proxyService, MavenAuthenticator credentialsProvider)
                     throws IOException {
                 if (cacheConfig.offline) {
                     return cacheLine.getLastModified(uri, proxyService, credentialsProvider,
@@ -130,7 +124,7 @@ public class SharedHttpCacheStorage {
             }
 
             @Override
-			public File getCacheFile(ProxyHelper proxyService, Function<URI, Credentials> credentialsProvider)
+			public File getCacheFile(ProxyHelper proxyService, MavenAuthenticator credentialsProvider)
                     throws IOException {
                 if (cacheConfig.offline) {
                     return cacheLine.getFile(uri, proxyService, credentialsProvider,
@@ -184,14 +178,12 @@ public class SharedHttpCacheStorage {
         }
 
 		public synchronized long fetchLastModified(URI uri, ProxyHelper proxyService,
-				Function<URI, Credentials> credentialsProvider, Logger logger) throws IOException {
+				MavenAuthenticator credentialsProvider, Logger logger) throws IOException {
             //TODO its very likely that the file is downloaded here if it has changed... so probably just download it right now?
-			RepositoryAuthenticator authenticator = new RepositoryAuthenticator(proxyService, uri,
-                    credentialsProvider.apply(uri));
 			HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(proxyService.getProxy(uri));
-            connection.setAuthenticator(authenticator);
+			connection.setAuthenticator(credentialsProvider);
             connection.setRequestMethod("HEAD");
-            authenticator.preemtiveAuth(connection);
+			credentialsProvider.preemtiveAuth((k, v) -> connection.setRequestProperty(k, v), uri);
             connection.connect();
             try {
                 int code = connection.getResponseCode();
@@ -214,7 +206,7 @@ public class SharedHttpCacheStorage {
         }
 
 		public synchronized long getLastModified(URI uri, ProxyHelper proxyService,
-                Function<URI, Credentials> credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
+				MavenAuthenticator credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
 				Logger logger) throws IOException {
             int code = getResponseCode();
             if (code > 0) {
@@ -240,16 +232,14 @@ public class SharedHttpCacheStorage {
         }
 
 		public synchronized File fetchFile(URI uri, ProxyHelper proxyService,
-				Function<URI, Credentials> credentialsProvider, Logger logger) throws IOException {
+				MavenAuthenticator credentialsProvider, Logger logger) throws IOException {
             boolean exits = file.isFile();
             if (exits && !mustValidate()) {
                 return file;
             }
-			RepositoryAuthenticator authenticator = new RepositoryAuthenticator(proxyService, uri,
-                    credentialsProvider.apply(uri));
 			HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(proxyService.getProxy(uri));
-            connection.setAuthenticator(authenticator);
-            authenticator.preemtiveAuth(connection);
+			connection.setAuthenticator(credentialsProvider);
+			credentialsProvider.preemtiveAuth((k, v) -> connection.setRequestProperty(k, v), uri);
             Properties lastHeader = getHeader();
             if (exits) {
                 if (lastHeader.containsKey(ETAG_HEADER.toLowerCase())) {
@@ -292,7 +282,7 @@ public class SharedHttpCacheStorage {
         }
 
 		public synchronized File getFile(URI uri, ProxyHelper proxyService,
-                Function<URI, Credentials> credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
+				MavenAuthenticator credentialsProvider, Function<URI, IOException> notAviableExceptionSupplier,
 				Logger logger) throws IOException {
             int code = getResponseCode();
             if (code > 0) {
@@ -381,7 +371,8 @@ public class SharedHttpCacheStorage {
                     key = STATUS_LINE;
                 }
                 key = key.toLowerCase();
-                if (AUTHORIZATION_HEADER.equalsIgnoreCase(key) || PROXY_AUTHORIZATION_HEADER.equalsIgnoreCase(key)) {
+				if (MavenAuthenticator.AUTHORIZATION_HEADER.equalsIgnoreCase(key)
+						|| MavenAuthenticator.PROXY_AUTHORIZATION_HEADER.equalsIgnoreCase(key)) {
                     //Don't store sensitive information here...
                     continue;
                 }
@@ -493,56 +484,6 @@ public class SharedHttpCacheStorage {
             CacheConfig other = (CacheConfig) obj;
             return Objects.equals(location, other.location) && offline == other.offline && update == other.update;
         }
-    }
-
-    private static final class RepositoryAuthenticator extends Authenticator {
-
-		private ProxyHelper proxyData;
-        private Credentials credentials;
-		private URI uri;
-
-		public RepositoryAuthenticator(ProxyHelper proxyData, URI uri, Credentials credentials) {
-            this.proxyData = proxyData;
-			this.uri = uri;
-            this.credentials = credentials;
-        }
-
-        public void preemtiveAuth(HttpURLConnection connection) {
-            // as everything is known and we can't ask the user anyways, preemtive auth is a good choice here to prevent successive requests
-			addAuthHeader(connection, getAuth(RequestorType.PROXY),
-					PROXY_AUTHORIZATION_HEADER);
-			addAuthHeader(connection, getAuth(RequestorType.SERVER), AUTHORIZATION_HEADER);
-        }
-
-        private void addAuthHeader(HttpURLConnection connection, PasswordAuthentication authentication, String header) {
-            if (authentication == null) {
-                return;
-            }
-            String encoding = Base64.getEncoder().encodeToString(
-                    (authentication.getUserName() + ":" + new String(authentication.getPassword())).getBytes());
-            connection.setRequestProperty(header, "Basic " + encoding);
-
-        }
-
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-			return getAuth(getRequestorType());
-		}
-
-		private PasswordAuthentication getAuth(RequestorType type) {
-			if (type == RequestorType.PROXY) {
-				return proxyData.getPasswordAuthentication(uri, type);
-			} else if (credentials != null) {
-				String userName = credentials.getUserName();
-				if (userName != null) {
-					String password = credentials.getPassword();
-					return new PasswordAuthentication(userName,
-							password == null ? new char[0] : password.toCharArray());
-				}
-			}
-			return null;
-		}
-
     }
 
 }

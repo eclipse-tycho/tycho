@@ -22,7 +22,6 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.function.Function;
 
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.logging.Logger;
@@ -34,7 +33,6 @@ import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
-import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
@@ -51,10 +49,10 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
 	private ProxyHelper proxyService;
 
-    private Function<URI, Credentials> credentialsProvider;
+	private MavenAuthenticator credentialsProvider;
 
 	public TychoRepositoryTransport(Logger logger, ProxyHelper proxyService, SharedHttpCacheStorage httpCache,
-            Function<URI, Credentials> credentialsProvider) {
+			MavenAuthenticator credentialsProvider) {
 		this.logger = logger;
         this.proxyService = proxyService;
         this.credentialsProvider = credentialsProvider;
