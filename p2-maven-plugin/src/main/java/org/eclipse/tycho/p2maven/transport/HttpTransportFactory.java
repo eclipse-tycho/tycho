@@ -12,12 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import java.io.File;
-import java.io.IOException;
+import java.net.URI;
 
-public interface CacheEntry {
+public interface HttpTransportFactory {
 
-	long getLastModified(HttpTransportFactory transportFactory) throws IOException;
+	HttpTransport createTransport(URI uri);
 
-	File getCacheFile(HttpTransportFactory transportFactory) throws IOException;
 }

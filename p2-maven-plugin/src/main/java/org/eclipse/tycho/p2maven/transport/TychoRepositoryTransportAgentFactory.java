@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2maven.transport;
 
 import java.io.File;
+import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
@@ -31,6 +32,8 @@ import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 @Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.internal.p2.repository.Transport")
 public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactory, Initializable {
 
+	private static final String TRANSPORT_TYPE = System.getProperty("tycho.p2.transport.type",
+			URLHttpTransportFactory.HINT);
 	@Requirement(hint = "connect")
     private EquinoxServiceFactory serviceFactory;
 
@@ -48,6 +51,9 @@ public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactor
 	@Requirement
 	MavenAuthenticator mavenAuthenticator;
 
+	@Requirement
+	private Map<String, HttpTransportFactory> transportFactoryMap;
+
 	private File repoDir;
 
 	private boolean offline;
@@ -61,6 +67,7 @@ public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactor
 		logger.info("### Using TychoRepositoryTransport for remote P2 access ###");
 		logger.info("    Cache location:         " + cacheLocation);
 		logger.info("    Transport mode:         " + (offline ? "offline" : "online"));
+		logger.info("    Transport type:         " + TRANSPORT_TYPE);
 		logger.info("    Update mode:            " + (update ? "forced" : "cache first"));
 		logger.info("    Minimum cache duration: " + SharedHttpCacheStorage.MIN_CACHE_PERIOD + " minutes");
 		logger.info(
@@ -68,7 +75,7 @@ public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactor
 
 		SharedHttpCacheStorage cache = SharedHttpCacheStorage.getStorage(cacheLocation, offline, update);
 
-		return new TychoRepositoryTransport(logger, proxyHelper, cache, mavenAuthenticator);
+		return new TychoRepositoryTransport(logger, cache, transportFactoryMap.get(TRANSPORT_TYPE));
     }
 
 	@Override
