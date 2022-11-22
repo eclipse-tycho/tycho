@@ -46,8 +46,12 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 /**
  * Modifies the p2 metadata (<code>artifacts.xml</code>) to add PGP signatures for each included
  * artifact. Signatures are added as <code>pgp.signatures</code> property on the artifact metadata,
- * in armored form; and public keys of the signers are added as <code>pgp.publicKeys</code> property
- * on the repository metadata, in armored form.
+ * in armored form; and public keys of the signers are optionally added as
+ * <code>pgp.publicKeys</code> property on the repository metadata, in armored form.
+ * 
+ * @see <a href=
+ *      "https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_pgp.html">Using
+ *      PGP signatures in p2</a>
  */
 @Mojo(name = "sign-p2-artifacts", requiresProject = true, defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
@@ -68,14 +72,22 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     @Parameter(defaultValue = "true")
     private boolean skipIfJarsigned;
 
+    /**
+     * If set to {@code true} adds the public key belonging to the signature to the repository
+     * metadata.
+     */
     @Parameter(defaultValue = "true")
     private boolean addPublicKeyToRepo;
 
-    @Parameter(defaultValue = "true")
-    private boolean addPublicKeysToArtifacts;
+    /**
+     * If set to {@code true} adds the public key belonging to the signature to each signed
+     * artifact's metadata.
+     */
+    @Parameter(defaultValue = "true", alias = "addPublicKeysToArtifacts")
+    private boolean addPublicKeyToArtifacts;
 
     /**
-     * Bundles that should be signed independently of other settings, eg {@link #skipIfJarsigned}.
+     * Bundles that should be signed independently of other settings, e.g. {@link #skipIfJarsigned}.
      */
     @Parameter
     private List<String> forceSignature;
@@ -160,7 +172,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                 properties.addChild(signatureProperty);
                 properties.setAttribute("size",
                         Integer.toString(Integer.parseInt(properties.getAttribute("size")) + 1));
-                if (addPublicKeysToArtifacts) {
+                if (addPublicKeyToArtifacts) {
                     var publicKeyProperty = new Xpp3Dom("property");
                     publicKeyProperty.setAttribute("name", "pgp.publicKeys");
                     publicKeyProperty.setAttribute("value", armoredPublicKey);
