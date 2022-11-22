@@ -27,6 +27,7 @@ public class DefaultHttpCacheConfig implements HttpCacheConfig, Initializable {
 
 	private boolean offline;
 	private boolean update;
+	private boolean interactive;
 
 	@Requirement
 	private LegacySupport legacySupport;
@@ -40,10 +41,12 @@ public class DefaultHttpCacheConfig implements HttpCacheConfig, Initializable {
 			repoDir = RepositorySystem.defaultUserLocalRepository;
 			offline = false;
 			update = false;
+			interactive = false;
 		} else {
 			offline = session.isOffline();
 			repoDir = new File(session.getLocalRepository().getBasedir());
 			update = session.getRequest().isUpdateSnapshots();
+			interactive = session.getRequest().isInteractiveMode();
 		}
 
 		cacheLocation = new File(repoDir, ".cache/tycho");
@@ -58,6 +61,11 @@ public class DefaultHttpCacheConfig implements HttpCacheConfig, Initializable {
 	@Override
 	public boolean isUpdate() {
 		return update;
+	}
+
+	@Override
+	public boolean isInteractive() {
+		return interactive;
 	}
 
 	@Override

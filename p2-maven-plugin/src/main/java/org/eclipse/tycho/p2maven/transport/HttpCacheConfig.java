@@ -20,5 +20,7 @@ public interface HttpCacheConfig {
 
 	boolean isUpdate();
 
+	boolean isInteractive();
+
 	File getCacheLocation();
 }
