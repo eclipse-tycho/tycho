@@ -27,12 +27,14 @@ public class RemoteMetadataRepositoryManagerAgentFactory implements IAgentServic
     @Requirement
     Logger logger;
 
+	@Requirement
+	IRepositoryIdManager repositoryIdManager;
+
     @Override
     public Object createService(IProvisioningAgent agent) {
         IMetadataRepositoryManager plainMetadataRepoManager = (IMetadataRepositoryManager) new MetadataRepositoryComponent()
                 .createService(agent);
-        IRepositoryIdManager loadingHelper = agent.getService(IRepositoryIdManager.class);
-		return new RemoteMetadataRepositoryManager(plainMetadataRepoManager, loadingHelper, logger);
+		return new RemoteMetadataRepositoryManager(plainMetadataRepoManager, repositoryIdManager, logger);
     }
 
 }
