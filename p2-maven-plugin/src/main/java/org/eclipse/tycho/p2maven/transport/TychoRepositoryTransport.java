@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
@@ -74,9 +75,15 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
     @Override
     public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
-        try {
-            IOUtils.copy(stream(toDownload, monitor), target);
-            return reportStatus(Status.OK_STATUS, target);
+		if (httpCache.getCacheConfig().isInteractive()) {
+			logger.info("Downloading " + toDownload + "...");
+		}
+		try {
+			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
+					"Download of " + toDownload);
+			IOUtils.copy(stream(toDownload, monitor), statusOutputStream);
+			DownloadStatus downloadStatus = statusOutputStream.getStatus();
+			return reportStatus(downloadStatus, target);
         } catch (AuthenticationFailedException e) {
             return new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
                     "authentication failed for " + toDownload, e);
