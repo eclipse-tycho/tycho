@@ -24,12 +24,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -37,12 +35,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 
-public class SharedHttpCacheStorage {
+@Component(role = HttpCache.class)
+public class SharedHttpCacheStorage implements HttpCache {
 
-    /**
+	private static final int MAX_CACHE_LINES = Integer.getInteger("tycho.p2.transport.max-cache-lines", 1000);
+	/**
      * Assumes the following minimum caching period for remote files in minutes
      */
     //TODO can we sync this with the time where maven updates snapshots?
@@ -56,18 +58,17 @@ public class SharedHttpCacheStorage {
 
     private static final String ETAG_HEADER = "ETag";
 
-    private static final Map<CacheConfig, SharedHttpCacheStorage> storageMap = new HashMap<>();
-
     private static final int MAX_IN_MEMORY = 1000;
+
+	@Requirement
+	HttpCacheConfig cacheConfig;
 
     private final Map<File, CacheLine> entryCache;
 
-    private CacheConfig cacheConfig;
 
-    private SharedHttpCacheStorage(CacheConfig cacheConfig) {
+	public SharedHttpCacheStorage() {
 
-        this.cacheConfig = cacheConfig;
-		entryCache = new LinkedHashMap<>(100, 0.75f, true) {
+		entryCache = new LinkedHashMap<>(MAX_CACHE_LINES, 0.75f, true) {
 
             private static final long serialVersionUID = 1L;
 
@@ -79,6 +80,11 @@ public class SharedHttpCacheStorage {
         };
     }
 
+	@Override
+	public HttpCacheConfig getCacheConfig() {
+		return cacheConfig;
+	}
+
     /**
      * Fetches the cache entry for this URI
      * 
@@ -87,9 +93,10 @@ public class SharedHttpCacheStorage {
      * @throws FileNotFoundException
      *             if the URI is know to be not found
      */
+	@Override
 	public CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException {
         CacheLine cacheLine = getCacheLine(uri);
-        if (!cacheConfig.update) { //if not updates are forced ...
+		if (!cacheConfig.isUpdate()) { // if not updates are forced ...
             int code = cacheLine.getResponseCode();
             if (code == HttpURLConnection.HTTP_NOT_FOUND) {
                 throw new FileNotFoundException(uri.toASCIIString());
@@ -103,7 +110,7 @@ public class SharedHttpCacheStorage {
             @Override
 			public long getLastModified(HttpTransportFactory transportFactory)
                     throws IOException {
-                if (cacheConfig.offline) {
+				if (cacheConfig.isOffline()) {
                     return cacheLine.getLastModified(uri, transportFactory,
                             SharedHttpCacheStorage::mavenIsOffline, logger);
                 }
@@ -113,7 +120,7 @@ public class SharedHttpCacheStorage {
                     //for not found and failed authentication we can't do anything useful
                     throw e;
                 } catch (IOException e) {
-                    if (!cacheConfig.update && cacheLine.getResponseCode() > 0) {
+					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
                         //if we have something cached, use that ...
                         logger.warn("Request to " + uri + " failed, trying cache instead...");
 						return cacheLine.getLastModified(uri, transportFactory, nil -> e, logger);
@@ -125,7 +132,7 @@ public class SharedHttpCacheStorage {
             @Override
 			public File getCacheFile(HttpTransportFactory transportFactory)
                     throws IOException {
-                if (cacheConfig.offline) {
+				if (cacheConfig.isOffline()) {
 					return cacheLine.getFile(uri, transportFactory,
                             SharedHttpCacheStorage::mavenIsOffline, logger);
                 }
@@ -135,7 +142,7 @@ public class SharedHttpCacheStorage {
                     //for not found and failed authentication we can't do anything useful
                     throw e;
                 } catch (IOException e) {
-                    if (!cacheConfig.update && cacheLine.getResponseCode() > 0) {
+					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
                         //if we have something cached, use that ...
                         logger.warn("Request to " + uri + " failed, trying cache instead...");
 						return cacheLine.getFile(uri, transportFactory, nil -> e, logger);
@@ -148,7 +155,8 @@ public class SharedHttpCacheStorage {
     }
 
     private synchronized CacheLine getCacheLine(URI uri) {
-        File file = new File(cacheConfig.location, uri.normalize().toASCIIString().replace(':', '/').replace('?', '/')
+		File file = new File(cacheConfig.getCacheLocation(), uri.normalize().toASCIIString().replace(':', '/')
+				.replace('?', '/')
                 .replace('&', '/').replaceAll("/+", "/"));
         File location;
         try {
@@ -292,7 +300,7 @@ public class SharedHttpCacheStorage {
         }
 
         private boolean mustValidate() {
-            if (cacheConfig.update) {
+			if (cacheConfig.isUpdate()) {
                 //user enforced validation
                 return true;
             }
@@ -429,42 +437,8 @@ public class SharedHttpCacheStorage {
         return code == HttpURLConnection.HTTP_NOT_FOUND;
     }
 
-    public static SharedHttpCacheStorage getStorage(File location, boolean offline, boolean update) {
-        return storageMap.computeIfAbsent(new CacheConfig(location, offline, update), SharedHttpCacheStorage::new);
-    }
-
     private static IOException mavenIsOffline(URI uri) {
         return new IOException("maven is currently in offline mode requested URL " + uri + " does not exist locally!");
-    }
-
-    private static final class CacheConfig {
-
-        private final File location;
-        private final boolean offline;
-        private final boolean update;
-
-        public CacheConfig(File location, boolean offline, boolean update) {
-            this.location = location;
-            this.offline = offline;
-            this.update = update;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(location, offline, update);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            CacheConfig other = (CacheConfig) obj;
-            return Objects.equals(location, other.location) && offline == other.offline && update == other.update;
-        }
     }
 
 }

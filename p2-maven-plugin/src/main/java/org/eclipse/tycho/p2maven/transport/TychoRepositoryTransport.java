@@ -21,9 +21,13 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLConnection;
 import java.text.NumberFormat;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.commons.io.IOUtils;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,26 +38,29 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
+@Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
         implements IAgentServiceFactory {
 
+	static final String TRANSPORT_TYPE = System.getProperty("tycho.p2.transport.type",
+			URLHttpTransportFactory.HINT);
 	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
 
     private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
-	private Logger logger;
-    private SharedHttpCacheStorage httpCache;
+	@Requirement
+	Map<String, HttpTransportFactory> transportFactoryMap;
+
+	@Requirement
+	Logger logger;
+	@Requirement
+	HttpCache httpCache;
+
     private LongAdder requests = new LongAdder();
     private LongAdder indexRequests = new LongAdder();
 
-	private HttpTransportFactory transportFactory;
-
-	public TychoRepositoryTransport(Logger logger, SharedHttpCacheStorage httpCache,
-			HttpTransportFactory transportFactory) {
-		this.logger = logger;
-		this.transportFactory = transportFactory;
+	public TychoRepositoryTransport() {
         numberFormat.setMaximumFractionDigits(2);
-		this.httpCache = httpCache;
     }
 
     @Override
@@ -132,7 +139,8 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         //TODO P2 cache manager relies on this method to throw an exception to work correctly
         try {
             if (isHttp(toDownload)) {
-				return httpCache.getCacheEntry(toDownload, logger).getLastModified(transportFactory);
+				return httpCache.getCacheEntry(toDownload, logger)
+						.getLastModified(getTransportFactory());
             }
             URLConnection connection = toDownload.toURL().openConnection();
             long lastModified = connection.getLastModified();
@@ -146,19 +154,23 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         }
     }
 
+	private HttpTransportFactory getTransportFactory() {
+		return Objects.requireNonNull(transportFactoryMap.get(TRANSPORT_TYPE), "Invalid transport configuration");
+	}
+
     @Override
     public Object createService(IProvisioningAgent agent) {
         return this;
     }
 
-    public SharedHttpCacheStorage getHttpCache() {
+    public HttpCache getHttpCache() {
         return httpCache;
     }
 
     public File getCachedFile(URI remoteFile) throws IOException {
 
         if (isHttp(remoteFile)) {
-			return httpCache.getCacheEntry(remoteFile, logger).getCacheFile(transportFactory);
+			return httpCache.getCacheEntry(remoteFile, logger).getCacheFile(getTransportFactory());
         }
         return null;
     }

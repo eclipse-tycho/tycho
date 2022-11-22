@@ -27,6 +27,9 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
     @Requirement
 	Logger logger;
 
+	@Requirement
+	IRepositoryIdManager repositoryIdManager;
+
     @Override
     public Object createService(IProvisioningAgent agent) {
         IArtifactRepositoryManager plainRepoManager = (IArtifactRepositoryManager) new ArtifactRepositoryComponent()
@@ -35,8 +38,7 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
             plainRepoManager = new P2MirrorDisablingArtifactRepositoryManager(plainRepoManager,
 					logger);
         }
-        IRepositoryIdManager loadingHelper = agent.getService(IRepositoryIdManager.class);
-        return new RemoteArtifactRepositoryManager(plainRepoManager, loadingHelper);
+		return new RemoteArtifactRepositoryManager(plainRepoManager, repositoryIdManager);
     }
 
     private boolean getDisableP2MirrorsConfiguration() {
