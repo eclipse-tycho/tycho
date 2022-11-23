@@ -268,5 +268,11 @@
 			<version>${tycho-build-version}</version>
 			<type>pom</type>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-gpg-plugin</artifactId>
+			<version>${tycho-build-version}</version>
+			<type>maven-plugin</type>
+		</dependency>
 	</dependencies>
 </project>
