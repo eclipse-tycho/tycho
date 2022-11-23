@@ -29,7 +29,11 @@ public class DefaultFeatureDescription extends DefaultArtifactDescriptor impleme
 
     public DefaultFeatureDescription(ArtifactKey key, File location, ReactorProject project, String classifier,
             Feature feature, FeatureRef featureRef, Collection<IInstallableUnit> installableUnits) {
-        super(key, location, project, classifier, installableUnits);
+        super(key, classifier, installableUnits);
+        setMavenProject(project);
+        if (location != null) {
+            resolve(location);
+        }
         this.feature = feature;
         this.featureRef = featureRef;
     }

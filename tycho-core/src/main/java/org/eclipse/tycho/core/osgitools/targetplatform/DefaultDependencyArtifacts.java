@@ -98,7 +98,7 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
     }
 
     public void addFragment(ArtifactKey key, Supplier<File> location, Set<IInstallableUnit> installableUnits) {
-        fragments.add(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
+        fragments.add(DefaultArtifactDescriptor.create(key, location, installableUnits));
     }
 
     @Override

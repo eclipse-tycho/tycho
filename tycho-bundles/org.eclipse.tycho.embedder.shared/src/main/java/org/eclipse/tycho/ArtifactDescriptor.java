@@ -14,6 +14,7 @@ package org.eclipse.tycho;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -35,7 +36,26 @@ public interface ArtifactDescriptor {
      * @return the artifact location if already available or if <code>fetch=true</code> and fetching
      *         succeds; <code>null</code> otherwise.
      */
-    public File getLocation(boolean fetch);
+    @Deprecated
+    default File getLocation(boolean fetch) {
+        Optional<File> location = getLocation();
+        if (location.isPresent()) {
+            return location.get();
+        }
+        if (fetch) {
+            return fetchArtifact().join();
+        }
+        return null;
+    }
+
+    /**
+     * Gets the location of the artifact if already know, if you really like to fetch the artifact
+     * and make is available use {@link #fetchArtifact()} instead.
+     * 
+     * @return an empty optional if the file is not currently available or an optional describing
+     *         the location of that file
+     */
+    Optional<File> getLocation();
 
     /**
      * Fetch the artifact in a possibly asynchronous way, that is returning a

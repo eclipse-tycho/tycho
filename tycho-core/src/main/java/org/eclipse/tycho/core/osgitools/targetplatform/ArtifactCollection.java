@@ -27,8 +27,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -63,12 +61,12 @@ public class ArtifactCollection {
     }
 
     public void addArtifactFile(ArtifactKey key, File location, Collection<IInstallableUnit> installableUnits) {
-        addArtifact(new DefaultArtifactDescriptor(key, location, null, null, installableUnits));
+        addArtifact(DefaultArtifactDescriptor.create(key, location, installableUnits));
     }
 
     public void addArtifactFile(ArtifactKey key, Supplier<File> location,
             Collection<IInstallableUnit> installableUnits) {
-        addArtifact(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
+        addArtifact(DefaultArtifactDescriptor.create(key, location, installableUnits));
     }
 
     public void addArtifact(ArtifactDescriptor artifact) {
@@ -76,9 +74,9 @@ public class ArtifactCollection {
     }
 
     protected void addArtifact(final ArtifactDescriptor artifact, boolean merge) {
-//        if (artifact.getClass() != DefaultArtifactDescriptor.class) {
-//            throw new IllegalAccessError();
-//        }
+        if (artifact.getClass() != DefaultArtifactDescriptor.class) {
+            throw new IllegalAccessError();
+        }
 
         ArtifactKey normalizedKey = normalizeKey(artifact.getKey());
 
@@ -93,21 +91,19 @@ public class ArtifactCollection {
                 // TODO better error message
                 throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey());
             }
-
             // artifact equals to original
             Collection<IInstallableUnit> originalIUs = original.getInstallableUnits();
             if (unitSetCompare(artifactIUs, originalIUs)) {
                 if (original instanceof DefaultArtifactDescriptor def) {
-                    if (original.getLocation(false) == null) {
+                    if (original.getLocation().isEmpty()) {
                         //they equal but maybe we can fetch the file form the other one because it is already resolved?
                         if (original.getMavenProject() == null) {
                             def.setMavenProject(artifact.getMavenProject());
                         }
-                        File newLocation = artifact.getLocation(false);
-                        if (newLocation != null) {
+                        artifact.getLocation().ifPresent(newLocation -> {
                             def.resolve(newLocation);
-                            registerArtifactLocation(newLocation, original);
-                        }
+                            registerArtifactLocation(original, newLocation);
+                        });
                     }
                 }
                 return;
@@ -139,30 +135,10 @@ public class ArtifactCollection {
         }
 
         // recreate artifact descriptor to use normalized location, key and units
-        File location = artifact.getLocation(false);
-        ArtifactDescriptor normalizedArtifact;
-        if (location != null)
-            normalizedArtifact = new DefaultArtifactDescriptor(normalizedKey, location, artifact.getMavenProject(),
-                    artifact.getClassifier(), units);
-        else {
-            Function<ArtifactDescriptor, File> function = null;
-            normalizedArtifact = new DefaultArtifactDescriptor(normalizedKey, function, artifact.getMavenProject(),
-                    artifact.getClassifier(), units) {
-                @Override
-                public synchronized CompletableFuture<File> fetchArtifact() {
-                    return artifact.fetchArtifact().whenComplete((file, ex) -> {
-                        if (file != null) {
-                            registerArtifactLocation(file, this);
-                        }
-                    });
-                }
-            };
-        }
 
+        ArtifactDescriptor normalizedArtifact = DefaultArtifactDescriptor.create(normalizedKey, units, artifact,
+                this::registerArtifactLocation);
         artifacts.put(normalizedKey, normalizedArtifact);
-        if (location != null) {
-            registerArtifactLocation(location, normalizedArtifact);
-        }
     }
 
     private boolean unitSetCompare(Collection<IInstallableUnit> unitsA, Collection<IInstallableUnit> unitsB) {
@@ -182,7 +158,7 @@ public class ArtifactCollection {
         return Set.copyOf(unitsB).equals(Set.copyOf(unitsA));
     }
 
-    private void registerArtifactLocation(File location, ArtifactDescriptor normalizedArtifact) {
+    private void registerArtifactLocation(ArtifactDescriptor normalizedArtifact, File location) {
         Map<String, ArtifactDescriptor> classified = artifactsWithKnownLocation.computeIfAbsent(location,
                 loc -> new LinkedHashMap<>());
         // TODO sanity check, no duplicate artifact classifiers at the same location
@@ -285,7 +261,7 @@ public class ArtifactCollection {
 
     public void addReactorArtifact(ArtifactKey key, ReactorProject project, String classifier,
             Collection<IInstallableUnit> installableUnits) {
-        DefaultArtifactDescriptor artifact = new DefaultArtifactDescriptor(key, project.getBasedir(), project,
+        DefaultArtifactDescriptor artifact = DefaultArtifactDescriptor.create(key, project.getBasedir(), project,
                 classifier, installableUnits);
         addArtifact(artifact);
     }

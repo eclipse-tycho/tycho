@@ -36,9 +36,14 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class DefaultDependencyArtifactsTest {
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     static IInstallableUnit unit(String id) {
         InstallableUnitDescription desc = new InstallableUnitDescription();
@@ -98,8 +103,8 @@ public class DefaultDependencyArtifactsTest {
     public void testRelativePath() throws IOException {
         DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
-        File relative = new File("relative.xml");
-        File canonical = new File("canonical.xml");
+        File relative = temporaryFolder.newFile("relative.xml");
+        File canonical = temporaryFolder.newFile("canonical.xml");
 
         tp.addArtifactFile(new DefaultArtifactKey("foo", "relative", "1"), relative, null);
         tp.addArtifactFile(new DefaultArtifactKey("foo", "canonical", "1"), canonical.getAbsoluteFile(), null);
@@ -176,7 +181,7 @@ public class DefaultDependencyArtifactsTest {
     }
 
     @Test
-    public void testDoNotCacheArtifactsThatRepresentReactorProjects() {
+    public void testDoNotCacheArtifactsThatRepresentReactorProjects() throws IOException {
         // IInstallableUnit #hashCode and #equals methods only use (version,id) tuple to determine IU equality
         // Reactor projects are expected to produce different IUs potentially with the same (version,id) during the build
         // This test verifies that different DefaultTargetPlatform can have the same reactor project with different IUs
@@ -184,13 +189,13 @@ public class DefaultDependencyArtifactsTest {
 
         ReactorProject project = new DefaultReactorProject(new MavenProject());
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
-        File location = new File("location");
+        File location = temporaryFolder.newFile();
 
         DefaultDependencyArtifacts tp1 = new DefaultDependencyArtifacts();
-        tp1.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, Set.of(unit("a"))));
+        tp1.addArtifact(DefaultArtifactDescriptor.create(key, location, project, null, Set.of(unit("a"))));
 
         DefaultDependencyArtifacts tp2 = new DefaultDependencyArtifacts();
-        tp2.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, Set.of(unit("b"))));
+        tp2.addArtifact(DefaultArtifactDescriptor.create(key, location, project, null, Set.of(unit("b"))));
 
         Assert.assertEquals(unit("a"), //
                 getArtifactMapForLocation(location, tp1).get(null).getInstallableUnits().iterator().next());

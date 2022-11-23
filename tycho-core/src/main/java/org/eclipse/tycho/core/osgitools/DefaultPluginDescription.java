@@ -27,7 +27,11 @@ public class DefaultPluginDescription extends DefaultArtifactDescriptor implemen
 
     public DefaultPluginDescription(ArtifactKey key, File location, ReactorProject project, String classifier,
             PluginRef pluginRef, Collection<IInstallableUnit> installableUnits) {
-        super(key, location, project, classifier, installableUnits);
+        super(key, classifier, installableUnits);
+        setMavenProject(project);
+        if (location != null) {
+            resolve(location);
+        }
         this.pluginRef = pluginRef;
     }
 

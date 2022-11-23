@@ -15,9 +15,11 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -30,7 +32,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     private final ArtifactKey key;
 
-    private Function<ArtifactDescriptor, File> locationSupplier;
+    private Supplier<File> locationSupplier;
     private volatile CompletableFuture<File> location;
 
     private volatile ReactorProject project;
@@ -39,20 +41,11 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     private final Collection<IInstallableUnit> installableUnits;
 
-    public DefaultArtifactDescriptor(ArtifactKey key, File location, ReactorProject project, String classifier,
+    private BiConsumer<ArtifactDescriptor, File> fetchConsumer;
+
+    protected DefaultArtifactDescriptor(ArtifactKey key, String classifier,
             Collection<IInstallableUnit> installableUnits) {
         this.key = key;
-        this.location = CompletableFuture.completedFuture(ArtifactCollection.normalizeLocation(location));
-        this.project = project;
-        this.classifier = classifier;
-        this.installableUnits = installableUnits;
-    }
-
-    public DefaultArtifactDescriptor(ArtifactKey key, Function<ArtifactDescriptor, File> location,
-            ReactorProject project, String classifier, Collection<IInstallableUnit> installableUnits) {
-        this.key = key;
-        this.locationSupplier = location;
-        this.project = project;
         this.classifier = classifier;
         this.installableUnits = installableUnits;
     }
@@ -63,29 +56,25 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     }
 
     @Override
-    public synchronized File getLocation(boolean fetch) {
+    public synchronized Optional<File> getLocation() {
         if (project != null) {
+            //TODO better project.getArtifact getfile??
             File basedir = project.getBasedir();
             if (basedir != null) {
-                return basedir;
+                return Optional.of(basedir);
             }
         }
         if (isValid(location)) {
-            if (fetch) {
-                return location.join();
-            }
             //the download was already initiated but fetch is not required, so get what is available right now
-            return location.getNow(null);
+            return Optional.ofNullable(location.getNow(null));
         }
-        if (fetch) {
-            return fetchArtifact().join();
-        }
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public synchronized CompletableFuture<File> fetchArtifact() {
         if (project != null) {
+            //TODO better project.getArtifact getfile??
             File basedir = project.getBasedir();
             if (basedir != null) {
                 return CompletableFuture.completedFuture(basedir);
@@ -98,8 +87,11 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
             CompletableFuture<File> future = new CompletableFuture<>();
             TychoRepositoryTransport.getDownloadExecutor().execute(() -> {
                 try {
-                    File file = locationSupplier.apply(this);
+                    File file = locationSupplier.get();
                     if (file != null) {
+                        if (fetchConsumer != null) {
+                            fetchConsumer.accept(this, file);
+                        }
                         future.complete(ArtifactCollection.normalizeLocation(file));
                     } else {
                         future.cancel(true);
@@ -182,13 +174,59 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
                 && Objects.equals(installableUnits, other.installableUnits);
     }
 
-    public synchronized void resolve(File newLocation) {
-        Objects.requireNonNull(newLocation);
-        location = CompletableFuture.completedFuture(newLocation);
+    public synchronized void resolve(File file) {
+        Objects.requireNonNull(file, "file can't be null");
+        location = CompletableFuture.completedFuture(ArtifactCollection.normalizeLocation(file));
     }
 
     public synchronized void setMavenProject(ReactorProject mavenProject) {
         project = mavenProject;
+    }
+
+    public static ArtifactDescriptor create(ArtifactKey key, Supplier<File> locationSupplier,
+            Collection<IInstallableUnit> installableUnits) {
+        DefaultArtifactDescriptor descriptor = new DefaultArtifactDescriptor(key, null, installableUnits);
+        descriptor.locationSupplier = locationSupplier;
+        return descriptor;
+
+    }
+
+    public static ArtifactDescriptor create(ArtifactKey key, File file, Collection<IInstallableUnit> installableUnits) {
+        DefaultArtifactDescriptor descriptor = new DefaultArtifactDescriptor(key, null, installableUnits);
+        descriptor.resolve(file);
+        return descriptor;
+
+    }
+
+    public static ArtifactDescriptor create(ArtifactKey key, Collection<IInstallableUnit> installableUnits,
+            ArtifactDescriptor delegate, BiConsumer<ArtifactDescriptor, File> fetchConsumer) {
+        DefaultArtifactDescriptor descriptor = new DefaultArtifactDescriptor(key, delegate.getClassifier(),
+                installableUnits);
+        descriptor.setMavenProject(delegate.getMavenProject());
+        Optional<File> location = delegate.getLocation();
+        if (location.isPresent()) {
+            File file = location.get();
+            descriptor.resolve(file);
+            fetchConsumer.accept(descriptor, file);
+        } else {
+            descriptor.fetchConsumer = fetchConsumer;
+            if (delegate instanceof DefaultArtifactDescriptor dad) {
+                descriptor.locationSupplier = dad.locationSupplier;
+            } else {
+                descriptor.locationSupplier = () -> delegate.fetchArtifact().join();
+            }
+        }
+        return descriptor;
+    }
+
+    public static DefaultArtifactDescriptor create(ArtifactKey key, File location, ReactorProject project,
+            String classifier, Collection<IInstallableUnit> installableUnits) {
+        DefaultArtifactDescriptor descriptor = new DefaultArtifactDescriptor(key, classifier, installableUnits);
+        if (location != null) {
+            descriptor.resolve(location);
+        }
+        descriptor.setMavenProject(project);
+        return descriptor;
     }
 
 }
