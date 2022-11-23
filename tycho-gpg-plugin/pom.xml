@@ -55,11 +55,19 @@
 			<version>2.6.200</version>
 		</dependency>
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>5.9.1</version>
-			<scope>test</scope>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

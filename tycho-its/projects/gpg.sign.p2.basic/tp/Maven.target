@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="Maven" sequenceNumber="1">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/eclipse/updates/4.25/R-4.25-202208311800" />
+			<unit id="org.eclipse.equinox.common" version="0.0.0" />
+			<unit id="org.eclipse.platform_root" version="0.0.0" />
+		</location>
+		<location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" missingManifest="error" type="Maven">
+			<feature id="org.eclipse.tycho.maven.all" label="Tycho Maven All" version="1.0.0">
+				<description url="http://www.example.com/description"></description>
+				<copyright url="http://www.example.com/copyright"></copyright>
+				<license url="http://www.example.com/license"></license>
+			</feature>
+			<dependencies>
+				<dependency>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcpg-jdk18on</artifactId>
+					<version>1.72</version>
+				</dependency>
+				<dependency>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk18on</artifactId>
+					<version>1.72</version>
+				</dependency>
+			</dependencies>
+		</location>
+	</locations>
+</target>

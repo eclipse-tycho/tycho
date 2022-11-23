@@ -6,6 +6,17 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Migration guide 3.x > 4.x
 
+### PGP Signing Enhancements
+
+The [tycho-gpg::3.0.0:sign-p2-artifacts](https://tycho.eclipseprojects.io/doc/3.0.0/tycho-gpg-plugin/sign-p2-artifacts-mojo.html) mojo has been significantly enhanced.
+
+The following properties have been added:
+
+ - `skipIfJarsignedAndAnchored` - This is similar to `skipIfJarsigned` but is weaker in the sense that the signatures are checked in detail such that the PGP signing is skipped if and only if one of the signatures is anchored in Java cacerts.  The default is `false`. Set `skipIfJarsignedAndAnchored` to `true` and `skipIfJarsigned` to `false` to  enable this feature.
+  - `skipBinaries` - Setting this to `false` will enable the signing of binary artifacts, which are of course not jar-signed.
+  - `pgpKeyBehavor` - Specify `skip`, `replace`, or `merge` for how to handle the signing of artifacts that are already PGP signed.
+  - `signer` - Currently supported are `bc` and `gpg` where the former is a new implementation that uses Bouncy Castle for signing, which is significantly faster and allows signing to proceed in parallel. This can also be configured by the system property `tycho.pgp.signer`.
+
 #### mixed reactor setups require the new resolver now
 
 If you want to use so called mixed-reactor setups, that is you have bundles build by other techniques than Tycho (e.g. bnd/felix-maven-plugin) mixed with ones build by Tycho,
