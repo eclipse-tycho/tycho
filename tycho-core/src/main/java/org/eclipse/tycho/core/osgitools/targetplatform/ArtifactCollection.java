@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -46,7 +47,7 @@ public class ArtifactCollection {
 
     protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<>();
 
-    protected final Map<File, Map<String, ArtifactDescriptor>> artifactsWithKnownLocation = new LinkedHashMap<>();
+    protected final Map<File, Map<String, ArtifactDescriptor>> artifactsWithKnownLocation = new ConcurrentHashMap<>();
 
     public List<ArtifactDescriptor> getArtifacts(String type) {
         return getArtifacts(key -> key.getType().equals(type));
@@ -161,18 +162,20 @@ public class ArtifactCollection {
     private void registerArtifactLocation(ArtifactDescriptor normalizedArtifact, File location) {
         Map<String, ArtifactDescriptor> classified = artifactsWithKnownLocation.computeIfAbsent(location,
                 loc -> new LinkedHashMap<>());
-        // TODO sanity check, no duplicate artifact classifiers at the same location
-        //if (classified.containsKey(artifact.getClassifier())) {
-        //    throw new IllegalStateException("Duplicate artifact classifier at location " + location);
-        //}
-        // sanity check, all artifacts at the same location have the same reactor project
-        for (ArtifactDescriptor other : classified.values()) {
-            if (!Objects.equals(normalizedArtifact.getMavenProject(), other.getMavenProject())) {
-                throw new IllegalStateException("Inconsistent reactor project at location " + location + ". "
-                        + normalizedArtifact.getMavenProject() + " is not the same as " + other.getMavenProject());
+        synchronized (classified) {
+            // TODO sanity check, no duplicate artifact classifiers at the same location
+            //if (classified.containsKey(artifact.getClassifier())) {
+            //    throw new IllegalStateException("Duplicate artifact classifier at location " + location);
+            //}
+            // sanity check, all artifacts at the same location have the same reactor project
+            for (ArtifactDescriptor other : classified.values()) {
+                if (!Objects.equals(normalizedArtifact.getMavenProject(), other.getMavenProject())) {
+                    throw new IllegalStateException("Inconsistent reactor project at location " + location + ". "
+                            + normalizedArtifact.getMavenProject() + " is not the same as " + other.getMavenProject());
+                }
             }
+            classified.put(normalizedArtifact.getClassifier(), normalizedArtifact);
         }
-        classified.put(normalizedArtifact.getClassifier(), normalizedArtifact);
     }
 
     // ideally this would return a specialized type -> the type checker would then ensure that this is called wherever needed

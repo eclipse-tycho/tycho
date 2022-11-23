@@ -176,9 +176,10 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 				CompletableFuture<File> future = getFileFuture(dep);
 				futures.add(future.thenAccept(file -> {
 					if (!handleSystemScopeDependency(copy)) {
-						p2Skipped.add(dep.getManagementKey() + " @ "
-								+ Optional.ofNullable(file)
-								.map(String::valueOf).orElse(dep.getSystemPath()));
+						synchronized (p2Skipped) {
+							p2Skipped.add(dep.getManagementKey() + " @ "
+									+ Optional.ofNullable(file).map(String::valueOf).orElse(dep.getSystemPath()));
+						}
 						// skip this ...
 						return;
 					}
