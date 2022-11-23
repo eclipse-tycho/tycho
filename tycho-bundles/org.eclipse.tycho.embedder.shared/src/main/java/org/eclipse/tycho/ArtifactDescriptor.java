@@ -14,6 +14,7 @@ package org.eclipse.tycho;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
@@ -35,6 +36,16 @@ public interface ArtifactDescriptor {
      *         succeds; <code>null</code> otherwise.
      */
     public File getLocation(boolean fetch);
+
+    /**
+     * Fetch the artifact in a possibly asynchronous way, that is returning a
+     * {@link CompletableFuture} that is either already completed (e.g. because the file is already
+     * available), failed (e.g because the fetching of the file itself failed) or will be complete
+     * sometime later on when the file is ready to be accessed.
+     * 
+     * @return a {@link CompletableFuture} that represents the current state of fetching this file
+     */
+    CompletableFuture<File> fetchArtifact();
 
     /**
      * ReactorProject corresponding to the artifact or null if the artifact does not come from a

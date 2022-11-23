@@ -15,7 +15,9 @@ package org.eclipse.tycho.packaging;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +27,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
@@ -47,6 +52,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.packaging.reverseresolve.ArtifactCoordinateResolver;
@@ -159,30 +165,44 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		} catch (IOException e) {
 			throw new MojoExecutionException("reading the model failed!", e);
 		}
-		List<Dependency> dependencies = projectModel.getDependencies();
-		dependencies.clear();
+		List<Dependency> dependenciesCopy = new CopyOnWriteArrayList<>();
 		List<Dependency> list = Objects.requireNonNullElse(project.getDependencies(), Collections.emptyList());
 		Set<String> p2Skipped = new TreeSet<>();
-		int resolved = 0;
+		AtomicInteger resolved = new AtomicInteger();
+		List<CompletableFuture<?>> futures = new ArrayList<>();
 		for (Dependency dep : list) {
 			Dependency copy = dep.clone();
 			if (Artifact.SCOPE_SYSTEM.equals(dep.getScope())) {
-				if (!handleSystemScopeDependency(copy)) {
-					p2Skipped.add(dep.getManagementKey() + " @ "
-							+ ArtifactCoordinateResolver.getPath(dep).map(String::valueOf).orElse(dep.getSystemPath()));
-					// skip this ...
-					continue;
-				}
-				resolved++;
+				CompletableFuture<File> future = getFileFuture(dep);
+				futures.add(future.thenAccept(file -> {
+					if (!handleSystemScopeDependency(copy)) {
+						p2Skipped.add(dep.getManagementKey() + " @ "
+								+ Optional.ofNullable(file)
+								.map(String::valueOf).orElse(dep.getSystemPath()));
+						// skip this ...
+						return;
+					}
+					resolved.incrementAndGet();
+					dependenciesCopy.add(copy);
+				}));
+			} else {
+				dependenciesCopy.add(copy);
 			}
+		}
+		for (CompletableFuture<?> future : futures) {
+			future.join();
+		}
+		for (Dependency copy : dependenciesCopy) {
 			if (replaceTypeWithExtension && PackagingType.TYCHO_PACKAGING_TYPES.contains(copy.getType())) {
 				ArtifactHandler handler = artifactHandlerManager.getArtifactHandler(copy.getType());
 				if (handler != null) {
 					copy.setType(handler.getExtension());
 				}
 			}
-			dependencies.add(copy);
 		}
+		List<Dependency> dependencies = projectModel.getDependencies();
+		dependencies.clear();
+		dependencies.addAll(dependenciesCopy);
 		Parent parent = projectModel.getParent();
 		if (parent != null) {
 			String relativePath = parent.getRelativePath();
@@ -225,6 +245,26 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			project.setFile(output);
 		}
 
+	}
+
+	private CompletableFuture<File> getFileFuture(Dependency dep) {
+		if (dep instanceof ArtifactDescriptor) {
+			ArtifactDescriptor artifactDescriptor = (ArtifactDescriptor) dep;
+			return artifactDescriptor.fetchArtifact();
+		} else {
+			String systemPath = dep.getSystemPath();
+			if (systemPath != null) {
+				try {
+					File path = new File(systemPath);
+					if (path.exists()) {
+						return CompletableFuture.completedFuture(path);
+					}
+				} catch (InvalidPathException e) {
+					// then we can't use it ...
+				}
+			}
+		}
+		return null;
 	}
 
 	private boolean handleSystemScopeDependency(Dependency dep) {

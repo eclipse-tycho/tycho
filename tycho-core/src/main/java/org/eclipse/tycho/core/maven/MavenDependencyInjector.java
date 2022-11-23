@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -400,6 +401,11 @@ public final class MavenDependencyInjector {
         @Override
         public File getLocation(boolean fetch) {
             return getDescriptor().getLocation(fetch);
+        }
+
+        @Override
+        public CompletableFuture<File> fetchArtifact() {
+            return getDescriptor().fetchArtifact();
         }
 
         @Override

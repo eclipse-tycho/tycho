@@ -27,6 +27,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -74,9 +76,9 @@ public class ArtifactCollection {
     }
 
     protected void addArtifact(final ArtifactDescriptor artifact, boolean merge) {
-        if (artifact.getClass() != DefaultArtifactDescriptor.class) {
-            throw new IllegalAccessError();
-        }
+//        if (artifact.getClass() != DefaultArtifactDescriptor.class) {
+//            throw new IllegalAccessError();
+//        }
 
         ArtifactKey normalizedKey = normalizeKey(artifact.getKey());
 
@@ -138,14 +140,24 @@ public class ArtifactCollection {
 
         // recreate artifact descriptor to use normalized location, key and units
         File location = artifact.getLocation(false);
-        ArtifactDescriptor normalizedArtifact = location != null
-                ? new DefaultArtifactDescriptor(normalizedKey, location, artifact.getMavenProject(),
-                        artifact.getClassifier(), units)
-                : new DefaultArtifactDescriptor(normalizedKey, thisArtifact -> {
-                    File resolvedLocation = artifact.getLocation(true);
-                    registerArtifactLocation(resolvedLocation, thisArtifact);
-                    return resolvedLocation;
-                }, artifact.getMavenProject(), artifact.getClassifier(), units);
+        ArtifactDescriptor normalizedArtifact;
+        if (location != null)
+            normalizedArtifact = new DefaultArtifactDescriptor(normalizedKey, location, artifact.getMavenProject(),
+                    artifact.getClassifier(), units);
+        else {
+            Function<ArtifactDescriptor, File> function = null;
+            normalizedArtifact = new DefaultArtifactDescriptor(normalizedKey, function, artifact.getMavenProject(),
+                    artifact.getClassifier(), units) {
+                @Override
+                public synchronized CompletableFuture<File> fetchArtifact() {
+                    return artifact.fetchArtifact().whenComplete((file, ex) -> {
+                        if (file != null) {
+                            registerArtifactLocation(file, this);
+                        }
+                    });
+                }
+            };
+        }
 
         artifacts.put(normalizedKey, normalizedArtifact);
         if (location != null) {

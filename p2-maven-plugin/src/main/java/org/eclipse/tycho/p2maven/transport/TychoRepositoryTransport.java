@@ -23,8 +23,14 @@ import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -43,9 +49,22 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
         implements IAgentServiceFactory {
 
+	private static final int MAX_DOWNLOAD_THREADS = Integer.getInteger("tycho.p2.transport.max-download-threads", 4);
 	static final String TRANSPORT_TYPE = System.getProperty("tycho.p2.transport.type",
 			URLHttpTransportFactory.HINT);
 	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
+
+	private static final Executor DOWNLOAD_EXECUTOR = Executors.newFixedThreadPool(MAX_DOWNLOAD_THREADS, new ThreadFactory() {
+		
+		private AtomicInteger cnt = new AtomicInteger();
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread thread = new Thread(r);
+			thread.setName("Tycho-Download-Thread-" + cnt.getAndIncrement());
+			thread.setDaemon(true);
+			return thread;
+		}
+	});
 
     private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
@@ -59,6 +78,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
     private LongAdder requests = new LongAdder();
     private LongAdder indexRequests = new LongAdder();
+	private AtomicLong downloadCounter = new AtomicLong();
 
 	public TychoRepositoryTransport() {
         numberFormat.setMaximumFractionDigits(2);
@@ -75,14 +95,20 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
     @Override
     public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
+		long id = downloadCounter.getAndIncrement();
 		if (httpCache.getCacheConfig().isInteractive()) {
-			logger.info("Downloading " + toDownload + "...");
+			logger.info("[" + id + "] Downloading " + toDownload + "... (" + Thread.currentThread().getName() + ")");
 		}
 		try {
 			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
 					"Download of " + toDownload);
 			IOUtils.copy(stream(toDownload, monitor), statusOutputStream);
 			DownloadStatus downloadStatus = statusOutputStream.getStatus();
+			logger.info(
+					"[" + id + "] ... finished " + toDownload + ": "
+							+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize())
+							+ " @ "
+					+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s");
 			return reportStatus(downloadStatus, target);
         } catch (AuthenticationFailedException e) {
             return new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
@@ -95,7 +121,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         }
     }
 
-    private IStatus reportStatus(IStatus status, OutputStream target) {
+	private IStatus reportStatus(IStatus status, OutputStream target) {
         if (target instanceof IStateful stateful) {
             stateful.setStatus(status);
         }
@@ -186,5 +212,9 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         String scheme = remoteFile.getScheme();
         return scheme != null && scheme.toLowerCase().startsWith("http");
     }
+
+	public static Executor getDownloadExecutor() {
+		return DOWNLOAD_EXECUTOR;
+	}
 
 }
