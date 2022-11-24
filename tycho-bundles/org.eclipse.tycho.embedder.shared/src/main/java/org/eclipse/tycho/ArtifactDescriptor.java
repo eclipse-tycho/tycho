@@ -43,7 +43,13 @@ public interface ArtifactDescriptor {
             return location.get();
         }
         if (fetch) {
-            return fetchArtifact().join();
+            try {
+                return fetchArtifact().get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                //do nothing... thats actually bad but it seems sometimes desired!
+            }
         }
         return null;
     }

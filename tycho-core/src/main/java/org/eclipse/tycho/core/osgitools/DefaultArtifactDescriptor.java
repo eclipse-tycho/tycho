@@ -59,7 +59,11 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     @Override
     public synchronized Optional<File> getLocation() {
         if (project != null) {
-            //TODO better project.getArtifact getfile??
+            File artifact = project.getArtifact();
+            if (artifact != null && artifact.isFile()) {
+                return Optional.of(artifact);
+            }
+            //FIXME this do not look right!
             File basedir = project.getBasedir();
             if (basedir != null) {
                 return Optional.of(basedir);
@@ -75,7 +79,11 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     @Override
     public synchronized CompletableFuture<File> fetchArtifact() {
         if (project != null) {
-            //TODO better project.getArtifact getfile??
+            File artifact = project.getArtifact();
+            if (artifact != null && artifact.isFile()) {
+                return CompletableFuture.completedFuture(artifact);
+            }
+            //FIXME this do not look right!
             File basedir = project.getBasedir();
             if (basedir != null) {
                 return CompletableFuture.completedFuture(basedir);

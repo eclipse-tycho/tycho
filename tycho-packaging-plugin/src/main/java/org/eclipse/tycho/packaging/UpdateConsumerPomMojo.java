@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -145,7 +146,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "local,p2,central")
 	private String resolver;
 
-	private Map<String, Optional<Dependency>> resolvedDependencies = new HashMap<>();
+	private Map<String, Optional<Dependency>> resolvedDependencies = new ConcurrentHashMap<>();
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
