@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarFile;
+import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
@@ -252,6 +253,11 @@ public class InstallableUnitGenerator {
 		default:
 		}
 		return actions;
+	}
+
+	public Stream<IInstallableUnit> getInstallableUnits(MavenProject project) {
+		return Stream.concat(Stream.of(project.getArtifact()), project.getAttachedArtifacts().stream())
+				.flatMap(a -> getInstallableUnits(a).stream());
 	}
 
 	public Collection<IInstallableUnit> getInstallableUnits(Artifact artifact) {

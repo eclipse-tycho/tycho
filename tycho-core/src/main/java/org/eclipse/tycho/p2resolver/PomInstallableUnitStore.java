@@ -19,8 +19,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
@@ -60,6 +62,7 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
     private ArtifactHandlerManager artifactHandlerManager;
     private Logger logger;
     private TargetPlatformConfiguration configuration;
+    private Set<IQuery<IInstallableUnit>> missedQueries = new LinkedHashSet<>();
 
     public PomInstallableUnitStore(TychoProject tychoProject, ReactorProject reactorProject,
             InstallableUnitGenerator generator, ArtifactHandlerManager artifactHandlerManager, Logger logger,
@@ -81,6 +84,10 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
             return EMPTY_RESULT;
         }
         IQueryResult<IInstallableUnit> result = getPomIUs().query(query, monitor);
+        if (result.isEmpty()) {
+            missedQueries.add(query);
+            return EMPTY_RESULT;
+        }
         for (IInstallableUnit unit : result) {
             PomDependency pomDependency = installableUnitLookUp.get(unit);
             if (pomDependency == null) {
@@ -195,6 +202,10 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
 
     Collection<PomDependency> getGatheredDependencies() {
         return gatheredDependencies;
+    }
+
+    Collection<IQuery<IInstallableUnit>> getMissedQueries() {
+        return missedQueries;
     }
 
 }

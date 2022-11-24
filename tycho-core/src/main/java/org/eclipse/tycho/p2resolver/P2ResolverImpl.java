@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.apache.maven.project.MavenProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -63,6 +64,7 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultP2ResolutionResult;
 import org.eclipse.tycho.core.resolver.MetadataOnlyP2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
@@ -76,6 +78,7 @@ import org.eclipse.tycho.p2.publisher.AuthoredIUAction;
 import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 public class P2ResolverImpl implements P2Resolver {
@@ -233,10 +236,29 @@ public class P2ResolverImpl implements P2Resolver {
             newState = strategy.resolve(environment, monitor);
         } catch (ResolverException e) {
             logger.info(e.getSelectionContext());
-            logger.error("Cannot resolve project dependencies:");
+            logger.error("Cannot resolve dependencies of project " + project.getId() + ":");
             new MultiLineLogger(logger).error(e.getDetails(), "  ");
             logger.error("");
             logger.error("See https://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
+            Collection<IQuery<IInstallableUnit>> missedQueries = p2ResolverFactoryImpl.getPomUnits()
+                    .getMissedQueries(project);
+            List<ReactorProject> projectList = DefaultReactorProject.adapt(p2ResolverFactoryImpl.getSession());
+            Set<ReactorProject> seen = new HashSet<>();
+            InstallableUnitGenerator generator = p2ResolverFactoryImpl.getInstallableUnitGenerator();
+            for (ReactorProject reactorProject : projectList) {
+                Collection<IInstallableUnit> units = generator
+                        .getInstallableUnits(reactorProject.adapt(MavenProject.class)).toList();
+                for (IQuery<IInstallableUnit> query : missedQueries) {
+                    IQueryResult<IInstallableUnit> result = query.perform(units.iterator());
+                    if (result.isEmpty()) {
+                        continue;
+                    }
+                    if (seen.add(reactorProject)) {
+                        logger.info("The reactor project " + reactorProject.getId()
+                                + " seems so satisfy one of the missing requirements but is currently not a dependency of "+project.getId()+"!");
+                    }
+                }
+            }
             throw new DependencyResolutionException("Cannot resolve dependencies of " + project, e);
         }
 

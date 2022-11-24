@@ -31,6 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -56,6 +58,7 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 
 @Component(role = P2ResolverFactory.class)
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
@@ -83,6 +86,11 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     @Requirement
     private Logger logger;
+
+    @Requirement
+    private LegacySupport legacySupport;
+    @Requirement
+    private InstallableUnitGenerator generator;
 
     private synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
             LocalRepositoryP2Indices localRepoIndices) {
@@ -278,5 +286,14 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     public TychoProjectManager getProjectManager() {
         return projectManager;
+    }
+
+    public MavenSession getSession() {
+        return legacySupport.getSession();
+    }
+
+    public InstallableUnitGenerator getInstallableUnitGenerator() {
+        return generator;
+
     }
 }

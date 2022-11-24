@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -24,6 +25,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -74,6 +76,14 @@ public class PomUnits {
             return new PomInstallableUnitStore(tychoProject.get(), reactorProject, generator, artifactHandlerManager,
                     logger, configuration);
         });
+    }
+
+    public Collection<IQuery<IInstallableUnit>> getMissedQueries(ReactorProject reactorProject) {
+        Object contextValue = reactorProject.getContextValue(KEY);
+        if (contextValue instanceof PomInstallableUnitStore store) {
+            return store.getMissedQueries();
+        }
+        return Collections.emptyList();
     }
 
     public void addCollectedUnits(PomDependencyCollector collector, ReactorProject reactorProject) {
