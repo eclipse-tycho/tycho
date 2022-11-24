@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Red Hat Inc. and others.
+ * Copyright (c) 2021, 2022 Red Hat Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,9 @@ public abstract class AbstractGpgMojoExtension extends AbstractGpgMojo {
     @Override
     protected ProxySignerWithPublicKeyAccess newSigner(MavenProject project)
             throws MojoExecutionException, MojoFailureException {
-        return new ProxySignerWithPublicKeyAccess(super.newSigner(project));
+        ProxySignerWithPublicKeyAccess signer = new ProxySignerWithPublicKeyAccess(super.newSigner(project));
+        signer.setLog(getLog());
+        return signer;
     }
 
 }
