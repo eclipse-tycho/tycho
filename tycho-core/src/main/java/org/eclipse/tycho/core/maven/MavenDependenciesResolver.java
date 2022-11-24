@@ -40,7 +40,6 @@ import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
-import org.eclipse.aether.util.filter.ScopeDependencyFilter;
 
 @Component(role = MavenDependenciesResolver.class)
 public class MavenDependenciesResolver {
@@ -102,9 +101,15 @@ public class MavenDependenciesResolver {
         DependencyNode rootNode = collectResult.getRoot();
 
         CumulativeScopeArtifactFilter scopeArtifactFilter = new CumulativeScopeArtifactFilter(scopesToResolve);
-        DependencyFilter filter = new ScopeDependencyFilter(scopeArtifactFilter.getScopes(),
-                List.of(Artifact.SCOPE_SYSTEM));
-        DependencyRequest dependencyRequest = new DependencyRequest(collect, filter);
+        DependencyRequest dependencyRequest = new DependencyRequest(collect, new DependencyFilter() {
+
+            @Override
+            public boolean accept(DependencyNode node, List<DependencyNode> parents) {
+
+                Artifact artifact = RepositoryUtils.toArtifact(node.getArtifact());
+                return artifact != null && scopeArtifactFilter.include(artifact);
+            }
+        });
         dependencyRequest.setRoot(rootNode);
 
         DependencyResult dependencyResult = repoSystem.resolveDependencies(repositorySession, dependencyRequest);

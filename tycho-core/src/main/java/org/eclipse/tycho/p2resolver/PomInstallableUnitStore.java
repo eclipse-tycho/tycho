@@ -99,26 +99,29 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
         if (collection == null) {
             PublisherInfo publisherInfo = new PublisherInfo();
             publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-            Collection<Artifact> artifactMap = tychoProject.getInitialArtifacts(reactorProject, List.of("compile"));
+            Collection<Artifact> artifactMap = tychoProject.getInitialArtifacts(reactorProject,
+                    List.of(Artifact.SCOPE_TEST));
             Map<Artifact, IArtifactFacade> facadeMap = tychoProject.getArtifactFacades(reactorProject, artifactMap);
             for (Artifact artifact : artifactMap) {
                 IArtifactFacade facade = facadeMap.get(artifact);
                 getArtifactStream(artifact, facade).forEach(a -> {
                     if (a.getFile() == null || configuration.isExcluded(a.getGroupId(), a.getArtifactId())) {
+                        logger.debug("Skipp artifact " + a);
                         return;
                     }
                     Collection<IInstallableUnit> units = generator.getInstallableUnits(a);
+                    logger.debug("artifact " + a + " maps to " + units);
                     IArtifactFacade artifactFacade;
                     if (a.hasClassifier()) {
                         artifactFacade = new MavenArtifactFacade(a);
                     } else {
                         artifactFacade = facade;
                     }
-                    if (considerPomDependencies == PomDependencies.wrapAsBundle && units.isEmpty()) {
-                        String relativePath = RepositoryLayoutHelper.getRelativePath(artifact.getGroupId(),
-                                artifact.getArtifactId(), artifact.getVersion(),
-                                WrappedArtifact.createClassifierFromArtifact(artifact.getClassifier()),
-                                artifactHandlerManager.getArtifactHandler(artifact.getType()).getExtension());
+                    boolean wrapHasErrors = false;
+                    if (considerPomDependencies == PomDependencies.wrapAsBundle && units.isEmpty() && a == artifact) {
+                        String relativePath = RepositoryLayoutHelper.getRelativePath(a.getGroupId(), a.getArtifactId(),
+                                a.getVersion(), WrappedArtifact.createClassifierFromArtifact(a.getClassifier()),
+                                artifactHandlerManager.getArtifactHandler(a.getType()).getExtension());
                         //TODO currently we need to store this in the basedir(!) because otherwise a clean will wipe out the data!
                         //it would be better to only generate the metadata here and write the final jar when the data is requested the first time!
                         File wrappedFile = new File(new File(reactorProject.getBasedir(), ".m2"), relativePath);
@@ -130,13 +133,16 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
                             File wrappedLocation = artifactFacade.getLocation();
                             a.setFile(wrappedLocation);
                             units = generator.getInstallableUnits(a);
-                            logger.warn("Maven Artifact " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":"
-                                    + artifact.getVersion()
+                            logger.warn("Maven Artifact " + a.getGroupId() + ":" + a.getArtifactId() + ":"
+                                    + a.getVersion()
                                     + " is not a bundle and was automatically wrapped with bundle-symbolic name "
                                     + wrappedArtifact.getWrappedBsn()
-                                    + ", ignoring such artifacts can be enabled with <pomDependencies>consider</pomDependencies> in target platform configuration.");
+                                    + ", ignoring such artifacts can be enabled with <pomDependencies>"
+                                    + PomDependencies.consider
+                                    + "</pomDependencies> in target platform configuration.");
                             logger.info(wrappedArtifact.getReferenceHint());
                         } catch (Exception e) {
+                            wrapHasErrors = true;
                             //can't wrap then...
                             if (logger.isDebugEnabled()) {
                                 logger.error("wrapping " + a.getId() + " @ " + a.getFile() + " failed and is ignored",
@@ -148,12 +154,14 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
                         }
                     }
                     if (units.isEmpty()) {
-                        if (a == artifact) {
+                        if (a == artifact && considerPomDependencies != PomDependencies.wrapAsBundle
+                                && !wrapHasErrors) {
                             //only report this for the main artifact!
                             logger.info("Maven Artifact " + a.getGroupId() + ":" + a.getArtifactId() + ":"
                                     + a.getVersion() + " @ " + a.getFile()
                                     + " is not a bundle and will be ignored, automatic wrapping of such artifacts can be enabled with "
-                                    + "<pomDependencies>wrapAsBundle</pomDependencies> in target platform configuration.");
+                                    + "<pomDependencies>" + PomDependencies.wrapAsBundle.name()
+                                    + "</pomDependencies> in target platform configuration.");
                         }
                     } else {
                         PomDependency value;

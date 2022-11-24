@@ -13,15 +13,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -33,7 +31,6 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.tycho.IArtifactFacade;
-import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
@@ -148,64 +145,66 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
             if (dependencies.isEmpty()) {
                 return Collections.emptyList();
             }
-            return getProjectArtifacts(reactorProject, dependencies);
+            Map<String, ReactorProject> reactorProjectMap = getReactorProjectMap(reactorProject);
+            Stream<Artifact> projectArtifacts = streamProjectArtifacts(reactorProject, dependencies, scopes)
+                    .map(artifact -> {
+                        String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(),
+                                artifact.getBaseVersion());
+                        ReactorProject artifactReactorProject = reactorProjectMap.get(key);
+                        if (artifactReactorProject != null) {
+                            MavenProject mavenProject = artifactReactorProject.adapt(MavenProject.class);
+                            if (mavenProject != null) {
+                                return mavenProject.getArtifact();
+                            }
+                        }
+                        return artifact;
+
+                    });
+            return projectArtifacts.toList();
         }
         return Collections.emptyList();
     }
 
-    private Collection<Artifact> getProjectArtifacts(ReactorProject project, Collection<Dependency> dependencies) {
+    private Stream<Artifact> streamProjectArtifacts(ReactorProject project, Collection<Dependency> dependencies,
+            Collection<String> scopes) {
         MavenProject mavenProject = getMavenProject(project);
-        Set<Artifact> artifacts = mavenProject.getArtifacts();
-        if (artifacts.isEmpty()) {
-            MavenSession mavenSession = getMavenSession(project);
-            try {
-                return new HashSet<>(projectDependenciesResolver.resolve(mavenProject, dependencies,
-                        List.of(Artifact.SCOPE_COMPILE), mavenSession));
-            } catch (DependencyCollectionException e) {
-                return Collections.emptyList();
-            } catch (DependencyResolutionException e) {
-                return Collections.emptyList();
-            }
+        MavenSession mavenSession = getMavenSession(project);
+        try {
+            return projectDependenciesResolver.resolve(mavenProject, dependencies, scopes, mavenSession).stream();
+        } catch (DependencyCollectionException e) {
+            return Stream.empty();
+        } catch (DependencyResolutionException e) {
+            return Stream.empty();
         }
-        return new ArrayList<>(artifacts);
     }
 
     @Override
     public Map<Artifact, IArtifactFacade> getArtifactFacades(ReactorProject reactorProject,
             Collection<Artifact> artifacts) {
-        MavenSession session = getMavenSession(reactorProject);
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-        Map<String, ReactorProject> nonTychoReactorProjects = new HashMap<>();
-        Set<String> projectIds = new HashSet<>();
-        for (ReactorProject p : reactorProjects) {
-            String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
-            projectIds.add(key);
-            String packaging = p.getPackaging();
-            if (!PackagingType.TYCHO_PACKAGING_TYPES.contains(packaging)) {
-                nonTychoReactorProjects.put(key, p);
-            }
-        }
-        List<Artifact> externalArtifacts = new ArrayList<>(artifacts.size());
-        for (Artifact artifact : artifacts) {
-            String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
-            if (projectIds.contains(key)) {
-                // resolved to an older snapshot from the repo, we only want the current project in the reactor
-                continue;
-            }
-            externalArtifacts.add(artifact);
-        }
+        Map<String, ReactorProject> reactorProjectMap = getReactorProjectMap(reactorProject);
         Map<Artifact, IArtifactFacade> resultMap = new HashMap<>();
         for (Artifact artifact : artifacts) {
             String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
-            if (nonTychoReactorProjects.containsKey(key)) {
-                PomReactorProjectFacade projectFacade = new PomReactorProjectFacade(artifact,
-                        nonTychoReactorProjects.get(key));
-                resultMap.put(artifact, projectFacade);
+            if (reactorProjectMap.containsKey(key)) {
+                PomReactorProjectFacade reactorFacade = new PomReactorProjectFacade(artifact,
+                        reactorProjectMap.get(key));
+                resultMap.put(artifact, reactorFacade);
             } else {
-                resultMap.put(artifact, new MavenArtifactFacade(artifact));
+                MavenArtifactFacade externalFacade = new MavenArtifactFacade(artifact);
+                resultMap.put(artifact, externalFacade);
             }
         }
         return resultMap;
+    }
+
+    private Map<String, ReactorProject> getReactorProjectMap(ReactorProject reactorProject) {
+        MavenSession session = getMavenSession(reactorProject);
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+        Map<String, ReactorProject> reactorProjectMap = new HashMap<>();
+        for (ReactorProject p : reactorProjects) {
+            reactorProjectMap.put(ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion()), p);
+        }
+        return reactorProjectMap;
     }
 
     protected static String getKey(Dependency dependency) {
