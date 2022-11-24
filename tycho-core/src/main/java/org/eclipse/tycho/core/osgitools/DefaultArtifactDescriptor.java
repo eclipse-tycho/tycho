@@ -13,6 +13,7 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -85,6 +86,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
         }
         if (locationSupplier != null) {
             CompletableFuture<File> future = new CompletableFuture<>();
+            FileNotFoundException exception = new FileNotFoundException("File for artifact " + key + " not found!");
             TychoRepositoryTransport.getDownloadExecutor().execute(() -> {
                 try {
                     File file = locationSupplier.get();
@@ -94,7 +96,8 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
                         }
                         future.complete(ArtifactCollection.normalizeLocation(file));
                     } else {
-                        future.cancel(true);
+                        // future.cancel(true);
+                        future.completeExceptionally(exception);
                     }
                 } catch (RuntimeException e) {
                     future.completeExceptionally(e);
