@@ -17,18 +17,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -169,12 +171,12 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		List<Dependency> list = Objects.requireNonNullElse(project.getDependencies(), Collections.emptyList());
 		Set<String> p2Skipped = new TreeSet<>();
 		AtomicInteger resolved = new AtomicInteger();
-		List<CompletableFuture<?>> futures = new ArrayList<>();
+		Map<Dependency, CompletableFuture<?>> futures = new HashMap<>();
 		for (Dependency dep : list) {
 			Dependency copy = dep.clone();
 			if (Artifact.SCOPE_SYSTEM.equals(dep.getScope())) {
 				CompletableFuture<File> future = getFileFuture(dep);
-				futures.add(future.thenAccept(file -> {
+				futures.put(dep, future.thenAccept(file -> {
 					if (!handleSystemScopeDependency(copy)) {
 						synchronized (p2Skipped) {
 							p2Skipped.add(dep.getManagementKey() + " @ "
@@ -190,8 +192,23 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 				dependenciesCopy.add(copy);
 			}
 		}
-		for (CompletableFuture<?> future : futures) {
-			future.join();
+		for (Entry<Dependency, CompletableFuture<?>> entry : futures.entrySet()) {
+			CompletableFuture<?> future = entry.getValue();
+			if (future.isCancelled()) {
+				// early out...
+				continue;
+			}
+			try {
+				future.get();
+			} catch (CancellationException e) {
+				// ignore that here, it means we cannot resolve the one and the future was not
+				// done when we checked before...
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			} catch (ExecutionException e) {
+				throw new MojoExecutionException("Resolving " + entry.getKey() + " failed!", e.getCause());
+			}
 		}
 		for (Dependency copy : dependenciesCopy) {
 			if (replaceTypeWithExtension && PackagingType.TYCHO_PACKAGING_TYPES.contains(copy.getType())) {
