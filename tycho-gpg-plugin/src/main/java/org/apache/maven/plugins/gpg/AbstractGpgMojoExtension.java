@@ -20,7 +20,7 @@ public abstract class AbstractGpgMojoExtension extends AbstractGpgMojo {
     @Override
     protected ProxySignerWithPublicKeyAccess newSigner(MavenProject project)
             throws MojoExecutionException, MojoFailureException {
-        return new ProxySignerWithPublicKeyAccess(super.newSigner(project), getSigner(), getPGPInfo());
+        return new ProxySignerWithPublicKeyAccess(super.newSigner(project), getSigner(), getPGPInfo(), getSecretKeys());
     }
 
     protected String getSigner() {
@@ -28,6 +28,10 @@ public abstract class AbstractGpgMojoExtension extends AbstractGpgMojo {
     }
 
     protected File getPGPInfo() {
+        return null;
+    }
+
+    protected File getSecretKeys() {
         return null;
     }
 }

@@ -54,9 +54,13 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 
 	private static final boolean DEBUG = false;
 
+	private static final String PASSPHRASE = "passphrase";
+
 	private static final String PGP_INFO_PROPERTY = "org.eclipse.tycho.test.pgp.info";
 
 	private static final Path PGP_INFO;
+
+	private static final Path PGP_SECRET_KEYS;
 
 	private static final List<String> KEY_FINGERPRINTS = new ArrayList<>();
 
@@ -70,16 +74,20 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 
 	static {
 		Path pgpInfo = null;
+		Path secretKeys = null;
 		try {
 			pgpInfo = Files.createTempFile("pgp", ".info");
-			var bouncyCastleSigner = new BouncyCastleSigner("passphrase", "Tester1 <tester1@example.com>",
-					"Tester2 <tester2@example.com>");
+			var bouncyCastleSigner = new BouncyCastleSigner().configureNewUserIDs(PASSPHRASE,
+					"Tester1 <tester1@example.com>", "Tester2 <tester2@example.com>");
 			for (var matcher = Pattern.compile("Key: (\\S+)").matcher(bouncyCastleSigner.getPublicKeys()); matcher
 					.find();) {
 				String fingerprint = matcher.group(1);
 				KEY_FINGERPRINTS.add(fingerprint);
 			}
 			bouncyCastleSigner.dump(pgpInfo);
+
+			secretKeys = Files.createTempFile("secret-keys", ".asc");
+			Files.writeString(secretKeys, bouncyCastleSigner.getSecretKeys(), StandardCharsets.US_ASCII);
 		} catch (IOException | PGPException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -90,6 +98,7 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		SECONDARY_KEY_FINGERPRINT = KEY_FINGERPRINTS.get(1);
 		SECONDARY_KEY_NAME = SECONDARY_KEY_FINGERPRINT.substring(32, 40);
 		Collections.sort(KEY_FINGERPRINTS);
+		PGP_SECRET_KEYS = secretKeys;
 	}
 
 	private Verifier createVerifier() throws Exception {
@@ -103,7 +112,7 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 			verifier.setForkJvm(false);
 			verifier.setSystemProperty("maven.multiModuleProjectDirectory", verifier.getBasedir());
 			verifier.setSystemProperty("user.home", "D:/Users/test10");
-			verifier.setSystemProperty("gpg.passphrase", "passphrase");
+			verifier.setSystemProperty("gpg.passphrase", PASSPHRASE);
 		}
 
 		return verifier;
@@ -132,6 +141,69 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		var data = verifySignatures(verifier);
 
 		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
+
+		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
+
+		Set<String> signedIUs = data.signedIUs.keySet();
+		assertEquals("[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+				signedIUs.toString(), "Unexpected signed IUs.");
+	}
+
+	@Test
+	public void testSigningWithBouncyCastle() throws Exception {
+		var verifier = createVerifier();
+		verifier.setSystemProperty("test.signer", "bc");
+		verify(verifier);
+
+		var data = verifySignatures(verifier);
+
+		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
+
+		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
+
+		Set<String> signedIUs = data.signedIUs.keySet();
+		assertEquals("[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+				signedIUs.toString(), "Unexpected signed IUs.");
+	}
+
+	@Test
+	public void testSigningWithBouncyCastleWithDirectlyLoadedSecretKeys() throws Exception {
+		var verifier = createVerifier();
+		verifier.setSystemProperty("test.signer", "bc");
+		verifier.setSystemProperty(PGP_INFO_PROPERTY, null);
+		verifier.setSystemProperty("gpg.passphrase", PASSPHRASE);
+		verifier.setSystemProperty("tycho.pgp.signer.bc.secretKeys", PGP_SECRET_KEYS.toString());
+		verify(verifier);
+
+		var data = verifySignatures(verifier);
+
+		assertEquals(Set.of(PRIMARY_KEY_FINGERPRINT).toString(), data.repositoryKeys.toString(),
+				"Exactly this one key is expected");
+
+		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
+
+		Set<String> signedIUs = data.signedIUs.keySet();
+		assertEquals("[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+				signedIUs.toString(), "Unexpected signed IUs.");
+	}
+
+	@Test
+	public void testSigningWithBouncyCastleWithDirectlyLoadedSecretKeysAndSpecifiedKeyname() throws Exception {
+		var verifier = createVerifier();
+		verifier.setSystemProperty("test.signer", "bc");
+		verifier.setSystemProperty(PGP_INFO_PROPERTY, null);
+		verifier.setSystemProperty("gpg-keyname", SECONDARY_KEY_NAME);
+		verifier.setSystemProperty("gpg.passphrase", PASSPHRASE);
+		verifier.setSystemProperty("tycho.pgp.signer.bc.secretKeys", PGP_SECRET_KEYS.toString());
+		verify(verifier);
+
+		var data = verifySignatures(verifier);
+
+		assertEquals(Set.of(SECONDARY_KEY_FINGERPRINT).toString(), data.repositoryKeys.toString(),
+				"Exactly this one key is expected");
 
 		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
@@ -177,24 +249,6 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		Set<String> signedIUs = data.signedIUs.keySet();
 		assertEquals(
 				"[bcpg, bcpg.source, bcprov, bcprov.source, org.eclipse.platform_root, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
-	}
-
-	@Test
-	public void testSigningWithBouncyCastle() throws Exception {
-		var verifier = createVerifier();
-		verifier.setSystemProperty("test.signer", "bc");
-		verify(verifier);
-
-		var data = verifySignatures(verifier);
-
-		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
-
-		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
-
-		Set<String> signedIUs = data.signedIUs.keySet();
-		assertEquals("[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
 				signedIUs.toString(), "Unexpected signed IUs.");
 	}
 

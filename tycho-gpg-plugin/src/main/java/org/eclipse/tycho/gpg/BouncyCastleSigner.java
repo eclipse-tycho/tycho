@@ -37,6 +37,7 @@ import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPKeyFlags;
 import org.bouncycastle.openpgp.PGPKeyRingGenerator;
 import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -73,41 +74,60 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
 
     private PGPPrivateKey privateKey;
 
-    public BouncyCastleSigner(String keyname, String passphrase, String publicKeys, String secretKeys)
+    /**
+     * Create an empty instance that needs to be configured before it is used.
+     * 
+     * @see #configure(String, String, String, String)
+     * @see #configureFromPGPInfo(String, File)
+     * @see #configureNewUserIDs(String, String...)
+     */
+    public BouncyCastleSigner() {
+    }
+
+    public BouncyCastleSigner configure(String keyname, String passphrase, String publicKeys, String secretKeys)
             throws IOException, PGPException {
+        this.keyname = keyname == null ? null : keyname.toLowerCase();
         this.passphrase = passphrase;
         this.publicKeys = publicKeys;
         this.secretKeys = secretKeys;
-        this.keyname = keyname.toLowerCase();
         initPrivateKey();
+        return this;
     }
 
     /**
-     * This loads the key ring as saved by {@link #dump(Path)}.
+     * Configure the new key ring by loading the key ring information as saved by
+     * {@link #dump(Path)}.
      * 
      * @throws IOException
      * @throws PGPException
      * 
      * @see #main(String[])
      */
-    public BouncyCastleSigner(String keyname, File pgpInfo) throws PGPException, IOException {
+    public BouncyCastleSigner configureFromPGPInfo(String keyname, File pgpInfo) throws PGPException, IOException {
         this.keyname = keyname;
-        init(pgpInfo);
+        initFromPGPInfo(pgpInfo);
+        return this;
     }
 
     /**
-     * This creates a new key ring for this user ID with this passphrase.
+     * This configure a new key ring for with this passphrase for the given user ID.
      * 
      * @throws IOException
      * @throws PGPException
      */
-    public BouncyCastleSigner(String passphrase, String... userIDs) throws PGPException, IOException {
+    public BouncyCastleSigner configureNewUserIDs(String passphrase, String... userIDs)
+            throws PGPException, IOException {
         this.passphrase = passphrase;
         init(userIDs);
+        return this;
     }
 
     public String getPublicKeys() {
         return publicKeys;
+    }
+
+    public String getSecretKeys() {
+        return secretKeys;
     }
 
     public SignatureStore generateSignature(File file) throws PGPException, IOException {
@@ -142,7 +162,7 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
     /**
      * Initializes by loading a key ring.
      */
-    private void init(File pgpInfo) throws PGPException, IOException {
+    private void initFromPGPInfo(File pgpInfo) throws PGPException, IOException {
         var lines = Files.readAllLines(pgpInfo.toPath(), StandardCharsets.US_ASCII);
         passphrase = lines.get(0);
         var index = lines.indexOf("-----END PGP PUBLIC KEY BLOCK-----");
@@ -152,19 +172,34 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
     }
 
     private void initPrivateKey() throws IOException, PGPException {
+        KeyStore keyStore = KeyStore.create("");
         try (var stream = PGPUtil
                 .getDecoderStream(new ByteArrayInputStream(secretKeys.getBytes(StandardCharsets.US_ASCII)))) {
             for (var object : new JcaPGPObjectFactory(stream)) {
                 if (object instanceof PGPSecretKeyRing) {
-                    secretKey = getSecretKey(((PGPSecretKeyRing) object));
-                    if (secretKey != null) {
-                        privateKey = getPrivateKey(secretKey);
-                        return;
+                    var secretKeyRing = (PGPSecretKeyRing) object;
+                    if (publicKeys == null) {
+                        for (var key : secretKeyRing) {
+                            keyStore.add(key.getPublicKey());
+                        }
+                    }
+                    if (secretKey == null) {
+                        secretKey = getSecretKey(secretKeyRing);
+                        if (secretKey != null) {
+                            privateKey = getPrivateKey(secretKey);
+                        }
                     }
                 }
             }
         }
-        throw new PGPException("A key for keyname '" + keyname + "' not found.");
+
+        if (secretKey == null) {
+            throw new PGPException("A key for keyname '" + keyname + "' not found.");
+        }
+
+        if (publicKeys == null) {
+            publicKeys = keyStore.toArmoredString();
+        }
     }
 
     /**
@@ -229,15 +264,26 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
     private PGPSecretKey getSecretKey(PGPSecretKeyRing secretKeyRing) throws PGPException {
         for (var secretKeys = secretKeyRing.getSecretKeys(); secretKeys.hasNext();) {
             var pgpSecretKey = secretKeys.next();
-            if (keyname == null) {
+            var publicKey = pgpSecretKey.getPublicKey();
+            if (keyname == null && canSign(publicKey)) {
                 return pgpSecretKey;
             }
-            var fingerprint = toHex(pgpSecretKey.getPublicKey().getFingerprint());
+            var fingerprint = toHex(publicKey.getFingerprint());
             if (fingerprint.endsWith(keyname)) {
                 return pgpSecretKey;
             }
         }
         return null;
+    }
+
+    private static boolean canSign(PGPPublicKey key) {
+        for (var signatures = key.getSignatures(); signatures.hasNext();) {
+            var signature = signatures.next();
+            if ((signature.getHashedSubPackets().getKeyFlags() & PGPKeyFlags.CAN_SIGN) != 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private PGPPrivateKey getPrivateKey(PGPSecretKey pgpSecretKey) throws PGPException {
@@ -257,10 +303,10 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
     public static void main(String[] args) throws Exception {
         // Creates a file with multiple public and private keys that can be used for testing.
         var target = Files.createTempFile("pgp", ".info");
-        System.out.println(target);
-        new BouncyCastleSigner("passphrase", "Tester1 <tester1@example.com>", "Tester2 <tester2@example.com>")
+        new BouncyCastleSigner()
+                .configureNewUserIDs("passphrase", "Tester1 <tester1@example.com>", "Tester2 <tester2@example.com>")
                 .dump(target);
-        new BouncyCastleSigner(null, target.toFile());
+        new BouncyCastleSigner().configureFromPGPInfo(null, target.toFile());
         Files.copy(target, System.out);
     }
 }
