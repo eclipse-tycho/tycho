@@ -128,6 +128,13 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     private String signer;
 
     /**
+     * Configure the Bouncy Castle {@link #signer} to load the secret keys, stored in armored from,
+     * from the specified file. This avoids needing to import the keys into GnuPG's keybox.
+     */
+    @Parameter(property = "tycho.pgp.signer.bc.secretKeys")
+    private File secretKeys;
+
+    /**
      * Configured to specify artifacts that should be signed independently of other settings, e.g.,
      * {@link #skipIfJarsigned}, {@link #skipIfJarsignedAndAnchored}, and {@link #skipBinaries}.
      */
@@ -155,6 +162,11 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     protected File getPGPInfo() {
         var pgpInfo = System.getProperty("org.eclipse.tycho.test.pgp.info");
         return pgpInfo == null ? null : new File(pgpInfo);
+    }
+
+    @Override
+    protected File getSecretKeys() {
+        return secretKeys;
     }
 
     @Override

@@ -38,13 +38,13 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
 
     private KeyStore publicKeys;
 
-    public ProxySignerWithPublicKeyAccess(AbstractGpgSigner delegate, String signer, File pgpInfo) {
+    public ProxySignerWithPublicKeyAccess(AbstractGpgSigner delegate, String signer, File pgpInfo, File secretKeys) {
         this.delegate = delegate;
         this.setLog(delegate.getLog());
         // The pgpInfo is used only for testing purposes.
-        if ("bc".equals(signer) || pgpInfo != null) {
+        if ("bc".equals(signer) || pgpInfo != null || secretKeys != null) {
             try {
-                this.signer = getSigner(pgpInfo);
+                this.signer = getSigner(pgpInfo, secretKeys);
                 this.signer.setLog(getLog());
             } catch (MojoExecutionException | MojoFailureException | IOException | PGPException e) {
                 throw new RuntimeException(e);
@@ -65,16 +65,21 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
         return publicKeys;
     }
 
-    protected BouncyCastleSigner getSigner(File pgpInfo)
+    protected BouncyCastleSigner getSigner(File pgpInfo, File secretKeys)
             throws MojoExecutionException, IOException, MojoFailureException, PGPException {
         keyname = delegate.keyname;
         if (pgpInfo != null) {
-            var signer = new BouncyCastleSigner(keyname, pgpInfo);
+            var signer = new BouncyCastleSigner().configureFromPGPInfo(keyname, pgpInfo);
+            publicKeys = KeyStore.create(signer.getPublicKeys());
+            return signer;
+        } else if (secretKeys != null) {
+            var signer = new BouncyCastleSigner().configure(keyname, delegate.passphrase, null,
+                    Files.readString(secretKeys.toPath(), StandardCharsets.US_ASCII));
             publicKeys = KeyStore.create(signer.getPublicKeys());
             return signer;
         } else {
             var publicKeys = getPublicKeys().toArmoredString();
-            var secretKeys = getKeys(false);
+            var gpgSecretKeys = getKeys(false);
             if (keyname == null) {
                 // Determine which key is used for signing by signing a file.
                 var dummy = Files.createTempFile("dummy", ".txt");
@@ -86,7 +91,7 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
                 Files.delete(dummy);
                 Files.delete(signature);
             }
-            return new BouncyCastleSigner(keyname, delegate.passphrase, publicKeys, secretKeys);
+            return new BouncyCastleSigner().configure(keyname, delegate.passphrase, publicKeys, gpgSecretKeys);
         }
     }
 
