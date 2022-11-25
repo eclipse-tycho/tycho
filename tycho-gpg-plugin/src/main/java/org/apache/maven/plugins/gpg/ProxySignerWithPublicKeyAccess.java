@@ -45,7 +45,6 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
         if ("bc".equals(signer) || pgpInfo != null || secretKeys != null) {
             try {
                 this.signer = getSigner(pgpInfo, secretKeys);
-                this.signer.setLog(getLog());
             } catch (MojoExecutionException | MojoFailureException | IOException | PGPException e) {
                 throw new RuntimeException(e);
             }
@@ -68,15 +67,15 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
     protected BouncyCastleSigner getSigner(File pgpInfo, File secretKeys)
             throws MojoExecutionException, IOException, MojoFailureException, PGPException {
         keyname = delegate.keyname;
+        var signer = new BouncyCastleSigner();
+        signer.setLog(getLog());
         if (pgpInfo != null) {
-            var signer = new BouncyCastleSigner().configureFromPGPInfo(keyname, pgpInfo);
+            signer.configureFromPGPInfo(keyname, pgpInfo);
             publicKeys = KeyStore.create(signer.getPublicKeys());
-            return signer;
         } else if (secretKeys != null) {
-            var signer = new BouncyCastleSigner().configure(keyname, delegate.passphrase, null,
+            signer.configure(keyname, delegate.passphrase, null,
                     Files.readString(secretKeys.toPath(), StandardCharsets.US_ASCII));
             publicKeys = KeyStore.create(signer.getPublicKeys());
-            return signer;
         } else {
             var publicKeys = getPublicKeys().toArmoredString();
             var gpgSecretKeys = getKeys(false);
@@ -91,8 +90,9 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
                 Files.delete(dummy);
                 Files.delete(signature);
             }
-            return new BouncyCastleSigner().configure(keyname, delegate.passphrase, publicKeys, gpgSecretKeys);
+            signer.configure(keyname, delegate.passphrase, publicKeys, gpgSecretKeys);
         }
+        return signer;
     }
 
     public SignatureStore generateSignature(File file) throws MojoExecutionException {
