@@ -37,7 +37,6 @@ import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
-import org.bouncycastle.openpgp.PGPKeyFlags;
 import org.bouncycastle.openpgp.PGPKeyRingGenerator;
 import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -173,6 +172,7 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
 
     private void initPrivateKey() throws IOException, PGPException {
         KeyStore keyStore = KeyStore.create("");
+        var log = getLog();
         try (var stream = PGPUtil
                 .getDecoderStream(new ByteArrayInputStream(secretKeys.getBytes(StandardCharsets.US_ASCII)))) {
             for (var object : new JcaPGPObjectFactory(stream)) {
@@ -180,13 +180,31 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
                     var secretKeyRing = (PGPSecretKeyRing) object;
                     if (publicKeys == null) {
                         for (var key : secretKeyRing) {
-                            keyStore.add(key.getPublicKey());
+                            var publicKey = key.getPublicKey();
+                            if (log != null) {
+                                log.info("Secret key available for public key: " + toHex(publicKey.getFingerprint()));
+                            }
+                            keyStore.add(publicKey);
                         }
                     }
                     if (secretKey == null) {
                         secretKey = getSecretKey(secretKeyRing);
                         if (secretKey != null) {
+                            var fingerprint = secretKey.getPublicKey().getFingerprint();
+                            if (log != null) {
+                                log.info("Trying to get the private key of the secret key of public key: "
+                                        + toHex(fingerprint));
+                            }
                             privateKey = getPrivateKey(secretKey);
+                            if (privateKey == null) {
+                                if (log != null) {
+                                    log.info("Could not a create private key for the secret key of public key: "
+                                            + toHex(fingerprint));
+                                }
+                                secretKey = null;
+                            } else if (log != null) {
+                                log.info("Got the private key of the secret key of public key: " + toHex(fingerprint));
+                            }
                         }
                     }
                 }
@@ -194,7 +212,7 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
         }
 
         if (secretKey == null) {
-            throw new PGPException("A key for keyname '" + keyname + "' not found.");
+            throw new PGPException("A secret key for keyname '" + keyname + "' not found.");
         }
 
         if (publicKeys == null) {
@@ -264,26 +282,29 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
     private PGPSecretKey getSecretKey(PGPSecretKeyRing secretKeyRing) throws PGPException {
         for (var secretKeys = secretKeyRing.getSecretKeys(); secretKeys.hasNext();) {
             var pgpSecretKey = secretKeys.next();
-            var publicKey = pgpSecretKey.getPublicKey();
-            if (keyname == null && canSign(publicKey)) {
-                return pgpSecretKey;
-            }
-            var fingerprint = toHex(publicKey.getFingerprint());
-            if (fingerprint.endsWith(keyname)) {
-                return pgpSecretKey;
+            if (!pgpSecretKey.isPrivateKeyEmpty() && pgpSecretKey.isSigningKey()) {
+                if (keyname == null) {
+                    return pgpSecretKey;
+                }
+
+                // Match the key's fingerprint.
+                PGPPublicKey publicKey = pgpSecretKey.getPublicKey();
+                var fingerprint = toHex(publicKey.getFingerprint());
+                if (fingerprint.endsWith(keyname)) {
+                    return pgpSecretKey;
+                }
+
+                // Match the key ID of any subkey bindings.
+                for (var subkeyBindings = publicKey.getSignaturesOfType(PGPSignature.SUBKEY_BINDING); subkeyBindings
+                        .hasNext();) {
+                    PGPSignature pgpSignature = subkeyBindings.next();
+                    if (keyname == null || toHex(pgpSignature.getKeyID()).endsWith(keyname)) {
+                        return pgpSecretKey;
+                    }
+                }
             }
         }
         return null;
-    }
-
-    private static boolean canSign(PGPPublicKey key) {
-        for (var signatures = key.getSignatures(); signatures.hasNext();) {
-            var signature = signatures.next();
-            if ((signature.getHashedSubPackets().getKeyFlags() & PGPKeyFlags.CAN_SIGN) != 0) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private PGPPrivateKey getPrivateKey(PGPSecretKey pgpSecretKey) throws PGPException {
@@ -301,12 +322,25 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
     }
 
     public static void main(String[] args) throws Exception {
-        // Creates a file with multiple public and private keys that can be used for testing.
-        var target = Files.createTempFile("pgp", ".info");
-        new BouncyCastleSigner()
-                .configureNewUserIDs("passphrase", "Tester1 <tester1@example.com>", "Tester2 <tester2@example.com>")
-                .dump(target);
-        new BouncyCastleSigner().configureFromPGPInfo(null, target.toFile());
-        Files.copy(target, System.out);
+        if (args.length == 0) {
+            // Creates a file with multiple public and private keys that can be used for testing.
+            var target = Files.createTempFile("pgp", ".info");
+            new BouncyCastleSigner()
+                    .configureNewUserIDs("passphrase", "Tester1 <tester1@example.com>", "Tester2 <tester2@example.com>")
+                    .dump(target);
+            new BouncyCastleSigner().configureFromPGPInfo(null, target.toFile());
+            Files.copy(target, System.out);
+        } else {
+            var signer = new BouncyCastleSigner();
+            if (args.length == 3) {
+                String secretKeys = Files.readString(Path.of(args[2]));
+                signer.configure(args[0], args[1], null, secretKeys);
+            } else {
+                String secretKeys = Files.readString(Path.of(args[1]));
+                signer.configure(null, args[0], null, secretKeys);
+            }
+            var target = Files.createTempFile("pgp", ".info");
+            signer.generateSignature(target.toFile());
+        }
     }
 }
