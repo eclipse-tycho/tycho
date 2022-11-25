@@ -13,10 +13,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
-import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Set;
+import java.util.function.BiConsumer;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -79,11 +80,14 @@ public class VerifierServiceImpl implements VerifierService {
             final IArtifactRepository artifactRepository, Logger logger) {
         final IQueryResult<IInstallableUnit> collector = metadata.query(QueryUtil.ALL_UNITS, monitor);
         boolean valid = true;
-        for (Iterator<IInstallableUnit> iterator = collector.iterator(); iterator.hasNext();) {
-            IInstallableUnit iu = iterator.next();
+        Set<IInstallableUnit> set = collector.toSet();
+        logger.debug("Verify content of " + set.size() + " units...");
+        for (IInstallableUnit iu : set) {
             final Collection<IArtifactKey> artifacts = iu.getArtifacts();
             for (IArtifactKey key : artifacts) {
-                valid &= verifyArtifactExists(key, artifactRepository, logger);
+                boolean verifyArtifactExists = verifyArtifactExists(key, artifactRepository, logger);
+                logger.debug("Verify " + key + " exits: " + verifyArtifactExists);
+                valid &= verifyArtifactExists;
             }
         }
         return valid;
@@ -103,12 +107,14 @@ public class VerifierServiceImpl implements VerifierService {
 
         IQueryResult<IArtifactKey> allKeys = repository
                 .query(new ExpressionMatchQuery<>(IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION), null);
-        for (Iterator<IArtifactKey> keyIt = allKeys.iterator(); keyIt.hasNext();) {
-            IArtifactKey key = keyIt.next();
-
+        Set<IArtifactKey> set = allKeys.toSet();
+        logger.debug("Verify content of " + set.size() + " artifacts...");
+        for (IArtifactKey key : set) {
             IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
             for (IArtifactDescriptor descriptor : descriptors) {
-                valid &= verifyArtifactContent(repository, logger, descriptor);
+                boolean verifyArtifactContent = verifyArtifactContent(repository, logger, descriptor);
+                logger.debug("Verify artifact content " + descriptor + ": " + verifyArtifactContent);
+                valid &= verifyArtifactContent;
             }
         }
         return valid;
@@ -116,22 +122,24 @@ public class VerifierServiceImpl implements VerifierService {
 
     private boolean verifyArtifactContent(IArtifactRepository repository, Logger logger,
             IArtifactDescriptor descriptor) {
-        final IStatus status = repository.getArtifact(descriptor, new ByteArrayOutputStream(), monitor);
+        final IStatus status = repository.getArtifact(descriptor, OutputStream.nullOutputStream(), monitor);
         if (!status.isOK()) {
-            logErrorStatus(status, "", logger);
+            logStatus(status, "", logger::error);
+        } else {
+            logStatus(status, "", logger::debug);
         }
         return status.isOK();
     }
 
-    private void logErrorStatus(IStatus status, String indent, Logger logger) {
+    private void logStatus(IStatus status, String indent, BiConsumer<String, Throwable> logger) {
         final Throwable exception = status.getException();
         if (exception == null) {
-            logger.error(indent + status.getMessage());
+            logger.accept(indent + status.getMessage(), null);
         } else {
-            logger.error(indent + status.getMessage() + ": " + exception.getLocalizedMessage(), exception);
+            logger.accept(indent + status.getMessage() + ": " + exception.getLocalizedMessage(), exception);
         }
         for (IStatus kid : status.getChildren()) {
-            logErrorStatus(kid, indent + "  ", logger);
+            logStatus(kid, indent + "  ", logger);
         }
     }
 
