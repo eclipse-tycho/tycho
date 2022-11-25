@@ -15,11 +15,13 @@ package org.eclipse.tycho.p2.tools.verfier;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.codehaus.plexus.logging.AbstractLogger;
 import org.codehaus.plexus.logging.Logger;
@@ -30,6 +32,7 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -73,12 +76,24 @@ public class VerifierServiceImplTest extends TychoPlexusTestCase {
     }
 
     @Test
+    @Ignore("As of Java 17.0.5 this test do not work anymore due to disabled signature algorithms, the repository is always assumed valid because the artifacts are considered effectively unsigned")
     public void testFileRepositoryWithTamperedArtifact() throws Exception {
         final RepositoryReferences repositories = sourceRepos("tampered_file");
-        assertEquals(false, verify(repositories));
-        assertTrue(firstErrorLine().contains("osgi.bundle"));
-        assertTrue(firstErrorLine().contains("jarsigning"));
-        assertTrue(remainingErrorText().contains("invalid content:dummy.class"));
+        boolean verify = verify(repositories);
+        assertEquals(
+                "The repository should not verify! (messages below)" + System.lineSeparator()
+                        + logger.messages.stream().collect(Collectors.joining(System.lineSeparator())) + ")",
+                false, verify);
+        assertContains(firstErrorLine(), "osgi.bundle");
+        assertContains(firstErrorLine(), "jarsigning");
+        assertContains(remainingErrorText(), "invalid content:dummy.class");
+    }
+
+    private void assertContains(String line, String string) {
+        if (!line.contains(string)) {
+            fail("Line '" + line + "' does not contain expected string '" + string + "'");
+        }
+
     }
 
     @Test
@@ -110,30 +125,33 @@ public class VerifierServiceImplTest extends TychoPlexusTestCase {
 
         List<String> errors = new ArrayList<>();
 
+        List<String> messages = new ArrayList<>();
+
         @Override
         public void debug(String message, Throwable throwable) {
-
+            messages.add(message);
         }
 
         @Override
         public void info(String message, Throwable throwable) {
-
+            messages.add(message);
         }
 
         @Override
         public void warn(String message, Throwable throwable) {
-
+            messages.add(message);
         }
 
         @Override
         public void error(String message, Throwable throwable) {
+            messages.add(message);
             errors.add(message);
 
         }
 
         @Override
         public void fatalError(String message, Throwable throwable) {
-
+            messages.add(message);
         }
 
         @Override
