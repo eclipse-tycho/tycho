@@ -147,9 +147,6 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     @Component(role = Archiver.class, hint = "xz")
     private XZArchiver xzArchiver;
 
-    @Component(role = IProvisioningAgent.class)
-    private IProvisioningAgent agent;
-
     @Component(role = EquinoxServiceFactory.class, hint = "tycho-core")
     private EquinoxServiceFactory serviceFactory;
 
@@ -176,7 +173,8 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
         var signer = newSigner(project);
         var keys = KeyStore.create();
 
-        var artifactRepositoryManager = agent.getService(IArtifactRepositoryManager.class);
+        var artifactRepositoryManager = serviceFactory.getService(IProvisioningAgent.class)
+                .getService(IArtifactRepositoryManager.class);
         try {
             var artifactRepository = (IFileArtifactRepository) artifactRepositoryManager
                     .loadRepository(repository.toURI(), null);
