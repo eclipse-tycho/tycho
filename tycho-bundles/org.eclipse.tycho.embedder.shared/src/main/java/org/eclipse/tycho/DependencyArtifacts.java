@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Issue #626 - Classpath computation must take fragments into account 
  *******************************************************************************/
-package org.eclipse.tycho.artifacts;
+package org.eclipse.tycho;
 
 import java.io.File;
 import java.util.Collection;
@@ -20,9 +20,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ReactorProject;
 
 /**
  * DependencyArtifacts is a collection of artifacts and their corresponding metadata.

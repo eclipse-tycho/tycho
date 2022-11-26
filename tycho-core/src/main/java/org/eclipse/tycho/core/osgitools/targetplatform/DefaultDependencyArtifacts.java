@@ -27,8 +27,8 @@ import java.util.function.Supplier;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 
 public class DefaultDependencyArtifacts extends ArtifactCollection implements DependencyArtifacts {
