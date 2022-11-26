@@ -26,7 +26,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.osgi.framework.Version;
 
 public class DefaultEquinoxInstallationDescription implements EquinoxInstallationDescription {

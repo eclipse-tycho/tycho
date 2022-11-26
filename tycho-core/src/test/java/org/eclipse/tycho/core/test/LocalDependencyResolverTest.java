@@ -29,7 +29,7 @@ import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
