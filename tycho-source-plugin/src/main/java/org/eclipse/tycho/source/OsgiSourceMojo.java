@@ -51,7 +51,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;

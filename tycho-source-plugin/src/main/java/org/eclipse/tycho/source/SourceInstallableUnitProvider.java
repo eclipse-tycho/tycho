@@ -33,7 +33,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;

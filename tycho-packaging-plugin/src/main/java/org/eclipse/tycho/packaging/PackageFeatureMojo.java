@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import static org.eclipse.tycho.model.Feature.FEATURE_XML;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -42,10 +44,9 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TargetPlatformService;
+import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
-
-import static org.eclipse.tycho.model.Feature.FEATURE_XML;
 
 @Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
@@ -264,7 +265,8 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     private void assembleDeployableFeature() throws MojoExecutionException {
         UpdateSiteAssembler assembler = new UpdateSiteAssembler(plexus, target);
-		getTychoProjectFacet().getDependencyWalker(DefaultReactorProject.adapt(project)).walk(assembler);
+		((AbstractTychoProject) getTychoProjectFacet()).getDependencyWalker(DefaultReactorProject.adapt(project))
+				.walk(assembler);
     }
 
     private void expandVersionQualifiers(Feature feature) throws MojoFailureException {

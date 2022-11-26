@@ -10,28 +10,19 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core;
+package org.eclipse.tycho;
 
 import java.util.Collection;
 import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.DependencyArtifacts;
-import org.eclipse.tycho.IArtifactFacade;
-import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TargetEnvironment;
 
 /**
  * tycho-specific behavior associated with MavenProject instances. stateless.
  * 
  */
 public interface TychoProject {
-    /**
-     * Walks all project dependencies, regardless of runtime environment filters.
-     */
-    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project);
 
     /**
      * Returns resolved project dependencies. For projects targeting multiple runtime environments,

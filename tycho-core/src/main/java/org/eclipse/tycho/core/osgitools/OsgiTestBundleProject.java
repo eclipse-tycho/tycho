@@ -14,7 +14,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.TychoProject;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_TEST_PLUGIN)
 public class OsgiTestBundleProject extends OsgiBundleProject {

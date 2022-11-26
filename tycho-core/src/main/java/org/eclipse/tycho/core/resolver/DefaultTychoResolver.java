@@ -34,11 +34,11 @@ import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.TychoProject;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
@@ -116,10 +116,11 @@ public class DefaultTychoResolver implements TychoResolver {
     }
 
     @Override
-    public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects) {
+    public TychoProject resolveProject(MavenSession session, MavenProject project,
+            List<ReactorProject> reactorProjects) {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
         if (dr == null) {
-            return;
+            return null;
         }
 
         DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
@@ -187,6 +188,7 @@ public class DefaultTychoResolver implements TychoResolver {
             }
             logger.debug(sb.toString());
         }
+        return dr;
     }
 
     protected void setTychoEnvironmentProperties(Properties properties, MavenProject project) {

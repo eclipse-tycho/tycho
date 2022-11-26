@@ -33,8 +33,8 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoProject;
 import org.eclipse.tycho.core.BundleProject;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2maven.InstallableUnitProvider;
 

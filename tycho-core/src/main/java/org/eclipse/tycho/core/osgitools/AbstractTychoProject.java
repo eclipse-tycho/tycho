@@ -35,8 +35,9 @@ import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.TychoProject;
+import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
@@ -59,6 +60,8 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project) {
         return TychoProjectUtils.getDependencyArtifacts(project);
     }
+
+    public abstract ArtifactDependencyWalker getDependencyWalker(ReactorProject project);
 
     @Override
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project, TargetEnvironment environment) {

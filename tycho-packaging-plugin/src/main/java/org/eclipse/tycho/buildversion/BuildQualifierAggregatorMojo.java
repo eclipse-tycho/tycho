@@ -26,7 +26,7 @@ import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.osgi.framework.Version;
 
@@ -72,7 +72,7 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
         final Date[] latestTimestamp = new Date[] { timestamp };
 
-        TychoProject projectType = projectTypes.get(project.getPackaging());
+		AbstractTychoProject projectType = (AbstractTychoProject) projectTypes.get(project.getPackaging());
         if (projectType == null) {
             throw new IllegalStateException("Unknown or unsupported packaging type " + packaging);
         }

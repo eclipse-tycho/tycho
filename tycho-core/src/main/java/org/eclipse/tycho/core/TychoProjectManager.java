@@ -19,6 +19,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoProject;
 
 @Component(role = TychoProjectManager.class)
 public class TychoProjectManager {

@@ -26,10 +26,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.TychoProject;
 import org.eclipse.tycho.artifacts.configuration.DeclarativeServiceConfigurationReader;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 
