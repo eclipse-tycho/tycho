@@ -324,7 +324,7 @@ public final class TargetDefinitionResolver {
         }
         //if we can't resolve this, we will return the original one as this might be intentional to not include the project in the build
         String defaultValue = "${project_loc:" + projectName + "}";
-        logger.warn("Cannot resolve " + defaultValue + " target resoloution might be incomplete");
+        logger.warn("Cannot resolve " + defaultValue + " target resolution might be incomplete");
         return defaultValue;
     }
 

@@ -9,7 +9,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    Christoph Läubrich - Issue #462 - Delay Pom considered items to the final Target Platform calculation 
+ *    Christoph Läubrich - Issue #462 - Delay Pom considered items to the final Target Platform calculation
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
@@ -47,7 +47,7 @@ public class TargetPlatformMojo extends AbstractMojo {
         } else {
             reactorProject.setContextValue(TARGET_PLATFORM_MOJO_EXECUTED, Boolean.TRUE);
         }
-        //trigger target platform resoloution....
+        //trigger target platform resolution....
         platformService.getTargetPlatform(reactorProject);
     }
 
