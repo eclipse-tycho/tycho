@@ -38,9 +38,12 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -56,8 +59,24 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 
+@Component(role = MavenDependencyInjector.class)
 public final class MavenDependencyInjector {
+
+    @Requirement
+    RepositorySystem repositorySystem;
+
+    @Requirement
+    BundleReader bundleReader;
+    @Requirement
+    Logger logger;
+
+    @Requirement
+    LegacySupport legacySupport;
+
+    @Requirement
+    P2ResolverFactory resolverFactory;
 
     /**
      * Injects the dependencies of a project (as determined by the p2 dependency resolver) back into
@@ -68,19 +87,15 @@ public final class MavenDependencyInjector {
      * @param dependencies
      *            The p2-resolved dependencies of the project.
      */
-    public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
-            DependencyArtifacts testDependencies, BundleReader bundleReader,
-            Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger,
-            RepositorySystem repositorySystem, Settings settings) {
-        MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
-                logger);
+    public void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
+            DependencyArtifacts testDependencies) {
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
-            generator.addDependency(artifact, Artifact.SCOPE_COMPILE);
+            addDependency(artifact, Artifact.SCOPE_COMPILE, project);
         }
         if (testDependencies != null) {
             testDependencies.getArtifacts().stream() //
                     .filter(testDep -> dependencies.getArtifact(testDep.getKey()) == null) //
-                    .forEach(descriptor -> generator.addDependency(descriptor, Artifact.SCOPE_TEST));
+                    .forEach(descriptor -> addDependency(descriptor, Artifact.SCOPE_TEST, project));
         }
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         BuildProperties buildProperties = reactorProject.getBuildProperties();
@@ -108,11 +123,13 @@ public final class MavenDependencyInjector {
             dependency.setVersion(project.getVersion());
             return dependency;
         }).filter(Objects::nonNull).toList();
-        generator.addDependencyList(extraJars);
+        addDependencyList(extraJars, project);
+        //TODO extra component?
         @SuppressWarnings("unchecked")
         Collection<MavenArtifactRepositoryReference> repositoryReferences = (Collection<MavenArtifactRepositoryReference>) reactorProject
                 .getContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE);
-        if (repositoryReferences != null && !repositoryReferences.isEmpty()) {
+        if (repositoryReferences != null && !repositoryReferences.isEmpty() && legacySupport != null) {
+            Settings settings = legacySupport.getSession().getSettings();
             Map<String, ArtifactRepository> repositoryMap = project.getRemoteArtifactRepositories().stream()
                     .collect(Collectors.toMap(MavenDependencyInjector::getId, Function.identity(), (a, b) -> a,
                             LinkedHashMap::new));
@@ -152,29 +169,11 @@ public final class MavenDependencyInjector {
         return id;
     }
 
-    private final BundleReader bundleReader;
-    private final Logger logger;
-
-    private final MavenProject project;
-    private final boolean fetch;
-
-    private Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping;
-
-    MavenDependencyInjector(MavenProject project, BundleReader bundleReader,
-            Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger) {
-        this.project = project;
-        this.fetch = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())
-                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging());
-        this.bundleReader = bundleReader;
-        this.descriptorMapping = descriptorMapping;
-        this.logger = logger;
-    }
-
-    void addDependency(ArtifactDescriptor artifact, String scope) {
+    void addDependency(ArtifactDescriptor artifact, String scope, MavenProject project) {
         List<Dependency> dependencyList = artifact.getMavenProject() != null //
-                ? collectProjectDependencies(artifact, scope) //
-                : collectExternalDependencies(artifact, scope, true);
-        addDependencyList(dependencyList);
+                ? collectProjectDependencies(artifact, scope, project) //
+                : collectExternalDependencies(artifact, scope, true, mustFetch(project), project);
+        addDependencyList(dependencyList, project);
         Map<String, MavenProject> projectReferences = project.getProjectReferences();
         ReactorProject mavenProject = artifact.getMavenProject();
         if (mavenProject != null && DefaultReactorProject.adapt(project) != mavenProject) {
@@ -187,7 +186,12 @@ public final class MavenDependencyInjector {
         }
     }
 
-    private void addDependencyList(List<Dependency> dependencyList) {
+    private boolean mustFetch(MavenProject project) {
+        return PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())
+                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging());
+    }
+
+    private void addDependencyList(List<Dependency> dependencyList, MavenProject project) {
         if (dependencyList.isEmpty()) {
             return;
         }
@@ -207,8 +211,8 @@ public final class MavenDependencyInjector {
                 + dependency.getVersion() + ":" + Objects.requireNonNullElse(dependency.getClassifier(), "");
     }
 
-    private List<Dependency> collectExternalDependencies(ArtifactDescriptor artifact, String scope,
-            boolean retryFailed) {
+    private List<Dependency> collectExternalDependencies(ArtifactDescriptor artifact, String scope, boolean retryFailed,
+            boolean fetch, MavenProject project) {
         File location = artifact.getLocation(fetch);
         try {
             if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
@@ -258,7 +262,7 @@ public final class MavenDependencyInjector {
                     logger.warn("Artifact " + artifact + " located at " + location
                             + " seems corrupted! Will attempt to redownload it ...");
                     location.delete();
-                    return collectExternalDependencies(artifact, scope, false);
+                    return collectExternalDependencies(artifact, scope, false, fetch, project);
                 }
             }
             throw e;
@@ -278,8 +282,8 @@ public final class MavenDependencyInjector {
     private Dependency createScopedDependency(ArtifactDescriptor descriptor, String groupId, File location,
             String scope) {
         Dependency dependency = new ArtifactDescriptorDependency(descriptor);
-        MavenDependencyDescriptor dependencyDescriptor = descriptorMapping == null ? null
-                : descriptorMapping.apply(descriptor);
+        MavenDependencyDescriptor dependencyDescriptor = resolverFactory == null ? null
+                : resolverFactory.resolveDependencyDescriptor(descriptor);
         if (dependencyDescriptor != null && isValidMavenDescriptor(dependencyDescriptor)) {
             dependency.setGroupId(dependencyDescriptor.getGroupId());
             dependency.setArtifactId(dependencyDescriptor.getArtifactId());
@@ -327,7 +331,8 @@ public final class MavenDependencyInjector {
         return repository != null && !repository.isBlank();
     }
 
-    private List<Dependency> collectProjectDependencies(ArtifactDescriptor artifact, String scope) {
+    private List<Dependency> collectProjectDependencies(ArtifactDescriptor artifact, String scope,
+            MavenProject project) {
         ReactorProject dependentMavenProjectProxy = artifact.getMavenProject();
         List<Dependency> result = new ArrayList<>();
         if (!artifact.getMavenProject().sameProject(project)) {

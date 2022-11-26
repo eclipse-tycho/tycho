@@ -261,7 +261,6 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
         layout.setLocation(location.getAbsoluteFile());
     }
 
-    @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts targetPlatform, DependencyArtifacts testTargetPlatform, Logger logger) {
         // TODO testTargetPlatform is ignored for this local resolved. Is this OK?

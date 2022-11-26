@@ -35,16 +35,20 @@ import org.eclipse.tycho.model.PluginRef;
 public class MavenDependencyCollector extends ArtifactDependencyVisitor {
 
     private MavenDependencyInjector injector;
-    private final Logger logger;
+    private MavenProject project;
+    private Logger logger;
 
     public MavenDependencyCollector(MavenProject project, BundleReader bundleReader, Logger logger) {
-        this.injector = new MavenDependencyInjector(project, bundleReader, null, logger);
+        this.project = project;
         this.logger = logger;
+        this.injector = new MavenDependencyInjector();
+        injector.logger = logger;
+        injector.bundleReader = bundleReader;
     }
 
     @Override
     public boolean visitFeature(FeatureDescription feature) {
-        injector.addDependency(feature, Artifact.SCOPE_SYSTEM);
+        injector.addDependency(feature, Artifact.SCOPE_SYSTEM, project);
         return true; // keep visiting
     }
 
@@ -52,9 +56,9 @@ public class MavenDependencyCollector extends ArtifactDependencyVisitor {
     public void visitPlugin(PluginDescription plugin) {
         ReactorProject mavenProject = plugin.getMavenProject();
         if (mavenProject == null) {
-            injector.addDependency(plugin, Artifact.SCOPE_SYSTEM);
+            injector.addDependency(plugin, Artifact.SCOPE_SYSTEM, project);
         } else {
-            injector.addDependency(plugin, Artifact.SCOPE_COMPILE);
+            injector.addDependency(plugin, Artifact.SCOPE_COMPILE, project);
         }
     }
 

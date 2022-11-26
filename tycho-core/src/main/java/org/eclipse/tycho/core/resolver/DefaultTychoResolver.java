@@ -41,6 +41,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -65,6 +66,9 @@ public class DefaultTychoResolver implements TychoResolver {
 
     @Requirement
     private ToolchainManager toolchainManager;
+
+    @Requirement
+    private MavenDependencyInjector dependencyInjector;
 
     public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
     public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
@@ -176,8 +180,7 @@ public class DefaultTychoResolver implements TychoResolver {
             dr.setTestDependencyArtifacts(session, reactorProject,
                     Objects.requireNonNullElse(testDependencyArtifacts, new DefaultDependencyArtifacts()));
         }
-
-        resolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, testDependencyArtifacts, logger);
+        dependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder(threadMarker);
