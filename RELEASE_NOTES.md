@@ -31,7 +31,7 @@ Sometimes it is useful to find out how dependencies of a project are actually pu
 Example with Tycho integration test project:
 
 ```
-tycho-its/projects/reactor.makeBehaviour$ mvn org.eclipse.tycho:tycho-p2-plugin:3.0.0-SNAPSHOT:dependency-tree
+tycho-its/projects/reactor.makeBehaviour$ mvn org.eclipse.tycho:tycho-p2-plugin:3.0.0:dependency-tree
 
 ...
 
