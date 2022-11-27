@@ -490,7 +490,7 @@ public class P2ResolverImpl implements P2Resolver {
         return true;
     }
 
-    private static void addDependenciesForTests(Consumer<IRequirement> requirementsConsumer) {
+    public static void addDependenciesForTests(Consumer<IRequirement> requirementsConsumer) {
         /*
          * In case the test harness bundles (cf. TestMojo.getTestDependencies()) are part of the
          * reactor, the dependency resolution needs to identify them as a dependency of
