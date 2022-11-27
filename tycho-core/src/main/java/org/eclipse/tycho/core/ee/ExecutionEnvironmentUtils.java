@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -86,7 +87,7 @@ public class ExecutionEnvironmentUtils {
                     .mapToObj(v -> {
                         String[] split = profileName.split("-");
                         return split[0] + "-" + v;
-                    }).map(map::get).findFirst().orElse(null);
+                    }).map(map::get).filter(Objects::nonNull).findFirst().orElse(null);
             if (higherEE != null) {
                 logger.warn("Using " + higherEE.getProfileName() + " to fulfill requested profile of " + profileName
                         + " this might lead to faulty dependency resolution, consider define a suitable JDK in the toolchains.xml");
