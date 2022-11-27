@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -143,7 +144,14 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
         }
         signatureGenerator.setHashedSubpackets(subpackets.generate());
         signatureGenerator.init(PGPSignature.BINARY_DOCUMENT, privateKey);
-        signatureGenerator.update(Files.readAllBytes(file.toPath()));
+
+        try (InputStream in = Files.newInputStream(file.toPath())) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = in.read(buffer)) >= 0) {
+                signatureGenerator.update(buffer, 0, read);
+            }
+        }
 
         var signatureStore = SignatureStore.create(signatureGenerator.generate());
         return signatureStore;
