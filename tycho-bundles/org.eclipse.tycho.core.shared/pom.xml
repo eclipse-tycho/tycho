@@ -138,11 +138,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.equinox.p2.director</artifactId>
-			<version>2.5.400</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.director.app</artifactId>
 			<version>1.2.200</version>
 		</dependency>
