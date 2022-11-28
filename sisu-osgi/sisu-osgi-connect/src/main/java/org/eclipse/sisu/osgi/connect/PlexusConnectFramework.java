@@ -30,6 +30,7 @@ import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
@@ -286,19 +287,24 @@ class PlexusConnectFramework //
 
 	@Override
 	public void frameworkEvent(FrameworkEvent event) {
-		if (event.getType() == FrameworkEvent.ERROR) {
-			error(event.getBundle().getSymbolicName(), event.getThrowable());
-		}
-		if (event.getType() == FrameworkEvent.WARNING) {
-			warn(event.getBundle().getSymbolicName(), event.getThrowable());
-		}
-		if (event.getType() == FrameworkEvent.INFO) {
-			info(event.getBundle().getSymbolicName(), event.getThrowable());
+		if (logger.isDebugEnabled()) {
+			if (event.getType() == FrameworkEvent.ERROR) {
+				error(event.getBundle().getSymbolicName(), event.getThrowable());
+			}
+			if (event.getType() == FrameworkEvent.WARNING) {
+				warn(event.getBundle().getSymbolicName(), event.getThrowable());
+			}
+			if (event.getType() == FrameworkEvent.INFO) {
+				info(event.getBundle().getSymbolicName(), event.getThrowable());
+			}
 		}
 	}
 
 	@Override
 	public void logged(LogEntry entry) {
+		if (isOnlyDebug(entry) && !logger.isDebugEnabled()) {
+			return;
+		}
 		switch (entry.getLogLevel()) {
 		case AUDIT:
 		case ERROR:
@@ -315,6 +321,10 @@ class PlexusConnectFramework //
 			debug(entry.getMessage(), entry.getException());
 			break;
 		}
+	}
+
+	private static boolean isOnlyDebug(LogEntry entry) {
+		return entry.getException() instanceof BundleException;
 	}
 
 	@Override

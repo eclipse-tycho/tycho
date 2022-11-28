@@ -152,6 +152,10 @@ final class PlexusModuleConnector implements ModuleConnector {
 				logger.debug("Cannot convert URL " + url + " to File");
 				continue;
 			}
+			if (!realmExports.jars.isEmpty() && !realmExports.jars.contains(file.getName())) {
+				logger.debug("Skip " + file + " as it is not part of the dependency jars...");
+				continue;
+			}
 			try {
 				JarFile jarFile = new JarFile(file);
 				try {
@@ -254,6 +258,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 			}
 		}
 		readBundles(classRealm, exports.bundleStartMap, logger);
+		exports.jars.addAll(readJars(classRealm, logger));
 		return exports;
 	}
 
@@ -381,7 +386,35 @@ final class PlexusModuleConnector implements ModuleConnector {
 	private static final class RealmExports {
 		final Set<String> packages = new HashSet<>();
 		final Set<String> artifacts = new HashSet<>();
+		final Set<String> jars = new HashSet<>();
 		final Map<String, Boolean> bundleStartMap = new LinkedHashMap<>();
+	}
+
+	private static Set<String> readJars(ClassRealm realm, Logger logger) {
+		Set<String> jars = new HashSet<>();
+		Enumeration<URL> resources = realm.loadResourcesFromSelf("META-INF/sisu/connect.dependencies");
+		while (resources != null && resources.hasMoreElements()) {
+			URL url = resources.nextElement();
+			logger.debug("Reading jars from " + url);
+			Properties properties = new Properties();
+			try (InputStream stream = url.openStream()) {
+				properties.load(stream);
+				for (String key : properties.stringPropertyNames()) {
+					String[] split = key.split("/", 3);
+					if (split.length == 3) {
+						if ("version".equals(split[2])) {
+							String version = properties.getProperty(key);
+							String artifactId = split[1];
+							jars.add(artifactId + "-" + version
+									+ ".jar");
+						}
+					}
+				}
+			} catch (IOException e) {
+				logger.warn("Cannot read jar infos from url " + url);
+			}
+		}
+		return jars;
 	}
 
 	private static void readBundles(ClassRealm realm, Map<String, Boolean> map, Logger logger) {
