@@ -160,6 +160,22 @@
 					</execution>
 				</executions>
 			</plugin>
+			 <plugin>
+                <groupId>org.apache.servicemix.tooling</groupId>
+                <artifactId>depends-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-depends-file</id>
+                        <goals>
+                            <goal>generate-depends-file</goal>
+                        </goals>
+	                    <configuration>
+	                    	<outputFile>${project.build.directory}/classes/META-INF/sisu/connect.dependencies</outputFile>
+	                    </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
