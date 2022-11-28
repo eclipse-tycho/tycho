@@ -253,6 +253,24 @@ changing some configuration value in an existing mojo, or providing a drop-in re
 
 If you require such a change, please note that in the issue and we will assign the next major release to it, those changes would not be merged until the next major release keep your changes small and local as it possible take some time and you probably have to catch up with minor changes in the meantime.
 
+## Backporting
+
+In general we do not backport fixes but recommend to use the current [tycho snapshot](https://github.com/eclipse/tycho/wiki#getting-tycho-snapshots) builds to help moving things forward and having safe releases.
+
+Still backporting is possible with mainly two options:
+
+1. You prepare the necessary things  with PR so they can be reviewed and merged
+2. You pay someone to perform the required steps and drive the release, see https://github.com/eclipse-tycho/tycho#getting-support for details.
+
+If you choose the first options backporting usually includes the following steps:
+
+1. Check out the branch you are interested in, they are always named `tycho-<major>.<minor>.x`.
+2. Make sure the branch is at the next version, e.g. the last release was `3.0.0` the next version should be `3.0.1-SNAPSHOT`, if not use the following command to update the version and create a PR with the changed files: `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT`.
+3. Backport the fix to the branch and add a hint to the RELEASE_NOTES.md of that branch that describes what was backported and create a PR targeting your branch of interest so it could be verified, reviewed an merged.
+4. Once it is merged and the SNAPSHOT is available, test your fix
+5. Look through the issues that where fixed after your target release and identify more items that seem useful and repeat with step 3.
+6. Once there is a noticeable amount of things backported that could justify a release create an issue asking for a bugfix release to be performed.
+
 ## 👔 Process and Legal
 
 ## Eclipse Development Process
