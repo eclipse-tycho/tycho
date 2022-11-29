@@ -13,8 +13,11 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -74,6 +77,52 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
             }
         }
         return location;
+    }
+
+    @Override
+    public CompletableFuture<File> fetchArtifact() {
+        if (project != null) {
+            //TODO this really looks wrong! It should the file of the artifact (if present!) or the output directory,
+            // but the basedir most likely only works for tycho ...
+            File basedir = project.getBasedir();
+            if (basedir != null) {
+                return CompletableFuture.completedFuture(basedir);
+            }
+        }
+        if (location != null && location.exists()) {
+            return CompletableFuture.completedFuture(location);
+        }
+        if (locationSupplier != null) {
+            //TODO this actually should be done in the background!
+            File file = locationSupplier.apply(this);
+            if (file != null) {
+                File normalized = ArtifactCollection.normalizeLocation(file);
+                location = normalized;
+                if (normalized.exists()) {
+                    return CompletableFuture.completedFuture(normalized);
+                }
+            }
+
+        }
+        return CompletableFuture.failedFuture(new FileNotFoundException("Can't fetch file for artifact " + getKey()));
+    }
+
+    @Override
+    public Optional<File> getLocation() {
+        if (project != null) {
+            //TODO this really looks wrong! It should the file of the artifact (if present!) or the output directory,
+            // but the basedir most likely only works for tycho ...
+            File basedir = project.getBasedir();
+            if (basedir != null) {
+                return Optional.of(basedir);
+            }
+        }
+        if (location != null) {
+            //TODO actually location.exists() should be used here! But some code has problems with that!
+            return Optional.of(location);
+        }
+        // TODO Auto-generated method stub
+        return Optional.empty();
     }
 
     @Override
