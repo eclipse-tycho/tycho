@@ -27,7 +27,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -428,6 +430,16 @@ public final class MavenDependencyInjector {
             copy.setType(getType());
             copy.setVersion(getVersion());
             return copy;
+        }
+
+        @Override
+        public Optional<File> getLocation() {
+            return getDescriptor().getLocation();
+        }
+
+        @Override
+        public CompletableFuture<File> fetchArtifact() {
+            return getDescriptor().fetchArtifact();
         }
 
     }

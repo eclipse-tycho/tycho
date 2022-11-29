@@ -14,6 +14,8 @@ package org.eclipse.tycho;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
@@ -32,9 +34,46 @@ public interface ArtifactDescriptor {
      * @param fetch
      *            whether to fetch artifact if not already available locally
      * @return the artifact location if already available or if <code>fetch=true</code> and fetching
-     *         succeds; <code>null</code> otherwise.
+     *         succeeds; <code>null</code> otherwise.
+     * @deprecated use either {@link #getLocation()} or {@link #fetchArtifact()} depending on the
+     *             use-case.
      */
-    public File getLocation(boolean fetch);
+    @Deprecated
+    default File getLocation(boolean fetch) {
+        Optional<File> location = getLocation();
+        if (location.isPresent()) {
+            return location.get();
+        }
+        if (fetch) {
+            try {
+                return fetchArtifact().get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                //do nothing... thats actually bad but it seems sometimes desired!
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets the location of the artifact if already know, if you really like to fetch the artifact
+     * and make is available use {@link #fetchArtifact()} instead.
+     * 
+     * @return an empty optional if the file is not currently available or an optional describing
+     *         the location of that file
+     */
+    Optional<File> getLocation();
+
+    /**
+     * Fetch the artifact in a possibly asynchronous way, that is returning a
+     * {@link CompletableFuture} that is either already completed (e.g. because the file is already
+     * available), failed (e.g because the fetching of the file itself failed) or will be complete
+     * sometime later on when the file is ready to be accessed.
+     * 
+     * @return a {@link CompletableFuture} that represents the current state of fetching this file
+     */
+    CompletableFuture<File> fetchArtifact();
 
     /**
      * ReactorProject corresponding to the artifact or null if the artifact does not come from a
