@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,6 +152,15 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 		@Override
 		public long getLastModified() {
 			return connection.getLastModified();
+		}
+
+		@Override
+		public URI getURI() {
+			try {
+				return connection.getURL().toURI();
+			} catch (URISyntaxException e) {
+				throw new AssertionError("Should never happen!", e);
+			}
 		}
 
 	}

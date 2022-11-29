@@ -14,6 +14,7 @@
 package org.eclipse.tycho.p2maven.repository;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,17 +27,20 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
 
 @Component(role = MavenRepositorySettings.class)
-public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
+public class DefaultMavenRepositorySettings implements MavenRepositorySettings, Initializable {
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
@@ -44,7 +48,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
     @Requirement
     private Logger logger;
     @Requirement
-    private LegacySupport context;
+	private LegacySupport legacySupport;
 
     @Requirement
     private SettingsDecrypterHelper decrypter;
@@ -55,6 +59,10 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
     private ArtifactRepositoryLayout p2layout;
 
 	private Map<String, URI> idToMirrorMap = new HashMap<>();
+
+	private Settings settings;
+
+	private List<Mirror> mirrors;
 
     public DefaultMavenRepositorySettings() {
         // for plexus
@@ -75,13 +83,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 		}
         ArtifactRepository locationAsMavenRepository = repositorySystem.createArtifactRepository(location.getId(),
                 location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
-        MavenSession session = context.getSession();
-		if (session == null) {
-			logger.warn(
-					"Called MavenRepositorySettings.getMirror() outside maven thread, mirrors cannot be determined");
-			return null;
-		}
-		Mirror mirror = getTychoMirror(locationAsMavenRepository, session.getRequest().getMirrors());
+		Mirror mirror = getTychoMirror(locationAsMavenRepository, mirrors);
         if (mirror != null) {
             return new MavenRepositoryLocation(mirror.getId(), URI.create(mirror.getUrl()));
         }
@@ -90,17 +92,10 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 
     @Override
     public MavenRepositorySettings.Credentials getCredentials(MavenRepositoryLocation location) {
-        if (location.getId() == null) {
+		if (location.getId() == null) {
             return null;
         }
-
-        MavenSession session = context.getSession();
-		if (session == null) {
-			logger.warn(
-					"Called MavenRepositorySettings.getCredentials() outside maven thread, credentials can't be determined!");
-			return null;
-		}
-		Server serverSettings = session.getSettings().getServer(location.getId());
+		Server serverSettings = settings.getServer(location.getId());
 
         if (serverSettings != null) {
             SettingsDecryptionResult result = decrypter.decryptAndLogProblems(serverSettings);
@@ -149,6 +144,18 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 			idToMirrorMap.remove(repositoryId);
 		} else {
 			idToMirrorMap.put(repositoryId, mirroredUrl);
+		}
+	}
+
+	@Override
+	public void initialize() throws InitializationException {
+		MavenSession session = legacySupport.getSession();
+		if (session != null) {
+			settings = session.getSettings();
+			mirrors = session.getRequest().getMirrors();
+		} else {
+			settings = new Settings();
+			mirrors = Collections.emptyList();
 		}
 	}
 }

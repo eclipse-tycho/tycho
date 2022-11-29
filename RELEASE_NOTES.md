@@ -6,7 +6,16 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Migration guide 3.x > 4.x
 
-### PGP Signing Enhancements
+#### Choosable HTTP transports
+
+Tycho uses a custom P2 transport to download items from updatesites, previously URLConnection was used for this but now the Java HTTP 11 Client is the new default because it supports HTTP/2 now.
+To use the old URLConnection one can pass `-Dtycho.p2.transport.type=JavaUrl` to the build.
+
+Valid values are:
+- `JavaUrl` - uses URLConnection to retrieve files
+- `Java11Client` - uses Java 11 HttpClient
+
+#### PGP Signing Enhancements
 
 The [tycho-gpg::3.0.0:sign-p2-artifacts](https://tycho.eclipseprojects.io/doc/3.0.0/tycho-gpg-plugin/sign-p2-artifacts-mojo.html) mojo has been significantly enhanced.
 

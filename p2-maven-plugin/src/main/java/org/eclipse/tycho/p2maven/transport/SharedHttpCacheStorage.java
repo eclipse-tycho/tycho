@@ -265,6 +265,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				if (exits) {
 					FileUtils.forceDelete(file);
 				}
+				response.checkResponseCode();
 				File tempFile = File.createTempFile("download", ".tmp", file.getParentFile());
 				try (InputStream inputStream = response.body(); FileOutputStream os = new FileOutputStream(tempFile)) {
 					inputStream.transferTo(os);

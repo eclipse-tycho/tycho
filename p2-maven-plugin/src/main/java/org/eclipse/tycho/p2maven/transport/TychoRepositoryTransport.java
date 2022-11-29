@@ -44,7 +44,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         implements IAgentServiceFactory {
 
 	static final String TRANSPORT_TYPE = System.getProperty("tycho.p2.transport.type",
-			URLHttpTransportFactory.HINT);
+			Java11HttpTransportFactory.HINT);
 	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
 
     private NumberFormat numberFormat = NumberFormat.getNumberInstance();
