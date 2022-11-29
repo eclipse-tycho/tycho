@@ -8,6 +8,9 @@
 	<artifactId>tycho-apitools-plugin</artifactId>
 	<name>Plugin for performing API analysis tasks</name>
 	<packaging>maven-plugin</packaging>
+	<properties>
+		<asm.version>9.4</asm.version>
+	</properties>
 	<dependencies>
 		<!-- Maven -->
 		<dependency>
@@ -57,6 +60,22 @@
 		    <groupId>org.eclipse.jdt</groupId>
 		    <artifactId>org.eclipse.jdt.core</artifactId>
 		    <version>3.31.0</version>
+		</dependency>
+		<!-- libs -->
+		<dependency>
+		  <groupId>org.ow2.asm</groupId>
+		  <artifactId>asm</artifactId>
+		  <version>${asm.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.ow2.asm</groupId>
+		  <artifactId>asm-tree</artifactId>
+		  <version>${asm.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.ow2.asm</groupId>
+		  <artifactId>asm-util</artifactId>
+		  <version>${asm.version}</version>
 		</dependency>
 	</dependencies>
 	<build>

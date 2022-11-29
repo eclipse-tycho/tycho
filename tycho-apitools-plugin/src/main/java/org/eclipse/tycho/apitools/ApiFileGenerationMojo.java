@@ -83,6 +83,9 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 		if (new File(project.getBasedir(), JarFile.MANIFEST_NAME).isFile()) {
 			synchronized (ApiFileGenerationMojo.class) {
 				// TODO check if the generator is thread safe, then we can remove this!
+				if (!binaryLocations.exists()) {
+					binaryLocations.mkdirs();
+				}
 				APIFileGenerator generator = new APIFileGenerator();
 				generator.projectName = projectName;
 				generator.projectLocation = projectLocation.getAbsolutePath();
