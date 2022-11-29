@@ -12,7 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +30,21 @@ public interface Response<T> extends AutoCloseable {
 
 	T body() throws IOException;
 
+	URI getURI();
+
 	String getHeader(String header);
 
 	long getLastModified();
+
+	default void checkResponseCode() throws FileNotFoundException, IOException {
+		int code = statusCode();
+		if (code >= HttpURLConnection.HTTP_BAD_REQUEST) {
+			if (code == HttpURLConnection.HTTP_NOT_FOUND || code == HttpURLConnection.HTTP_GONE) {
+				throw new FileNotFoundException(getURI().toString());
+			} else {
+				throw new java.io.IOException("Server returned HTTP code: " + code + " for URL " + getURI().toString());
+			}
+		}
+	}
 
 }
