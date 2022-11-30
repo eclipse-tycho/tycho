@@ -66,10 +66,8 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.PGPService;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplication;
 
 /**
@@ -172,9 +170,6 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.build.directory}/repository")
     private File destination;
-
-    @Component(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory equinox;
 
     @Component
     private Logger logger;
