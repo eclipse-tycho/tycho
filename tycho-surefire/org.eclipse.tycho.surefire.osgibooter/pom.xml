@@ -86,13 +86,14 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
+						<?m2e execute onIncremental?>
 						<id>copy</id>
-						<phase>prepare-package</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>copy</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>target/classes/jars</outputDirectory>
+							<outputDirectory>target/jars</outputDirectory>
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.apache.maven.surefire</groupId>
@@ -141,17 +142,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
-				<configuration>
-					<filesets>
-						<fileset>
-							<directory>jars</directory>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>${java.version}</source>
@@ -159,14 +149,45 @@
 				</configuration>
 			</plugin>
 			<plugin>
-		    <groupId>org.apache.maven.plugins</groupId>
-		    <artifactId>maven-jar-plugin</artifactId>
-		    <configuration>
-		        <archive>
-		            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-		        </archive>
-		    </configuration>
-		</plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>bnd-process</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<bnd><![CDATA[
+						Import-Package: !*
+						Bundle-SymbolicName: org.eclipse.tycho.surefire.osgibooter;singleton:=true
+						Automatic-Module-Name: ${bsn}
+						Bundle-Activator: org.eclipse.tycho.surefire.osgibooter.Activator
+						Bundle-ActivationPolicy: lazy
+						Require-Bundle: org.eclipse.osgi;bundle-version="3.2.2",\
+							org.eclipse.ui.workbench;bundle-version="3.2.2";resolution:=optional,\
+							org.eclipse.core.runtime;bundle-version="3.2.0"
+						-includeresource: jars/=target/jars/;lib:=true
+						-snapshot:
+						-nouses: true
+						-nodefaultversion: true
+						-noextraheaders: true
+						-removeheaders: Private-Package, Bundle-SCM, Bundle-Developers, Bundle-DocURL, Bundle-License
+					]]></bnd>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
