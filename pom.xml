@@ -512,6 +512,7 @@
 		<module>tycho-maven-plugin</module>
 		<module>tycho-ds-plugin</module>
 		<module>tycho-buildtimestamp-jgit</module>
+		<module>tycho-baseline-plugin</module>
 		<!-- surefire -->
 		<module>tycho-surefire</module>
 

@@ -18,7 +18,9 @@ import java.util.Optional;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 @Component(role = TychoProjectManager.class)
 public class TychoProjectManager {
@@ -38,6 +40,14 @@ public class TychoProjectManager {
             return Optional.empty();
         }
         return Optional.ofNullable(projectTypes.get(project.getPackaging()));
+    }
+
+    public Optional<ArtifactKey> getArtifactKey(MavenProject project) {
+        return getArtifactKey(DefaultReactorProject.adapt(project));
+    }
+
+    public Optional<ArtifactKey> getArtifactKey(ReactorProject project) {
+        return getTychoProject(project).map(tp -> tp.getArtifactKey(project));
     }
 
 }
