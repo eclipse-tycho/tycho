@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target includeMode="feature" name="target-platform">
+  <locations>
+    <location includeDependencyDepth="none" includeSource="true" missingManifest="generate" type="Maven">
+      <dependencies>
+        <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-api</artifactId>
+          <version>5.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-engine</artifactId>
+          <version>5.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-migrationsupport</artifactId>
+          <version>5.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-params</artifactId>
+          <version>5.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>junit-platform-commons</artifactId>
+          <version>1.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>junit-platform-engine</artifactId>
+          <version>1.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>junit-platform-launcher</artifactId>
+          <version>1.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>junit-platform-runner</artifactId>
+          <version>1.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>junit-platform-suite-api</artifactId>
+          <version>1.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>junit-platform-suite-commons</artifactId>
+          <version>1.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+          <version>5.9.1</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.apiguardian</groupId>
+          <artifactId>apiguardian-api</artifactId>
+          <version>1.1.2</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.opentest4j</groupId>
+          <artifactId>opentest4j</artifactId>
+          <version>1.2.0</version>
+          <type>jar</type>
+        </dependency>
+      </dependencies>
+    </location>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+      <repository location="https://download.eclipse.org/eclipse/updates/4.23"/>
+      <unit id="org.eclipse.platform.sdk" />
+      <unit id="org.eclipse.rcp.feature.group" />
+      <unit id="org.eclipse.platform.ide" />
+      <unit id="org.eclipse.test.feature.group" />
+    </location>
+  </locations>
+  <environment>
+    <nl>en_US</nl>
+  </environment>
+  <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
+</target>
