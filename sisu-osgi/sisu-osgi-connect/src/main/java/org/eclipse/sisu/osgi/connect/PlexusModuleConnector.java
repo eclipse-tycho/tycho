@@ -152,10 +152,14 @@ final class PlexusModuleConnector implements ModuleConnector {
 				logger.debug("Cannot convert URL " + url + " to File");
 				continue;
 			}
-			if (!realmExports.jars.isEmpty() && !realmExports.jars.contains(file.getName())) {
-				logger.debug("Skip " + file + " as it is not part of the dependency jars...");
-				continue;
-			}
+			// TODO we should actually make sure that no other libs drip in here, but need
+			// to disable this until some version ranges are fixed for platform, so
+			// hopefully on next release. Otherwhise there is a risk of pull in incompatible
+			// versions.
+//			if (!realmExports.jars.isEmpty() && !realmExports.jars.contains(file.getName())) {
+//				logger.debug("Skip " + file + " as it is not part of the dependency jars...");
+//				continue;
+//			}
 			try {
 				JarFile jarFile = new JarFile(file);
 				try {
