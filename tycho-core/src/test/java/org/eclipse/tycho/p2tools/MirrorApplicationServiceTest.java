@@ -90,12 +90,8 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
         ReactorProjectIdentities currentProject = new ReactorProjectIdentitiesStub(projectFolder);
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
-        subject = new MirrorApplicationServiceImpl() {
-            @Override
-            protected IProvisioningAgent getAgent() {
-                return agent;
-            }
-        };
+        subject = new MirrorApplicationServiceImpl();
+        subject.setAgent(agent);
         subject.setLogger(logVerifier.getLogger());
     }
 
