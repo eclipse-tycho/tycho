@@ -49,12 +49,10 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.BuildContext;
@@ -74,14 +72,14 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     @Requirement
     Logger logger;
 
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory p2;
+    @Requirement
+    IProvisioningAgent agent;
 
     @Override
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException {
-        IProvisioningAgent agent = getAgent();
+        agent.getService(IArtifactRepositoryManager.class); //force init of framework if not already done!
         final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
         mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
         mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
@@ -98,8 +96,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
-    protected IProvisioningAgent getAgent() {
-        return p2.getService(IProvisioningAgent.class);
+    public void setAgent(IProvisioningAgent agent) {
+        this.agent = agent;
     }
 
     public void setLogger(Logger logger) {
@@ -156,7 +154,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
             boolean includeAllSource, boolean includeRequiredBundles, boolean includeRequiredFeatures,
             Map<String, String> filterProperties) throws FacadeException {
-        IProvisioningAgent agent = getAgent();
         final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
 
         // mirror scope: seed units...
@@ -225,7 +222,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         descriptor.setLocation(location.toURI());
         //TODO this is to trigger loading of the osgi services and we can not pass the agent directly see 
         // https://github.com/eclipse-equinox/p2/issues/151
-        getAgent().getService(IArtifactRepositoryManager.class);
+        agent.getService(IArtifactRepositoryManager.class);
         RecreateRepositoryApplication application = new RecreateRepositoryApplication();
         application.setArtifactRepository(descriptor.getRepoLocation());
         try {
