@@ -67,26 +67,6 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<manifestLocation>META-INF</manifestLocation>
-					<instructions>
-						<Import-Package>!*</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<executions>
 					<execution>
