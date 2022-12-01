@@ -12,15 +12,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.lang.reflect.Method;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Repository;
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -39,6 +40,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
 /**
@@ -47,7 +49,7 @@ import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
  *
  */
 @Mojo(defaultPhase = LifecyclePhase.VERIFY, name = "verify", threadSafe = true)
-public class BaselineMojo extends aQute.bnd.maven.baseline.plugin.BaselineMojo {
+public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	/**
 	 * A list of p2 repositories to be used as baseline. Those are typically the
 	 * most recent released versions of your project.
@@ -64,16 +66,50 @@ public class BaselineMojo extends aQute.bnd.maven.baseline.plugin.BaselineMojo {
 	@Parameter(property = "project", readonly = true)
 	protected MavenProject project;
 
+	/**
+	 * If <code>true</code> skips any baseline processing.
+	 */
 	@Parameter(property = "tycho.baseline.skip", defaultValue = "false")
 	private boolean skip;
 
-	@Parameter(property = "tycho.baseline.fail.on.missing", defaultValue = "true")
-	private boolean failOnMissing;
+	/**
+	 * Controls if the mojo should fail or only warn about baseline problems.
+	 */
+	@Parameter(property = "tycho.baseline.mode", defaultValue = "fail")
+	private BaselineMode mode;
+
+	/**
+	 * Defines what packages should be compared to the baseline, by default all
+	 * exported packages are compared. Packages can contain wildcards, for a full
+	 * list of supported syntax see
+	 * https://bnd.bndtools.org/chapters/820-instructions.html#selector
+	 */
+	@Parameter(property = "tycho.baseline.packages")
+	private List<String> packages;
+
+	/**
+	 * Defines manifest header names or resource paths that should be ignore when
+	 * comparing to the baseline.
+	 */
+	@Parameter(property = "tycho.baseline.diffignores")
+	private List<String> ignores;
+
+	/**
+	 * If <code>true</code> enables processing of eclipse specific extensions e.g
+	 * x-internal directive.
+	 */
+	@Parameter(property = "tycho.baseline.extensions", defaultValue = "false")
+	private boolean extensions;
 
 	@Component
 	protected TychoProjectManager projectManager;
 	@Component
 	private Logger logger;
+
+	@Component
+	private Map<String, ArtifactBaselineComparator> comparators;
+
+	private ThreadLocal<IInstallableUnit> contextIu = new ThreadLocal<IInstallableUnit>();
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -85,42 +121,89 @@ public class BaselineMojo extends aQute.bnd.maven.baseline.plugin.BaselineMojo {
 			return;
 		}
 		ArtifactKey artifactKey = artifactKeyLookup.get();
+		ArtifactBaselineComparator comparator = comparators.get(artifactKey.getType());
+		if (comparator == null) {
+			// nothing to compare...
+			return;
+		}
 		for (Repository repository : baselines) {
 			try {
 				IMetadataRepository metadataRepositor = repositoryManager.getMetadataRepositor(repository);
 				IArtifactRepository artifactRepository = repositoryManager.getArtifactRepository(repository);
-				IQueryResult<IInstallableUnit> result = metadataRepositor.query(
-						QueryUtil.createLatestQuery(QueryUtil.createIUQuery(artifactKey.getId(),
-								new VersionRange(Version.emptyVersion, true, Version.create(artifactKey.getVersion()),
-										false))),
-						null);
-
-				for (IInstallableUnit iu : result) {
-					File tempFile = File.createTempFile("baseline", ".jar");
-					tempFile.deleteOnExit();
-					try (FileOutputStream stream = new FileOutputStream(tempFile)) {
-						Object status = repositoryManager.downloadArtifact(iu, artifactRepository, stream);
-						System.out.println(status);
-					}
-					// hack... see https://github.com/bndtools/bnd/pull/5441
-					Method method = aQute.bnd.maven.baseline.plugin.BaselineMojo.class
-							.getDeclaredMethod("baselineAction", File.class, File.class);
-					method.setAccessible(true);
-					method.invoke(this, project.getArtifact().getFile(), tempFile);
-					return;
+				org.osgi.framework.Version artifactVersion = org.osgi.framework.Version
+						.parseVersion(artifactKey.getVersion());
+				Version maxVersion = Version.createOSGi(artifactVersion.getMajor(), artifactVersion.getMinor(),
+						artifactVersion.getMicro() + 1);
+				IQueryResult<IInstallableUnit> result = metadataRepositor
+						.query(QueryUtil.createLatestQuery(QueryUtil.createIUQuery(artifactKey.getId(),
+								new VersionRange(Version.emptyVersion, true, maxVersion, false))), null);
+				if (result.isEmpty()) {
+					continue;
 				}
+				IInstallableUnit iu = comparator.selectIU(result);
+				if (iu == null) {
+					continue;
+				}
+				logger.info("Comparing artifact " + artifactKey + " against baseline " + iu.getId() + ":"
+						+ iu.getVersion() + " from " + repository.getUrl());
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				repositoryManager.downloadArtifact(iu, artifactRepository, outputStream);
+				contextIu.set(iu);
+				comparator.compare(DefaultReactorProject.adapt(project),
+						() -> new ByteArrayInputStream(outputStream.toByteArray()),
+						this);
+				return;
 			} catch (URISyntaxException e) {
 				throw new MojoExecutionException("Repository " + repository + " uses an invalid URI: " + e.getReason(),
 						e);
 			} catch (ProvisionException e) {
 				throw new MojoExecutionException(
 						"Loading repository " + repository + "failed! (" + e.getMessage() + ")", e);
+			} catch (MojoFailureException e) {
+				throw e;
+			} catch (MojoExecutionException e) {
+				throw e;
 			} catch (Exception e) {
 				throw new MojoExecutionException(e);
 			}
 		}
-		if (failOnMissing) {
-			throw new MojoFailureException("No baseline artifact found!");
+		reportBaselineFailure("No baseline artifact found!");
+	}
+
+	@Override
+	public void reportBaselineFailure(String message) throws MojoFailureException {
+		if (mode == BaselineMode.fail) {
+			throw new MojoFailureException(message);
+		} else {
+			logger.warn(message);
 		}
 	}
+
+	@Override
+	public IInstallableUnit getUnit() {
+
+		return contextIu.get();
+	}
+
+	@Override
+	public Iterable<String> getIgnores() {
+		if (ignores == null) {
+			return List.of();
+		}
+		return ignores;
+	}
+
+	@Override
+	public Iterable<String> getPackages() {
+		if (packages == null) {
+			return List.of("*");
+		}
+		return packages;
+	}
+
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
+
 }

@@ -18,7 +18,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
@@ -224,6 +227,20 @@ public abstract class AbstractTychoIntegrationTest {
 
     protected String toURI(File file) throws IOException {
         return file.getCanonicalFile().toURI().normalize().toString();
+    }
+
+    public void verifyTextInLogMatches(Verifier verifier, Pattern pattern) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+
+        boolean result = false;
+        for (String line : lines) {
+            if (pattern.matcher(Verifier.stripAnsi(line)).find()) {
+                return;
+            }
+        }
+        if (!result) {
+            throw new VerificationException("Pattern not found in log: " + pattern);
+        }
     }
 
 }

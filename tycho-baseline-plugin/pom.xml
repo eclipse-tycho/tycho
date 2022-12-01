@@ -35,11 +35,19 @@
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bndlib</artifactId>
 		</dependency>
-		<!-- Temorary !!-->
+		<!-- https://github.com/vdmeer/asciitable -->
 		<dependency>
-			<groupId>biz.aQute.bnd</groupId>
-			<artifactId>bnd-baseline-maven-plugin</artifactId>
-			<version>6.3.1</version>
+			<groupId>de.vandermeer</groupId>
+			<artifactId>asciitable</artifactId>
+			<version>0.3.2</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>

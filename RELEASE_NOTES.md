@@ -6,8 +6,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### new tycho-baseline-plugin
 
-Tycho now has a new mojo to perform baseline comparisons like the [bnd-baseline-plugin](https://github.com/bndtools/bnd/blob/master/maven/bnd-baseline-maven-plugin/README.md) but takes the tycho-dependency model into account.
+Tycho now has a new mojo to perform baseline comparisons similar to the [bnd-baseline-plugin](https://github.com/bndtools/bnd/blob/master/maven/bnd-baseline-maven-plugin/README.md) but takes the tycho-dependency model into account.
+
 A usual configuration looks like this:
+
 ```
 <plugin>
    <groupId>org.eclipse.tycho</groupId>
@@ -31,10 +33,10 @@ A usual configuration looks like this:
    </executions>
  </plugin>
 ```
-For more configuration options visit https://github.com/bndtools/bnd/blob/master/maven/bnd-baseline-maven-plugin/README.md#configuring-the-bnd-baseline-maven-plugin as Tycho inherits most of them except:
-- `base` - in Tycho the base is always the artifact with the highest version excluding the current project version
-- `includeDistributionManagement` - as Tycho uses the baseline repository this option currently do not apply
-- `releaseversions` - An artifact from a P2 repository is always released
+
+Any baseline problems will then be reported to the build:
+
+![grafik](https://user-images.githubusercontent.com/1331477/205283998-484c6a13-0a66-4b34-9386-599a27bff53e.png)
 
 ### Migration guide 3.x > 4.x
 
