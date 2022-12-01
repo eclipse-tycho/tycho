@@ -120,13 +120,18 @@ public class P2RepositoryManager {
 		return metadataManager.loadRepository(location, new LoggerProgressMonitor(logger));
 	}
 
-	public IStatus downloadArtifact(IInstallableUnit iu, IArtifactRepository artifactRepository,
+	public void downloadArtifact(IInstallableUnit iu, IArtifactRepository artifactRepository,
 			OutputStream outputStream) throws IOException {
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		for (IArtifactKey key : artifacts) {
 			IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
 			for (IArtifactDescriptor descriptor : descriptors) {
-				return artifactRepository.getRawArtifact(descriptor, outputStream, new LoggerProgressMonitor(logger));
+				IStatus status = artifactRepository.getRawArtifact(descriptor, outputStream,
+						new LoggerProgressMonitor(logger));
+				if (status.isOK()) {
+					return;
+				}
+				throw new IOException("Download failed: " + status);
 			}
 		}
 		throw new FileNotFoundException();
