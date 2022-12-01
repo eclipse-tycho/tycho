@@ -274,15 +274,28 @@ public final class TargetDefinitionResolver {
         };
     }
 
-    public static String convertRawToUri(String resolvePath) {
+    /**
+     * Converts a "raw" URI string into one that can be used to parse it as an {@link URI}. The
+     * conversion is especially for converting file URIs constructed using maven properties that
+     * otherwise can not easily be represented by the user as such for example
+     * <code>file:${project.basedir}/my-repository</code> there is nothing much a user can do here.
+     * Beside that, the method is <b>not</b> meant as a general purpose method to fix invalid URI
+     * inputs!
+     * 
+     * 
+     * @param raw
+     *            the raw string
+     * @return the converted URI representation
+     */
+    public static String convertRawToUri(String raw) {
         //We need to convert windows path separators here...
-        resolvePath = resolvePath.replace('\\', '/');
-        String lc = resolvePath.toLowerCase();
+        raw = raw.replace('\\', '/');
+        String lc = raw.toLowerCase();
         if (lc.startsWith("file:") && !lc.startsWith("file:/")) {
             //according to rfc a file URI must always start with a slash
-            resolvePath = resolvePath.replaceFirst("(?i)^file:", "file:/");
+            raw = raw.replaceFirst("(?i)^file:", "file:/");
         }
-        return resolvePath;
+        return raw;
     }
 
     protected String resolvePath(String path, TargetDefinition definition) {

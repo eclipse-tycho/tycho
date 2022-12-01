@@ -14,12 +14,12 @@ package org.eclipse.tycho.test.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.BindException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -99,17 +99,17 @@ public class HttpServer {
 
 	public static HttpServer startServer(String username, String password) throws Exception {
 		int baseport = EnvironmentUtil.getHttpServerPort();
-		BindException cause = null;
+		IllegalStateException exception = new IllegalStateException("Could not allocate a port");
 		for (int i = 0; i < BIND_ATTEMPTS; i++) {
-			int port = baseport + rnd.nextInt(65534 - baseport);
+			int port = baseport + i;
 			try {
 				return doStartServer(username, password, port);
-			} catch (BindException e) {
-				cause = e;
+			} catch (IOException e) {
+				exception.addSuppressed(e);
+				TimeUnit.SECONDS.sleep(1);
 			}
 		}
-
-		throw new IllegalStateException("Could not allocate available port", cause);
+		throw exception;
 	}
 
 	private static HttpServer doStartServer(String username, String password, int port) throws Exception {

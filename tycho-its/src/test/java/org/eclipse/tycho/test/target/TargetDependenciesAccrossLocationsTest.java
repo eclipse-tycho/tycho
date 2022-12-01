@@ -36,7 +36,9 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 
 	@After
 	public void stopServer() throws Exception {
-		server.stop();
+		if (server != null) {
+			server.stop();
+		}
 	}
 
 	@Test
