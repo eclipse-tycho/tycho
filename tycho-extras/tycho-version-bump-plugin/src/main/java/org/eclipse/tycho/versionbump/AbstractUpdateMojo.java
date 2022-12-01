@@ -21,17 +21,12 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public abstract class AbstractUpdateMojo extends AbstractMojo {
-
-    @Component(hint = TychoServiceFactory.HINT)
-    protected EquinoxServiceFactory equinox;
 
     @Component
     private Logger logger;
