@@ -18,10 +18,8 @@
 package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,9 +47,7 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildProperties;
@@ -84,7 +80,6 @@ import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
@@ -130,9 +125,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Requirement
     private LocalRepositoryP2Indices p2index;
-
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory serviceFactory;
 
     @Requirement
     private PomUnits pomUnits;
@@ -291,16 +283,13 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
             TargetPlatformConfigurationStub resolutionContext) {
         try {
-            serviceFactory.getService(IAgentService.class); //this will force triggering service loadings that are required to resolve URLs!
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
-                //TODO we might pass an URLStreamHandler here that collects handlers from plexus components?
-                URI url = new URL(repository.getUrl()).toURI();
+                URI url = new URI(TargetDefinitionResolver.convertRawToUri(repository.getUrl()));
                 resolutionContext.addP2Repository(new MavenRepositoryLocation(repository.getId(), url));
-
                 getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
             }
-        } catch (MalformedURLException | URISyntaxException e) {
-            throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid repository URI: " + repository.getUrl(), e);
         }
     }
 
