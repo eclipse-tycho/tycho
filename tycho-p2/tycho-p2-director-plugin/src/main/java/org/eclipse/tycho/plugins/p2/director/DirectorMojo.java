@@ -22,10 +22,8 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
@@ -48,9 +46,6 @@ public final class DirectorMojo extends AbstractProductMojo {
     public enum DirectorRuntimeType {
         internal, standalone
     }
-
-    @Component(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory osgiServices;
 
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
