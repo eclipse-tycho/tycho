@@ -220,7 +220,7 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
                     Analyzer analyzer = new Analyzer(jar)) {
                 Manifest bundleManifest = mainArtifact.getManifest();
                 String hostVersion = bundleManifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
-                String hostSymbolicName = bundleManifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+                String hostSymbolicName = getHostSymbolicName(bundleManifest);
                 analyzer.setProperty(Constants.BUNDLE_VERSION, hostVersion);
                 analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, hostSymbolicName + "." + uuid);
                 analyzer.setProperty(Constants.FRAGMENT_HOST,
@@ -262,6 +262,18 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
                 .setRemoteRepositories(
                         Stream.concat(pluginRemoteRepositories.stream(), projectRemoteRepositories.stream()).toList());
         return repositorySystem.resolve(request);
+    }
+
+    /**
+     * Returns a normalized host bundle Bundle-SymbolicName.
+     * This means any metadata apart from the name itself is removed.
+     */
+    private String getHostSymbolicName(final Manifest manifest) {
+        final var value = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+        final var separatorIndex = value.indexOf(';');
+        return separatorIndex > -1
+                ? value.substring(0, separatorIndex)
+                : value;
     }
 
     private static final class ProviderDependencyArtifactFilter implements ArtifactFilter {
