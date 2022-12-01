@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
 
 /**
@@ -63,9 +64,20 @@ public class P2RepositoryManager {
 	 */
 	public IArtifactRepository getArtifactRepository(Repository repository)
 			throws URISyntaxException, ProvisionException {
-		URI location = new URI(repository.getUrl());
-		String id = repository.getId();
-		return getArtifactRepository(location, id);
+		return getArtifactRepository(new URI(repository.getUrl()), repository.getId());
+	}
+
+	/**
+	 * Loads the {@link IArtifactRepository} from the given {@link Repository}, this
+	 * method does NOT check the type of the repository!
+	 * 
+	 * @param repository
+	 * @return the {@link IArtifactRepository} for the given {@link Repository}
+	 * @throws ProvisionException if loading the repository failed
+	 */
+	public IArtifactRepository getArtifactRepository(MavenRepositoryLocation repository)
+			throws ProvisionException {
+		return getArtifactRepository(repository.getURL(), repository.getId());
 	}
 
 	/**
@@ -81,6 +93,19 @@ public class P2RepositoryManager {
 	public IMetadataRepository getMetadataRepositor(Repository repository)
 			throws URISyntaxException, ProvisionException {
 		return getMetadataRepositor(new URI(repository.getUrl()), repository.getId());
+	}
+
+	/**
+	 * Loads the {@link IMetadataRepository} from the given {@link Repository}, this
+	 * method does NOT check the type of the repository!
+	 * 
+	 * @param repository
+	 * @return the {@link IMetadataRepository} for the given {@link Repository}
+	 * @throws ProvisionException if loading the repository failed
+	 */
+	public IMetadataRepository getMetadataRepositor(MavenRepositoryLocation repository)
+			throws ProvisionException {
+		return getMetadataRepositor(repository.getURL(), repository.getId());
 	}
 
 	private IArtifactRepository getArtifactRepository(URI location, String id) throws ProvisionException {

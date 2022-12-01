@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -33,9 +33,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
-import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -45,14 +42,11 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.P2Artifact;
+import org.eclipse.tycho.p2maven.ListQueryable;
+import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 @Component(role = BaselineService.class)
@@ -60,8 +54,8 @@ public class BaselineServiceImpl implements BaselineService {
 
     private IProgressMonitor monitor = new NullProgressMonitor();
 
-    @Requirement(hint = TychoServiceFactory.HINT)
-    private EquinoxServiceFactory equinox;
+    @Requirement
+    private P2RepositoryManager repositoryManager;
 
     @Requirement
     private Logger logger;
@@ -75,34 +69,13 @@ public class BaselineServiceImpl implements BaselineService {
         // current local repository layout does not track per-repository artifacts and does not allow
         // multiple different artifacts with same id/version.
 
-        CompositeMetadataRepository baselineUnits;
-        CompositeArtifactRepository baselineArtifacts;
-
-        IProvisioningAgent remoteAgent = Objects.requireNonNull(equinox.getService(IProvisioningAgent.class),
-                "IProvisioningAgent is not found!");
-        IRepositoryIdManager remoteRepositoryIdManager = remoteAgent.getService(IRepositoryIdManager.class);
-        IMetadataRepositoryManager remoteMetadataRepositoryManager = remoteAgent
-                .getService(IMetadataRepositoryManager.class);
-        IArtifactRepositoryManager remoteArtifactRepositoryManager = remoteAgent
-                .getService(IArtifactRepositoryManager.class);
-
-        baselineUnits = CompositeMetadataRepository.createMemoryComposite(remoteAgent);
-        baselineArtifacts = CompositeArtifactRepository.createMemoryComposite(remoteAgent);
+        ListQueryable<IInstallableUnit> baselineUnits = new ListQueryable<>();
+        List<IArtifactRepository> baselineArtifacts = new ArrayList<>();
 
         for (MavenRepositoryLocation location : baselineLocations) {
-            URI url = location.getURL();
-
             try {
-                remoteRepositoryIdManager.addMapping(location.getId(), url);
-
-                // TODO offline mode https://bugs.eclipse.org/bugs/show_bug.cgi?id=337022
-
-                // not strictly necessary, but makes sure metadata download is visible in the console/log
-                remoteMetadataRepositoryManager.loadRepository(url, monitor);
-                remoteArtifactRepositoryManager.loadRepository(url, monitor);
-
-                baselineUnits.addChild(url);
-                baselineArtifacts.addChild(url);
+                baselineUnits.add(repositoryManager.getMetadataRepositor(location));
+                baselineArtifacts.add(repositoryManager.getArtifactRepository(location));
             } catch (ProvisionException e) {
                 // baseline repository may not exist yet
                 logger.warn(e.getMessage(), e);
@@ -114,36 +87,27 @@ public class BaselineServiceImpl implements BaselineService {
         for (Map.Entry<String, IP2Artifact> reactorArtifact : reactor.entrySet()) {
             IArtifactDescriptor descriptor = reactorArtifact.getValue().getArtifactDescriptor();
 
-            IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(baselineArtifacts, descriptor);
-            if (baselineDescriptor == null) {
+            Entry<IArtifactRepository, IArtifactDescriptor> baselineDescriptorEntry = getBaselineDescriptor(
+                    baselineArtifacts, descriptor);
+            if (baselineDescriptorEntry == null) {
                 continue;
             }
-
+            IArtifactDescriptor baselineDescriptor = baselineDescriptorEntry.getValue();
             IArtifactKey baslineKey = baselineDescriptor.getArtifactKey();
             String format = baselineDescriptor.getProperty(IArtifactDescriptor.FORMAT);
             File baselineArtifact = new File(target, baslineKey.getClassifier() + "/" + baslineKey.getId() + "/"
                     + baslineKey.getVersion() + (format != null ? "." + format : ""));
 
-            try {
-                baselineArtifact.getParentFile().mkdirs();
-                OutputStream os = new BufferedOutputStream(new FileOutputStream(baselineArtifact));
-                try {
-                    IStatus status = baselineArtifacts.getRawArtifact(baselineDescriptor, os, monitor);
-                    if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
-                        String repository = baselineDescriptor.getRepository().getLocation().toString();
-                        String artifactId = baselineDescriptor.getArtifactKey().getId();
-                        String artifactVersion = baselineDescriptor.getArtifactKey().getVersion().toString();
-                        String statusMessage = StatusTool.toLogMessage(status);
-                        throw new RuntimeException(String.format("Error trying to download %s version %s from %s:\n%s",
-                                artifactId, artifactVersion, repository, statusMessage),
-                                StatusTool.findException(status));
-                    }
-                } finally {
-                    try {
-                        os.close();
-                    } catch (IOException e) {
-                        // ignored
-                    }
+            baselineArtifact.getParentFile().mkdirs();
+            try (OutputStream os = new BufferedOutputStream(new FileOutputStream(baselineArtifact))) {
+                IStatus status = baselineDescriptorEntry.getKey().getRawArtifact(baselineDescriptor, os, monitor);
+                if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
+                    String repository = baselineDescriptor.getRepository().getLocation().toString();
+                    String artifactId = baselineDescriptor.getArtifactKey().getId();
+                    String artifactVersion = baselineDescriptor.getArtifactKey().getVersion().toString();
+                    String statusMessage = StatusTool.toLogMessage(status);
+                    throw new RuntimeException(String.format("Error trying to download %s version %s from %s:\n%s",
+                            artifactId, artifactVersion, repository, statusMessage), StatusTool.findException(status));
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -156,24 +120,25 @@ public class BaselineServiceImpl implements BaselineService {
                     units.add(baselineUnit);
                 }
             }
-
             result.put(reactorArtifact.getKey(), new P2Artifact(baselineArtifact, units, descriptor));
         }
 
         return !result.isEmpty() ? result : null;
     }
 
-    private IArtifactDescriptor getBaselineDescriptor(IArtifactRepository baseline, IArtifactDescriptor descriptor) {
-        IArtifactDescriptor[] baselineDescriptors = baseline.getArtifactDescriptors(descriptor.getArtifactKey());
+    private Entry<IArtifactRepository, IArtifactDescriptor> getBaselineDescriptor(
+            List<IArtifactRepository> baselineArtifacts, IArtifactDescriptor descriptor) {
 
-        for (IArtifactDescriptor baselineDescriptor : baselineDescriptors) {
-            if (eq(descriptor.getProperty(IArtifactDescriptor.FORMAT),
-                    baselineDescriptor.getProperty(IArtifactDescriptor.FORMAT))
-                    && Arrays.equals(descriptor.getProcessingSteps(), baselineDescriptor.getProcessingSteps())) {
-                return baselineDescriptor;
+        for (IArtifactRepository repository : baselineArtifacts) {
+            IArtifactDescriptor[] baselineDescriptors = repository.getArtifactDescriptors(descriptor.getArtifactKey());
+            for (IArtifactDescriptor baselineDescriptor : baselineDescriptors) {
+                if (eq(descriptor.getProperty(IArtifactDescriptor.FORMAT),
+                        baselineDescriptor.getProperty(IArtifactDescriptor.FORMAT))
+                        && Arrays.equals(descriptor.getProcessingSteps(), baselineDescriptor.getProcessingSteps())) {
+                    return new SimpleEntry<>(repository, baselineDescriptor);
+                }
             }
         }
-
         return null;
     }
 
