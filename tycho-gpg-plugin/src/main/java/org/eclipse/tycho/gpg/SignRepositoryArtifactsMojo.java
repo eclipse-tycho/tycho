@@ -33,17 +33,16 @@ import org.codehaus.plexus.archiver.xz.XZArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
 /**
  * Modifies the p2 metadata ({@code artifacts.xml}) to add a PGP signature to each included
@@ -147,8 +146,11 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     @Component(role = Archiver.class, hint = "xz")
     private XZArchiver xzArchiver;
 
-    @Component(role = EquinoxServiceFactory.class, hint = "tycho-core")
-    private EquinoxServiceFactory serviceFactory;
+    @Component
+    private SignedContentFactory signedContentFactory;
+
+    @Component
+    private P2RepositoryManager repositoryManager;
 
     @Override
     protected String getSigner() {
@@ -168,16 +170,13 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        var signedContentFactory = serviceFactory.getService(SignedContentFactory.class);
 
         var signer = newSigner(project);
         var keys = KeyStore.create();
 
-        var artifactRepositoryManager = serviceFactory.getService(IProvisioningAgent.class)
-                .getService(IArtifactRepositoryManager.class);
         try {
-            var artifactRepository = (IFileArtifactRepository) artifactRepositoryManager
-                    .loadRepository(repository.toURI(), null);
+            var artifactRepository = (IFileArtifactRepository) repositoryManager
+                    .getArtifactRepository(new MavenRepositoryLocation("", repository.toURI()));
 
             var compressed = "true".equals(artifactRepository.getProperty(IRepository.PROP_COMPRESSED));
 
@@ -192,8 +191,8 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             var descriptors = StreamSupport.stream(artifactKeys.spliterator(), false)
                     .map(artifactRepository::getArtifactDescriptors).map(Arrays::asList).flatMap(Collection::stream)
                     .collect(Collectors.toList());
-            descriptors.parallelStream().forEach(
-                    it -> handle(it, artifactRepository.getArtifactFile(it), signedContentFactory, signer, keys));
+            descriptors.parallelStream()
+                    .forEach(it -> handle(it, artifactRepository.getArtifactFile(it), signer, keys));
 
             if (addPublicKeyToRepo && !keys.isEmpty()) {
                 artifactRepository.setProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME,
@@ -234,8 +233,8 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
         }
     }
 
-    private void handle(IArtifactDescriptor artifactDescriptor, File artifact,
-            SignedContentFactory signedContentFactory, ProxySignerWithPublicKeyAccess signer, KeyStore allKeys) {
+    private void handle(IArtifactDescriptor artifactDescriptor, File artifact, ProxySignerWithPublicKeyAccess signer,
+            KeyStore allKeys) {
         if (artifact != null) {
             var existingKeys = artifactDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME);
             var existingSignatures = artifactDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME);
@@ -254,9 +253,8 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                 }
 
                 if (!isBinary) {
-                    var service = serviceFactory.getService(SignedContentFactory.class);
                     try {
-                        var signedContent = service.getSignedContent(artifact);
+                        var signedContent = signedContentFactory.getSignedContent(artifact);
                         if (signedContent.isSigned()) {
                             if (skipIfJarsigned) {
                                 return;
