@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
@@ -328,7 +329,9 @@ public class InstallableUnitGenerator {
 						boolean isBundle = false;
 						boolean isFeature = false;
 						try (JarFile jarFile = new JarFile(file)) {
-							isBundle = jarFile.getManifest().getMainAttributes()
+							Manifest manifest = jarFile.getManifest();
+							isBundle = manifest != null
+									&& manifest.getMainAttributes()
 									.getValue(Constants.BUNDLE_SYMBOLICNAME) != null;
 							isFeature = jarFile.getEntry("feature.xml") != null;
 						} catch (IOException e) {
