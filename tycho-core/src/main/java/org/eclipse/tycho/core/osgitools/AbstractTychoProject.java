@@ -25,6 +25,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
@@ -54,6 +55,8 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
 
     @Requirement
     MavenDependenciesResolver projectDependenciesResolver;
+    @Requirement
+    LegacySupport legacySupport;
 
     @Override
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project) {
@@ -217,14 +220,23 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
                 + artifact.getType() + ":" + Objects.requireNonNullElse(artifact.getClassifier(), "");
     }
 
-    protected static MavenSession getMavenSession(ReactorProject reactorProject) {
-        return Objects.requireNonNull((MavenSession) reactorProject.getContextValue(CTX_MAVEN_SESSION),
-                "Project not setup correctly");
+    protected MavenSession getMavenSession(ReactorProject reactorProject) {
+        MavenSession mavenSession = (MavenSession) reactorProject.getContextValue(CTX_MAVEN_SESSION);
+        if (mavenSession == null) {
+            return Objects.requireNonNull(legacySupport.getSession(),
+                    "Project not setup correctly, neither context nor adaption works here!");
+        }
+        return mavenSession;
     }
 
     protected static MavenProject getMavenProject(ReactorProject reactorProject) {
-        return Objects.requireNonNull((MavenProject) reactorProject.getContextValue(CTX_MAVEN_PROJECT),
-                "Project not setup correctly");
+        MavenProject contextValue = (MavenProject) reactorProject.getContextValue(CTX_MAVEN_PROJECT);
+        if (contextValue == null) {
+            MavenProject adapt = reactorProject.adapt(MavenProject.class);
+            return Objects.requireNonNull(adapt,
+                    "Project not setup correctly, neither context nor adaption works here!");
+        }
+        return contextValue;
     }
 
 }

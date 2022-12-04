@@ -172,20 +172,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
-        ArtifactKey key = (ArtifactKey) project.getContextValue(CTX_ARTIFACT_KEY);
-        if (key == null) {
-            throw new IllegalStateException("Project has not been setup yet " + project.toString());
-        }
-
-        return key;
-    }
-
-    @Override
-    public void setupProject(MavenSession session, MavenProject project) {
-        ArtifactKey key = readArtifactKey(project.getBasedir());
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        reactorProject.setContextValue(CTX_ARTIFACT_KEY, key);
-        super.setupProject(session, project);
+        return project.computeContextValue(CTX_ARTIFACT_KEY, () -> readArtifactKey(project.getBasedir()));
     }
 
     public ArtifactKey readArtifactKey(File location) {
@@ -355,8 +342,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         MavenSession mavenSession = getMavenSession(root);
         for (MavenProject p : mavenSession.getProjects()) {
             ReactorProject rp = DefaultReactorProject.adapt(p);
-            if (rp.getContextValue(CTX_ARTIFACT_KEY) == key) {
-                return rp;
+            try {
+                //TODO should we not use equals here??
+                if (getArtifactKey(rp) == key) {
+                    return rp;
+                }
+            } catch (RuntimeException e) {
+                //can't find the artifact key then!
             }
         }
         return null;
