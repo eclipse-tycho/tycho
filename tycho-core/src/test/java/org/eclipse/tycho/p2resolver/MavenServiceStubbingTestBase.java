@@ -14,11 +14,12 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collection;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.osgi.TychoServiceFactory;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.NoopFileLockService;
@@ -40,9 +41,16 @@ public class MavenServiceStubbingTestBase extends TychoPlexusTestCase {
     @Before
     public void initServiceInstances() throws Exception {
         //trigger loading of the embedded OSGi framework
-        EquinoxServiceFactory serviceFactory = lookup(EquinoxServiceFactory.class, TychoServiceFactory.HINT);
-        assertNotNull(serviceFactory);
+        Collection<EquinoxServiceFactory> serviceFactories = lookupList(EquinoxServiceFactory.class);
+        for (EquinoxServiceFactory factory : serviceFactories) {
+            try {
+                factory.getService(IProvisioningAgent.class);
+            } catch (Exception e) {
+
+            }
+        }
         provisioningAgent = lookup(IProvisioningAgent.class);
+        provisioningAgent.getService(Object.class);
         assertNotNull(provisioningAgent);
     }
 

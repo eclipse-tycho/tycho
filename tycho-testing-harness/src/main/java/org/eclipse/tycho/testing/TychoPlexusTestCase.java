@@ -14,6 +14,7 @@ package org.eclipse.tycho.testing;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -89,12 +90,13 @@ public class TychoPlexusTestCase {
         mavenSession.setProjects(Collections.emptyList());
         legacySupport.setSession(mavenSession);
         modifySession(mavenSession);
-        try {
-            //if possible, init the service factory and loading of services
-            EquinoxServiceFactory coreFactory = lookup(EquinoxServiceFactory.class, "tycho-core");
-            coreFactory.getService(Object.class);
-        } catch (Exception e) {
-            System.err.println(e);
+        //if possible, init the service factory and loading of services
+        Collection<EquinoxServiceFactory> coreFactory = lookupList(EquinoxServiceFactory.class);
+        for (EquinoxServiceFactory factory : coreFactory) {
+            try {
+                factory.getService(Object.class);
+            } catch (Exception e) {
+            }
         }
     }
 
@@ -108,6 +110,10 @@ public class TychoPlexusTestCase {
 
     public final <T> T lookup(final Class<T> role, String hint) throws ComponentLookupException {
         return ext.getContainer().lookup(role, hint);
+    }
+
+    public final <T> Collection<T> lookupList(final Class<T> role) throws ComponentLookupException {
+        return ext.getContainer().lookupList(role);
     }
 
     public static File resourceFile(String path) {
