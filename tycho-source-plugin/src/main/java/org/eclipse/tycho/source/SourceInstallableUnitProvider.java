@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -56,6 +57,9 @@ public class SourceInstallableUnitProvider implements InstallableUnitProvider {
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
+
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
             throws CoreException {
@@ -73,7 +77,7 @@ public class SourceInstallableUnitProvider implements InstallableUnitProvider {
                 throw new CoreException(Status.error("Creating preliminary source feature failed", e));
             }
         }
-        if (OsgiSourceMojo.isRelevant(project)) {
+        if (OsgiSourceMojo.isRelevant(project, buildPropertiesParser)) {
             TychoProject projectType = projectTypes.get(project.getPackaging());
             ArtifactKey artifactKey = projectType.getArtifactKey(DefaultReactorProject.adapt(project));
             String symbolicName = artifactKey.getId();

@@ -32,6 +32,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
@@ -51,12 +52,15 @@ public class AdditionalBundleRequirementsInstallableUnitProvider implements Inst
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
+
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
             throws CoreException {
         if (projectTypes.get(project.getPackaging()) instanceof BundleProject) {
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            BuildProperties buildProperties = reactorProject.getBuildProperties();
+            BuildProperties buildProperties = buildPropertiesParser.parse(reactorProject);
             List<IRequirement> additionalBundleRequirements = buildProperties.getAdditionalBundles().stream()
                     .map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
                             bundleName, VersionRange.emptyRange, null, true, true))

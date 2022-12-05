@@ -51,6 +51,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.IDependencyMetadata;
@@ -125,6 +126,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Requirement
     private LocalRepositoryP2Indices p2index;
+
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
 
     @Requirement
     private PomUnits pomUnits;
@@ -338,7 +342,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             }
         }
 
-        BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
+        BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
         Collection<String> additionalBundles = buildProperties.getAdditionalBundles();
         for (String additionalBundle : additionalBundles) {
             resolver.addAdditionalBundleDependency(additionalBundle);
@@ -422,6 +426,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             DependencyArtifacts dependencyArtifacts, DependencyArtifacts testDependencyArtifacts, Logger logger) {
         MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts,
                 bundleReader, resolverFactory::resolveDependencyDescriptor, logger, repositorySystem,
-                context.getSession().getSettings());
+                context.getSession().getSettings(), buildPropertiesParser);
     }
 }

@@ -29,6 +29,7 @@ import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -36,6 +37,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.surefire.api.util.ScanResult;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
@@ -103,6 +105,9 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
 
     @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
     private ArtifactRepository localRepository;
+
+    @Component
+    private BuildPropertiesParser buildPropertiesParser;
 
     @Override
     protected boolean shouldRun() {
@@ -200,11 +205,11 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     }
 
     /**
-     * This generates a bundle that is a fragment to the host that enhances the original bundle by the
-     * following items:
+     * This generates a bundle that is a fragment to the host that enhances the original bundle by
+     * the following items:
      * <ol>
-     * <li>any 'additional bundle', even though this is not really meant to be used that way, is added
-     * as an optional dependency</li>
+     * <li>any 'additional bundle', even though this is not really meant to be used that way, is
+     * added as an optional dependency</li>
      * <li>a <code>DynamicImport-Package: *</code> is added to allow dynamic classloading from the
      * bundle classpath</li>
      * <li>computes package imports based on the generated test classes and add them as optional
@@ -243,7 +248,7 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
             analyzer.setProperty(Constants.BUNDLE_NAME, bundleName);
             analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
 
-            final var additionalBundles = reactorProject.getBuildProperties().getAdditionalBundles();
+            final var additionalBundles = buildPropertiesParser.parse(reactorProject).getAdditionalBundles();
 
             if (!additionalBundles.isEmpty()) {
                 final var stringValue = additionalBundles.stream().map(b -> b + ";resolution:=optional")

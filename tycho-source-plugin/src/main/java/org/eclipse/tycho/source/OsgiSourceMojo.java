@@ -49,6 +49,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
@@ -165,10 +166,18 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     @Component
     private BundleReader bundleReader;
 
+    @Component
+    private BuildPropertiesParser buildPropertiesParser;
+
+    public void setBuildPropertiesParser(BuildPropertiesParser buildPropertiesParser) {
+        this.buildPropertiesParser = buildPropertiesParser;
+    }
+
     /** {@inheritDoc} */
     @Override
     protected List<Resource> getSources(MavenProject p) throws MojoExecutionException {
-        return getSources(project, requireSourceRoots, DefaultReactorProject.adapt(project).getBuildProperties());
+        return getSources(project, requireSourceRoots,
+                buildPropertiesParser.parse(DefaultReactorProject.adapt(project)));
     }
 
     protected List<Resource> getSources(MavenProject p, boolean requireSourceRoots, BuildProperties buildProperties)
@@ -200,7 +209,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         if (excludeResources) {
             return Collections.emptyList();
         }
-        BuildProperties buildProperties = DefaultReactorProject.adapt(p).getBuildProperties();
+        BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(p));
         List<String> srcIncludesList = buildProperties.getSourceIncludes();
         List<Resource> resources = new ArrayList<>();
         if (!srcIncludesList.isEmpty()) {
@@ -346,7 +355,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             mavenArchiveConfiguration.addManifestEntry(BUNDLE_VENDOR, I18N_KEY_PREFIX + I18N_KEY_BUNDLE_VENDOR);
             mavenArchiveConfiguration.addManifestEntry(BUNDLE_LOCALIZATION, MANIFEST_BUNDLE_LOCALIZATION_BASENAME);
         } else {
-            getLog().info("NOT adding source bundle MANIFEST.MF entries. Incomplete or no bundle information available.");
+            getLog().info(
+                    "NOT adding source bundle MANIFEST.MF entries. Incomplete or no bundle information available.");
         }
     }
 
@@ -355,8 +365,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             return ".";
         }
         StringJoiner result = new StringJoiner(",");
-        for (String jarName : DefaultReactorProject.adapt(project).getBuildProperties().getJarToSourceFolderMap()
-                .keySet()) {
+        for (String jarName : buildPropertiesParser.parse(DefaultReactorProject.adapt(project))
+                .getJarToSourceFolderMap().keySet()) {
             String sourceRoot;
             if (".".equals(jarName)) {
                 sourceRoot = ".";
@@ -387,10 +397,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     @Override
     protected boolean isRelevantProject(MavenProject project) {
-        return isRelevant(project);
+        return isRelevant(project, buildPropertiesParser);
     }
 
-    public static boolean isRelevant(MavenProject project) {
+    public static boolean isRelevant(MavenProject project, BuildPropertiesParser buildPropertiesParser) {
         String packaging = project.getPackaging();
         boolean relevant = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
                 || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
@@ -417,7 +427,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
                 if (hasAdditionalFilesets) {
                     return true;
                 }
-                BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
+                BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
                 if (buildProperties.getJarToSourceFolderMap().size() > 0
                         || buildProperties.getSourceIncludes().size() > 0) {
                     return true;

@@ -49,6 +49,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
@@ -198,6 +199,9 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
+    @Component
+    private BuildPropertiesParser buildPropertiesParser;
+
     /**
      * The filename to be used for the generated archive file. For the source-feature goal,
      * "-sources-feature" is appended to this filename.
@@ -244,7 +248,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                     archiver.getArchiver().addFileSet(templateFileSet);
                 }
 
-                BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
+                BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
                 archiver.getArchiver().addFileSet(getManuallyIncludedFiles(project.getBasedir(), buildProperties));
 
                 archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);

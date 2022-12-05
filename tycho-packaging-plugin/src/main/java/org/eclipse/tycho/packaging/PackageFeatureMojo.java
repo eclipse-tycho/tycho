@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import static org.eclipse.tycho.model.Feature.FEATURE_XML;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -39,13 +41,12 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
-
-import static org.eclipse.tycho.model.Feature.FEATURE_XML;
 
 @Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
@@ -120,6 +121,9 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 	@Component
 	private TargetPlatformService platformService;
 
+	@Component
+	private BuildPropertiesParser buildPropertiesParser;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
@@ -149,7 +153,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
                 throw new MojoExecutionException("Error updating feature.xml", e);
             }
 
-			BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
+			BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
             checkBinIncludesExist(buildProperties);
 
             File featureProperties = getFeatureProperties(licenseFeature, buildProperties);

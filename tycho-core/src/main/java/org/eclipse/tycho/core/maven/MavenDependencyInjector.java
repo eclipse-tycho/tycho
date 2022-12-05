@@ -49,6 +49,7 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.MavenDependencyDescriptor;
@@ -69,11 +70,12 @@ public final class MavenDependencyInjector {
      *            A project
      * @param dependencies
      *            The p2-resolved dependencies of the project.
+     * @param buildPropertiesParser
      */
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
             DependencyArtifacts testDependencies, BundleReader bundleReader,
             Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger,
-            RepositorySystem repositorySystem, Settings settings) {
+            RepositorySystem repositorySystem, Settings settings, BuildPropertiesParser buildPropertiesParser) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
@@ -85,7 +87,7 @@ public final class MavenDependencyInjector {
                     .forEach(descriptor -> generator.addDependency(descriptor, Artifact.SCOPE_TEST));
         }
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        BuildProperties buildProperties = reactorProject.getBuildProperties();
+        BuildProperties buildProperties = buildPropertiesParser.parse(reactorProject);
         List<Dependency> extraJars = buildProperties.getJarsExtraClasspath().stream().map(extra -> {
             if (TychoConstants.PLATFORM_URL_PATTERN.matcher(extra).matches()) {
                 //this should already be handled as an extra requirement!

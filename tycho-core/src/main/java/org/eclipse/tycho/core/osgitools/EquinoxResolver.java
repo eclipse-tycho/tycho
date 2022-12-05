@@ -57,6 +57,7 @@ import org.eclipse.osgi.report.resolution.ResolutionReport.Entry;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -91,6 +92,9 @@ public class EquinoxResolver {
 
     @Requirement
     private ToolchainManager toolchainManager;
+
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
@@ -352,7 +356,8 @@ public class EquinoxResolver {
             } else {
                 ReactorProject mavenProject = artifact.getMavenProject();
                 if (mavenProject != null) {
-                    Collection<String> additionalBundles = mavenProject.getBuildProperties().getAdditionalBundles();
+                    Collection<String> additionalBundles = buildPropertiesParser.parse(mavenProject)
+                            .getAdditionalBundles();
                     if (!additionalBundles.isEmpty()) {
                         List<String> reqb = new ArrayList<>();
                         String value = mf.getValue(Constants.REQUIRE_BUNDLE);

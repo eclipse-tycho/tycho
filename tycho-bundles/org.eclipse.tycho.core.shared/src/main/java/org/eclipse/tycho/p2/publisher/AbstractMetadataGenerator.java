@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.publisher;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -39,7 +38,6 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
-import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
@@ -65,9 +63,8 @@ public abstract class AbstractMetadataGenerator {
 
     protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options);
 
-    protected ICapabilityAdvice getExtraEntriesAdvice(IArtifactFacade artifact, Interpolator interpolator) {
-        final IRequirement[] extraRequirements = extractExtraEntriesAsIURequirement(artifact.getLocation(),
-                interpolator);
+    protected ICapabilityAdvice getExtraEntriesAdvice(IArtifactFacade artifact, BuildProperties buildProps) {
+        final IRequirement[] extraRequirements = extractExtraEntriesAsIURequirement(buildProps);
         return new ICapabilityAdvice() {
             @Override
             public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
@@ -91,8 +88,8 @@ public abstract class AbstractMetadataGenerator {
         };
     }
 
-    private IRequirement[] extractExtraEntriesAsIURequirement(File location, Interpolator interpolator) {
-        BuildProperties buildProps = getBuildPropertiesParser().parse(location, interpolator);
+    private IRequirement[] extractExtraEntriesAsIURequirement(BuildProperties buildProps) {
+
         ArrayList<IRequirement> result = new ArrayList<>();
         for (Entry<String, List<String>> entry : buildProps.getJarToExtraClasspathMap().entrySet()) {
             createRequirementFromExtraClasspathProperty(result, entry.getValue());

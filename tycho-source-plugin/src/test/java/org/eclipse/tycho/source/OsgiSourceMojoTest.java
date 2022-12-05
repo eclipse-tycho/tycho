@@ -36,9 +36,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildPropertiesParser;
-import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
@@ -52,6 +50,7 @@ public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         mojo = new OsgiSourceMojo();
+        mojo.setBuildPropertiesParser(lookup(BuildPropertiesParser.class));
     }
 
     public void testIsRelevantProjectPackagingType() throws Exception {
@@ -172,15 +171,6 @@ public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
             tychoSourcePlugin.setExecutions(asList(execution));
             build.setPlugins(asList(tychoSourcePlugin));
         }
-        ReactorProject project = DefaultReactorProject.adapt(stubProject);
-        project.setContextValue(ReactorProject.CTX_BUILDPROPERTIESPARSER, lookup(BuildPropertiesParser.class));
-        project.setContextValue(ReactorProject.CTX_INTERPOLATOR, new Interpolator() {
-
-            @Override
-            public String interpolate(String input) {
-                return input;
-            }
-        });
         stubProject.setFile(new File("src/test/resources/sourceMojo/" + testResourceFolder + "/pom.xml"));
         return stubProject;
     }
