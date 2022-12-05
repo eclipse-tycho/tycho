@@ -43,7 +43,7 @@ class PlexusConnectContent implements ConnectContent, ConnectModule {
 
 	@Override
 	public Optional<ClassLoader> getClassLoader() {
-		return Optional.of(classLoader);
+		return Optional.ofNullable(classLoader);
 	}
 
 	@Override
