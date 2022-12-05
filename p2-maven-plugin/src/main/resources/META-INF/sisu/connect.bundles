@@ -4,7 +4,7 @@
 # and if these should be started                #
 #################################################
 
-org.apache.felix.scr,true
+## These are the parts we actually want to share...
 org.eclipse.equinox.common,true
 org.eclipse.equinox.p2.core,true
 org.eclipse.equinox.p2.artifact.repository,true
@@ -20,8 +20,10 @@ org.eclipse.equinox.p2.updatesite,true
 org.eclipse.equinox.p2.touchpoint.natives,true
 org.eclipse.equinox.p2.touchpoint.eclipse,true
 org.eclipse.equinox.p2.garbagecollector,true
-org.eclipse.equinox.p2.director.app
-org.eclipse.equinox.p2.repository.tools
+org.eclipse.equinox.p2.director.app,true
+org.eclipse.equinox.p2.repository.tools,true
+
+# Things we currently must share because of interdependencies
 org.eclipse.osgi.compatibility.state
 org.eclipse.core.jobs
 org.eclipse.equinox.app
@@ -33,6 +35,13 @@ org.eclipse.equinox.registry,true
 org.eclipse.equinox.security
 org.eclipse.equinox.simpleconfigurator
 org.eclipse.equinox.simpleconfigurator.manipulator
+
+
+# System services and dependencies we actually should not share these
+>org.apache.felix.scr,true
+
+
+## API bundles and generic libs should be safe to share
 org.osgi.namespace.extender
 org.osgi.service.component
 org.osgi.service.prefs
