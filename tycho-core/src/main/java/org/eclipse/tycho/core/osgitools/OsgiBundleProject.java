@@ -52,6 +52,7 @@ import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.DependencyResolutionException;
@@ -131,6 +132,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private DeclarativeServiceConfigurationReader dsConfigReader;
+
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {
@@ -431,7 +435,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
             try {
-                pdeProject = new EclipsePluginProjectImpl(otherProject, otherProject.getBuildProperties(),
+                pdeProject = new EclipsePluginProjectImpl(otherProject, buildPropertiesParser.parse(otherProject),
                         classpathParser.parse(otherProject.getBasedir()));
                 if (otherProject instanceof DefaultReactorProject defaultReactorProject) {
                     populateProperties(defaultReactorProject.project.getProperties(), pdeProject);

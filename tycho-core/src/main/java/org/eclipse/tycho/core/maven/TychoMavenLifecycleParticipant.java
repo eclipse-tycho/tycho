@@ -60,7 +60,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildFailureException;
-import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
@@ -98,9 +97,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private Logger log;
 
     @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
-
-    @Requirement
     MavenProjectDependencyProcessor dependencyProcessor;
 
     @Requirement
@@ -135,9 +131,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
             for (MavenProject project : projects) {
                 ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-                reactorProject.setContextValue(ReactorProject.CTX_INTERPOLATOR,
-                        new TychoInterpolator(session, project));
-                reactorProject.setContextValue(ReactorProject.CTX_BUILDPROPERTIESPARSER, buildPropertiesParser);
                 resolver.setupProject(session, project, reactorProject);
             }
             if (TychoConstants.USE_OLD_RESOLVER) {

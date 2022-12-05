@@ -22,6 +22,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -37,10 +38,13 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
     @Requirement(hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
     private DependencyMetadataGenerator sourcesGenerator;
 
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
+
     @Override
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
-        if (OsgiSourceMojo.isRelevant(project)) {
+        if (OsgiSourceMojo.isRelevant(project, buildPropertiesParser)) {
             IArtifactFacade sourcesArtifact = new AttachedArtifact(project, project.getBasedir(), "sources");
             return Collections.singletonMap(sourcesArtifact.getClassifier(), sourcesGenerator
                     .generateMetadata(sourcesArtifact, null, OptionalResolutionAction.REQUIRE, new PublisherOptions()));

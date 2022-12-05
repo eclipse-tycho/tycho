@@ -19,9 +19,7 @@ public interface BuildPropertiesParser {
 
     public static final String BUILD_PROPERTIES = "build.properties";
 
-    default BuildProperties parse(ReactorProject project) {
-        return parse(project.getBasedir(), project.getInterpolator());
-    }
+    BuildProperties parse(ReactorProject project);
 
     /**
      * Parse the file "build.properties" in baseDir. If the file does not exist or cannot be read,

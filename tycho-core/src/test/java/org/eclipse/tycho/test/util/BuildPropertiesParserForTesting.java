@@ -22,6 +22,7 @@ import java.util.Properties;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.Interpolator;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 
 public class BuildPropertiesParserForTesting implements BuildPropertiesParser {
@@ -40,6 +41,11 @@ public class BuildPropertiesParserForTesting implements BuildPropertiesParser {
         } catch (IOException e) {
             // ignore
         }
+    }
+
+    @Override
+    public BuildProperties parse(ReactorProject project) {
+        return parse(project.getBasedir(), null);
     }
 
 }

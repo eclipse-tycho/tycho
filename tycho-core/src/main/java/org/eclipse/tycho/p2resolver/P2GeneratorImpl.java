@@ -42,9 +42,9 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
-import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
@@ -312,12 +312,15 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     @Override
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options) {
-        Interpolator interpolator = artifact instanceof ReactorProjectFacade reactorFacade
-                ? reactorFacade.getReactorProject().getInterpolator()
-                : null;
+        BuildProperties buildProperties;
+        if (artifact instanceof ReactorProjectFacade reactorFacade) {
+            buildProperties = buildPropertiesParser.parse(reactorFacade.getReactorProject());
+        } else {
+            buildProperties = buildPropertiesParser.parse(artifact.getLocation(), null);
+        }
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
         advice.add(new TychoMavenPropertiesAdvice(artifact, mavenContext));
-        advice.add(getExtraEntriesAdvice(artifact, interpolator));
+        advice.add(getExtraEntriesAdvice(artifact, buildProperties));
 
         if (options.generateDownloadStatsProperty) {
             advice.add(new DownloadStatsAdvice());

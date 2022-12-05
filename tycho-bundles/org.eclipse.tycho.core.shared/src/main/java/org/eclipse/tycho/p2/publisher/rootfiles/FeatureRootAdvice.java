@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
-import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 
@@ -56,14 +55,17 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
      */
     public static IFeatureRootAdvice createRootFileAdvice(IArtifactFacade featureArtifact,
             BuildPropertiesParser buildPropertiesParser) {
-        Interpolator interpolator = featureArtifact instanceof ReactorProjectFacade reactorFacade
-                ? reactorFacade.getReactorProject().getInterpolator()
-                : null;
         File projectDir = getProjectBaseDir(featureArtifact);
-
         if (projectDir != null) {
-            FeatureRootAdvice result = new FeatureRootAdvice(buildPropertiesParser.parse(projectDir, interpolator),
-                    projectDir, featureArtifact.getArtifactId());
+
+            BuildProperties buildProperties;
+            if (featureArtifact instanceof ReactorProjectFacade reactorFacade) {
+                buildProperties = buildPropertiesParser.parse(reactorFacade.getReactorProject());
+            } else {
+                buildProperties = buildPropertiesParser.parse(projectDir, null);
+            }
+            FeatureRootAdvice result = new FeatureRootAdvice(buildProperties, projectDir,
+                    featureArtifact.getArtifactId());
             if (result.hasRootFiles()) {
                 return result;
             }
