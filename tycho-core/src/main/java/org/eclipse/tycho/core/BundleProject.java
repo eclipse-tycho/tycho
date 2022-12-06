@@ -19,6 +19,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
+import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 
 public interface BundleProject extends TychoProject {
     public List<ClasspathEntry> getClasspath(ReactorProject project);
@@ -42,5 +43,7 @@ public interface BundleProject extends TychoProject {
     public List<ClasspathEntry> getTestClasspath(ReactorProject project);
 
     public List<ClasspathEntry> getTestClasspath(ReactorProject project, boolean complete);
+
+    public EclipsePluginProject getEclipsePluginProject(ReactorProject otherProject);
 
 }
