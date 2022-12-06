@@ -158,7 +158,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
-			<version>1.4.100</version>
+			<version>1.4.200</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
