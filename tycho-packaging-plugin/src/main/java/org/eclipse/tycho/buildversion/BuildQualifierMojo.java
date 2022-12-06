@@ -129,14 +129,11 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            TychoProjectVersion projectVersion = calculateQualifiedVersion();
-            project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
-            project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
-            project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
-
-            getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
-        }
+		TychoProjectVersion projectVersion = calculateQualifiedVersion();
+		project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
+		project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
+		project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
+		getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
     }
 
     private TychoProjectVersion calculateQualifiedVersion() throws MojoFailureException, MojoExecutionException {

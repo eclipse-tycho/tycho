@@ -77,6 +77,11 @@
 			<artifactId>unirest-java</artifactId>
 			<version>3.14.1</version>
 		</dependency>
+		<!-- Plexus Build API for IDE integration-->
+		<dependency>
+			<groupId>org.sonatype.plexus</groupId>
+			<artifactId>plexus-build-api</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
