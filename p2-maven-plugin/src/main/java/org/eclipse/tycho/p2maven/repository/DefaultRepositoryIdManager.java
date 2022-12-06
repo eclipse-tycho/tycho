@@ -25,7 +25,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
-import org.eclipse.tycho.p2maven.helper.P2PasswordUtil;
 
 /**
  * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the
@@ -87,7 +86,6 @@ public class DefaultRepositoryIdManager implements IRepositoryIdManager {
         }
 
         MavenRepositoryLocation effectiveLocation = effectiveLocationFor(location, true);
-        setPasswordForLoading(effectiveLocation);
         return effectiveLocation.getURL();
     }
 
@@ -110,27 +108,6 @@ public class DefaultRepositoryIdManager implements IRepositoryIdManager {
             return mirror;
         } else {
             return locationWithID;
-        }
-    }
-
-    /**
-     * Sets passwords configured in the Maven settings in p2.
-     * 
-     * <p>
-     * Warning: This method heavily relies on side-effects. Instead of remembering the credentials
-     * just for the given location, p2 associates the password with the host. This allows to load
-     * children of a composite repository with the same credentials as the parent, without having to
-     * specify all children in the Maven settings. This feature can easily break if repositories are
-     * loaded in parallel. If this shall be supported, a lock is needed here (TODO).
-     */
-    private void setPasswordForLoading(MavenRepositoryLocation location) {
-        MavenRepositorySettings.Credentials credentials = settings.getCredentials(location);
-        if (credentials != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Setting credentials for p2 repository '" + location.getId() + "'");
-            }
-            P2PasswordUtil.setCredentials(location.getURL(), credentials.getUserName(), credentials.getPassword(),
-                    logger);
         }
     }
 
