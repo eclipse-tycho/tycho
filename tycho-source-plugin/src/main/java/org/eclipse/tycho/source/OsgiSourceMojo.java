@@ -32,8 +32,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.StringJoiner;
+import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.model.Plugin;
@@ -305,14 +306,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         return l10nProps;
     }
 
-    private String getL10nResolvedValue(OsgiManifest manifest, String manifestHeaderKey, Properties l10nProps)
-            throws MojoExecutionException {
+    private String getL10nResolvedValue(OsgiManifest manifest, String manifestHeaderKey, Properties l10nProps) {
         String value = manifest.getValue(manifestHeaderKey);
-        if (value == null || !value.startsWith("%")) {
+        if (value == null || !value.startsWith("%") || l10nProps == null) {
             return value;
-        }
-        if (l10nProps == null) {
-            return null;
         }
         String key = value.substring(1).trim();
         return l10nProps.getProperty(key);
@@ -364,18 +361,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         if (!distinctSourceRoots) {
             return ".";
         }
-        StringJoiner result = new StringJoiner(",");
-        for (String jarName : buildPropertiesParser.parse(DefaultReactorProject.adapt(project))
-                .getJarToSourceFolderMap().keySet()) {
-            String sourceRoot;
-            if (".".equals(jarName)) {
-                sourceRoot = ".";
-            } else {
-                sourceRoot = getSourceRootTargetPath(jarName);
-            }
-            result.add(sourceRoot);
-        }
-        return result.toString();
+        BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
+        return buildProperties.getJarToSourceFolderMap().keySet().stream()
+                .map(jarName -> ".".equals(jarName) ? "." : getSourceRootTargetPath(jarName))
+                .collect(Collectors.joining(","));
     }
 
     private static String getSourceRootTargetPath(String jarName) {
@@ -400,11 +389,11 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         return isRelevant(project, buildPropertiesParser);
     }
 
+    private static final Set<String> RELEVANT_PACKAING_TYPES = Set.of(PackagingType.TYPE_ECLIPSE_PLUGIN,
+            PackagingType.TYPE_ECLIPSE_TEST_PLUGIN);
+
     public static boolean isRelevant(MavenProject project, BuildPropertiesParser buildPropertiesParser) {
-        String packaging = project.getPackaging();
-        boolean relevant = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
-                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
-        if (!relevant) {
+        if (!RELEVANT_PACKAING_TYPES.contains(project.getPackaging())) {
             return false;
         }
 
@@ -417,19 +406,16 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
         for (PluginExecution execution : plugin.getExecutions()) {
             if (execution.getGoals().contains(GOAL)) {
-                boolean requireSourceRoots = Boolean
-                        .parseBoolean(getParameterValue(execution, "requireSourceRoots", "false"));
-                if (requireSourceRoots) {
+                String requireSourceRoots = getParameterValue(execution, "requireSourceRoots", "false");
+                if (Boolean.parseBoolean(requireSourceRoots)) {
                     return true;
                 }
-                boolean hasAdditionalFilesets = getConfigurationElement((Xpp3Dom) execution.getConfiguration(),
-                        "additionalFileSets") != null;
-                if (hasAdditionalFilesets) {
+                Xpp3Dom configuration = (Xpp3Dom) execution.getConfiguration();
+                if (getConfigurationElement(configuration, "additionalFileSets") != null) {
                     return true;
                 }
-                BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
-                if (buildProperties.getJarToSourceFolderMap().size() > 0
-                        || buildProperties.getSourceIncludes().size() > 0) {
+                BuildProperties buildProps = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
+                if (!buildProps.getJarToSourceFolderMap().isEmpty() || !buildProps.getSourceIncludes().isEmpty()) {
                     return true;
                 }
             }
@@ -445,18 +431,11 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     private static String getElementValue(Xpp3Dom config, String name) {
         Xpp3Dom child = getConfigurationElement(config, name);
-        if (child == null) {
-            return null;
-        }
-        return child.getValue();
+        return child == null ? null : child.getValue();
     }
 
     private static Xpp3Dom getConfigurationElement(Xpp3Dom config, String name) {
-        if (config == null) {
-            return null;
-        }
-        Xpp3Dom child = config.getChild(name);
-        return child;
+        return config == null ? null : config.getChild(name);
     }
 
 }
