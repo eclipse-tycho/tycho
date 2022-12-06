@@ -13,12 +13,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import java.io.File;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.core.ManifestHelper;
+import org.sonatype.plexus.build.incremental.BuildContext;
+
+import aQute.bnd.osgi.Constants;
 
 /**
  * Validates that project Maven and OSGi ids match.
@@ -31,21 +38,38 @@ public class ValidateIdMojo extends AbstractVersionMojo {
     @Parameter(defaultValue = "false")
     private boolean skip;
 
+	@Component
+	ManifestHelper manifestHelper;
+
+	@Component
+	BuildContext buildContext;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+		File file = getOSGiMetadataFile();
+		buildContext.removeMessages(file);
         if (!skip && !project.getArtifactId().equals(getOSGiId())) {
-            failBuildDueToIdMismatch();
+			String message;
+			int lineNumber;
+			int column;
+			if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
+				message = mismatchMessageFor("feature ID");
+				// TODO maybe have an XML helper to get the line/col of an XMLElement +
+				// attribute?
+				lineNumber = 0;
+				column = 0;
+			} else if (PackagingType.TYPE_P2_IU.equals(project.getPackaging())) {
+				message = mismatchMessageFor("iu ID");
+				lineNumber = 0;
+				column = 0;
+			} else {
+				message = mismatchMessageFor("bundle symbolic name");
+				lineNumber = manifestHelper.getLineNumber(file, Constants.BUNDLE_SYMBOLICNAME);
+				column = 0;
+			}
+			buildContext.addMessage(file, lineNumber, column, message, BuildContext.SEVERITY_ERROR, null);
+			throw new MojoExecutionException(message);
         }
-    }
-
-    private void failBuildDueToIdMismatch() throws MojoExecutionException {
-        if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
-            throw new MojoExecutionException(mismatchMessageFor("feature ID"));
-        }
-        if (PackagingType.TYPE_P2_IU.equals(project.getPackaging())) {
-            throw new MojoExecutionException(mismatchMessageFor("iu ID"));
-        }
-        throw new MojoExecutionException(mismatchMessageFor("bundle symbolic name"));
     }
 
     private String mismatchMessageFor(String eclipseIdKey) {
