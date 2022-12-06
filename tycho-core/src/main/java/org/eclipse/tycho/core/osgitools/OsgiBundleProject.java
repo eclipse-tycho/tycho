@@ -108,6 +108,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/osgiBundle";
     private static final String CTX_ARTIFACT_KEY = CTX_OSGI_BUNDLE_BASENAME + "/artifactKey";
     private static final String CTX_CLASSPATH = CTX_OSGI_BUNDLE_BASENAME + "/classPath";
+    static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/eclipsePluginProject";
 
     @Requirement
     private BundleReader bundleReader;
@@ -395,7 +396,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private void addPDESourceRoots(MavenProject project) {
-        EclipsePluginProjectImpl eclipsePluginProject = getEclipsePluginProject(DefaultReactorProject.adapt(project));
+        EclipsePluginProject eclipsePluginProject = getEclipsePluginProject(DefaultReactorProject.adapt(project));
         for (BuildOutputJar outputJar : eclipsePluginProject.getOutputJars()) {
             for (File sourceFolder : outputJar.getSourceFolders()) {
                 removeDuplicateTestCompileRoot(sourceFolder, project.getTestCompileSourceRoots());
@@ -430,9 +431,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
     }
 
-    public EclipsePluginProjectImpl getEclipsePluginProject(ReactorProject otherProject) {
+    public EclipsePluginProject getEclipsePluginProject(ReactorProject otherProject) {
         EclipsePluginProjectImpl pdeProject = (EclipsePluginProjectImpl) otherProject
-                .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
+                .getContextValue(CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
             try {
                 pdeProject = new EclipsePluginProjectImpl(otherProject, buildPropertiesParser.parse(otherProject),
@@ -440,7 +441,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 if (otherProject instanceof DefaultReactorProject defaultReactorProject) {
                     populateProperties(defaultReactorProject.project.getProperties(), pdeProject);
                 }
-                otherProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT, pdeProject);
+                otherProject.setContextValue(CTX_ECLIPSE_PLUGIN_PROJECT, pdeProject);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

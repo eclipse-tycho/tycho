@@ -5,7 +5,6 @@
 			<pluginExecutionFilter>
 				<goals>
 					<goal>build-qualifier-aggregator</goal>
-					<goal>package-plugin</goal>
 					<goal>package-feature</goal>
 					<goal>package-iu</goal>
 					<goal>update-consumer-pom</goal>
@@ -22,6 +21,7 @@
 					<goal>build-qualifier</goal>
 					<goal>validate-id</goal>
 					<goal>validate-version</goal>
+					<goal>package-plugin</goal>
 				</goals>
 			</pluginExecutionFilter>
 			<action>
