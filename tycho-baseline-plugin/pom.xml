@@ -41,6 +41,10 @@
 			<artifactId>asciitable</artifactId>
 			<version>0.3.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.sonatype.plexus</groupId>
+			<artifactId>plexus-build-api</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

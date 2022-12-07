@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>com.konghq</groupId>
 			<artifactId>unirest-java</artifactId>
-			<version>3.14.1</version>
+			<version>4.0.0-RC2</version>
 		</dependency>
 		<!-- Plexus Build API for IDE integration-->
 		<dependency>
