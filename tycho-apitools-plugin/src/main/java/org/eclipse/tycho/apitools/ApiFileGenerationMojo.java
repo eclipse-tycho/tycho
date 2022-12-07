@@ -13,7 +13,9 @@
 package org.eclipse.tycho.apitools;
 
 import java.io.File;
+import java.util.List;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -67,20 +69,21 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 	 * @Since 3.0.3
 	 */
 	@Parameter
-	protected String extraManifests;
+	protected List<File> extraManifests = List.of();
 
 	/**
 	 * @Since 3.0.3
 	 */
 	@Parameter
-	protected String extraSourceLocations;
+	protected List<File> extraSourceLocations = List.of();
 
 	@Parameter(defaultValue = "false", property = "tycho.apitools.generate.skip")
 	private boolean skip;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		if (new File(project.getBasedir(), JarFile.MANIFEST_NAME).isFile()) {
+		if (new File(project.getBasedir(), JarFile.MANIFEST_NAME).isFile()
+				|| extraManifests.stream().anyMatch(File::isFile)) {
 			synchronized (ApiFileGenerationMojo.class) {
 				// TODO check if the generator is thread safe, then we can remove this!
 				if (!binaryLocations.exists()) {
@@ -94,11 +97,16 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 				generator.allowNonApiProject = allowNonApiProject;
 				generator.encoding = encoding;
 				generator.debug = debug;
-				generator.manifests = extraManifests;
-				generator.sourceLocations = extraSourceLocations;
+				generator.manifests = join(extraManifests);
+				generator.sourceLocations = join(extraSourceLocations);
 				generator.generateAPIFile();
 			}
 		}
+	}
+
+	private String join(List<File> list) {
+		return list.isEmpty() ? null // join the elements so that the APIFileGenerator splits it correspondingly
+				: list.stream().map(File::toString).collect(Collectors.joining(File.pathSeparator));
 	}
 
 }
