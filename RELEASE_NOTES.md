@@ -38,6 +38,11 @@ Any baseline problems will then be reported to the build:
 
 ![grafik](https://user-images.githubusercontent.com/1331477/205283998-484c6a13-0a66-4b34-9386-599a27bff53e.png)
 
+### Parameter enhancements for tycho-apitools-plugin:generate goal
+
+The parameters of the `tycho-apitools-plugin:generate` goal have been completed and improved.
+
+
 ### Migration guide 3.x > 4.x
 
 #### Choosable HTTP transports
