@@ -265,6 +265,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.platform</groupId>
+				<artifactId>org.eclipse.core.runtime</artifactId>
+				<version>3.26.100</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.ui.workbench</artifactId>
 				<version>3.126.0</version>
 				<exclusions>
