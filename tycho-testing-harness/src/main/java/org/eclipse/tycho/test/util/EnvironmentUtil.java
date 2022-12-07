@@ -27,7 +27,7 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
  */
 public class EnvironmentUtil {
 
-    public static final String ECLIPSE_LATEST = "https:////download.eclipse.org/releases/2022-09/";
+    public static final String ECLIPSE_LATEST = "https:////download.eclipse.org/releases/2022-12/";
 
     private static final Properties props;
 
