@@ -2,6 +2,10 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 3.0.1
+
+- Upgrade to 2022-03 release
+
 ## 3.0.0
 
 ### Tycho now support forking of the Eclipse Java Compiler
