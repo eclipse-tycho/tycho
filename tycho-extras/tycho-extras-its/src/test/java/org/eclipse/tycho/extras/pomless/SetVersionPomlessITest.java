@@ -14,7 +14,7 @@ package org.eclipse.tycho.extras.pomless;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.extras.its.AbstractTychoExtrasIntegrationTest;
@@ -29,7 +29,7 @@ public class SetVersionPomlessITest extends AbstractTychoExtrasIntegrationTest {
     public void testPomlessBuildExtension() throws Exception {
         Verifier verifier = getVerifier("testsetversionpomless", false);
         String newVersion = "2.0.0";
-        verifier.addCliOption("-DnewVersion=" + newVersion);
+        verifier.addCliArgument("-DnewVersion=" + newVersion);
         verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + getTychoVersion() + ":set-version");
         verifier.verifyErrorFreeLog();
         File baseDir = new File(verifier.getBasedir());

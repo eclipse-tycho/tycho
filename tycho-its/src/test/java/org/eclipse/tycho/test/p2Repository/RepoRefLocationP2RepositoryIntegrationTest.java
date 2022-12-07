@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.BeforeClass;
@@ -69,7 +69,7 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 	public static void executeBuild() throws Exception {
 		verifier = new RepoRefLocationP2RepositoryIntegrationTest().getVerifier("/p2Repository.repositoryRef.location",
 				false);
-		verifier.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}

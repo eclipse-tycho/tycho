@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.target;
 import java.io.File;
 import java.util.Properties;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
@@ -43,7 +43,7 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
 	@Test
 	public void testRepository() throws Exception {
 		Verifier verifier = createVerifier("settings.xml");
-		verifier.addCliOption("-P=repository");
+		verifier.addCliArgument("-P=repository");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
@@ -51,7 +51,7 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
 	@Test
 	public void testRepositoryEncrypted() throws Exception {
 		Verifier verifier = createVerifier("settings-encrypted.xml", "settings-security.xml");
-		verifier.addCliOption("-P=repository");
+		verifier.addCliArgument("-P=repository");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
@@ -61,7 +61,7 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
 		Verifier verifier = createVerifier("settings.xml");
 		File platformFile = new File(verifier.getBasedir(), "platform.target");
 		TargetDefinitionUtil.setRepositoryURLs(platformFile, p2RepoUrl);
-		verifier.addCliOption("-P=target-definition");
+		verifier.addCliArgument("-P=target-definition");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
@@ -71,7 +71,7 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
 		Verifier verifier = createVerifier("settings-encrypted.xml", "settings-security.xml");
 		File platformFile = new File(verifier.getBasedir(), "platform.target");
 		TargetDefinitionUtil.setRepositoryURLs(platformFile, p2RepoUrl);
-		verifier.addCliOption("-P=target-definition");
+		verifier.addCliArgument("-P=target-definition");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}

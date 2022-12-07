@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.DefaultModelReader;

@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.surefire;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
@@ -22,9 +22,9 @@ public class CategoriesTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testIncludeExcludeCategories() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit47/categories", false);
-		verifier.addCliOption("-Dkepler-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
-		verifier.addCliOption("-Dgroups=tycho.demo.itp01.tests.FastTests");
-		verifier.addCliOption("-DexcludedGroups=tycho.demo.itp01.tests.SlowTests");
+		verifier.addCliArgument("-Dkepler-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Dgroups=tycho.demo.itp01.tests.FastTests");
+		verifier.addCliArgument("-DexcludedGroups=tycho.demo.itp01.tests.SlowTests");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 	}

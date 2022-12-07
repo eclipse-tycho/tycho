@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
@@ -27,7 +27,7 @@ public class ProductWithIUTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testRootFilesFromIUPackagingInstalledAndInRepo() throws Exception {
 		Verifier verifier = getVerifier("iu.product", false);
-		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Dtest-data-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 

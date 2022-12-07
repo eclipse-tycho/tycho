@@ -30,7 +30,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 import org.w3c.dom.Element;
@@ -42,7 +42,7 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testParallelExecution() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit47/parallel");
-		verifier.addCliOption("-Dparallel=classes");
+		verifier.addCliArgument("-Dparallel=classes");
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 		File surefireReportsDir = new File(verifier.getBasedir(), "target/surefire-reports");

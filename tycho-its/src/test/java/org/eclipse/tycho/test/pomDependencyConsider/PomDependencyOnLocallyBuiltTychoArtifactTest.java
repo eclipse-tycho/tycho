@@ -14,7 +14,7 @@ package org.eclipse.tycho.test.pomDependencyConsider;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;

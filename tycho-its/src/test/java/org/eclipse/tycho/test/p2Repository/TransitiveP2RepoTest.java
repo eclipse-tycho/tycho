@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
 	@BeforeClass
 	public static void buildFeatureAndBundlesAndRepos() throws Exception {
 		verifier = new TransitiveP2RepoTest().getVerifier("p2Repository.transitive", false);
-		verifier.addCliOption("-Dp2.repo=" + ECLIPSE_352.toString());
+		verifier.addCliArgument("-Dp2.repo=" + ECLIPSE_352.toString());
 		/*
 		 * Do not execute "install" to ensure that features and bundles can be included
 		 * directly from the build results of the local reactor.

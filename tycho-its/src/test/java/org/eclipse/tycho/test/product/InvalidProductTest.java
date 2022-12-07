@@ -11,8 +11,8 @@ package org.eclipse.tycho.test.product;
 
 import static org.junit.Assert.fail;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class InvalidProductTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testInvalidProductFile() throws Exception {
 		Verifier verifier = getVerifier("product.invalid", false);
-		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliArgument("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
 
 		// run build and verify we get a proper error message instead of an NPE
 		try {

@@ -7,8 +7,8 @@ import java.io.File;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 	private Verifier buildBaselineProject(String project, boolean compareShouldFail) throws Exception {
 		File baseRepo = buildBaseRepo();
 		Verifier verifier = getBaselineProject(project);
-		verifier.addCliOption("-Dbaseline-url=" + baseRepo.toURI());
+		verifier.addCliArgument("-Dbaseline-url=" + baseRepo.toURI());
 		try {
 			verifier.executeGoals(List.of("clean", "verify"));
 			if (compareShouldFail) {
@@ -66,7 +66,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 
 	private File buildBaseRepo() throws Exception, VerificationException {
 		Verifier verifier = getBaselineProject("base-repo");
-		verifier.addCliOption("-Dtycho.baseline.skip=true");
+		verifier.addCliArgument("-Dtycho.baseline.skip=true");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File repoBase = new File(verifier.getBasedir(), "base-repo/site/target/repository");
@@ -80,8 +80,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 
 	private Verifier getBaselineProject(String project) throws Exception {
 		Verifier verifier = getVerifier("baseline", false, true);
-		verifier.addCliOption("-f");
-		verifier.addCliOption(project + "/pom.xml");
+		verifier.addCliArguments("-f", project + "/pom.xml");
 		return verifier;
 	}
 }

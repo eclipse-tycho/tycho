@@ -14,8 +14,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.nio.file.Files;
 
-import org.apache.maven.it.Verifier;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class P2ArtifactMappingToMavenRepoTest extends AbstractTychoIntegrationTe
 	@Test
 	public void testMapperReferenceMavenCentral() throws Exception {
 		Verifier verifier = getVerifier("p2Repository.mavenRepo");
-		verifier.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_352.toString());
+		verifier.addCliArgument("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_352.toString());
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		File repository = new File(verifier.getBasedir(), "target/repository");
