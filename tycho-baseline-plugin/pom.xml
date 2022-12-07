@@ -35,11 +35,21 @@
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bndlib</artifactId>
 		</dependency>
+		<dependency>
+				<groupId>org.sonatype.plexus</groupId>
+				<artifactId>plexus-build-api</artifactId>
+			</dependency>
 		<!-- https://github.com/vdmeer/asciitable -->
 		<dependency>
 			<groupId>de.vandermeer</groupId>
 			<artifactId>asciitable</artifactId>
 			<version>0.3.2</version>
+		</dependency>
+		<!-- https://github.com/java-diff-utils/java-diff-utils -->
+		<dependency>
+		    <groupId>io.github.java-diff-utils</groupId>
+		    <artifactId>java-diff-utils</artifactId>
+		    <version>4.12</version>
 		</dependency>
 	</dependencies>
 	<build>
