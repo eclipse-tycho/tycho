@@ -2,6 +2,12 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 3.0.3
+
+### Parameter enhancements for tycho-apitools-plugin:generate goal
+
+The parameters of the `tycho-apitools-plugin:generate` goal have been completed and improved.
+
 ## 3.0.2
 
 ### Fixed support for the generation of a source feature from a maven target-location template
