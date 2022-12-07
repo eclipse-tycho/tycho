@@ -30,7 +30,7 @@ public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testReplaceP2() throws Exception {
-		Verifier verifier = getVerifier("packaging.consumer.pom", false);
+		Verifier verifier = getVerifier("packaging.consumer.pom", true);
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		DefaultModelReader reader = new DefaultModelReader();

@@ -6,7 +6,7 @@
 	<packaging>eclipse-plugin</packaging>
 	<version>1.0.0</version>
 	<properties>
-		<target-platform>https:////download.eclipse.org/releases/2022-09/</target-platform>
+		<target-platform>https:////download.eclipse.org/releases/2022-12/</target-platform>
 		<tycho-version>3.1.0-SNAPSHOT</tycho-version>
 	</properties>
 	<repositories>
