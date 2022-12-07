@@ -8,7 +8,6 @@
 	<properties>
 		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
 	</properties>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -37,6 +36,14 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<skipPomGeneration>true</skipPomGeneration>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

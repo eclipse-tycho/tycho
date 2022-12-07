@@ -127,6 +127,9 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 			return;
 		}
 		for (Repository repository : baselines) {
+			if (repository.getUrl() == null || repository.getUrl().isBlank()) {
+				continue;
+			}
 			try {
 				IMetadataRepository metadataRepositor = repositoryManager.getMetadataRepositor(repository);
 				IArtifactRepository artifactRepository = repositoryManager.getArtifactRepository(repository);
@@ -164,6 +167,7 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 			} catch (MojoExecutionException e) {
 				throw e;
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new MojoExecutionException(e);
 			}
 		}

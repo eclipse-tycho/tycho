@@ -12,15 +12,21 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -28,6 +34,11 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.osgi.framework.Version;
+import org.sonatype.plexus.build.incremental.BuildContext;
+
+import com.github.difflib.DiffUtils;
+import com.github.difflib.UnifiedDiffUtils;
+import com.github.difflib.patch.Patch;
 
 import aQute.bnd.differ.Baseline;
 import aQute.bnd.differ.Baseline.BundleInfo;
@@ -37,6 +48,7 @@ import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Instructions;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Processor;
+import aQute.bnd.osgi.Resource;
 import aQute.bnd.service.diff.Delta;
 import aQute.bnd.service.diff.Diff;
 import aQute.bnd.service.diff.Type;
@@ -46,7 +58,12 @@ import de.vandermeer.asciitable.AsciiTable;
 @Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_PLUGIN)
 public class BundleArtifactBaselineComparator implements ArtifactBaselineComparator {
 
+	private static final String INDENT = "..";
+
 	private static final int WIDTH = 160;
+
+	@Requirement
+	BuildContext buildContext;
 
 	@Override
 	public IInstallableUnit selectIU(IQueryable<IInstallableUnit> result) {
@@ -57,8 +74,15 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 	@Override
 	public void compare(ReactorProject project, Supplier<InputStream> baselineArtifact, BaselineContext context)
 			throws Exception {
+		File artifact = project.getArtifact();
+		if (artifact == null) {
+			throw new MojoExecutionException("Artifact is null");
+		}
+		if (!artifact.exists()) {
+			throw new MojoExecutionException("Artifact (" + artifact + ") does not exists.");
+		}
 		try (Processor processor = new Processor();
-				Jar projectJar = new Jar(project.getArtifact());
+				Jar projectJar = new Jar(artifact);
 				Jar baselineJar = new Jar("baseline", baselineArtifact.get())) {
 			Baseline baseliner = createBaselineCompare(context, processor);
 			Instructions packageFilters = new Instructions(
@@ -80,26 +104,44 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					addDiff(packageDiff, info, at, 0);
 					failed |= info.mismatch;
 				}
-				for (Diff diff : resourcediffs) {
-					at.addRule();
-					at.addRow(getResourceDeltaString(diff), diff.getType(), null, null, null, diff.getName());
-				}
 				if (!resourcediffs.isEmpty()) {
 					Version pv = getBaseVersion(projectJar.getVersion());
 					Version bv = getBaseVersion(baselineJar.getVersion());
-					if (bv.compareTo(pv) <= 0) {
+					aQute.bnd.version.Version sv = new aQute.bnd.version.Version(bv.getMajor(), bv.getMinor(),
+							bv.getMicro() + 100);
+					if (bv.compareTo(pv) >= 0) {
 						// a version bump is required!
 						failed = true;
-						aQute.bnd.version.Version bumped = new aQute.bnd.version.Version(pv.getMajor(), pv.getMinor(),
-								pv.getMicro() + 100);
-						if (bundleInfo.suggestedVersion == null || bumped.compareTo(bundleInfo.suggestedVersion) > 0) {
-							bundleInfo.suggestedVersion = bumped;
+						if (failed && bundleInfo.suggestedVersion == null
+								|| sv.compareTo(bundleInfo.suggestedVersion) > 0) {
+							bundleInfo.suggestedVersion = sv;
+						}
+					}
+					at.addRule();
+					at.addRow(Delta.MICRO, Type.RESOURCES, artifact.getName(), pv, bv, sv);
+					for (Diff diff : resourcediffs) {
+						String name = diff.getName();
+						at.addRule();
+						at.addRow(INDENT + getResourceDeltaString(diff), diff.getType(), null, null, null, name);
+						if (isComparable(name)) {
+							List<String> source = getLines(baselineJar.getResource(name));
+							List<String> target = getLines(projectJar.getResource(name));
+							Patch<String> patch = DiffUtils.diff(source, target);
+							List<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff(name, name, source, patch,
+									3);
+							String collect = unifiedDiff.stream().collect(Collectors.joining("<br>"));
+							if (!collect.isBlank()) {
+								at.addRule();
+								at.addRow(null, null, null, null, null, collect);
+							}
 						}
 					}
 				}
-				at.addRule();
-				Logger logger = context.getLogger();
-				at.renderAsIterator(WIDTH).forEachRemaining(logger::error);
+				if (failed) {
+					at.addRule();
+					Logger logger = context.getLogger();
+					at.renderAsIterator(WIDTH).forEachRemaining(logger::error);
+				}
 			}
 			if (failed) {
 				StringBuilder message = new StringBuilder("Baseline problems found! ");
@@ -116,6 +158,19 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 
 		}
 
+	}
+
+	private List<String> getLines(Resource resource) throws IOException, Exception {
+		if (resource == null) {
+			return List.of();
+		}
+		try (InputStream stream = resource.openInputStream()) {
+			return IOUtils.readLines(stream, StandardCharsets.UTF_8);
+		}
+	}
+
+	private boolean isComparable(String name) {
+		return name != null && name.toLowerCase().endsWith(".xml");
 	}
 
 	private Object getResourceDeltaString(Diff diff) {
@@ -152,7 +207,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 			return;
 		}
 		at.addRule();
-		String deltaString = "..".repeat(indent) + delta;
+		String deltaString = INDENT.repeat(indent) + delta;
 		if (info != null) {
 			at.addRow(deltaString, diff.getType(), diff.getName(), info.newerVersion, info.olderVersion,
 					info.suggestedVersion);
