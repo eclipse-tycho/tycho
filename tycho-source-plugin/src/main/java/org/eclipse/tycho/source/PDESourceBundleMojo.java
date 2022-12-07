@@ -57,10 +57,9 @@ public class PDESourceBundleMojo extends AbstractMojo {
                     File sourceFile = artifact.getFile();
                     try (Jar hostBundle = new Jar(project.getArtifact().getFile());
                             Jar sourceJar = new Jar(sourceFile)) {
-                        Attributes hostMain = hostBundle.getManifest().getMainAttributes();
                         Attributes sourceMain = sourceJar.getManifest().getMainAttributes();
-                        String hostName = hostMain.getValue(BUNDLE_SYMBOLICNAME);
-                        String hostVersion = hostMain.getValue(BUNDLE_VERSION);
+                        String hostName = hostBundle.getBsn();
+                        String hostVersion = hostBundle.getVersion();
                         sourceMain.putValue(BUNDLE_MANIFESTVERSION, "2");
                         sourceMain.putValue(BUNDLE_SYMBOLICNAME, hostName + sourceBundleSuffix);
                         sourceMain.putValue(BUNDLE_VERSION, hostVersion);
@@ -76,7 +75,6 @@ public class PDESourceBundleMojo extends AbstractMojo {
                 }
             }
         }
-
     }
 
 }
