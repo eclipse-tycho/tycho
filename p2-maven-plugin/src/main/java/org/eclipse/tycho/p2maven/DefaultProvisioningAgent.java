@@ -47,4 +47,9 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 		serviceFactory.getService(IProvisioningAgent.class).unregisterService(serviceName, service);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T> T getService(Class<T> key) {
+		return (T) getService(key.getName());
+	}
+
 }

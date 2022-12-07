@@ -288,6 +288,11 @@
   				<artifactId>bcpg-jdk18on</artifactId>
   				 <version>(,1.71]</version>
   			</dependency>
+  			<dependency>
+			  <groupId>org.eclipse.platform</groupId>
+			  <artifactId>org.eclipse.equinox.p2.core</artifactId>
+			  <version>(,2.6.200]</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
