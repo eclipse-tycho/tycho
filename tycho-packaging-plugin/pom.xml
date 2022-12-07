@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>com.konghq</groupId>
 			<artifactId>unirest-java</artifactId>
-			<version>3.13.11</version>
+			<version>4.0.0-RC2</version>
 		</dependency>
 	</dependencies>
 

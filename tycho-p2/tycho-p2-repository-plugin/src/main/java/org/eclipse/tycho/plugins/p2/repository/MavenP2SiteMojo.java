@@ -365,7 +365,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 }
                 arguments.add("-publicKeys");
                 arguments.add(publicKeysFile.getAbsolutePath());
-            } catch (IOException | PGPException e) {
+            } catch (Exception e) {
                 throw new MojoExecutionException("failed to generate public-key section", e);
             }
         }
