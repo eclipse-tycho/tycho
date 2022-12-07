@@ -18,10 +18,19 @@ import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,8 +38,12 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ReactorProject;
+import org.osgi.framework.BundleException;
 
+import aQute.bnd.osgi.FileResource;
 import aQute.bnd.osgi.Jar;
 
 /**
@@ -55,16 +68,22 @@ public class PDESourceBundleMojo extends AbstractMojo {
                 if (ReactorProject.SOURCE_ARTIFACT_CLASSIFIER.equalsIgnoreCase(artifact.getClassifier())
                         && "java-source".equals(artifact.getType())) {
                     File sourceFile = artifact.getFile();
-                    try (Jar hostBundle = new Jar(project.getArtifact().getFile());
-                            Jar sourceJar = new Jar(sourceFile)) {
+                    File hostFile = project.getArtifact().getFile();
+                    try (Jar hostBundle = new Jar(hostFile); Jar sourceJar = new Jar(sourceFile)) {
                         Attributes sourceMain = sourceJar.getManifest().getMainAttributes();
                         String hostName = hostBundle.getBsn();
                         String hostVersion = hostBundle.getVersion();
+
+                        addBundleLocalicationFileIfAbsent(hostFile, hostName, sourceJar);
+
                         sourceMain.putValue(BUNDLE_MANIFESTVERSION, "2");
                         sourceMain.putValue(BUNDLE_SYMBOLICNAME, hostName + sourceBundleSuffix);
                         sourceMain.putValue(BUNDLE_VERSION, hostVersion);
                         sourceMain.putValue(OsgiSourceMojo.MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE,
                                 hostName + ";version=\"" + hostVersion + "\";roots:=\".\"");
+
+                        OsgiSourceMojo.addLocalicationHeaders(sourceMain::putValue);
+
                         String baseName = FilenameUtils.getBaseName(sourceFile.getName());
                         File outputFile = new File(sourceFile.getParentFile(), baseName + "-pde.jar");
                         sourceJar.write(outputFile);
@@ -73,6 +92,24 @@ public class PDESourceBundleMojo extends AbstractMojo {
                         throw new MojoFailureException("Update of manifest failed!", e);
                     }
                 }
+            }
+        }
+    }
+
+    private void addBundleLocalicationFileIfAbsent(File hostFile, String hostName, Jar sourceJar)
+            throws BundleException, MojoExecutionException {
+        if (sourceJar.getResource(OsgiSourceMojo.MANIFEST_BUNDLE_LOCALIZATION_FILENAME) == null) {
+            try (FileSystem jarFS = FileSystems.newFileSystem(hostFile.toPath(), Map.of("create", "true"))) {
+                Path jarRoot = jarFS.getRootDirectories().iterator().next();
+                Map<String, String> headers = new CaseInsensitiveDictionaryMap<>();
+                try (InputStream manifest = Files.newInputStream(jarRoot.resolve(JarFile.MANIFEST_NAME))) {
+                    ManifestElement.parseBundleManifest(manifest, headers);
+                }
+                Resource l10n = OsgiSourceMojo.generateL10nFile(project, jarRoot, headers::get, hostName, getLog());
+                Path file = Path.of(l10n.getDirectory()).resolve(OsgiSourceMojo.MANIFEST_BUNDLE_LOCALIZATION_FILENAME);
+                sourceJar.putResource(OsgiSourceMojo.MANIFEST_BUNDLE_LOCALIZATION_FILENAME, new FileResource(file));
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
         }
     }
