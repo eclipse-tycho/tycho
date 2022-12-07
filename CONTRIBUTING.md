@@ -31,7 +31,7 @@ and the minimal reproducer project to Tycho's [issue tracker](https://github.com
 
 ### Prerequisites
 
-Java 11 and Maven 3.6.3, or newer.
+Java 17, or newer.
 
 If your Internet connection uses a proxy, make sure that you have the proxy configured in your [Maven settings.xml](https://maven.apache.org/settings.html).
 
@@ -188,9 +188,9 @@ To get started with YouMonitor, you need to install and run the application. It 
 
 From the root directory of your local Tycho git-repository clone run the following Maven commands...
 * to check if compilation and all tests succeed:
-    * `mvn clean verify -Pits`
+    * `./mvnw clean verify -Pits`
 * to install your version of Tycho into your local Maven repository (skips all tests for faster installation):
-    * `mvn clean install -DSkipTests`
+    * `./mvnw clean install -DSkipTests`
 
 In order to test your changes of Tycho locally in a project-build, install your modified Tycho locally as described above
 and use the corresponding Tycho (probably snapshot) version in the project being build.
