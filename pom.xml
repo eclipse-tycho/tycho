@@ -63,7 +63,7 @@
 
 	<groupId>org.eclipse.tycho</groupId>
 	<artifactId>tycho</artifactId>
-	<version>3.0.1</version>
+	<version>3.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Tycho</name>
