@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public interface BaselineContext {
 
-	void reportBaselineFailure(String message) throws MojoFailureException;
+	void reportBaselineProblem(String message) throws MojoFailureException;
 
 	IInstallableUnit getUnit();
 

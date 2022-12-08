@@ -153,7 +153,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					message.append(", suggested version: ");
 					message.append(bundleInfo.suggestedVersion);
 				}
-				context.reportBaselineFailure(message.toString());
+				context.reportBaselineProblem(message.toString());
 			}
 
 		}
