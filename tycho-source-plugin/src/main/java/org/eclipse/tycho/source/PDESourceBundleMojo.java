@@ -97,7 +97,7 @@ public class PDESourceBundleMojo extends AbstractMojo {
     }
 
     private void addBundleLocalicationFileIfAbsent(File hostFile, String hostName, Jar sourceJar)
-            throws BundleException, MojoExecutionException {
+            throws BundleException, MojoExecutionException, IOException {
         if (sourceJar.getResource(OsgiSourceMojo.MANIFEST_BUNDLE_LOCALIZATION_FILENAME) == null) {
             try (FileSystem jarFS = FileSystems.newFileSystem(hostFile.toPath(), Map.of("create", "true"))) {
                 Path jarRoot = jarFS.getRootDirectories().iterator().next();
@@ -108,8 +108,6 @@ public class PDESourceBundleMojo extends AbstractMojo {
                 Resource l10n = OsgiSourceMojo.generateL10nFile(project, jarRoot, headers::get, hostName, getLog());
                 Path file = Path.of(l10n.getDirectory()).resolve(OsgiSourceMojo.MANIFEST_BUNDLE_LOCALIZATION_FILENAME);
                 sourceJar.putResource(OsgiSourceMojo.MANIFEST_BUNDLE_LOCALIZATION_FILENAME, new FileResource(file));
-            } catch (IOException e1) {
-                e1.printStackTrace();
             }
         }
     }

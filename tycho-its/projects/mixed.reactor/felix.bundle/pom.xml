@@ -9,6 +9,10 @@
 	</parent>
 	<artifactId>felix.bundle</artifactId>
 	<packaging>bundle</packaging>
+	<name>The Felix Bundle</name>
+	<organization>
+		<name>The Bundle House</name>
+	</organization>
 	<build>
 		<plugins>
 			<plugin>
@@ -18,6 +22,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+						<Bundle-SymbolicName>${project.groupId}.${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Export-Package>*</Export-Package>
 						<Import-Package>!sun.*,*</Import-Package>
 					</instructions>
