@@ -75,8 +75,8 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	/**
 	 * Controls if the mojo should fail or only warn about baseline problems.
 	 */
-	@Parameter(property = "tycho.baseline.mode", defaultValue = "fail")
-	private BaselineMode mode;
+	@Parameter(property = "tycho.baseline.mode", defaultValue = "evolve")
+	private BaselineMode mode = BaselineMode.evolve;
 
 	/**
 	 * Defines what packages should be compared to the baseline, by default all
@@ -171,11 +171,16 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 				throw new MojoExecutionException(e);
 			}
 		}
-		reportBaselineFailure("No baseline artifact found!");
+		String message = "No baseline artifact found!";
+		if (mode == BaselineMode.evolve) {
+			logger.info(message);
+			return;
+		}
+		reportBaselineProblem(message);
 	}
 
 	@Override
-	public void reportBaselineFailure(String message) throws MojoFailureException {
+	public void reportBaselineProblem(String message) throws MojoFailureException {
 		if (mode == BaselineMode.fail) {
 			throw new MojoFailureException(message);
 		} else {

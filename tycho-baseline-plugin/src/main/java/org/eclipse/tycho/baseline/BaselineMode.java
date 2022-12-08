@@ -19,6 +19,12 @@ public enum BaselineMode {
 	 */
     warn,
 
+	/**
+	 * Fail the build if the artifact diverged in an incompatible way, but only warn
+	 * about when there is no baseline (yet).
+	 */
+	evolve,
+
     /**
 	 * Fail the build if there are any baseline problems.
 	 */
