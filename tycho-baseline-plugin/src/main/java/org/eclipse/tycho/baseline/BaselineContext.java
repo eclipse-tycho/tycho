@@ -17,12 +17,13 @@ import java.util.List;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.tycho.ArtifactKey;
 
 public interface BaselineContext {
 
 	void reportBaselineProblem(String message) throws MojoFailureException;
-
-	IInstallableUnit getUnit();
 
 	List<String> getIgnores();
 
@@ -31,5 +32,11 @@ public interface BaselineContext {
 	Logger getLogger();
 
 	boolean isExtensionsEnabled();
+
+	IArtifactRepository getArtifactRepository();
+
+	IQueryable<IInstallableUnit> getMetadataRepository();
+
+	ArtifactKey getArtifactKey();
 
 }

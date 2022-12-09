@@ -12,23 +12,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
-import java.io.InputStream;
-import java.util.function.Supplier;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.tycho.ReactorProject;
+import org.apache.maven.project.MavenProject;
 
 public interface ArtifactBaselineComparator {
-	/**
-	 * Selects from a result the artifact that could be compared by this comparator
-	 * 
-	 * @param result the quer
-	 * @return
-	 */
-	IInstallableUnit selectIU(IQueryable<IInstallableUnit> result);
 
-	void compare(ReactorProject project, Supplier<InputStream> baselineArtifact, BaselineContext context)
-			throws Exception;
+	/**
+	 * 
+	 * @param project
+	 * @param context
+	 * @return <code>true</code> if the project was compared, or <code>false</code>
+	 *         if no baseline artifact could be compared because it was not found.
+	 * @throws Exception
+	 */
+	boolean compare(MavenProject project, BaselineContext context) throws Exception;
 
 }
