@@ -33,9 +33,16 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 	 */
 	@Test
 	public void testAddMethod() throws Exception {
-		Verifier verifier = buildBaselineProject("add-method", true);
+		// test adding a default method to the "public" interface
+		Verifier verifier;
+		verifier = buildBaselineProject("add-method", true);
 		verifyBaselineProblem(verifier, "ADDED", "METHOD", "concat(java.lang.String,java.lang.String)", "1.0.0",
 				"1.1.0");
+		// test with "internal" package but extensions disabled
+		verifier = buildBaselineProject("add-method-internal", true);
+		verifyBaselineProblem(verifier, "ADDED", "METHOD", "newMethodButItIsInternal()", "1.0.1", "2.0.0");
+		// now enable extensions, then this should pass
+		verifier = buildBaselineProject("add-method-internal", false, "-Dtycho.baseline.extensions=true");
 	}
 
 	/**
@@ -45,17 +52,10 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 	 */
 	@Test
 	public void testAddResource() throws Exception {
+		// if version is not bumped this should fail
 		Verifier verifier = buildBaselineProject("add-resource", true);
 		verifyBaselineProblem(verifier, "ADDED", "RESOURCE", "NewFile.txt", "1.0.0", "1.0.100");
-	}
-
-	/**
-	 * This adds a resource to the bundle but with a version bump
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testAddResourceWithBump() throws Exception {
+		// but if we bump the version even the smallest amout it must pass
 		buildBaselineProject("add-resource-with-bump", false);
 	}
 
@@ -69,10 +69,13 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 				+ ", baseline version: 1.0.0, suggested version: " + suggestVersion);
 	}
 
-	private Verifier buildBaselineProject(String project, boolean compareShouldFail) throws Exception {
+	private Verifier buildBaselineProject(String project, boolean compareShouldFail, String... xargs) throws Exception {
 		File baseRepo = buildBaseRepo();
 		Verifier verifier = getBaselineProject(project);
 		verifier.addCliOption("-Dbaseline-url=" + baseRepo.toURI());
+		for (String xarg : xargs) {
+			verifier.addCliOption(xarg);
+		}
 		try {
 			verifier.executeGoals(List.of("clean", "verify"));
 			if (compareShouldFail) {
