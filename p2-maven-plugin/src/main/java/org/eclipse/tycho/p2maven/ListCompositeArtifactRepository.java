@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.repository;
+package org.eclipse.tycho.p2maven;
 
 import java.io.File;
 import java.io.OutputStream;

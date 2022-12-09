@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,21 +28,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -81,16 +85,16 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 	@Requirement
 	BuildContext buildContext;
 
-	@Override
-	public IInstallableUnit selectIU(IQueryable<IInstallableUnit> result) {
-		// TODO should we create a bundle query instead?
-		return result.query(QueryUtil.createLatestIUQuery(), null).iterator().next();
-	}
+	@Requirement
+	private P2RepositoryManager repositoryManager;
 
 	@Override
-	public void compare(ReactorProject project, Supplier<InputStream> baselineArtifact, BaselineContext context)
-			throws Exception {
-		File artifact = project.getArtifact();
+	public boolean compare(MavenProject project, BaselineContext context) throws Exception {
+		byte[] baselineData = getBaseline(context);
+		if (baselineData == null) {
+			return false;
+		}
+		File artifact = project.getArtifact().getFile();
 		if (artifact == null) {
 			throw new MojoExecutionException("Artifact is null");
 		}
@@ -99,7 +103,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		}
 		try (Processor processor = new Processor();
 				Jar projectJar = new Jar(artifact);
-				Jar baselineJar = new Jar("baseline", baselineArtifact.get())) {
+				Jar baselineJar = new Jar("baseline", new ByteArrayInputStream(baselineData))) {
 			Baseline baseliner = createBaselineCompare(context, processor);
 			Instructions packageFilters = getPackageFilters(context, processor, projectJar, baselineJar);
 			List<Info> infos = baseliner.baseline(projectJar, baselineJar, packageFilters).stream()//
@@ -110,7 +114,9 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 			boolean failed = bundleInfo.mismatch;
 			ArrayList<Diff> resourcediffs = new ArrayList<Diff>();
 			collectResources(baseliner.getDiff(), resourcediffs);
-			if (!infos.isEmpty() || !resourcediffs.isEmpty()) {
+			ArrayList<Diff> manifestdiffs = new ArrayList<Diff>();
+			collectManifest(baseliner.getDiff(), manifestdiffs);
+			if (!infos.isEmpty() || !resourcediffs.isEmpty() || !manifestdiffs.isEmpty()) {
 				AsciiTable at = new AsciiTable();
 				at.addRule();
 				at.addRow("Delta", "Type", "Name", "Project Version", "Baseline Version", "Suggested Version");
@@ -119,19 +125,22 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					addDiff(packageDiff, info, at, 0);
 					failed |= info.mismatch;
 				}
-				if (!resourcediffs.isEmpty()) {
-					Version pv = getBaseVersion(projectJar.getVersion());
-					Version bv = getBaseVersion(baselineJar.getVersion());
-					aQute.bnd.version.Version sv = new aQute.bnd.version.Version(bv.getMajor(), bv.getMinor(),
-							bv.getMicro() + 100);
-					if (bv.compareTo(pv) >= 0) {
-						// a version bump is required!
-						failed = true;
-						if (failed && bundleInfo.suggestedVersion == null
-								|| sv.compareTo(bundleInfo.suggestedVersion) > 0) {
-							bundleInfo.suggestedVersion = sv;
-						}
+				Version pv = getBaseVersion(projectJar.getVersion());
+				Version bv = getBaseVersion(baselineJar.getVersion());
+				aQute.bnd.version.Version sv = new aQute.bnd.version.Version(bv.getMajor(), bv.getMinor(),
+						bv.getMicro() + 100);
+				if (!manifestdiffs.isEmpty()) {
+					failed |= requireVersionBump(bundleInfo, pv, bv, sv);
+					at.addRule();
+					at.addRow(Delta.MICRO, Type.MANIFEST, artifact.getName(), pv, bv, sv);
+					for (Diff diff : manifestdiffs) {
+						String name = diff.getName();
+						at.addRule();
+						at.addRow(INDENT + getResourceDeltaString(diff), diff.getType(), null, null, null, name);
 					}
+				}
+				if (!resourcediffs.isEmpty()) {
+					failed |= requireVersionBump(bundleInfo, pv, bv, sv);
 					at.addRule();
 					at.addRow(Delta.MICRO, Type.RESOURCES, artifact.getName(), pv, bv, sv);
 					for (Diff diff : resourcediffs) {
@@ -156,7 +165,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					at.addRule();
 					Logger logger = context.getLogger();
 					try {
-					at.renderAsIterator(WIDTH).forEachRemaining(logger::error);
+						at.renderAsIterator(WIDTH).forEachRemaining(logger::error);
 					} catch (RuntimeException e) {
 						// Rendering sometimes fails if there is bad data (e.g. nulls) we fall back to
 						// plain output then to allow debugging and error reporting...
@@ -191,9 +200,36 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				}
 				context.reportBaselineProblem(message.toString());
 			}
-
 		}
+		return true;
+	}
 
+	private boolean requireVersionBump(BundleInfo bundleInfo, Version projectVersion, Version baselineVersion, aQute.bnd.version.Version suggestedVersion) {
+		if (baselineVersion.compareTo(projectVersion) >= 0) {
+			// a version bump is required!
+			if (bundleInfo.suggestedVersion == null
+					|| suggestedVersion.compareTo(bundleInfo.suggestedVersion) > 0) {
+				bundleInfo.suggestedVersion = suggestedVersion;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private byte[] getBaseline(BaselineContext context) throws IOException {
+		ArtifactKey key = context.getArtifactKey();
+		org.osgi.framework.Version artifactVersion = org.osgi.framework.Version.parseVersion(key.getVersion());
+		org.eclipse.equinox.p2.metadata.Version maxVersion = org.eclipse.equinox.p2.metadata.Version
+				.createOSGi(artifactVersion.getMajor(), artifactVersion.getMinor(), artifactVersion.getMicro() + 1);
+		IQueryResult<IInstallableUnit> result = context.getMetadataRepository()
+				.query(QueryUtil.createLatestQuery(QueryUtil.createIUQuery(key.getId(), new VersionRange(
+						org.eclipse.equinox.p2.metadata.Version.emptyVersion, true, maxVersion, false))), null);
+		if (result.isEmpty()) {
+			return null;
+		}
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		repositoryManager.downloadArtifact(result.iterator().next(), context.getArtifactRepository(), outputStream);
+		return outputStream.toByteArray();
 	}
 
 	private Instructions getPackageFilters(BaselineContext context, Processor processor, Jar projectJar,
@@ -295,6 +331,18 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		Version fullVersion = new Version(version);
 		return new Version(fullVersion.getMajor(), fullVersion.getMinor(), fullVersion.getMicro());
 
+	}
+
+	private void collectManifest(Diff diff, ArrayList<Diff> manifestdiffs) {
+		if (diff.getDelta() == Delta.UNCHANGED) {
+			return;
+		}
+		if (diff.getType() == Type.HEADER) {
+			manifestdiffs.add(diff);
+		}
+		for (Diff child : diff.getChildren()) {
+			collectManifest(child, manifestdiffs);
+		}
 	}
 
 	private void collectResources(Diff diff, Collection<Diff> resourcediffs) {

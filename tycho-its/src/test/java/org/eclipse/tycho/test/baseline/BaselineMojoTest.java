@@ -59,6 +59,18 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 		buildBaselineProject("add-resource-with-bump", false);
 	}
 
+	/**
+	 * This adds a resource to the bundle
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testAddHeader() throws Exception {
+		// if version is not bumped this should fail
+		Verifier verifier = buildBaselineProject("add-header", true);
+		verifyBaselineProblem(verifier, "ADDED", "HEADER", "NewHeader:not in the baseline", "1.0.0", "1.0.100");
+	}
+
 	/// Helper methods for baseline verifications ///
 
 	private void verifyBaselineProblem(Verifier verifier, String delta, String type, String name, String projectVersion,

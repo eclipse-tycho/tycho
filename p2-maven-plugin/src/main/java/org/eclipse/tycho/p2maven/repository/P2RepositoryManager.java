@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.maven.model.Repository;
@@ -28,6 +29,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -35,6 +37,8 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
+import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
 
 /**
@@ -80,6 +84,18 @@ public class P2RepositoryManager {
 		return getArtifactRepository(repository.getURL(), repository.getId());
 	}
 
+	public IArtifactRepository getCompositeArtifactRepository(Collection<Repository> repositories)
+			throws ProvisionException, URISyntaxException {
+		if (repositories.size() == 1) {
+			return getArtifactRepository(repositories.iterator().next());
+		}
+		ArrayList<IArtifactRepository> childs = new ArrayList<IArtifactRepository>();
+		for (Repository repository : repositories) {
+			childs.add(getArtifactRepository(repository));
+		}
+		return new ListCompositeArtifactRepository(agent, childs);
+	}
+
 	/**
 	 * Loads the {@link IMetadataRepository} from the given {@link Repository}, this
 	 * method does NOT check the type of the repository!
@@ -90,9 +106,21 @@ public class P2RepositoryManager {
 	 *                            converted into an {@link URI}
 	 * @throws ProvisionException if loading the repository failed
 	 */
-	public IMetadataRepository getMetadataRepositor(Repository repository)
+	public IMetadataRepository getMetadataRepository(Repository repository)
 			throws URISyntaxException, ProvisionException {
 		return getMetadataRepositor(new URI(repository.getUrl()), repository.getId());
+	}
+
+	public IQueryable<IInstallableUnit> getCompositeMetadataRepository(Collection<Repository> repositories)
+			throws ProvisionException, URISyntaxException {
+		if (repositories.size() == 1) {
+			return getMetadataRepository(repositories.iterator().next());
+		}
+		ListQueryable<IInstallableUnit> queryable = new ListQueryable<>();
+		for (Repository repository : repositories) {
+			queryable.add(getMetadataRepository(repository));
+		}
+		return queryable;
 	}
 
 	/**

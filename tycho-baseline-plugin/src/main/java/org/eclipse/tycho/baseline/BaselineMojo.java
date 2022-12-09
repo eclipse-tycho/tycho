@@ -12,12 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Repository;
@@ -32,15 +31,10 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.TychoProjectManager;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
 /**
@@ -109,67 +103,45 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Component
 	private Map<String, ArtifactBaselineComparator> comparators;
 
-	private ThreadLocal<IInstallableUnit> contextIu = new ThreadLocal<IInstallableUnit>();
+	private ThreadLocal<IArtifactRepository> contextArtifactRepository = new ThreadLocal<>();
+	private ThreadLocal<IQueryable<IInstallableUnit>> contextMetadataRepository = new ThreadLocal<>();
+	private ThreadLocal<ArtifactKey> contexArtifactKey = new ThreadLocal<>();
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (skip || baselines == null || baselines.isEmpty()) {
+			logger.info("Skipped.");
 			return;
 		}
 		Optional<ArtifactKey> artifactKeyLookup = projectManager.getArtifactKey(project);
 		if (artifactKeyLookup.isEmpty()) {
+			logger.info("Not an artifact based project.");
 			return;
 		}
 		ArtifactKey artifactKey = artifactKeyLookup.get();
 		ArtifactBaselineComparator comparator = comparators.get(artifactKey.getType());
 		if (comparator == null) {
+			logger.info("Not a baseline comparable project.");
 			// nothing to compare...
 			return;
 		}
-		for (Repository repository : baselines) {
-			if (repository.getUrl() == null || repository.getUrl().isBlank()) {
-				continue;
-			}
-			try {
-				IMetadataRepository metadataRepositor = repositoryManager.getMetadataRepositor(repository);
-				IArtifactRepository artifactRepository = repositoryManager.getArtifactRepository(repository);
-				org.osgi.framework.Version artifactVersion = org.osgi.framework.Version
-						.parseVersion(artifactKey.getVersion());
-				Version maxVersion = Version.createOSGi(artifactVersion.getMajor(), artifactVersion.getMinor(),
-						artifactVersion.getMicro() + 1);
-				IQueryResult<IInstallableUnit> result = metadataRepositor
-						.query(QueryUtil.createLatestQuery(QueryUtil.createIUQuery(artifactKey.getId(),
-								new VersionRange(Version.emptyVersion, true, maxVersion, false))), null);
-				if (result.isEmpty()) {
-					continue;
-				}
-				IInstallableUnit iu = comparator.selectIU(result);
-				if (iu == null) {
-					continue;
-				}
-				logger.info("Comparing artifact " + artifactKey + " against baseline " + iu.getId() + ":"
-						+ iu.getVersion() + " from " + repository.getUrl());
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				repositoryManager.downloadArtifact(iu, artifactRepository, outputStream);
-				contextIu.set(iu);
-				comparator.compare(DefaultReactorProject.adapt(project),
-						() -> new ByteArrayInputStream(outputStream.toByteArray()),
-						this);
+		try {
+			loadRepositories();
+			contexArtifactKey.set(artifactKey);
+			if (comparator.compare(project, this)) {
+				logger.info("No baseline problems found.");
 				return;
-			} catch (URISyntaxException e) {
-				throw new MojoExecutionException("Repository " + repository + " uses an invalid URI: " + e.getReason(),
-						e);
-			} catch (ProvisionException e) {
-				throw new MojoExecutionException(
-						"Loading repository " + repository + "failed! (" + e.getMessage() + ")", e);
-			} catch (MojoFailureException e) {
-				throw e;
-			} catch (MojoExecutionException e) {
-				throw e;
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new MojoExecutionException(e);
 			}
+		} catch (MojoExecutionException e) {
+			throw e;
+		} catch (MojoFailureException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new MojoExecutionException("Unknown error", e);
+		} finally {
+			contextArtifactRepository.set(null);
+			contextMetadataRepository.set(null);
+			contexArtifactKey.set(null);
 		}
 		String message = "No baseline artifact found!";
 		if (mode == BaselineMode.evolve) {
@@ -179,6 +151,18 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 		reportBaselineProblem(message);
 	}
 
+	private void loadRepositories() throws MojoExecutionException {
+		try {
+			contextMetadataRepository.set(repositoryManager.getCompositeMetadataRepository(baselines));
+			contextArtifactRepository.set(repositoryManager.getCompositeArtifactRepository(baselines));
+		} catch (ProvisionException | URISyntaxException e) {
+			throw new MojoExecutionException(
+					"Loading baseline repositories "
+							+ baselines.stream().map(r -> r.getUrl()).collect(Collectors.joining(", ")) + " failed!",
+					e);
+		}
+	}
+
 	@Override
 	public void reportBaselineProblem(String message) throws MojoFailureException {
 		if (mode == BaselineMode.warn) {
@@ -186,12 +170,6 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 		} else {
 			throw new MojoFailureException(message);
 		}
-	}
-
-	@Override
-	public IInstallableUnit getUnit() {
-
-		return contextIu.get();
 	}
 
 	@Override
@@ -218,6 +196,21 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Override
 	public boolean isExtensionsEnabled() {
 		return extensions;
+	}
+
+	@Override
+	public IArtifactRepository getArtifactRepository() {
+		return contextArtifactRepository.get();
+	}
+
+	@Override
+	public IQueryable<IInstallableUnit> getMetadataRepository() {
+		return contextMetadataRepository.get();
+	}
+
+	@Override
+	public ArtifactKey getArtifactKey() {
+		return contexArtifactKey.get();
 	}
 
 }
