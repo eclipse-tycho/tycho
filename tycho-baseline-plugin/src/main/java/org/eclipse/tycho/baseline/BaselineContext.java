@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
+import java.util.List;
+
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -22,10 +24,12 @@ public interface BaselineContext {
 
 	IInstallableUnit getUnit();
 
-	Iterable<String> getIgnores();
+	List<String> getIgnores();
 
-	Iterable<String> getPackages();
+	List<String> getPackages();
 
 	Logger getLogger();
+
+	boolean isExtensionsEnabled();
 
 }

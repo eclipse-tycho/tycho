@@ -19,8 +19,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -31,8 +38,11 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
@@ -53,10 +63,16 @@ import aQute.bnd.service.diff.Delta;
 import aQute.bnd.service.diff.Diff;
 import aQute.bnd.service.diff.Type;
 import aQute.lib.strings.Strings;
+import de.vandermeer.asciitable.AT_Cell;
+import de.vandermeer.asciitable.AT_Row;
 import de.vandermeer.asciitable.AsciiTable;
 
 @Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_PLUGIN)
 public class BundleArtifactBaselineComparator implements ArtifactBaselineComparator {
+
+	private static final String X_INTERNAL_ATTRIBUTE = "x-internal";
+
+	private static final String X_FRIENDS_ATTRIBUTE = "x-friends";
 
 	private static final String INDENT = "..";
 
@@ -85,8 +101,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				Jar projectJar = new Jar(artifact);
 				Jar baselineJar = new Jar("baseline", baselineArtifact.get())) {
 			Baseline baseliner = createBaselineCompare(context, processor);
-			Instructions packageFilters = new Instructions(
-					new Parameters(Strings.join(context.getPackages()), processor));
+			Instructions packageFilters = getPackageFilters(context, processor, projectJar, baselineJar);
 			List<Info> infos = baseliner.baseline(projectJar, baselineJar, packageFilters).stream()//
 					.filter(info -> info.packageDiff.getDelta() != Delta.UNCHANGED) //
 					.sorted(Comparator.comparing(info -> info.packageName))//
@@ -140,7 +155,24 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				if (failed) {
 					at.addRule();
 					Logger logger = context.getLogger();
+					try {
 					at.renderAsIterator(WIDTH).forEachRemaining(logger::error);
+					} catch (RuntimeException e) {
+						// Rendering sometimes fails if there is bad data (e.g. nulls) we fall back to
+						// plain output then to allow debugging and error reporting...
+						for (AT_Row row : at.getRawContent()) {
+							LinkedList<AT_Cell> cells = row.getCells();
+							if (cells == null) {
+								continue;
+							}
+							StringBuilder sb = new StringBuilder();
+							for (AT_Cell cell : cells) {
+								sb.append(cell.getContent());
+								sb.append(" |\t");
+							}
+							logger.error(sb.toString());
+						}
+					}
 				}
 			}
 			if (failed) {
@@ -153,11 +185,88 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					message.append(", suggested version: ");
 					message.append(bundleInfo.suggestedVersion);
 				}
+				if (bundleInfo.reason != null && !bundleInfo.reason.isBlank()) {
+					message.append(", ");
+					message.append(bundleInfo.reason);
+				}
 				context.reportBaselineProblem(message.toString());
 			}
 
 		}
 
+	}
+
+	private Instructions getPackageFilters(BaselineContext context, Processor processor, Jar projectJar,
+			Jar baselineJar) {
+		Collection<String> packages;
+		if (context.isExtensionsEnabled()) {
+			packages = new LinkedHashSet<>();
+			Map<String, Boolean> projectPackages = getPackagesMap(context, projectJar);
+			Map<String, Boolean> baselinePackages = getPackagesMap(context, projectJar);
+			// every package that was internal in the baseline can be ignored already
+			// because it was never public
+			Logger logger = context.getLogger();
+			for (Entry<String, Boolean> entry : baselinePackages.entrySet()) {
+				if (entry.getValue()) {
+					logger.debug("Ignore package " + entry.getKey() + " as it is marked as internal in the baseline.");
+					packages.add("!" + entry.getKey());
+				}
+			}
+			// now we can ignore all packages that are internal, but not in the baseline,
+			// these are packages that are new and marked as internal
+			for (Entry<String, Boolean> entry : projectPackages.entrySet()) {
+				if (entry.getValue()) {
+					if (!baselinePackages.containsKey(entry.getKey())) {
+						logger.debug(
+								"Ignore package " + entry.getKey() + " as it is marked as internal in the project.");
+						packages.add("!" + entry.getKey());
+					}
+				}
+			}
+			// finally add everything that was supplied by the context...
+			packages.addAll(context.getPackages());
+		} else {
+			packages = context.getPackages();
+		}
+		return new Instructions(new Parameters(Strings.join(packages), processor));
+	}
+
+	private Map<String, Boolean> getPackagesMap(BaselineContext context, Jar jar) {
+		Map<String, Boolean> internalPackages = new HashMap<>();
+		Logger logger = context.getLogger();
+		try {
+			Manifest manifest = jar.getManifest();
+			if (manifest == null) {
+				return Map.of();
+			}
+			String exportPackageHeader = manifest.getMainAttributes().getValue(Constants.EXPORT_PACKAGE);
+			if (exportPackageHeader != null) {
+				try {
+					ManifestElement[] exports = ManifestElement.parseHeader(Constants.EXPORT_PACKAGE,
+							exportPackageHeader);
+					for (ManifestElement export : exports) {
+						boolean internal = export.getDirective(X_FRIENDS_ATTRIBUTE) != null
+								|| Boolean.parseBoolean(export.getDirective(X_INTERNAL_ATTRIBUTE));
+						internalPackages.put(export.getValue(), internal);
+					}
+				} catch (BundleException e) {
+					String message = "Can't get export package from manifest, extensions cannot be processed!";
+					if (logger.isDebugEnabled()) {
+						logger.error(message, e);
+					} else {
+						logger.warn(message);
+					}
+				}
+			}
+		} catch (Exception e) {
+			String message = "Can't get manifest from jar, extensions cannot be processed!";
+			if (logger.isDebugEnabled()) {
+				logger.error(message, e);
+			} else {
+				logger.warn(message);
+			}
+		}
+		return internalPackages;
 	}
 
 	private List<String> getLines(Resource resource) throws IOException, Exception {
@@ -209,13 +318,19 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		at.addRule();
 		String deltaString = INDENT.repeat(indent) + delta;
 		if (info != null) {
-			at.addRow(deltaString, diff.getType(), diff.getName(), info.newerVersion, info.olderVersion,
-					info.suggestedVersion);
+			Object[] row = { deltaString, diff.getType(), diff.getName(), info.newerVersion, info.olderVersion,
+					Objects.requireNonNullElse(info.suggestedVersion, "-") };
+			at.addRow(row);
 		} else {
-			at.addRow(deltaString, diff.getType(), null, null, null, diff.getName());
+			Object[] row = { deltaString, diff.getType(), null, null, null, diff.getName() };
+			at.addRow(row);
 		}
 		if (diff.getType() == Type.METHOD && delta == Delta.ADDED) {
-			// don't print childs as it does not matter ...
+			// if something is added, all childs do not really matter
+			return;
+		}
+		if (diff.getType() == Type.PACKAGE && delta == Delta.REMOVED) {
+			// if a package is removed there is no need to print what exactly was removed...
 			return;
 		}
 		for (Diff child : diff.getChildren()) {

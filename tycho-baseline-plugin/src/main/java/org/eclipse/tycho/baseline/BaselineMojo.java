@@ -181,10 +181,10 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 
 	@Override
 	public void reportBaselineProblem(String message) throws MojoFailureException {
-		if (mode == BaselineMode.fail) {
-			throw new MojoFailureException(message);
-		} else {
+		if (mode == BaselineMode.warn) {
 			logger.warn(message);
+		} else {
+			throw new MojoFailureException(message);
 		}
 	}
 
@@ -195,7 +195,7 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	}
 
 	@Override
-	public Iterable<String> getIgnores() {
+	public List<String> getIgnores() {
 		if (ignores == null) {
 			return List.of();
 		}
@@ -203,7 +203,7 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	}
 
 	@Override
-	public Iterable<String> getPackages() {
+	public List<String> getPackages() {
 		if (packages == null) {
 			return List.of("*");
 		}
@@ -213,6 +213,11 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Override
 	public Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	public boolean isExtensionsEnabled() {
+		return extensions;
 	}
 
 }
