@@ -34,6 +34,7 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -146,6 +147,17 @@ public class EclipseRunMojo extends AbstractMojo {
 	private MavenSession session;
 
 	/**
+	 * Arbitrary JVM options to set on the command line. It is recommended to use
+	 * {@link #jvmArgs} instead because it provides more explicit control over
+	 * argument separation and content, avoiding the need to quote arguments that
+	 * contain spaces.
+	 * 
+	 * @see #jvmArgs
+	 */
+	@Parameter
+	private String argLine;
+
+	/**
 	 * List of JVM arguments set on the command line. Example:
 	 * 
 	 * {@code
@@ -165,6 +177,17 @@ public class EclipseRunMojo extends AbstractMojo {
 	 */
 	@Parameter(property = "eclipserun.skip", defaultValue = "false")
 	private boolean skip;
+
+	/**
+	 * Arbitrary applications arguments to set on the command line. It is
+	 * recommended to use {@link #applicationArgs} instead because it provides more
+	 * explicit control over argument separation and content, avoiding the need to
+	 * quote arguments that contain spaces.
+	 * 
+	 * @see #applicationArgs
+	 */
+	@Parameter
+	private String appArgLine;
 
 	/**
 	 * List of applications arguments set on the command line. Example:
@@ -391,6 +414,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		cli.setJvmExecutable(executable);
 		cli.setWorkingDirectory(project.getBasedir());
 
+		cli.addVMArguments(splitArgLine(argLine));
 		if (jvmArgs != null) {
 			cli.addVMArguments(jvmArgs.toArray(new String[jvmArgs.size()]));
 		}
@@ -401,6 +425,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		File workspace = new File(work, "data");
 		addProgramArgs(cli, "-data", workspace.getAbsolutePath());
 
+		cli.addProgramArguments(splitArgLine(appArgLine));
 		if (applicationArgs != null) {
 			for (String arg : applicationArgs) {
 				cli.addProgramArguments(arg);
@@ -412,6 +437,14 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 
 		return cli;
+	}
+
+	private String[] splitArgLine(String argumentLine) throws MojoExecutionException {
+		try {
+			return CommandLineUtils.translateCommandline(argumentLine);
+		} catch (Exception e) {
+			throw new MojoExecutionException("Error parsing commandline: " + e.getMessage(), e);
+		}
 	}
 
 	private void addProgramArgs(EquinoxLaunchConfiguration cli, String... arguments) {

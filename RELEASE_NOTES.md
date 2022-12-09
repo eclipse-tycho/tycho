@@ -2,6 +2,15 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 3.0.2
+
+### EclipseRunMojo `argLine` and `appArgLine` are reintroduced and no longer deprecated.
+
+The `argLine` and `appArgLine` options have long been deprecated and were removed in Tycho 3.0.0. 
+They are generally inferior to the list-based `jvmArgs` and `applicationArgs` respectively.
+However there are use cases where the arguments need to be extensible via property expansion, in which case the list-based approach is not always a suitable alternative.
+As such, these two options have been re-introduced for Tycho 3.0.2 and are no longer marked deprecated though `jvmArgs` and `applicationArgs` remain the preferred mechanism.
+
 ## 3.0.1
 
 - Upgrade to 2022-03 release
@@ -389,6 +398,8 @@ It was hardcoded to "tooling" always and had no practical meaning to change.
 
 `applicationArgs` (previously known as `applicationsArgs`) has been corrected to not perform any
 interpretation of whitepace and quotes anymore. Individual arguments are now used literally (just like `jvmArgs`).
+
+Note that `argLine` and `appArgLine` have been resurrected in Tycho 3.0.2.
 
 ## 2.7.4
 
