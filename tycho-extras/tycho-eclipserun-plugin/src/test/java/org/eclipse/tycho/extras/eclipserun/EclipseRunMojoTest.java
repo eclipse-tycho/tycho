@@ -82,20 +82,25 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 		List<String> args = Arrays.asList("-Xdebug", "-DanotherOptionWithValue=theValue",
 				"-DoptionWith=\"A space in the value\"");
 		setVariableValueToObject(runMojo, "jvmArgs", args);
+		setVariableValueToObject(runMojo, "argLine", "-DoldArgLineOption");
 		LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
 		List<String> vmArgs = Arrays.asList(commandLine.getVMArguments());
 		assertTrue(vmArgs.contains("-Xdebug"));
 		assertTrue(vmArgs.contains("-DanotherOptionWithValue=theValue"));
+		assertTrue(vmArgs.contains("-DoldArgLineOption"));
 		assertTrue(vmArgs.contains("-DoptionWith=\"A space in the value\""));
 	}
 
 	public void testCreateCommandlineWithApplicationArgs() throws IllegalAccessException, MojoExecutionException {
 		List<String> args = Arrays.asList("arg1", "literal arg with spaces", "argument'with'literalquotes");
+		setVariableValueToObject(runMojo, "appArgLine", "appArg1 \"literal appArg with spaces\"");
 		setVariableValueToObject(runMojo, "applicationArgs", args);
 		LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
 		List<String> programArgs = Arrays.asList(commandLine.getProgramArguments());
 		assertTrue(programArgs.contains("arg1"));
+		assertTrue(programArgs.contains("appArg1"));
 		assertTrue(programArgs.contains("literal arg with spaces"));
+		assertTrue(programArgs.contains("literal appArg with spaces"));
 		assertTrue(programArgs.contains("argument'with'literalquotes"));
 	}
 
