@@ -284,6 +284,11 @@
 				<artifactId>org.eclipse.equinox.p2.repository</artifactId>
 				<version>2.6.300</version>
 			</dependency>
+			<dependency>
+				<groupId>org.eclipse.platform</groupId>
+				<artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
+				<version>2.2.100</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<build>
