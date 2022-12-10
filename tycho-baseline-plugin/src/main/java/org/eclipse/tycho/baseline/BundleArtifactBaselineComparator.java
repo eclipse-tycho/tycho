@@ -371,9 +371,10 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 						InputStream currentStream = currenttResource.openInputStream()) {
 					ArtifactDelta delta = comparator.getDelta(baseStream, currentStream,
 							new ComparisonData(baselineContext.getIgnores(), false));
-					if (delta != null) {
+					if (delta == null) {
 						return false;
 					}
+					// TODO record a change!
 				} catch (IOException e) {
 					// FIXME can't compare then ---- context.getLogger().debug("Can't create diff
 					// for " + name, e);
