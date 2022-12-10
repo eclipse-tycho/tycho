@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -50,10 +50,6 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-import com.github.difflib.DiffUtils;
-import com.github.difflib.UnifiedDiffUtils;
-import com.github.difflib.patch.Patch;
-
 import aQute.bnd.differ.Baseline;
 import aQute.bnd.differ.Baseline.BundleInfo;
 import aQute.bnd.differ.Baseline.Info;
@@ -70,6 +66,7 @@ import aQute.lib.strings.Strings;
 import de.vandermeer.asciitable.AT_Cell;
 import de.vandermeer.asciitable.AT_Row;
 import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 
 @Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_PLUGIN)
 public class BundleArtifactBaselineComparator implements ArtifactBaselineComparator {
@@ -87,6 +84,9 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 
 	@Requirement
 	private P2RepositoryManager repositoryManager;
+
+	@Requirement
+	Map<String, ResourceComparator> comparators;
 
 	@Override
 	public boolean compare(MavenProject project, BaselineContext context) throws Exception {
@@ -147,16 +147,25 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 						String name = diff.getName();
 						at.addRule();
 						at.addRow(INDENT + getResourceDeltaString(diff), diff.getType(), null, null, null, name);
-						if (isComparable(name)) {
-							List<String> source = getLines(baselineJar.getResource(name));
-							List<String> target = getLines(projectJar.getResource(name));
-							Patch<String> patch = DiffUtils.diff(source, target);
-							List<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff(name, name, source, patch,
-									3);
-							String collect = unifiedDiff.stream().collect(Collectors.joining("<br>"));
-							if (!collect.isBlank()) {
-								at.addRule();
-								at.addRow(null, null, null, null, null, collect);
+						String extension = FilenameUtils.getExtension(name).toLowerCase();
+						ResourceComparator comparator = comparators.get(extension);
+
+						if (comparator != null) {
+							Resource baseResource = baselineJar.getResource(name);
+							Resource currenttResource = projectJar.getResource(name);
+							if (baseResource != null && currenttResource != null) {
+								try (InputStream baseStream = baseResource.openInputStream();
+										InputStream currentStream = currenttResource.openInputStream()) {
+									String compare = comparator.compare(name, baseStream, currentStream);
+									if (!compare.isBlank()) {
+										at.addRule();
+										at.addRow(null, null, null, null, null,
+												compare.replace(System.lineSeparator(), "<br>"))
+												.setTextAlignment(TextAlignment.LEFT);
+									}
+								} catch (IOException e) {
+									context.getLogger().debug("Can't create diff for " + name, e);
+								}
 							}
 						}
 					}
@@ -349,7 +358,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		if (diff.getDelta() == Delta.UNCHANGED) {
 			return;
 		}
-		if (diff.getType() == Type.RESOURCE && !diff.getName().endsWith(".class")) {
+		if (diff.getType() == Type.RESOURCE /* && !diff.getName().endsWith(".class") */) {
 			resourcediffs.add(diff);
 		}
 		for (Diff child : diff.getChildren()) {
