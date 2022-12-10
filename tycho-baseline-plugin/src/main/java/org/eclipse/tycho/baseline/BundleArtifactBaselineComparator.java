@@ -17,7 +17,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -31,7 +30,6 @@ import java.util.Objects;
 import java.util.jar.Manifest;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -44,7 +42,10 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
+import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
+import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -88,6 +89,9 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 	@Requirement
 	Map<String, ResourceComparator> comparators;
 
+	@Requirement(role = ContentsComparator.class)
+	Map<String, ContentsComparator> contentComparators;
+
 	@Override
 	public boolean compare(MavenProject project, BaselineContext context) throws Exception {
 		byte[] baselineData = getBaseline(context);
@@ -111,9 +115,9 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					.sorted(Comparator.comparing(info -> info.packageName))//
 					.toList();
 			BundleInfo bundleInfo = baseliner.getBundleInfo();
-			boolean failed = bundleInfo.mismatch;
+			boolean failed = false;
 			ArrayList<Diff> resourcediffs = new ArrayList<Diff>();
-			collectResources(baseliner.getDiff(), resourcediffs);
+			collectResources(baseliner.getDiff(), resourcediffs, baselineJar, projectJar, context);
 			ArrayList<Diff> manifestdiffs = new ArrayList<Diff>();
 			collectManifest(baseliner.getDiff(), manifestdiffs);
 			if (!infos.isEmpty() || !resourcediffs.isEmpty() || !manifestdiffs.isEmpty()) {
@@ -314,19 +318,6 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		return internalPackages;
 	}
 
-	private List<String> getLines(Resource resource) throws IOException, Exception {
-		if (resource == null) {
-			return List.of();
-		}
-		try (InputStream stream = resource.openInputStream()) {
-			return IOUtils.readLines(stream, StandardCharsets.UTF_8);
-		}
-	}
-
-	private boolean isComparable(String name) {
-		return name != null && name.toLowerCase().endsWith(".xml");
-	}
-
 	private Object getResourceDeltaString(Diff diff) {
 		Delta delta = diff.getDelta();
 		if (delta == Delta.MAJOR) {
@@ -354,16 +345,45 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		}
 	}
 
-	private void collectResources(Diff diff, Collection<Diff> resourcediffs) {
+	private void collectResources(Diff diff, Collection<Diff> resourcediffs, Jar baselineJar, Jar projectJar,
+			BaselineContext baselineContext) {
 		if (diff.getDelta() == Delta.UNCHANGED) {
 			return;
 		}
-		if (diff.getType() == Type.RESOURCE /* && !diff.getName().endsWith(".class") */) {
+		if (diff.getType() == Type.RESOURCE && hasChanged(diff, baselineJar, projectJar, baselineContext)) {
 			resourcediffs.add(diff);
 		}
 		for (Diff child : diff.getChildren()) {
-			collectResources(child, resourcediffs);
+			collectResources(child, resourcediffs, baselineJar, projectJar, baselineContext);
 		}
+	}
+
+	private boolean hasChanged(Diff diff, Jar baselineJar, Jar projectJar, BaselineContext baselineContext) {
+
+		String name = diff.getName();
+		String extension = FilenameUtils.getExtension(name).toLowerCase();
+		ContentsComparator comparator = contentComparators.get(extension);
+		if (comparator != null) {
+			Resource baseResource = baselineJar.getResource(name);
+			Resource currenttResource = projectJar.getResource(name);
+			if (baseResource != null && currenttResource != null) {
+				try (InputStream baseStream = baseResource.openInputStream();
+						InputStream currentStream = currenttResource.openInputStream()) {
+					ArtifactDelta delta = comparator.getDelta(baseStream, currentStream,
+							new ComparisonData(baselineContext.getIgnores(), false));
+					if (delta != null) {
+						return false;
+					}
+				} catch (IOException e) {
+					// FIXME can't compare then ---- context.getLogger().debug("Can't create diff
+					// for " + name, e);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					// e1.printStackTrace();
+				}
+			}
+		}
+		return true;
 	}
 
 	private void addDiff(Diff diff, Info info, AsciiTable at, int indent) {
