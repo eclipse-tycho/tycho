@@ -106,6 +106,9 @@ public class ZipComparatorImpl implements ArtifactComparator {
         if ("meta-inf/manifest.mf".equals(name)) {
             return ManifestComparator.TYPE;
         }
+        if (name.endsWith(".xml")) {
+            return XmlComparator.XML;
+        }
         return DefaultContentsComparator.TYPE;
     }
 
