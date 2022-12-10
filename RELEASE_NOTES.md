@@ -4,6 +4,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.2
 
+### Fixed support for the generation of a source feature from a maven target-location template
+
+The generated source feature now properly includes the source bundles.
+
 ### EclipseRunMojo `argLine` and `appArgLine` are reintroduced and no longer deprecated.
 
 The `argLine` and `appArgLine` options have long been deprecated and were removed in Tycho 3.0.0. 
