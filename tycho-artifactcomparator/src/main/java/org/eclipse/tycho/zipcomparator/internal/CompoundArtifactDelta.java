@@ -39,7 +39,7 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
 
     @Override
     public String getDetailedMessage() {
-        StringBuilder message = new StringBuilder(getMessage()).append("\n");
+        StringBuilder message = new StringBuilder(getMessage()).append(System.lineSeparator());
         appendDetailedMessage(message, 1);
         return message.toString();
     }
@@ -48,7 +48,7 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
         for (Map.Entry<String, ArtifactDelta> member : members.entrySet()) {
             indent(message, indent);
             message.append(member.getKey()).append(": ").append(member.getValue().getMessage());
-            message.append("\n");
+            message.append(System.lineSeparator());
 
             if (member.getValue() instanceof CompoundArtifactDelta compoundDelta) {
                 compoundDelta.appendDetailedMessage(message, indent + 1);

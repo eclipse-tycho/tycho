@@ -12,12 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
@@ -35,6 +37,9 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
+import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
 /**
@@ -103,6 +108,9 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Component
 	private Map<String, ArtifactBaselineComparator> comparators;
 
+	@Component
+	private BundleReader bundleReader;
+
 	private ThreadLocal<IArtifactRepository> contextArtifactRepository = new ThreadLocal<>();
 	private ThreadLocal<IQueryable<IInstallableUnit>> contextMetadataRepository = new ThreadLocal<>();
 	private ThreadLocal<ArtifactKey> contexArtifactKey = new ThreadLocal<>();
@@ -113,7 +121,7 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 			logger.info("Skipped.");
 			return;
 		}
-		Optional<ArtifactKey> artifactKeyLookup = projectManager.getArtifactKey(project);
+		Optional<ArtifactKey> artifactKeyLookup = lookupArtifactKey();
 		if (artifactKeyLookup.isEmpty()) {
 			logger.info("Not an artifact based project.");
 			return;
@@ -149,6 +157,28 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 			return;
 		}
 		reportBaselineProblem(message);
+	}
+
+	private Optional<ArtifactKey> lookupArtifactKey() {
+		Optional<ArtifactKey> key = projectManager.getArtifactKey(project);
+		if (key.isEmpty()) {
+			// not a default but we should not give up too early!
+			if ("jar".equalsIgnoreCase(project.getPackaging()) || "bundle".equalsIgnoreCase(project.getPackaging())) {
+				Artifact artifact = project.getArtifact();
+				if (artifact != null) {
+					File file = artifact.getFile();
+					if (file != null && file.isFile()) {
+						try {
+							OsgiManifest manifest = bundleReader.loadManifest(file);
+							return Optional.of(manifest.toArtifactKey());
+						} catch (OsgiManifestParserException e) {
+							// can't do anything then...
+						}
+					}
+				}
+			}
+		}
+		return key;
 	}
 
 	private void loadRepositories() throws MojoExecutionException {
