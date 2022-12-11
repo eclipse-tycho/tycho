@@ -38,6 +38,10 @@ Any baseline problems will then be reported to the build:
 
 ![grafik](https://user-images.githubusercontent.com/1331477/205283998-484c6a13-0a66-4b34-9386-599a27bff53e.png)
 
+Also feature baselining is supported according to [Versioning features](https://wiki.eclipse.org/Version_Numbering#Versioning_features)
+
+![grafik](https://user-images.githubusercontent.com/1331477/206921380-5c66cc4b-bf98-4bde-9a95-994d5c9f2a09.png)
+
 ### Parameter enhancements for tycho-apitools-plugin:generate goal
 
 The parameters of the `tycho-apitools-plugin:generate` goal have been completed and improved.
