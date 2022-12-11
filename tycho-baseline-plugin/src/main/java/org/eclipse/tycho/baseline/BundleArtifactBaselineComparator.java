@@ -17,11 +17,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,9 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -44,15 +43,15 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
+import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
+import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
+import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.sonatype.plexus.build.incremental.BuildContext;
-
-import com.github.difflib.DiffUtils;
-import com.github.difflib.UnifiedDiffUtils;
-import com.github.difflib.patch.Patch;
 
 import aQute.bnd.differ.Baseline;
 import aQute.bnd.differ.Baseline.BundleInfo;
@@ -70,9 +69,12 @@ import aQute.lib.strings.Strings;
 import de.vandermeer.asciitable.AT_Cell;
 import de.vandermeer.asciitable.AT_Row;
 import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 
 @Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_PLUGIN)
 public class BundleArtifactBaselineComparator implements ArtifactBaselineComparator {
+
+	private static final SimpleArtifactDelta UNKNOWN_DELTA = new SimpleArtifactDelta("");
 
 	private static final String X_INTERNAL_ATTRIBUTE = "x-internal";
 
@@ -87,6 +89,9 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 
 	@Requirement
 	private P2RepositoryManager repositoryManager;
+
+	@Requirement(role = ContentsComparator.class)
+	Map<String, ContentsComparator> contentComparators;
 
 	@Override
 	public boolean compare(MavenProject project, BaselineContext context) throws Exception {
@@ -111,10 +116,10 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					.sorted(Comparator.comparing(info -> info.packageName))//
 					.toList();
 			BundleInfo bundleInfo = baseliner.getBundleInfo();
-			boolean failed = bundleInfo.mismatch;
-			ArrayList<Diff> resourcediffs = new ArrayList<Diff>();
-			collectResources(baseliner.getDiff(), resourcediffs);
-			ArrayList<Diff> manifestdiffs = new ArrayList<Diff>();
+			boolean failed = false;
+			Map<Diff, ArtifactDelta> resourcediffs = new LinkedHashMap<Diff, ArtifactDelta>();
+			collectResources(baseliner.getDiff(), resourcediffs, baselineJar, projectJar, context);
+			List<Diff> manifestdiffs = new ArrayList<Diff>();
 			collectManifest(baseliner.getDiff(), manifestdiffs);
 			if (!infos.isEmpty() || !resourcediffs.isEmpty() || !manifestdiffs.isEmpty()) {
 				AsciiTable at = new AsciiTable();
@@ -143,21 +148,16 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					failed |= requireVersionBump(bundleInfo, pv, bv, sv);
 					at.addRule();
 					at.addRow(Delta.MICRO, Type.RESOURCES, artifact.getName(), pv, bv, sv);
-					for (Diff diff : resourcediffs) {
+					for (Entry<Diff, ArtifactDelta> entry : resourcediffs.entrySet()) {
+						Diff diff = entry.getKey();
 						String name = diff.getName();
 						at.addRule();
 						at.addRow(INDENT + getResourceDeltaString(diff), diff.getType(), null, null, null, name);
-						if (isComparable(name)) {
-							List<String> source = getLines(baselineJar.getResource(name));
-							List<String> target = getLines(projectJar.getResource(name));
-							Patch<String> patch = DiffUtils.diff(source, target);
-							List<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff(name, name, source, patch,
-									3);
-							String collect = unifiedDiff.stream().collect(Collectors.joining("<br>"));
-							if (!collect.isBlank()) {
-								at.addRule();
-								at.addRow(null, null, null, null, null, collect);
-							}
+						String message = entry.getValue().getDetailedMessage();
+						if (message != null && !message.isBlank()) {
+							at.addRule();
+							at.addRow(null, null, null, null, null, message.replace(System.lineSeparator(), "<br>"))
+									.setTextAlignment(TextAlignment.LEFT);
 						}
 					}
 				}
@@ -305,19 +305,6 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		return internalPackages;
 	}
 
-	private List<String> getLines(Resource resource) throws IOException, Exception {
-		if (resource == null) {
-			return List.of();
-		}
-		try (InputStream stream = resource.openInputStream()) {
-			return IOUtils.readLines(stream, StandardCharsets.UTF_8);
-		}
-	}
-
-	private boolean isComparable(String name) {
-		return name != null && name.toLowerCase().endsWith(".xml");
-	}
-
 	private Object getResourceDeltaString(Diff diff) {
 		Delta delta = diff.getDelta();
 		if (delta == Delta.MAJOR) {
@@ -333,7 +320,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 
 	}
 
-	private void collectManifest(Diff diff, ArrayList<Diff> manifestdiffs) {
+	private void collectManifest(Diff diff, List<Diff> manifestdiffs) {
 		if (diff.getDelta() == Delta.UNCHANGED) {
 			return;
 		}
@@ -345,16 +332,39 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		}
 	}
 
-	private void collectResources(Diff diff, Collection<Diff> resourcediffs) {
+	private void collectResources(Diff diff, Map<Diff, ArtifactDelta> resourcediffs, Jar baselineJar, Jar projectJar,
+			BaselineContext baselineContext) {
 		if (diff.getDelta() == Delta.UNCHANGED) {
 			return;
 		}
-		if (diff.getType() == Type.RESOURCE && !diff.getName().endsWith(".class")) {
-			resourcediffs.add(diff);
+		if (diff.getType() == Type.RESOURCE) {
+			ArtifactDelta delta = getDelta(diff, baselineJar, projectJar, baselineContext);
+			if (delta != null) {
+				resourcediffs.put(diff, delta);
+			}
 		}
 		for (Diff child : diff.getChildren()) {
-			collectResources(child, resourcediffs);
+			collectResources(child, resourcediffs, baselineJar, projectJar, baselineContext);
 		}
+	}
+
+	private ArtifactDelta getDelta(Diff diff, Jar baselineJar, Jar projectJar, BaselineContext baselineContext) {
+		String name = diff.getName();
+		String extension = FilenameUtils.getExtension(name).toLowerCase();
+		ContentsComparator comparator = contentComparators.get(extension);
+		if (comparator != null) {
+			Resource baseResource = baselineJar.getResource(name);
+			Resource currenttResource = projectJar.getResource(name);
+			if (baseResource != null && currenttResource != null) {
+				try (InputStream baseStream = baseResource.openInputStream();
+						InputStream currentStream = currenttResource.openInputStream()) {
+					return comparator.getDelta(baseStream, currentStream,
+							new ComparisonData(baselineContext.getIgnores(), false));
+				} catch (Exception e) {
+				}
+			}
+		}
+		return UNKNOWN_DELTA;
 	}
 
 	private void addDiff(Diff diff, Info info, AsciiTable at, int indent) {

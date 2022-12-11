@@ -12,9 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
@@ -23,6 +27,10 @@ import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
+
+import com.github.difflib.DiffUtils;
+import com.github.difflib.UnifiedDiffUtils;
+import com.github.difflib.patch.Patch;
 
 @Component(role = ContentsComparator.class, hint = XmlComparator.XML)
 public class XmlComparator implements ContentsComparator {
@@ -36,15 +44,17 @@ public class XmlComparator implements ContentsComparator {
         //TODO can we feed xsds to have default elements compared/normalized?
         //For example in a DS-XML one has cardinality = "1..1" is the same as having not an attribute at all
         //see issue https://github.com/xmlunit/xmlunit/issues/88
+        //Another option would be to somehow implement this by our own...
         try {
             Diff baselineDiff = computeDiff(baselineBytes, reactorBytes);
             if (baselineDiff.hasDifferences()) {
-                return new SimpleArtifactDelta(baselineDiff.fullDescription());
+                String message = baselineDiff.fullDescription();
+                return createDelta(message, baselineBytes, reactorBytes);
             }
         } catch (RuntimeException e) {
-            //in case of malformed xml we cannot compare it...
+            //in case of malformed xml we cannot compare it better than comparing bytes...
             if (!Arrays.equals(baselineBytes, reactorBytes)) {
-                return new SimpleArtifactDelta("different");
+                return createDelta("different", baselineBytes, reactorBytes);
             }
         }
         return null;
@@ -57,6 +67,21 @@ public class XmlComparator implements ContentsComparator {
                 .ignoreComments() //
                 .ignoreWhitespace().build();
         return baselineDiff;
+    }
+
+    private static ArtifactDelta createDelta(String message, byte[] baselineBytes, byte[] reactorBytes) {
+        String detailed;
+        try {
+            List<String> source = IOUtils.readLines(new ByteArrayInputStream(baselineBytes), StandardCharsets.UTF_8);
+            List<String> target = IOUtils.readLines(new ByteArrayInputStream(reactorBytes), StandardCharsets.UTF_8);
+            Patch<String> patch = DiffUtils.diff(source, target);
+            List<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff("baseline", "reactor", source, patch, 0);
+            detailed = unifiedDiff.stream().collect(Collectors.joining((System.lineSeparator())));
+        } catch (Exception e) {
+            detailed = message;
+        }
+        return new SimpleArtifactDelta(message, detailed, new String(baselineBytes, StandardCharsets.UTF_8),
+                new String(reactorBytes, StandardCharsets.UTF_8));
     }
 
 }
