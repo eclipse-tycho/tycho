@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2maven.io;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +29,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -42,6 +44,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+@Component(role = MetadataIO.class)
 public class MetadataIO {
     private static class Writer extends MetadataWriter {
 
@@ -196,4 +199,11 @@ public class MetadataIO {
             writeXML(units, os);
         }
     }
+
+	public Set<IInstallableUnit> readXML(File artifact) throws IOException {
+		try (FileInputStream stream = new FileInputStream(artifact)) {
+			return readXML(stream);
+		}
+
+	}
 }
