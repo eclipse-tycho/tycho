@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2014 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP SE - initial API and implementation
@@ -72,17 +74,10 @@ public class EEVersion implements Comparable<EEVersion> {
 
     @Override
     public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null) {
-            return false;
-        }
-        if (!(other instanceof EEVersion)) {
-            return false;
-        }
-        EEVersion o = (EEVersion) other;
-        return this.version.equals(o.version) && this.type.equals(o.type);
+        return this == other || //
+                (other instanceof EEVersion o && //
+                        this.version.equals(o.version) && //
+                        this.type.equals(o.type));
     }
 
     @Override

@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import static org.eclipse.tycho.model.Feature.FEATURE_XML;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -39,10 +41,11 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 
 @Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
@@ -86,6 +89,14 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     private File basedir;
 
     /**
+     * The path to the <code>feature.xml</code> file.
+     * <p>
+     * Defaults to the <code>feature.xml</code> under the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}/" + FEATURE_XML)
+    private File featureFile;
+
+    /**
      * Name of the generated JAR.
      */
     @Parameter(property = "project.build.finalName", alias = "jarName", required = true)
@@ -107,18 +118,34 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     @Component
     private LicenseFeatureHelper licenseFeatureHelper;
 
+	@Component
+	private TargetPlatformService platformService;
+
+	@Component
+	private BuildPropertiesParser buildPropertiesParser;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
             outputDirectory.mkdirs();
 
-            Feature feature = Feature.loadFeature(basedir);
+            if (!featureFile.isFile()) {
+                throw new MojoExecutionException("The featureFile parameter must represent a valid file");
+            }
+
+            Feature feature;
+
+            try {
+                feature = Feature.read(featureFile);
+            } catch (final IOException e) {
+                throw new MojoExecutionException("Error reading " + featureFile, e);
+            }
 
             File licenseFeature = licenseFeatureHelper.getLicenseFeature(feature, project);
 
             updateLicenseProperties(feature, licenseFeature);
 
-            File featureXml = new File(outputDirectory, Feature.FEATURE_XML);
+            File featureXml = new File(outputDirectory, FEATURE_XML);
             try {
                 expandVersionQualifiers(feature);
                 Feature.write(feature, featureXml);
@@ -126,7 +153,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
                 throw new MojoExecutionException("Error updating feature.xml", e);
             }
 
-			BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
+			BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
             checkBinIncludesExist(buildProperties);
 
             File featureProperties = getFeatureProperties(licenseFeature, buildProperties);
@@ -146,7 +173,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
                     archiver.getArchiver()
                             .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
                 }
-                archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
+                archiver.getArchiver().addFile(featureXml, FEATURE_XML);
                 if (featureProperties != null) {
                     archiver.getArchiver().addFile(featureProperties, FEATURE_PROPERTIES);
                 }
@@ -234,27 +261,27 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
      */
     private FileSet getManuallyIncludedFiles(BuildProperties buildProperties) {
         List<String> binExcludes = new ArrayList<>(buildProperties.getBinExcludes());
-        binExcludes.add(Feature.FEATURE_XML); // we'll include updated feature.xml
+        binExcludes.add(FEATURE_XML); // we'll include updated feature.xml
         binExcludes.add(FEATURE_PROPERTIES); // we'll include updated feature.properties
         return getFileSet(basedir, buildProperties.getBinIncludes(), binExcludes);
     }
 
     private void assembleDeployableFeature() throws MojoExecutionException {
         UpdateSiteAssembler assembler = new UpdateSiteAssembler(plexus, target);
-        getDependencyWalker().walk(assembler);
+		getTychoProjectFacet().getDependencyWalker(DefaultReactorProject.adapt(project)).walk(assembler);
     }
 
     private void expandVersionQualifiers(Feature feature) throws MojoFailureException {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         feature.setVersion(reactorProject.getExpandedVersion());
 
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(reactorProject);
-        if (targetPlatform == null) {
-            getLog().warn(
+		TargetPlatform targetPlatform = platformService.getTargetPlatform(reactorProject).orElse(null);
+		if (targetPlatform == null) {
+			getLog().warn(
                     "Skipping version reference expansion in eclipse-feature project using the deprecated -Dtycho.targetPlatform configuration");
-            return;
-        }
-        featureXmlTransformer.expandReferences(feature, targetPlatform);
+			return;
+		}
+		featureXmlTransformer.expandReferences(feature, targetPlatform);
     }
 
     private JarArchiver getJarArchiver() throws MojoExecutionException {

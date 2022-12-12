@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -11,10 +13,14 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -27,14 +33,14 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     private Function<ArtifactDescriptor, File> locationSupplier;
     private File location;
 
-    private final ReactorProject project;
+    private ReactorProject project;
 
     private final String classifier;
 
-    private final Set<Object> installableUnits;
+    private final Collection<IInstallableUnit> installableUnits;
 
     public DefaultArtifactDescriptor(ArtifactKey key, File location, ReactorProject project, String classifier,
-            Set<Object> installableUnits) {
+            Collection<IInstallableUnit> installableUnits) {
         this.key = key;
         this.location = ArtifactCollection.normalizeLocation(location);
         this.project = project;
@@ -43,7 +49,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     }
 
     public DefaultArtifactDescriptor(ArtifactKey key, Function<ArtifactDescriptor, File> location,
-            ReactorProject project, String classifier, Set<Object> installableUnits) {
+            ReactorProject project, String classifier, Collection<IInstallableUnit> installableUnits) {
         this.key = key;
         this.locationSupplier = location;
         this.project = project;
@@ -58,6 +64,12 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     @Override
     public File getLocation(boolean fetch) {
+        if (project != null) {
+            File basedir = project.getBasedir();
+            if (basedir != null) {
+                return basedir;
+            }
+        }
         if (fetch && locationSupplier != null && (location == null || !location.exists())) {
             File file = locationSupplier.apply(this);
             if (file != null) {
@@ -65,6 +77,52 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
             }
         }
         return location;
+    }
+
+    @Override
+    public CompletableFuture<File> fetchArtifact() {
+        if (project != null) {
+            //TODO this really looks wrong! It should the file of the artifact (if present!) or the output directory,
+            // but the basedir most likely only works for tycho ...
+            File basedir = project.getBasedir();
+            if (basedir != null) {
+                return CompletableFuture.completedFuture(basedir);
+            }
+        }
+        if (location != null && location.exists()) {
+            return CompletableFuture.completedFuture(location);
+        }
+        if (locationSupplier != null) {
+            //TODO this actually should be done in the background!
+            File file = locationSupplier.apply(this);
+            if (file != null) {
+                File normalized = ArtifactCollection.normalizeLocation(file);
+                location = normalized;
+                if (normalized.exists()) {
+                    return CompletableFuture.completedFuture(normalized);
+                }
+            }
+
+        }
+        return CompletableFuture.failedFuture(new FileNotFoundException("Can't fetch file for artifact " + getKey()));
+    }
+
+    @Override
+    public Optional<File> getLocation() {
+        if (project != null) {
+            //TODO this really looks wrong! It should the file of the artifact (if present!) or the output directory,
+            // but the basedir most likely only works for tycho ...
+            File basedir = project.getBasedir();
+            if (basedir != null) {
+                return Optional.of(basedir);
+            }
+        }
+        if (location != null) {
+            //TODO actually location.exists() should be used here! But some code has problems with that!
+            return Optional.of(location);
+        }
+        // TODO Auto-generated method stub
+        return Optional.empty();
     }
 
     @Override
@@ -78,7 +136,7 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
     }
 
     @Override
-    public Set<Object> getInstallableUnits() {
+    public Collection<IInstallableUnit> getInstallableUnits() {
         return installableUnits;
     }
 
@@ -114,6 +172,14 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
                         || Objects.equals(locationSupplier, other.locationSupplier))
                 && Objects.equals(project, other.project) && Objects.equals(classifier, other.classifier)
                 && Objects.equals(installableUnits, other.installableUnits);
+    }
+
+    public void resolve(File newLocation) {
+        location = newLocation;
+    }
+
+    public void setMavenProject(ReactorProject mavenProject) {
+        project = mavenProject;
     }
 
 }

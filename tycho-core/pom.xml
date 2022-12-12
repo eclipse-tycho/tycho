@@ -10,19 +10,21 @@
  -    Sonatype Inc. - initial API and implementation
  -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>4.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-core</artifactId>
 
 	<name>Tycho Core</name>
 	<description>Core Tycho components</description>
+	<properties>
+		<jetty.version>11.0.13</jetty.version>
+	</properties>
 
 	<build>
 		<resources>
@@ -65,32 +67,14 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<manifestLocation>META-INF</manifestLocation>
-					<instructions>
-						<Import-Package>!*</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>compile-system-packages-companion-jar</id>
 						<phase>generate-resources</phase>
-						<goals><goal>compile</goal></goals>
+						<goals>
+							<goal>compile</goal>
+						</goals>
 						<configuration>
 							<source>9</source>
 							<target>9</target>
@@ -107,7 +91,9 @@
 					<execution>
 						<id>system-packages-companion-jar</id>
 						<phase>generate-resources</phase>
-						<goals><goal>jar</goal></goals>
+						<goals>
+							<goal>jar</goal>
+						</goals>
 						<configuration>
 							<archive>
 								<manifest>
@@ -136,24 +122,41 @@
 				</executions>
 			</plugin>
 			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>3.1.0</version>
 				<executions>
 					<execution>
+						<?m2e ignore?>
 						<id>copy-system-packages-companion-jar</id>
 						<phase>generate-resources</phase>
-						<goals><goal>run</goal></goals>
+						<goals>
+							<goal>run</goal>
+						</goals>
 						<configuration>
 							<target>
-								<copy
-									file="${project.build.directory}/${project.artifactId}-${project.version}-system-packages-companion.jar"
-									tofile="src/main/resources/system-packages-companion.jar"/>
+								<copy file="${project.build.directory}/${project.artifactId}-${project.version}-system-packages-companion.jar" tofile="src/main/resources/system-packages-companion.jar" />
 							</target>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			 <plugin>
+                <groupId>org.apache.servicemix.tooling</groupId>
+                <artifactId>depends-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-depends-file</id>
+                        <goals>
+                            <goal>generate-depends-file</goal>
+                        </goals>
+	                    <configuration>
+	                    	<outputFile>${project.build.directory}/classes/META-INF/sisu/connect.dependencies</outputFile>
+	                    </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
@@ -161,6 +164,11 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
+		</dependency>
+		<dependency>
+	      <groupId>org.apache.maven.resolver</groupId>
+	      <artifactId>maven-resolver-util</artifactId>
+	      <version>1.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -171,23 +179,13 @@
 			<artifactId>maven-plugin-annotations</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.tools.shared</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.shared</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-archiver</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.codehaus.plexus</groupId>
-		    <artifactId>plexus-interpolation</artifactId>
-		    <version>1.26</version>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-interpolation</artifactId>
+			<version>1.26</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
@@ -195,7 +193,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>sisu-equinox-launching</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-equinox-embedder</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>sisu-osgi-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -220,6 +228,48 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.core.runtime</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bndlib</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.repository</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.util.function</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.util.promise</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>2.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.15</version>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-testing-harness</artifactId>
 			<scope>test</scope>
@@ -233,12 +283,38 @@
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- See MavenDependenciesResolverTest -->
+		<dependency>
+			<groupId>io.takari.aether</groupId>
+			<artifactId>aether-connector-okhttp</artifactId>
+			<version>0.17.8</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>osgi.annotation</artifactId>
 			<version>8.1.0</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-http</artifactId>
+			<version>${jetty.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>${jetty.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+			<version>${jetty.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 </project>

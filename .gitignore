@@ -1,8 +1,23 @@
 target/
 bin/
-.project
-.classpath
-.settings/
 *.iml
 .idea/
 .tycho-consumer-pom.xml
+## Eclipse metadata files
+org.eclipse.core.resources.prefs
+org.eclipse.m2e.core.prefs
+org.eclipse.pde.core.prefs
+# ignore .project and .classpath file of Tycho projects, but keep them for test resources
+/.project
+/*/.project
+/*/*/.project
+/*/.classpath
+/*/*/.classpath
+
+## Debug files created by tycho
+pom-model.xml
+pom-model-final.xml
+pom-model-classic.xml
+project-dependencies.xml
+project-units.xml
+requirements.txt

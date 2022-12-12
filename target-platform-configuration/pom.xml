@@ -16,7 +16,7 @@
 	<parent>
 		<artifactId>tycho</artifactId>
 		<groupId>org.eclipse.tycho</groupId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>4.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>target-platform-configuration</artifactId>
@@ -44,12 +44,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>sisu-equinox-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.shared</artifactId>
+			<artifactId>sisu-osgi-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

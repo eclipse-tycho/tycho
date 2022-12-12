@@ -26,17 +26,16 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
-import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
-import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
+import org.eclipse.tycho.p2resolver.AttachedArtifact;
+import org.eclipse.tycho.p2resolver.P2MetadataProvider;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -47,9 +46,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
     @Requirement
     private Logger log;
 
-    @Requirement
-    private EquinoxServiceFactory equinox;
-
+    @Requirement(hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
     private DependencyMetadataGenerator generator;
 
     @Override
@@ -112,7 +109,6 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
 
     @Override
     public void initialize() throws InitializationException {
-        this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
     }
 
 }

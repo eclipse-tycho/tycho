@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2017 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,12 +16,11 @@ package org.eclipse.tycho.zipcomparator.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -29,12 +28,12 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.apache.maven.plugin.MojoExecution;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.SelectorUtils;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.MatchPatterns;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
@@ -43,15 +42,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
 
     public static final String TYPE = "zip";
 
-    private static final Collection<String> IGNORED_PATTERNS;
-
-    static {
-        ArrayList<String> ignoredPatterns = new ArrayList<>();
-
-        ignoredPatterns.add("meta-inf/maven/**");
-
-        IGNORED_PATTERNS = Collections.unmodifiableList(ignoredPatterns);
-    }
+    private static final List<String> IGNORED_PATTERNS = List.of("META-INF/maven/**");
 
     @Requirement
     private Logger log;
@@ -60,52 +51,70 @@ public class ZipComparatorImpl implements ArtifactComparator {
     private Map<String, ContentsComparator> comparators;
 
     @Override
-    public CompoundArtifactDelta getDelta(File baseline, File reactor, MojoExecution execution) throws IOException {
+    public ArtifactDelta getDelta(File baseline, File reactor, ComparisonData data) throws IOException {
         Map<String, ArtifactDelta> result = new LinkedHashMap<>();
         Collection<String> ignoredPatterns = new HashSet<>(IGNORED_PATTERNS);
-        if (execution != null) {
-            Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
-            if (pluginConfiguration != null) {
-                Xpp3Dom ignoredPatternsNode = pluginConfiguration.getChild("ignoredPatterns");
-                if (ignoredPatternsNode != null) {
-                    for (Xpp3Dom node : ignoredPatternsNode.getChildren()) {
-                        ignoredPatterns.add(node.getValue());
-                    }
-                }
-            }
-        }
+        ignoredPatterns.addAll(data.ignoredPattern());
+        MatchPatterns ignored = MatchPatterns.from(ignoredPatterns);
 
-        try (ZipFile jar = new ZipFile(baseline); ZipFile jar2 = new ZipFile(reactor)) {
-            Map<String, ZipEntry> entries = toEntryMap(jar, ignoredPatterns);
-            Map<String, ZipEntry> entries2 = toEntryMap(jar2, ignoredPatterns);
+        try (ZipFile baselineJar = new ZipFile(baseline); ZipFile reactorJar = new ZipFile(reactor)) {
+            Map<String, ZipEntry> baselineEntries = toEntryMap(baselineJar, ignored);
+            Map<String, ZipEntry> reachtorEntries = toEntryMap(reactorJar, ignored);
 
             Set<String> names = new TreeSet<>();
-            names.addAll(entries.keySet());
-            names.addAll(entries2.keySet());
+            names.addAll(baselineEntries.keySet());
+            names.addAll(reachtorEntries.keySet());
 
             for (String name : names) {
-                ZipEntry entry = entries.get(name);
-                if (entry == null) {
-                    result.put(name, new SimpleArtifactDelta("not present in baseline"));
-                    continue;
-                }
-                ZipEntry entry2 = entries2.get(name);
-                if (entry2 == null) {
-                    result.put(name, new SimpleArtifactDelta("present in baseline only"));
-                    continue;
-                }
-
-                try (InputStream is = jar.getInputStream(entry); InputStream is2 = jar2.getInputStream(entry2);) {
-                    ContentsComparator comparator = comparators.get(getContentType(name));
-                    ArtifactDelta differences = comparator.getDelta(is, is2, execution);
-                    if (differences != null) {
-                        result.put(name, differences);
-                        continue;
-                    }
+                ArtifactDelta delta = getDelta(name, baselineEntries, reachtorEntries, baselineJar, reactorJar, data);
+                if (delta != null) {
+                    result.put(name, delta);
                 }
             }
+        } catch (IOException e) {
+            log.debug("Comparing baseline=" + baseline + " with reactor=" + reactor + " failed: " + e
+                    + " using direct byte compare!", e);
+            //this can happen if we compare files that seem zip files but are actually not, for example an embedded jar can be an (empty) dummy file... in this case we should fall back to dumb byte compare (better than fail...)
+            if (FileUtils.contentEquals(baseline, reactor)) {
+                return null;
+            }
+            return ArtifactDelta.DEFAULT;
         }
         return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
+    }
+
+    private ArtifactDelta getDelta(String name, Map<String, ZipEntry> baseline, Map<String, ZipEntry> reactor,
+            ZipFile baselineJar, ZipFile reactorJar, ComparisonData data) throws IOException {
+        ZipEntry baselineEntry = baseline.get(name);
+        if (baselineEntry == null) {
+            return ArtifactDelta.MISSING_FROM_BASELINE;
+        }
+        ZipEntry reactorEntry = reactor.get(name);
+        if (reactorEntry == null) {
+            return ArtifactDelta.BASELINE_ONLY;
+        }
+
+        try (InputStream is = baselineJar.getInputStream(baselineEntry);
+                InputStream is2 = reactorJar.getInputStream(reactorEntry);) {
+            ContentsComparator comparator = comparators.get(getContentType(name));
+            try {
+                return comparator.getDelta(is, is2, data);
+            } catch (IOException e) {
+                log.debug("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
+                        + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e
+                        + ", using direct byte compare...", e);
+                is.close();
+                is2.close();
+                try (InputStream bl = baselineJar.getInputStream(baselineEntry);
+                        InputStream rp = reactorJar.getInputStream(reactorEntry);) {
+                    if (IOUtils.contentEquals(bl, rp)) {
+                        return null;
+                    }
+                    return ArtifactDelta.DEFAULT;
+                }
+
+            }
+        }
     }
 
     private String getContentType(String name) {
@@ -123,27 +132,21 @@ public class ZipComparatorImpl implements ArtifactComparator {
         if ("meta-inf/manifest.mf".equals(name)) {
             return ManifestComparator.TYPE;
         }
+        if (name.endsWith(".xml")) {
+            return XmlComparator.XML;
+        }
         return DefaultContentsComparator.TYPE;
     }
 
-    private static Map<String, ZipEntry> toEntryMap(ZipFile zip, Collection<String> ignoredPatterns) {
-        Map<String, ZipEntry> result = new LinkedHashMap<>();
+    private static Map<String, ZipEntry> toEntryMap(ZipFile zip, MatchPatterns ignored) {
+        Map<String, ZipEntry> result = new LinkedHashMap<>(zip.size());
         Enumeration<? extends ZipEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-            if (!entry.isDirectory() && !isIgnored(entry.getName(), ignoredPatterns)) {
+            if (!entry.isDirectory() && !ignored.matches(entry.getName(), false)) {
                 result.put(entry.getName(), entry);
             }
         }
         return result;
-    }
-
-    private static boolean isIgnored(String name, Collection<String> ignoredPatterns) {
-        for (String pattern : ignoredPatterns) {
-            if (SelectorUtils.matchPath(pattern, name, false)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

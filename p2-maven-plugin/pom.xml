@@ -9,28 +9,23 @@
  - Contributors:
  -    Christoph Läubrich - initial API and implementation
  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>4.0.0-SNAPSHOT</version>
 	</parent>
-
 	<artifactId>p2-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-
 	<name>P2 Maven Integration</name>
 	<description>The P2 Maven Plugin provides access to the P2 eco-system inside maven.</description>
-
 	<properties></properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.core</artifactId>
-			<version>2.9.100</version>
+			<version>2.9.200</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
@@ -39,42 +34,46 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.publisher</artifactId>
-			<version>1.7.100</version>
+			<version>1.7.200</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.director</artifactId>
-			<version>2.5.300</version>
+			<version>2.5.400</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.engine</artifactId>
-			<version>2.7.400</version>
+			<version>2.7.500</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.metadata</artifactId>
-			<version>2.6.200</version>
+			<version>2.6.300</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.repository</artifactId>
-			<version>2.6.100</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-			<version>1.2.600</version>
+			<version>1.2.800</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
-			<version>1.4.100</version>
+			<version>1.4.200</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.eclipse.platform</groupId>
-		    <artifactId>org.eclipse.equinox.frameworkadmin</artifactId>
-		    <version>2.2.0</version>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.frameworkadmin</artifactId>
+			<version>2.2.100</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.preferences</artifactId>
+			<version>3.10.100</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -102,13 +101,107 @@
 			<artifactId>org.eclipse.equinox.p2.updatesite</artifactId>
 			<version>1.2.300</version>
 		</dependency>
+		<!-- used API packages from Tycho -->
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-embedder-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>sisu-osgi-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>sisu-osgi-connect</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<!-- P2 -->
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>
+			<version>1.2.300</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
+			<version>1.4.400</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>
+			<version>2.3.300</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>
+			<version>1.2.100</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.director.app</artifactId>
+			<version>1.2.300</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>
+			<version>2.3.200</version>
+		</dependency>
+		<!-- Equinox -->
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.concurrent</artifactId>
+			<version>1.2.100</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+			<version>1.4.200</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.app</artifactId>
+			<version>1.6.200</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
+			<version>1.2.200</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
+		</dependency>
+		<!-- felix -->
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.scr</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+		<!-- OSGi API -->
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+		<!-- others -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpg-jdk15on</artifactId>
+			<version>1.70</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.70</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
+		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -118,6 +211,22 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.servicemix.tooling</groupId>
+				<artifactId>depends-maven-plugin</artifactId>
+				<version>1.4.0</version>
+				<executions>
+					<execution>
+						<id>generate-depends-file</id>
+						<goals>
+							<goal>generate-depends-file</goal>
+						</goals>
+						<configuration>
+							<outputFile>${project.build.directory}/classes/META-INF/sisu/connect.dependencies</outputFile>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

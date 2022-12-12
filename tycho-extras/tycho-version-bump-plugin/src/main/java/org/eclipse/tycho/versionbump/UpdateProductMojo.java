@@ -26,12 +26,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 /**

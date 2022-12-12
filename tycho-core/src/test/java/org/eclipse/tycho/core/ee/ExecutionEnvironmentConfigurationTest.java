@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2022 SAP SE and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP SE - initial API and implementation
@@ -19,9 +21,9 @@ import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
+import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -23,10 +23,8 @@ import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
@@ -37,7 +35,7 @@ public class StandaloneDirectorRuntimeFactory {
     private RepositorySystem repositorySystem;
 
     @Requirement
-    private EquinoxServiceFactory osgiServices;
+    DirectorRuntime bootstrapDirector;
 
     @Requirement
     private EquinoxLauncher launchHelper;
@@ -54,9 +52,6 @@ public class StandaloneDirectorRuntimeFactory {
 
     private void installStandaloneDirector(File installLocation, ArtifactRepository localMavenRepository)
             throws MojoExecutionException {
-        // using the internal director...
-        DirectorRuntime bootstrapDirector = osgiServices.getService(DirectorRuntime.class);
-
         try {
             // ... install from a zipped p2 repository obtained via Maven ...
             URI directorRuntimeRepo = URI
@@ -85,8 +80,8 @@ public class StandaloneDirectorRuntimeFactory {
 
     private File getDirectorRepositoryZip(ArtifactRepository localMavenRepository) {
         // this artifact is a dependency of the Mojo, so we expect it in the local Maven repo
-        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-bundles-external",
-                TychoVersion.getTychoVersion(), "eclipse-repository");
+        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-bundles-external", "2.7.5",
+                "eclipse-repository");
         return new File(localMavenRepository.getBasedir(), localMavenRepository.pathOf(artifact));
     }
 }

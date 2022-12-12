@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -22,15 +24,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 public class TargetPlatformConfiguration implements DependencyResolverConfiguration {
 
@@ -47,7 +48,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private final List<URI> targets = new ArrayList<>();
     private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
-    private PomDependencies pomDependencies = PomDependencies.ignore;
+    private PomDependencies pomDependencies = PomDependencies.DEFAULT;
 
     private Boolean allowConflictingDependencies;
 
@@ -80,7 +81,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     }
 
     public List<TargetDefinitionFile> getTargets() {
-        return targets.stream().map(TargetDefinitionFile::read).collect(Collectors.toList());
+        return targets.stream().map(TargetDefinitionFile::read).toList();
     }
 
     public void addEnvironment(TargetEnvironment environment) {

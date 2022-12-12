@@ -41,10 +41,4 @@ public interface FileLocker {
      */
     public void release();
 
-    /**
-     * Whether the file associated with this locker object is currently locked (by this process or
-     * any other process).
-     */
-    public boolean isLocked();
-
 }

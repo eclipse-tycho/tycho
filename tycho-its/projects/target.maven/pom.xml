@@ -15,23 +15,15 @@
 	<packaging>pom</packaging>
 
 
-<!-- 	<pluginRepositories> -->
-<!-- 		<pluginRepository> -->
-<!-- 			<id>tycho-snapshots</id> -->
-<!-- 			<url>${tycho-snapshots-url}</url> -->
-<!-- 			<releases> -->
-<!-- 				<enabled>true</enabled> -->
-<!-- 			</releases> -->
-<!-- 			<snapshots> -->
-<!-- 				<enabled>true</enabled> -->
-<!-- 			</snapshots> -->
-<!-- 		</pluginRepository> -->
-<!-- 	</pluginRepositories> -->
+	<properties>
+		<tycho-version>3.1.0-SNAPSHOT</tycho-version>
+	</properties>
 
 	<modules>
 		<module>target.test</module>
 		<module>test.bundle</module>
 		<module>test.feature</module>
+		<module>test.site</module>
 	</modules>
 
 	<build>

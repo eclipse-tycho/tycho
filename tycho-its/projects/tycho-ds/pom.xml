@@ -36,6 +36,20 @@
 					<path>OSGI-INF</path>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-dependency-tools-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>list-dependencies</id>
+						<goals>
+							<goal>list-dependencies</goal>
+						</goals>
+						<phase>verify</phase>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>

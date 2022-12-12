@@ -1,5 +1,7 @@
 package org.eclipse.tycho.test.target;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,7 +36,9 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 
 	@After
 	public void stopServer() throws Exception {
-		server.stop();
+		if (server != null) {
+			server.stop();
+		}
 	}
 
 	@Test
@@ -49,8 +53,13 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 	public void slicerDoesNotFailWhenDependenciesDoNotExistInAnyLocation() throws Exception {
 		Verifier verifier = getVerifier("target.slicerWithMissingDependencies", false);
 		fillInTargetUrls(verifier);
-		verifier.executeGoals(Arrays.asList("package"));
-		verifier.verifyErrorFreeLog();
+		try {
+			verifier.executeGoals(Arrays.asList("package"));
+			fail();
+		} catch (VerificationException e) {
+			verifier.verifyTextInLog(
+					"Missing requirement: bundle2 1.0.0 requires 'osgi.bundle; bundle1 0.0.0' but it could not be found");
+		}
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
 @Component(role = ContentsComparator.class, hint = PropertiesComparator.TYPE)
@@ -29,7 +29,7 @@ public class PropertiesComparator implements ContentsComparator {
     public static final String TYPE = "properties";
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Properties props = new Properties();
@@ -44,13 +44,13 @@ public class PropertiesComparator implements ContentsComparator {
         for (String name : names) {
             String value = props.getProperty(name);
             if (value == null) {
-                result.put(name, new SimpleArtifactDelta("not present in baseline version"));
+                result.put(name, ArtifactDelta.MISSING_FROM_BASELINE);
                 continue;
             }
 
             String value2 = props2.getProperty(name);
             if (value2 == null) {
-                result.put(name, new SimpleArtifactDelta("present in baseline version only"));
+                result.put(name, ArtifactDelta.BASELINE_ONLY);
                 continue;
             }
 
@@ -66,8 +66,8 @@ public class PropertiesComparator implements ContentsComparator {
         for (Entry<Object, Object> propEntry : props.entrySet()) {
             Object key = propEntry.getKey();
             Object value = propEntry.getValue();
-            if (key instanceof String && value instanceof String) {
-                names.add((String) key);
+            if (key instanceof String keyString && value instanceof String) {
+                names.add(keyString);
             }
         }
     }

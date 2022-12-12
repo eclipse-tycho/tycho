@@ -9,64 +9,69 @@
  - Contributors:
  -    Sonatype Inc. - initial API and implementation
  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.eclipse.tycho</groupId>
-    <artifactId>tycho</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
-  </parent>
-  <artifactId>tycho-artifactcomparator</artifactId>
-  <properties>
-	<asm-version>9.3</asm-version>
-  </properties>
-
-  <name>Tycho Artifactor Comparator Plugin</name>
-
-  <dependencies>
-    <dependency>
-      <!-- XXX need to do CQ ritual -->
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-tree</artifactId>
-      <version>${asm-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-util</artifactId>
-      <version>${asm-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-component-annotations</artifactId>
-    </dependency>
-
-    <dependency>
-      <artifactId>junit</artifactId>
-      <groupId>junit</groupId>
-      <scope>test</scope>
-    </dependency>
-	<dependency>
-		<groupId>org.eclipse.sisu</groupId>
-		<artifactId>org.eclipse.sisu.plexus</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.maven</groupId>
-		<artifactId>maven-core</artifactId>
-	</dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-metadata</artifactId>
-      </plugin>
-    </plugins>
-  </build>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho</artifactId>
+		<version>4.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>tycho-artifactcomparator</artifactId>
+	<properties>
+		<asm-version>9.4</asm-version>
+	</properties>
+	<name>Tycho Artifactor Comparator Plugin</name>
+	<dependencies>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-tree</artifactId>
+			<version>${asm-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-util</artifactId>
+			<version>${asm-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-component-annotations</artifactId>
+		</dependency>
+		<dependency>
+			<artifactId>junit</artifactId>
+			<groupId>junit</groupId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.sisu</groupId>
+			<artifactId>org.eclipse.sisu.plexus</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.xmlunit</groupId>
+			<artifactId>xmlunit-core</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<!-- https://github.com/java-diff-utils/java-diff-utils -->
+		<dependency>
+			<groupId>io.github.java-diff-utils</groupId>
+			<artifactId>java-diff-utils</artifactId>
+			<version>4.12</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>

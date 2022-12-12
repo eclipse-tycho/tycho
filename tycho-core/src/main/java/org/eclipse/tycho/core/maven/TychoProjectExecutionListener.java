@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2022 Christoph Läubrich and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
@@ -12,8 +14,12 @@ package org.eclipse.tycho.core.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectExecutionEvent;
@@ -21,11 +27,25 @@ import org.apache.maven.execution.ProjectExecutionListener;
 import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.plugin.MojoExecution;
+import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.p2maven.DependencyChain;
+import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = ProjectExecutionListener.class, hint = "tycho")
@@ -40,9 +60,41 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
     @Requirement
     private LegacySupport legacySupport;
 
+    private Set<MavenProject> finished = ConcurrentHashMap.newKeySet();
+
+    @Requirement
+    private Logger logger;
+
+    @Requirement
+    private TychoProjectManager projectManager;
+
+    @Requirement
+    private InstallableUnitGenerator generator;
+
     @Override
     public void beforeProjectExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
-        if (TychoMavenLifecycleParticipant.USE_OLD_RESOLVER) {
+
+    }
+
+    private boolean requiresDependencies(ProjectExecutionEvent event) {
+        List<MojoExecution> executionPlan = event.getExecutionPlan();
+        if (executionPlan == null) {
+            //we can't know ...
+            return true;
+        }
+        for (MojoExecution execution : executionPlan) {
+            MojoDescriptor mojoDescriptor = execution.getMojoDescriptor();
+            String dependencyResolutionRequired = mojoDescriptor.getDependencyResolutionRequired();
+            if (dependencyResolutionRequired != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void beforeProjectLifecycleExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
+        if (TychoConstants.USE_OLD_RESOLVER || !requiresDependencies(event)) {
             return;
         }
         MavenProject mavenProject = event.getProject();
@@ -51,7 +103,16 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
         MavenSession oldSession = legacySupport.getSession();
         try {
             legacySupport.setSession(mavenSession);
+            //FIXME should return tycho project!
             resolver.resolveProject(mavenSession, mavenProject, reactorProjects);
+            TychoProject tychoProject = projectManager.getTychoProject(mavenProject).orElse(null);
+            if (tychoProject != null) {
+                try {
+                    checkBuildState(tychoProject, mavenProject);
+                } catch (CoreException e) {
+                    //can't check the build state then...
+                }
+            }
         } finally {
             legacySupport.setSession(oldSession);
         }
@@ -64,16 +125,55 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
         }
     }
 
-    @Override
-    public void beforeProjectLifecycleExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
+    private void checkBuildState(TychoProject tychoProject, MavenProject project) throws CoreException {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        DependencyArtifacts artifacts = tychoProject.getDependencyArtifacts(reactorProject);
+        for (ArtifactDescriptor artifact : artifacts.getArtifacts()) {
+            MavenProject artifactMavenProject = getMavenProject(artifact);
+            if (artifactMavenProject != null && project != artifactMavenProject
+                    && !finished.contains(artifactMavenProject)) {
+                Collection<IInstallableUnit> projectUnits = generator.getInstallableUnits(project,
+                        legacySupport.getSession(), false);
+                ArtifactKey key = tychoProject.getArtifactKey(reactorProject);
+                ArtifactDescriptor root = new DefaultArtifactDescriptor(key, project.getBasedir(), reactorProject, null,
+                        projectUnits);
+                DependencyChain chain = new DependencyChain(root, artifacts.getArtifacts());
+                List<ArtifactDescriptor> pathToRoot = chain.pathToRoot(artifact);
+                String dependencyChain = pathToRoot.stream().map(descriptor -> {
+                    String message = String.valueOf(descriptor.getKey());
+                    if (descriptor.getMavenProject() == null) {
+                        message += " (target dependency)";
+                    } else {
+                        message += " (reactor project)";
+                    }
+                    return message;
+                }).collect(Collectors.joining(" --> "));
+                String targetRequires = pathToRoot.stream().filter(d -> d.getMavenProject() == null)
+                        .map(ArtifactDescriptor::getKey).map(String::valueOf).collect(Collectors.joining(", "));
+                logger.error("Your build is not self-contained! Project " + project.getId()
+                        + " depends implicitly on reactor project " + artifactMavenProject.getId()
+                        + " through target requirements " + targetRequires
+                        + " that are not part of the reactor, offending dependency chain is " + dependencyChain);
+            }
+        }
+    }
+
+    private MavenProject getMavenProject(ArtifactDescriptor artifact) {
+        ReactorProject reactorProject = artifact.getMavenProject();
+        if (reactorProject != null) {
+            return reactorProject.adapt(MavenProject.class);
+        }
+        return null;
     }
 
     @Override
     public void afterProjectExecutionSuccess(ProjectExecutionEvent event) throws LifecycleExecutionException {
+        finished.add(event.getProject());
     }
 
     @Override
     public void afterProjectExecutionFailure(ProjectExecutionEvent event) {
+        finished.add(event.getProject());
     }
 
 }

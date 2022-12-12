@@ -31,7 +31,10 @@ public class P2RepositoryValidateTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("p2Repository.unresolvableIU", false);
 		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_352.toString());
 		try {
-			verifier.executeGoal("validate");
+			// validate is not always enough here as only in the prepare-package there is
+			// the first mojo that requires classpath resolving and we want to delay it
+			// until there...
+			verifier.executeGoal("prepare-package");
 			fail("Expected build failure");
 		} catch (VerificationException ex) {
 			// expected

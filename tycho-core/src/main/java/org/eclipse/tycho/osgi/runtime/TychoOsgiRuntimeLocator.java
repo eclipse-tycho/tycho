@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2020 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -34,6 +36,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.locking.facade.FileLockService;
@@ -52,7 +55,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
      * {@link TychoOsgiRuntimeArtifacts#getRuntimeArtifacts()}) via the system packages extra
      * option.
      */
-    private static final String[] SYSTEM_PACKAGES_EXTRA = { "org.eclipse.tycho", // 
+    private static final String[] SYSTEM_PACKAGES_EXTRA = { "org.eclipse.tycho;version=\"3.0.0\"", // 
             "org.eclipse.tycho.artifacts", //
             "org.eclipse.tycho.core.ee.shared", //
             "org.eclipse.tycho.core.shared", //
@@ -67,7 +70,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
             "org.eclipse.tycho.p2.tools.publisher.facade", //
             "org.eclipse.tycho.p2.tools.mirroring.facade", //
             "org.eclipse.tycho.p2.tools.verifier.facade", //
-            "org.eclipse.tycho.repository.registry.facade",//
+            "org.eclipse.tycho.repository.registry.facade", //
             "org.eclipse.tycho.p2.tools.baseline.facade" };
 
     @Requirement
@@ -101,16 +104,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
 
         MavenSession session = buildContext.getSession();
 
-        TychoOsgiRuntimeArtifacts framework = runtimeArtifacts.get(TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK);
-        if (framework != null) {
-            addRuntimeArtifacts(workspaceLocator, description, session, framework);
-        }
-        if (forked) {
-            TychoOsgiRuntimeArtifacts shared = runtimeArtifacts.get(TychoOsgiRuntimeArtifacts.HINT_SHARED);
-            if (framework != null) {
-                addRuntimeArtifacts(workspaceLocator, description, session, shared);
-            }
-        } else {
+        if (!forked) {
             for (String systemPackage : SYSTEM_PACKAGES_EXTRA) {
                 description.addExtraSystemPackage(systemPackage);
             }
@@ -168,8 +162,8 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
         Artifact artifact = resolveDependency(session, dependency);
 
         if ("zip".equals(dependency.getType())) {
-            File artifactFile = new File(session.getLocalRepository().getBasedir(), session.getLocalRepository()
-                    .pathOf(artifact));
+            File artifactFile = new File(session.getLocalRepository().getBasedir(),
+                    session.getLocalRepository().pathOf(artifact));
             File eclipseDir = new File(artifactFile.getParentFile(), "eclipse");
 
             FileLocker locker = fileLockService.getFileLocker(artifactFile);
@@ -191,8 +185,8 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
                         try {
                             unArchiver.extract();
                         } catch (ArchiverException e) {
-                            throw new MavenExecutionException("Failed to unpack Tycho's OSGi runtime: "
-                                    + e.getMessage(), e);
+                            throw new MavenExecutionException(
+                                    "Failed to unpack Tycho's OSGi runtime: " + e.getMessage(), e);
                         }
 
                         eclipseDir.setLastModified(artifact.getFile().lastModified());

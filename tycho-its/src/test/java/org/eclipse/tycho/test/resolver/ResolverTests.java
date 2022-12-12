@@ -98,4 +98,10 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 		assertTrue("Highest version was not found", highestVersionFound);
 	}
 
+	@Test
+	public void testConsiderResolutionWithUsesDirectiveIfVanillaResolutionFails() throws Exception {
+		Verifier verifier = getVerifier("resolver.usesNecessary", false, false);
+		verifier.executeGoal("compile");
+		verifier.verifyErrorFreeLog();
+	}
 }

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -244,14 +245,15 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 		final File artifactDirectory = new File(verifier.getArtifactPath(GROUP_ID, ARTIFACT_ID, VERSION, "zip"))
 				.getParentFile();
 		final String prefix = ARTIFACT_ID + '-' + VERSION;
-
+		List<String> files = new ArrayList<>();
 		int zipArtifacts = 0;
 		for (final String fileName : artifactDirectory.list()) {
 			if (fileName.startsWith(prefix) && fileName.endsWith(".zip")) {
 				zipArtifacts++;
+				files.add(fileName);
 			}
 		}
-		assertEquals(expectedArtifacts, zipArtifacts);
+		assertEquals(files.toString(), expectedArtifacts, zipArtifacts);
 	}
 
 	public static Properties openPropertiesFromZip(File zipFile, String propertyFile) throws Exception {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2017 Red Hat Inc., and others
+ * Copyright (c) 2015, 2022 Red Hat Inc., and others
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@
 package org.eclipse.tycho.plugins.p2.extras;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -29,22 +28,22 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.osgi.framework.Version;
 
@@ -84,15 +83,29 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter(property = "baselines", name = "baselines")
     private List<String> baselines;
 
+    /**
+     * A list of file path patterns that are ignored when comparing the build artifact against the
+     * baseline version.
+     * 
+     * {@code
+     * <ignoredPatterns>
+     *   <pattern>META-INF/ECLIPSE_.RSA<pattern>
+     *   <pattern>META-INF/ECLIPSE_.SF</pattern>
+     * </ignoredPatterns>
+     * }
+     * 
+     */
+    @Parameter
+    private List<String> ignoredPatterns;
+
     @Parameter(property = "skip")
     private boolean skip;
 
     @Parameter(property = "onIllegalVersion", defaultValue = "fail")
     private ReportBehavior onIllegalVersion;
 
-    @Requirement
-    @Component
-    private EquinoxServiceFactory equinox;
+    @Component()
+    P2ResolverFactory resolverFactory;
 
     @Component
     private Logger plexusLogger;
@@ -109,11 +122,11 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
-            getLog().info("Skipped");
+            getLog().info("Execution was skipped");
             return;
         }
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        Set<?> dependencyMetadata = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
+        Set<IInstallableUnit> dependencyMetadata = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
         if (dependencyMetadata == null || dependencyMetadata.isEmpty()) {
             getLog().debug("Skipping baseline version comparison, no p2 artifacts created in build.");
             return;
@@ -123,7 +136,6 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                     + this.artifactComparators.keySet());
         }
 
-        P2ResolverFactory resolverFactory = this.equinox.getService(P2ResolverFactory.class);
         P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(this.plexusLogger, true));
 
         TargetPlatformConfigurationStub baselineTPStub = new TargetPlatformConfigurationStub();
@@ -135,12 +147,10 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         TargetPlatform baselineTP = resolverFactory.getTargetPlatformFactory().createTargetPlatform(baselineTPStub,
                 TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject), null);
 
-        for (Object item : dependencyMetadata) {
+        for (IInstallableUnit item : dependencyMetadata) {
             try {
-                Method getIdMethod = item.getClass().getMethod("getId");
-                Method getVersionMethod = item.getClass().getMethod("getVersion");
-                String id = (String) getIdMethod.invoke(item);
-                Version version = new Version(getVersionMethod.invoke(item).toString());
+                String id = item.getId();
+                Version version = new Version(item.getVersion().toString());
                 P2ResolutionResult res = resolver.resolveInstallableUnit(baselineTP, id, "0.0.0");
 
                 for (Entry foundInBaseline : res.getArtifacts()) {
@@ -174,8 +184,9 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                         } else {
                             reactorFile = reactorProject.getArtifact();
                         }
+                        ComparisonData data = new ComparisonData(ignoredPatterns, false);
                         ArtifactDelta artifactDelta = this.artifactComparators.get(this.comparator)
-                                .getDelta(baselineFile, reactorFile, execution);
+                                .getDelta(baselineFile, reactorFile, data);
                         String message = "Baseline and reactor have same fully qualified version, but with different content";
                         if (artifactDelta != null) {
                             if (this.onIllegalVersion == ReportBehavior.warn) {

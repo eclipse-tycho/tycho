@@ -45,7 +45,6 @@ public final class Repository {
         }
     }
 
-    @SuppressWarnings("unused")
     private String id;
 
     private URI url;

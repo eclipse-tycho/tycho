@@ -60,7 +60,7 @@ public class TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
 		assertTrue(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle1_"));
 
 		assertFalse(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle2_"));
-		assertTrue(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle3_"));
+		assertFalse(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle3_"));
 		assertFalse(checkFileWithPrefixExists(pluginsDir, "org.eclipse.osgi_"));
 		assertFalse(checkFileWithPrefixExists(pluginsDir, "org.junit_"));
 	}

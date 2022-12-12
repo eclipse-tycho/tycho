@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>4.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>tycho-source-plugin</artifactId>
@@ -26,11 +26,6 @@
 	<description>A plugin for packing source on OSGi bundles</description>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-p2-facade</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-compat</artifactId>

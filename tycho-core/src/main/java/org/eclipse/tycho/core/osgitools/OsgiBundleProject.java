@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -26,7 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -41,33 +42,34 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.container.Module;
 import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.artifacts.DependencyResolutionException;
-import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.configuration.DeclarativeServiceConfigurationReader;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
-import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
@@ -84,27 +86,29 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
+import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.Version;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
 
+    private static final Collection<String> OSGI_ANNOTATION_PACKAGES = List.of("org.osgi.annotation.bundle",
+            "org.osgi.annotation.versioning", "org.osgi.service.component.annotations");
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/osgiBundle";
     private static final String CTX_ARTIFACT_KEY = CTX_OSGI_BUNDLE_BASENAME + "/artifactKey";
-    private static final String CTX_MAVEN_SESSION = CTX_OSGI_BUNDLE_BASENAME + "/mavenSession";
-    private static final String CTX_MAVEN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/mavenProject";
     private static final String CTX_CLASSPATH = CTX_OSGI_BUNDLE_BASENAME + "/classPath";
+    static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/eclipsePluginProject";
 
     @Requirement
     private BundleReader bundleReader;
@@ -125,15 +129,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private ToolchainManager toolchainManager;
 
     @Requirement
-    private EquinoxServiceFactory equinox;
+    P2ResolverFactory resolverFactory;
 
     @Requirement
     private DeclarativeServiceConfigurationReader dsConfigReader;
 
-    @Override
-    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment) {
-        return getDependencyWalker(project);
-    }
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {
@@ -150,7 +152,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     File location = artifact.getLocation(true);
                     ReactorProject project = artifact.getMavenProject();
                     String classifier = artifact.getClassifier();
-                    Set<Object> installableUnits = artifact.getInstallableUnits();
+                    Collection<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
 
                     PluginDescription plugin = new DefaultPluginDescription(key, location, project, classifier, null,
                             installableUnits);
@@ -175,31 +177,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
-        ArtifactKey key = (ArtifactKey) project.getContextValue(CTX_ARTIFACT_KEY);
-        if (key == null) {
-            throw new IllegalStateException("Project has not been setup yet " + project.toString());
-        }
-
-        return key;
-    }
-
-    @Override
-    public void setupProject(MavenSession session, MavenProject project) {
-        ArtifactKey key = readArtifactKey(project.getBasedir());
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        reactorProject.setContextValue(CTX_ARTIFACT_KEY, key);
-        reactorProject.setContextValue(CTX_MAVEN_SESSION, session);
-        reactorProject.setContextValue(CTX_MAVEN_PROJECT, project);
-    }
-
-    private MavenSession getMavenSession(ReactorProject reactorProject) {
-        return Objects.requireNonNull((MavenSession) reactorProject.getContextValue(CTX_MAVEN_SESSION),
-                "Project not setup correctly");
-    }
-
-    private MavenProject getMavenProject(ReactorProject reactorProject) {
-        return Objects.requireNonNull((MavenProject) reactorProject.getContextValue(CTX_MAVEN_PROJECT),
-                "Project not setup correctly");
+        return project.computeContextValue(CTX_ARTIFACT_KEY, () -> readArtifactKey(project.getBasedir()));
     }
 
     public ArtifactKey readArtifactKey(File location) {
@@ -259,19 +237,22 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             File location = (File) entry.module.getRevisionInfo();
             if (location != null && location.exists()) {
                 ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.module.getSymbolicName());
-                ReactorProject otherProject = otherArtifact.getMavenProject();
-                List<File> locations;
-                if (otherProject != null) {
-                    locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
-                } else {
-                    locations = getBundleClasspath(otherArtifact);
-                }
+                if (otherArtifact != null) {
+                    ReactorProject otherProject = otherArtifact.getMavenProject();
+                    List<File> locations;
+                    if (otherProject != null) {
+                        locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
+                    } else {
+                        locations = getBundleClasspath(otherArtifact);
+                    }
 
-                if (locations.isEmpty() && !entry.rules.isEmpty()) {
-                    getLogger().warn("Empty classpath of required bundle " + otherArtifact);
-                }
+                    if (locations.isEmpty() && !entry.rules.isEmpty()) {
+                        getLogger().warn("Empty classpath of required bundle " + otherArtifact);
+                    }
 
-                classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
+                    classpath.add(
+                            new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
+                }
             }
         }
 
@@ -286,8 +267,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<AccessRule> bootClasspathExtraAccessRules = dependencyComputer.computeBootClasspathExtraAccessRules(state);
 
         addPDESourceRoots(project);
-        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream()
-                .collect(Collectors.groupingBy(cpe -> cpe.getArtifactKey(), LinkedHashMap::new, Collectors.toList()));
+        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream().collect(
+                Collectors.groupingBy(ClasspathEntry::getArtifactKey, LinkedHashMap::new, Collectors.toList()));
         if (logger.isDebugEnabled()) {
             for (var entry : classpathMap.entrySet()) {
                 List<ClasspathEntry> list = entry.getValue();
@@ -312,8 +293,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
             ArtifactKey key = entry.getKey();
             ReactorProject compositeProject = findProjectForKey(reactorProject, key);
-            List<File> compositeFiles = list.stream().flatMap(cpe -> cpe.getLocations().stream())
-                    .collect(Collectors.toList());
+            List<File> compositeFiles = list.stream().flatMap(cpe -> cpe.getLocations().stream()).toList();
             Collection<AccessRule> compositeRules = mergeRules(list);
             return Stream.of(new ClasspathEntry() {
 
@@ -346,7 +326,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 }
 
             });
-        }).collect(Collectors.toList());
+        }).toList();
         return new BundleClassPath(uniqueClasspath, strictBootClasspathAccessRules, bootClasspathExtraAccessRules);
     }
 
@@ -367,8 +347,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         MavenSession mavenSession = getMavenSession(root);
         for (MavenProject p : mavenSession.getProjects()) {
             ReactorProject rp = DefaultReactorProject.adapt(p);
-            if (rp.getContextValue(CTX_ARTIFACT_KEY) == key) {
-                return rp;
+            try {
+                //TODO should we not use equals here??
+                if (getArtifactKey(rp) == key) {
+                    return rp;
+                }
+            } catch (RuntimeException e) {
+                //can't find the artifact key then!
             }
         }
         return null;
@@ -379,10 +364,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ClasspathEntry> list = new ArrayList<>();
         Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(reactorProject).getClasspathEntries();
         for (ProjectClasspathEntry cpe : entries) {
-            if (cpe instanceof JUnitClasspathContainerEntry) {
-                JUnitClasspathContainerEntry junit = (JUnitClasspathContainerEntry) cpe;
+            if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolve JUnit " + junit.getJUnitSegment() + " classpath container...");
-                P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
                 P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
                 TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
                 Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, junit.getArtifacts())
@@ -413,7 +396,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private void addPDESourceRoots(MavenProject project) {
-        EclipsePluginProjectImpl eclipsePluginProject = getEclipsePluginProject(DefaultReactorProject.adapt(project));
+        EclipsePluginProject eclipsePluginProject = getEclipsePluginProject(DefaultReactorProject.adapt(project));
         for (BuildOutputJar outputJar : eclipsePluginProject.getOutputJars()) {
             for (File sourceFolder : outputJar.getSourceFolders()) {
                 removeDuplicateTestCompileRoot(sourceFolder, project.getTestCompileSourceRoots());
@@ -448,17 +431,17 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
     }
 
-    public EclipsePluginProjectImpl getEclipsePluginProject(ReactorProject otherProject) {
+    public EclipsePluginProject getEclipsePluginProject(ReactorProject otherProject) {
         EclipsePluginProjectImpl pdeProject = (EclipsePluginProjectImpl) otherProject
-                .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
+                .getContextValue(CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
             try {
-                pdeProject = new EclipsePluginProjectImpl(otherProject, otherProject.getBuildProperties(),
+                pdeProject = new EclipsePluginProjectImpl(otherProject, buildPropertiesParser.parse(otherProject),
                         classpathParser.parse(otherProject.getBasedir()));
-                if (otherProject instanceof DefaultReactorProject) {
-                    populateProperties(((DefaultReactorProject) otherProject).project.getProperties(), pdeProject);
+                if (otherProject instanceof DefaultReactorProject defaultReactorProject) {
+                    populateProperties(defaultReactorProject.project.getProperties(), pdeProject);
                 }
-                otherProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT, pdeProject);
+                otherProject.setContextValue(CTX_ECLIPSE_PLUGIN_PROJECT, pdeProject);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -491,9 +474,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public synchronized BundleClassPath getBundleClassPath(ReactorProject project) {
-        Object contextValue = project.getContextValue(CTX_CLASSPATH);
-        if (contextValue instanceof BundleClassPath) {
-            return (BundleClassPath) contextValue;
+        if (project.getContextValue(CTX_CLASSPATH) instanceof BundleClassPath bundleClassPath) {
+            return bundleClassPath;
         }
         BundleClassPath cp = resolveClassPath(getMavenSession(project), getMavenProject(project));
         project.setContextValue(CTX_CLASSPATH, cp);
@@ -597,15 +579,14 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
         }
         for (ProjectClasspathEntry entry : pdeProject.getClasspathEntries()) {
-            if (entry instanceof LibraryClasspathEntry) {
-                LibraryClasspathEntry libraryClasspathEntry = (LibraryClasspathEntry) entry;
+            if (entry instanceof LibraryClasspathEntry libraryClasspathEntry) {
                 File path = libraryClasspathEntry.getLibraryPath();
-                classpath.add(new DefaultClasspathEntry(null, readOrCreateArtifactKey(path, () -> {
-                    return new DefaultArtifactKey("jar", path.getAbsolutePath());
-                }), Collections.singletonList(path), null));
+                classpath.add(new DefaultClasspathEntry(null,
+                        readOrCreateArtifactKey(path, () -> new DefaultArtifactKey("jar", path.getAbsolutePath())),
+                        Collections.singletonList(path), null));
             }
         }
-        //Fragments are like embedded depdnecies...
+        //Fragments are like embedded dependencies...
         for (ArtifactDescriptor fragment : artifacts.getFragments()) {
             File location = fragment.getLocation(true);
             if (location != null) {
@@ -613,27 +594,63 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         Collections.singletonList(location), null));
             }
         }
-        try {
-            DeclarativeServicesConfiguration configuration = dsConfigReader.getConfiguration(getMavenProject(project));
-            if (configuration != null && configuration.isAddToClasspath()) {
-                TargetPlatform tp = TychoProjectUtils.getTargetPlatform(project);
-                org.osgi.framework.Version specificationVersion = configuration.getSpecificationVersion();
-                ArtifactKey dsJar = tp.resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
-                        "org.osgi.service.component.annotations",
-                        "[" + specificationVersion + "," + (specificationVersion.getMajor() + 1) + ".0.0)");
-                File location = tp.getArtifactLocation(
-                        new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, dsJar.getId(), dsJar.getVersion()));
-                logger.debug("Resolved declarative service specification " + specificationVersion + " to "
-                        + dsJar.getId() + " " + dsJar.getVersion() + " " + location);
-                DefaultAccessRule rule = new DefaultAccessRule("org/osgi/service/component/annotations/*", false);
-                classpath.add(
-                        new DefaultClasspathEntry(null, dsJar, Collections.singletonList(location), List.of(rule)));
-            }
-        } catch (IOException e) {
-            logger.warn("Can't read Declarative Services Configuration: " + e.getMessage(), e);
-        } catch (IllegalArtifactReferenceException | DependencyResolutionException e) {
-            logger.warn("Can't find declarative service specification in target platform: " + e.getMessage(), e);
+        for (var entry : getAnnotationArtifacts(project).entrySet()) {
+            String pkg = entry.getKey();
+            ResolvedArtifactKey artifactKey = entry.getValue();
+            DefaultAccessRule rule = new DefaultAccessRule(pkg.replace('.', '/') + "/*", false);
+            logger.debug("Resolved " + pkg + " to " + artifactKey.getId() + " " + artifactKey.getVersion() + " "
+                    + artifactKey.getLocation());
+            classpath.add(new DefaultClasspathEntry(null, artifactKey,
+                    Collections.singletonList(artifactKey.getLocation()), List.of(rule)));
         }
+    }
+
+    /**
+     * Resolves the default OSGi annotation artifacts for this project depending on the projects
+     * target platform
+     * 
+     * @param project
+     *            the project to resolve the annotation artifacts for
+     * @return a mapping of a package name to a resolved artifactkey
+     */
+    public Map<String, ResolvedArtifactKey> getAnnotationArtifacts(ReactorProject project) {
+        Map<String, ResolvedArtifactKey> map = new LinkedHashMap<>();
+        TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(project);
+        if (tp != null) {
+            for (String annotationPackage : OSGI_ANNOTATION_PACKAGES) {
+                try {
+                    ArtifactKey annotationJar = tp.resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
+                            annotationPackage, Version.emptyVersion.toString());
+                    File location = tp.getArtifactLocation(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                            annotationJar.getId(), annotationJar.getVersion()));
+                    map.put(annotationPackage, new ResolvedArtifactKey() {
+
+                        @Override
+                        public String getVersion() {
+                            return annotationJar.getVersion();
+                        }
+
+                        @Override
+                        public String getType() {
+                            return annotationJar.getType();
+                        }
+
+                        @Override
+                        public String getId() {
+                            return annotationJar.getId();
+                        }
+
+                        @Override
+                        public File getLocation() {
+                            return location;
+                        }
+                    });
+                } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
+                    logger.debug("Cannot find package " + annotationPackage + " in target platform");
+                }
+            }
+        }
+        return map;
     }
 
     protected DefaultClasspathEntry addBundleToClasspath(ArtifactDescriptor matchingBundle, String path) {
@@ -822,8 +839,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ArtifactKey> list = new ArrayList<>();
         Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(project).getClasspathEntries();
         for (ProjectClasspathEntry cpe : entries) {
-            if (cpe instanceof JUnitClasspathContainerEntry) {
-                list.addAll(((JUnitClasspathContainerEntry) cpe).getArtifacts());
+            if (cpe instanceof JUnitClasspathContainerEntry junitEntry) {
+                list.addAll(junitEntry.getArtifacts());
             }
         }
         return list;

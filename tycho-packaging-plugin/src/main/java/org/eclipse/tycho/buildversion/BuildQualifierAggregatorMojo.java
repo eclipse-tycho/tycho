@@ -17,10 +17,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
@@ -55,6 +57,9 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
     private final TimestampFinder timestampFinder = new TimestampFinder();
 
+	@Component
+	private TargetPlatformService platformService;
+
     @Override
     protected Date getBuildTimestamp() throws MojoExecutionException {
         Date timestamp = super.getBuildTimestamp();
@@ -73,6 +78,9 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
         }
 
         final ReactorProject thisProject = DefaultReactorProject.adapt(project);
+		// TODO we need to trigger TP loading now, probably we also should better use
+		// the target platform instead of walker of the project type?
+		platformService.getTargetPlatform(thisProject);
 
         projectType.getDependencyWalker(thisProject).walk(new ArtifactDependencyVisitor() {
             @Override

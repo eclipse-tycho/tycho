@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -50,8 +52,7 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
 
     private void setSystemPackages(List<SystemCapability> systemCapabilities) {
         systemPackages = systemCapabilities.stream().filter(capability -> capability.getType() == Type.JAVA_PACKAGE)
-                .map(capability -> new SystemPackageEntry(capability.getName(), capability.getVersion()))
-                .collect(Collectors.toList());
+                .map(capability -> new SystemPackageEntry(capability.getName(), capability.getVersion())).toList();
         setPropertyIfNotEmpty(Constants.FRAMEWORK_SYSTEMPACKAGES,
                 systemPackages.stream().map(SystemPackageEntry::toPackageSpecifier).collect(Collectors.joining(",")));
     }

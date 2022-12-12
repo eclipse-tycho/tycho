@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 public class ExecutionEnvironmentStub implements ExecutionEnvironment {
 
@@ -23,8 +22,7 @@ public class ExecutionEnvironmentStub implements ExecutionEnvironment {
 
     public ExecutionEnvironmentStub(String profileName, String... systemPackages) {
         this.profileName = profileName;
-        this.systemPackages = Arrays.stream(systemPackages).map(pack -> new SystemPackageEntry(pack, null))
-                .collect(Collectors.toList());
+        this.systemPackages = Arrays.stream(systemPackages).map(pack -> new SystemPackageEntry(pack, null)).toList();
         this.properties = new Properties();
         properties.put("org.osgi.framework.system.capabilities",
                 "osgi.ee; osgi.ee=\"JavaSE\"; version:List<Version>=\"1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0");

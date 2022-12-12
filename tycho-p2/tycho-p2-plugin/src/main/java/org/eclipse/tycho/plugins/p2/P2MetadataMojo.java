@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -28,7 +27,6 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -36,17 +34,18 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
+import org.eclipse.tycho.p2resolver.ArtifactFacade;
 
 @Mojo(name = "p2-metadata", threadSafe = true)
 public class P2MetadataMojo extends AbstractMojo {
@@ -55,9 +54,6 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(property = "project")
     protected MavenProject project;
 
-    @Parameter(property = "mojoExecution", readonly = true)
-    protected MojoExecution execution;
-
     @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
 
@@ -65,14 +61,14 @@ public class P2MetadataMojo extends AbstractMojo {
     protected MavenProjectHelper projectHelper;
 
     @Component
-    private EquinoxServiceFactory equinox;
+    P2Generator p2generator;
 
     /**
      * Project types which this plugin supports.
      */
     @Parameter
-    private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin",
-            "eclipse-feature", "p2-installable-unit");
+    private List<String> supportedProjectTypes = List.of("eclipse-plugin", "eclipse-test-plugin", "eclipse-feature",
+            "p2-installable-unit");
 
     /**
      * Baseline build repository(ies).
@@ -99,6 +95,29 @@ public class P2MetadataMojo extends AbstractMojo {
      */
     @Parameter(property = "tycho.baseline", defaultValue = "warn")
     private BaselineMode baselineMode;
+
+    /**
+     * A list of file path patterns that are ignored when comparing the build artifact against the
+     * baseline version.
+     * 
+     * {@code
+     * <ignoredPatterns>
+     *   <pattern>META-INF/ECLIPSE_.RSA<pattern>
+     *   <pattern>META-INF/ECLIPSE_.SF</pattern>
+     * </ignoredPatterns>
+     * }
+     * 
+     */
+    @Parameter
+    private List<String> ignoredPatterns;
+
+    /**
+     * Weather or not detailed information about encountered differences is written in case the
+     * comparison found some. The differing states in baseline and build are written to
+     * {@code ${project.build.directory}/artifactcomparison}
+     */
+    @Parameter(property = "tycho.debug.artifactcomparator", defaultValue = "false")
+    private boolean writeComparatorDelta;
 
     /**
      * Whether to replace build artifacts with baseline version or use reactor version:
@@ -132,13 +151,13 @@ public class P2MetadataMojo extends AbstractMojo {
         }
     }
 
-    private <T> T getService(Class<T> type) {
-        T service = equinox.getService(type);
-        if (service == null) {
-            throw new IllegalStateException("Could not acquire service " + type);
-        }
-        return service;
-    }
+//    private <T> T getService(Class<T> type) {
+//        T service = equinox.getService(type);
+//        if (service == null) {
+//            throw new IllegalStateException("Could not acquire service " + type);
+//        }
+//        return service;
+//    }
 
     protected void attachP2Metadata() throws MojoExecutionException {
         if (!attachP2Metadata || !supportedProjectTypes.contains(project.getPackaging())) {
@@ -168,29 +187,27 @@ public class P2MetadataMojo extends AbstractMojo {
                 }
             }
 
-            P2Generator p2generator = getService(P2Generator.class);
-
             Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts,
                     new PublisherOptions(generateDownloadStatsProperty), targetDir);
 
             if (baselineMode != BaselineMode.disable) {
-                generatedMetadata = baselineValidator.validateAndReplace(project, execution, generatedMetadata,
+                ComparisonData data = new ComparisonData(ignoredPatterns, writeComparatorDelta);
+                generatedMetadata = baselineValidator.validateAndReplace(project, data, generatedMetadata,
                         baselineRepositories, baselineMode, baselineReplace);
             }
 
             File contentsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_METADATA);
             File artifactsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_ARTIFACTS);
             p2generator.persistMetadata(generatedMetadata, contentsXml, artifactsXml);
-            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA, TychoConstants.CLASSIFIER_P2_METADATA, contentsXml);
-            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS, TychoConstants.CLASSIFIER_P2_ARTIFACTS, artifactsXml);
+            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA,
+                    TychoConstants.CLASSIFIER_P2_METADATA, contentsXml);
+            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS,
+                    TychoConstants.CLASSIFIER_P2_ARTIFACTS, artifactsXml);
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
-            Set<Object> installableUnits = new LinkedHashSet<>();
-            for (Map.Entry<String, IP2Artifact> entry : generatedMetadata.entrySet()) {
-                String classifier = entry.getKey();
-                IP2Artifact p2artifact = entry.getValue();
-
+            Set<IInstallableUnit> installableUnits = new LinkedHashSet<>();
+            generatedMetadata.forEach((classifier, p2artifact) -> {
                 installableUnits.addAll(p2artifact.getInstallableUnits());
 
                 // attach any new classified artifacts, like feature root files for example
@@ -198,7 +215,7 @@ public class P2MetadataMojo extends AbstractMojo {
                     projectHelper.attachArtifact(project, getExtension(p2artifact.getLocation()), classifier,
                             p2artifact.getLocation());
                 }
-            }
+            });
 
             // TODO 353889 distinguish between dependency resolution seed units ("primary") and other units of the project
             reactorProject.setDependencyMetadata(DependencyMetadataType.SEED, installableUnits);
@@ -253,7 +270,8 @@ public class P2MetadataMojo extends AbstractMojo {
             if (entry.getKey() == null) {
                 outputProperties.put(TychoConstants.KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
             } else {
-                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath());
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(),
+                        entry.getValue().getAbsolutePath());
             }
         }
 
@@ -261,15 +279,8 @@ public class P2MetadataMojo extends AbstractMojo {
     }
 
     private static void writeProperties(Properties properties, File outputFile) throws MojoExecutionException {
-        FileOutputStream outputStream;
-        try {
-            outputStream = new FileOutputStream(outputFile);
-
-            try {
-                properties.store(outputStream, null);
-            } finally {
-                outputStream.close();
-            }
+        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            properties.store(outputStream, null);
         } catch (IOException e) {
             throw new MojoExecutionException("I/O exception while writing " + outputFile, e);
         }

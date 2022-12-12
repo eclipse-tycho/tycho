@@ -39,7 +39,7 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
 
     @Override
     public String getDetailedMessage() {
-        StringBuilder message = new StringBuilder(getMessage()).append("\n");
+        StringBuilder message = new StringBuilder(getMessage()).append(System.lineSeparator());
         appendDetailedMessage(message, 1);
         return message.toString();
     }
@@ -48,10 +48,10 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
         for (Map.Entry<String, ArtifactDelta> member : members.entrySet()) {
             indent(message, indent);
             message.append(member.getKey()).append(": ").append(member.getValue().getMessage());
-            message.append("\n");
+            message.append(System.lineSeparator());
 
-            if (member.getValue() instanceof CompoundArtifactDelta) {
-                ((CompoundArtifactDelta) member.getValue()).appendDetailedMessage(message, indent + 1);
+            if (member.getValue() instanceof CompoundArtifactDelta compoundDelta) {
+                compoundDelta.appendDetailedMessage(message, indent + 1);
             }
         }
     }
@@ -65,10 +65,9 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
     public void writeDetails(File basedir) throws IOException {
         for (Map.Entry<String, ArtifactDelta> member : members.entrySet()) {
             ArtifactDelta memberDelta = member.getValue();
-            if (memberDelta instanceof CompoundArtifactDelta) {
-                ((CompoundArtifactDelta) memberDelta).writeDetails(new File(basedir, member.getKey()));
-            } else if (memberDelta instanceof SimpleArtifactDelta) {
-                SimpleArtifactDelta delta = (SimpleArtifactDelta) memberDelta;
+            if (memberDelta instanceof CompoundArtifactDelta compoundDelta) {
+                compoundDelta.writeDetails(new File(basedir, member.getKey()));
+            } else if (memberDelta instanceof SimpleArtifactDelta delta) {
                 if (delta.getBaseline() != null) {
                     writeFile(basedir, member.getKey() + "-baseline", delta.getBaseline());
                 }

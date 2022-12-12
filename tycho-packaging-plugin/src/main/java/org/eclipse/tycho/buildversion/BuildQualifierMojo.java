@@ -31,6 +31,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.build.BuildTimestampProvider;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.VersioningHelper;
@@ -117,6 +118,9 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Component(role = BuildTimestampProvider.class)
     protected Map<String, BuildTimestampProvider> timestampProviders;
 
+	@Component
+	private BuildPropertiesParser buildPropertiesParser;
+
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
         format = new SimpleDateFormat(formatString);
@@ -125,14 +129,11 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            TychoProjectVersion projectVersion = calculateQualifiedVersion();
-            project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
-            project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
-            project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
-
-            getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
-        }
+		TychoProjectVersion projectVersion = calculateQualifiedVersion();
+		project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
+		project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
+		project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
+		getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
     }
 
     private TychoProjectVersion calculateQualifiedVersion() throws MojoFailureException, MojoExecutionException {
@@ -163,7 +164,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 		String qualifier = forceContextQualifier;
 
         if (qualifier == null) {
-			qualifier = DefaultReactorProject.adapt(project).getBuildProperties().getForceContextQualifier();
+			qualifier = buildPropertiesParser.parse(DefaultReactorProject.adapt(project)).getForceContextQualifier();
         }
 
         if (qualifier == null) {

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2022 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     SAP AG - initial API and implementation
@@ -27,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -137,7 +138,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                         sb.append(System.lineSeparator());
                         sb.append(line);
                     }
-                    logger.debug("[ReadPackagesFromToolchains] Can't read java version for " + java
+                    logger.debug("[ReadPackagesFromToolchains] Cannot read java version for " + java
                             + ", full output was: " + sb);
                     return new JavaInfo(-1, List.of());
                 }
@@ -244,7 +245,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                                     String packageName = jrePackage.getValue();
                                     String version = jrePackage.getAttribute("version");
                                     return new SystemPackageEntry(packageName, version);
-                                }).collect(Collectors.toList());
+                                }).toList();
                     } catch (BundleException e) {
                         logger.error(e.getMessage(), e);
                         this.systemPackages = Collections.emptyList();
@@ -254,12 +255,12 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                 logger.debug(
                         "No system.packages in profile definition file for " + profileName + "; checking toolchain.");
                 this.systemPackages = readFromToolchains(toolchain, logger).packages.stream()
-                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).toList();
             } else if (Integer.parseInt(compilerSourceLevel) == Runtime.version().feature()) {
                 logger.debug("Currently running JRE matches source level for " + getProfileName()
                         + "; current JRE system packages are used.");
                 this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
-                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).toList();
             }
             if (this.systemPackages == null || this.systemPackages.isEmpty()) {
                 logger.warn("No system packages found in profile nor toolchain for " + profileName
@@ -267,7 +268,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                         + "This can cause faulty dependency resolution, consider adding a definition for a 'jdk' with id="
                         + profileName + " in your toolchains.xml");
                 this.systemPackages = ListSystemPackages.getCurrentJREPackages().stream()
-                        .map(packageName -> new SystemPackageEntry(packageName, null)).collect(Collectors.toList());
+                        .map(packageName -> new SystemPackageEntry(packageName, null)).toList();
             }
         }
         return systemPackages;
@@ -285,21 +286,13 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof StandardExecutionEnvironment)) {
-            return false;
-        }
-        StandardExecutionEnvironment other = (StandardExecutionEnvironment) obj;
-        return Objects.equals(this.compilerSourceLevel, other.compilerSourceLevel)
-                && Objects.equals(this.compilerTargetLevel, other.compilerTargetLevel)
-                && Objects.equals(this.eeVersion, other.eeVersion)
-                && Objects.equals(this.profileName, other.profileName)
-                && Objects.equals(this.profileProperties, other.profileProperties);
+        return this == obj || //
+                (obj instanceof StandardExecutionEnvironment other && //
+                        Objects.equals(this.compilerSourceLevel, other.compilerSourceLevel) && //
+                        Objects.equals(this.compilerTargetLevel, other.compilerTargetLevel) && //
+                        Objects.equals(this.eeVersion, other.eeVersion) && //
+                        Objects.equals(this.profileName, other.profileName) && //
+                        Objects.equals(this.profileProperties, other.profileProperties));
     }
 
     @Override

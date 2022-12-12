@@ -20,14 +20,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
+import org.eclipse.sisu.equinox.launching.BundleReference;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 
 /**
  * A "read-only" equinox installation (no bundles can be added, nothing configured). All
@@ -36,7 +35,7 @@ import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 public class ProvisionedInstallationDescription implements EquinoxInstallationDescription {
 
     private File location;
-    private ArtifactDescriptor systemBundleDescriptor;
+    private BundleReference systemBundleDescriptor;
     private BundleReader bundleReader;
 
     ProvisionedInstallationDescription(File location, BundleReader bundleReader) {
@@ -45,26 +44,43 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
     }
 
     @Override
-    public ArtifactDescriptor getSystemBundle() {
+    public BundleReference getSystemBundle() {
         if (systemBundleDescriptor != null) {
             return systemBundleDescriptor;
         }
         File pluginsDir = new File(location, "plugins");
-        File[] systemBundles = pluginsDir.listFiles((FileFilter) file -> file.isFile() && file.getName().startsWith(EquinoxContainer.NAME + "_"));
+        File[] systemBundles = pluginsDir.listFiles(
+                (FileFilter) file -> file.isFile() && file.getName().startsWith(EquinoxContainer.NAME + "_"));
         File systemBundle;
         if (systemBundles.length == 0) {
-            throw new IllegalArgumentException("No framework bundle " + EquinoxContainer.NAME + " found in "
-                    + pluginsDir);
+            throw new IllegalArgumentException(
+                    "No framework bundle " + EquinoxContainer.NAME + " found in " + pluginsDir);
         } else if (systemBundles.length > 1) {
-            throw new IllegalArgumentException("Multiple versions of the framework bundle " + EquinoxContainer.NAME
-                    + " found in " + pluginsDir);
+            throw new IllegalArgumentException(
+                    "Multiple versions of the framework bundle " + EquinoxContainer.NAME + " found in " + pluginsDir);
         } else {
             systemBundle = systemBundles[0];
         }
         String version = bundleReader.loadManifest(systemBundle).getBundleVersion();
         ArtifactKey systemBundleKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME,
                 version);
-        systemBundleDescriptor = new DefaultArtifactDescriptor(systemBundleKey, systemBundle, null, null, null);
+        systemBundleDescriptor = new BundleReference() {
+
+            @Override
+            public String getVersion() {
+                return systemBundleKey.getVersion();
+            }
+
+            @Override
+            public File getLocation() {
+                return systemBundle;
+            }
+
+            @Override
+            public String getId() {
+                return systemBundleKey.getId();
+            }
+        };
         return systemBundleDescriptor;
     }
 
@@ -94,27 +110,17 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
     }
 
     @Override
-    public List<ArtifactDescriptor> getBundles() {
+    public List<BundleReference> getBundles() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ArtifactDescriptor getBundle(String symbolicName, String highestVersion) {
+    public BundleReference getBundle(String symbolicName, String highestVersion) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void addBundle(ArtifactKey key, File basedir) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void addBundle(ArtifactKey key, File basedir, boolean override) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void addBundle(ArtifactDescriptor artifact) {
+    public void addBundle(BundleReference reference) {
         throw new UnsupportedOperationException();
     }
 

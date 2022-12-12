@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -20,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -84,7 +87,7 @@ public class ExecutionEnvironmentUtils {
                     .mapToObj(v -> {
                         String[] split = profileName.split("-");
                         return split[0] + "-" + v;
-                    }).map(map::get).findFirst().orElse(null);
+                    }).map(map::get).filter(Objects::nonNull).findFirst().orElse(null);
             if (higherEE != null) {
                 logger.warn("Using " + higherEE.getProfileName() + " to fulfill requested profile of " + profileName
                         + " this might lead to faulty dependency resolution, consider define a suitable JDK in the toolchains.xml");
@@ -105,7 +108,7 @@ public class ExecutionEnvironmentUtils {
                     List<String> packages = Arrays
                             .stream(surrogateEE.getProfileProperties()
                                     .getProperty("org.osgi.framework.system.packages", "").split(","))
-                            .map(String::trim).collect(Collectors.toList());
+                            .map(String::trim).toList();
                     Properties profileProperties = createProfileJvm(getVersion(profileName), packages);
                     return new StandardExecutionEnvironment(profileProperties, surrogateEE.getToolchain(),
                             surrogateEE.getLogger());
@@ -126,7 +129,7 @@ public class ExecutionEnvironmentUtils {
             for (String profileFile : listProps.getProperty("java.profiles").split(",")) {
                 Properties props = readProperties(findInSystemBundle(profileFile.trim()));
                 if (props == null) {
-                    logger.warn("can't read profile " + profileFile + " from system path");
+                    logger.warn("Cannot read profile " + profileFile + " from system path");
                     continue;
                 }
                 String name = props.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim();

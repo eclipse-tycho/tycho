@@ -342,7 +342,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
             if (compiler.getCompilerOutputStyle().equals(CompilerOutputStyle.ONE_OUTPUT_FILE_FOR_ALL_INPUT_FILES)
                     && !canUpdateTarget) {
-                getLog().info("RESCANNING!");
+                getLog().info("Rescanning");
                 // TODO: This second scan for source files is sub-optimal
                 String inputFileEnding = compiler.getInputFileEnding(compilerConfiguration);
 

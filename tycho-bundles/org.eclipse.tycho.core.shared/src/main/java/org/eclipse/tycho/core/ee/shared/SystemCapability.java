@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee.shared;
 
+import java.util.Objects;
+
 public class SystemCapability {
 
     public enum Type {
@@ -42,32 +44,17 @@ public class SystemCapability {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
-        return result;
+        return Objects.hash(name, type, version);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (!(obj instanceof SystemCapability))
-            return false;
-        SystemCapability other = (SystemCapability) obj;
-
-        return eq(type, other.type) && eq(name, other.name) && eq(version, other.version);
+        return obj instanceof SystemCapability other && //
+                Objects.equals(type, other.type) && //
+                Objects.equals(name, other.name) && //
+                Objects.equals(version, other.version);
     }
 
-    private static <T> boolean eq(T left, T right) {
-        if (left == right) {
-            return true;
-        } else if (left == null) {
-            return false;
-        } else {
-            return left.equals(right);
-        }
-    }
 }

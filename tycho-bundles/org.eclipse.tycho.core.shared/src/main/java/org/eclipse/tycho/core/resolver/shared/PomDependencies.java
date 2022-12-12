@@ -1,16 +1,21 @@
 /*******************************************************************************
  * Copyright (c) 2020 Christoph Läubrich and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver.shared;
 
+import org.eclipse.tycho.TychoConstants;
+
 public enum PomDependencies {
+
     /**
      * pom dependencies are ignored
      */
@@ -25,4 +30,7 @@ public enum PomDependencies {
      * generated if missing.
      */
     wrapAsBundle;
+
+    public static final PomDependencies DEFAULT = TychoConstants.USE_OLD_RESOLVER ? PomDependencies.ignore
+            : PomDependencies.consider;
 }

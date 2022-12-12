@@ -17,8 +17,6 @@
 package org.eclipse.tycho.surefire;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -29,7 +27,8 @@ import org.eclipse.tycho.PackagingType;
 
 /**
  * <p>
- * Executes tests in an OSGi runtime.
+ * Executes tests in an OSGi runtime. This is only supported in modules of packaging type
+ * `eclipse-test-plugin`.
  * </p>
  * <p>
  * The goal launches an OSGi runtime and executes the project's tests in that runtime. The "test
@@ -71,19 +70,12 @@ public class TestPluginMojo extends AbstractTestMojo {
 
     @Override
     protected boolean shouldRun() {
-        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())) {
-            return false;
-        }
-        if (!PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging())) {
-            getLog().warn("Unsupported packaging type " + project.getPackaging());
-            return false;
-        }
         return true;
     }
 
     @Override
-    protected List<String> getDefaultInclude() {
-        return Arrays.asList("**/Test*.class", "**/*Test.class", "**/*Tests.class", "**/*TestCase.class");
+    protected boolean isCompatiblePackagingType(String packaging) {
+        return PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging());
     }
 
     @Override
@@ -98,7 +90,7 @@ public class TestPluginMojo extends AbstractTestMojo {
 
     @Override
     protected void handleNoTestsFound() throws MojoFailureException {
-        String message = "No tests found.";
+        String message = "No tests found";
         if (failIfNoTests) {
             throw new MojoFailureException(message);
         } else {
@@ -109,7 +101,7 @@ public class TestPluginMojo extends AbstractTestMojo {
 
     @Override
     protected void handleSuccess() {
-        getLog().info("All tests passed!");
+        getLog().info("All tests passed");
     }
 
     @Override

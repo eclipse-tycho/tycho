@@ -22,10 +22,9 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.core.VerifierService;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
 
 /**
  * <p>
@@ -39,14 +38,13 @@ public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements Log
     private Logger logger;
 
     @Component
-    private EquinoxServiceFactory p2;
+    VerifierService verifier;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
             File repositoryDir = getBuildDirectory().getChild("repository");
             logger.info("Verifying p2 repositories in " + repositoryDir);
-            VerifierService verifier = p2.getService(VerifierService.class);
             URI repositoryUri = repositoryDir.toURI();
             try {
                 if (!verifier.verify(repositoryUri, repositoryUri, getBuildDirectory())) {

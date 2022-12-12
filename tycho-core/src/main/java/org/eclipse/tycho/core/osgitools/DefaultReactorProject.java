@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2020 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -21,10 +23,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -36,23 +40,32 @@ public class DefaultReactorProject implements ReactorProject {
     /**
      * Conventional key used to store ReactorProject in MavenProject.context
      */
-    private static final String CTX_REACTOR_PROJECT = "tycho.reactor-project";
+    private static final String CTX_REACTOR_PROJECT = "tycho.reactor-project."
+            + System.identityHashCode(ReactorProject.class);
 
     /**
      * Conventional key used to store dependency metadata in MavenProject.context
      */
     private static final String CTX_DEPENDENCY_METADATA_PREFIX = "tycho.dependency-metadata-";
 
-    public final MavenProject project;
+    final MavenProject project;
 
     private final Map<String, Object> context = new ConcurrentHashMap<>();
+
+    private File basedir;
 
     public DefaultReactorProject(MavenProject project) {
         if (project == null) {
             throw new NullPointerException();
         }
-
         this.project = project;
+        ReactorProject reactorProject = getCachedValue(project);
+        if (reactorProject != null) {
+            this.basedir = reactorProject.getBasedir();
+        } else {
+            //we store the basedir here, just in case it gets modified e.g. by plugins setting a different pom file
+            this.basedir = project.getBasedir();
+        }
     }
 
     public static ReactorProject adapt(MavenProject project) {
@@ -60,7 +73,7 @@ public class DefaultReactorProject implements ReactorProject {
             return null;
         }
         synchronized (project) {
-            ReactorProject reactorProject = (ReactorProject) project.getContextValue(CTX_REACTOR_PROJECT);
+            ReactorProject reactorProject = getCachedValue(project);
             if (reactorProject == null) {
                 reactorProject = new DefaultReactorProject(project);
                 project.setContextValue(CTX_REACTOR_PROJECT, reactorProject);
@@ -68,6 +81,12 @@ public class DefaultReactorProject implements ReactorProject {
             return reactorProject;
         }
 
+    }
+
+    protected static ReactorProject getCachedValue(MavenProject project) {
+        return project.getContextValue(CTX_REACTOR_PROJECT) instanceof ReactorProject reactorProject //
+                ? reactorProject
+                : null;
     }
 
     public static List<ReactorProject> adapt(MavenSession session) {
@@ -85,6 +104,9 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public File getBasedir() {
+        if (basedir != null) {
+            return basedir;
+        }
         return project.getBasedir();
     }
 
@@ -148,6 +170,14 @@ public class DefaultReactorProject implements ReactorProject {
         return (value != null) ? value : project.getContextValue(key);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T computeContextValue(String key, Supplier<T> initalValueSupplier) {
+        return (T) context.computeIfAbsent(key, nil -> {
+            return initalValueSupplier.get();
+        });
+    }
+
     @Override
     public void setContextValue(String key, Object value) {
         Objects.requireNonNull(key, "key can't be null");
@@ -159,21 +189,22 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     @Override
-    public void setDependencyMetadata(DependencyMetadataType type, Collection<?> units) {
+    public void setDependencyMetadata(DependencyMetadataType type, Collection<IInstallableUnit> units) {
         setContextValue(getDependencyMetadataKey(type), units);
     }
 
     @Override
-    public Set<?> getDependencyMetadata() {
-        LinkedHashSet<Object> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataType.SEED));
+    public Set<IInstallableUnit> getDependencyMetadata() {
+        Set<IInstallableUnit> result = new LinkedHashSet<>(getDependencyMetadata(DependencyMetadataType.SEED));
         result.addAll(getDependencyMetadata(DependencyMetadataType.RESOLVE));
         return result;
     }
 
     @Override
-    public Set<?> getDependencyMetadata(DependencyMetadataType type) {
-        return Objects.requireNonNullElse((Set<?>) getContextValue(getDependencyMetadataKey(type)),
-                Collections.emptySet());
+    public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
+        @SuppressWarnings("unchecked")
+        Set<IInstallableUnit> contextValue = (Set<IInstallableUnit>) getContextValue(getDependencyMetadataKey(type));
+        return Objects.requireNonNullElse(contextValue, Collections.emptySet());
     }
 
     private static String getDependencyMetadataKey(DependencyMetadataType type) {
@@ -212,17 +243,8 @@ public class DefaultReactorProject implements ReactorProject {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof DefaultReactorProject)) {
-            return false;
-        }
-
-        DefaultReactorProject other = (DefaultReactorProject) obj;
-
-        return project.equals(other.project);
+        return this == obj || //
+                (obj instanceof DefaultReactorProject other && project.equals(other.project));
     }
 
     @Override
@@ -233,6 +255,17 @@ public class DefaultReactorProject implements ReactorProject {
     @Override
     public String getName() {
         return project.getName();
+    }
+
+    @Override
+    public <T> T adapt(Class<T> target) {
+        if (target == MavenSession.class) {
+            //TODO
+        }
+        if (target == MavenProject.class) {
+            return target.cast(project);
+        }
+        return null;
     }
 
 }

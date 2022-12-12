@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2021 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -17,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -27,11 +28,12 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
@@ -43,7 +45,6 @@ import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.TychoResolver;
 
@@ -77,7 +78,7 @@ public class DefaultTychoResolver implements TychoResolver {
         }
 
         // skip if setup was already done
-        if (reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES) != null) {
+        if (reactorProject.getContextValue(ReactorProject.CTX_MERGED_PROPERTIES) != null) {
             return;
         }
 
@@ -91,7 +92,7 @@ public class DefaultTychoResolver implements TychoResolver {
         properties.putAll(project.getProperties());
         properties.putAll(session.getSystemProperties()); // session wins
         properties.putAll(session.getUserProperties());
-        reactorProject.setContextValue(TychoConstants.CTX_MERGED_PROPERTIES, properties);
+        reactorProject.setContextValue(ReactorProject.CTX_MERGED_PROPERTIES, properties);
 
         setTychoEnvironmentProperties(properties, project);
 
@@ -110,8 +111,7 @@ public class DefaultTychoResolver implements TychoResolver {
 
     @Override
     public void resolveMavenProject(MavenSession session, MavenProject project, List<MavenProject> mavenProjects) {
-        List<ReactorProject> reactorProjects = mavenProjects.stream().map(DefaultReactorProject::adapt)
-                .collect(Collectors.toList());
+        List<ReactorProject> reactorProjects = mavenProjects.stream().map(DefaultReactorProject::adapt).toList();
         resolveProject(session, project, reactorProjects);
     }
 
@@ -153,9 +153,8 @@ public class DefaultTychoResolver implements TychoResolver {
 
         DependencyArtifacts testDependencyArtifacts = null;
         TychoProject tychoProjectType = projectTypes.get(project.getPackaging());
-        if (tychoProjectType instanceof BundleProject) {
-            List<ArtifactKey> testDependencies = ((BundleProject) tychoProjectType)
-                    .getExtraTestRequirements(reactorProject);
+        if (tychoProjectType instanceof BundleProject bundleProject) {
+            List<ArtifactKey> testDependencies = bundleProject.getExtraTestRequirements(reactorProject);
             if (!testDependencies.isEmpty()) {
                 logger.info(threadMarker + "Resolving test dependencies of " + project);
                 DependencyResolverConfiguration testResolverConfiguration = new DependencyResolverConfiguration() {

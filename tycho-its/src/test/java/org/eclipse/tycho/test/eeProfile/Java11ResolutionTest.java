@@ -26,27 +26,23 @@ import org.junit.Test;
 
 public class Java11ResolutionTest extends AbstractTychoIntegrationTest {
 
-    private static File buildResult;
+	private static File buildResult;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        buildResult = new Java11ResolutionTest().runBuild();
-    }
+	@BeforeClass
+	public static void setUp() throws Exception {
+		Verifier verifier = new Java11ResolutionTest().getVerifier("eeProfile.java11", false);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+		buildResult = new File(verifier.getBasedir());
+	}
 
-    public File runBuild() throws Exception {
-        Verifier verifier = getVerifier("eeProfile.java11", false);
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
-        return new File(verifier.getBasedir());
-    }
-
-    @Test
-    public void testProductBuildForJava11() throws Exception {
-        // a p2 repository that contains a product for Java 11
-        P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
-        List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
-        // we expect both java 10 and 11 (java 10 provides more system packages) 
-        assertThat(jreUnitVersions, hasItem("11.0.0"));
-    }
+	@Test
+	public void testProductBuildForJava11() throws Exception {
+		// a p2 repository that contains a product for Java 11
+		P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
+		List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
+		// we expect both java 10 and 11 (java 10 provides more system packages)
+		assertThat(jreUnitVersions, hasItem("11.0.0"));
+	}
 
 }

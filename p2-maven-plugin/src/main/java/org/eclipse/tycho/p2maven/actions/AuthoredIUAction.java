@@ -39,7 +39,6 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
 
-@SuppressWarnings("restriction")
 public class AuthoredIUAction extends AbstractPublisherAction implements IPublisherAction {
     public static final String IU_TYPE = "org.eclipse.equinox.p2.type.iu";
 
@@ -78,7 +77,8 @@ public class AuthoredIUAction extends AbstractPublisherAction implements IPublis
                     }
                 }
             }
-            //If no artifact has been referenced in the metadata, we publish a fake one because the code is not meant to handle this 
+			// If no artifact has been referenced in the metadata, we publish a fake one
+			// because the code is not meant to handle this
             // and fails in many places. I tried to change the code where the failures were occurring but did not succeed.
             if (!artifactReferenced && repo != null) {
                 IInstallableUnit iu = ius.iterator().next();

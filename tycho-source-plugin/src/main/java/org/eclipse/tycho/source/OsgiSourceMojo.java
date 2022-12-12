@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
-import static java.util.Collections.singletonList;
 import static org.osgi.framework.Constants.BUNDLE_LOCALIZATION;
 import static org.osgi.framework.Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
 import static org.osgi.framework.Constants.BUNDLE_MANIFESTVERSION;
@@ -22,24 +21,30 @@ import static org.osgi.framework.Constants.BUNDLE_VENDOR;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.StringJoiner;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.UnaryOperator;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -49,6 +54,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
@@ -68,8 +74,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     static final String MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE = "Eclipse-SourceBundle";
     private static final String MANIFEST_BUNDLE_LOCALIZATION_BASENAME = BUNDLE_LOCALIZATION_DEFAULT_BASENAME + "-src";
-    private static final String MANIFEST_BUNDLE_LOCALIZATION_FILENAME = MANIFEST_BUNDLE_LOCALIZATION_BASENAME
-            + ".properties";
+    static final String MANIFEST_BUNDLE_LOCALIZATION_FILENAME = MANIFEST_BUNDLE_LOCALIZATION_BASENAME + ".properties";
     private static final String I18N_KEY_PREFIX = "%";
     private static final String I18N_KEY_BUNDLE_VENDOR = "bundleVendor";
     private static final String I18N_KEY_BUNDLE_NAME = "bundleName";
@@ -165,10 +170,18 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     @Component
     private BundleReader bundleReader;
 
+    @Component
+    private BuildPropertiesParser buildPropertiesParser;
+
+    public void setBuildPropertiesParser(BuildPropertiesParser buildPropertiesParser) {
+        this.buildPropertiesParser = buildPropertiesParser;
+    }
+
     /** {@inheritDoc} */
     @Override
     protected List<Resource> getSources(MavenProject p) throws MojoExecutionException {
-        return getSources(project, requireSourceRoots, DefaultReactorProject.adapt(project).getBuildProperties());
+        return getSources(project, requireSourceRoots,
+                buildPropertiesParser.parse(DefaultReactorProject.adapt(project)));
     }
 
     protected List<Resource> getSources(MavenProject p, boolean requireSourceRoots, BuildProperties buildProperties)
@@ -200,7 +213,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         if (excludeResources) {
             return Collections.emptyList();
         }
-        BuildProperties buildProperties = DefaultReactorProject.adapt(p).getBuildProperties();
+        BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(p));
         List<String> srcIncludesList = buildProperties.getSourceIncludes();
         List<Resource> resources = new ArrayList<>();
         if (!srcIncludesList.isEmpty()) {
@@ -217,7 +230,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             }
         }
         if (!srcIncludesList.contains(MANIFEST_BUNDLE_LOCALIZATION_FILENAME)) {
-            resources.add(generateL10nFile());
+            OsgiManifest manifest = bundleReader.loadManifest(project.getBasedir());
+            Path basedir = project.getBasedir().toPath();
+            String bsn = manifest.getBundleSymbolicName();
+            resources.add(generateL10nFile(project, basedir, manifest::getValue, bsn, getLog()));
         }
         return resources;
     }
@@ -237,19 +253,19 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         return resource;
     }
 
-    private Resource generateL10nFile() throws MojoExecutionException {
-        OsgiManifest origManifest = bundleReader.loadManifest(project.getBasedir());
-        Properties l10nProps = readL10nProps(origManifest);
-        String bundleName = getL10nResolvedValue(origManifest, BUNDLE_NAME, l10nProps);
+    static Resource generateL10nFile(MavenProject project, Path basedir, UnaryOperator<String> manifest, String bsn,
+            Log log) throws MojoExecutionException {
+        Properties l10nProps = readL10nProps(manifest, basedir, log);
+        String bundleName = getL10nResolvedValue(manifest, BUNDLE_NAME, l10nProps);
         if (bundleName == null) {
-            getLog().warn("Bundle-Name header not found in " + new File(project.getBasedir(), JarFile.MANIFEST_NAME)
+            log.warn("Bundle-Name header not found in " + basedir.resolve(JarFile.MANIFEST_NAME)
                     + ", fallback to Bundle-SymbolicName for source bundle");
-            bundleName = origManifest.getBundleSymbolicName();
+            bundleName = bsn;
         }
         String sourceBundleName = bundleName + " Source";
-        String bundleVendor = getL10nResolvedValue(origManifest, BUNDLE_VENDOR, l10nProps);
+        String bundleVendor = getL10nResolvedValue(manifest, BUNDLE_VENDOR, l10nProps);
         if (bundleVendor == null) {
-            getLog().warn("Bundle-Vendor header not found in " + new File(project.getBasedir(), JarFile.MANIFEST_NAME)
+            log.warn("Bundle-Vendor header not found in " + basedir.resolve(JarFile.MANIFEST_NAME)
                     + ", fallback to 'unknown' for source bundle");
             bundleVendor = "unknown";
         }
@@ -266,29 +282,34 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         }
         Resource l10nResource = new Resource();
         l10nResource.setDirectory(l10nOutputDir.getAbsolutePath());
-        l10nResource.setIncludes(singletonList(MANIFEST_BUNDLE_LOCALIZATION_FILENAME));
+        l10nResource.setIncludes(List.of(MANIFEST_BUNDLE_LOCALIZATION_FILENAME));
         return l10nResource;
     }
 
     protected Properties readL10nProps(OsgiManifest manifest) throws MojoExecutionException {
-        String bundleL10nBase = manifest.getValue(BUNDLE_LOCALIZATION);
+        return readL10nProps(manifest::getValue, project.getBasedir().toPath(), getLog());
+    }
+
+    protected static Properties readL10nProps(UnaryOperator<String> getManifestHeaderValue, Path basedir, Log log)
+            throws MojoExecutionException {
+        String bundleL10nBase = getManifestHeaderValue.apply(BUNDLE_LOCALIZATION);
         boolean hasL10nProperty = bundleL10nBase != null;
         if (bundleL10nBase == null) {
             bundleL10nBase = BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
         }
-        File l10nPropsFile = new File(project.getBasedir(), bundleL10nBase + ".properties");
-        if (!l10nPropsFile.isFile()) {
+        Path l10nPropsFile = basedir.resolve(bundleL10nBase + ".properties");
+        if (!Files.isRegularFile(l10nPropsFile)) {
             bundleL10nBase = "plugin";
-            l10nPropsFile = new File(project.getBasedir(), bundleL10nBase + ".properties");
-            if (!l10nPropsFile.isFile()) {
+            l10nPropsFile = basedir.resolve(bundleL10nBase + ".properties");
+            if (!Files.isRegularFile(l10nPropsFile)) {
                 if (hasL10nProperty) {
-                    getLog().warn("bundle localization file " + l10nPropsFile + " not found");
+                    log.warn("Bundle localization file " + l10nPropsFile + " not found");
                 }
                 return null;
             }
         }
         Properties l10nProps = new Properties();
-        try (FileInputStream in = new FileInputStream(l10nPropsFile)) {
+        try (InputStream in = Files.newInputStream(l10nPropsFile)) {
             l10nProps.load(in);
         } catch (IOException e) {
             throw new MojoExecutionException("error loading " + l10nPropsFile, e);
@@ -296,14 +317,11 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         return l10nProps;
     }
 
-    private String getL10nResolvedValue(OsgiManifest manifest, String manifestHeaderKey, Properties l10nProps)
-            throws MojoExecutionException {
-        String value = manifest.getValue(manifestHeaderKey);
-        if (value == null || !value.startsWith("%")) {
+    private static String getL10nResolvedValue(UnaryOperator<String> getManifestHeaderValue, String manifestHeaderKey,
+            Properties l10nProps) {
+        String value = getManifestHeaderValue.apply(manifestHeaderKey);
+        if (value == null || !value.startsWith("%") || l10nProps == null) {
             return value;
-        }
-        if (l10nProps == null) {
-            return null;
         }
         String key = value.substring(1).trim();
         return l10nProps.getProperty(key);
@@ -342,30 +360,27 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             mavenArchiveConfiguration.addManifestEntry(MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE, symbolicName
                     + ";version=\"" + expandedVersion + "\";roots:=\"" + getEclipseHeaderSourceRoots() + "\"");
 
-            mavenArchiveConfiguration.addManifestEntry(BUNDLE_NAME, I18N_KEY_PREFIX + I18N_KEY_BUNDLE_NAME);
-            mavenArchiveConfiguration.addManifestEntry(BUNDLE_VENDOR, I18N_KEY_PREFIX + I18N_KEY_BUNDLE_VENDOR);
-            mavenArchiveConfiguration.addManifestEntry(BUNDLE_LOCALIZATION, MANIFEST_BUNDLE_LOCALIZATION_BASENAME);
+            addLocalicationHeaders(mavenArchiveConfiguration::addManifestEntry);
         } else {
-            getLog().info("NOT adding source bundle manifest entries. Incomplete or no bundle information available.");
+            getLog().info(
+                    "NOT adding source bundle MANIFEST.MF entries. Incomplete or no bundle information available.");
         }
+    }
+
+    static void addLocalicationHeaders(BiConsumer<String, String> manifest) {
+        manifest.accept(BUNDLE_NAME, I18N_KEY_PREFIX + I18N_KEY_BUNDLE_NAME);
+        manifest.accept(BUNDLE_VENDOR, I18N_KEY_PREFIX + I18N_KEY_BUNDLE_VENDOR);
+        manifest.accept(BUNDLE_LOCALIZATION, MANIFEST_BUNDLE_LOCALIZATION_BASENAME);
     }
 
     private String getEclipseHeaderSourceRoots() {
         if (!distinctSourceRoots) {
             return ".";
         }
-        StringJoiner result = new StringJoiner(",");
-        for (String jarName : DefaultReactorProject.adapt(project).getBuildProperties().getJarToSourceFolderMap()
-                .keySet()) {
-            String sourceRoot;
-            if (".".equals(jarName)) {
-                sourceRoot = ".";
-            } else {
-                sourceRoot = getSourceRootTargetPath(jarName);
-            }
-            result.add(sourceRoot);
-        }
-        return result.toString();
+        BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
+        return buildProperties.getJarToSourceFolderMap().keySet().stream()
+                .map(jarName -> ".".equals(jarName) ? "." : getSourceRootTargetPath(jarName))
+                .collect(Collectors.joining(","));
     }
 
     private static String getSourceRootTargetPath(String jarName) {
@@ -387,14 +402,14 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     @Override
     protected boolean isRelevantProject(MavenProject project) {
-        return isRelevant(project);
+        return isRelevant(project, buildPropertiesParser);
     }
 
-    public static boolean isRelevant(MavenProject project) {
-        String packaging = project.getPackaging();
-        boolean relevant = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
-                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
-        if (!relevant) {
+    private static final Set<String> RELEVANT_PACKAING_TYPES = Set.of(PackagingType.TYPE_ECLIPSE_PLUGIN,
+            PackagingType.TYPE_ECLIPSE_TEST_PLUGIN);
+
+    public static boolean isRelevant(MavenProject project, BuildPropertiesParser buildPropertiesParser) {
+        if (!RELEVANT_PACKAING_TYPES.contains(project.getPackaging())) {
             return false;
         }
 
@@ -407,19 +422,16 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
         for (PluginExecution execution : plugin.getExecutions()) {
             if (execution.getGoals().contains(GOAL)) {
-                boolean requireSourceRoots = Boolean
-                        .parseBoolean(getParameterValue(execution, "requireSourceRoots", "false"));
-                if (requireSourceRoots) {
+                String requireSourceRoots = getParameterValue(execution, "requireSourceRoots", "false");
+                if (Boolean.parseBoolean(requireSourceRoots)) {
                     return true;
                 }
-                boolean hasAdditionalFilesets = getConfigurationElement((Xpp3Dom) execution.getConfiguration(),
-                        "additionalFileSets") != null;
-                if (hasAdditionalFilesets) {
+                Xpp3Dom configuration = (Xpp3Dom) execution.getConfiguration();
+                if (getConfigurationElement(configuration, "additionalFileSets") != null) {
                     return true;
                 }
-                BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
-                if (buildProperties.getJarToSourceFolderMap().size() > 0
-                        || buildProperties.getSourceIncludes().size() > 0) {
+                BuildProperties buildProps = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
+                if (!buildProps.getJarToSourceFolderMap().isEmpty() || !buildProps.getSourceIncludes().isEmpty()) {
                     return true;
                 }
             }
@@ -435,18 +447,11 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     private static String getElementValue(Xpp3Dom config, String name) {
         Xpp3Dom child = getConfigurationElement(config, name);
-        if (child == null) {
-            return null;
-        }
-        return child.getValue();
+        return child == null ? null : child.getValue();
     }
 
     private static Xpp3Dom getConfigurationElement(Xpp3Dom config, String name) {
-        if (config == null) {
-            return null;
-        }
-        Xpp3Dom child = config.getChild(name);
-        return child;
+        return config == null ? null : config.getChild(name);
     }
 
 }

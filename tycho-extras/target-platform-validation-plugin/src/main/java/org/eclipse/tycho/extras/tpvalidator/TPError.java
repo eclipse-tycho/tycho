@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 
 public class TPError extends Exception {
 
@@ -38,8 +38,7 @@ public class TPError extends Exception {
         res.append("Could not resolve content of ");
         res.append(this.file.getName());
         res.append('\n');
-        if (getCause() instanceof TargetDefinitionResolutionException) {
-            TargetDefinitionResolutionException cause = (TargetDefinitionResolutionException) getCause();
+        if (getCause() instanceof TargetDefinitionResolutionException cause) {
             res.append(cause.getMessage());
         } else if (debug) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();

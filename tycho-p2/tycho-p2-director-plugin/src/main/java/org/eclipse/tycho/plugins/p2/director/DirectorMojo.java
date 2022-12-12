@@ -22,13 +22,12 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFactory;
 
 /**
@@ -49,13 +48,13 @@ public final class DirectorMojo extends AbstractProductMojo {
     }
 
     @Component
-    private EquinoxServiceFactory osgiServices;
-
-    @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
     @Component
     private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
+
+    @Component
+    DirectorRuntime director;
 
     /**
      * The name of the p2 profile to be created.
@@ -111,7 +110,7 @@ public final class DirectorMojo extends AbstractProductMojo {
         synchronized (LOCK) {
             List<Product> products = getProductConfig().getProducts();
             if (products.isEmpty()) {
-                getLog().info("No product definitions found. Nothing to do.");
+                getLog().info("No product definitions found, nothing to do");
             }
             DirectorRuntime director = getDirectorRuntime();
             RepositoryReferences sources = getSourceRepositories();
@@ -153,33 +152,21 @@ public final class DirectorMojo extends AbstractProductMojo {
     }
 
     private DirectorRuntime getDirectorRuntime() throws MojoFailureException, MojoExecutionException {
-        switch (directorRuntime) {
-        case internal:
-            // director from Tycho's OSGi runtime
-            return osgiServices.getService(DirectorRuntime.class);
-
-        case standalone:
-            // separate director installation in the target folder
-            return standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
-                    getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
-
-        default:
-            throw new MojoFailureException(
-                    "Unsupported value for attribute 'directorRuntime': \"" + directorRuntime + "\"");
-        }
+        return switch (directorRuntime) {
+        case internal -> director;
+        case standalone -> standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
+                getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
+        default -> throw new MojoFailureException(
+                "Unsupported value for attribute 'directorRuntime': \"" + directorRuntime + "\"");
+        };
     }
 
     private RepositoryReferences getSourceRepositories() throws MojoExecutionException, MojoFailureException {
-        switch (source) {
-        case targetPlatform:
-            return getTargetPlatformRepositories();
-
-        case repository:
-            return getBuildOutputRepository();
-
-        default:
-            throw new MojoFailureException("Unsupported value for attribute 'source': \"" + source + "\"");
-        }
+        return switch (source) {
+        case targetPlatform -> getTargetPlatformRepositories();
+        case repository -> getBuildOutputRepository();
+        default -> throw new MojoFailureException("Unsupported value for attribute 'source': \"" + source + "\"");
+        };
     }
 
     private RepositoryReferences getBuildOutputRepository() {

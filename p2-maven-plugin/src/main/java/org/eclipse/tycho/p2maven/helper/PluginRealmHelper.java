@@ -1,9 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -12,7 +14,6 @@ package org.eclipse.tycho.p2maven.helper;
 
 import java.util.Objects;
 
-import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.lifecycle.internal.LifecyclePluginResolver;
 import org.apache.maven.model.Plugin;
@@ -133,9 +134,5 @@ public class PluginRealmHelper {
 			}
 		}
 
-	}
-
-	private static MavenExecutionException newMavenExecutionException(Exception cause) {
-		return new MavenExecutionException("Could not setup plugin ClassRealm", cause);
 	}
 }

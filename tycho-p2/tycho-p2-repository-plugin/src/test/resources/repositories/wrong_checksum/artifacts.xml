@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='jarsigning.rcp' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1316441695413'/>
+    <property name='p2.compressed' value='true'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='2'>
+    <artifact classifier='osgi.bundle' id='jarsigning' version='0.0.1.201109191414'>
+      <properties size='6'>
+        <property name='artifact.size' value='2087'/>
+        <property name='download.size' value='3499'/>
+        <property name='download.md5' value='dc387e4ed978d97b5405d1ead0d2c28f'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.its.selfsignedcert'/>
+        <property name='maven-artifactId' value='jarsigning'/>
+        <property name='maven-version' value='0.0.1-SNAPSHOT'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='jarsigning.feature' version='0.0.1.201109191414'>
+      <properties size='7'>
+        <property name='artifact.size' value='2037'/>
+        <property name='download.size' value='3465'/>
+        <property name='download.md5' value='6d8517af2e71632614c505cb44ac5792'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.its.selfsignedcert'/>
+        <property name='maven-artifactId' value='jarsigning.feature'/>
+        <property name='maven-version' value='0.0.1-SNAPSHOT'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>

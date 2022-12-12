@@ -182,7 +182,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * Contains the full list of projects in the reactor.
      */
     @Parameter(property = "reactorProjects", readonly = true)
-    protected List reactorProjects;
+    protected List<MavenProject> reactorProjects;
 
     /**
      * NOT SUPPORTED. Whether creating the archive should be forced. If set to true, the jar will
@@ -259,7 +259,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         }
 
         if (useDefaultManifestFile && defaultManifestFile.exists() && archive.getManifestFile() == null) {
-            getLog().info("Adding existing MANIFEST to archive. Found under: " + defaultManifestFile.getPath());
+            getLog().info("Adding existing MANIFEST.MF to archive. Found under: " + defaultManifestFile.getPath());
             archive.setManifestFile(defaultManifestFile);
         }
 
@@ -273,7 +273,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
             archive.setAddMavenDescriptor(false);
             if (!archive.isForced()) {
                 // optimized archive creation not supported for now because of build qualifier mismatch issues, see TYCHO-502
-                getLog().warn("ignoring unsupported archive forced = false parameter.");
+                getLog().warn("Ignoring unsupported archive 'forced = false' parameter");
                 archive.setForced(true);
             }
             archiver.createArchive(session, project, archive);
@@ -284,7 +284,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         if (attach) {
             projectHelper.attachArtifact(project, getType(), getClassifier(), outputFile);
         } else {
-            getLog().info("NOT adding java-sources to attached artifacts list.");
+            getLog().info("NOT adding java-sources to attached artifacts list");
         }
     }
 

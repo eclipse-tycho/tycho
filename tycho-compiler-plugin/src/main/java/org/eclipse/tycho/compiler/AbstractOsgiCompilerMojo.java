@@ -87,6 +87,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
+import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
 import org.osgi.framework.Constants;
@@ -209,9 +210,24 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      * the design-time equivalent to the equinox runtime option
      * <a href="https://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
      * >osgi.compatibility.bootdelegation</a>.
+     * 
+     * @deprecated OSGI requires all packages to be imported and support for
+     *             osgi.compatibility.bootdelegation will be removed in one of the next Tycho
+     *             releases.
+     * @see #requireJavaPackageImports
+     */
+    @Parameter()
+    @Deprecated
+    private Boolean requireJREPackageImports;
+
+    /**
+     * Since OSGi R7 it is
+     * <a href="https://blog.osgi.org/2018/02/osgi-r7-highlights-java-9-support.html">allowed to
+     * import java.* packages</a> as well and considered good practice. This option controls if
+     * Tycho enforces this rule.
      */
     @Parameter(defaultValue = "false")
-    private boolean requireJREPackageImports;
+    private boolean requireJavaPackageImports;
 
     /**
      * If set to <code>false</code> (the default) issue a warning if effective compiler target level
@@ -240,6 +256,23 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
      */
     @Parameter(defaultValue = "true")
     private boolean deriveReleaseCompilerArgumentFromTargetLevel = true;
+
+    /**
+     * Controls how additional pom dependencies are handled that are not used in the dependency
+     * computation of the bundle. This can be used to have compile only dependencies, e.g.
+     * annotations that are only have class or source retention.
+     * 
+     * Possible values are:
+     * <ul>
+     * <li>consider (default) - pom dependencies not used already are added to the compile class
+     * path</li>
+     * <li>ignore - pom dependencies not used already are ignored</li>
+     * <li>wrapAsBundle - currently not used (but for future enhancements) treated as if 'consider'
+     * was given</li>
+     * </ul>
+     */
+    @Parameter(defaultValue = "consider")
+    private PomDependencies pomOnlyDependencies = PomDependencies.consider;
 
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
@@ -349,9 +382,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             this.currentOutputDirectory = entry.getKey();
             this.currentOutputDirectory.mkdirs();
             this.currentSourceRoots = entry.getValue().stream().map(SourcepathEntry::getSourcesRoot)
-                    .map(root -> new File(root.toURI().normalize()).toString()).collect(Collectors.toList());
+                    .map(root -> new File(root.toURI().normalize()).toString()).toList();
             this.currentExcludes = entry.getValue().stream().map(SourcepathEntry::getExcludes).filter(Objects::nonNull)
-                    .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+                    .flatMap(Collection::stream).distinct().toList();
             super.execute();
             doCopyResources();
         }
@@ -393,7 +426,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                                     e.printStackTrace();
                                     return null;
                                 }
-                            }).filter(Objects::nonNull).collect(Collectors.toList());
+                            }).filter(Objects::nonNull).toList();
                     manifestBREEs = ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger)
                             .stream() //
                             .map(name -> name.split("-")) //
@@ -469,9 +502,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     @Override
     public List<String> getClasspathElements() throws MojoExecutionException {
         final List<String> classpath = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        Set<String> includedPathes = new HashSet<>();
         for (ClasspathEntry cpe : getClasspath()) {
             for (File location : cpe.getLocations()) {
-                classpath.add(location.getAbsolutePath() + toString(cpe.getAccessRules()));
+                if (!isValidLocation(location)) {
+                    continue;
+                }
+                String path = location.getAbsolutePath();
+                String entry = path + toString(cpe.getAccessRules());
+                if (seen.add(entry)) {
+                    includedPathes.add(path);
+                    classpath.add(entry);
+                }
             }
         }
         if (session != null) {
@@ -480,14 +523,36 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
                 String basedir = repository.getBasedir();
                 Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
                 for (ProjectClasspathEntry cpe : classpathEntries) {
-                    if (cpe instanceof M2ClasspathVariable) {
-                        M2ClasspathVariable cpv = (M2ClasspathVariable) cpe;
-                        classpath.add(new File(basedir, cpv.getRepositoryPath()).getAbsolutePath());
+                    if (cpe instanceof M2ClasspathVariable cpv) {
+                        String entry = new File(basedir, cpv.getRepositoryPath()).getAbsolutePath();
+                        if (seen.add(entry)) {
+                            includedPathes.add(entry);
+                            classpath.add(entry);
+                        }
                     }
                 }
             }
         }
+        if (pomOnlyDependencies != PomDependencies.ignore) {
+            List<Artifact> additionalClasspathEntries = getBundleProject()
+                    .getInitialArtifacts(DefaultReactorProject.adapt(project), List.of(getDependencyScope())).stream() //
+                    .filter(a -> isValidLocation(a.getFile())) //
+                    .filter(a -> includedPathes.add(a.getFile().getAbsolutePath())) //
+                    .toList();
+            for (Artifact artifact : additionalClasspathEntries) {
+                String path = artifact.getFile().getAbsolutePath();
+                getLog().debug("Add a pom only classpath entry: " + artifact + " @ " + path);
+                classpath.add(path);
+            }
+        }
         return classpath;
+    }
+
+    private static boolean isValidLocation(File location) {
+        if (location == null || !location.exists() || (location.isFile() && location.length() == 0)) {
+            return false;
+        }
+        return true;
     }
 
     protected BundleProject getBundleProject() throws MojoExecutionException {
@@ -564,7 +629,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             String prefsFilePath = project.getBasedir() + File.separator + PREFS_FILE_PATH;
             if (!new File(prefsFilePath).exists()) {
                 getLog().warn("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
-                        + "' could not be found!");
+                        + "' could not be found");
             } else {
                 // make sure that "-properties" is the first custom argument, otherwise it's not possible to override
                 // any project setting on the command line because the last argument wins.
@@ -586,8 +651,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
         configureCompilerLog(compilerConfiguration);
         Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
         for (ProjectClasspathEntry cpe : classpathEntries) {
-            if (cpe instanceof JREClasspathEntry) {
-                JREClasspathEntry jreClasspathEntry = (JREClasspathEntry) cpe;
+            if (cpe instanceof JREClasspathEntry jreClasspathEntry) {
                 if (jreClasspathEntry.isModule()) {
                     Collection<String> modules = jreClasspathEntry.getLimitModules();
                     if (!modules.isEmpty()) {
@@ -642,7 +706,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             throws MojoExecutionException {
         List<AccessRule> accessRules = new ArrayList<>();
 
-        if (requireJREPackageImports) {
+        if (requireJREPackageImports != null) {
+            logger.warn(
+                    "Configuration option requireJREPackageImports is deprecated and will be removed in a future Tycho version!");
+        }
+        if (requireJREPackageImports == null || requireJREPackageImports) {
+            if (!requireJavaPackageImports) {
+                accessRules.add(new DefaultAccessRule("java/**", false));
+            }
             accessRules.addAll(getStrictBootClasspathAccessRules());
         } else {
             accessRules.add(new DefaultAccessRule("java/**", false));
@@ -749,7 +820,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         TychoProject projectType = getBundleProject();
-        ArrayList<ClasspathEntry> classpath = new ArrayList<>(
+        List<ClasspathEntry> classpath = new ArrayList<>(
                 ((BundleProject) projectType).getClasspath(DefaultReactorProject.adapt(project)));
 
         if (extraClasspathElements != null) {
@@ -773,21 +844,24 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
 
                 for (Artifact b : result.getArtifacts()) {
                     ReactorProject bProject = null;
-                    if (b instanceof ProjectArtifact) {
-                        bProject = DefaultReactorProject.adapt(((ProjectArtifact) b).getProject());
+                    if (b instanceof ProjectArtifact projectArtifact) {
+                        bProject = DefaultReactorProject.adapt(projectArtifact.getProject());
                     }
                     ArrayList<File> bLocations = new ArrayList<>();
                     bLocations.add(b.getFile()); // TODO properly handle multiple project locations maybe
-                    classpath.add(new DefaultClasspathEntry(bProject,
-                            ((OsgiBundleProject) getBundleProject()).readOrCreateArtifactKey(b.getFile(), () -> {
-                                return new DefaultArtifactKey(b.getType(), b.getGroupId() + "." + b.getArtifactId(),
-                                        b.getVersion());
-                            }), bLocations, null));
+                    classpath
+                            .add(new DefaultClasspathEntry(bProject,
+                                    ((OsgiBundleProject) getBundleProject()).readOrCreateArtifactKey(b.getFile(),
+                                            () -> new DefaultArtifactKey(b.getType(),
+                                                    b.getGroupId() + "." + b.getArtifactId(), b.getVersion())),
+                                    bLocations, null));
                 }
             }
         }
         return classpath;
     }
+
+    protected abstract String getDependencyScope();
 
     @Override
     public String getExecutionEnvironment() throws MojoExecutionException {

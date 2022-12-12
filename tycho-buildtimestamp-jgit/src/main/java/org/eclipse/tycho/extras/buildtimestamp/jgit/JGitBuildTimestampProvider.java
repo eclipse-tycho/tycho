@@ -62,7 +62,8 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  * 
  * For additional flexibility, some files can be ignored using gitignore
  * patterns specified in &ltjgit.ignore> element of tycho-packaging-plugin
- * configuration block.
+ * configuration block. Like in a .gitignore file each pattern is separated by a
+ * newline (unix or windows style) or form-feed.
  * 
  * <p>
  * Typical usage
@@ -75,7 +76,7 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  *         &lt;version&gt;${tycho-version}&lt;/version&gt;
  *         &lt;dependencies&gt;
  *           &lt;dependency&gt;
- *             &lt;groupId&gt;org.eclipse.tycho.extras&lt;/groupId&gt;
+ *             &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
  *             &lt;artifactId&gt;tycho-buildtimestamp-jgit&lt;/artifactId&gt;
  *             &lt;version&gt;${tycho-version}&lt;/version&gt;
  *           &lt;/dependency&gt;

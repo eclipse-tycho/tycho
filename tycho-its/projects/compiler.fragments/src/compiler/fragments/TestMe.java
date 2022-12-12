@@ -39,8 +39,7 @@ public class TestMe {
 			@Override
 			public void configure(Transport transport) {
 
-				if (transport instanceof SshTransport) {
-					SshTransport sshTransport = (SshTransport) transport;
+				if (transport instanceof SshTransport sshTransport) {
 					final SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
 
 						@Override
@@ -50,7 +49,6 @@ public class TestMe {
 
 						@Override
 						protected JSch createDefaultJSch(FS fs) throws JSchException {
-
 							JSch defaultJSch = super.createDefaultJSch(fs);
 							defaultJSch.addIdentity("~/.ssh/id_rsa");
 							return defaultJSch;

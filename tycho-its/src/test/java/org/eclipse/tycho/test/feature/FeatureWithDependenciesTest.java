@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.feature;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.util.List;
 
@@ -24,11 +22,58 @@ import org.junit.Test;
 public class FeatureWithDependenciesTest extends AbstractTychoIntegrationTest {
 
 	@Test
-	public void testFeatureRestriction() throws Exception {
+	public void testFeatureRestrictionWithIncludePluginsEnabled() throws Exception {
+		Verifier verifier = getVerifier("feature.dependency", false, true);
+		verifier.setSystemProperty("includePlugins", "true");
+		verifier.executeGoals(List.of("clean", "package"));
+		verifier.verifyErrorFreeLog();
+		File targetdir = new File(verifier.getBasedir(), "site/target");
+		assertFileExists(targetdir, "repository/plugins/org.aopalliance_*.jar");
+		assertFileExists(targetdir, "repository/features/test.include.feature_*.jar");
+		assertFileExists(targetdir, "repository/plugins/com.google.guava_*.jar");
+		assertFileDoesNotExist(targetdir, "repository/plugins/org.eclipse.emf.common_2*.jar");
+		assertFileDoesNotExist(targetdir, "repository/features/org.eclipse.emf.sdk_*.jar");
+	}
+
+	@Test
+	public void testFeatureRestrictionWithIncludeFeaturesEnabled() throws Exception {
+		Verifier verifier = getVerifier("feature.dependency", false, true);
+		verifier.setSystemProperty("includeFeatures", "true");
+		verifier.executeGoals(List.of("clean", "package"));
+		verifier.verifyErrorFreeLog();
+		File targetdir = new File(verifier.getBasedir(), "site/target");
+		assertFileExists(targetdir, "repository/plugins/org.aopalliance_*.jar");
+		assertFileExists(targetdir, "repository/features/test.include.feature_*.jar");
+		assertFileDoesNotExist(targetdir, "repository/plugins/com.google.guava_*.jar");
+		assertFileExists(targetdir, "repository/plugins/org.eclipse.emf.common_2*.jar");
+		assertFileExists(targetdir, "repository/features/org.eclipse.emf.sdk_*.jar");
+	}
+
+	@Test
+	public void testFeatureRestrictionWithIncludePluginsAndIncludeFeaturesEnabled() throws Exception {
+		Verifier verifier = getVerifier("feature.dependency", false, true);
+		verifier.setSystemProperty("includePlugins", "true");
+		verifier.setSystemProperty("includeFeatures", "true");
+		verifier.executeGoals(List.of("clean", "package"));
+		verifier.verifyErrorFreeLog();
+		File targetdir = new File(verifier.getBasedir(), "site/target");
+		assertFileExists(targetdir, "repository/plugins/org.aopalliance_*.jar");
+		assertFileExists(targetdir, "repository/features/test.include.feature_*.jar");
+		assertFileExists(targetdir, "repository/plugins/com.google.guava_*.jar");
+		assertFileExists(targetdir, "repository/plugins/org.eclipse.emf.common_2*.jar");
+		assertFileExists(targetdir, "repository/features/org.eclipse.emf.sdk_*.jar");
+	}
+
+	@Test
+	public void testFeatureRestrictionWithIncludePluginsAndFeaturesDisabled() throws Exception {
 		Verifier verifier = getVerifier("feature.dependency", false, true);
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
-		File pluginsFolder = new File(verifier.getBasedir(), "site/target/repository/plugins");
-		assertTrue("No plugin folder created!", pluginsFolder.exists());
+		File targetdir = new File(verifier.getBasedir(), "site/target");
+		assertFileExists(targetdir, "repository/plugins/org.aopalliance_*.jar");
+		assertFileExists(targetdir, "repository/features/test.include.feature_*.jar");
+		assertFileDoesNotExist(targetdir, "repository/plugins/com.google.guava_*.jar");
+		assertFileDoesNotExist(targetdir, "repository/plugins/org.eclipse.emf.common_2.*.jar");
+		assertFileDoesNotExist(targetdir, "repository/features/org.eclipse.emf.sdk_*.jar");
 	}
 }

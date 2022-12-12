@@ -18,7 +18,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
@@ -189,10 +192,7 @@ public abstract class AbstractTychoIntegrationTest {
      * @return an array of matching files (will contain at least one file)
      */
     protected File[] assertFileExists(File baseDir, String pattern) {
-        DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir(baseDir);
-        ds.setIncludes(new String[] { pattern });
-        ds.scan();
+        DirectoryScanner ds = scan(baseDir, pattern);
         File[] includedFiles = Arrays.stream(ds.getIncludedFiles()).map(file -> new File(baseDir, file))
                 .toArray(File[]::new);
         assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 1, includedFiles.length);
@@ -201,25 +201,46 @@ public abstract class AbstractTychoIntegrationTest {
     }
 
     protected void assertDirectoryExists(File targetdir, String pattern) {
-        DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir(targetdir);
-        ds.setIncludes(new String[] { pattern });
-        ds.scan();
+        DirectoryScanner ds = scan(targetdir, pattern);
         assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedDirectories().length);
         assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
                 new File(targetdir, ds.getIncludedDirectories()[0]).exists());
     }
 
     protected void assertFileDoesNotExist(File targetdir, String pattern) {
+        DirectoryScanner ds = scan(targetdir, pattern);
+        assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedFiles().length);
+    }
+
+    protected void assertDirectoryDoesNotExist(File baseDir, String pattern) {
+        DirectoryScanner ds = scan(baseDir, pattern);
+        assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedDirectories().length);
+    }
+
+    private static DirectoryScanner scan(File targetdir, String pattern) {
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(targetdir);
         ds.setIncludes(new String[] { pattern });
         ds.scan();
-        assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedFiles().length);
+        return ds;
     }
 
     protected String toURI(File file) throws IOException {
         return file.getCanonicalFile().toURI().normalize().toString();
+    }
+
+    public void verifyTextInLogMatches(Verifier verifier, Pattern pattern) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+
+        boolean result = false;
+        for (String line : lines) {
+            if (pattern.matcher(Verifier.stripAnsi(line)).find()) {
+                return;
+            }
+        }
+        if (!result) {
+            throw new VerificationException("Pattern not found in log: " + pattern);
+        }
     }
 
 }

@@ -21,40 +21,26 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 @Mojo(name = "update-local-index", threadSafe = true)
 public class UpdateLocalIndexMojo extends AbstractMojo {
-    private static final Object LOCK = new Object();
 
     @Parameter(property = "project", readonly = true, required = true)
     private MavenProject project;
 
     @Component
-    private EquinoxServiceFactory serviceFactory;
+    private LocalRepositoryP2Indices p2index;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            LocalRepositoryP2Indices localRepoIndices = serviceFactory.getService(LocalRepositoryP2Indices.class);
-            GAV gav = new GAV(project.getGroupId(), project.getArtifactId(), project.getArtifact().getVersion());
-            TychoRepositoryIndex artifactsIndex = localRepoIndices.getArtifactsIndex();
-            TychoRepositoryIndex metadataIndex = localRepoIndices.getMetadataIndex();
-            try {
-                addGavAndSave(gav, artifactsIndex);
-                addGavAndSave(gav, metadataIndex);
-            } catch (IOException e) {
-                throw new MojoExecutionException("Could not update local repository index", e);
-            }
+        GAV gav = new GAV(project.getGroupId(), project.getArtifactId(), project.getArtifact().getVersion());
+        try {
+            p2index.add(gav);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Could not update local repository index", e);
         }
-    }
-
-    private void addGavAndSave(GAV gav, TychoRepositoryIndex index) throws IOException {
-        index.addGav(gav);
-        index.save();
     }
 
 }

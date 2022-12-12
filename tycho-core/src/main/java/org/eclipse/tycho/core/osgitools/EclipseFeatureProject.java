@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -32,8 +34,8 @@ public class EclipseFeatureProject extends AbstractArtifactBasedProject {
     protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         final File location = project.getBasedir();
         final Feature feature = Feature.loadFeature(location);
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
-                project, environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
+                getEnvironments(project, environment)) {
             @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseFeature(location, feature, visitor);
@@ -49,6 +51,7 @@ public class EclipseFeatureProject extends AbstractArtifactBasedProject {
 
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
+        super.setupProject(session, project);
         // validate feature.xml
         Feature.loadFeature(project.getBasedir());
     }

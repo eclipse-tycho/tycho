@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -323,39 +324,21 @@ public class P2RepositoryTool {
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((id == null) ? 0 : id.hashCode());
-            result = prime * result + ((version == null) ? 0 : version.hashCode());
-            return result;
+            return Objects.hash(id, version);
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            } else if (!(obj instanceof IdAndVersion)) {
-                return false;
-            }
-
-            IdAndVersion other = (IdAndVersion) obj;
-            return eq(id, other.id) && eq(version, other.version);
+            return this == obj || //
+                    (obj instanceof IdAndVersion other && //
+                            Objects.equals(id, other.id) && //
+                            Objects.equals(version, other.version));
         }
 
     }
 
     public static IdAndVersion withIdAndVersion(String id, String version) {
         return new IdAndVersion(id, version);
-    }
-
-    static boolean eq(String left, String right) {
-        if (left == right) {
-            return true;
-        } else if (left == null) {
-            return false;
-        } else {
-            return left.equals(right);
-        }
     }
 
 }

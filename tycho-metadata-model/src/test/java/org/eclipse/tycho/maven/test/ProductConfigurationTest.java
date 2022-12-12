@@ -28,6 +28,7 @@ import org.eclipse.tycho.model.FeatureRef.InstallMode;
 import org.eclipse.tycho.model.Launcher;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.model.ProductConfiguration.ProductType;
 import org.junit.jupiter.api.Test;
 
 class ProductConfigurationTest {
@@ -40,7 +41,7 @@ class ProductConfigurationTest {
         assertEquals("My First RCP", config.getName());
         assertEquals("MyFirstRCP.product1", config.getProduct());
         assertEquals("MyFirstRCP.application", config.getApplication());
-        assertEquals(false, config.useFeatures());
+        assertEquals(ProductType.BUNDLES, config.getType());
 
         /*
          * ConfigIni configIni = config.getConfigIni();assertNotNull(configIni);

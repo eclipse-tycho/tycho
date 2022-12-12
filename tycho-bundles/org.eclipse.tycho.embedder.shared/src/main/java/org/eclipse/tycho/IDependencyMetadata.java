@@ -15,16 +15,18 @@ package org.eclipse.tycho;
 import java.util.Collection;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 public interface IDependencyMetadata {
 
     enum DependencyMetadataType {
         INITIAL, SEED, RESOLVE;
     }
 
-    Set<? /* IInstallableUnit */> getDependencyMetadata(DependencyMetadataType type);
+    Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type);
 
-    Set<? /* IInstallableUnit */> getDependencyMetadata();
+    Set<IInstallableUnit> getDependencyMetadata();
 
-    void setDependencyMetadata(DependencyMetadataType type, Collection<? /* IInstallableUnit */> units);
+    void setDependencyMetadata(DependencyMetadataType type, Collection<IInstallableUnit> units);
 
 }

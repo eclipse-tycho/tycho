@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -17,6 +19,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
+import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 
 public interface BundleProject extends TychoProject {
     public List<ClasspathEntry> getClasspath(ReactorProject project);
@@ -40,5 +43,7 @@ public interface BundleProject extends TychoProject {
     public List<ClasspathEntry> getTestClasspath(ReactorProject project);
 
     public List<ClasspathEntry> getTestClasspath(ReactorProject project, boolean complete);
+
+    public EclipsePluginProject getEclipsePluginProject(ReactorProject otherProject);
 
 }

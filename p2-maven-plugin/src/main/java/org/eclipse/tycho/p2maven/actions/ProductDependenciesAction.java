@@ -19,6 +19,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductContentType;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
@@ -28,7 +29,6 @@ import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 
-@SuppressWarnings("restriction")
 public class ProductDependenciesAction extends AbstractDependenciesAction {
     private final IProductDescriptor product;
 
@@ -50,14 +50,16 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
     protected Set<IRequirement> getRequiredCapabilities() {
         Set<IRequirement> required = new LinkedHashSet<>();
 
-        if (product.useFeatures()) {
+        ProductContentType type = product.getProductContentType();
+        if (type == ProductContentType.FEATURES || type == ProductContentType.MIXED) {
             for (IVersionedId feature : product.getFeatures()) {
                 String id = feature.getId() + FEATURE_GROUP_IU_SUFFIX; //$NON-NLS-1$
                 Version version = feature.getVersion();
 
                 addRequiredCapability(required, id, version, null, false);
             }
-        } else {
+        }
+        if (type == ProductContentType.BUNDLES || type == ProductContentType.MIXED) {
             for (FeatureEntry plugin : ((ProductFile) product).getProductEntries()) {
                 addRequiredCapability(required, plugin.getId(), Version.parseVersion(plugin.getVersion()), null, true);
             }

@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2021 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -11,24 +13,50 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.maven.MavenArtifactFacade;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2resolver.PomReactorProjectFacade;
+import org.eclipse.tycho.targetplatform.TargetDefinition;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
+
+    private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/tychoProject";
+    private static final String CTX_MAVEN_SESSION = CTX_OSGI_BUNDLE_BASENAME + "/mavenSession";
+    private static final String CTX_MAVEN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/mavenProject";
+    private static final String CTX_INITIAL_MAVEN_DEPENDENCIES = CTX_OSGI_BUNDLE_BASENAME + "/initialDependencies";
+
+    @Requirement
+    MavenDependenciesResolver projectDependenciesResolver;
+    @Requirement
+    LegacySupport legacySupport;
 
     @Override
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project) {
@@ -39,9 +67,8 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project, TargetEnvironment environment) {
         DependencyArtifacts platform = getDependencyArtifacts(project);
 
-        if (environment != null && platform instanceof MultiEnvironmentDependencyArtifacts) {
-            platform = ((MultiEnvironmentDependencyArtifacts) platform).getPlatform(environment);
-
+        if (environment != null && platform instanceof MultiEnvironmentDependencyArtifacts multiEnvArtifacts) {
+            platform = multiEnvArtifacts.getPlatform(environment);
             if (platform == null) {
                 throw new IllegalStateException("Unsupported runtime environment " + environment.toString()
                         + " for project " + project.toString());
@@ -62,7 +89,10 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     }
 
     public void setupProject(MavenSession session, MavenProject project) {
-        // do nothing by default
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        reactorProject.setContextValue(CTX_MAVEN_SESSION, session);
+        reactorProject.setContextValue(CTX_MAVEN_PROJECT, project);
+        reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES, List.copyOf(project.getDependencies()));
     }
 
     protected TargetEnvironment[] getEnvironments(ReactorProject project, TargetEnvironment environment) {
@@ -107,6 +137,106 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
             sink.setProfileConfiguration(configuredDefaultProfile,
                     "target-platform-configuration <executionEnvironmentDefault>");
         }
+    }
+
+    @Override
+    public Collection<Artifact> getInitialArtifacts(ReactorProject reactorProject, Collection<String> scopes) {
+        Object contextValue = reactorProject.getContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES);
+        if (contextValue instanceof Collection<?>) {
+            @SuppressWarnings("unchecked")
+            Collection<Dependency> dependencies = (Collection<Dependency>) contextValue;
+            if (dependencies.isEmpty()) {
+                return Collections.emptyList();
+            }
+            Map<String, ReactorProject> reactorProjectMap = getReactorProjectMap(reactorProject);
+            Stream<Artifact> projectArtifacts = streamProjectArtifacts(reactorProject, dependencies, scopes)
+                    .map(artifact -> {
+                        String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(),
+                                artifact.getBaseVersion());
+                        ReactorProject artifactReactorProject = reactorProjectMap.get(key);
+                        if (artifactReactorProject != null) {
+                            MavenProject mavenProject = artifactReactorProject.adapt(MavenProject.class);
+                            if (mavenProject != null) {
+                                return mavenProject.getArtifact();
+                            }
+                        }
+                        return artifact;
+
+                    });
+            return projectArtifacts.toList();
+        }
+        return Collections.emptyList();
+    }
+
+    private Stream<Artifact> streamProjectArtifacts(ReactorProject project, Collection<Dependency> dependencies,
+            Collection<String> scopes) {
+        MavenProject mavenProject = getMavenProject(project);
+        MavenSession mavenSession = getMavenSession(project);
+        try {
+            return projectDependenciesResolver.resolve(mavenProject, dependencies, scopes, mavenSession).stream();
+        } catch (DependencyCollectionException e) {
+            return Stream.empty();
+        } catch (DependencyResolutionException e) {
+            return Stream.empty();
+        }
+    }
+
+    @Override
+    public Map<Artifact, IArtifactFacade> getArtifactFacades(ReactorProject reactorProject,
+            Collection<Artifact> artifacts) {
+        Map<String, ReactorProject> reactorProjectMap = getReactorProjectMap(reactorProject);
+        Map<Artifact, IArtifactFacade> resultMap = new HashMap<>();
+        for (Artifact artifact : artifacts) {
+            String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
+            if (reactorProjectMap.containsKey(key)) {
+                PomReactorProjectFacade reactorFacade = new PomReactorProjectFacade(artifact,
+                        reactorProjectMap.get(key));
+                resultMap.put(artifact, reactorFacade);
+            } else {
+                MavenArtifactFacade externalFacade = new MavenArtifactFacade(artifact);
+                resultMap.put(artifact, externalFacade);
+            }
+        }
+        return resultMap;
+    }
+
+    private Map<String, ReactorProject> getReactorProjectMap(ReactorProject reactorProject) {
+        MavenSession session = getMavenSession(reactorProject);
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+        Map<String, ReactorProject> reactorProjectMap = new HashMap<>();
+        for (ReactorProject p : reactorProjects) {
+            reactorProjectMap.put(ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion()), p);
+        }
+        return reactorProjectMap;
+    }
+
+    protected static String getKey(Dependency dependency) {
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ":"
+                + dependency.getType() + ":" + Objects.requireNonNullElse(dependency.getClassifier(), "");
+    }
+
+    protected static String getKey(Artifact artifact) {
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":"
+                + artifact.getType() + ":" + Objects.requireNonNullElse(artifact.getClassifier(), "");
+    }
+
+    protected MavenSession getMavenSession(ReactorProject reactorProject) {
+        MavenSession mavenSession = (MavenSession) reactorProject.getContextValue(CTX_MAVEN_SESSION);
+        if (mavenSession == null) {
+            return Objects.requireNonNull(legacySupport.getSession(),
+                    "Project not setup correctly, neither context nor adaption works here!");
+        }
+        return mavenSession;
+    }
+
+    protected static MavenProject getMavenProject(ReactorProject reactorProject) {
+        MavenProject contextValue = (MavenProject) reactorProject.getContextValue(CTX_MAVEN_PROJECT);
+        if (contextValue == null) {
+            MavenProject adapt = reactorProject.adapt(MavenProject.class);
+            return Objects.requireNonNull(adapt,
+                    "Project not setup correctly, neither context nor adaption works here!");
+        }
+        return contextValue;
     }
 
 }

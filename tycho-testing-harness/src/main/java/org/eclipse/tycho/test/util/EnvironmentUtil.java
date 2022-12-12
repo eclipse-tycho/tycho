@@ -14,6 +14,7 @@ package org.eclipse.tycho.test.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ServerSocket;
 import java.util.Properties;
 
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -26,7 +27,7 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
  */
 public class EnvironmentUtil {
 
-    public static final String ECLIPSE_LATEST = "https:////download.eclipse.org/releases/2022-06/";
+    public static final String ECLIPSE_LATEST = "https:////download.eclipse.org/releases/2022-12/";
 
     private static final Properties props;
 
@@ -98,6 +99,13 @@ public class EnvironmentUtil {
     }
 
     public static int getHttpServerPort() {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            int localPort = serverSocket.getLocalPort();
+            if (localPort > 0) {
+                return localPort;
+            }
+        } catch (IOException e) {
+        }
         String port = getProperty("server-port");
         return Integer.parseInt(port);
     }

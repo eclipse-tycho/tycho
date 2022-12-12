@@ -15,7 +15,6 @@
 package org.eclipse.tycho.pomless;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +23,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
@@ -52,8 +55,11 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
  */
 public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
-    private static final String TYCHO_POMLESS_PARENT = "tycho.pomless.parent";
-    private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT, "..");
+    // All build.properties entries specifically considered by Tycho. Extends the list in Mapping interface
+    protected static final String TYCHO_POMLESS_PARENT_PROPERTY = "tycho.pomless.parent";
+    protected static final String TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY = "tycho.pomless.aggregator.names";
+
+    private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, "..");
     private static final String QUALIFIER_SUFFIX = ".qualifier";
     private static final String MODEL_PARENT = "TychoMapping.model.parent";
 
@@ -65,6 +71,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     private ModelWriter writer;
     private boolean extensionMode;
+    @SuppressWarnings("unused")
     private File multiModuleProjectDirectory;
     private String snapshotFormat;
 
@@ -80,12 +87,12 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     @Override
     public boolean accept(Map<String, ?> options) {
-        String location = PolyglotModelUtil.getLocation(options);
-        if (location == null || location.endsWith("pom.xml")) {
+        Optional<Path> location = getLocation(options);
+        if (location.isEmpty() || getFileName(location.get()).equals("pom.xml")) {
             //we want that pom.xml takes precedence over our generated one
             return false;
         }
-        return isValidLocation(location);
+        return isValidLocation(location.get());
     }
 
     @Override
@@ -108,21 +115,20 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     @Override
     public Model read(InputStream input, Map<String, ?> options) throws IOException {
-        String location = PolyglotModelUtil.getLocation(options);
-        File file = new File(location);
+        Path file = getLocation(options).orElseThrow(() -> new IOException("Failed to obtain file location"));
         try (InputStreamReader stream = new InputStreamReader(input, getPrimaryArtifactCharset())) {
             return read(stream, file, options);
         }
     }
 
     @Override
-    public Model read(File input, Map<String, ?> options) throws IOException {
-        File artifactFile = getRealArtifactFile(input);
-        if (artifactFile.isDirectory()) {
+    public Model read(File inputFile, Map<String, ?> options) throws IOException {
+        Path input = inputFile.toPath();
+        Path artifactFile = getRealArtifactFile(input);
+        if (Files.isDirectory(artifactFile)) {
             return read(new StringReader(""), input, options);
-        } else if (artifactFile.isFile()) {
-            try (InputStreamReader stream = new InputStreamReader(new FileInputStream(artifactFile),
-                    getPrimaryArtifactCharset())) {
+        } else if (Files.isRegularFile(artifactFile)) {
+            try (Reader stream = Files.newBufferedReader(artifactFile, getPrimaryArtifactCharset())) {
                 return read(stream, input, options);
             }
         } else {
@@ -133,17 +139,17 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     @Override
     public Model read(Reader input, Map<String, ?> options) throws IOException {
-        File file = new File(PolyglotModelUtil.getLocation(options));
+        Path file = getLocation(options).orElseThrow(() -> new IOException("Failed to obtain file location"));
         return read(input, file, options);
     }
 
-    private Model read(Reader artifactReader, File artifactFile, Map<String, ?> options) throws IOException {
+    private Model read(Reader artifactReader, Path artifactFile, Map<String, ?> options) throws IOException {
         Model model = new Model();
         model.setModelVersion("4.0.0");
         model.setPackaging(getPackaging());
         initModel(model, artifactReader, artifactFile);
         if (model.getParent() == null) {
-            model.setParent(findParent(artifactFile.getParentFile(), options));
+            model.setParent(findParent(artifactFile.getParent(), options));
         }
         if (model.getVersion() == null) {
             //inherit version from parent if not given
@@ -156,11 +162,11 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         return model;
     }
 
-    protected File getRealArtifactFile(File polyglotArtifactFile) {
+    protected Path getRealArtifactFile(Path polyglotArtifactFile) {
         return polyglotArtifactFile;
     }
 
-    protected Parent findParent(File projectRoot, Map<String, ?> projectOptions) throws IOException {
+    protected Parent findParent(Path projectRoot, Map<String, ?> projectOptions) throws IOException {
         Parent parent = (Parent) projectOptions.get(MODEL_PARENT);
         if (parent != null) {
             //if the parent is given by the options we don't need to search it!
@@ -168,18 +174,18 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         }
         Properties buildProperties = getBuildProperties(projectRoot);
         // assumption parent pom must be physically located in parent directory if not given by build.properties
-        String parentRef = buildProperties.getProperty(TYCHO_POMLESS_PARENT, PARENT_POM_DEFAULT_VALUE);
-        File fileOrFolder = new File(projectRoot, parentRef).getCanonicalFile();
+        String parentRef = buildProperties.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, PARENT_POM_DEFAULT_VALUE);
+        Path fileOrFolder = projectRoot.resolve(parentRef).toRealPath();
         PomReference parentPom;
-        if (fileOrFolder.isFile()) {
-            parentPom = locatePomReference(fileOrFolder.getParentFile(), fileOrFolder.getName());
-        } else if (fileOrFolder.isDirectory()) {
+        if (Files.isRegularFile(fileOrFolder)) {
+            parentPom = locatePomReference(fileOrFolder.getParent(), getFileName(fileOrFolder));
+        } else if (Files.isDirectory(fileOrFolder)) {
             parentPom = locatePomReference(fileOrFolder, null);
         } else {
             throw new FileNotFoundException("parent pom file/folder " + fileOrFolder + " is not accessible");
         }
         if (parentPom == null) {
-            throw new FileNotFoundException("No parent pom file found in " + fileOrFolder.getCanonicalPath());
+            throw new FileNotFoundException("No parent pom file found in " + fileOrFolder.toRealPath());
         }
         Map<String, Object> options = new HashMap<>(1);
         options.put(ModelProcessor.SOURCE, new FileModelSource(parentPom.getPomFile()));
@@ -198,8 +204,8 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
             version = parentModel.getParent().getVersion();
         }
         parentReference.setVersion(version);
-        parentReference.setRelativePath(
-                projectRoot.getCanonicalFile().toPath().relativize(parentPom.getPomFile().toPath()).toString());
+        parentReference
+                .setRelativePath(projectRoot.toRealPath().relativize(parentPom.getPomFile().toPath()).toString());
         logger.debug("Derived parent for path " + projectRoot + " is groupId: " + parentReference.getGroupId()
                 + ", artifactId: " + parentReference.getArtifactId() + ", relativePath: "
                 + parentReference.getRelativePath());
@@ -215,10 +221,12 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
      *            the name hint to use
      * @return the {@link PomReference} or <code>null</code>
      */
-    protected PomReference locatePomReference(File folder, String nameHint) {
+    protected PomReference locatePomReference(Path folderPath, String nameHint) {
+        File folder = folderPath.toFile();
         PomReference reference = null;
         try {
             List<ModelProcessor> lookupList = container.lookupList(ModelProcessor.class);
+
             for (ModelProcessor processor : lookupList) {
                 File pom = processor.locatePom(folder);
                 if (pom != null && (reference == null || pom.getName().equals(nameHint)) && pom.exists()) {
@@ -231,16 +239,11 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     }
 
     @Override
-    public float getPriority() {
-        return 0;
-    }
-
-    @Override
     public String getFlavour() {
         return getPackaging();
     }
 
-    protected abstract boolean isValidLocation(String location);
+    protected abstract boolean isValidLocation(Path location);
 
     protected abstract File getPrimaryArtifact(File dir);
 
@@ -256,23 +259,23 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         return StandardCharsets.UTF_8;
     }
 
-    protected abstract void initModel(Model model, Reader artifactReader, File artifactFile) throws IOException;
+    protected abstract void initModel(Model model, Reader artifactReader, Path artifactFile) throws IOException;
 
-    protected static Properties getBuildProperties(File dir) throws IOException {
-        return loadProperties(new File(dir, "build.properties"));
+    protected static Properties getBuildProperties(Path dir) throws IOException {
+        return loadProperties(dir.resolve("build.properties"));
     }
 
-    static Properties loadProperties(File propertiesPath) throws IOException {
+    static Properties loadProperties(Path propertiesPath) throws IOException {
         Properties properties = new Properties();
-        if (propertiesPath.isFile()) {
-            try (FileInputStream stream = new FileInputStream(propertiesPath)) {
+        if (Files.isRegularFile(propertiesPath)) {
+            try (InputStream stream = Files.newInputStream(propertiesPath)) {
                 properties.load(stream);
             }
         }
         return properties;
     }
 
-    static Supplier<Properties> getPropertiesSupplier(File propertiesFile) {
+    static Supplier<Properties> getPropertiesSupplier(Path propertiesFile) {
         return new Supplier<>() {
             private Properties properties;
 
@@ -301,22 +304,23 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     @Override
     public Properties getEnhancementProperties(Map<String, ?> options) {
-        String location = PolyglotModelUtil.getLocation(options);
-        File file = new File(location);
+        Optional<Path> file = getLocation(options);
         try {
-            return getEnhancementProperties(file);
+            if (file.isPresent()) {
+                return getEnhancementProperties(file.get());
+            }
         } catch (IOException e) {
-            logger.warn("reading EnhancementProperties encountered a problem and was skipped for this reason", e);
+            logger.warn("Reading EnhancementProperties encountered a problem and was skipped for this reason", e);
         }
         return null;
     }
 
-    protected Properties getEnhancementProperties(File file) throws IOException {
-        File dir = file.isDirectory() ? file : file.getParentFile();
+    protected Properties getEnhancementProperties(Path file) throws IOException {
+        Path dir = Files.isDirectory(file) ? file : file.getParent();
         return getBuildProperties(dir);
     }
 
-    private static void setLocation(Model model, File modelSource) {
+    private static void setLocation(Model model, Path modelSource) {
         InputSource inputSource = new InputSource();
         inputSource.setLocation(modelSource.toString());
         inputSource.setModelId(model.getParent().getGroupId() + ":" + model.getArtifactId() + ":" + model.getVersion());
@@ -350,5 +354,20 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     public void setSnapshotFormat(String snapshotFormat) {
         this.snapshotFormat = snapshotFormat;
+    }
+
+    static Optional<Path> getLocation(Map<String, ?> options) {
+        String location = PolyglotModelUtil.getLocation(options);
+        if (location != null) {
+            try {
+                return Optional.of(Path.of(location));
+            } catch (InvalidPathException e) {
+            }
+        }
+        return Optional.empty();
+    }
+
+    static String getFileName(Path file) {
+        return file.getFileName().toString();
     }
 }

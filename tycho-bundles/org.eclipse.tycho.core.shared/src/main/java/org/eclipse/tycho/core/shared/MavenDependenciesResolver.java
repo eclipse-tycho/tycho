@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
+import org.eclipse.tycho.MavenArtifactRepositoryReference;
+
 public interface MavenDependenciesResolver {
     /**
      * Only the specified artifact will be resolved

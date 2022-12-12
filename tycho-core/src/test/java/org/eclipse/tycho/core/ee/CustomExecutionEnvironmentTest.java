@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2012 SAP AG and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    SAP AG - initial API and implementation
@@ -21,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
@@ -59,8 +60,8 @@ public class CustomExecutionEnvironmentTest {
     public void testProvidedSystemPackageNoVersion() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVA_LANG);
 
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName)
-                .collect(Collectors.toList()), hasItem("java.lang"));
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
+                hasItem("java.lang"));
         assertEquals(2, customExecutionEnvironment.getProfileProperties().size());
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "java.lang");
     }
@@ -69,8 +70,8 @@ public class CustomExecutionEnvironmentTest {
     public void testProvidedSystemPackageWithVersion() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVAX_ACTIVATION_1_1);
 
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName)
-                .collect(Collectors.toList()), hasItem("javax.activation"));
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
+                hasItem("javax.activation"));
         assertEquals(2, customExecutionEnvironment.getProfileProperties().size());
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "javax.activation;version=\"1.1\"");
     }
@@ -79,10 +80,10 @@ public class CustomExecutionEnvironmentTest {
     public void testTwoProvidedSystemPackages() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVA_LANG, PACKAGE_JAVAX_ACTIVATION_1_1);
 
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName)
-                .collect(Collectors.toList()), hasItem("java.lang"));
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName)
-                .collect(Collectors.toList()), hasItem("javax.activation"));
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
+                hasItem("java.lang"));
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
+                hasItem("javax.activation"));
         assertEquals(2, customExecutionEnvironment.getProfileProperties().size());
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "java.lang,javax.activation;version=\"1.1\"");
     }
@@ -91,8 +92,8 @@ public class CustomExecutionEnvironmentTest {
     public void testOsgiEeCapability() throws Exception {
         createExecutionEnvironment(OSGI_JAVASE_1_6);
 
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName)
-                .collect(Collectors.toList()), not(CoreMatchers.<String> hasItem(any(String.class)))); // explicitly specify template parameter to work around bug present 1.6.0_37 
+        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
+                not(CoreMatchers.<String> hasItem(any(String.class)))); // explicitly specify template parameter to work around bug present 1.6.0_37 
         assertEquals(3, customExecutionEnvironment.getProfileProperties().size());
         assertProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES, "osgi.ee; osgi.ee=\"JavaSE\"; version:Version=\"1.6\"");
         assertProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "JavaSE-1.6");

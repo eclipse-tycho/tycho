@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.stream.Stream;
 
+import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 
 /**
  * Makes maven information which is constant for the whole maven session available as a service to

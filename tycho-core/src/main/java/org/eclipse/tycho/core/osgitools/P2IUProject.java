@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2015 Rapicorp, Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Rapicorp, Inc. - initial API and implementation
@@ -26,8 +28,8 @@ import org.eclipse.tycho.model.IU;
 public class P2IUProject extends AbstractArtifactBasedProject {
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
-                project, environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
+                getEnvironments(project, environment)) {
             @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 //Nothing to do
@@ -44,6 +46,7 @@ public class P2IUProject extends AbstractArtifactBasedProject {
 
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
+        super.setupProject(session, project);
         //Load the XML here to fail as early as possible like it is done in EclipseFeatureProject
         IU.loadIU(project.getBasedir());
     }

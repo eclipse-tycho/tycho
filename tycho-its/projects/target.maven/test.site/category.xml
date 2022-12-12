@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="org.apache.velocity">
+      <category name="new_category_1"/>
+   </bundle>
+   <category-def name="new_category_1" label="New Category 1"/>
+</site>

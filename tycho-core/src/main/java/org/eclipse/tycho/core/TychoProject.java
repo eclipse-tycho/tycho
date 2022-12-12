@@ -1,36 +1,37 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import java.util.Collection;
+import java.util.Map;
+
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 
 /**
- * tycho-specific behaviour associated with MavenProject instances. stateless.
+ * tycho-specific behavior associated with MavenProject instances. stateless.
  * 
- * TODO take target environments into account!
  */
 public interface TychoProject {
     /**
      * Walks all project dependencies, regardless of runtime environment filters.
      */
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project);
-
-    /**
-     * Walks project dependencies resolved for the specified runtime environment.
-     */
-    public ArtifactDependencyWalker getDependencyWalker(ReactorProject project, TargetEnvironment environment);
 
     /**
      * Returns resolved project dependencies. For projects targeting multiple runtime environments,
@@ -52,5 +53,21 @@ public interface TychoProject {
      * Eclipse-PlatformFilter OSGi bundle manifest attribute.
      */
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project);
+
+    /**
+     * @return a collection of dependencies (and their transitive dependencies) that where present
+     *         before Tycho has injected the target content of the project into the model, also
+     *         known as "pom considered dependencies"
+     */
+    Collection<Artifact> getInitialArtifacts(ReactorProject reactorProject, Collection<String> scopes);
+
+    /**
+     * Computes a map for the given artifacts to their facades
+     * 
+     * @param artifacts
+     *            the artifacts to map
+     * @return
+     */
+    Map<Artifact, IArtifactFacade> getArtifactFacades(ReactorProject reactorProject, Collection<Artifact> artifacts);
 
 }

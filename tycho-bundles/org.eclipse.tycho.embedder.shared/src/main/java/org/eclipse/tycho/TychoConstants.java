@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -11,7 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho;
 
+import java.util.regex.Pattern;
+
 public interface TychoConstants {
+    static final String ANY_QUALIFIER = "qualifier";
+
+    static final boolean USE_OLD_RESOLVER = Boolean.parseBoolean(System.getProperty("tycho.resolver.classic", "true"));
 
     static final String P2_GROUPID_PREFIX = "p2.";
 
@@ -24,20 +31,22 @@ public interface TychoConstants {
     // static final String CTX_TARGET_PLATFORM -> moved to TargetPlatform.FINAL_TARGET_PLATFORM_KEY;
     static final String CTX_DEPENDENCY_ARTIFACTS = CTX_BASENAME + "/dependencyArtifacts";
     static final String CTX_REPOSITORY_REFERENCE = CTX_BASENAME + "/repositoryReference";
+    static final String CTX_METADATA_ARTIFACT_LOCATION = CTX_BASENAME + "/metadataArtifactLocation";
+
     /**
      * Stores test-specific dependencies (usually derived from .classpath)
      */
     static final String CTX_TEST_DEPENDENCY_ARTIFACTS = CTX_BASENAME + "/testDependencyArtifacts";
-    static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_BASENAME + "/eclipsePluginProject";
     static final String CTX_ECLIPSE_PLUGIN_TEST_CLASSPATH = CTX_BASENAME + "/eclipsePluginTestClasspath";
     static final String CTX_ECLIPSE_PLUGIN_TEST_EXTRA_CLASSPATH = CTX_BASENAME + "/eclipsePluginTestClasspathExtra";
 
-    static final String CTX_MERGED_PROPERTIES = CTX_BASENAME + "/mergedProperties";
     static final String CTX_TARGET_PLATFORM_CONFIGURATION = CTX_BASENAME + "/targetPlatformConfiguration";
     static final String CTX_EXECUTION_ENVIRONMENT_CONFIGURATION = CTX_BASENAME + "/executionEnvironmentConfiguration";
 
     static final String CTX_DEPENDENCY_WALKER = CTX_BASENAME + "/dependencyWalker";
     static final String CTX_DEPENDENCY_SEEDS = CTX_BASENAME + "/dependencySeeds";
+
+    static final Pattern PLATFORM_URL_PATTERN = Pattern.compile("platform:/(plugin|fragment)/([^/]*)(/)*.*");
 
     public String JAR_EXTENSION = "jar";
 

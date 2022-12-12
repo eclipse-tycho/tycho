@@ -94,6 +94,9 @@ public class IncludeValidationHelper {
 	}
 
 	private boolean checkDir(File baseDir, List<String> nonMatchingIncludes, String includePattern) {
+		if (!baseDir.isDirectory()) {
+			return false;
+		}
 		if (new File(baseDir, includePattern).exists()) {
 			return true;
 		}

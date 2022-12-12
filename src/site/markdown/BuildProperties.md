@@ -35,6 +35,7 @@ src.includes | supported
 src.excludes | supported
 jars.extra.classpath | only supported in the form `platform:/plugin/<Bundle-SymbolicName>[/path/to/nested/jar]`
 jars.compile.order | supported
+additional.bundles | supported (since Tycho 2.4.0)
 
 
 ### Compiler-specific properties

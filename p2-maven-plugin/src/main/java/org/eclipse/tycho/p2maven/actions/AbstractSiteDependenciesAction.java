@@ -30,7 +30,6 @@ import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.tycho.TargetEnvironment;
 
-@SuppressWarnings("restriction")
 public abstract class AbstractSiteDependenciesAction extends AbstractDependenciesAction {
 
     private final String id;

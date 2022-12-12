@@ -2,7 +2,297 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## 3.0.0 (under development)
+## 4.0.0 (under development)
+
+### new tycho-baseline-plugin
+
+Tycho now has a new mojo to perform baseline comparisons similar to the [bnd-baseline-plugin](https://github.com/bndtools/bnd/blob/master/maven/bnd-baseline-maven-plugin/README.md) but takes the tycho-dependency model into account.
+
+A usual configuration looks like this:
+
+```
+<plugin>
+   <groupId>org.eclipse.tycho</groupId>
+   <artifactId>tycho-baseline-plugin</artifactId>
+   <version>${tycho.version}</version>
+   <executions>
+     <execution>
+       <id>baseline-check</id>
+       <goals>
+         <goal>verify</goal>
+       </goals>
+       <configuration>
+         <baselines>
+           <repository>
+			   <id>optional, only required for proxy setup or password protected sites</id>
+			   <url>URL of P2 repository that should be used as a baseline</url>
+		   </repository>
+         </baselines>
+       </configuration>
+     </execution>
+   </executions>
+ </plugin>
+```
+
+Any baseline problems will then be reported to the build:
+
+![grafik](https://user-images.githubusercontent.com/1331477/205283998-484c6a13-0a66-4b34-9386-599a27bff53e.png)
+
+Also feature baselining is supported according to [Versioning features](https://wiki.eclipse.org/Version_Numbering#Versioning_features)
+
+![grafik](https://user-images.githubusercontent.com/1331477/206921380-5c66cc4b-bf98-4bde-9a95-994d5c9f2a09.png)
+
+### Parameter enhancements for tycho-apitools-plugin:generate goal
+
+The parameters of the `tycho-apitools-plugin:generate` goal have been completed and improved.
+
+
+### Migration guide 3.x > 4.x
+
+#### Choosable HTTP transports
+
+Tycho uses a custom P2 transport to download items from updatesites, previously URLConnection was used for this but now the Java HTTP 11 Client is the new default because it supports HTTP/2 now.
+To use the old URLConnection one can pass `-Dtycho.p2.transport.type=JavaUrl` to the build.
+
+Valid values are:
+- `JavaUrl` - uses URLConnection to retrieve files
+- `Java11Client` - uses Java 11 HttpClient
+
+#### PGP Signing Enhancements
+
+The [tycho-gpg::3.0.0:sign-p2-artifacts](https://tycho.eclipseprojects.io/doc/3.0.0/tycho-gpg-plugin/sign-p2-artifacts-mojo.html) mojo has been significantly enhanced.
+
+The following properties have been added:
+
+ - `skipIfJarsignedAndAnchored` - This is similar to `skipIfJarsigned` but is weaker in the sense that the signatures are checked in detail such that the PGP signing is skipped if and only if one of the signatures is anchored in Java cacerts.  The default is `false`. Set `skipIfJarsignedAndAnchored` to `true` and `skipIfJarsigned` to `false` to  enable this feature.
+  - `skipBinaries` - Setting this to `false` will enable the signing of binary artifacts, which are of course not jar-signed.
+  - `pgpKeyBehavor` - Specify `skip`, `replace`, or `merge` for how to handle the signing of artifacts that are already PGP signed.
+  - `signer` - Currently supported are `bc` and `gpg` where the former is a new implementation that uses Bouncy Castle for signing, which is significantly faster and allows signing to proceed in parallel. This can also be configured by the system property `tycho.pgp.signer`.
+
+#### mixed reactor setups require the new resolver now
+
+If you want to use so called mixed-reactor setups, that is you have bundles build by other techniques than Tycho (e.g. bnd/felix-maven-plugin) mixed with ones build by Tycho,
+previously this was only possible with enabling an incomplete resolver mode and using `pomDependencies=consider`.
+
+From now on such setups require the use of the new resolver mode (`-Dtycho.resolver.classic=false`) supporting the usual resolver mode and thus incomplete resolver mode was removed completely.
+
+#### pom declared dependencies handling has slightly changed
+
+With the new resolver mode (`-Dtycho.resolver.classic=false`) pom dependencies are considered by default, also the way how they are handled have slightly changed:
+
+Previously all units where always added to the full target resolution result. This has often lead to undesired effects, especially when there are large (transitive) dependency chains
+as things can easily slip in.
+
+From now on the target platform is always queried first for a unit fulfilling the requirement and only if not found the pom dependencies are queried for an alternative.
+
+#### pom declared dependencies are considered for compile
+
+Previously dependencies declared in the pom are ignored by Tycho completely and even though one could enable these to be considered in target platform
+this still requires them to be imported in the bundle manifest to finally be usable for compilation.
+
+Now each pom defined dependency is always considered for compilation as this matches the expectation of most maven users and finally allows to have 'compile only' dependencies to be used,
+for example with annotations that are only retained at source or class level.
+
+One example that uses [API-Guardian](https://github.com/apiguardian-team/apiguardian) annotations can be found here: https://github.com/eclipse/tycho/tree/master/tycho-its/projects/compiler-pomdependencies
+
+You can disable this feature through the `tycho-compiler-plugin` configuration:
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-compiler-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<pomOnlyDependencies>ignore</pomOnlyDependencies>
+	</configuration>
+</plugin>
+```
+
+#### Properties for tycho-surefire-plugin's 'useUIThread' and 'useUIHarness' parameters
+
+The configuration parameters `useUIThread` and `useUIHarness` parameter of the `tycho-surefire-plugin` can now be set via the properties `tycho.surefire.useUIHarness` respectively `tycho.surefire.useUIThread`.
+
+#### Minimum version for running integration/plugin tests
+
+Previously the `osgibooter` has claimed to be Java 1.5 compatible but as such old JVMs are hard to find/test against already some newer code was slipping in. It was therefore decided to raise the minimum requirement to Java 1.8 what implicitly makes it the lowest bound for running integration/plugin tests with Tycho.
+
+This requires any tests using pre 1.8 java jvm to be upgrade to at least running on Java 1.8.
+
+#### Using integration/plugin tests with eclipse-plugin packaging
+
+Some improvements have been made for the test execution with `eclipse-plugin` packaging that probably needs some adjustments to your pom configuration or build scripts:
+
+1. The property `skipITs` has been renamed to `tycho.plugin-test.skip`
+2. the mojo `integration-test` has been renamed to `plugin-test`
+3. the default pattern of the former `integration-test` has been changed from `**/PluginTest*.class", "**/*IT.class` to the maven default `**/Test*.class", "**/*Test.class", "**/*Tests.class", "**/*TestCase.class`
+4. the former `integration-test` mojo is no longer part of the default life-cycle, that means to use it it has to be explicitly be enabled to be more flexible and this is how standard maven behaves
+
+To restore old behaviour you can add the follwoing snippet to your (master) pom:
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-surefire-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<id>execute-plugin-tests</id>
+			<configuration>
+				<includes>**/PluginTest*.class,**/*IT.class</includes>
+			</configuration>
+			<goals>
+				<goal>plugin-test</goal>
+				<goal>verify</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+```
+
+### New Maven dependency consistency check
+
+Tycho has a new mojo to check the consistency of the pom used for your bundle.
+To enable this add the following to your pom (or adjust an existing configuration):
+
+```
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-packaging-plugin</artifactId>
+    <executions>
+      <execution>
+        <id>validate-pom</id>
+        <phase>verify</phase>
+        <goals>
+          <goal>verify-osgi-pom</goal>
+        </goals>
+      </execution>
+    </executions>
+      <configuration>
+        <archive>
+          <addMavenDescriptor>true</addMavenDescriptor>
+        </archive>
+        <mapP2Dependencies>true</mapP2Dependencies>
+      </configuration>
+</plugin>
+```
+This will then:
+
+1. add a new execution of the `verify-osgi-pom` mojo
+2. enable the generation and embedding of a maven descriptor (optional if you fully manage your pom.xml with all dependencies)
+3. map P2 dependencies to maven dependencies (optional, but most likely required to get good results)
+
+### Default value change for trimStackTrace
+
+tycho-surefire-plugin had set the default value of the trimStackTrace option to true.
+The default will now be aligned with maven-surefire-plugin at false and will need to be manually adjusted for users that really need the stack traces trimmed.
+
+Old behavior can be restored through configuration of the tycho-surefire-plugin:
+
+```
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-surefire-plugin</artifactId>
+    <configuration>
+        <trimStackTrace>true</trimStackTrace>
+    </configuration>
+</plugin>
+```
+
+## 3.0.0
+
+### Tycho now support forking of the Eclipse Java Compiler
+
+Previously forking was not supported, now forking is possible and will be used if a custom java home is specified.
+
+### New option to transform P2 dependencies into real maven coordinates
+
+The `tycho-consumer-pom` mojo has a new option to resolve p2 introduced dependencies to 'real' maven coordinates now, when enabled it queries maven-central with the SHA1 of the file to find out what are the actual maven central coordinates
+ and place them in the generated pom consumer-pom.
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-packaging-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<mapP2Dependencies>true</mapP2Dependencies>
+	</configuration>
+</plugin>
+```
+
+### New tycho-p2-plugin:dependency-tree mojo
+
+Sometimes it is useful to find out how dependencies of a project are actually pulled in. Tycho now supports a new `tycho-p2-plugin:dependency-tree` mojo that outputs a tree view of the P2 dependecies of a tycho project.
+
+Example with Tycho integration test project:
+
+```
+tycho-its/projects/reactor.makeBehaviour$ mvn org.eclipse.tycho:tycho-p2-plugin:3.0.0-SNAPSHOT:dependency-tree
+
+...
+
+[INFO] --- tycho-p2-plugin:3.0.0-SNAPSHOT:dependency-tree (default-cli) @ feature2 ---
+[INFO] tycho-its-project.reactor.makeBehaviour:feature2:eclipse-feature:1.0.0-SNAPSHOT
+[INFO] +- feature2.feature.group (1.0.0.qualifier) --> [tycho-its-project.reactor.makeBehaviour:feature2:eclipse-feature:1.0.0-SNAPSHOT]
+[INFO]    +- bundle2 (1.0.0.qualifier) satisfies org.eclipse.equinox.p2.iu; bundle2 0.0.0 --> [tycho-its-project.reactor.makeBehaviour:bundle2:eclipse-plugin:1.0.0-SNAPSHOT]
+[INFO]    +- feature1.feature.group (1.0.0.qualifier) satisfies org.eclipse.equinox.p2.iu; feature1.feature.group 0.0.0 --> [tycho-its-project.reactor.makeBehaviour:feature1:eclipse-feature:1.0.0-SNAPSHOT]
+[INFO]       +- bundle1 (1.0.0.qualifier) satisfies org.eclipse.equinox.p2.iu; bundle1 0.0.0 --> [tycho-its-project.reactor.makeBehaviour:bundle1:eclipse-plugin:1.0.0-SNAPSHOT]
+...
+```
+
+### Support for inclusion of all source bundles in an update-site
+
+The [tycho-p2-repository-plugin:2.7.0:assemble-repository](https://www.eclipse.org/tycho/sitedocs/tycho-p2/tycho-p2-repository-plugin/assemble-repository-mojo.html) now support a new property `includeAllSources` that,
+when enabled, includes any available source bundle in the resulting repository.
+
+### Support for Eclipse-Products with mixed Features and Plugins
+
+Tycho now supports building _mixed_ Products. In mixed Products both the listed features and listed plug-ins are installed.
+Therefore the Product attribute `type` is now supported, which can have the values `bundles`, `features` and `mixed` and takes precedence over the boolean-valued `useFeatures` attribute.
+
+### New API Tools Mojo
+
+Tycho now provides a new API Tools Mojo, see https://github.com/eclipse/tycho/tree/master/tycho-its/projects/api-tools for an example how to use it.
+
+### new sisu-osgi-connect
+
+The new sisu-osgi-connect provides an implementation for plexus according to the [Connect Specification](http://docs.osgi.org/specification/osgi.core/8.0.0/framework.connect.html#framework.connect) that allows to run an embedded OSGi Framework from the classpath of a maven-plugin.
+As both, the maven plugin and the embedded framework, share the same classlaoder you can use the best of both worlds and interact seamless with them. 
+
+This can be used in the following way:
+
+```
+@Component(role = MyPlexusComponent.class)
+public class MyPlexusComponent {
+	@Requirement(hint = "connect")
+	private EquinoxServiceFactory serviceFactory;
+	
+	public void helloConnect() {
+		serviceFactory.getService(HelloWorldService.class).sayHello();
+	}
+}
+```
+
+For the setup you need to do the following:
+
+1. include any bundle you like to make up your plexus-osgi-connect framework as a dependency of your maven plugin
+2. include a file `META-INF/sisu/connect.bundles` that list all your bundles you like to have installed in the format `bsn[,true]`, where `bsn` is the symbolid name and optionally you can control if your bundle has to be started or not
+3. include the following additional dependency
+```
+<dependency>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>sisu-osgi-connect</artifactId>
+	<version>${tycho-version}</version>
+</dependency>
+```
+
+### Deprecated Features
+
+The `tycho-compiler:compile` and `tycho-compiler:testCompile` option `requireJREPackageImports` is deprecated now and will produce a warning when used, bundles currently rely on this option should migrate to proper importing packages from the non java.* namespace.
+
+### Tycho compiler support for java.* imports
+
+The `tycho-compiler:compile` and `tycho-compiler:testCompile` has a new option `requireJavaPackageImports` (defaults to `false`) that allows to assert importing of packages from the `java.*` namespace. 
+This is [allowed since OSGi R7](https://blog.osgi.org/2018/02/osgi-r7-highlights-java-9-support.html) and considered  ǵood practice since the evolving of modular VMs there is no guarantee what packages a JVM offers,
 
 ### Eclipse M2E lifecycle-mapping metadata embedded
 
@@ -200,6 +490,45 @@ This can be useful if you like to execute the build with multiple threads (e.g. 
 
 ### Migration guide 2.x -> 3.x
 
+#### Java 17 required as runtime VM
+
+From 3.x on Tycho requires Java 17 as a runtime VM, but you can still compile code for older releases.
+
+#### Default value for archive-products has changed
+
+Previously Tycho uses `zip` for all platforms when packaging a product, now `.tar.gz` is used for linux+mac. If you want you can restore old behaviour by:
+
+```
+<execution>
+	<id>archive-products</id>
+	<goals>
+		<goal>archive-products</goal>
+	</goals>
+	<phase>install</phase>
+	<configuration>
+		<formats>
+			<linux>zip</linux>
+			<macosx>zip</macosx>
+		</formats>
+	</configuration>
+</execution>
+
+```
+
+#### Remove `tycho.pomless.testbundle` switch from `build.properties` in favor of specification of project's packaging-type
+
+The boolean property `tycho.pomless.testbundle`, which allowed to specify in the `buid.properties` if a Plug-in is a Test-Plugin or not, has been removed.
+Instead one can specify the packaging-type of that Maven-project directly. To migrate simply apply the following replacements in the `build.properties`:<br>
+`tycho.pomless.testbundle = true` -> `pom.model.packaging = eclipse-test-plugin`<br>
+`tycho.pomless.testbundle = false` ->`pom.model.packaging = eclipse-plugin`
+
+This already works in the Tycho 2.7.x stream (but the generated artifactId does not yet have a 'test'-prefix).
+
+#### sisu-equinox is now sisu-osgi
+
+The sisu-equinox module is now cleaned up and made more generic so it could be used in a wider area of use case, therefore the equinox part is stripped and some API enhancements are performed.
+As sisu-equinox is a separate module used inside Tycho, users of Tycho itself are usually not affected, but plugin developers might need to adjust there code to conform to the changed API contracts.
+
 #### publish-osgi-ee do not publish a fixed size of profiles anymore
 
 The `publish-osgi-ee` previously has published a fixes list of "usefull" execution environments maintained by Tycho.
@@ -251,6 +580,14 @@ It was hardcoded to "tooling" always and had no practical meaning to change.
 
 `applicationArgs` (previously known as `applicationsArgs`) has been corrected to not perform any
 interpretation of whitepace and quotes anymore. Individual arguments are now used literally (just like `jvmArgs`).
+
+## 2.7.5
+
+Fixes:
+
+- [reverted] Not all (direct) requirements of a feature are considered when building an update-site
+- [backport] Fix MavenLocation scope filtering
+- org.eclipse.tycho:tycho-packaging-plugin:2.7.3:package-plugin issuing error <<pluginname>>/target/classes does not exist
 
 ## 2.7.4
 

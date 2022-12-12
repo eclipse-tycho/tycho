@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2021 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -30,9 +32,9 @@ import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ee.CustomExecutionEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
@@ -220,7 +222,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         assertThat(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle1.fragment")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .map(rule -> rule.getPattern()) //
-                .collect(Collectors.toList()), //
+                .toList(), //
                 hasItem("bundle1/*"));
     }
 

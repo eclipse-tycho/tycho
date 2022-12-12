@@ -1,0 +1,5 @@
+# AutoDeriv plugin configuration.
+# To make this work, you need to install the plugin from https://nodj.github.io/AutoDeriv/
+
+# target folders of Maven
+target

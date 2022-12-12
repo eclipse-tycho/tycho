@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2022 Christoph Läubrich. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
@@ -15,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -31,6 +32,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
@@ -50,16 +52,19 @@ public class AdditionalBundleRequirementsInstallableUnitProvider implements Inst
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
+
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
             throws CoreException {
         if (projectTypes.get(project.getPackaging()) instanceof BundleProject) {
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            BuildProperties buildProperties = reactorProject.getBuildProperties();
+            BuildProperties buildProperties = buildPropertiesParser.parse(reactorProject);
             List<IRequirement> additionalBundleRequirements = buildProperties.getAdditionalBundles().stream()
                     .map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
                             bundleName, VersionRange.emptyRange, null, true, true))
-                    .collect(Collectors.toList());
+                    .toList();
             return createIU(additionalBundleRequirements);
         }
         return Collections.emptyList();

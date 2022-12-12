@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -15,6 +17,7 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,8 +27,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.zip.ZipException;
 
@@ -35,19 +42,23 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
-import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 
 public final class MavenDependencyInjector {
 
@@ -59,11 +70,12 @@ public final class MavenDependencyInjector {
      *            A project
      * @param dependencies
      *            The p2-resolved dependencies of the project.
+     * @param buildPropertiesParser
      */
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
             DependencyArtifacts testDependencies, BundleReader bundleReader,
             Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger,
-            RepositorySystem repositorySystem) {
+            RepositorySystem repositorySystem, Settings settings, BuildPropertiesParser buildPropertiesParser) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
@@ -75,6 +87,32 @@ public final class MavenDependencyInjector {
                     .forEach(descriptor -> generator.addDependency(descriptor, Artifact.SCOPE_TEST));
         }
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        BuildProperties buildProperties = buildPropertiesParser.parse(reactorProject);
+        List<Dependency> extraJars = buildProperties.getJarsExtraClasspath().stream().map(extra -> {
+            if (TychoConstants.PLATFORM_URL_PATTERN.matcher(extra).matches()) {
+                //this should already be handled as an extra requirement!
+                return null;
+            }
+            Dependency dependency = new Dependency();
+            dependency.setScope(Artifact.SCOPE_SYSTEM);
+            dependency.setGroupId(project.getGroupId());
+            dependency.setArtifactId(project.getArtifactId() + ".jars.extra.classpath");
+            dependency.setClassifier(extra);
+            File file = new File(reactorProject.getBasedir(), extra);
+            if (!file.exists()) {
+                //create empty dummy file to make maven think this dependency is already resolved?!
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    //still can't be created --> out of luck then...
+                    return null;
+                }
+            }
+            dependency.setSystemPath(file.getAbsolutePath());
+            dependency.setVersion(project.getVersion());
+            return dependency;
+        }).filter(Objects::nonNull).toList();
+        generator.addDependencyList(extraJars);
         @SuppressWarnings("unchecked")
         Collection<MavenArtifactRepositoryReference> repositoryReferences = (Collection<MavenArtifactRepositoryReference>) reactorProject
                 .getContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE);
@@ -94,7 +132,11 @@ public final class MavenDependencyInjector {
                             + reference.getUrl() + ", existing URL = " + artifactRepository.getUrl());
                 }
             }
-            project.setRemoteArtifactRepositories(new ArrayList<>(repositoryMap.values()));
+            List<ArtifactRepository> artifactRepositories = new ArrayList<>(repositoryMap.values());
+            repositorySystem.injectMirror(artifactRepositories, settings.getMirrors());
+            repositorySystem.injectProxy(artifactRepositories, settings.getProxies());
+            repositorySystem.injectAuthentication(artifactRepositories, settings.getServers());
+            project.setRemoteArtifactRepositories(artifactRepositories);
         }
     }
 
@@ -136,14 +178,7 @@ public final class MavenDependencyInjector {
         List<Dependency> dependencyList = artifact.getMavenProject() != null //
                 ? collectProjectDependencies(artifact, scope) //
                 : collectExternalDependencies(artifact, scope, true);
-        Model model = project.getModel();
-        Set<String> existing = model.getDependencies().stream().map(dep -> getKey(dep))
-                .collect(Collectors.toCollection(HashSet::new));
-        for (Dependency dependency : dependencyList) {
-            if (existing.add(getKey(dependency))) {
-                model.addDependency(dependency);
-            }
-        }
+        addDependencyList(dependencyList);
         Map<String, MavenProject> projectReferences = project.getProjectReferences();
         ReactorProject mavenProject = artifact.getMavenProject();
         if (mavenProject != null && DefaultReactorProject.adapt(project) != mavenProject) {
@@ -152,6 +187,20 @@ public final class MavenDependencyInjector {
             if (!projectReferences.containsKey(key)) {
                 logger.debug("Found a P2 dependency (" + artifact
                         + ") that is not reflected in the maven model project references");
+            }
+        }
+    }
+
+    private void addDependencyList(List<Dependency> dependencyList) {
+        if (dependencyList.isEmpty()) {
+            return;
+        }
+        Model model = project.getModel();
+        Set<String> existing = model.getDependencies().stream().map(MavenDependencyInjector::getKey)
+                .collect(Collectors.toCollection(HashSet::new));
+        for (Dependency dependency : dependencyList) {
+            if (existing.add(getKey(dependency))) {
+                model.addDependency(dependency);
             }
         }
     }
@@ -363,7 +412,7 @@ public final class MavenDependencyInjector {
         }
 
         @Override
-        public Set<Object> getInstallableUnits() {
+        public Collection<IInstallableUnit> getInstallableUnits() {
             return getDescriptor().getInstallableUnits();
         }
 
@@ -375,12 +424,24 @@ public final class MavenDependencyInjector {
             copy.setClassifier(getClassifier());
             copy.setExclusions(new ArrayList<>(getExclusions()));
             copy.setGroupId(getGroupId());
-            copy.setOptional(isOptional());
+            if (copy.getOptional() != null) {
+                copy.setOptional(isOptional());
+            }
             copy.setScope(getScope());
             copy.setSystemPath(getSystemPath());
             copy.setType(getType());
             copy.setVersion(getVersion());
             return copy;
+        }
+
+        @Override
+        public Optional<File> getLocation() {
+            return getDescriptor().getLocation();
+        }
+
+        @Override
+        public CompletableFuture<File> fetchArtifact() {
+            return getDescriptor().fetchArtifact();
         }
 
     }
@@ -392,6 +453,10 @@ public final class MavenDependencyInjector {
             try {
                 fileNotYetAvailable = File.createTempFile("file not yet available", null);
                 fileNotYetAvailable.deleteOnExit();
+                try (JarOutputStream stream = new JarOutputStream(new FileOutputStream(fileNotYetAvailable),
+                        new Manifest())) {
+                    //create an empty jar just in case...
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;

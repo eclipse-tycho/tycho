@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -16,19 +18,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 
 public class MultiEnvironmentDependencyArtifacts extends DefaultDependencyArtifacts {
     public Map<TargetEnvironment, DependencyArtifacts> platforms = new LinkedHashMap<>();
-
-    public MultiEnvironmentDependencyArtifacts() {
-        this(null);
-    }
 
     public MultiEnvironmentDependencyArtifacts(ReactorProject project) {
         super(project);
@@ -64,6 +61,6 @@ public class MultiEnvironmentDependencyArtifacts extends DefaultDependencyArtifa
     @Override
     public Collection<ArtifactDescriptor> getFragments() {
         return platforms.values().stream().map(DependencyArtifacts::getFragments).flatMap(Collection::stream).distinct()
-                .collect(Collectors.toList());
+                .toList();
     }
 }

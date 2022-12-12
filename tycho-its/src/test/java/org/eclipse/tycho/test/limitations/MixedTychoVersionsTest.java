@@ -31,7 +31,7 @@ public class MixedTychoVersionsTest extends AbstractTychoIntegrationTest {
             fail();
         } catch (VerificationException e) {
             // expected
-            verifier.verifyTextInLog("[ERROR] Several versions of tycho plugins are configured [0.13.0, 0.14.0, "
+            verifier.verifyTextInLog("[ERROR] Several versions of Tycho plugins are configured [0.13.0, 0.14.0, "
                     + TychoVersion.getTychoVersion() + "]:");
         }
     }

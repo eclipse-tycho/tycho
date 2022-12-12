@@ -19,12 +19,18 @@ public class SimpleArtifactDelta implements ArtifactDelta {
     private final String message;
     private final String baseline;
     private final String reactor;
+    private final String detailed;
 
     public SimpleArtifactDelta(String message) {
         this(message, null, null);
     }
 
     public SimpleArtifactDelta(String message, String baseline, String reactor) {
+        this(message, message, baseline, reactor);
+    }
+
+    public SimpleArtifactDelta(String message, String detailed, String baseline, String reactor) {
+        this.detailed = detailed;
         this.baseline = baseline;
         this.reactor = reactor;
         if (message == null) {
@@ -40,7 +46,7 @@ public class SimpleArtifactDelta implements ArtifactDelta {
 
     @Override
     public String getDetailedMessage() {
-        return message;
+        return detailed;
     }
 
     public String getBaseline() {

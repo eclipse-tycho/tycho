@@ -21,6 +21,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.junit.Test;
@@ -121,11 +124,18 @@ public class ProductConfigTest {
     }
 
     private static DependencySeed productSeed(String id) {
-        return new DependencySeed(ArtifactType.TYPE_ECLIPSE_PRODUCT, id, "1.0.0.20140207", null);
+        InstallableUnitDescription desc = new InstallableUnitDescription();
+        desc.setId(id);
+        desc.setVersion(Version.parseVersion("1.0.0.20140207"));
+        return new DependencySeed(ArtifactType.TYPE_ECLIPSE_PRODUCT, id, MetadataFactory.createInstallableUnit(desc),
+                null);
     }
 
     private static DependencySeed otherSeed(String id, String type) {
-        return new DependencySeed(type, id, "1.0.0.20140207", null);
+        InstallableUnitDescription desc = new InstallableUnitDescription();
+        desc.setId(id);
+        desc.setVersion(Version.parseVersion("1.0.0.20140207"));
+        return new DependencySeed(type, id, MetadataFactory.createInstallableUnit(desc), null);
     }
 
 }

@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
@@ -38,17 +39,16 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -167,13 +167,17 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	@Component
 	private SourceReferenceComputer soureReferenceComputer;
 
-	@Requirement
-	private MavenProjectHelper projectHelper;
+	@Component
+	TychoProjectManager projectManager;
 
 	@Override
 	public void execute() throws MojoExecutionException {
-		ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-		pdeProject = (EclipsePluginProject) reactorProject.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
+
+		Optional<EclipsePluginProject> pde = projectManager.getTychoProject(project)
+				.filter(BundleProject.class::isInstance)
+				.map(BundleProject.class::cast)
+				.map(bundle -> bundle.getEclipsePluginProject(DefaultReactorProject.adapt(project)));
+		pdeProject = pde.orElse(null);
 
 		createSubJars();
 
@@ -248,8 +252,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
 			// 4. check DS files exits...
 			TychoProject facet = getTychoProjectFacet();
-			if (facet instanceof OsgiBundleProject) {
-				OsgiBundleProject bundleProject = (OsgiBundleProject) facet;
+			if (facet instanceof OsgiBundleProject bundleProject) {
 				String components = bundleProject.getManifestValue("Service-Component", project);
 				if (components != null) {
 					if (components.contains("*")) {
@@ -274,7 +277,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 				// optimized archive creation not supported for now because of build qualifier
 				// mismatch issues
 				// see TYCHO-502
-				getLog().warn("ignoring unsupported archive forced = false parameter.");
+				getLog().warn("Ignoring unsupported archive 'forced = false' parameter");
 				archive.setForced(true);
 			}
 			archiver.createArchive(session, mavenProject, archive);
@@ -318,10 +321,19 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	}
 
 	protected Manifest getManifest() throws IOException, MojoExecutionException {
+		// If the user explicitly set a MANIFEST file in the archive configuration,
+		// read and update that one instead of looking under the source files
+		final File archiveManifestFile = archive.getManifestFile();
+		final File manifestFile = archiveManifestFile != null
+				? archiveManifestFile
+				: new File(project.getBasedir(), "META-INF/MANIFEST.MF");
+
 		Manifest mf;
-		try (InputStream is = new FileInputStream(new File(project.getBasedir(), "META-INF/MANIFEST.MF"))) {
+
+		try (final InputStream is = new FileInputStream(manifestFile)) {
 			mf = new Manifest(is);
 		}
+
 		Attributes attributes = mf.getMainAttributes();
 
 		if (attributes.getValue(Name.MANIFEST_VERSION) == null) {

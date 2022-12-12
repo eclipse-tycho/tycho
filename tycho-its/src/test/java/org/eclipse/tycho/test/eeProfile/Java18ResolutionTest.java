@@ -32,14 +32,10 @@ public class Java18ResolutionTest extends AbstractTychoIntegrationTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		buildResult = new Java18ResolutionTest().runBuild();
-	}
-
-	public File runBuild() throws Exception {
-		Verifier verifier = getVerifier("eeProfile.java18", false);
+		Verifier verifier = new Java18ResolutionTest().getVerifier("eeProfile.java18", false);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
-		return new File(verifier.getBasedir());
+		buildResult = new File(verifier.getBasedir());
 	}
 
 	@Test

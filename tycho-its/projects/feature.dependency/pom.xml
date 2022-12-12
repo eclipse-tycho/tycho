@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.eclipse.tycho.it</groupId>
@@ -11,6 +9,8 @@
 	<properties>
 		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
 		<orbit-url>https://download.eclipse.org/tools/orbit/downloads/2022-03/</orbit-url>
+		<includePlugins>false</includePlugins>
+		<includeFeatures>false</includeFeatures>
 	</properties>
 
 	<repositories>
@@ -19,8 +19,13 @@
 			<layout>p2</layout>
 			<url>${orbit-url}</url>
 		</repository>
+		<repository>
+			<id>repo2</id>
+			<layout>p2</layout>
+			<url>https://download.eclipse.org/releases/2022-03</url>
+		</repository>
 	</repositories>
-	
+
 	<modules>
 		<module>feature</module>
 		<module>site</module>
@@ -33,6 +38,15 @@
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<includeRequiredPlugins>${includePlugins}</includeRequiredPlugins>
+					<includeRequiredFeatures>${includeFeatures}</includeRequiredFeatures>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

@@ -37,6 +37,17 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testCompile5() throws Exception {
+		Verifier verifier = getVerifier("surefire.combinedtests/bundle5.test");
+		verifier.executeGoals(Arrays.asList("clean", "test-compile"));
+		verifier.verifyErrorFreeLog();
+		assertTrue("compiled class file does not exist",
+				new File(verifier.getBasedir(), "target/classes/bundle/test/Counter.class").exists());
+		assertTrue("compiled test-class file does not exist",
+				new File(verifier.getBasedir(), "target/test-classes/bundle/test/AdderTest.class").exists());
+	}
+
+	@Test
 	public void testTest() throws Exception {
 		Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
 		verifier.executeGoals(Arrays.asList("clean", "test"));

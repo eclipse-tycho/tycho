@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.eclipse.tycho.core.shared;singleton:=true
+Bundle-Version: 4.0.0
+Bundle-Name: Tycho Core Maven/OSGi Shared Classes
+Bundle-Vendor: Eclipse.org
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.eclipse.tycho.core.shared
+Bundle-ActivationPolicy: lazy

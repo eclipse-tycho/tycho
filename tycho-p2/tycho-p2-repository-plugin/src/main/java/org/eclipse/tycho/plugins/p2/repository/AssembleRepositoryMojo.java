@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -26,20 +24,22 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Category;
-import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 
 /**
  * <p>
@@ -85,6 +85,54 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     /**
      * <p>
+     * By default, only explicitly mentioned sources are included. Set this parameter to
+     * <code>true</code> to include all sources that are available and included in this repository.
+     * </p>
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeAllSources;
+
+    /**
+     * <p>
+     * By default, only included plugins of a feature are included in the repository, setting this
+     * to true will also include plugins mentioned in the dependencies section of a feature
+     * </p>
+     * <h2>Important Notes:</h2>
+     * <p>
+     * Due to <a href="https://github.com/eclipse-equinox/p2/issues/138">current restrictions of P2
+     * requirement model</a> even if this is disabled, plugins with a strict version range are
+     * <b>always</b> included, even if they are part of the dependencies of a feature!
+     * </p>
+     * <p>
+     * Due to <a href="https://github.com/eclipse-equinox/p2/issues/139">current data structure
+     * restrictions of P2 Slicer</a> also transitive dependencies of a plugin might be included and
+     * not only the dependency plugin itself!
+     * </p>
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeRequiredPlugins;
+    /**
+     * <p>
+     * By default, only included features of a feature are included in the repository, setting this
+     * to true will also include features mentioned in the dependencies section.
+     * </p>
+     * <h2>Important Notes:</h2>
+     * <p>
+     * Due to <a href="https://github.com/eclipse-equinox/p2/issues/138">current restrictions of P2
+     * requirement model</a> even if this is disabled, features with a strict version range are
+     * <b>always</b> included, even if they are part of the dependencies of a feature!
+     * </p>
+     * <p>
+     * Due to <a href="https://github.com/eclipse-equinox/p2/issues/139">current data structure
+     * restrictions of P2 Slicer</a> also transitive dependencies of a feature are included and not
+     * only the feature itself!
+     * </p>
+     */
+    @Parameter(defaultValue = "false")
+    private boolean includeRequiredFeatures;
+
+    /**
+     * <p>
      * Compress the repository index files <tt>content.xml</tt> and <tt>artifacts.xml</tt>.
      * </p>
      */
@@ -119,6 +167,14 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private String repositoryName;
 
     /**
+     * The directory where <code>category.xml</code> files are located.
+     * <p>
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}")
+    private File categoriesDirectory;
+
+    /**
      * <p>
      * Additional properties against which p2 filters are evaluated while aggregating.
      * </p>
@@ -133,7 +189,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private RepositoryReferenceTool repositoryReferenceTool;
 
     @Component
-    private EquinoxServiceFactory p2;
+    MirrorApplicationService mirrorApp;
 
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
@@ -146,27 +202,30 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 destination.mkdirs();
                 copyResources(destination);
 
-                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getReactorProject());
+                final ReactorProject reactorProject = getReactorProject();
+                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(reactorProject);
                 if (projectSeeds.isEmpty()) {
                     getLog().warn("No content specified for p2 repository");
                     return;
                 }
 
-                RepositoryReferences sources = getVisibleRepositories();
+                reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
+                RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(),
+                        getSession(), RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
 
-                MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
-
-                List<RepositoryReference> repositoryRefrences = getCategories().stream()//
+                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory)
+                        .stream()//
                         .map(Category::getRepositoryReferences)//
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
-                        .collect(toList());
+                        .toList();
 
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
-                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryRefrences);
+                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                        includeAllDependencies, profileProperties);
+                        includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
+                        profileProperties);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Could not assemble p2 repository", e);
             }
@@ -185,13 +244,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         }
     }
 
-    protected RepositoryReferences getVisibleRepositories() throws MojoExecutionException, MojoFailureException {
-        int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
-        return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
-    }
-
-    private List<Category> getCategories() {
-        return eclipseRepositoryProject.loadCategories(getReactorProject());
+    private List<Category> getCategories(final File categoriesDirectory) {
+        return eclipseRepositoryProject.loadCategories(categoriesDirectory);
     }
 
 }

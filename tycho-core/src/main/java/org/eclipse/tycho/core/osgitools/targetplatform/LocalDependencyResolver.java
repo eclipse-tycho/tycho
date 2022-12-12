@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -37,10 +39,10 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
@@ -122,7 +124,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
             TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        Properties properties = (Properties) reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        Properties properties = reactorProject.getProperties();
         if (properties != null) {
             String property = properties.getProperty("tycho.test.targetPlatform");
             if (property != null) {

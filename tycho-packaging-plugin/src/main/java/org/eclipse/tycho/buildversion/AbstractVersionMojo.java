@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import java.io.File;
 import java.util.Map;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -19,8 +20,11 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.model.IU;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
 public abstract class AbstractVersionMojo extends AbstractMojo {
 
@@ -32,6 +36,9 @@ public abstract class AbstractVersionMojo extends AbstractMojo {
 
     @Component(role = TychoProject.class)
     protected Map<String, TychoProject> projectTypes;
+
+	@Component
+	BuildContext buildContext;
 
     protected String getOSGiVersion() {
         ArtifactKey osgiArtifact = getOSGiArtifact();
@@ -50,5 +57,27 @@ public abstract class AbstractVersionMojo extends AbstractMojo {
         }
         return projectType.getArtifactKey(DefaultReactorProject.adapt(project));
     }
+
+	protected File getOSGiMetadataFile() {
+		if (project == null) {
+			return null;
+		}
+		return new File(project.getBasedir(), getOSGiMetadataFileName());
+	}
+
+	protected String getOSGiMetadataFileName() {
+		String packaging = project.getPackaging();
+		if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
+				|| PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
+			return "META-INF/MANIFEST.MF";
+		} else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
+			return "feature.xml";
+		} else if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
+			return project.getArtifactId();
+		} else if (PackagingType.TYPE_P2_IU.equals(packaging)) {
+			return IU.SOURCE_FILE_NAME;
+		}
+		return "<unknown packaging=" + packaging + ">";
+	}
 
 }

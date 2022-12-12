@@ -29,6 +29,8 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequestPopulator;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.internal.aether.DefaultRepositorySystemSessionFactory;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
@@ -39,6 +41,7 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.MavenSettingsBuilder;
 import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.configurator.ComponentConfigurator;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
@@ -70,8 +73,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
     @Override
     protected String getCustomConfigurationName() {
-        String name = AbstractTychoMojoTestCase.class.getName().replace('.', '/') + ".xml";
-        return name;
+        return AbstractTychoMojoTestCase.class.getName().replace('.', '/') + ".xml";
     }
 
     protected ArtifactRepository getLocalRepository() throws Exception {
@@ -79,9 +81,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
         File path = new File("target/local-repo").getAbsoluteFile();
 
-        ArtifactRepository r = repoSystem.createLocalRepository(path);
-
-        return r;
+        return repoSystem.createLocalRepository(path);
     }
 
     protected MavenExecutionRequest newMavenExecutionRequest(File pom) throws Exception {
@@ -155,12 +155,22 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         }
         List<MavenProject> projects = result.getTopologicallySortedProjects();
         for (MavenProject mavenProject : projects) {
-            DefaultMavenExecutionResult executionResult = new DefaultMavenExecutionResult();
-            MavenSession session = new MavenSession(getContainer(), request, executionResult, projects);
+            PlexusContainer container = getContainer();
+            DefaultRepositorySystemSessionFactory repositorySystemSessionFactory = container
+                    .lookup(DefaultRepositorySystemSessionFactory.class);
+            DefaultRepositorySystemSession repositorySession = repositorySystemSessionFactory
+                    .newRepositorySession(request);
+            MavenSession session = new MavenSession(container, repositorySession, request, result);
+            LegacySupport lookup = container.lookup(LegacySupport.class);
+            session.setProjects(projects);
+            MavenSession oldSession = lookup.getSession();
             try {
+                lookup.setSession(session);
                 tychoResolver.resolveMavenProject(session, mavenProject, projects);
             } catch (RuntimeException e) {
                 result.addException(e);
+            } finally {
+                lookup.setSession(oldSession);
             }
         }
         if (result.hasExceptions()) {
@@ -192,16 +202,16 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     protected MavenProject getProjectWithArtifactId(List<MavenProject> projects, String artifactId)
             throws AssertionError, Exception {
         return projects.stream().filter(p -> artifactId.equals(p.getArtifactId())).findFirst()
-                .orElseThrow(() -> new AssertionError(
-                        "Project with artifactId " + artifactId + " not found, projects discovered are: "
-                                + projects.stream().map(p -> p.getArtifactId()).collect(Collectors.joining(", "))));
+                .orElseThrow(() -> new AssertionError("Project with artifactId " + artifactId
+                        + " not found, projects discovered are: "
+                        + projects.stream().map(MavenProject::getArtifactId).collect(Collectors.joining(", "))));
     }
 
     protected MavenProject getProjectWithName(List<MavenProject> projects, String name)
             throws AssertionError, Exception {
         return projects.stream().filter(p -> name.equals(p.getName())).findFirst().orElseThrow(
                 () -> new AssertionError("Project with name " + name + " not found, projects discovered are: "
-                        + projects.stream().map(p -> p.getName()).collect(Collectors.joining(", "))));
+                        + projects.stream().map(MavenProject::getName).collect(Collectors.joining(", "))));
     }
 
     /**

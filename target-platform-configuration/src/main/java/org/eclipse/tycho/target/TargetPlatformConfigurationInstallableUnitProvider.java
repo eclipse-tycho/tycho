@@ -15,10 +15,9 @@ package org.eclipse.tycho.target;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -36,6 +35,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.p2maven.InstallableUnitProvider;
 
@@ -52,21 +52,22 @@ public class TargetPlatformConfigurationInstallableUnitProvider implements Insta
     @Requirement
     private Logger logger;
 
-    @Requirement(role = TychoProject.class)
-    private Map<String, TychoProject> projectTypes;
+    @Requirement
+    private TychoProjectManager projectManager;
 
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
             throws CoreException {
-        if (projectTypes.get(project.getPackaging()) == null) {
+        Optional<TychoProject> tychoProject = projectManager.getTychoProject(project);
+        if (tychoProject.isEmpty()) {
             //not a tycho project...
             return Collections.emptyList();
         }
         TargetPlatformConfiguration configuration = configurationReader.getTargetPlatformConfiguration(session,
                 project);
-        List<IRequirement> extraRequirements = configuration.getExtraRequirements().stream().map(key -> {
-            return createRequirementFor(key.getType(), key.getId(), new VersionRange(key.getVersion()));
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        List<IRequirement> extraRequirements = configuration.getExtraRequirements().stream()
+                .map(key -> createRequirementFor(key.getType(), key.getId(), new VersionRange(key.getVersion())))
+                .filter(Objects::nonNull).toList();
         if (extraRequirements.isEmpty()) {
             return Collections.emptyList();
         }
@@ -74,22 +75,17 @@ public class TargetPlatformConfigurationInstallableUnitProvider implements Insta
     }
 
     private static IRequirement createRequirementFor(String type, String id, VersionRange versionRange) {
-        switch (type) {
-        case ArtifactType.TYPE_ECLIPSE_PLUGIN:
-            return MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, id, versionRange, null,
-                    false, true);
-        case ArtifactType.TYPE_ECLIPSE_FEATURE:
-            return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id + ".feature.group",
-                    versionRange, null, false, true);
-        case ArtifactType.TYPE_INSTALLABLE_UNIT:
-            return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, versionRange, null, false,
-                    true);
-        case ArtifactType.TYPE_ECLIPSE_PRODUCT:
-            return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, versionRange, null, false,
-                    true);
-        default:
-            return null;
-        }
+        return switch (type) {
+        case ArtifactType.TYPE_ECLIPSE_PLUGIN -> MetadataFactory
+                .createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, id, versionRange, null, false, true);
+        case ArtifactType.TYPE_ECLIPSE_FEATURE -> MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                id + ".feature.group", versionRange, null, false, true);
+        case ArtifactType.TYPE_INSTALLABLE_UNIT -> MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                id, versionRange, null, false, true);
+        case ArtifactType.TYPE_ECLIPSE_PRODUCT -> MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                id, versionRange, null, false, true);
+        default -> null;
+        };
     }
 
     private static IInstallableUnit createUnitRequiring(Collection<IRequirement> requirements) {

@@ -19,10 +19,11 @@ import org.junit.Test;
 
 public class CompilerExtraExportsTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testExtraExports() throws Exception {
-        Verifier verifier = getVerifier("compiler.extraExports", false);
-        verifier.executeGoal("compile");
-    }
+	@Test
+	public void testExtraExports() throws Exception {
+		Verifier verifier = getVerifier("compiler.extraExports", false);
+		verifier.executeGoal("compile");
+		verifier.verifyErrorFreeLog();
+	}
 
 }

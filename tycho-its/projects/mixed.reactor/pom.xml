@@ -8,7 +8,7 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
-		<tycho-version>2.7.0</tycho-version>
+		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
 	</properties>
 
 	<build>
@@ -24,7 +24,6 @@
 				<version>${tycho-version}</version>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
-					<pomDependencies>consider</pomDependencies>
 				</configuration>
 			</plugin>
 			<plugin>

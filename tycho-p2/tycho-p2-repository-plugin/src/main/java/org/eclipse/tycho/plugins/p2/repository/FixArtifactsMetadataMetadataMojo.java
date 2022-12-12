@@ -21,7 +21,6 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
@@ -61,8 +60,8 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "true")
     private boolean keepNonXzIndexFiles;
 
-    @Component
-    private EquinoxServiceFactory p2;
+    @Component()
+    MirrorApplicationService mirrorApp;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -73,7 +72,6 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
                     throw new MojoExecutionException(
                             "Could not update p2 repository, directory does not exist: " + destination);
                 }
-                MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, true, xzCompress, keepNonXzIndexFiles, false, true,
                         Collections.emptyMap(), Collections.emptyList());

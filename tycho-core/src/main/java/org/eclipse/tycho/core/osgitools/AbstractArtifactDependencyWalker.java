@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2012 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -20,13 +22,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
@@ -34,6 +37,7 @@ import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.model.ProductConfiguration.ProductType;
 import org.eclipse.tycho.model.UpdateSite;
 
 public abstract class AbstractArtifactDependencyWalker implements ArtifactDependencyWalker {
@@ -42,11 +46,11 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
     private final TargetEnvironment[] environments;
 
-    public AbstractArtifactDependencyWalker(DependencyArtifacts artifacts) {
+    protected AbstractArtifactDependencyWalker(DependencyArtifacts artifacts) {
         this(artifacts, null);
     }
 
-    public AbstractArtifactDependencyWalker(DependencyArtifacts artifacts, TargetEnvironment[] environments) {
+    protected AbstractArtifactDependencyWalker(DependencyArtifacts artifacts, TargetEnvironment[] environments) {
         this.artifacts = artifacts;
         this.environments = environments;
     }
@@ -78,7 +82,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         ArtifactKey key = artifact.getKey();
         ReactorProject project = artifact.getMavenProject();
         String classifier = artifact.getClassifier();
-        Set<Object> installableUnits = artifact.getInstallableUnits();
+        Collection<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
 
         DefaultFeatureDescription description = new DefaultFeatureDescription(key, location, project, classifier,
                 feature, featureRef, installableUnits);
@@ -113,11 +117,13 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
     protected void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor,
             WalkbackPath visited) {
-        if (product.useFeatures()) {
+        ProductType type = product.getType();
+        if (type == ProductType.FEATURES || type == ProductType.MIXED) {
             for (FeatureRef ref : product.getFeatures()) {
                 traverseFeature(ref, visitor, visited);
             }
-        } else {
+        }
+        if (type == ProductType.BUNDLES || type == ProductType.MIXED) {
             for (PluginRef ref : product.getPlugins()) {
                 traversePlugin(ref, visitor, visited);
             }
@@ -202,7 +208,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             File location = artifact.getLocation(true);
             ReactorProject project = artifact.getMavenProject();
             String classifier = artifact.getClassifier();
-            Set<Object> installableUnits = artifact.getInstallableUnits();
+            Collection<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
 
             PluginDescription description = new DefaultPluginDescription(key, location, project, classifier, ref,
                     installableUnits);

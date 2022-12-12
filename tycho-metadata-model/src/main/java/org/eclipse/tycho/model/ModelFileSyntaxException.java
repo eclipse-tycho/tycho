@@ -15,7 +15,6 @@ package org.eclipse.tycho.model;
 /**
  * Thrown for some syntax errors in model files.
  */
-@SuppressWarnings("serial")
 public class ModelFileSyntaxException extends RuntimeException {
 
     public ModelFileSyntaxException(String message) {

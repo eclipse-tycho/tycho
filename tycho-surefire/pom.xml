@@ -14,9 +14,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-bundles</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
-		<relativePath>../tycho-bundles/pom.xml</relativePath>
+		<artifactId>tycho</artifactId>
+		<version>4.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-surefire</artifactId>
 	<packaging>pom</packaging>
@@ -35,6 +34,8 @@
 		<module>org.eclipse.tycho.surefire.junit57withvintage</module>
 		<module>org.eclipse.tycho.surefire.junit58</module>
 		<module>org.eclipse.tycho.surefire.junit58withvintage</module>
+		<module>org.eclipse.tycho.surefire.junit59</module>
+		<module>org.eclipse.tycho.surefire.junit59withvintage</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 	</modules>
 	<build>
@@ -73,6 +74,7 @@
 					<executions>
 						<execution>
 							<id>unpack</id>
+							<?m2e execute onIncremental?>
 							<phase>generate-resources</phase>
 							<goals>
 								<goal>unpack</goal>

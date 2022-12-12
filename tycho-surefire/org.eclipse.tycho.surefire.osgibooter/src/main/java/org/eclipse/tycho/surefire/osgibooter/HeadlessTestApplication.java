@@ -21,6 +21,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 
 public class HeadlessTestApplication implements IApplication {
 
+    @Override
     public Object start(IApplicationContext context) throws Exception {
         String[] args = Platform.getCommandLineArgs();
         Properties testProps = OsgiSurefireBooter.loadProperties(args);
@@ -28,6 +29,7 @@ public class HeadlessTestApplication implements IApplication {
         return Integer.valueOf(OsgiSurefireBooter.run(args, testProps));
     }
 
+    @Override
     public void stop() {
         // nothing to be done here
     }

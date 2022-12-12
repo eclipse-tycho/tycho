@@ -26,12 +26,9 @@ public class RepositoryReference {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!(obj instanceof RepositoryReference))
-            return false;
-        RepositoryReference other = (RepositoryReference) obj;
-        return Objects.equals(getLocation(), other.getLocation()) && isEnabled() == other.isEnabled();
+        return this == obj || (obj instanceof RepositoryReference other && //
+                Objects.equals(getLocation(), other.getLocation()) && //
+                isEnabled() == other.isEnabled());
     }
 
     @Override

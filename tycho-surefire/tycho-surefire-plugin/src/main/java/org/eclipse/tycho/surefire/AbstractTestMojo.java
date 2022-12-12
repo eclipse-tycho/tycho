@@ -70,16 +70,9 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
-import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.BuildDirectory;
-import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.PlatformPropertiesUtils;
-import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.*;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
@@ -92,13 +85,11 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
-import org.eclipse.tycho.launching.LaunchConfiguration;
-import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.surefire.provider.impl.ProviderHelper;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilder;
@@ -108,7 +99,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     private static final String SYSTEM_JDK = "jdk";
 
-    private static String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, signals start with 1
+    private static final String[] UNIX_SIGNAL_NAMES = { "not a signal", // padding, signals start with 1
             "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL", "SIGUSR1",
             "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
             "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH",
@@ -140,6 +131,15 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "true")
     private boolean deleteOsgiDataDirectory;
+
+    /**
+     * The directory where OSGi/PDE metadata files (e.g., <code>MANIFEST.MF</code>) are located.
+     * Useful in case said metadata is changed at build time, using filtering.
+     * <p>
+     * Defaults to the project's base directory.
+     */
+    @Parameter(defaultValue = "${project.basedir}")
+    private File metadataDirectory;
 
     @Parameter(property = "project", readonly = true)
     protected MavenProject project;
@@ -311,13 +311,13 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     /**
      * Run tests using UI (true) or headless (false) test harness.
      */
-    @Parameter(defaultValue = "false")
+    @Parameter(property = "tycho.surefire.useUIHarness", defaultValue = "false")
     private boolean useUIHarness;
 
     /**
      * Run tests in UI (true) or background (false) thread. Only applies to UI test harness.
      */
-    @Parameter(defaultValue = "true")
+    @Parameter(property = "tycho.surefire.useUIThread", defaultValue = "true")
     private boolean useUIThread;
 
     /**
@@ -491,7 +491,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      *
      * @since 1.3.0
      */
-    @Parameter(property = "trimStackTrace", defaultValue = "true")
+    @Parameter(property = "trimStackTrace", defaultValue = "false")
     private boolean trimStackTrace;
 
     /**
@@ -640,9 +640,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      * <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchain</a> if
      * configured in pom.xml)</li>
      * <li>BREE: use MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code> to lookup the
-     * JDK from
-     * <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>.
-     * The value of BREE will be matched against the id of the toolchain elements in
+     * JDK from <a href=
+     * "https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>. The
+     * value of BREE will be matched against the id of the toolchain elements in
      * toolchains.xml.</li>
      * </ul>
      *
@@ -691,11 +691,19 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (!isCompatiblePackagingType(project.getPackaging())) {
+            getLog().debug("Execution was skipped because of incompatible packaging type: " + project.getPackaging());
+            return;
+        }
         if (shouldSkip()) {
             getLog().info("Skipping tests");
             return;
         }
         if (shouldRun()) {
+            // Allow constructing the test runtime against filtered OSGi/PDE metadata
+            final ReactorProject reactorProject = getReactorProject();
+            reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, metadataDirectory);
+
             EquinoxInstallation equinoxTestRuntime;
             synchronized (AbstractTestMojo.class) {
                 if ("p2Installed".equals(testRuntime)) {
@@ -721,12 +729,14 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         }
     }
 
+    protected abstract boolean isCompatiblePackagingType(String packaging);
+
     protected abstract boolean shouldRun();
 
     protected boolean shouldSkip() {
         if (skip != null && skipTests != null && !skip.equals(skipTests)) {
             getLog().warn(
-                    "Both parameter 'skipTests' and 'maven.test.skip' are set, 'skipTests' has a higher priority!");
+                    "Both parameter 'skipTests' and 'maven.test.skip' are set, 'skipTests' has a higher priority");
         }
         if (skipTests != null) {
             return skipTests;
@@ -859,23 +869,29 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             // all other projects are added as bundle jars.
             ReactorProject otherProject = artifact.getMavenProject();
             if (otherProject != null) {
-                if (otherProject.sameProject(project)) {
-                    testRuntime.addBundle(artifact.getKey(), project.getBasedir());
+                // Contrary to what's written above, we use the project's root directory only when
+                // we do not need custom metadata. If we need, we load the test bundle as JAR instead
+                if (otherProject.sameProject(project) && project.getBasedir().equals(metadataDirectory)) {
+                    addBundle(testRuntime, artifact.getKey(), metadataDirectory);
                     continue;
                 }
                 File file = otherProject.getArtifact(artifact.getClassifier());
                 if (file != null) {
-                    testRuntime.addBundle(artifact.getKey(), file);
+                    addBundle(testRuntime, artifact.getKey(), file);
                     continue;
                 }
             }
-            testRuntime.addBundle(artifact);
+            addBundle(testRuntime, artifact.getKey(), artifact.getLocation(true));
         }
 
         setupTestBundles(provider, testRuntime);
 
         getReportsDirectory().mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
+    }
+
+    private void addBundle(EquinoxInstallationDescription runtime, ArtifactKey artifact, File file) {
+        runtime.addBundle(artifact.getId(), artifact.getVersion(), file);
     }
 
     protected void setupTestBundles(TestFrameworkProvider provider, EquinoxInstallationDescription testRuntime)
@@ -885,12 +901,12 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             DevBundleInfo devInfo = workspaceState.getBundleInfo(session, artifact.getGroupId(),
                     artifact.getArtifactId(), artifact.getVersion(), project.getPluginArtifactRepositories());
             if (devInfo != null) {
-                testRuntime.addBundle(devInfo.getArtifactKey(), devInfo.getLocation(), true);
+                addBundle(testRuntime, devInfo.getArtifactKey(), devInfo.getLocation());
                 testRuntime.addDevEntries(devInfo.getSymbolicName(), devInfo.getDevEntries());
             } else {
                 File bundleLocation = artifact.getFile();
                 ArtifactKey bundleArtifactKey = getBundleArtifactKey(bundleLocation);
-                testRuntime.addBundle(bundleArtifactKey, bundleLocation, true);
+                addBundle(testRuntime, bundleArtifactKey, bundleLocation);
             }
         }
 
@@ -929,7 +945,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
         // see also P2ResolverImpl.addDependenciesForTests()
         result.add(newBundleDependency("org.eclipse.osgi"));
-        result.add(newBundleDependency(EquinoxInstallationDescription.EQUINOX_LAUNCHER));
+        result.add(newBundleDependency(DefaultEquinoxInstallationDescription.EQUINOX_LAUNCHER));
         if (useUIHarness) {
             result.add(newBundleDependency("org.eclipse.ui.ide.application"));
         } else {
@@ -1038,7 +1054,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             getLog().debug("Class " + clazz + " matches the current filter.");
         }
         if (classes.isEmpty()) {
-            getLog().debug("Nothing matches pattern = " + includeList + " excluding " + excludeList + " in "
+            getLog().debug("Nothing matches pattern " + includeList + ", excluding " + excludeList + " in "
                     + getTestClassesDirectory());
         }
         return scanResult;
@@ -1048,7 +1064,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return Arrays.asList("**/*$*");
     }
 
-    protected abstract List<String> getDefaultInclude();
+    protected List<String> getDefaultInclude() {
+        return List.of("**/Test*.class", "**/*Test.class", "**/*Tests.class", "**/*TestCase.class");
+    }
 
     private void storeProperties(Map<String, String> propertiesMap, File file) throws MojoExecutionException {
         Properties p = new Properties();
@@ -1071,7 +1089,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                 FileUtils.deleteDirectory(osgiDataDirectory);
             }
             cli = createCommandLine(testRuntime);
-            getLog().info("Executing Test Runtime with timeout " + forkedProcessTimeoutInSeconds
+            getLog().info("Executing test runtime with timeout " + forkedProcessTimeoutInSeconds
                     + ", logs (if any) will be placed at: " + logFile.getAbsolutePath());
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {
@@ -1139,8 +1157,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     private String decodeReturnCode(int result) {
         try {
-            Properties properties = (Properties) DefaultReactorProject.adapt(project)
-                    .getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+            Properties properties = DefaultReactorProject.adapt(project).getProperties();
             if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(properties))) {
                 int signal = result - 128;
                 if (signal > 0 && signal < UNIX_SIGNAL_NAMES.length) {
@@ -1188,8 +1205,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
         cli.addVMArguments("-Dosgi.noShutdown=false");
 
-        Properties properties = (Properties) DefaultReactorProject.adapt(project)
-                .getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        Properties properties = DefaultReactorProject.adapt(project).getProperties();
         cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));

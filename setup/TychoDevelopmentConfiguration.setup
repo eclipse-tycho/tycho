@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup:Configuration
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
+    label="Tycho Development Environment">
+  <annotation
+      source="http://www.eclipse.org/oomph/setup/BrandingInfo">
+    <detail
+        key="imageURI">
+      <value>https://www.eclipse.org/downloads/images/committers.png</value>
+    </detail>
+    <detail
+        key="siteURI">
+      <value>https://www.eclipse.org/tycho/</value>
+    </detail>
+  </annotation>
+  <installation
+      name="tycho.dev.installation"
+      label="Tycho Development Installation">
+    <productVersion
+        href="index:/org.eclipse.setup#//@productCatalogs[name='org.eclipse.products']/@products[name='epp.package.committers']/@versions[name='latest']"/>
+    <description>The Tycho development environment installation provides the full environment to develop for Eclipse Tycho.</description>
+  </installation>
+  <workspace
+      name="tycho.dev.workspace"
+      label="Tycho Development Workspace">
+    <stream
+        href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']/@projects[name='tycho']/@streams[name='master']"/>
+    <description>The Tycho development environment workspace includes all modules and tests of Eclipse Tycho.</description>
+  </workspace>
+  <description>
+    &lt;p>
+    The &lt;a href=&quot;https://www.eclipse.org/tycho/&quot;/>Tycho&lt;/a> Development Environment configuration provisions a dedicated development environment 
+    for the complete set of source projects used by &lt;a href=&quot;https://ci.eclipse.org/tycho/&quot;>Tycho's build server&lt;/a> 
+    to produce &lt;a href=&quot;https://repo1.maven.org/maven2/org/eclipse/tycho/&quot;>Eclipse Tycho Maven plugins&lt;/a>.
+    &lt;/p>
+    &lt;p>
+    The installation is based on the latest milestone or release candiate of the Eclipse-for-commiters.
+    The workspace consists of all the projects from &lt;a href=&quot;https://github.com/eclipse-tycho/tycho.git&quot;>tycho's Git Repository&lt;/a>
+    , organized into working sets, and ready for contribution.
+    &lt;/p>
+    &lt;/p>
+    Please &lt;a href=&quot;https://wiki.eclipse.org/Eclipse_Platform_SDK_Provisioning&quot;>read the analgous tutorial instructions&lt;/a> for the Eclispe Platform SDK's configuration for more details.
+    &lt;/p>
+  </description>
+</setup:Configuration>

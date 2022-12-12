@@ -48,21 +48,21 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildProperties;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
+import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.packaging.LicenseFeatureHelper;
 
 import de.pdark.decentxml.Document;
@@ -199,6 +199,9 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
+    @Component
+    private BuildPropertiesParser buildPropertiesParser;
+
     /**
      * The filename to be used for the generated archive file. For the source-feature goal,
      * "-sources-feature" is appended to this filename.
@@ -215,8 +218,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Component
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    @Component
-    private EquinoxServiceFactory equinox;
+    @Component()
+    P2ResolverFactory factory;
 
     @Component
     private Logger logger;
@@ -245,7 +248,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                     archiver.getArchiver().addFileSet(templateFileSet);
                 }
 
-                BuildProperties buildProperties = DefaultReactorProject.adapt(project).getBuildProperties();
+                BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));
                 archiver.getArchiver().addFileSet(getManuallyIncludedFiles(project.getBasedir(), buildProperties));
 
                 archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);
@@ -260,20 +263,22 @@ public class SourceFeatureMojo extends AbstractMojo {
                 projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
                 if (!isP2GenerationEnabled()) {
                     logger.warn(
-                            "org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated source-feature is used in an update-site or another feature. You can add the following snippet to your pom: \n" //
-                                    + "            <plugin>\n"
-                                    + "                <groupId>org.eclipse.tycho</groupId>\n" //
-                                    + "                <artifactId>tycho-p2-plugin</artifactId>\n" //
-                                    + "                <executions>\n" //
-                                    + "                    <execution>\n" //
-                                    + "                        <id>attach-p2-metadata</id>\n" //
-                                    + "                        <phase>package</phase>\n" //
-                                    + "                        <goals>\n" //
-                                    + "                            <goal>p2-metadata</goal>\n" //
-                                    + "                        </goals>\n" //
-                                    + "                    </execution>\n" //
-                                    + "                </executions>\n"//
-                                    + "            </plugin>");
+                            """
+                                    org.eclipse.tycho:tycho-p2-plugin seems not to be enabled but will be required if the generated source-feature is used in an update-site or another feature. You can add the following snippet to your pom:\s
+                                                <plugin>
+                                                    <groupId>org.eclipse.tycho</groupId>
+                                                    <artifactId>tycho-p2-plugin</artifactId>
+                                                    <executions>
+                                                        <execution>
+                                                            <id>attach-p2-metadata</id>
+                                                            <phase>package</phase>
+                                                            <goals>
+                                                                <goal>p2-metadata</goal>
+                                                            </goals>
+                                                        </execution>
+                                                    </executions>
+                                                </plugin>
+                                    """);
                 }
             } catch (MojoExecutionException e) {
                 throw e;
@@ -450,7 +455,6 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     private void fillReferences(Feature sourceFeature, Feature feature, TargetPlatform targetPlatform)
             throws MojoExecutionException {
-        P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
         P2Resolver p2 = factory.createResolver(
                 new MavenLoggerAdapter(this.logger, DebugUtils.isDebugEnabled(this.session, this.project)));
 
@@ -686,8 +690,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                 return false;
             }
             Object configuration = execution.getConfiguration();
-            if (configuration instanceof Xpp3Dom) {
-                Xpp3Dom dom = (Xpp3Dom) configuration;
+            if (configuration instanceof Xpp3Dom dom) {
                 Xpp3Dom child = dom.getChild("skip");
                 if (child != null && Boolean.valueOf(child.getValue())) {
                     return false;

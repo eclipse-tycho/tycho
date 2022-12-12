@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2022 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
@@ -21,7 +23,6 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -38,8 +39,12 @@ public class DefaultDependencyResolverFactory {
     private PlexusContainer container;
 
     public DependencyResolver lookupDependencyResolver(MavenProject project) {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        Properties properties = (Properties) reactorProject.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        return lookupDependencyResolver(DefaultReactorProject.adapt(project));
+    }
+
+    public DependencyResolver lookupDependencyResolver(ReactorProject reactorProject) {
+
+        Properties properties = reactorProject.getProperties();
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
 
         if (properties.getProperty("tycho.targetPlatform") != null) {

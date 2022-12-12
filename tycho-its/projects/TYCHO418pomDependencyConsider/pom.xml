@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>3.0.0-SNAPSHOT</tycho.version>
+		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
 	</properties>
 
 	<modules>

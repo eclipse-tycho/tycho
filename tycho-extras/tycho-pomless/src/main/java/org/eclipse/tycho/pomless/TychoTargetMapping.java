@@ -17,6 +17,7 @@ package org.eclipse.tycho.pomless;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,8 +39,13 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected boolean isValidLocation(String location) {
-        return location.endsWith(TARGET_EXTENSION);
+    public float getPriority() {
+        return 10;
+    }
+
+    @Override
+    protected boolean isValidLocation(Path location) {
+        return getFileName(location).endsWith(TARGET_EXTENSION);
     }
 
     @Override
@@ -49,14 +55,14 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
             return file;
         }
         try (var targetFiles = filesWithExtension(dir.toPath(), TARGET_EXTENSION)) {
-            List<File> files = targetFiles.collect(Collectors.toList());
+            List<File> files = targetFiles.toList();
             if (files.size() == 1) {
                 return files.get(0);
             } else if (files.size() > 1) {
                 String sb = files.stream().map(File::getName).collect(Collectors.joining(", "));
-                throw new IllegalArgumentException("only one " + TARGET_EXTENSION
+                throw new IllegalArgumentException("Only one " + TARGET_EXTENSION
                         + " file is allowed per target project, or target must be named like the folder (<foldername>"
-                        + TARGET_EXTENSION + "), the following targets where found: " + sb);
+                        + TARGET_EXTENSION + "), the following targets were found: " + sb);
             }
         } catch (IOException e) { // ignore
         }
@@ -64,8 +70,8 @@ public class TychoTargetMapping extends AbstractXMLTychoMapping {
     }
 
     @Override
-    protected void initModelFromXML(Model model, Element xml, File artifactFile) throws IOException {
-        String fileName = artifactFile.getName();
+    protected void initModelFromXML(Model model, Element xml, Path artifactFile) throws IOException {
+        String fileName = getFileName(artifactFile);
         String artifactId = fileName.substring(0, fileName.length() - TARGET_EXTENSION.length());
         model.setArtifactId(artifactId);
         String name = getXMLAttributeValue(xml, "name");

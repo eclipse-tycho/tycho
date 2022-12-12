@@ -5,6 +5,15 @@
 
    <requires>
       <import plugin="com.google.guava"/>
+      <import feature="org.eclipse.emf.sdk" version="2.29.0" match="greaterOrEqual"/>
    </requires>
+
+   <plugin
+      id="org.aopalliance"
+      download-size="0"
+      install-size="0"
+      version="0.0.0"
+      unpack="false"/>
+
 
 </feature>

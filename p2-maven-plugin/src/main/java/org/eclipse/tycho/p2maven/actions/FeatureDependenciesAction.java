@@ -35,7 +35,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings("restriction")
+
 //TODO shoudl not be needed see https://github.com/eclipse-equinox/p2/issues/103 and https://github.com/eclipse-equinox/p2/issues/101
 public class FeatureDependenciesAction extends AbstractDependenciesAction {
     /**

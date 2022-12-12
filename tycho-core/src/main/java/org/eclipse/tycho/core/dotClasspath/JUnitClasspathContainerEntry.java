@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2021 Christoph Läubrich and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Christoph Läubrich  - initial API and implementation
@@ -34,40 +36,40 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
             "org.hamcrest.core", "[1.1.0,2.0.0)");
 
     static final ArtifactKey JUNIT_JUPITER_API_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.junit.jupiter.api", "[5.0.0,6.0.0)");
+            "junit-jupiter-api", "[5.0.0,6.0.0)");
 
     static final ArtifactKey JUNIT_JUPITER_ENGINE_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.junit.jupiter.engine", "[5.0.0,6.0.0)");
+            "junit-jupiter-engine", "[5.0.0,6.0.0)");
 
     static final ArtifactKey JUNIT_JUPITER_MIGRATIONSUPPORT_PLUGIN = new DefaultArtifactKey(
-            ArtifactType.TYPE_INSTALLABLE_UNIT, "org.junit.jupiter.migrationsupport", "[5.0.0,6.0.0)");
+            ArtifactType.TYPE_INSTALLABLE_UNIT, "junit-jupiter-migrationsupport", "[5.0.0,6.0.0)");
 
     static final ArtifactKey JUNIT_JUPITER_PARAMS_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.junit.jupiter.params", "[5.0.0,6.0.0)");
+            "junit-jupiter-params", "[5.0.0,6.0.0)");
 
     static final ArtifactKey JUNIT_PLATFORM_COMMONS_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.junit.platform.commons", "[1.0.0,2.0.0)");
+            "junit-platform-commons", "[1.0.0,2.0.0)");
 
     static final ArtifactKey JUNIT_PLATFORM_ENGINE_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.junit.platform.engine", "[1.0.0,2.0.0)");
+            "junit-platform-engine", "[1.0.0,2.0.0)");
 
     static final ArtifactKey JUNIT_PLATFORM_LAUNCHER_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.junit.platform.launcher", "[1.0.0,2.0.0)");
+            "junit-platform-launcher", "[1.0.0,2.0.0)");
 
     static final ArtifactKey JUNIT_PLATFORM_RUNNER_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.junit.platform.runner", "[1.0.0,2.0.0)");
+            "junit-platform-runner", "[1.0.0,2.0.0)");
 
     static final ArtifactKey JUNIT_PLATFORM_SUITE_API_PLUGIN = new DefaultArtifactKey(
-            ArtifactType.TYPE_INSTALLABLE_UNIT, "org.junit.platform.suite.api", "[1.0.0,2.0.0)");
+            ArtifactType.TYPE_INSTALLABLE_UNIT, "junit-platform-suite-api", "[1.0.0,2.0.0)");
 
     static final ArtifactKey JUNIT_VINTAGE_ENGINE_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.junit.vintage.engine", "[4.12.0,6.0.0)");
+            "junit-vintage-engine", "[4.12.0,6.0.0)");
 
     static final ArtifactKey JUNIT_OPENTEST4J_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
             "org.opentest4j", "[1.0.0,2.0.0)");
 
     static final ArtifactKey JUNIT_APIGUARDIAN_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.apiguardian", "[1.0.0,2.0.0)");
+            "org.apiguardian.api", "[1.0.0,2.0.0)");
 
     /**
      * 

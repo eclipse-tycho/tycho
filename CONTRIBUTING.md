@@ -19,9 +19,13 @@ Make sure you have set the property for the Tycho version (e.g. `tycho-version`)
 For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifact/target/staging/index.html).
 
 If you identify an issue, please try to reduce the case to the minimal project and steps to reproduce, and then report the bug with details to reproduce
-and the minimal reproducer project to Tycho's [issue tracker](https://github.com/eclipse/tycho/issues).
+and the minimal reproducer project to Tycho's [issue tracker](https://github.com/eclipse-tycho/tycho/issues).
 
 ## Development environment
+
+[![Create Eclipse Development Environment for Tycho](https://download.eclipse.org/oomph/www/setups/svg/tycho.svg)](https://www.eclipse.org/setups/installer/?url=https://raw.githubusercontent.com/eclipse-tycho/tycho/master/setup/TychoDevelopmentConfiguration.setup&show=true "Click to open Eclipse-Installer Auto Launch or drag into your running installer")
+
+&nbsp;&nbsp;&nbsp;or just&nbsp;&nbsp;&nbsp;
 
 <a href="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirect.html"><img src="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/cloneToEclipseBadge.png" alt="Clone to Eclipse IDE"/></a>
 
@@ -79,9 +83,9 @@ Alternatively, e.g. if you are only interested in modifying an integration test 
 
 ### Writing Tycho integration tests
 
-The tycho integration tests are located in the [tycho-its](https://github.com/eclipse/tycho/tree/master/tycho-its) subfolder of the repository. Creating a new integration test usually includes the following steps:
+The tycho integration tests are located in the [tycho-its](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its) subfolder of the repository. Creating a new integration test usually includes the following steps:
 
-1. create a new folder in the the [projects](https://github.com/eclipse/tycho/tree/master/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't mind to choose an intermediate name first), usually you would like to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
+1. create a new folder in the the [projects](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't mind to choose an intermediate name first), usually you would like to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
 2. Check if there is already a suitable test-class available or simply create your own (again the name could be improved later on if required), the usual pattern for a self-contained test-case that fails the build is:
 ```
 @Test
@@ -129,6 +133,30 @@ Tycho makes heavy use of p2 functionality. Therefore it may be useful to try out
 Then the locally built Tycho SNAPSHOT includes the patched p2 version.
 
 Note: Tycho always allows references to locally built artifacts, even if they are not part of the target platform. Therefore you may want to clear the list of locally built artifacts (in the local Maven repository in .meta/p2-local-metadata.properties) after you have finished your trials with the patched p2 version.
+
+### Running with a locally build version of jdt compiler
+
+Tycho internally calls the Eclipse Java Compiler, therefore it might be usefull to try you patches to ECJ without waiting for a new release, or even just the next nightly build. With the following steps it is possible to run a Tycho build with a locally built version of ECJ;
+
+1. Get the sources from https://github.com/eclipse-jdt/eclipse.jdt.core
+2. Make changes in the ecj sources, **(!) don't forget to increase the version of that bundle otherwise your changes will be overwritten with the current release version (!)**
+3. Build the `eclipse.jdt.core/org.eclipse.jdt.core` module with `mvn clean package -Pbuild-individual-bundles -Dtycho.localArtifacts=ignore -DskipTests`
+4. Install the result in your local maven repository under a new version `mvn install:install-file -Dfile=<path to>/eclipse.jdt.core/org.eclipse.jdt.core/target/org.eclipse.jdt.core-<version>-batch-compiler.jar -DgroupId=org.eclipse.jdt -DartifactId=ecj -Dversion=<yournewversion> -Dpackaging=jar`
+5. Now edit the `pom.xml` of your project you like to test and either edit or insert
+```
+<plugin>
+  <groupId>org.eclipse.tycho</groupId>
+  <artifactId>tycho-compiler-plugin</artifactId>
+  <version>${tycho-version}</version>
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.jdt</groupId>
+      <artifactId>ecj</artifactId>
+      <version><yournewversion></version>
+    </dependency>
+  </dependencies>
+</plugin>
+```
 
 ### Updating the Equinox and JDT dependencies of Tycho
 
@@ -219,11 +247,29 @@ The micro version will only be used for critical bug-fix releases, in most other
 The following list contains changes that only can happen between major version updates:
 
 - changing the java version to run the build
-- requiring a new minimum Maven version (e.g. once we require maven 4)
+- requiring a new minimum maven version (e.g. once we require maven 4.x)
 - requiring to change their pom.xml in a non trivial way (e.g. beside
-changing some configuration value in an existing mojo)
+changing some configuration value in an existing mojo, or providing a drop-in replacement in the migration guide)
 
 If you require such a change, please note that in the issue and we will assign the next major release to it, those changes would not be merged until the next major release keep your changes small and local as it possible take some time and you probably have to catch up with minor changes in the meantime.
+
+## Backporting
+
+In general we do not backport fixes but recommend to use the current [tycho snapshot](https://github.com/eclipse/tycho/wiki#getting-tycho-snapshots) builds to help moving things forward and having safe releases.
+
+Still backporting is possible with mainly two options:
+
+1. You prepare the necessary things  with PR so they can be reviewed and merged
+2. You pay someone to perform the required steps and drive the release, see https://github.com/eclipse-tycho/tycho#getting-support for details.
+
+If you choose the first options backporting usually includes the following steps:
+
+1. Check out the branch you are interested in, they are always named `tycho-<major>.<minor>.x`.
+2. Make sure the branch is at the next version, e.g. the last release was `3.0.0` the next version should be `3.0.1-SNAPSHOT`, if not use the following command to update the version and create a PR with the changed files: `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT`.
+3. Backport the fix to the branch and add a hint to the RELEASE_NOTES.md of that branch that describes what was backported and create a PR targeting your branch of interest so it could be verified, reviewed an merged.
+4. Once it is merged and the SNAPSHOT is available, test your fix
+5. Look through the issues that where fixed after your target release and identify more items that seem useful and repeat with step 3.
+6. Once there is a noticeable amount of things backported that could justify a release create an issue asking for a bugfix release to be performed.
 
 ## 👔 Process and Legal
 

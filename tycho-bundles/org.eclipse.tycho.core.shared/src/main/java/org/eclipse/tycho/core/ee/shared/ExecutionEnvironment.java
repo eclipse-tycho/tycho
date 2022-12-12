@@ -46,11 +46,9 @@ public interface ExecutionEnvironment {
 
         @Override
         public boolean equals(Object o) {
-            if (o == null || !(o instanceof SystemPackageEntry)) {
-                return false;
-            }
-            SystemPackageEntry other = (SystemPackageEntry) o;
-            return Objects.equals(this.packageName, other.packageName) && Objects.equals(this.version, other.version);
+            return o instanceof SystemPackageEntry other && //
+                    Objects.equals(this.packageName, other.packageName) && //
+                    Objects.equals(this.version, other.version);
         }
 
         @Override

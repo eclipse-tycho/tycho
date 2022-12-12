@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="Target With Maven Url" sequenceNumber="11">
+  <locations>
+    <location type="Target" uri="mvn:org.tycho.its:other:1.0.0-SNAPSHOT:target"/>
+  </locations>
+</target>

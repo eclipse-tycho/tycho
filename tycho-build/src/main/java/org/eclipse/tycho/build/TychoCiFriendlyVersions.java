@@ -1,9 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2022 Christoph Läubrich and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    Christoph Läubrich - initial API and implementation 
@@ -23,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.DefaultMavenExecutionResult;
@@ -40,13 +41,14 @@ import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 @Priority(100)
-@Named
+@Component(role = ModelVersionProcessor.class)
 public class TychoCiFriendlyVersions extends DefaultModelVersionProcessor implements ModelVersionProcessor {
 
 	static final String BUILD_QUALIFIER = "qualifier";
@@ -110,7 +112,7 @@ public class TychoCiFriendlyVersions extends DefaultModelVersionProcessor implem
 							timestampProvider.setQuiet(false);
 						}
 					} catch (ComponentLookupException | MojoExecutionException e) {
-						logger.warn("Can't use '" + provider
+						logger.warn("Cannot use '" + provider
 								+ "' as a timestamp provider for tycho-ci-friendly-versions (" + e + ")");
 					}
 

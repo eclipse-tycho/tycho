@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>tycho.its</groupId>
+	<artifactId>compiler-pomdependencies</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<properties>
+		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			
+			<!-- Example how to configure this (e.g. disable)
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<pomOnlyDependencies>ignore</pomOnlyDependencies>
+				</configuration>
+			</plugin>
+			-->
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+		  <groupId>org.apiguardian</groupId>
+		  <artifactId>apiguardian-api</artifactId>
+		  <version>1.1.2</version>
+		</dependency>
+	</dependencies>
+
+</project>

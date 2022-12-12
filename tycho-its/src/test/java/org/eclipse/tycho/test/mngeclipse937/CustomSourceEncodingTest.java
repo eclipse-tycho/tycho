@@ -22,8 +22,6 @@ public class CustomSourceEncodingTest extends AbstractTychoIntegrationTest {
 	public void test() throws Exception {
 		Verifier verifier = getVerifier("MNGECLIPSE937");
 
-		verifier.addCliOption("-Dfile.encoding=US-ASCII");
-
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 

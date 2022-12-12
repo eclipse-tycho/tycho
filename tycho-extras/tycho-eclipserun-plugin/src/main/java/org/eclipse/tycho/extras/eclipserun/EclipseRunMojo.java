@@ -34,28 +34,27 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
+import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.plugins.p2.extras.Repository;
 
@@ -123,7 +122,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	/**
 	 * Execution environment profile name used to resolve dependencies.
 	 */
-	@Parameter(defaultValue = "JavaSE-11")
+	@Parameter(defaultValue = "JavaSE-17")
 	private String executionEnvironment;
 
 	/**
@@ -146,6 +145,17 @@ public class EclipseRunMojo extends AbstractMojo {
 	private MavenSession session;
 
 	/**
+	 * Arbitrary JVM options to set on the command line. It is recommended to use
+	 * {@link #jvmArgs} instead because it provides more explicit control over
+	 * argument separation and content, avoiding the need to quote arguments that
+	 * contain spaces.
+	 * 
+	 * @see #jvmArgs
+	 */
+	@Parameter
+	private String argLine;
+
+	/**
 	 * List of JVM arguments set on the command line. Example:
 	 * 
 	 * {@code
@@ -165,6 +175,17 @@ public class EclipseRunMojo extends AbstractMojo {
 	 */
 	@Parameter(property = "eclipserun.skip", defaultValue = "false")
 	private boolean skip;
+
+	/**
+	 * Arbitrary applications arguments to set on the command line. It is
+	 * recommended to use {@link #applicationArgs} instead because it provides more
+	 * explicit control over argument separation and content, avoiding the need to
+	 * quote arguments that contain spaces.
+	 * 
+	 * @see #applicationArgs
+	 */
+	@Parameter
+	private String appArgLine;
 
 	/**
 	 * List of applications arguments set on the command line. Example:
@@ -235,8 +256,8 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Component
 	private ToolchainProvider toolchainProvider;
 
-	@Component
-	private EquinoxServiceFactory equinox;
+	@Component()
+	P2ResolverFactory resolverFactory;
 
 	@Component
 	private Logger logger;
@@ -256,7 +277,7 @@ public class EclipseRunMojo extends AbstractMojo {
 			List<Repository> repositories, MavenSession session, List<String> jvmArgs, boolean skip,
 			List<String> applicationArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
 			EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
-			ToolchainProvider toolchainProvider, EquinoxServiceFactory equinox, Logger logger,
+			ToolchainProvider toolchainProvider, P2ResolverFactory resolverFactory, Logger logger,
 			ToolchainManager toolchainManager) {
 		this.work = work;
 		this.clearWorkspaceBeforeLaunch = clearWorkspaceBeforeLaunch;
@@ -274,7 +295,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		this.installationFactory = installationFactory;
 		this.launcher = launcher;
 		this.toolchainProvider = toolchainProvider;
-		this.equinox = equinox;
+		this.resolverFactory = resolverFactory;
 		this.logger = logger;
 		this.toolchainManager = toolchainManager;
 	}
@@ -282,7 +303,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (skip) {
-			getLog().debug("skipping mojo execution");
+			getLog().info("Execution was skipped");
 			return;
 		}
 		EquinoxInstallation installation;
@@ -304,13 +325,12 @@ public class EclipseRunMojo extends AbstractMojo {
 	private void addDefaultDependencies(P2Resolver resolver) {
 		if (addDefaultDependencies) {
 			addDefaultDependency(resolver, "org.eclipse.osgi");
-			addDefaultDependency(resolver, EquinoxInstallationDescription.EQUINOX_LAUNCHER);
+			addDefaultDependency(resolver, DefaultEquinoxInstallationDescription.EQUINOX_LAUNCHER);
 			addDefaultDependency(resolver, "org.eclipse.core.runtime");
 		}
 	}
 
 	private EquinoxInstallation createEclipseInstallation() throws MojoFailureException {
-		P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
 		TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
 		// we want to resolve from remote repos only
 		tpConfiguration.setForceIgnoreLocalArtifacts(true);
@@ -319,6 +339,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 		ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger, false,
 				toolchainManager, session);
+		eeConfiguration.setProfileConfiguration(executionEnvironment, "tycho-eclipserun-plugin <executionEnvironment>");
 		TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
 				eeConfiguration, null);
 		P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
@@ -335,9 +356,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		for (P2ResolutionResult result : resolver.resolveTargetDependencies(targetPlatform, null).values()) {
 			for (Entry entry : result.getArtifacts()) {
 				if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
-					installationDesc.addBundle(
-							new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getId(), entry.getVersion()),
-							entry.getLocation(true));
+					installationDesc.addBundle(entry.getId(), entry.getVersion(), entry.getLocation(true));
 				}
 			}
 		}
@@ -391,6 +410,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		cli.setJvmExecutable(executable);
 		cli.setWorkingDirectory(project.getBasedir());
 
+		cli.addVMArguments(splitArgLine(argLine));
 		if (jvmArgs != null) {
 			cli.addVMArguments(jvmArgs.toArray(new String[jvmArgs.size()]));
 		}
@@ -401,6 +421,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		File workspace = new File(work, "data");
 		addProgramArgs(cli, "-data", workspace.getAbsolutePath());
 
+		cli.addProgramArguments(splitArgLine(appArgLine));
 		if (applicationArgs != null) {
 			for (String arg : applicationArgs) {
 				cli.addProgramArguments(arg);
@@ -412,6 +433,14 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 
 		return cli;
+	}
+
+	private String[] splitArgLine(String argumentLine) throws MojoExecutionException {
+		try {
+			return CommandLineUtils.translateCommandline(argumentLine);
+		} catch (Exception e) {
+			throw new MojoExecutionException("Error parsing commandline: " + e.getMessage(), e);
+		}
 	}
 
 	private void addProgramArgs(EquinoxLaunchConfiguration cli, String... arguments) {

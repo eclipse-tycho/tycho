@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
-import static org.apache.maven.artifact.Artifact.SCOPE_COMPILE;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -40,16 +38,14 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
-import org.eclipse.tycho.core.shared.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "MavenDependenciesResolver")
-public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListener implements MavenDependenciesResolver {
+@Component(role = MavenDependenciesResolver.class)
+public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver {
 
     @Requirement
     private Logger logger;
@@ -77,8 +73,8 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         MavenSession mavenSession = getMavenSession(session);
         request.setResolveRoot(true);
         request.setOffline(mavenSession.isOffline());
+        request.setCollectionFilter(a -> isValidScope(a, scopes));
         request.setResolutionFilter(new ArtifactFilter() {
-
             @Override
             public boolean include(Artifact a) {
                 List<String> trail = a.getDependencyTrail();
@@ -86,15 +82,12 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
                     logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, scopes) + "][" + a
                             + "][" + trail.stream().collect(Collectors.joining(" >> ")) + "]");
                 }
-                if (trail.size() <= depth) {
-                    return isValidScope(a, scopes);
-                }
-                return false;
+                return trail.size() <= depth && isValidScope(a, scopes);
             }
         });
         request.setLocalRepository(mavenSession.getLocalRepository());
         request.setResolveTransitively(depth > 0);
-        if (additionalRepositories != null && additionalRepositories.size() > 0) {
+        if (additionalRepositories != null && !additionalRepositories.isEmpty()) {
             List<ArtifactRepository> repositories = new ArrayList<>(
                     mavenSession.getCurrentProject().getRemoteArtifactRepositories());
             for (MavenArtifactRepositoryReference reference : additionalRepositories) {
@@ -105,12 +98,14 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         } else {
             request.setRemoteRepositories(mavenSession.getCurrentProject().getRemoteArtifactRepositories());
         }
+        repositorySystem.injectMirror(request.getRemoteRepositories(), mavenSession.getSettings().getMirrors());
+        repositorySystem.injectProxy(request.getRemoteRepositories(), mavenSession.getSettings().getProxies());
+        repositorySystem.injectAuthentication(request.getRemoteRepositories(), mavenSession.getSettings().getServers());
         ArtifactResolutionResult result = repositorySystem.resolve(request);
         if (result.hasExceptions()) {
             throw new DependencyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
         }
-        return result.getArtifacts().stream().filter(a -> a.getFile() != null).map(MavenArtifactFacade::new)
-                .collect(Collectors.toList());
+        return result.getArtifacts().stream().filter(a -> a.getFile() != null).map(MavenArtifactFacade::new).toList();
     }
 
     protected boolean isValidScope(Artifact artifact, Collection<String> scopes) {
@@ -121,7 +116,7 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
         //compile is the default scope if not specified see
         // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#dependency-scope
         if (scopes == null || scopes.isEmpty()) {
-            return SCOPE_COMPILE.equalsIgnoreCase(artifactScope);
+            return Artifact.SCOPE_COMPILE.equalsIgnoreCase(artifactScope);
         }
         for (String scope : scopes) {
             if (artifactScope.equals(scope)) {
@@ -133,19 +128,10 @@ public class MavenDependenciesResolverConfigurer extends EquinoxLifecycleListene
     }
 
     protected MavenSession getMavenSession(Object session) {
-        MavenSession mavenSession;
-        if (session instanceof MavenSession) {
-            mavenSession = (MavenSession) session;
-        } else {
-            mavenSession = Objects.requireNonNull(context.getSession(),
-                    "Can't acquire maven session from context, called outside maven thread context?");
-        }
-        return mavenSession;
-    }
-
-    @Override
-    public void afterFrameworkStarted(EmbeddedEquinox framework) {
-        framework.registerService(MavenDependenciesResolver.class, this);
+        return session instanceof MavenSession mavenSession //
+                ? mavenSession
+                : Objects.requireNonNull(context.getSession(),
+                        "Can't acquire maven session from context, called outside maven thread context?");
     }
 
     @Override

@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -30,13 +29,13 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
+import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
+import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -102,12 +101,12 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         @Override
         public List<? extends Location> getLocations() {
             return delegate.getLocations().stream().map(location -> {
-                if (location instanceof InstallableUnitLocation) {
-                    return new LatestVersionLocation((InstallableUnitLocation) location);
+                if (location instanceof InstallableUnitLocation iuLocation) {
+                    return new LatestVersionLocation(iuLocation);
                 } else {
                     return location;
                 }
-            }).collect(Collectors.toList());
+            }).toList();
         }
 
         @Override
@@ -142,7 +141,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
 
         @Override
         public List<? extends TargetDefinition.Unit> getUnits() {
-            return delegate.getUnits().stream().map(LatestVersionUnit::new).collect(Collectors.toList());
+            return delegate.getUnits().stream().map(LatestVersionUnit::new).toList();
         }
 
         @Override

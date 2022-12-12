@@ -31,16 +31,15 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 @Component(role = WorkspaceReader.class, hint = "TychoWorkspaceReader")
 public class TychoWorkspaceReader implements MavenWorkspaceReader {
@@ -51,13 +50,13 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
     private LegacySupport legacySupport;
 
     @Requirement
-    private EquinoxServiceFactory equinox;
-
-    @Requirement
     private Logger logger;
 
     @Requirement
     private ModelWriter modelWriter;
+
+    @Requirement
+    P2ResolverFactory factory;
 
     public TychoWorkspaceReader() {
         repository = new WorkspaceRepository("tycho", null);
@@ -78,14 +77,14 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
                 if (pomFile.isFile()) {
                     return pomFile;
                 }
-                Model findModel = findModel(artifact);
+                Model findModel = getP2Model(artifact);
                 if (findModel != null) {
                     try {
                         pomFile.getParentFile().mkdirs();
                         modelWriter.write(pomFile, new HashMap<>(), findModel);
                         return pomFile;
                     } catch (IOException e) {
-                        logger.debug("Can't write model!", e);
+                        logger.debug("Cannot write model", e);
                     }
                 }
             }
@@ -105,7 +104,6 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
                 Optional<DependencyArtifacts> dependencyMetadata = TychoProjectUtils
                         .getOptionalDependencyArtifacts(reactorProject);
                 if (dependencyMetadata.isPresent()) {
-                    P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
                     logger.debug("Attempt to resolve " + artifact + " for project " + currentProject + " ...");
                     for (ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
                         MavenDependencyDescriptor dependencyDescriptor = factory
@@ -155,19 +153,25 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
     public Model findModel(Artifact artifact) {
         if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
             logger.debug("Find the model for: " + artifact);
-            Model model = new Model();
-            model.setModelVersion("4.0.0");
-            model.setArtifactId(artifact.getArtifactId());
-            model.setGroupId(artifact.getGroupId());
-            model.setVersion(artifact.getVersion());
-            model.setPackaging(artifact.getProperty("packaging", null));
-            if (model.getPackaging() == null) {
-                model.setPackaging(
-                        artifact.getGroupId().substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-'));
-            }
-            return model;
+            //TODO due to a bug in maven we can not use this here... see  Tycho issue #1388
+            //see https://issues.apache.org/jira/browse/MNG-7544
+//            return getP2Model(artifact);
         }
         return null;
+    }
+
+    private Model getP2Model(Artifact artifact) {
+        Model model = new Model();
+        model.setModelVersion("4.0.0");
+        model.setArtifactId(artifact.getArtifactId());
+        model.setGroupId(artifact.getGroupId());
+        model.setVersion(artifact.getVersion());
+        model.setPackaging(artifact.getProperty("packaging", null));
+        if (model.getPackaging() == null) {
+            model.setPackaging(
+                    artifact.getGroupId().substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-'));
+        }
+        return model;
     }
 
 }

@@ -18,8 +18,8 @@ import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxInstallationLaunchConfiguration;
-import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
