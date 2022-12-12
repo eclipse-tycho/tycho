@@ -39,9 +39,9 @@ import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -63,7 +63,7 @@ import org.osgi.framework.Version;
  * 
  * @author mistria
  */
-@Mojo(defaultPhase = LifecyclePhase.VERIFY, requiresProject = false, name = "compare-version-with-baselines")
+@Mojo(defaultPhase = LifecyclePhase.VERIFY, requiresProject = false, name = "compare-version-with-baselines", threadSafe = true)
 public class CompareWithBaselineMojo extends AbstractMojo {
 
     public static enum ReportBehavior {

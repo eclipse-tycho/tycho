@@ -46,7 +46,7 @@ import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
  * "https://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_repositorytasks.htm"
  * >p2.mirror ant task</a>.
  */
-@Mojo(name = "mirror")
+@Mojo(name = "mirror", threadSafe = true)
 public class MirrorMojo extends AbstractMojo {
 
     @Parameter(property = "project", readonly = true)
