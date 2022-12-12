@@ -44,13 +44,13 @@ public class PropertiesComparator implements ContentsComparator {
         for (String name : names) {
             String value = props.getProperty(name);
             if (value == null) {
-                result.put(name, new SimpleArtifactDelta("not present in baseline version"));
+                result.put(name, ArtifactDelta.MISSING_FROM_BASELINE);
                 continue;
             }
 
             String value2 = props2.getProperty(name);
             if (value2 == null) {
-                result.put(name, new SimpleArtifactDelta("present in baseline version only"));
+                result.put(name, ArtifactDelta.BASELINE_ONLY);
                 continue;
             }
 
