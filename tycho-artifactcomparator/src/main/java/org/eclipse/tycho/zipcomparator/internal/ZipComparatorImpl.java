@@ -28,6 +28,8 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -49,7 +51,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
     private Map<String, ContentsComparator> comparators;
 
     @Override
-    public CompoundArtifactDelta getDelta(File baseline, File reactor, ComparisonData data) throws IOException {
+    public ArtifactDelta getDelta(File baseline, File reactor, ComparisonData data) throws IOException {
         Map<String, ArtifactDelta> result = new LinkedHashMap<>();
         Collection<String> ignoredPatterns = new HashSet<>(IGNORED_PATTERNS);
         ignoredPatterns.addAll(data.ignoredPattern());
@@ -69,6 +71,14 @@ public class ZipComparatorImpl implements ArtifactComparator {
                     result.put(name, delta);
                 }
             }
+        } catch (IOException e) {
+            log.debug("Comparing baseline=" + baseline + " with reactor=" + reactor + " failed: " + e
+                    + " using direct byte compare!", e);
+            //this can happen if we compare files that seem zip files but are actually not, for example an embedded jar can be an (empty) dummy file... in this case we should fall back to dumb byte compare (better than fail...)
+            if (FileUtils.contentEquals(baseline, reactor)) {
+                return null;
+            }
+            return ArtifactDelta.DEFAULT;
         }
         return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
     }
@@ -77,11 +87,11 @@ public class ZipComparatorImpl implements ArtifactComparator {
             ZipFile baselineJar, ZipFile reactorJar, ComparisonData data) throws IOException {
         ZipEntry baselineEntry = baseline.get(name);
         if (baselineEntry == null) {
-            return new SimpleArtifactDelta("not present in baseline");
+            return ArtifactDelta.MISSING_FROM_BASELINE;
         }
         ZipEntry reactorEntry = reactor.get(name);
         if (reactorEntry == null) {
-            return new SimpleArtifactDelta("present in baseline only");
+            return ArtifactDelta.BASELINE_ONLY;
         }
 
         try (InputStream is = baselineJar.getInputStream(baselineEntry);
@@ -90,9 +100,19 @@ public class ZipComparatorImpl implements ArtifactComparator {
             try {
                 return comparator.getDelta(is, is2, data);
             } catch (IOException e) {
-                throw new IOException("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
-                        + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e,
-                        e);
+                log.debug("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
+                        + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e
+                        + ", using direct byte compare...", e);
+                is.close();
+                is2.close();
+                try (InputStream bl = baselineJar.getInputStream(baselineEntry);
+                        InputStream rp = reactorJar.getInputStream(reactorEntry);) {
+                    if (IOUtils.contentEquals(bl, rp)) {
+                        return null;
+                    }
+                    return ArtifactDelta.DEFAULT;
+                }
+
             }
         }
     }

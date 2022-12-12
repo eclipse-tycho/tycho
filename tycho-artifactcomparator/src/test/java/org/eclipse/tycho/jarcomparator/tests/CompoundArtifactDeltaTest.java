@@ -27,16 +27,16 @@ public class CompoundArtifactDeltaTest {
     @Test
     public void testGetDetailedMessage() {
         Map<String, ArtifactDelta> manifest = new TreeMap<>();
-        manifest.put("name1", new SimpleArtifactDelta("present in baseline only"));
+        manifest.put("name1", ArtifactDelta.BASELINE_ONLY);
 
         Map<String, ArtifactDelta> main = new TreeMap<>();
-        main.put("path/file1", new SimpleArtifactDelta("different"));
+        main.put("path/file1", ArtifactDelta.DEFAULT);
         main.put("path/file2", new SimpleArtifactDelta("not present in baseline"));
         main.put("META-INF/MANIFEST.MF", new CompoundArtifactDelta("different", manifest));
 
         Map<String, ArtifactDelta> delta = new TreeMap<>();
         delta.put("<main>", new CompoundArtifactDelta("different", main));
-        delta.put("sources", new SimpleArtifactDelta("different"));
+        delta.put("sources", ArtifactDelta.DEFAULT);
 
         ArtifactDelta subject = new CompoundArtifactDelta(
                 "Baseline and reactor artifacts have the same version but different contents", delta);
