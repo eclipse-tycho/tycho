@@ -87,7 +87,13 @@ public class ZipComparatorImpl implements ArtifactComparator {
         try (InputStream is = baselineJar.getInputStream(baselineEntry);
                 InputStream is2 = reactorJar.getInputStream(reactorEntry);) {
             ContentsComparator comparator = comparators.get(getContentType(name));
-            return comparator.getDelta(is, is2, data);
+            try {
+                return comparator.getDelta(is, is2, data);
+            } catch (IOException e) {
+                throw new IOException("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
+                        + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e,
+                        e);
+            }
         }
     }
 
