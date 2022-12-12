@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,6 +48,7 @@ import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.connect.ConnectFrameworkFactory;
@@ -104,7 +107,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		}
 		Framework foreignFramework = getForeignFramework(realm);
 		if (foreignFramework != null) {
-			PlexusConnectFramework connectFwk = new PlexusConnectFramework(foreignFramework, log, this, realm, true);
+			PlexusConnectFramework connectFwk = new PlexusConnectFramework(foreignFramework, log, this, realm, true,
+					null);
 			frameworkMap.put(realm, connectFwk);
 			return connectFwk;
 		}
@@ -114,13 +118,13 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		Collection<ClassRealm> realms = collectRealms(realm, new LinkedHashSet<>());
 
 		log.debug("Create framework for " + this + " with Realm " + realm);
-		Logger fwLogger = new PlexusConnectFramework(null, log, this, realm, false);
+		String storagePath = createStoragePath();
+		Logger fwLogger = new PlexusConnectFramework(null, log, this, realm, false, storagePath);
 		Map<String, String> p = readProperties(realm, fwLogger);
 		p.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
 				"javax.security.auth.x500;version=\"1.3.0\", org.slf4j;version=\"1.7.37\"");
 		p.put("osgi.framework.useSystemProperties", "false");
 		p.put("osgi.parentClassloader", "fwk");
-		String storagePath = System.getProperty("java.io.tmpdir") + File.separator + "plexus.osgi." + UUID.randomUUID();
 		p.put(Constants.FRAMEWORK_STORAGE, storagePath + File.separator + "storage");
 		p.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "6");
 		p.put("osgi.instance.area", storagePath + File.separator + "instance");
@@ -131,7 +135,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 
 		PlexusModuleConnector connector = new PlexusModuleConnector(factory);
 		Framework osgiFramework = factory.newFramework(p, connector);
-		PlexusConnectFramework connectFramework = new PlexusConnectFramework(osgiFramework, log, this, realm, false);
+		PlexusConnectFramework connectFramework = new PlexusConnectFramework(osgiFramework, log, this, realm, false,
+				storagePath);
 		PlexusFrameworkUtilHelper.registerHelper(connectFramework);
 		osgiFramework.init(connectFramework);
 		frameworkMap.put(realm, connectFramework);
@@ -157,6 +162,15 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		}
 		return connectFramework;
 
+	}
+
+	private String createStoragePath() {
+		try {
+			Path createTempDirectory = Files.createTempDirectory("plexus.osgi.");
+			return createTempDirectory.toFile().getAbsolutePath();
+		} catch (IOException e) {
+			return System.getProperty("java.io.tmpdir") + File.separator + "plexus.osgi." + UUID.randomUUID();
+		}
 	}
 
 	private void printRealm(ClassRealm realm, int indent, Set<ClassRealm> printed) {
@@ -312,21 +326,32 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			if (connect.factory != this) {
 				return false;
 			}
-			if (!connect.foreign) {
-				Framework fw = connect.getFramework();
-				connect.stop(fw.getBundleContext());
-				String storage = fw.getBundleContext().getProperty(Constants.FRAMEWORK_STORAGE);
-				try {
-					fw.stop();
-				} catch (BundleException e) {
+			String storagePath = connect.getStoragePath();
+			try {
+				if (!connect.foreign) {
+					Framework fw = connect.getFramework();
+					BundleContext systemContext = fw.getBundleContext();
+					try {
+						connect.stop(systemContext);
+						try {
+							fw.stop();
+						} catch (BundleException e) {
+						}
+						try {
+							fw.waitForStop(TimeUnit.SECONDS.toMillis(10));
+						} catch (InterruptedException e) {
+						}
+					} finally {
+						PlexusFrameworkUtilHelper.unregisterHelper(connect);
+					}
 				}
-				try {
-					fw.waitForStop(TimeUnit.SECONDS.toMillis(10));
-				} catch (InterruptedException e) {
-				}
-				PlexusFrameworkUtilHelper.unregisterHelper(connect);
-				if (storage != null) {
-					FileUtils.deleteQuietly(new File(storage));
+			} catch (Throwable t) {
+				// see for example https://github.com/eclipse-equinox/equinox/issues/169
+				System.err.println("Error on disposing framework: " + t);
+			} finally {
+				if (!connect.foreign && storagePath != null) {
+					// try delete always whatever happens to not leave garbage around!
+					FileUtils.deleteQuietly(new File(storagePath));
 				}
 			}
 			return true;

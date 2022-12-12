@@ -63,14 +63,20 @@ class PlexusConnectFramework //
 	final PlexusFrameworkConnectServiceFactory factory;
 	final boolean foreign;
 	private ServiceTracker<LogReaderService, LogReaderService> serviceTracker;
+	private String storagePath;
 
 	PlexusConnectFramework(Framework framework, Logger logger, PlexusFrameworkConnectServiceFactory factory,
-			ClassRealm realm, boolean foreign) {
+			ClassRealm realm, boolean foreign, String storagePath) {
 		this.framework = framework;
 		this.logger = logger;
 		this.factory = factory;
 		this.realm = realm;
 		this.foreign = foreign;
+		this.storagePath = storagePath;
+	}
+
+	public String getStoragePath() {
+		return storagePath;
 	}
 
 	public String getUuid() {
