@@ -13,18 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -41,59 +35,21 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 
 @Component(role = ReactorRepositoryManager.class)
-public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager, Disposable {
+public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
     private static final String PRELIMINARY_TARGET_PLATFORM_KEY = ReactorRepositoryManagerImpl.class.getName()
             + "/dependencyOnlyTargetPlatform";
 
     @Requirement
-    private IProvisioningAgentProvider agentFactory;
-
+    IProvisioningAgent agent;
     @Requirement
     P2ResolverFactory p2ResolverFactory;
-    private File agentDir;
-    private IProvisioningAgent agent;
 
     private TargetPlatformFactory tpFactory;
 
-    public void bindProvisioningAgentFactory(IProvisioningAgentProvider agentFactory) {
-        this.agentFactory = agentFactory;
-    }
-
-    public void bindP2ResolverFactory(P2ResolverFactory p2ResolverFactory) {
-        this.p2ResolverFactory = p2ResolverFactory;
-    }
-
-    @Override
-    public void dispose() {
-        if (agent != null) {
-            agent.stop();
-        }
-        if (agentDir != null) {
-            // TODO use IOUtils
-            FileUtils.deleteAll(agentDir);
-        }
-    }
-
-    // TODO hide?
-    @Override
-    public synchronized IProvisioningAgent getAgent() {
-        if (agent == null) {
-            try {
-                agentDir = createTempDir("tycho_reactor_agent");
-                agent = agentFactory.createAgent(agentDir.toURI());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ProvisionException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return agent;
-    }
-
     @Override
     public PublishingRepository getPublishingRepository(ReactorProjectIdentities project) {
-        return new PublishingRepositoryImpl(getAgent(), project);
+        return new PublishingRepositoryImpl(agent, project);
     }
 
     @Override
@@ -152,17 +108,6 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager, D
             throw new IllegalStateException("Target platform is missing");
         }
         return targetPlatform;
-    }
-
-    // TODO use IOUtils
-    private static File createTempDir(String prefix) throws IOException {
-        File tempFile = File.createTempFile(prefix, "");
-        tempFile.delete();
-        tempFile.mkdirs();
-        if (!tempFile.isDirectory()) {
-            throw new IOException("Failed to create temporary directory: " + tempFile);
-        }
-        return tempFile;
     }
 
     public synchronized TargetPlatformFactory getTpFactory() {

@@ -84,6 +84,9 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     @Requirement
     private Logger logger;
 
+    @Requirement
+    private IRepositoryIdManager repositoryIdManager;
+
     private synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
             LocalRepositoryP2Indices localRepoIndices) {
         if (localMetadataRepository == null) {
@@ -122,11 +125,11 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     @Override
     public TargetPlatformFactoryImpl getTargetPlatformFactory() {
-        // TODO don't synchronize twice
+        // TODO should be plexus-components!
         LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
         LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
         return new TargetPlatformFactoryImpl(mavenContext, agent, localArtifactRepo, localMetadataRepo,
-                targetDefinitionResolverService, agent.getService(IRepositoryIdManager.class));
+                targetDefinitionResolverService, repositoryIdManager);
     }
 
     @Override

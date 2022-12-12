@@ -15,7 +15,6 @@ package org.eclipse.tycho.repository.registry.facade;
 
 import java.util.List;
 
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetPlatform;
@@ -67,7 +66,5 @@ public interface ReactorRepositoryManager {
      *            a reference to a project in the reactor.
      */
     PublishingRepository getPublishingRepository(ReactorProjectIdentities project);
-
-    IProvisioningAgent getAgent();
 
 }
