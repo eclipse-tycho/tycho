@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public interface TychoConstants {
     static final String ANY_QUALIFIER = "qualifier";
 
-    static final boolean USE_OLD_RESOLVER = Boolean.parseBoolean(System.getProperty("tycho.resolver.classic", "true"));
+    static final boolean USE_OLD_RESOLVER = Boolean.parseBoolean(System.getProperty("tycho.resolver.classic", "false"));
 
     static final String P2_GROUPID_PREFIX = "p2.";
 

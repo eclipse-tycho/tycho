@@ -89,6 +89,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+					<trimStackTrace>false</trimStackTrace>
 					<failIfNoTests>true</failIfNoTests>
 					<systemPropertyVariables>
 						<it.cliOptions>${it.cliOptions}</it.cliOptions>
