@@ -17,7 +17,23 @@ import java.io.InputStream;
 
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
 public interface ContentsComparator {
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException;
+
+    /**
+     * Computes the delta for the given {@link InputStream}s, the streams passed will support
+     * mark/reset for repeated reads.
+     * 
+     * @param baseline
+     *            the baseline data
+     * @param reactor
+     *            the reactor data or current project state
+     * @param data
+     * @return the {@link ArtifactDelta} or {@link ArtifactDelta#NO_DIFFERENCE} if the content is
+     *         semantically the same
+     * @throws IOException
+     */
+    public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
+            throws IOException;
 }

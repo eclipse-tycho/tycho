@@ -20,19 +20,24 @@ import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 public interface ArtifactDelta {
 
     /**
+     * A delta that represents no difference was found
+     */
+    public static final ArtifactDelta NO_DIFFERENCE = null;
+
+    /**
      * a default instance that indicates there is a difference but can't tell any further details
      */
-    public static final SimpleArtifactDelta DEFAULT = new SimpleArtifactDelta("different");
+    public static final ArtifactDelta DEFAULT = new SimpleArtifactDelta("different");
 
     /**
      * a default instance that indicate an item is only present in the baseline but no more details
      */
-    public static final SimpleArtifactDelta BASELINE_ONLY = new SimpleArtifactDelta("present in baseline only");
+    public static final ArtifactDelta BASELINE_ONLY = new SimpleArtifactDelta("present in baseline only");
 
     /**
      * a default instance that indicate an item is missing from what is found in the baseline
      */
-    public static final SimpleArtifactDelta MISSING_FROM_BASELINE = new SimpleArtifactDelta("not present in baseline");
+    public static final ArtifactDelta MISSING_FROM_BASELINE = new SimpleArtifactDelta("not present in baseline");
 
     /**
      * @return description of the delta, never null.
