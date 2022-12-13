@@ -13,7 +13,6 @@
 package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -23,13 +22,15 @@ import java.util.TreeMap;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
 @Component(role = ContentsComparator.class, hint = PropertiesComparator.TYPE)
 public class PropertiesComparator implements ContentsComparator {
     public static final String TYPE = "properties";
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
+    public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
+            throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Properties props = new Properties();

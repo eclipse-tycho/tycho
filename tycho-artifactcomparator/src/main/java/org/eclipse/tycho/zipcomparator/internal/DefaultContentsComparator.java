@@ -13,12 +13,11 @@
 package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
 @Component(role = ContentsComparator.class, hint = DefaultContentsComparator.TYPE)
 public class DefaultContentsComparator implements ContentsComparator {
@@ -26,8 +25,9 @@ public class DefaultContentsComparator implements ContentsComparator {
     public static final String TYPE = "default";
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
-        return !IOUtil.contentEquals(baseline, reactor) ? ArtifactDelta.DEFAULT : null;
+    public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
+            throws IOException {
+        return baseline.compare(reactor);
     }
 
 }

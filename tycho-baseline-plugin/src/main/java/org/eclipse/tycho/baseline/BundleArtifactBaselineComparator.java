@@ -45,9 +45,9 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
-import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -73,8 +73,6 @@ import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 
 @Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_PLUGIN)
 public class BundleArtifactBaselineComparator implements ArtifactBaselineComparator {
-
-	private static final SimpleArtifactDelta UNKNOWN_DELTA = new SimpleArtifactDelta("");
 
 	private static final String X_INTERNAL_ATTRIBUTE = "x-internal";
 
@@ -358,13 +356,14 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 			if (baseResource != null && currenttResource != null) {
 				try (InputStream baseStream = baseResource.openInputStream();
 						InputStream currentStream = currenttResource.openInputStream()) {
-					return comparator.getDelta(baseStream, currentStream,
+					return comparator.getDelta(new ComparatorInputStream(baseStream, name),
+							new ComparatorInputStream(currentStream, name),
 							new ComparisonData(baselineContext.getIgnores(), false));
 				} catch (Exception e) {
 				}
 			}
 		}
-		return UNKNOWN_DELTA;
+		return ArtifactDelta.DEFAULT;
 	}
 
 	private void addDiff(Diff diff, Info info, AsciiTable at, int indent) {
