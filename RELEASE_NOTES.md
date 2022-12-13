@@ -96,6 +96,18 @@ That way one can prevent including items that are already present in the same fo
 
 ### Migration guide 3.x > 4.x
 
+### New Tycho Resolver is the default now
+
+Tycho has now the new resolver introduced in Tycho 3.0.0 enabled by default.
+The new resolver has several advantages:
+- resolve dependencies is delayed until the project is build, this allows more parallelization and even make tycho start the build faster
+- pom dependencies are considered by default, this behaves more like one would expect from a maven perspective
+- mixed reactor builds are now fully supported without any special configuration
+- Tycho detects if the current project requires dependency resolution and skip resolving the target platform if not needed
+
+If you see any issues please let us know so we can fix any problem with it, to enable old one you can use `-Dtycho.resolver.classic=true` but be aware that we probabbly will remove support for the old resolver some time in the future completely.
+
+
 #### skipExec parameter remove from test mojos
 
 The test-mojo previously defined a (deprecated) `skipExec` parameter, this parameter is now removed and one should use `skipTests` instead.
