@@ -59,7 +59,6 @@ public class DefaultTargetPlatformConfigurationReader {
     public static final String BREE_HEADER_SELECTION_POLICY = "breeHeaderSelectionPolicy";
     public static final String EXECUTION_ENVIRONMENT_DEFAULT = "executionEnvironmentDefault";
     public static final String EXECUTION_ENVIRONMENT = "executionEnvironment";
-    public static final String ALLOW_CONFLICTING_DEPENDENCIES = "allowConflictingDependencies";
     public static final String POM_DEPENDENCIES = "pomDependencies";
     public static final String TARGET = "target";
     public static final String RESOLVER = "resolver";
@@ -106,8 +105,6 @@ public class DefaultTargetPlatformConfigurationReader {
                 }
 
                 setPomDependencies(result, configuration);
-
-                setAllowConflictingDependencies(result, configuration);
 
                 setDisableP2Mirrors(configuration);
 
@@ -300,15 +297,6 @@ public class DefaultTargetPlatformConfigurationReader {
             logger.warn(
                     "Unsupported target-platform-configuration <disableP2Mirrors>. Use tycho.disableP2Mirrors -D command line parameter or settings.xml property.");
         }
-    }
-
-    private void setAllowConflictingDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild(ALLOW_CONFLICTING_DEPENDENCIES));
-
-        if (value == null) {
-            return;
-        }
-        result.setAllowConflictingDependencies(Boolean.parseBoolean(value));
     }
 
     private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project,

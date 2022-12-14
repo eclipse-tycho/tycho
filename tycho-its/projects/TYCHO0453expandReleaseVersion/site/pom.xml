@@ -16,9 +16,6 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
-        <configuration>
-          <allowConflictingDependencies>true</allowConflictingDependencies>
-        </configuration>
       </plugin>
     </plugins>
   </build>
