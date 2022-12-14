@@ -517,7 +517,7 @@
 		<!-- surefire -->
 		<module>tycho-surefire</module>
 		<!-- release -->
-		<module>tycho-release</module>
+		<module>tycho-versions-plugin</module>
 		<!-- tycho-p2 -->
 		<module>tycho-p2</module>
 		<module>tycho-artifactcomparator</module>
