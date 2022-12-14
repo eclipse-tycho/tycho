@@ -80,7 +80,7 @@ public class ComparatorInputStream extends ByteArrayInputStream {
      */
     public ArtifactDelta compare(ComparatorInputStream other) {
         if (Arrays.equals(content, other.content)) {
-            return null;
+            return ArtifactDelta.NO_DIFFERENCE;
         }
         return ArtifactDelta.DEFAULT;
     }
