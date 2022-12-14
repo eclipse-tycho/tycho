@@ -49,6 +49,10 @@ The parameters of the `tycho-apitools-plugin:generate` goal have been completed 
 
 ### Migration guide 3.x > 4.x
 
+#### allowConflictingDependencies parameter removed
+
+The parameter `allowConflictingDependencies` was removed from the target platform configuration. It solely relied on deprecated and outdated stuff, if there are still use-cases please let us know about them so we can provide alternative ways to archive this.
+
 #### Choosable HTTP transports
 
 Tycho uses a custom P2 transport to download items from updatesites, previously URLConnection was used for this but now the Java HTTP 11 Client is the new default because it supports HTTP/2 now.

@@ -59,7 +59,6 @@ import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.OptionalResolutionAction;
-import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
@@ -350,45 +349,23 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         // get reactor project with prepared optional dependencies // TODO use original IU and have the resolver create the modified IUs
         ReactorProject optionalDependencyPreparedProject = getThisReactorProject(session, project, configuration);
 
-        if (!isAllowConflictingDependencies(project, configuration)) {
-            Map<TargetEnvironment, P2ResolutionResult> results = resolver.resolveTargetDependencies(targetPlatform,
-                    optionalDependencyPreparedProject);
+        Map<TargetEnvironment, P2ResolutionResult> results = resolver.resolveTargetDependencies(targetPlatform,
+                optionalDependencyPreparedProject);
 
-            MultiEnvironmentDependencyArtifacts multiPlatform = new MultiEnvironmentDependencyArtifacts(
-                    DefaultReactorProject.adapt(project));
+        MultiEnvironmentDependencyArtifacts multiPlatform = new MultiEnvironmentDependencyArtifacts(
+                DefaultReactorProject.adapt(project));
 
-            for (Entry<TargetEnvironment, P2ResolutionResult> entry : results.entrySet()) {
-                TargetEnvironment environment = entry.getKey();
-                P2ResolutionResult result = entry.getValue();
+        for (Entry<TargetEnvironment, P2ResolutionResult> entry : results.entrySet()) {
+            TargetEnvironment environment = entry.getKey();
+            P2ResolutionResult result = entry.getValue();
 
-                DefaultDependencyArtifacts platform = newDefaultTargetPlatform(DefaultReactorProject.adapt(project),
-                        projects, result);
+            DefaultDependencyArtifacts platform = newDefaultTargetPlatform(DefaultReactorProject.adapt(project),
+                    projects, result);
 
-                multiPlatform.addPlatform(environment, platform);
-            }
-
-            return multiPlatform;
-        } else {
-            //FIXME this reference to removed update site, check if we can remove this!
-            P2ResolutionResult result = resolver.collectProjectDependencies(targetPlatform,
-                    optionalDependencyPreparedProject);
-
-            return newDefaultTargetPlatform(DefaultReactorProject.adapt(project), projects, result);
-        }
-    }
-
-    private boolean isAllowConflictingDependencies(MavenProject project, TargetPlatformConfiguration configuration) {
-        String packaging = project.getPackaging();
-
-        if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
-            Boolean allow = configuration.getAllowConflictingDependencies();
-            if (allow != null) {
-                return allow.booleanValue();
-            }
+            multiPlatform.addPlatform(environment, platform);
         }
 
-        // conflicting dependencies do not make sense for products and bundles
-        return false;
+        return multiPlatform;
     }
 
     protected DefaultDependencyArtifacts newDefaultTargetPlatform(ReactorProject project,

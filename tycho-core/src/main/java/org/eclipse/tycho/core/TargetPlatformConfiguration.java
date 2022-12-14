@@ -50,8 +50,6 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private PomDependencies pomDependencies = PomDependencies.DEFAULT;
 
-    private Boolean allowConflictingDependencies;
-
     private String executionEnvironment;
     private String executionEnvironmentDefault;
     private BREEHeaderSelectionPolicy breeHeaderSelectionPolicy = BREEHeaderSelectionPolicy.first;
@@ -122,14 +120,6 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void setImplicitTargetEnvironment(boolean implicitTargetEnvironment) {
         this.implicitTargetEnvironment = implicitTargetEnvironment;
-    }
-
-    public void setAllowConflictingDependencies(Boolean allow) {
-        this.allowConflictingDependencies = allow;
-    }
-
-    public Boolean getAllowConflictingDependencies() {
-        return allowConflictingDependencies;
     }
 
     public String getExecutionEnvironment() {
