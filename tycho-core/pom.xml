@@ -198,11 +198,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>sisu-equinox-embedder</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-osgi-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
