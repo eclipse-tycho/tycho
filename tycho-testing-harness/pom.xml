@@ -56,11 +56,6 @@
 
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>sisu-equinox-embedder</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.tycho.core.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -73,6 +68,11 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<version>${project.version}</version>
 			<artifactId>tycho-embedder-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>sisu-osgi-api</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
