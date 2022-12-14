@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2.resolver;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -28,7 +29,6 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -130,10 +130,7 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
                     Feature feature = new FeatureParser().parse(featureLocation);
                     if (feature != null) {
                         feature.setLocation(featureLocation.getAbsolutePath());
-                        consumer.accept(
-                                FileArtifactRepository.forFile(featureLocation,
-                                        FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion())),
-                                FeaturesAction.createFeatureJarIU(feature, publisherInfo));
+                        FeaturePublisher.publishFeatures(List.of(feature), consumer, null);
                     }
                     subMonitor.worked(1);
                 }

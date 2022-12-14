@@ -16,9 +16,11 @@ import static org.eclipse.tycho.test.util.ArchiveContentUtil.getFilesInZip;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.model.IU;
 import org.eclipse.tycho.packaging.PackageIUMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
@@ -27,10 +29,16 @@ import de.pdark.decentxml.Element;
 
 public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
 
+	Properties properties = new Properties();
+
+	public PackageIUMojoTest() {
+		properties.setProperty("tycho-version", TychoVersion.getTychoVersion());
+	}
+
     public void testThatArtifactPayloadIsCorrect() throws Exception {
         File basedir = getBasedir("projects/iuWithPayload/");
         File platform = new File("src/test/resources/eclipse");
-        List<MavenProject> projects = getSortedProjects(basedir, platform);
+		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "iuWithPayload");
         MavenSession session = newMavenSession(project, projects);
@@ -48,7 +56,7 @@ public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
     public void testArtifactWithoutPayload() throws Exception {
         File basedir = getBasedir("projects/iuWithoutPayload");
         File platform = new File("src/test/resources/eclipse");
-        List<MavenProject> projects = getSortedProjects(basedir, platform);
+		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "iuWithoutPayload");
         MavenSession session = newMavenSession(project, projects);
@@ -68,7 +76,7 @@ public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
     public void testInjectArtifactReference() throws Exception {
         File basedir = getBasedir("projects/iuWithPayloadButNoArtifactReference");
         File platform = new File("src/test/resources/eclipse");
-        List<MavenProject> projects = getSortedProjects(basedir, platform);
+		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "iuWithPayloadButNoArtifactReference");
         MavenSession session = newMavenSession(project, projects);

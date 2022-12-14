@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,6 +48,7 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.utils.MavenSessionUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -137,9 +139,10 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
 
     @Test
     public void testStrictBootClasspathAccessRules() throws Exception {
+        Properties properties = new Properties();
+        properties.setProperty("tycho-version", TychoVersion.getTychoVersion());
         File basedir = getBasedir("projects/bootclasspath");
-        Map<File, MavenProject> basedirMap = MavenSessionUtils
-                .getBasedirMap(getSortedProjects(basedir, null, getBasedir("p2repo")));
+        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, properties));
         // 1. bundle importing a JRE package only
         MavenProject bundle1Project = basedirMap.get(new File(basedir, "bundle1"));
         List<DependencyEntry> bundle1Dependencies = computeDependencies(bundle1Project);

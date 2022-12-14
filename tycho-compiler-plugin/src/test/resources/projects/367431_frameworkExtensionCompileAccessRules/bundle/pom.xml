@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <groupId>osgicompile</groupId>
-  <artifactId>367431_frameworkExtensionCompileAccessRules</artifactId>
-  <packaging>eclipse-plugin</packaging>
-  <version>1.0.0</version>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-compiler-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <configuration>
-          <compilerId>jdt</compilerId>
-          <deriveReleaseCompilerArgumentFromTargetLevel>false</deriveReleaseCompilerArgumentFromTargetLevel>
-          <buildDirectory>target/projects/367431_frameworkExtensionCompileAccessRules/target</buildDirectory>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>osgicompile</groupId>
+	<artifactId>367431_frameworkExtensionCompileAccessRules</artifactId>
+	<packaging>eclipse-plugin</packaging>
+	<version>1.0.0</version>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<compilerId>jdt</compilerId>
+					<deriveReleaseCompilerArgumentFromTargetLevel>false</deriveReleaseCompilerArgumentFromTargetLevel>
+					<buildDirectory>target/projects/367431_frameworkExtensionCompileAccessRules/target</buildDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<file>test.target</file>
+					</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

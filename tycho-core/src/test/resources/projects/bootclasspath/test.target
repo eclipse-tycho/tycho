@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<target name="temp">
+    	
+    <locations>
+        		
+        <location path="${project_loc:bootclasspath}/../../../src/test/resources/p2repo" type="Directory"/>
+        	
+    </locations>
+    
+</target>

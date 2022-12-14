@@ -19,13 +19,10 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DependencyResolver;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 @Component(role = DefaultDependencyResolverFactory.class)
 public class DefaultDependencyResolverFactory {
@@ -46,19 +43,11 @@ public class DefaultDependencyResolverFactory {
     public DependencyResolver lookupDependencyResolver(ReactorProject reactorProject) {
 
         Properties properties = reactorProject.getProperties();
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
-
         if (properties.getProperty("tycho.targetPlatform") != null) {
             throw new RuntimeException("-Dtycho.targetPlatform was deprecated and IS REMOVED in this tycho version.");
         }
         if (properties.getProperty("tycho.test.targetPlatform") != null) {
-            try {
-                @SuppressWarnings("deprecation")
-                String hint = org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver.ROLE_HINT;
-                return container.lookup(DependencyResolver.class, hint);
-            } catch (ComponentLookupException e) {
-                throw new RuntimeException("Could not instantiate required component", e);
-            }
+            throw new RuntimeException("don't use that: " + properties.getProperty("tycho.test.targetPlatform"));
         }
         return dependencyResolver;
     }

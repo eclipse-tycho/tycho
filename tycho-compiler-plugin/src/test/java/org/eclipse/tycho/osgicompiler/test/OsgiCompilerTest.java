@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
@@ -49,12 +51,15 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     private static final int TARGET_1_8 = 52;
 
     protected File storage;
+    private Properties properties;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         storage = new File(getBasedir(), "target/storage");
         FileUtils.deleteDirectory(storage);
+        properties = new Properties();
+        properties.setProperty("tycho-version", TychoVersion.getTychoVersion());
     }
 
     private AbstractOsgiCompilerMojo getMojo(List<MavenProject> projects, MavenProject project) throws Exception {
@@ -111,8 +116,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testClasspath() throws Exception {
         File basedir = getBasedir("projects/classpath");
-        List<MavenProject> projects = getSortedProjects(basedir,
-                new File(getBasedir(), "src/test/resources/projects/classpath/platform"));
+        List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project;
         List<String> cp;
@@ -137,7 +141,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         mojo = getMojo(projects, project);
         cp = mojo.getClasspathElements();
         assertEquals(3, cp.size());
-        final String plainJarPath = "src/test/resources/projects/classpath/platform/plugins/p003_0.0.1.jar";
+        final String plainJarPath = "target/projects/classpath/platform/plugins/p003_0.0.1.jar";
         final String nestedJarPath = "target/local-repo/.cache/tycho/p003_0.0.1.jar/lib/lib.jar";
         assertEquals(getClasspathElement(new File(getBasedir()), plainJarPath, "[?**/*]"), cp.get(0));
         assertEquals(getClasspathElement(new File(getBasedir()), nestedJarPath, "[?**/*]"), cp.get(1));
@@ -511,9 +515,8 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         // This is the case for all supported JDKs to date (1.8, 11, 14).
         // Note: The bundle uses BREE 1.8 here, because apparently this kind of framework-extension does not
         // correctly work with modular API (Java9+).
-        File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
-        List<MavenProject> projects = getSortedProjects(basedir,
-                new File("src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));
+        File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/");
+        List<MavenProject> projects = getSortedProjects(new File(basedir, "bundle"), properties);
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();

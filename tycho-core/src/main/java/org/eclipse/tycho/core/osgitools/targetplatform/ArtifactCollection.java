@@ -86,10 +86,13 @@ public class ArtifactCollection {
         Collection<IInstallableUnit> artifactIUs = artifact.getInstallableUnits();
         if (original != null) {
             // can't use DefaultArtifactDescriptor.equals because artifact.location is not normalized
-            if (!Objects.equals(original.getClassifier(), artifact.getClassifier())
-                    || !Objects.equals(original.getMavenProject(), artifact.getMavenProject())) {
-                // TODO better error message
-                throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey());
+            if (!Objects.equals(original.getClassifier(), artifact.getClassifier())) {
+                throw new IllegalStateException(
+                        "Inconsistent artifact with key " + artifact.getKey() + " classifier is different");
+            }
+            if (!Objects.equals(original.getMavenProject(), artifact.getMavenProject())) {
+                throw new IllegalStateException(
+                        "Inconsistent artifact with key " + artifact.getKey() + " MavenProject is different");
             }
 
             // artifact equals to original
@@ -309,11 +312,11 @@ public class ArtifactCollection {
             Entry<ArtifactKey, ArtifactDescriptor> entry = iter.next();
             ArtifactKey key = entry.getKey();
             if (key.getType().equals(type) && key.getId().equals(id)) {
-                File location = entry.getValue().getLocation(false);
+                File location = entry.getValue().getLocation().orElse(null);
                 if (location != null) {
                     artifactsWithKnownLocation.remove(location);
-                    iter.remove();
                 }
+                iter.remove();
             }
         }
     }

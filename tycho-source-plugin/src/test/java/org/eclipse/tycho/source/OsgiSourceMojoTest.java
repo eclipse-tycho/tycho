@@ -81,7 +81,7 @@ public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
 
     public void testDefaultClassifier() throws Exception {
         File basedir = getBasedir("bundle01");
-        List<MavenProject> projects = getSortedProjects(basedir, basedir);
+        List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenSession session = newMavenSession(projects.get(0));
         OsgiSourceMojo sourceMojo = (OsgiSourceMojo) lookupMojoWithDefaultConfiguration(projects.get(0), session,
