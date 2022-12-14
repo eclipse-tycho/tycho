@@ -67,7 +67,9 @@ public class FeaturePublisher {
         action.perform(publisherInfo, results, null);
         IQueryResult<IInstallableUnit> result = results.query(QueryUtil.ALL_UNITS, null);
         for (IInstallableUnit unit : result) {
-            logger.debug("Publishing installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
+            if (logger != null) {
+                logger.debug("Publishing installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
+            }
             Collection<IArtifactKey> artifacts = unit.getArtifacts();
             if (artifacts.isEmpty()) {
                 consumer.accept(new IUArtifactDescriptor(unit), unit);

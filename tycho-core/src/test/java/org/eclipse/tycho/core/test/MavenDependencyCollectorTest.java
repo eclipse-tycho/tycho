@@ -17,12 +17,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.eclipse.tycho.testing.CompoundRuntimeException;
 import org.junit.Assert;
@@ -35,8 +37,10 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
     }
 
     public void testNestedJars() throws Exception {
-        File targetPlatform = getBasedir("targetplatforms/nestedJar");
-        List<MavenProject> projects = getSortedProjects(getBasedir("projects/mavendeps"), targetPlatform);
+        getBasedir("targetplatforms/nestedJar");
+        Properties properties = new Properties();
+        properties.setProperty("tycho-version", TychoVersion.getTychoVersion());
+        List<MavenProject> projects = getSortedProjects(getBasedir("projects/mavendeps"), properties);
         String expectedType = "eclipse-plugin";
         {
             // 1. project with dependency to external bundle with nested jar
