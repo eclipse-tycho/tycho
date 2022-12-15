@@ -89,7 +89,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
      * <code>true</code> to include all sources that are available and included in this repository.
      * </p>
      */
-    @Parameter(defaultValue = "false")
+    @Parameter(defaultValue = "true")
     private boolean includeAllSources;
 
     /**

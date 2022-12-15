@@ -4,6 +4,12 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### ⚠️ Source bundles now included by default in p2 repositories
+
+The `includeAllSources` parameter for `tycho-p2-repository-plugin:assemble-repository` now has `true` as default value which means that source bundles -when available- will be included in every p2 repository you're building. This is meant to facilitate adoption of best practices for Eclipse projects and to encourage OSS as 1st class citizen.
+
+If you don't want source bundles to be published, or if you want a finer-grain control about which source bundles you publish, configure the `assemble-repository` mojo to set `includeAllSources` to `false`, and explicitly add to your category.xml which sources you want to include.i
+
 ### new tycho-baseline-plugin
 
 Tycho now has a new mojo to perform baseline comparisons similar to the [bnd-baseline-plugin](https://github.com/bndtools/bnd/blob/master/maven/bnd-baseline-maven-plugin/README.md) but takes the tycho-dependency model into account.
