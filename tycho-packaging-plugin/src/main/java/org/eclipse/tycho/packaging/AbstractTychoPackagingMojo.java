@@ -69,6 +69,29 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     protected boolean strictBinIncludes;
 
+    /**
+     * Additional files to be included in the final <code>.jar</code>.
+     * <p>
+     * A typical usage might be when <code>bin.includes</code> in <code>build.properties</code>
+     * is not flexible enough, e.g., for generated files, as when conflicting additional files
+     * win over <code>bin.includes</code>.
+     * <p>
+     * Example:
+     * <pre>
+     * &lt;additionalFileSets&gt;
+     *  &lt;fileSet&gt;
+     *   &lt;directory&gt;${project.build.directory}/mytool-gen/&lt;/directory&gt;
+     *   &lt;includes&gt;
+     *    &lt;include&gt;&#42;&#42;/*&lt;/include&gt;
+     *   &lt;/includes&gt;
+     *  &lt;/fileSet&gt;
+     * &lt;/additionalFileSets&gt;
+     * </pre>
+     * Note: currently, additional file sets are not used for the <code>package-iu</code> goal.
+     */
+    @Parameter
+    protected DefaultFileSet[] additionalFileSets;
+
     @Component
     protected PlexusContainer plexus;
 
