@@ -168,6 +168,18 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
             jarArchiver.setDestFile(outputJar);
 
             try {
+                // Additional file sets win over bin.includes ones, so we add them first
+                if (additionalFileSets != null) {
+                    for (final var fileSet : additionalFileSets) {
+                        final var directory = fileSet.getDirectory();
+
+                        // noinspection ConstantConditions
+                        if (directory != null && directory.isDirectory()) {
+                            archiver.getArchiver().addFileSet(fileSet);
+                        }
+                    }
+                }
+
                 archiver.getArchiver().addFileSet(getManuallyIncludedFiles(buildProperties));
                 if (licenseFeature != null) {
                     archiver.getArchiver()

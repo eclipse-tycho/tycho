@@ -72,28 +72,6 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	private JarArchiver jarArchiver;
 
 	/**
-	 * Additional files to be included in the bundle jar. This can be used when
-	 * <tt>bin.includes</tt> in build.properties is not flexible enough , e.g. for
-	 * generated files. If conflicting, additional files win over
-	 * <tt>bin.includes</tt><br/>
-	 * Example:<br/>
-	 * 
-	 * <pre>
-	 * &lt;additionalFileSets&gt;
-	 *  &lt;fileSet&gt;
-	 *   &lt;directory&gt;${project.build.directory}/mytool-gen/&lt;/directory&gt;
-	 *   &lt;includes&gt;
-	 *    &lt;include&gt;&#42;&#42;/*&lt;/include&gt;
-	 *   &lt;/includes&gt;
-	 *  &lt;/fileSet&gt;     
-	 * &lt;/additionalFileSets&gt;
-	 * </pre>
-	 * 
-	 */
-	@Parameter
-	private DefaultFileSet[] additionalFileSets;
-
-	/**
 	 * Name of the generated JAR.
 	 */
 	@Parameter(property = "project.build.finalName", alias = "jarName", required = true)
