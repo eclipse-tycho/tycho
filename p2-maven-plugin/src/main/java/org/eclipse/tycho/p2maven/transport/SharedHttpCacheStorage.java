@@ -61,7 +61,7 @@ public class SharedHttpCacheStorage implements HttpCache {
     private static final int MAX_IN_MEMORY = 1000;
 
 	@Requirement
-	HttpCacheConfig cacheConfig;
+	TransportCacheConfig cacheConfig;
 
     private final Map<File, CacheLine> entryCache;
 
@@ -79,11 +79,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 
         };
     }
-
-	@Override
-	public HttpCacheConfig getCacheConfig() {
-		return cacheConfig;
-	}
 
     /**
      * Fetches the cache entry for this URI

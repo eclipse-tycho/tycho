@@ -42,31 +42,36 @@ public class TychoRepositoryTransportCacheManager extends CacheManager {
     @Override
     public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor)
             throws IOException, ProvisionException {
-        if (TychoRepositoryTransport.isHttp(repositoryLocation)) {
-            for (String extension : EXTENSIONS) {
-                URI fileLocation = URIUtil.append(repositoryLocation, prefix + extension);
-                try {
-                    File cachedFile = transport.getCachedFile(fileLocation);
-                    if (cachedFile != null) {
-                        return cachedFile;
-                    }
-                } catch (FileNotFoundException e) {
-                    continue;
-                }
-            }
-            throw new FileNotFoundException(
-                    "Not found any of " + EXTENSIONS + " for " + repositoryLocation + " with prefix " + prefix);
-        }
+		TransportProtocolHandler handler = transport.getHandler(repositoryLocation);
+		if (handler != null) {
+			for (String extension : EXTENSIONS) {
+				URI fileLocation = URIUtil.append(repositoryLocation, prefix + extension);
+				try {
+					File cachedFile = handler.getFile(fileLocation);
+					if (cachedFile != null) {
+						return cachedFile;
+					}
+				} catch (FileNotFoundException e) {
+					continue;
+				}
+			}
+			throw new FileNotFoundException(
+					"Not found any of " + EXTENSIONS + " for " + repositoryLocation + " with prefix " + prefix);
+
+		}
         return super.createCache(repositoryLocation, prefix, monitor);
     }
 
     @Override
     public File createCacheFromFile(URI remoteFile, IProgressMonitor monitor) throws ProvisionException, IOException {
-        File cachedFile = transport.getCachedFile(remoteFile);
-        if (cachedFile != null) {
-            //no need to cache this twice ...
-            return cachedFile;
-        }
+		TransportProtocolHandler handler = transport.getHandler(remoteFile);
+		if (handler != null) {
+			File cachedFile = handler.getFile(remoteFile);
+			if (cachedFile != null) {
+				// no need to cache this twice ...
+				return cachedFile;
+			}
+		}
         return super.createCacheFromFile(remoteFile, monitor);
     }
 
