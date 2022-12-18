@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -30,24 +32,26 @@ public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactor
 	private Logger logger;
 
 	@Requirement
-	HttpCache cache;
+	TransportCacheConfig config;
 
 	@Requirement(hint = "tycho")
 	org.eclipse.equinox.internal.p2.repository.Transport repositoryTransport;
 
+	private AtomicBoolean infoPrinted = new AtomicBoolean();
+
 
     @Override
     public Object createService(IProvisioningAgent agent) {
-		HttpCacheConfig config = cache.getCacheConfig();
-		logger.info("### Using TychoRepositoryTransport for remote P2 access ###");
-		logger.info("    Cache location:         " + config.getCacheLocation());
-		logger.info("    Transport mode:         " + (config.isOffline() ? "offline" : "online"));
-		logger.info("    Transport type:         " + TychoRepositoryTransport.TRANSPORT_TYPE);
-		logger.info("    Update mode:            " + (config.isUpdate() ? "forced" : "cache first"));
-		logger.info("    Minimum cache duration: " + SharedHttpCacheStorage.MIN_CACHE_PERIOD + " minutes");
-		logger.info(
-				"      (you can configure this with -Dtycho.p2.transport.min-cache-minutes=<desired minimum cache duration>)");
-
+		if (infoPrinted.compareAndSet(false, true)) {
+			logger.info("### Using TychoRepositoryTransport for remote P2 access ###");
+			logger.info("    Cache location:         " + config.getCacheLocation());
+			logger.info("    Transport mode:         " + (config.isOffline() ? "offline" : "online"));
+			logger.info("    Http Transport type:    " + HttpTransportProtocolHandler.TRANSPORT_TYPE);
+			logger.info("    Update mode:            " + (config.isUpdate() ? "forced" : "cache first"));
+			logger.info("    Minimum cache duration: " + SharedHttpCacheStorage.MIN_CACHE_PERIOD + " minutes");
+			logger.info(
+					"      (you can configure this with -Dtycho.p2.transport.min-cache-minutes=<desired minimum cache duration>)");
+		}
 		return repositoryTransport;
     }
 

@@ -56,7 +56,7 @@ The parameter `allowConflictingDependencies` was removed from the target platfor
 #### Choosable HTTP transports
 
 Tycho uses a custom P2 transport to download items from updatesites, previously URLConnection was used for this but now the Java HTTP 11 Client is the new default because it supports HTTP/2 now.
-To use the old URLConnection one can pass `-Dtycho.p2.transport.type=JavaUrl` to the build.
+To use the old URLConnection one can pass `-Dtycho.p2.httptransport.type=JavaUrl` to the build.
 
 Valid values are:
 - `JavaUrl` - uses URLConnection to retrieve files
