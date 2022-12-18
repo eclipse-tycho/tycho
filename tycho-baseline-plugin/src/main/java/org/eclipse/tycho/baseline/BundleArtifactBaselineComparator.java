@@ -51,7 +51,6 @@ import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
-import org.sonatype.plexus.build.incremental.BuildContext;
 
 import aQute.bnd.differ.Baseline;
 import aQute.bnd.differ.Baseline.BundleInfo;
@@ -81,9 +80,6 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 	private static final String INDENT = "..";
 
 	private static final int WIDTH = 160;
-
-	@Requirement
-	BuildContext buildContext;
 
 	@Requirement
 	private P2RepositoryManager repositoryManager;
