@@ -1,4 +1,5 @@
 import java.io.*;
+import groovy.xml.XmlSlurper;
 
 def target = new XmlSlurper().parse(new File(basedir, "update-target.target"));
 
