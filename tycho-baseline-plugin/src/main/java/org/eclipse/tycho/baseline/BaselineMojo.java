@@ -41,6 +41,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
 /**
  * Verifies the artifact against a given baseline repository for version
@@ -109,6 +110,9 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	private Map<String, ArtifactBaselineComparator> comparators;
 
 	@Component
+	BuildContext buildContext;
+
+	@Component
 	private BundleReader bundleReader;
 
 	private ThreadLocal<IArtifactRepository> contextArtifactRepository = new ThreadLocal<>();
@@ -117,6 +121,9 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		// TODO we actually want a method removeAllMessages() so the comparators can add
+		// messages on individual files
+		buildContext.removeMessages(project.getBasedir());
 		if (skip || baselines == null || baselines.isEmpty()) {
 			logger.info("Skipped.");
 			return;
@@ -196,8 +203,10 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Override
 	public void reportBaselineProblem(String message) throws MojoFailureException {
 		if (mode == BaselineMode.warn) {
+			buildContext.addMessage(project.getBasedir(), 0, 0, message, BuildContext.SEVERITY_WARNING, null);
 			logger.warn(message);
 		} else {
+			buildContext.addMessage(project.getBasedir(), 0, 0, message, BuildContext.SEVERITY_ERROR, null);
 			throw new MojoFailureException(message);
 		}
 	}

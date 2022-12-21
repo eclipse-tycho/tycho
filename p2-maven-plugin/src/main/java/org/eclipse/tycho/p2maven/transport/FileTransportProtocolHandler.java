@@ -12,21 +12,28 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 
-import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.component.annotations.Component;
 
-public interface HttpCache {
+@Component(role = TransportProtocolHandler.class, hint = "file")
+public class FileTransportProtocolHandler implements TransportProtocolHandler {
 
-	/**
-	 * Fetches the cache entry for this URI
-	 * 
-	 * @param uri
-	 * @return
-	 * @throws FileNotFoundException
-	 *             if the URI is know to be not found
-	 */
-	CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException;
+	@Override
+	public long getLastModified(URI uri) throws IOException {
+		return getFile(uri).lastModified();
+	}
+
+
+	@Override
+	public File getFile(URI remoteFile) throws IOException {
+		try {
+			return new File(remoteFile);
+		} catch (IllegalArgumentException e) {
+			throw new IOException("Not a valid file URI: " + remoteFile);
+		}
+	}
 
 }

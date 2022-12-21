@@ -22,8 +22,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 
-@Component(role = HttpCacheConfig.class)
-public class DefaultHttpCacheConfig implements HttpCacheConfig, Initializable {
+@Component(role = TransportCacheConfig.class)
+public class DefaultTransportCacheConfig implements TransportCacheConfig, Initializable {
 
 	private boolean offline;
 	private boolean update;

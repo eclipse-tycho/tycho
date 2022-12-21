@@ -12,15 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import java.io.File;
+import org.codehaus.plexus.component.annotations.Component;
 
-public interface HttpCacheConfig {
+@Component(role = TransportProtocolHandler.class, hint = "https")
+public class HttpsTransportProtocolHandler extends HttpTransportProtocolHandler {
 
-	boolean isOffline();
-
-	boolean isUpdate();
-
-	boolean isInteractive();
-
-	File getCacheLocation();
 }

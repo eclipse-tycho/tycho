@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.codehaus.plexus.PlexusTestCase;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.eclipse.tycho.zipcomparator.internal.ClassfileComparator;
 import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
 import org.eclipse.tycho.zipcomparator.internal.ManifestComparator;
@@ -60,7 +61,8 @@ public class ContentsComparatorTest extends PlexusTestCase {
         ContentsComparator comparator = lookup(ContentsComparator.class, type);
         try (InputStream is = new FileInputStream(baseline)) {
             try (InputStream is2 = new FileInputStream(reactor)) {
-                return comparator.getDelta(is, is2, null) == null;
+                return comparator.getDelta(new ComparatorInputStream(is, "base"),
+                        new ComparatorInputStream(is2, "reactor"), null) == null;
             }
         }
     }

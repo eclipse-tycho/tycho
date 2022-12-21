@@ -15,7 +15,7 @@
 			<item name="p2 Metadata Plugin" href="tycho-p2/tycho-p2-plugin/plugin-info.html" />
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="GPG Signature Plugin" href="tycho-gpg-plugin/plugin-info.html"/>
-			<item name="Versions Plugin" href="tycho-release/tycho-versions-plugin/plugin-info.html" />
+			<item name="Versions Plugin" href="tycho-versions-plugin/plugin-info.html" />
 			<item name="Properties">
 				<item name="Build Properties" href="BuildProperties.html" />
 				<item name="System Properties" href="SystemProperties.html" />

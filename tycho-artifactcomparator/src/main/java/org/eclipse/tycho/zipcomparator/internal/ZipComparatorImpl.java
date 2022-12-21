@@ -16,6 +16,7 @@ package org.eclipse.tycho.zipcomparator.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.MatchPatterns;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
 @Component(role = ArtifactComparator.class, hint = ZipComparatorImpl.TYPE)
 public class ZipComparatorImpl implements ArtifactComparator {
@@ -83,37 +85,46 @@ public class ZipComparatorImpl implements ArtifactComparator {
         return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
     }
 
-    private ArtifactDelta getDelta(String name, Map<String, ZipEntry> baseline, Map<String, ZipEntry> reactor,
+    private ArtifactDelta getDelta(String name, Map<String, ZipEntry> baselineMap, Map<String, ZipEntry> reactorMap,
             ZipFile baselineJar, ZipFile reactorJar, ComparisonData data) throws IOException {
-        ZipEntry baselineEntry = baseline.get(name);
+        ZipEntry baselineEntry = baselineMap.get(name);
         if (baselineEntry == null) {
             return ArtifactDelta.MISSING_FROM_BASELINE;
         }
-        ZipEntry reactorEntry = reactor.get(name);
+        ZipEntry reactorEntry = reactorMap.get(name);
         if (reactorEntry == null) {
             return ArtifactDelta.BASELINE_ONLY;
         }
 
-        try (InputStream is = baselineJar.getInputStream(baselineEntry);
-                InputStream is2 = reactorJar.getInputStream(reactorEntry);) {
-            ContentsComparator comparator = comparators.get(getContentType(name));
-            try {
-                return comparator.getDelta(is, is2, data);
-            } catch (IOException e) {
-                log.debug("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
-                        + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e
-                        + ", using direct byte compare...", e);
-                is.close();
-                is2.close();
-                try (InputStream bl = baselineJar.getInputStream(baselineEntry);
-                        InputStream rp = reactorJar.getInputStream(reactorEntry);) {
-                    if (IOUtils.contentEquals(bl, rp)) {
-                        return null;
-                    }
-                    return ArtifactDelta.DEFAULT;
-                }
-
+        try (InputStream baseline = baselineJar.getInputStream(baselineEntry);
+                InputStream reactor = reactorJar.getInputStream(reactorEntry);) {
+            byte[] baselineBytes = IOUtils.toByteArray(baseline);
+            byte[] reactorBytes = IOUtils.toByteArray(reactor);
+            ArtifactDelta direct = compareDirect(baselineBytes, reactorBytes);
+            if (direct == null) {
+                //perfectly equal!
+                return null;
             }
+            ContentsComparator comparator = comparators.get(getContentType(name));
+            if (comparator != null) {
+                try {
+                    return comparator.getDelta(new ComparatorInputStream(baselineBytes, name),
+                            new ComparatorInputStream(reactorBytes, name), data);
+                } catch (IOException e) {
+                    log.debug("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
+                            + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e
+                            + ", using direct byte compare...", e);
+                }
+            }
+            return direct;
+        }
+    }
+
+    private static ArtifactDelta compareDirect(byte[] baselineBytes, byte[] reactorBytes) {
+        if (Arrays.equals(baselineBytes, reactorBytes)) {
+            return ArtifactDelta.NO_DIFFERENCE;
+        } else {
+            return ArtifactDelta.DEFAULT;
         }
     }
 

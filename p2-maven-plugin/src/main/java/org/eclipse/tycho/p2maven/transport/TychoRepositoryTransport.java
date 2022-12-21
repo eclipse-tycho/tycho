@@ -22,7 +22,6 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -49,8 +48,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         implements IAgentServiceFactory {
 
 	private static final int MAX_DOWNLOAD_THREADS = Integer.getInteger("tycho.p2.transport.max-download-threads", 4);
-	static final String TRANSPORT_TYPE = System.getProperty("tycho.p2.transport.type",
-			Java11HttpTransportFactory.HINT);
+
 	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
 
 	private static final Executor DOWNLOAD_EXECUTOR = Executors.newFixedThreadPool(MAX_DOWNLOAD_THREADS, new ThreadFactory() {
@@ -68,12 +66,13 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
 	@Requirement
-	Map<String, HttpTransportFactory> transportFactoryMap;
+	Logger logger;
 
 	@Requirement
-	Logger logger;
-	@Requirement
-	HttpCache httpCache;
+	TransportCacheConfig cacheConfig;
+
+	@Requirement(role = TransportProtocolHandler.class)
+	Map<String, TransportProtocolHandler> transportProtocolHandlers;
 
     private LongAdder requests = new LongAdder();
     private LongAdder indexRequests = new LongAdder();
@@ -94,7 +93,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     @Override
     public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
 		String id = "p2"; // TODO we might compute the id from the IRepositoryIdManager based on the URI?
-		if (httpCache.getCacheConfig().isInteractive()) {
+		if (cacheConfig.isInteractive()) {
 			logger.info("Downloading from " + id + ": " + toDownload);
 		}
 		try {
@@ -102,7 +101,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 					"Download of " + toDownload);
 			IOUtils.copy(stream(toDownload, monitor), statusOutputStream);
 			DownloadStatus downloadStatus = statusOutputStream.getStatus();
-			if (httpCache.getCacheConfig().isInteractive()) {
+			if (cacheConfig.isInteractive()) {
 			logger.info(
 					"Downloaded from " + id + ": " + toDownload + " ("
 							+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize())
@@ -138,13 +137,16 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
             indexRequests.increment();
         }
         try {
-            File cachedFile = getCachedFile(toDownload);
-            if (cachedFile != null) {
-				if (DEBUG_REQUESTS) {
-                    logger.debug(" --> routed through http-cache ...");
-                }
-                return new FileInputStream(cachedFile);
-            }
+			TransportProtocolHandler handler = getHandler(toDownload);
+			if (handler != null) {
+				File cachedFile = handler.getFile(toDownload);
+				if (cachedFile != null) {
+					if (DEBUG_REQUESTS) {
+						logger.debug(" --> routed through handler " + handler.getClass().getSimpleName() + " ...");
+					}
+					return new FileInputStream(cachedFile);
+				}
+			}
             return toDownload.toURL().openStream();
         } catch (FileNotFoundException e) {
 			if (DEBUG_REQUESTS) {
@@ -165,51 +167,40 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
         }
     }
 
-    @Override
-    public long getLastModified(URI toDownload, IProgressMonitor monitor)
-            throws CoreException, FileNotFoundException, AuthenticationFailedException {
-        //TODO P2 cache manager relies on this method to throw an exception to work correctly
-        try {
-            if (isHttp(toDownload)) {
-				return httpCache.getCacheEntry(toDownload, logger)
-						.getLastModified(getTransportFactory());
-            }
-            URLConnection connection = toDownload.toURL().openConnection();
-            long lastModified = connection.getLastModified();
-            connection.getInputStream().close();
-            return lastModified;
-        } catch (FileNotFoundException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new CoreException(new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
-                    "download from " + toDownload + " failed", e));
-        }
-    }
-
-	private HttpTransportFactory getTransportFactory() {
-		return Objects.requireNonNull(transportFactoryMap.get(TRANSPORT_TYPE), "Invalid transport configuration");
+	TransportProtocolHandler getHandler(URI uri) {
+		String scheme = uri.getScheme();
+		if (scheme != null) {
+			String lc = scheme.toLowerCase();
+			TransportProtocolHandler handler = transportProtocolHandlers.get(lc);
+			if (handler != null) {
+				return handler;
+			}
+		}
+		return null;
 	}
 
     @Override
+    public long getLastModified(URI toDownload, IProgressMonitor monitor)
+            throws CoreException, FileNotFoundException, AuthenticationFailedException {
+		try {
+			TransportProtocolHandler handler = getHandler(toDownload);
+			if (handler != null) {
+				return handler.getLastModified(toDownload);
+			}
+			URLConnection connection = toDownload.toURL().openConnection();
+			long lastModified = connection.getLastModified();
+			connection.getInputStream().close();
+			return lastModified;
+		} catch (FileNotFoundException e) {
+			throw e;
+		} catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
+					"download from " + toDownload + " failed", e));
+		}
+    }
+    @Override
     public Object createService(IProvisioningAgent agent) {
         return this;
-    }
-
-    public HttpCache getHttpCache() {
-        return httpCache;
-    }
-
-    public File getCachedFile(URI remoteFile) throws IOException {
-
-        if (isHttp(remoteFile)) {
-			return httpCache.getCacheEntry(remoteFile, logger).getCacheFile(getTransportFactory());
-        }
-        return null;
-    }
-
-    public static boolean isHttp(URI remoteFile) {
-        String scheme = remoteFile.getScheme();
-        return scheme != null && scheme.toLowerCase().startsWith("http");
     }
 
 	public static Executor getDownloadExecutor() {

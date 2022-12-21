@@ -29,8 +29,6 @@ import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeDescription;
-import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
