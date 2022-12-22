@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: dependencies-from-environment;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-Vendor: Eclipse.org - Tycho
+Require-Bundle: org.junit
+Automatic-Module-Name: org.eclipse.tycho.it
+Bundle-Name: IT Test Bundle Fragment
+Fragment-Host: org.eclipse.jdt

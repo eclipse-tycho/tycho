@@ -27,6 +27,42 @@
 	<name>Tycho Surefire Plugin</name>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-invoker-plugin</artifactId>
+					<configuration>
+						<debug>${invoker.debug}</debug>
+						<projectsDirectory>src/it</projectsDirectory>
+						<cloneProjectsTo>target/it</cloneProjectsTo>
+						<localRepositoryPath>target/local-repo</localRepositoryPath>
+						<postBuildHookScript>verify</postBuildHookScript>
+						<addTestClassPath>true</addTestClassPath>
+						<properties>
+							<tycho-version>${project.version}</tycho-version>
+							<tycho-snapshots-url>file://${session.localRepository.basedir}</tycho-snapshots-url>
+						</properties>
+						<goals>
+							<goal>verify</goal>
+						</goals>
+						<useLocalRepository>true</useLocalRepository>
+						<extraArtifacts>
+							<artifact>org.eclipse.tycho:tycho-maven-plugin:${project.version}:maven-plugin</artifact>
+						</extraArtifacts>
+					</configuration>
+					<executions>
+						<execution>
+							<id>integration-test</id>
+							<goals>
+								<goal>install</goal>
+								<goal>run</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.plexus</groupId>
@@ -287,4 +323,18 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>its</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-invoker-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
