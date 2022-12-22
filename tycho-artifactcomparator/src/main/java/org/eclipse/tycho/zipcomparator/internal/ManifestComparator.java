@@ -13,7 +13,6 @@
 package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeMap;
@@ -24,6 +23,7 @@ import java.util.jar.Manifest;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
 @Component(role = ContentsComparator.class, hint = ManifestComparator.TYPE)
 public class ManifestComparator implements ContentsComparator {
@@ -45,7 +45,8 @@ public class ManifestComparator implements ContentsComparator {
     // TODO make it possible to disable default ignores and add custom ignore
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
+    public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
+            throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Manifest manifest = new Manifest(baseline);
@@ -76,7 +77,7 @@ public class ManifestComparator implements ContentsComparator {
             }
         }
 
-        return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
+        return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : ArtifactDelta.NO_DIFFERENCE;
     }
 
     private void addDelta(TreeMap<String, ArtifactDelta> result, Name key, String message) {

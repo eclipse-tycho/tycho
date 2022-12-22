@@ -12,13 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,6 +50,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
@@ -327,12 +326,14 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 
 	private List<Diff> computeJarDelta(MavenProject project, BaselineContext context, IInstallableUnit baselineJarUnit)
 			throws IOException, FileNotFoundException {
-		try (FileInputStream reactor = new FileInputStream(project.getArtifact().getFile())) {
+		File file = project.getArtifact().getFile();
+		try (FileInputStream reactor = new FileInputStream(file)) {
 			List<String> ignores = new ArrayList<String>();
 			ignores.add("feature.xml"); // we compare the feature not on the file level but on the requirements level
 										// here!
 			ignores.addAll(context.getIgnores());
-			ArtifactDelta artifactDelta = zipComparator.getDelta(getStream(baselineJarUnit, context), reactor,
+			ArtifactDelta artifactDelta = zipComparator.getDelta(getStream(baselineJarUnit, context),
+					new ComparatorInputStream(reactor, file.getAbsolutePath()),
 					new ComparisonData(ignores, false));
 			if (artifactDelta == null) {
 				return List.of();
@@ -343,10 +344,10 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		}
 	}
 
-	private InputStream getStream(IInstallableUnit unit, BaselineContext context) throws IOException {
+	private ComparatorInputStream getStream(IInstallableUnit unit, BaselineContext context) throws IOException {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		repositoryManager.downloadArtifact(unit, context.getArtifactRepository(), outputStream);
-		return new ByteArrayInputStream(outputStream.toByteArray());
+		return new ComparatorInputStream(outputStream.toByteArray(), unit.getId());
 	}
 
 	private static final List<Diff> computePropertyDiff(Map<String, String> base, Map<String, String> project) {

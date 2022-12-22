@@ -12,21 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import java.io.FileNotFoundException;
-import java.net.URI;
+import java.io.File;
 
-import org.codehaus.plexus.logging.Logger;
+public interface TransportCacheConfig {
 
-public interface HttpCache {
+	boolean isOffline();
 
-	/**
-	 * Fetches the cache entry for this URI
-	 * 
-	 * @param uri
-	 * @return
-	 * @throws FileNotFoundException
-	 *             if the URI is know to be not found
-	 */
-	CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException;
+	boolean isUpdate();
 
+	boolean isInteractive();
+
+	File getCacheLocation();
 }

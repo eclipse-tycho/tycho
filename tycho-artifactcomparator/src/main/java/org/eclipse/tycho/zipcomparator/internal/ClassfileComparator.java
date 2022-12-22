@@ -13,17 +13,16 @@
 package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -40,24 +39,20 @@ public class ClassfileComparator implements ContentsComparator {
     // which is not exported, so can't use this either.
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
-        byte[] baselineBytes = baseline.readAllBytes();
-        byte[] reactorBytes = reactor.readAllBytes();
-
-        String baselineDisassemble = null;
-        String reactorDisassemble = null;
-
+    public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
+            throws IOException {
         boolean equal;
         try {
-            baselineDisassemble = disassemble(baselineBytes);
-            reactorDisassemble = disassemble(reactorBytes);
-            equal = baselineDisassemble.equals(reactorDisassemble);
+            String baselineDisassemble = disassemble(baseline.asBytes());
+            String reactorDisassemble = disassemble(reactor.asBytes());
+            if (baselineDisassemble.equals(reactorDisassemble)) {
+                return ArtifactDelta.NO_DIFFERENCE;
+            }
+            return new SimpleArtifactDelta("different", baselineDisassemble, reactorDisassemble);
         } catch (RuntimeException e) {
-            // asm could not disassemble one of the classes, fallback to byte-to-byte comparison
-            equal = Arrays.equals(baselineBytes, reactorBytes);
+            return baseline.compare(reactor);
         }
 
-        return !equal ? new SimpleArtifactDelta("different", baselineDisassemble, reactorDisassemble) : null;
     }
 
     private String disassemble(byte[] bytes) {

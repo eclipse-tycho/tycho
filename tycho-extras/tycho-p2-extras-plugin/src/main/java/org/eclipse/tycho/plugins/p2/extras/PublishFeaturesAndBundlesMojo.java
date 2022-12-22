@@ -35,7 +35,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
  * 
  * @see https://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application
  */
-@Mojo(name = "publish-features-and-bundles")
+@Mojo(name = "publish-features-and-bundles", threadSafe = true)
 public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
 
     /**

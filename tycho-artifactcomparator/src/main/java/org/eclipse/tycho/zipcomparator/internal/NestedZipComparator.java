@@ -13,7 +13,6 @@
 package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -23,6 +22,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
 @Component(role = ContentsComparator.class, hint = NestedZipComparator.TYPE)
 public class NestedZipComparator implements ContentsComparator {
@@ -32,7 +32,8 @@ public class NestedZipComparator implements ContentsComparator {
     private ArtifactComparator zipComparator;
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, ComparisonData data) throws IOException {
+    public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
+            throws IOException {
         Path baselineZip = Files.createTempFile("baseline", ".zip");
         Path reactorZip = Files.createTempFile("reactor", ".zip");
         try {

@@ -158,12 +158,6 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
-    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project) {
-        return resolveDependencies(Collections.<IInstallableUnit> emptySet(), project, new DependencyCollector(logger),
-                new TargetEnvironment(null, null, null), getTargetFromContext(context), null);
-    }
-
-    @Override
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfig) {
         P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration, eeConfig, null);
@@ -228,7 +222,9 @@ public class P2ResolverImpl implements P2Resolver {
         Collection<IInstallableUnit> newState;
         try {
             if ((pomDependencies != PomDependencies.ignore || !TychoConstants.USE_OLD_RESOLVER) && project != null) {
-                data.setAdditionalUnitStore(p2ResolverFactoryImpl.getPomUnits().createPomQueryable(project));
+                if (p2ResolverFactoryImpl != null) {
+                    data.setAdditionalUnitStore(p2ResolverFactoryImpl.getPomUnits().createPomQueryable(project));
+                }
             }
             newState = strategy.resolve(environment, monitor);
         } catch (ResolverException e) {

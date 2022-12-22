@@ -84,9 +84,6 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES, defaultValue = "ignore")
     private PomDependencies pomDependencies;
 
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.ALLOW_CONFLICTING_DEPENDENCIES, defaultValue = "false")
-    private boolean allowConflictingDependences;
-
     /**
      * Force an execution environment for dependency resolution. If unset, use the default JRE of
      * your computer.
