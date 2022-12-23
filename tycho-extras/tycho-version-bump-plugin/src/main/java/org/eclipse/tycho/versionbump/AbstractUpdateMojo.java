@@ -14,16 +14,19 @@
 package org.eclipse.tycho.versionbump;
 
 import java.io.File;
+import java.util.Collections;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public abstract class AbstractUpdateMojo extends AbstractMojo {
@@ -37,6 +40,9 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     protected P2Resolver p2;
 
     protected TargetPlatformConfigurationStub resolutionContext;
+
+    @Parameter(property = "project")
+    protected MavenProject project;
 
     @Component
     P2ResolverFactory factory;
@@ -55,7 +61,8 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     protected abstract void doUpdate() throws Exception;
 
     private void createResolver() {
-        p2 = factory.createResolver(new MavenLoggerAdapter(logger, false));
+        p2 = factory.createResolver(Collections
+                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
         resolutionContext = new TargetPlatformConfigurationStub();
     }
 

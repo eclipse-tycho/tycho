@@ -94,7 +94,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -368,7 +367,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolve JUnit " + junit.getJUnitSegment() + " classpath container...");
-                P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
+                P2Resolver resolver = resolverFactory.createResolver(
+                        Collections.singletonList(TargetEnvironment.getRunningEnvironment(reactorProject)));
                 TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
                 Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, junit.getArtifacts())
                         .values();

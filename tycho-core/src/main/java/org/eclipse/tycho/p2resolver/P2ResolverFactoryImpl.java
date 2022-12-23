@@ -45,8 +45,10 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -133,8 +135,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     }
 
     @Override
-    public P2ResolverImpl createResolver(MavenLogger logger) {
-        return new P2ResolverImpl(getTargetPlatformFactory(), this, logger);
+    public P2Resolver createResolver(Collection<TargetEnvironment> environments) {
+        return new P2ResolverImpl(getTargetPlatformFactory(), this, mavenContext.getLogger(), environments);
     }
 
     public Set<IInstallableUnit> calculateDependencyFragments(ResolutionData data,

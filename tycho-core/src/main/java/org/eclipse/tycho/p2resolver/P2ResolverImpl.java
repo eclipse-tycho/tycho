@@ -80,7 +80,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     private final IProgressMonitor monitor;
 
-    private List<TargetEnvironment> environments;
+    private final List<TargetEnvironment> environments;
     private Map<String, String> additionalFilterProperties = new HashMap<>();
 
     private final List<IRequirement> additionalRequirements = new ArrayList<>();
@@ -92,12 +92,12 @@ public class P2ResolverImpl implements P2Resolver {
     private P2ResolverFactoryImpl p2ResolverFactoryImpl;
 
     public P2ResolverImpl(TargetPlatformFactoryImpl targetPlatformFactory, P2ResolverFactoryImpl p2ResolverFactoryImpl,
-            MavenLogger logger) {
+            MavenLogger logger, Collection<TargetEnvironment> environments) {
         this.targetPlatformFactory = targetPlatformFactory;
         this.p2ResolverFactoryImpl = p2ResolverFactoryImpl;
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
-        this.environments = Collections.singletonList(TargetEnvironment.getRunningEnvironment());
+        this.environments = List.copyOf(environments);
     }
 
     @Override
@@ -276,14 +276,8 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
-    public void setEnvironments(List<TargetEnvironment> environments) {
-        Objects.requireNonNull(environments, "environments can't be null");
-        this.environments = environments;
-    }
-
-    @Override
     public void setAdditionalFilterProperties(Map<String, String> additionalFilterProperties) {
-        Objects.requireNonNull(environments, "additionalFilterProperties can't be null");
+        Objects.requireNonNull(additionalFilterProperties, "additionalFilterProperties can't be null");
         this.additionalFilterProperties = additionalFilterProperties;
     }
 
