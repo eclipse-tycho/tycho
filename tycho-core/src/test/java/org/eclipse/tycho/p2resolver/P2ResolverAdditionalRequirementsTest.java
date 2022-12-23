@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2resolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -22,6 +23,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +45,8 @@ public class P2ResolverAdditionalRequirementsTest {
 
     @Before
     public void initBlankResolver() {
-        impl = new P2ResolverImpl(null, null, logVerifier.getMavenLogger());
+        impl = new P2ResolverImpl(null, null, logVerifier.getMavenLogger(),
+                Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
     }
 
     @Test

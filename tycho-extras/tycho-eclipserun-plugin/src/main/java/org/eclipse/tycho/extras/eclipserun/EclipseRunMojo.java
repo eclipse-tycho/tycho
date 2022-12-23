@@ -15,6 +15,7 @@ package org.eclipse.tycho.extras.eclipserun;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,15 +47,16 @@ import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.plugins.p2.extras.Repository;
 
@@ -342,7 +344,8 @@ public class EclipseRunMojo extends AbstractMojo {
 		eeConfiguration.setProfileConfiguration(executionEnvironment, "tycho-eclipserun-plugin <executionEnvironment>");
 		TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
 				eeConfiguration, null);
-		P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
+		P2Resolver resolver = resolverFactory.createResolver(Collections
+				.singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
 		for (Dependency dependency : dependencies) {
 			try {
 				resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());

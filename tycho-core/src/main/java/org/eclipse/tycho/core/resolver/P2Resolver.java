@@ -16,7 +16,6 @@
 package org.eclipse.tycho.core.resolver;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.ArtifactKey;
@@ -29,8 +28,6 @@ import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public interface P2Resolver {
-
-    public void setEnvironments(List<TargetEnvironment> environments);
 
     /**
      * Sets additional properties that will be used to evaluate filter expressions in the p2

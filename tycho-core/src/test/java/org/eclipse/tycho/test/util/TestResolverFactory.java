@@ -28,6 +28,7 @@ import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.shared.DependencyResolutionException;
@@ -148,8 +149,8 @@ public class TestResolverFactory implements P2ResolverFactory {
     }
 
     @Override
-    public P2Resolver createResolver(MavenLogger logger) {
-        return new P2ResolverImpl(getTargetPlatformFactoryImpl(), null, mavenContext.getLogger());
+    public P2Resolver createResolver(Collection<TargetEnvironment> environments) {
+        return new P2ResolverImpl(getTargetPlatformFactoryImpl(), null, mavenContext.getLogger(), environments);
     }
 
     @Override

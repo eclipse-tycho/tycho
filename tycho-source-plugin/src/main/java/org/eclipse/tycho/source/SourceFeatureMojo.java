@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -51,8 +52,8 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
@@ -62,7 +63,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.packaging.LicenseFeatureHelper;
 
 import de.pdark.decentxml.Document;
@@ -455,8 +455,8 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     private void fillReferences(Feature sourceFeature, Feature feature, TargetPlatform targetPlatform)
             throws MojoExecutionException {
-        P2Resolver p2 = factory.createResolver(
-                new MavenLoggerAdapter(this.logger, DebugUtils.isDebugEnabled(this.session, this.project)));
+        P2Resolver p2 = factory.createResolver(Collections
+                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
 
         List<PluginRef> missingSourcePlugins = new ArrayList<>();
         List<FeatureRef> missingSourceFeatures = new ArrayList<>();

@@ -39,18 +39,18 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
-import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 /**
  * Validates that specified target platforms (.target files) contents can be resolved.
@@ -188,9 +188,10 @@ public class TPValidationMojo extends AbstractMojo {
             TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
             tpConfiguration.addTargetDefinition(targetDefinition);
-            tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+            tpConfiguration.setEnvironments(Collections
+                    .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
 
-            P2Resolver resolver = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));
+            P2Resolver resolver = this.factory.createResolver(tpConfiguration.getEnvironments());
 
             for (Location location : targetDefinition.getLocations()) {
                 if (location instanceof InstallableUnitLocation p2Loc) {
