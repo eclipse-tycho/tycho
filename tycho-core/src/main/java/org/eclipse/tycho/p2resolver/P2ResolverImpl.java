@@ -18,9 +18,7 @@
 package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,7 +33,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -43,7 +40,6 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -118,18 +114,9 @@ public class P2ResolverImpl implements P2Resolver {
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         Set<IInstallableUnit> usedTargetPlatformUnits = new LinkedHashSet<>();
-        Set<IInstallableUnit> metadata = project != null ? project.getDependencyMetadata(DependencyMetadataType.SEED)
-                : Collections.emptySet();
         for (TargetEnvironment environment : environments) {
-            if (isMatchingEnv(metadata, environment, logger::debug)) {
-                results.put(environment, resolveDependencies(Collections.emptySet(), project,
-                        new ProjectorResolutionStrategy(logger), environment, targetPlatform, usedTargetPlatformUnits));
-            } else {
-                logger.info(MessageFormat.format(
-                        "Project {0}:{1}:{2} does not match environment {3} skip dependency resolution",
-                        project.getGroupId(), project.getArtifactId(), project.getVersion(),
-                        environment.toFilterExpression()));
-            }
+            results.put(environment, resolveDependencies(Collections.emptySet(), project,
+                    new ProjectorResolutionStrategy(logger), environment, targetPlatform, usedTargetPlatformUnits));
         }
 
         targetPlatform.reportUsedLocalIUs(usedTargetPlatformUnits);
@@ -458,32 +445,6 @@ public class P2ResolverImpl implements P2Resolver {
 
         // ignore other/unknown artifacts, like binary blobs for now.
         // throw new IllegalArgumentException();
-    }
-
-    /**
-     * Check if the Metadata contains any constraints that forbid the given
-     * {@link TargetEnvironment}
-     *
-     * @param metadata
-     * @param environment
-     * @return
-     */
-    private static boolean isMatchingEnv(Set<IInstallableUnit> metadata, TargetEnvironment environment,
-            Consumer<String> debugConsumer) {
-        if (metadata != null) {
-            for (IInstallableUnit meta : metadata) {
-                IMatchExpression<IInstallableUnit> filter = meta.getFilter();
-                if (filter != null) {
-                    boolean match = filter.isMatch(InstallableUnit.contextIU(environment.toFilterProperties()));
-                    debugConsumer.accept(MessageFormat.format("{0}: {1} (matches {2})", filter,
-                            Arrays.toString(filter.getParameters()), match));
-                    if (!match) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
     }
 
     public static void addDependenciesForTests(Consumer<IRequirement> requirementsConsumer) {
