@@ -20,9 +20,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.execution.MavenSession;
@@ -42,12 +45,14 @@ import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurati
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
+import org.osgi.framework.Filter;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {
@@ -71,7 +76,7 @@ public class DefaultTargetPlatformConfigurationReader {
     private Logger logger;
 
     @Requirement
-    private Map<String, TychoProject> projectTypes;
+    private TychoProjectManager projectManager;
 
     @Requirement
     private TargetPlatformFilterConfigurationReader filterReader;
@@ -82,7 +87,7 @@ public class DefaultTargetPlatformConfigurationReader {
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project)
             throws BuildFailureException {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
-
+        TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
         // Use org.eclipse.tycho:target-platform-configuration/configuration/environment, if provided
         Plugin plugin = project.getPlugin("org.eclipse.tycho:target-platform-configuration");
 
@@ -94,7 +99,7 @@ public class DefaultTargetPlatformConfigurationReader {
                             + configuration.toString());
                 }
 
-                addTargetEnvironments(result, project, configuration);
+                addTargetEnvironments(result, project, configuration, tychoProject);
 
                 setTargetPlatformResolver(result, configuration);
 
@@ -127,9 +132,8 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         if (result.getEnvironments().isEmpty()) {
-            TychoProject projectType = projectTypes.get(project.getPackaging());
-            if (projectType != null) {
-                TargetEnvironment env = projectType.getImplicitTargetEnvironment(project);
+            if (tychoProject != null) {
+                TargetEnvironment env = tychoProject.getImplicitTargetEnvironment(project);
                 if (env != null) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Implicit target environment for " + project.toString() + ": " + env.toString());
@@ -299,18 +303,46 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project,
-            Xpp3Dom configuration) {
+    private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project, Xpp3Dom configuration,
+            TychoProject tychoProject) {
         try {
             Xpp3Dom environmentsDom = configuration.getChild(ENVIRONMENTS);
             if (environmentsDom != null) {
+                Filter filter = getProjectFiler(tychoProject, project);
+                List<TargetEnvironment> skipped = new ArrayList<>();
                 for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
-                    result.addEnvironment(newTargetEnvironment(environmentDom));
+                    TargetEnvironment environment = newTargetEnvironment(environmentDom);
+                    if (!matchFilter(environment, filter)) {
+                        skipped.add(environment);
+                    } else {
+                        result.addEnvironment(environment);
+                    }
+                }
+                if (!skipped.isEmpty()) {
+                    logger.info(MessageFormat.format(
+                            "Declared TargetEnvironment(s) {0} are skipped for {1} as they do not match the project filter {2}.",
+                            skipped.stream().map(TargetEnvironment::toFilterProperties).map(String::valueOf)
+                                    .collect(Collectors.joining(", ")),
+                            project.getId(), filter));
                 }
             }
         } catch (TargetPlatformConfigurationException e) {
             throw new RuntimeException("target-platform-configuration error in project " + project.getId(), e);
         }
+    }
+
+    private static boolean matchFilter(TargetEnvironment environment, Filter filter) {
+        if (filter != null) {
+            return filter.matches(environment.toFilterProperties());
+        }
+        return true;
+    }
+
+    private static Filter getProjectFiler(TychoProject tychoProject, MavenProject project) {
+        if (tychoProject != null) {
+            return tychoProject.getTargetEnvironmentFilter(project);
+        }
+        return null;
     }
 
     private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
