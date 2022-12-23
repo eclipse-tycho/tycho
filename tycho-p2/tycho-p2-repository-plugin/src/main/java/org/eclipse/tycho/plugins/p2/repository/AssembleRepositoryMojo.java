@@ -24,7 +24,6 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
@@ -213,8 +212,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(),
                         getSession(), RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
 
-                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory)
-                        .stream()//
+                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory).stream()//
                         .map(Category::getRepositoryReferences)//
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//

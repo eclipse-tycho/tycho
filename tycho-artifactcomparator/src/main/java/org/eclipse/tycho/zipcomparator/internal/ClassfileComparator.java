@@ -41,7 +41,6 @@ public class ClassfileComparator implements ContentsComparator {
     @Override
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
             throws IOException {
-        boolean equal;
         try {
             String baselineDisassemble = disassemble(baseline.asBytes());
             String reactorDisassemble = disassemble(reactor.asBytes());

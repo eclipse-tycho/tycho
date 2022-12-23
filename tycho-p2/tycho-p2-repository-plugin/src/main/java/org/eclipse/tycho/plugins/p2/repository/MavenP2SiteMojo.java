@@ -195,7 +195,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     /**
      * Configures the key servers that are used to fetch the public keys, if not specified,
-     * {@value #UBUNTU_KEY_SERVER} and {@value #MAVEN_CENTRAL_KEY_SERVER} are used in this order.
+     * {@value PGPService#UBUNTU_KEY_SERVER} and {@value PGPService#MAVEN_CENTRAL_KEY_SERVER} are
+     * used in this order.
      */
     @Parameter
     private List<String> keyServerUrls;
