@@ -113,8 +113,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private String qualifier;
 
     /**
-     * Whether default source excludes for SCM files defined in
-     * {@see AbstractScanner#DEFAULTEXCLUDES} should be used.
+     * Whether default source excludes for SCM files defined in {AbstractScanner#DEFAULTEXCLUDES}
+     * should be used.
      */
     @Parameter(defaultValue = "true")
     protected boolean useDefaultSourceExcludes;

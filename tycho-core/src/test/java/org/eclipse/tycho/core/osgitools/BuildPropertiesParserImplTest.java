@@ -23,7 +23,6 @@ import java.util.Properties;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.testing.TestUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +35,6 @@ public class BuildPropertiesParserImplTest {
     private MavenSession mavenSession;
     private MavenProject project1;
     private MavenProject project2;
-    private Logger logger;
 
     @Before
     public void setup() throws IllegalArgumentException, IllegalAccessException {
@@ -44,7 +42,6 @@ public class BuildPropertiesParserImplTest {
         mavenSession = mock(MavenSession.class);
         project1 = mock(MavenProject.class);
         project2 = mock(MavenProject.class);
-        logger = mock(Logger.class);
 
         when(legacySupport.getSession()).thenReturn(mavenSession);
         when(mavenSession.getProjects()).thenReturn(Arrays.asList(project1, project2));

@@ -333,7 +333,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 										// here!
 			ignores.addAll(context.getIgnores());
 			ArtifactDelta artifactDelta = zipComparator.getDelta(getStream(baselineJarUnit, context),
-					new ComparatorInputStream(reactor, file.getAbsolutePath()),
+					new ComparatorInputStream(reactor),
 					new ComparisonData(ignores, false));
 			if (artifactDelta == null) {
 				return List.of();
@@ -347,7 +347,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 	private ComparatorInputStream getStream(IInstallableUnit unit, BaselineContext context) throws IOException {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		repositoryManager.downloadArtifact(unit, context.getArtifactRepository(), outputStream);
-		return new ComparatorInputStream(outputStream.toByteArray(), unit.getId());
+		return new ComparatorInputStream(outputStream.toByteArray());
 	}
 
 	private static final List<Diff> computePropertyDiff(Map<String, String> base, Map<String, String> project) {

@@ -86,7 +86,6 @@ import org.osgi.framework.Version;
  */
 @Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierMojo extends AbstractVersionMojo {
-    private static final Object LOCK = new Object();
 
     @Parameter(property = "session", readonly = true)
     protected MavenSession session;

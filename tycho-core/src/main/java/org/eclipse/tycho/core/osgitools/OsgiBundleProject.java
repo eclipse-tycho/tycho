@@ -433,6 +433,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
     }
 
+    @Override
     public EclipsePluginProject getEclipsePluginProject(ReactorProject otherProject) {
         EclipsePluginProjectImpl pdeProject = (EclipsePluginProjectImpl) otherProject
                 .getContextValue(CTX_ECLIPSE_PLUGIN_PROJECT);

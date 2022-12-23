@@ -14,6 +14,8 @@ package org.eclipse.tycho.targetplatform;
 
 public class TargetResolveException extends Exception {
 
+	private static final long serialVersionUID = 1L;
+
 	public TargetResolveException(String message) {
 		super(message);
 	}

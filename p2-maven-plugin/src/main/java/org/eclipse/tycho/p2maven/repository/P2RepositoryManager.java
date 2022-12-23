@@ -89,7 +89,7 @@ public class P2RepositoryManager {
 		if (repositories.size() == 1) {
 			return getArtifactRepository(repositories.iterator().next());
 		}
-		ArrayList<IArtifactRepository> childs = new ArrayList<IArtifactRepository>();
+		ArrayList<IArtifactRepository> childs = new ArrayList<>();
 		for (Repository repository : repositories) {
 			childs.add(getArtifactRepository(repository));
 		}
