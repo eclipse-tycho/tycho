@@ -302,18 +302,8 @@ public class DefaultTargetPlatformConfigurationReader {
     private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project,
             Xpp3Dom configuration) {
         try {
-            TargetEnvironment deprecatedTargetEnvironmentSpec = getDeprecatedTargetEnvironment(configuration);
-            if (deprecatedTargetEnvironmentSpec != null) {
-                result.addEnvironment(deprecatedTargetEnvironmentSpec);
-            }
-
             Xpp3Dom environmentsDom = configuration.getChild(ENVIRONMENTS);
             if (environmentsDom != null) {
-                if (deprecatedTargetEnvironmentSpec != null) {
-                    String message = "Deprecated target-platform-configuration <environment> element must not be combined with new <environments> element; check the (inherited) configuration of "
-                            + project.getId();
-                    throw new RuntimeException(message);
-                }
                 for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
                     result.addEnvironment(newTargetEnvironment(environmentDom));
                 }
@@ -321,17 +311,6 @@ public class DefaultTargetPlatformConfigurationReader {
         } catch (TargetPlatformConfigurationException e) {
             throw new RuntimeException("target-platform-configuration error in project " + project.getId(), e);
         }
-    }
-
-    protected TargetEnvironment getDeprecatedTargetEnvironment(Xpp3Dom configuration)
-            throws TargetPlatformConfigurationException {
-        Xpp3Dom environmentDom = configuration.getChild("environment");
-        if (environmentDom != null) {
-            logger.warn(
-                    "target-platform-configuration <environment> element is deprecated; use <environments> instead");
-            return newTargetEnvironment(environmentDom);
-        }
-        return null;
     }
 
     private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
