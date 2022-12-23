@@ -20,9 +20,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.execution.MavenSession;
@@ -36,18 +38,19 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
-import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
+import org.osgi.framework.Filter;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {
@@ -71,7 +74,7 @@ public class DefaultTargetPlatformConfigurationReader {
     private Logger logger;
 
     @Requirement
-    private Map<String, TychoProject> projectTypes;
+    private TychoProjectManager projectManager;
 
     @Requirement
     private TargetPlatformFilterConfigurationReader filterReader;
@@ -82,7 +85,7 @@ public class DefaultTargetPlatformConfigurationReader {
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project)
             throws BuildFailureException {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
-
+        TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
         // Use org.eclipse.tycho:target-platform-configuration/configuration/environment, if provided
         Plugin plugin = project.getPlugin("org.eclipse.tycho:target-platform-configuration");
 
@@ -94,7 +97,7 @@ public class DefaultTargetPlatformConfigurationReader {
                             + configuration.toString());
                 }
 
-                addTargetEnvironments(result, project, configuration);
+                addTargetEnvironments(result, project, configuration, tychoProject);
 
                 setTargetPlatformResolver(result, configuration);
 
@@ -127,9 +130,8 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         if (result.getEnvironments().isEmpty()) {
-            TychoProject projectType = projectTypes.get(project.getPackaging());
-            if (projectType != null) {
-                TargetEnvironment env = projectType.getImplicitTargetEnvironment(project);
+            if (tychoProject != null) {
+                TargetEnvironment env = tychoProject.getImplicitTargetEnvironment(project);
                 if (env != null) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Implicit target environment for " + project.toString() + ": " + env.toString());
@@ -143,17 +145,7 @@ public class DefaultTargetPlatformConfigurationReader {
         if (result.getEnvironments().isEmpty()) {
             // applying defaults
             logger.warn("No explicit target runtime environment configuration. Build is platform dependent.");
-
-            // Otherwise, use project or execution properties, if provided
-            Properties properties = DefaultReactorProject.adapt(project).getProperties();
-
-            // Otherwise, use current system os/ws/nl/arch
-            String os = PlatformPropertiesUtils.getOS(properties);
-            String ws = PlatformPropertiesUtils.getWS(properties);
-            String arch = PlatformPropertiesUtils.getArch(properties);
-
-            result.addEnvironment(new TargetEnvironment(os, ws, arch));
-
+            result.addEnvironment(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project)));
             result.setImplicitTargetEnvironment(true);
         } else {
             result.setImplicitTargetEnvironment(false);
@@ -299,23 +291,27 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project,
-            Xpp3Dom configuration) {
+    private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project, Xpp3Dom configuration,
+            TychoProject tychoProject) {
         try {
-            TargetEnvironment deprecatedTargetEnvironmentSpec = getDeprecatedTargetEnvironment(configuration);
-            if (deprecatedTargetEnvironmentSpec != null) {
-                result.addEnvironment(deprecatedTargetEnvironmentSpec);
-            }
-
             Xpp3Dom environmentsDom = configuration.getChild(ENVIRONMENTS);
             if (environmentsDom != null) {
-                if (deprecatedTargetEnvironmentSpec != null) {
-                    String message = "Deprecated target-platform-configuration <environment> element must not be combined with new <environments> element; check the (inherited) configuration of "
-                            + project.getId();
-                    throw new RuntimeException(message);
-                }
+                Filter filter = getProjectFiler(tychoProject, project);
+                List<TargetEnvironment> skipped = new ArrayList<>();
                 for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
-                    result.addEnvironment(newTargetEnvironment(environmentDom));
+                    TargetEnvironment environment = newTargetEnvironment(environmentDom);
+                    if (!matchFilter(environment, filter)) {
+                        skipped.add(environment);
+                    } else {
+                        result.addEnvironment(environment);
+                    }
+                }
+                if (!skipped.isEmpty()) {
+                    logger.info(MessageFormat.format(
+                            "Declared TargetEnvironment(s) {0} are skipped for {1} as they do not match the project filter {2}.",
+                            skipped.stream().map(TargetEnvironment::toFilterProperties).map(String::valueOf)
+                                    .collect(Collectors.joining(", ")),
+                            project.getId(), filter));
                 }
             }
         } catch (TargetPlatformConfigurationException e) {
@@ -323,13 +319,16 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    protected TargetEnvironment getDeprecatedTargetEnvironment(Xpp3Dom configuration)
-            throws TargetPlatformConfigurationException {
-        Xpp3Dom environmentDom = configuration.getChild("environment");
-        if (environmentDom != null) {
-            logger.warn(
-                    "target-platform-configuration <environment> element is deprecated; use <environments> instead");
-            return newTargetEnvironment(environmentDom);
+    private static boolean matchFilter(TargetEnvironment environment, Filter filter) {
+        if (filter != null) {
+            return filter.matches(environment.toFilterProperties());
+        }
+        return true;
+    }
+
+    private static Filter getProjectFiler(TychoProject tychoProject, MavenProject project) {
+        if (tychoProject != null) {
+            return tychoProject.getTargetEnvironmentFilter(project);
         }
         return null;
     }

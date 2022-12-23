@@ -14,10 +14,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import java.util.Collection;
+
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
@@ -32,7 +34,14 @@ public interface P2ResolverFactory {
     // TODO directly register as service
     public TargetPlatformFactory getTargetPlatformFactory();
 
-    public P2Resolver createResolver(MavenLogger logger);
+    /**
+     * Create a resolver for the given environments
+     * 
+     * @param environments
+     * 
+     * @return a resolver that is capable of resolving the provided environments
+     */
+    public P2Resolver createResolver(Collection<TargetEnvironment> environments);
 
     /**
      * tries to resolve a {@link MavenDependencyDescriptor} from the given

@@ -94,9 +94,10 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.Version;
 
@@ -366,7 +367,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolve JUnit " + junit.getJUnitSegment() + " classpath container...");
-                P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
+                P2Resolver resolver = resolverFactory.createResolver(
+                        Collections.singletonList(TargetEnvironment.getRunningEnvironment(reactorProject)));
                 TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
                 Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, junit.getArtifacts())
                         .values();
@@ -739,6 +741,19 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
 
         return null;
+    }
+
+    @Override
+    public Filter getTargetEnvironmentFilter(MavenProject project) {
+        String filterStr = getManifestValue(EclipsePlatformNamespace.ECLIPSE_PLATFORM_FILTER_HEADER, project);
+        if (filterStr != null) {
+            try {
+                return FrameworkUtil.createFilter(filterStr);
+            } catch (InvalidSyntaxException e) {
+                // at least we tried...
+            }
+        }
+        return super.getTargetEnvironmentFilter(project);
     }
 
     private static String sn(String str) {

@@ -45,6 +45,7 @@ import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependenc
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2resolver.PomReactorProjectFacade;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.osgi.framework.Filter;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
 
@@ -112,6 +113,11 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
 
     @Override
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project) {
+        return null;
+    }
+
+    @Override
+    public Filter getTargetEnvironmentFilter(MavenProject project) {
         return null;
     }
 

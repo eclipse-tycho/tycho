@@ -14,10 +14,13 @@ package org.eclipse.tycho;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
 public final class TargetEnvironment {
+    private static final Properties EMPTY_PROPERTIES = new Properties();
     private static final String OSGI_OS = "osgi.os";
     private static final String OSGI_WS = "osgi.ws";
     private static final String OSGI_ARCH = "osgi.arch";
@@ -78,8 +81,9 @@ public final class TargetEnvironment {
      * 
      * @return a new instance of {@link HashMap} with the target environment set
      */
-    public HashMap<String, String> toFilterProperties() {
-        HashMap<String, String> result = new HashMap<>();
+    public Map<String, String> toFilterProperties() {
+        //for nicer debug output, use an ordered map here
+        Map<String, String> result = new LinkedHashMap<>(3);
 
         if (os != null)
             result.put(OSGI_OS, os);
@@ -142,14 +146,20 @@ public final class TargetEnvironment {
     }
 
     public static TargetEnvironment getRunningEnvironment() {
-        Properties properties = new Properties();
-        properties.put(PlatformPropertiesUtils.OSGI_OS, PlatformPropertiesUtils.getOS(properties));
-        properties.put(PlatformPropertiesUtils.OSGI_WS, PlatformPropertiesUtils.getWS(properties));
-        properties.put(PlatformPropertiesUtils.OSGI_ARCH, PlatformPropertiesUtils.getArch(properties));
+        return getRunningEnvironment(null);
+    }
 
-        return new TargetEnvironment(properties.getProperty(PlatformPropertiesUtils.OSGI_OS),
-                properties.getProperty(PlatformPropertiesUtils.OSGI_WS),
-                properties.getProperty(PlatformPropertiesUtils.OSGI_ARCH));
+    public static TargetEnvironment getRunningEnvironment(ReactorProject project) {
+        Properties properties;
+        if (project == null) {
+            properties = EMPTY_PROPERTIES;
+        } else {
+            properties = Objects.requireNonNullElse(project.getProperties(), EMPTY_PROPERTIES);
+        }
+        String os = PlatformPropertiesUtils.getOS(properties);
+        String ws = PlatformPropertiesUtils.getWS(properties);
+        String arch = PlatformPropertiesUtils.getArch(properties);
+        return new TargetEnvironment(os, ws, arch);
     }
 
 }
