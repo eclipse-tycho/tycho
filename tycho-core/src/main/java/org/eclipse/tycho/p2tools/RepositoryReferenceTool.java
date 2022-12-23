@@ -123,7 +123,7 @@ public class RepositoryReferenceTool {
                         .getDependencyResolverConfiguration();
 
                 DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
-                        DefaultReactorProject.adapt(session), resolverConfiguration);
+                        DefaultReactorProject.adapt(session), resolverConfiguration, configuration.getEnvironments());
                 dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
 
                 // this contains dependency-only metadata for 'this' project
