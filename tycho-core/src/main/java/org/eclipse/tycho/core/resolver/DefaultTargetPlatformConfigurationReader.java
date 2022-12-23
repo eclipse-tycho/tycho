@@ -24,7 +24,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -39,7 +38,6 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
-import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
@@ -147,17 +145,7 @@ public class DefaultTargetPlatformConfigurationReader {
         if (result.getEnvironments().isEmpty()) {
             // applying defaults
             logger.warn("No explicit target runtime environment configuration. Build is platform dependent.");
-
-            // Otherwise, use project or execution properties, if provided
-            Properties properties = DefaultReactorProject.adapt(project).getProperties();
-
-            // Otherwise, use current system os/ws/nl/arch
-            String os = PlatformPropertiesUtils.getOS(properties);
-            String ws = PlatformPropertiesUtils.getWS(properties);
-            String arch = PlatformPropertiesUtils.getArch(properties);
-
-            result.addEnvironment(new TargetEnvironment(os, ws, arch));
-
+            result.addEnvironment(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project)));
             result.setImplicitTargetEnvironment(true);
         } else {
             result.setImplicitTargetEnvironment(false);

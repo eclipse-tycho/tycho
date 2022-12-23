@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
@@ -43,9 +42,6 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
 
     @Parameter(defaultValue = "${project.artifactId}.product")
     private File productFile;
-
-    @Parameter(property = "project")
-    private MavenProject project;
 
     @Override
     protected void doUpdate() throws IOException, URISyntaxException {

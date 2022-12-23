@@ -43,7 +43,6 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.osgi.framework.Version;
 
@@ -136,11 +135,13 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                     + this.artifactComparators.keySet());
         }
 
-        P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(this.plexusLogger, true));
+        P2Resolver resolver = resolverFactory.createResolver(Collections
+                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
 
         TargetPlatformConfigurationStub baselineTPStub = new TargetPlatformConfigurationStub();
         baselineTPStub.setForceIgnoreLocalArtifacts(true);
-        baselineTPStub.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+        baselineTPStub.setEnvironments(Collections
+                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
         for (String baselineRepo : this.baselines) {
             baselineTPStub.addP2Repository(toRepoURI(baselineRepo));
         }

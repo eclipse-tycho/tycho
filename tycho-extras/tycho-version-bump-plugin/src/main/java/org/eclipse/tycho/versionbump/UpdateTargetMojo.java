@@ -27,15 +27,15 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -47,8 +47,6 @@ import org.xml.sax.SAXException;
  */
 @Mojo(name = "update-target")
 public class UpdateTargetMojo extends AbstractUpdateMojo {
-    @Parameter(property = "project")
-    private MavenProject project;
     @Parameter(property = "target")
     private File targetFile;
 
@@ -59,7 +57,8 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         try (FileInputStream input = new FileInputStream(targetFile)) {
             target = TargetDefinitionFile.parseDocument(input);
             TargetDefinitionFile parsedTarget = TargetDefinitionFile.parse(target, targetFile.getAbsolutePath());
-            resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+            resolutionContext.setEnvironments(Collections
+                    .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
             resolutionContext.addTargetDefinition(new LatestVersionTarget(parsedTarget));
             P2ResolutionResult result = p2.getTargetPlatformAsResolutionResult(resolutionContext, executionEnvironment);
 

@@ -71,7 +71,6 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
@@ -80,7 +79,6 @@ import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
@@ -309,8 +307,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         // --> split this information logically, e.g. through two distinct interfaces
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
 
-        P2Resolver osgiResolverImpl = resolverFactory
-                .createResolver(new MavenLoggerAdapter(getLogger(), DebugUtils.isDebugEnabled(session, project)));
+        P2Resolver osgiResolverImpl = resolverFactory.createResolver(configuration.getEnvironments());
 
         return doResolveDependencies(session, project, reactorProjects, resolverConfiguration, targetPlatform,
                 osgiResolverImpl, configuration);
@@ -322,7 +319,6 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         Map<File, ReactorProject> projects = new HashMap<>();
 
-        resolver.setEnvironments(configuration.getEnvironments());
         resolver.setAdditionalFilterProperties(configuration.getProfileProperties());
         resolver.setPomDependencies(configuration.getPomDependencies());
 

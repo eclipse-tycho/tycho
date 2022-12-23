@@ -22,7 +22,6 @@ import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -48,7 +47,6 @@ public class P2ResolverTestBase extends TychoPlexusTestCase {
     private DefaultDependencyMetadataGenerator dependencyGenerator;
 
     protected TestResolverFactory resolverFactory;
-    protected P2Resolver impl;
     protected TargetPlatformConfigurationStub tpConfig;
     protected PomDependencyCollectorImpl pomDependencies;
     protected List<ReactorProject> reactorProjects = new ArrayList<>();

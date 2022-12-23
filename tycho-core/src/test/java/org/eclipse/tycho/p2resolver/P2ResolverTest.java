@@ -49,6 +49,7 @@ import org.eclipse.tycho.core.ee.impl.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
+import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.target.DuplicateReactorIUsException;
 import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
@@ -72,13 +73,18 @@ public class P2ResolverTest extends P2ResolverTestBase {
     private ReactorProject projectToResolve;
     private P2ResolutionResult result;
     private static final String LATEST_PLATFORM = "https://download.eclipse.org/eclipse/updates/latest/";
+    protected P2Resolver impl;
 
     @Before
     public void initDefaultResolver() throws Exception {
 //        org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
         pomDependencies = resolverFactory.newPomDependencyCollector();
-        impl = new P2ResolverImpl(tpFactory, null, logVerifier.getMavenLogger());
-        impl.setEnvironments(getEnvironments());
+        List<TargetEnvironment> environments = getEnvironments();
+        impl = createFor(environments);
+    }
+
+    private P2ResolverImpl createFor(List<TargetEnvironment> environments) {
+        return new P2ResolverImpl(tpFactory, null, logVerifier.getMavenLogger(), environments);
     }
 
     @Test
@@ -390,14 +396,14 @@ public class P2ResolverTest extends P2ResolverTestBase {
         List<TargetEnvironment> environments = new ArrayList<>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
-        impl.setEnvironments(environments);
+        P2Resolver resolver = createFor(environments);
 
         String artifactId = "feature.multienv.p2-inf";
         projectToResolve = createReactorProject(resourceFile("resolver/feature.multienv.p2-inf"), TYPE_ECLIPSE_FEATURE,
                 artifactId);
 
         List<P2ResolutionResult> results = new ArrayList<>(
-                impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve).values());
+                resolver.resolveTargetDependencies(getTargetPlatform(), projectToResolve).values());
 
         assertEquals(2, results.size());
 
@@ -419,14 +425,14 @@ public class P2ResolverTest extends P2ResolverTestBase {
         List<TargetEnvironment> environments = new ArrayList<>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
-        impl.setEnvironments(environments);
+        P2Resolver resolver = createFor(environments);
 
         String artifactId = "product.multienv.p2-inf";
         projectToResolve = createReactorProject(resourceFile("resolver/product.multienv.p2-inf"),
                 TYPE_ECLIPSE_REPOSITORY, artifactId);
 
         List<P2ResolutionResult> results = new ArrayList<>(
-                impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve).values());
+                resolver.resolveTargetDependencies(getTargetPlatform(), projectToResolve).values());
 
         assertEquals(2, results.size());
 
