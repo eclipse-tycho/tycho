@@ -22,6 +22,7 @@ import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.osgi.framework.Filter;
 
 /**
  * tycho-specific behavior associated with MavenProject instances. stateless.
@@ -53,6 +54,8 @@ public interface TychoProject {
      * Eclipse-PlatformFilter OSGi bundle manifest attribute.
      */
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project);
+
+    public Filter getTargetEnvironmentFilter(MavenProject project);
 
     /**
      * @return a collection of dependencies (and their transitive dependencies) that where present

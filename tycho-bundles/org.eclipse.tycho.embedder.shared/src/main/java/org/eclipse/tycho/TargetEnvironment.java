@@ -14,6 +14,8 @@ package org.eclipse.tycho;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -78,8 +80,9 @@ public final class TargetEnvironment {
      * 
      * @return a new instance of {@link HashMap} with the target environment set
      */
-    public HashMap<String, String> toFilterProperties() {
-        HashMap<String, String> result = new HashMap<>();
+    public Map<String, String> toFilterProperties() {
+        //for nicer debug output, use an ordered map here
+        Map<String, String> result = new LinkedHashMap<>(3);
 
         if (os != null)
             result.put(OSGI_OS, os);

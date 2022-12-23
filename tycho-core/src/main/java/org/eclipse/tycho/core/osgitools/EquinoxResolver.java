@@ -65,7 +65,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -199,14 +198,11 @@ public class EquinoxResolver {
             DependencyArtifacts artifacts, ExecutionEnvironment ee) {
 
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        //FIXME formally we should resolve the configuration for ALL declared environments!
         TargetEnvironment environment = configuration.getEnvironments().get(0);
-        if (artifacts instanceof MultiEnvironmentDependencyArtifacts multiEnv) {
-            environment = multiEnv.getPlatforms().stream().findFirst().orElse(environment);
-        }
         logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");
         Properties properties = new Properties();
         properties.putAll(project.getProperties());
-
         return getPlatformProperties(properties, mavenSession, environment, ee);
     }
 
