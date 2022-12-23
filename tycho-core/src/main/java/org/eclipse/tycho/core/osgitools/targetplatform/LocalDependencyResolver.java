@@ -41,6 +41,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -122,7 +123,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
     @Override
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
-            DependencyResolverConfiguration resolverConfiguration) {
+            DependencyResolverConfiguration resolverConfiguration, List<TargetEnvironment> ignored) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         Properties properties = reactorProject.getProperties();
         if (properties != null) {

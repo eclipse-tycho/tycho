@@ -140,7 +140,7 @@ public class DefaultTychoResolver implements TychoResolver {
         DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
         DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
-                preliminaryTargetPlatform, reactorProjects, resolverConfiguration);
+                preliminaryTargetPlatform, reactorProjects, resolverConfiguration, configuration.getEnvironments());
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder(threadMarker);
@@ -171,7 +171,7 @@ public class DefaultTychoResolver implements TychoResolver {
                     }
                 };
                 testDependencyArtifacts = resolver.resolveDependencies(session, project, preliminaryTargetPlatform,
-                        reactorProjects, testResolverConfiguration);
+                        reactorProjects, testResolverConfiguration, configuration.getEnvironments());
             }
             dr.setTestDependencyArtifacts(session, reactorProject,
                     Objects.requireNonNullElse(testDependencyArtifacts, new DefaultDependencyArtifacts()));
