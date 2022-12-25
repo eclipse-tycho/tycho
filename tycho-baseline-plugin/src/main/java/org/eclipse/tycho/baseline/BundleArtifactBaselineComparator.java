@@ -352,8 +352,8 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 			if (baseResource != null && currenttResource != null) {
 				try (InputStream baseStream = baseResource.openInputStream();
 						InputStream currentStream = currenttResource.openInputStream()) {
-					return comparator.getDelta(new ComparatorInputStream(baseStream, name),
-							new ComparatorInputStream(currentStream, name),
+					return comparator.getDelta(new ComparatorInputStream(baseStream),
+							new ComparatorInputStream(currentStream),
 							new ComparisonData(baselineContext.getIgnores(), false));
 				} catch (Exception e) {
 				}

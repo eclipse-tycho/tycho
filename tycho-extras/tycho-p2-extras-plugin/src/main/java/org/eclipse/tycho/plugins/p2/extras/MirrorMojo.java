@@ -67,7 +67,7 @@ public class MirrorMojo extends AbstractMojo {
     /**
      * Source repositori(es) to mirror from.
      * 
-     * @see also {@link #targetPlatformAsSource} and {@link #currentModuleAsSource}
+     * @see {@link #targetPlatformAsSource} and {@link #currentModuleAsSource}
      */
     @Parameter(required = false)
     private List<Repository> source;
