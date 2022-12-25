@@ -20,6 +20,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
@@ -43,7 +44,7 @@ public interface DependencyResolver {
      */
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
-            DependencyResolverConfiguration resolverConfiguration);
+            DependencyResolverConfiguration resolverConfiguration, List<TargetEnvironment> environments);
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts resolvedDependencies, DependencyArtifacts testDepedencyArtifacts, Logger logger);
