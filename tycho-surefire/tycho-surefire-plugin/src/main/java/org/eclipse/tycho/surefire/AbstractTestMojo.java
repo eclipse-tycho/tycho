@@ -72,7 +72,17 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
-import org.eclipse.tycho.*;
+import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.BuildDirectory;
+import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.OptionalResolutionAction;
+import org.eclipse.tycho.PlatformPropertiesUtils;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
@@ -147,7 +157,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     /**
      * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
      * session on the specified port. If further customization of JVM debug parameters is required
-     * then {@link argLine} can be used instead.
+     * then {@link #argLine} can be used instead.
      */
     @Parameter(property = "debugPort")
     private int debugPort;
@@ -841,9 +851,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                 return extraDependencies;
             }
         };
-
         DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null,
-                reactorProjects, resolverConfiguration);
+                reactorProjects, resolverConfiguration, getTestTargetEnvironments());
 
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException(
@@ -888,6 +897,24 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
         getReportsDirectory().mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
+    }
+
+    protected List<TargetEnvironment> getTestTargetEnvironments() {
+        TargetPlatformConfiguration configuration = TychoProjectUtils
+                .getTargetPlatformConfiguration(getReactorProject());
+        List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
+        TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment(getReactorProject());
+        for (TargetEnvironment targetEnvironment : targetEnvironments) {
+            if (targetEnvironment.equals(runningEnvironment)) {
+                getLog().debug("Using matching target environment " + targetEnvironment.toFilterProperties()
+                        + " to resolve test artifacts...");
+                return List.of(targetEnvironment);
+            }
+        }
+        getLog().warn("Your build environment " + runningEnvironment.toFilterProperties()
+                + " do not match any of the configured target environments " + targetEnvironments
+                + " test execution might vary!");
+        return targetEnvironments;
     }
 
     private void addBundle(EquinoxInstallationDescription runtime, ArtifactKey artifact, File file) {

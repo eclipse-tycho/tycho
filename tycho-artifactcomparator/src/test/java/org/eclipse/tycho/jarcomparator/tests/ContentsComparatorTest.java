@@ -61,8 +61,7 @@ public class ContentsComparatorTest extends PlexusTestCase {
         ContentsComparator comparator = lookup(ContentsComparator.class, type);
         try (InputStream is = new FileInputStream(baseline)) {
             try (InputStream is2 = new FileInputStream(reactor)) {
-                return comparator.getDelta(new ComparatorInputStream(is, "base"),
-                        new ComparatorInputStream(is2, "reactor"), null) == null;
+                return comparator.getDelta(new ComparatorInputStream(is), new ComparatorInputStream(is2), null) == null;
             }
         }
     }

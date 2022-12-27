@@ -297,7 +297,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     @Override
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
             TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
-            DependencyResolverConfiguration resolverConfiguration) {
+            DependencyResolverConfiguration resolverConfiguration, List<TargetEnvironment> environments) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         if (targetPlatform == null) {
             targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
@@ -307,7 +307,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         // --> split this information logically, e.g. through two distinct interfaces
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
 
-        P2Resolver osgiResolverImpl = resolverFactory.createResolver(configuration.getEnvironments());
+        P2Resolver osgiResolverImpl = resolverFactory.createResolver(environments);
 
         return doResolveDependencies(session, project, reactorProjects, resolverConfiguration, targetPlatform,
                 osgiResolverImpl, configuration);

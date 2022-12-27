@@ -30,16 +30,14 @@ import org.apache.commons.io.IOUtils;
 public class ComparatorInputStream extends ByteArrayInputStream {
 
     private final byte[] content;
-    private final String name;
 
-    public ComparatorInputStream(InputStream stream, String name) throws IOException {
-        this(IOUtils.toByteArray(stream), name);
+    public ComparatorInputStream(InputStream stream) throws IOException {
+        this(IOUtils.toByteArray(stream));
     }
 
-    public ComparatorInputStream(byte[] content, String name) {
+    public ComparatorInputStream(byte[] content) {
         super(content);
         this.content = content;
-        this.name = name;
     }
 
     /**
