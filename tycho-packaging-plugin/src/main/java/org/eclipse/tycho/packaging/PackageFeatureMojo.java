@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -40,6 +43,7 @@ import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
@@ -47,6 +51,13 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
+import org.eclipse.tycho.p2.tools.FacadeException;
+import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
+import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
+import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 
 @Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
@@ -109,6 +120,117 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     @Parameter(defaultValue = "false")
     private boolean deployableFeature = false;
 
+	/**
+	 * The target repository name.
+	 */
+	@Parameter(defaultValue = "${project.name}")
+	private String name;
+
+	/**
+	 * Follow only requirements which match the filter specified.
+	 */
+	@Parameter(defaultValue = "false")
+	private boolean followOnlyFilteredRequirements;
+
+	/**
+	 * Set to <code>true</code> to filter the resulting set of IUs to only include
+	 * the latest version of each Installable Unit only. By default, all versions
+	 * satisfying dependencies are included.
+	 */
+	@Parameter(defaultValue = "false")
+	private boolean latestVersionOnly;
+
+	/**
+	 * Whether to mirror metadata only (no artifacts).
+	 */
+	@Parameter(defaultValue = "false")
+	private boolean mirrorMetadataOnly;
+
+	/**
+	 * Set to true if only strict dependencies should be followed. A strict
+	 * dependency is defined by a version range only including exactly one version
+	 * (e.g. [1.0.0.v2009, 1.0.0.v2009]). In particular, plugins/features included
+	 * in a feature are normally required via a strict dependency from the feature
+	 * to the included plugin/feature.
+	 */
+	@Parameter(defaultValue = "false")
+	private boolean followStrictOnly;
+
+	/**
+	 * Whether or not to include features.
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean includeFeatures;
+
+	/**
+	 * Whether or not to follow optional requirements.
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean includeOptional;
+
+	/**
+	 * Whether or not to follow non-greedy requirements.
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean includeNonGreedy;
+
+	/**
+	 * <p>
+	 * If set to true, mirroring continues to run in the event of an error during
+	 * the mirroring process and will just log an info message.
+	 * </p>
+	 * 
+	 * @since 1.1.0
+	 */
+	@Parameter(defaultValue = "false")
+	private boolean ignoreErrors;
+
+	/**
+	 * Filter properties. In particular, a platform filter can be specified by using
+	 * keys <code>osgi.os, osgi.ws, osgi.arch</code>.
+	 */
+	@Parameter
+	private Map<String, String> filter = new HashMap<>();
+
+	/**
+	 * Whether to compress the destination repository metadata files (artifacts.xml,
+	 * content.xml).
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean compress;
+
+	/**
+	 * Whether to append to an existing destination repository. Note that appending
+	 * an IU which already exists in the destination repository will cause the
+	 * mirror operation to fail.
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean append;
+
+	/**
+	 * <p>
+	 * Add XZ-compressed repository index files. XZ offers better compression ratios
+	 * esp. for highly redundant file content.
+	 * </p>
+	 * 
+	 * @since 0.25.0
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean xzCompress;
+
+	/**
+	 * <p>
+	 * If {@link #xzCompress} is <code>true</code>, whether jar or xml index files
+	 * should be kept in addition to XZ-compressed index files. This fallback
+	 * provides backwards compatibility for pre-Mars p2 clients which cannot read
+	 * XZ-compressed index files.
+	 * </p>
+	 * 
+	 * @since 0.25.0
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean keepNonXzIndexFiles;
+
     @Parameter(defaultValue = "${project.build.directory}/site")
     private File target;
 
@@ -123,6 +245,12 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
 	@Component
 	private BuildPropertiesParser buildPropertiesParser;
+
+	@Component
+	private RepositoryReferenceTool repositoryReferenceTool;
+
+	@Component
+	private MirrorApplicationService mirrorService;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -202,7 +330,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
             project.getArtifact().setFile(outputJar);
 
             if (deployableFeature) {
-                assembleDeployableFeature();
+				assembleDeployableFeature(feature);
             }
         }
     }
@@ -278,10 +406,33 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         return getFileSet(basedir, buildProperties.getBinIncludes(), binExcludes);
     }
 
-    private void assembleDeployableFeature() throws MojoExecutionException {
-        UpdateSiteAssembler assembler = new UpdateSiteAssembler(plexus, target);
-		getTychoProjectFacet().getDependencyWalker(DefaultReactorProject.adapt(project)).walk(assembler);
+	private void assembleDeployableFeature(Feature feature) throws MojoExecutionException, MojoFailureException {
+		RepositoryReferences sourceDescriptor = repositoryReferenceTool.getVisibleRepositories(this.project,
+				this.session, RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
+		final DestinationRepositoryDescriptor destinationDescriptor = new DestinationRepositoryDescriptor(target, name,
+				compress, xzCompress, keepNonXzIndexFiles, mirrorMetadataOnly, append, Collections.emptyMap(),
+				Collections.emptyList());
+		try {
+			mirrorService.mirrorStandalone(sourceDescriptor, destinationDescriptor,
+					List.of(new IUDescription(feature.getId(), feature.getVersion())),
+					createMirrorOptions(), getBuildOutputDirectory());
+		} catch (final FacadeException e) {
+			throw new MojoExecutionException("Error during mirroring", e);
+		}
     }
+
+	private MirrorOptions createMirrorOptions() {
+		MirrorOptions options = new MirrorOptions();
+		options.setFollowOnlyFilteredRequirements(followOnlyFilteredRequirements);
+		options.setFollowStrictOnly(followStrictOnly);
+		options.setIncludeFeatures(includeFeatures);
+		options.setIncludeNonGreedy(includeNonGreedy);
+		options.setIncludeOptional(includeOptional);
+		options.setLatestVersionOnly(latestVersionOnly);
+		options.getFilter().putAll(filter);
+		options.setIgnoreErrors(ignoreErrors);
+		return options;
+	}
 
     private void expandVersionQualifiers(Feature feature) throws MojoFailureException {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
@@ -303,4 +454,9 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
             throw new MojoExecutionException("Unable to get JarArchiver", e);
         }
     }
+
+	private BuildDirectory getBuildOutputDirectory() {
+		return DefaultReactorProject.adapt(project).getBuildDirectory();
+	}
+
 }
