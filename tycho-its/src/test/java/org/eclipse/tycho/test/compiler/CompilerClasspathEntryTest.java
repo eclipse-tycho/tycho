@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
@@ -52,7 +53,15 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 	public void testDSComponents() throws Exception {
 		Verifier verifier = getVerifier("tycho-ds", false, true);
 		verifier.setSystemProperty("repo-url", EnvironmentUtil.ECLIPSE_LATEST);
-		verifier.executeGoal("verify");
+		// first test to consume from target platform
+		verifyDs(verifier);
+		// now test consume from maven directly
+		verifier.addCliOption("-Pfiltered");
+		verifyDs(verifier);
+	}
+
+	private void verifyDs(Verifier verifier) throws VerificationException {
+		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		File generated = new File(verifier.getBasedir(), "target/classes/OSGI-INF");
 		assertTrue(new File(generated, "tycho.ds.TestComponent.xml").isFile());

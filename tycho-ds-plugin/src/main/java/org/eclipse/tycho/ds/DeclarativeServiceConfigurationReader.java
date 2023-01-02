@@ -10,12 +10,13 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.artifacts.configuration;
+package org.eclipse.tycho.ds;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.maven.model.Plugin;
@@ -24,6 +25,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.osgi.framework.Version;
 
@@ -31,6 +33,7 @@ import org.osgi.framework.Version;
 public class DeclarativeServiceConfigurationReader {
 
     private static final String DS_PLUGIN = "org.eclipse.tycho:tycho-ds-plugin";
+	public static final String DEFAULT_ENABLED = "false";
     public static final String DEFAULT_ADD_TO_CLASSPATH = "true";
     public static final String DEFAULT_DS_VERSION = "1.3";
     public static final String DEFAULT_PATH = "OSGI-INF";
@@ -44,10 +47,14 @@ public class DeclarativeServiceConfigurationReader {
     @Requirement
     private Logger logger;
 
+    public DeclarativeServicesConfiguration getConfiguration(ReactorProject reactorProject) throws IOException {
+        return getConfiguration(Objects.requireNonNull(reactorProject.adapt(MavenProject.class)));
+    }
+
     public DeclarativeServicesConfiguration getConfiguration(MavenProject mavenProject) throws IOException {
         Properties settings = getProjectSettings(mavenProject.getBasedir(), getMojoSettings(mavenProject, logger),
                 mavenProject, logger);
-        if (Boolean.parseBoolean(settings.getProperty(PROPERTY_ENABLED))) {
+		if (Boolean.parseBoolean(settings.getProperty(PROPERTY_ENABLED, DEFAULT_ENABLED))) {
             return new DeclarativeServicesConfiguration() {
 
                 @Override
@@ -120,4 +127,5 @@ public class DeclarativeServiceConfigurationReader {
             }
         }
     }
+
 }

@@ -17,6 +17,29 @@
 			<url>${repo-url}</url>
 		</repository>
 	</repositories>
+	<profiles>
+		<profile>
+			<id>filtered</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>target-platform-configuration</artifactId>
+						<version>${tycho-version}</version>
+						<configuration>
+							<filters>
+								<filter>
+									<type>java-package</type>
+									<id>org.osgi.service.component.annotations</id>
+									<removeAll />
+								</filter>
+							</filters>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<build>
 		<plugins>
 			<plugin>
