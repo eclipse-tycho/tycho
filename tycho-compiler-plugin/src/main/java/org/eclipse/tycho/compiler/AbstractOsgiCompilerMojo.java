@@ -68,7 +68,6 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
-import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
@@ -89,7 +88,6 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.runtime.Adaptable;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -100,8 +98,7 @@ import org.osgi.resource.Namespace;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
 
-public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
-        implements JavaCompilerConfiguration, Adaptable {
+public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo implements JavaCompilerConfiguration {
 
     public static final String RULE_SEPARATOR = File.pathSeparator;
 
@@ -983,14 +980,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo
             }
             getLog().warn(message);
         }
-    }
-
-    @Override
-    public <T> T getAdapter(Class<T> adapter) {
-        if (adapter.isAssignableFrom(JavaCompilerConfiguration.class)) {
-            return adapter.cast(this);
-        }
-        return null;
     }
 
 }
