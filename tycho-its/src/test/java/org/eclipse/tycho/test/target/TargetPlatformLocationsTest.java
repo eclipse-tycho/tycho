@@ -110,7 +110,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 				"target.test/plugins/osgi.annotation.bundle_0.0.1/META-INF/MANIFEST.MF");
 		DefaultBundleReader reader = new DefaultBundleReader();
 		OsgiManifest annotBundleManifest = reader.loadManifest(annotBundleManifestFile);
-		Assert.assertEquals("org.osgi.annotation.versioning", annotBundleManifest.getValue("Export-Package"));
+		Assert.assertEquals("tycho.test.package", annotBundleManifest.getValue("Export-Package"));
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 
@@ -121,10 +121,10 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 
 		try {
 			verifier.executeGoal("verify");
-			Assert.fail("Reference to the restricted package did not fail the build");
+			Assert.fail("Reference to the not exported package did not fail the build");
 		} catch (VerificationException expected) {
 			verifier.verifyTextInLog(
-					"Access restriction: The type 'Version' is not API (restriction on classpath entry");
+					" Missing requirement: test.bundle 0.0.1.qualifier requires 'java.package; tycho.test.package 0.0.0' but it could not be found");
 		}
 	}
 

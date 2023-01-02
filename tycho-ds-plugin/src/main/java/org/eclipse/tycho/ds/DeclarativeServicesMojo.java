@@ -26,7 +26,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.artifacts.configuration.DeclarativeServiceConfigurationReader;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.TychoProject;
@@ -104,11 +103,12 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 		if (projectType instanceof OsgiBundleProject bundleProject) {
 			try {
 				DeclarativeServicesConfiguration configuration = configurationReader.getConfiguration(project);
-				if (configuration == null) {
+				File outputDirectory = new File(project.getBuild().getOutputDirectory());
+				if (configuration == null || !outputDirectory.exists()) {
 					// nothing to do
 					return;
 				}
-				File outputDirectory = new File(project.getBuild().getOutputDirectory());
+
 				String childPath = configuration.getPath();
 				File targetDirectory = new File(outputDirectory, childPath);
 				File projectBaseDir = new File(project.getBasedir(), childPath);

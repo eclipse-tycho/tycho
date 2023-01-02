@@ -14,6 +14,8 @@ package org.eclipse.tycho;
 
 import java.io.File;
 
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+
 /**
  * Set of artifacts which can be used by the build of a project, e.g. to resolve the project's
  * dependencies.
@@ -70,5 +72,35 @@ public interface TargetPlatform {
     File getArtifactLocation(ArtifactKey artifact);
 
     boolean isFileAlreadyAvailable(ArtifactKey artifactKey);
+
+    default ResolvedArtifactKey resolvePackage(String packageName, String versionRef)
+            throws DependencyResolutionException, IllegalArtifactReferenceException {
+        ArtifactKey annotationJar = resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName,
+                versionRef);
+        File location = getArtifactLocation(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                annotationJar.getId(), annotationJar.getVersion()));
+        return new ResolvedArtifactKey() {
+
+            @Override
+            public String getVersion() {
+                return annotationJar.getVersion();
+            }
+
+            @Override
+            public String getType() {
+                return annotationJar.getType();
+            }
+
+            @Override
+            public String getId() {
+                return annotationJar.getId();
+            }
+
+            @Override
+            public File getLocation() {
+                return location;
+            }
+        };
+    }
 
 }

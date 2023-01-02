@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,11 +36,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -48,7 +48,6 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
-import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.ToolchainManagerPrivate;
 import org.apache.maven.toolchain.java.DefaultJavaToolChain;
@@ -61,11 +60,15 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.SourcepathEntry;
@@ -77,6 +80,7 @@ import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -88,6 +92,7 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -128,9 +133,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
-
-    @Component
-    private RepositorySystem repositorySystem;
 
     /**
      * Which JDK to use for compilation. Default value is SYSTEM which means the currently running
@@ -344,7 +346,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private ToolchainManager toolchainManager;
 
     @Component
+    private PluginRealmHelper pluginRealmHelper;
+
+    @Component
     private Logger logger;
+
+    @Component
+    private MavenDependenciesResolver dependenciesResolver;
 
     private StandardExecutionEnvironment[] manifestBREEs;
 
@@ -816,36 +824,25 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
-        TychoProject projectType = getBundleProject();
-        List<ClasspathEntry> classpath = new ArrayList<>(
-                ((BundleProject) projectType).getClasspath(DefaultReactorProject.adapt(project)));
-
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        List<ClasspathEntry> classpath;
+        String dependencyScope = getDependencyScope();
+        if (Artifact.SCOPE_TEST.equals(dependencyScope)) {
+            classpath = new ArrayList<>(getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project)));
+        } else {
+            classpath = new ArrayList<>(getBundleProject().getClasspath(reactorProject));
+        }
         if (extraClasspathElements != null) {
-            ArtifactRepository localRepository = session.getLocalRepository();
-            List<ArtifactRepository> remoteRepositories = project.getRemoteArtifactRepositories();
-            for (Dependency extraDependency : extraClasspathElements) {
-                Artifact artifact = repositorySystem.createDependencyArtifact(extraDependency);
-
-                ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-                request.setArtifact(artifact);
-                request.setLocalRepository(localRepository);
-                request.setRemoteRepositories(remoteRepositories);
-                request.setResolveRoot(true);
-                request.setResolveTransitively(true);
-                ArtifactResolutionResult result = repositorySystem.resolve(request);
-
-                if (result.hasExceptions()) {
-                    throw new MojoExecutionException("Could not resolve extra classpath entry",
-                            result.getExceptions().get(0));
-                }
-
-                for (Artifact b : result.getArtifacts()) {
+            try {
+                Collection<Artifact> resolved = dependenciesResolver.resolve(project,
+                        Arrays.asList(extraClasspathElements), List.of(dependencyScope), session);
+                for (Artifact b : resolved) {
                     ReactorProject bProject = null;
                     if (b instanceof ProjectArtifact projectArtifact) {
                         bProject = DefaultReactorProject.adapt(projectArtifact.getProject());
                     }
                     ArrayList<File> bLocations = new ArrayList<>();
-                    bLocations.add(b.getFile()); // TODO properly handle multiple project locations maybe
+                    bLocations.add(b.getFile());
                     classpath
                             .add(new DefaultClasspathEntry(bProject,
                                     ((OsgiBundleProject) getBundleProject()).readOrCreateArtifactKey(b.getFile(),
@@ -853,9 +850,82 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                                                     b.getGroupId() + "." + b.getArtifactId(), b.getVersion())),
                                     bLocations, null));
                 }
+            } catch (DependencyCollectionException | DependencyResolutionException e) {
+                throw new MojoExecutionException("Could not resolve extra classpath entry", e);
             }
         }
-        return classpath;
+
+        try {
+            pluginRealmHelper.visitPluginExtensions(session, project, ClasspathContributor.class, cpc -> {
+                List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(reactorProject, dependencyScope);
+                if (list != null && !list.isEmpty()) {
+                    classpath.addAll(list);
+                }
+            });
+        } catch (Exception e) {
+            throw new MojoExecutionException("can't call classpath contributors", e);
+        }
+        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream().collect(
+                Collectors.groupingBy(ClasspathEntry::getArtifactKey, LinkedHashMap::new, Collectors.toList()));
+        if (logger.isDebugEnabled()) {
+            for (var entry : classpathMap.entrySet()) {
+                List<ClasspathEntry> list = entry.getValue();
+                if (list.size() > 1) {
+                    logger.info("The following classpath entries are not unique for the artifact key " + entry.getKey()
+                            + " and will be merged:");
+                    for (ClasspathEntry cpe : list) {
+                        logger.info("\tLocations: " + cpe.getLocations());
+                        Collection<AccessRule> rules = cpe.getAccessRules();
+                        logger.info("\tRules: " + (rules == null ? "-access all-" : rules.toString()));
+                    }
+                }
+            }
+        }
+        List<ClasspathEntry> uniqueClasspath = classpathMap.entrySet().stream().flatMap(entry -> {
+            List<ClasspathEntry> list = entry.getValue();
+            if (list.isEmpty()) {
+                return Stream.empty();
+            }
+            if (list.size() == 1) {
+                return list.stream();
+            }
+            ArtifactKey key = entry.getKey();
+            ReactorProject compositeProject = findProjectForKey(reactorProject, key);
+            List<File> compositeFiles = list.stream().flatMap(cpe -> cpe.getLocations().stream()).toList();
+            Collection<AccessRule> compositeRules = mergeRules(list);
+            return Stream.of(new ClasspathEntry() {
+
+                @Override
+                public ArtifactKey getArtifactKey() {
+                    return key;
+                }
+
+                @Override
+                public ReactorProject getMavenProject() {
+                    return compositeProject;
+                }
+
+                @Override
+                public List<File> getLocations() {
+                    return compositeFiles;
+                }
+
+                @Override
+                public Collection<AccessRule> getAccessRules() {
+                    return compositeRules;
+                }
+
+                @Override
+                public String toString() {
+                    ReactorProject mavenProject = getMavenProject();
+                    return "MergedClasspathEntry [key=" + getArtifactKey() + ", project="
+                            + (mavenProject != null ? mavenProject.getId() : "null") + ", locations=" + getLocations()
+                            + ", rules=" + getAccessRules() + "]";
+                }
+
+            });
+        }).toList();
+        return uniqueClasspath;
     }
 
     protected abstract String getDependencyScope();
@@ -863,6 +933,34 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Override
     public String getExecutionEnvironment() throws MojoExecutionException {
         return getTargetExecutionEnvironment().getProfileName();
+    }
+
+    private Collection<AccessRule> mergeRules(List<ClasspathEntry> list) {
+        Set<AccessRule> joinedRules = new LinkedHashSet<>();
+        for (ClasspathEntry cpe : list) {
+            Collection<AccessRule> rules = cpe.getAccessRules();
+            if (rules == null) {
+                //according to API null means = export all packages...
+                return null;
+            }
+            joinedRules.addAll(rules);
+        }
+        return joinedRules;
+    }
+
+    private ReactorProject findProjectForKey(ReactorProject root, ArtifactKey key) {
+        for (MavenProject p : session.getProjects()) {
+            ReactorProject rp = DefaultReactorProject.adapt(p);
+            try {
+                //TODO should we not use equals here??
+                if (getBundleProject().getArtifactKey(rp) == key) {
+                    return rp;
+                }
+            } catch (RuntimeException | MojoExecutionException e) {
+                //can't find the artifact key then!
+            }
+        }
+        return null;
     }
 
     @Override
