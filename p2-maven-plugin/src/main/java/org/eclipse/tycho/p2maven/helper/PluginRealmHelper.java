@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2maven.helper;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.lifecycle.internal.LifecyclePluginResolver;
@@ -27,9 +28,12 @@ import org.apache.maven.plugin.PluginResolutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugin.version.PluginVersionResolutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.repository.ComponentDependency;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 
 /**
@@ -88,10 +92,35 @@ public class PluginRealmHelper {
 	@Requirement
 	protected MavenPluginManager mavenPluginManager;
 
+	@Requirement
+	private PlexusContainer plexus;
+
+	public <T> void visitPluginExtensions(MavenSession session, MavenProject project, Class<T> type,
+			Consumer<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
+			InvalidPluginDescriptorException, PluginResolutionException, PluginManagerException {
+		execute(session, project, () -> {
+			try {
+				plexus.lookupList(type).forEach(consumer);
+			} catch (ComponentLookupException e) {
+				logger.debug("Can't lookup any item of " + type);
+			}
+		});
+	}
+
+	public void execute(MavenSession session, MavenProject project, Runnable runnable)
+			throws PluginVersionResolutionException, PluginDescriptorParsingException, InvalidPluginDescriptorException,
+			PluginResolutionException, PluginManagerException {
+		execute(session, project, runnable, PluginRealmHelper::isTychoEmbedderPlugin);
+	}
+
 	public void execute(MavenSession session, MavenProject project, Runnable runnable, PluginFilter filter)
 			throws PluginVersionResolutionException, PluginDescriptorParsingException, InvalidPluginDescriptorException,
 			PluginResolutionException, PluginManagerException {
 		Objects.requireNonNull(session);
+		if (session.getLocalRepository() == null) {
+			// This happens in some test-code ... but should never happen in real maven...
+			return;
+		}
 		MavenSession executeSession = session.clone();
 		executeSession.setCurrentProject(project);
 		for (Plugin plugin : project.getBuildPlugins()) {
@@ -134,5 +163,18 @@ public class PluginRealmHelper {
 			}
 		}
 
+	}
+
+	private static boolean isTychoEmbedderPlugin(PluginDescriptor pluginDescriptor) {
+		if (pluginDescriptor.getArtifactMap().containsKey("org.eclipse.tycho:tycho-embedder-api")) {
+			return true;
+		}
+		for (ComponentDependency dependency : pluginDescriptor.getDependencies()) {
+			if ("org.eclipse.tycho".equals(dependency.getGroupId())
+					&& "tycho-embedder-api".equals(dependency.getArtifactId())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

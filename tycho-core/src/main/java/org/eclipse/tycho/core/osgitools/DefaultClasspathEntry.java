@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 
 public class DefaultClasspathEntry implements ClasspathEntry {
@@ -77,6 +78,10 @@ public class DefaultClasspathEntry implements ClasspathEntry {
             return discouraged;
         }
 
+    }
+
+    public DefaultClasspathEntry(ResolvedArtifactKey key, Collection<AccessRule> rules) {
+        this(null, key, List.of(key.getLocation()), rules);
     }
 
     public DefaultClasspathEntry(ReactorProject project, ArtifactKey key, List<File> locations,

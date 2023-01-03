@@ -24,17 +24,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -43,7 +40,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.container.Module;
 import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
@@ -55,16 +51,12 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
-import org.eclipse.tycho.DependencyResolutionException;
-import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.artifacts.configuration.DeclarativeServiceConfigurationReader;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -99,13 +91,10 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.Version;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
 
-    private static final Collection<String> OSGI_ANNOTATION_PACKAGES = List.of("org.osgi.annotation.bundle",
-            "org.osgi.annotation.versioning", "org.osgi.service.component.annotations");
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/osgiBundle";
     private static final String CTX_ARTIFACT_KEY = CTX_OSGI_BUNDLE_BASENAME + "/artifactKey";
     private static final String CTX_CLASSPATH = CTX_OSGI_BUNDLE_BASENAME + "/classPath";
@@ -131,9 +120,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     P2ResolverFactory resolverFactory;
-
-    @Requirement
-    private DeclarativeServiceConfigurationReader dsConfigReader;
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
@@ -268,96 +254,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<AccessRule> bootClasspathExtraAccessRules = dependencyComputer.computeBootClasspathExtraAccessRules(state);
 
         addPDESourceRoots(project);
-        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream().collect(
-                Collectors.groupingBy(ClasspathEntry::getArtifactKey, LinkedHashMap::new, Collectors.toList()));
-        if (logger.isDebugEnabled()) {
-            for (var entry : classpathMap.entrySet()) {
-                List<ClasspathEntry> list = entry.getValue();
-                if (list.size() > 1) {
-                    logger.info("The following classpath entries are not unique for the artifact key " + entry.getKey()
-                            + " and will be merged:");
-                    for (ClasspathEntry cpe : list) {
-                        logger.info("\tLocations: " + cpe.getLocations());
-                        Collection<AccessRule> rules = cpe.getAccessRules();
-                        logger.info("\tRules: " + (rules == null ? "-access all-" : rules.toString()));
-                    }
-                }
-            }
-        }
-        List<ClasspathEntry> uniqueClasspath = classpathMap.entrySet().stream().flatMap(entry -> {
-            List<ClasspathEntry> list = entry.getValue();
-            if (list.isEmpty()) {
-                return Stream.empty();
-            }
-            if (list.size() == 1) {
-                return list.stream();
-            }
-            ArtifactKey key = entry.getKey();
-            ReactorProject compositeProject = findProjectForKey(reactorProject, key);
-            List<File> compositeFiles = list.stream().flatMap(cpe -> cpe.getLocations().stream()).toList();
-            Collection<AccessRule> compositeRules = mergeRules(list);
-            return Stream.of(new ClasspathEntry() {
-
-                @Override
-                public ArtifactKey getArtifactKey() {
-                    return key;
-                }
-
-                @Override
-                public ReactorProject getMavenProject() {
-                    return compositeProject;
-                }
-
-                @Override
-                public List<File> getLocations() {
-                    return compositeFiles;
-                }
-
-                @Override
-                public Collection<AccessRule> getAccessRules() {
-                    return compositeRules;
-                }
-
-                @Override
-                public String toString() {
-                    ReactorProject mavenProject = getMavenProject();
-                    return "MergedClasspathEntry [key=" + getArtifactKey() + ", project="
-                            + (mavenProject != null ? mavenProject.getId() : "null") + ", locations=" + getLocations()
-                            + ", rules=" + getAccessRules() + "]";
-                }
-
-            });
-        }).toList();
-        return new BundleClassPath(uniqueClasspath, strictBootClasspathAccessRules, bootClasspathExtraAccessRules);
-    }
-
-    private Collection<AccessRule> mergeRules(List<ClasspathEntry> list) {
-        Set<AccessRule> joinedRules = new LinkedHashSet<>();
-        for (ClasspathEntry cpe : list) {
-            Collection<AccessRule> rules = cpe.getAccessRules();
-            if (rules == null) {
-                //according to API null means = export all packages...
-                return null;
-            }
-            joinedRules.addAll(rules);
-        }
-        return joinedRules;
-    }
-
-    private ReactorProject findProjectForKey(ReactorProject root, ArtifactKey key) {
-        MavenSession mavenSession = getMavenSession(root);
-        for (MavenProject p : mavenSession.getProjects()) {
-            ReactorProject rp = DefaultReactorProject.adapt(p);
-            try {
-                //TODO should we not use equals here??
-                if (getArtifactKey(rp) == key) {
-                    return rp;
-                }
-            } catch (RuntimeException e) {
-                //can't find the artifact key then!
-            }
-        }
-        return null;
+        return new BundleClassPath(classpath, strictBootClasspathAccessRules, bootClasspathExtraAccessRules);
     }
 
     private Collection<ClasspathEntry> computeExtraTestClasspath(ReactorProject reactorProject) {
@@ -597,63 +494,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         Collections.singletonList(location), null));
             }
         }
-        for (var entry : getAnnotationArtifacts(project).entrySet()) {
-            String pkg = entry.getKey();
-            ResolvedArtifactKey artifactKey = entry.getValue();
-            DefaultAccessRule rule = new DefaultAccessRule(pkg.replace('.', '/') + "/*", false);
-            logger.debug("Resolved " + pkg + " to " + artifactKey.getId() + " " + artifactKey.getVersion() + " "
-                    + artifactKey.getLocation());
-            classpath.add(new DefaultClasspathEntry(null, artifactKey,
-                    Collections.singletonList(artifactKey.getLocation()), List.of(rule)));
-        }
-    }
-
-    /**
-     * Resolves the default OSGi annotation artifacts for this project depending on the projects
-     * target platform
-     * 
-     * @param project
-     *            the project to resolve the annotation artifacts for
-     * @return a mapping of a package name to a resolved artifactkey
-     */
-    public Map<String, ResolvedArtifactKey> getAnnotationArtifacts(ReactorProject project) {
-        Map<String, ResolvedArtifactKey> map = new LinkedHashMap<>();
-        TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(project);
-        if (tp != null) {
-            for (String annotationPackage : OSGI_ANNOTATION_PACKAGES) {
-                try {
-                    ArtifactKey annotationJar = tp.resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
-                            annotationPackage, Version.emptyVersion.toString());
-                    File location = tp.getArtifactLocation(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
-                            annotationJar.getId(), annotationJar.getVersion()));
-                    map.put(annotationPackage, new ResolvedArtifactKey() {
-
-                        @Override
-                        public String getVersion() {
-                            return annotationJar.getVersion();
-                        }
-
-                        @Override
-                        public String getType() {
-                            return annotationJar.getType();
-                        }
-
-                        @Override
-                        public String getId() {
-                            return annotationJar.getId();
-                        }
-
-                        @Override
-                        public File getLocation() {
-                            return location;
-                        }
-                    });
-                } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
-                    logger.debug("Cannot find package " + annotationPackage + " in target platform");
-                }
-            }
-        }
-        return map;
     }
 
     protected DefaultClasspathEntry addBundleToClasspath(ArtifactDescriptor matchingBundle, String path) {

@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,11 +31,13 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.ResolvedArtifactKey;
+import org.eclipse.tycho.classpath.ClasspathContributor;
+import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 
 /**
  * Builds a .target file describing the dependencies for current project. It differs from
@@ -52,6 +56,12 @@ public class ListDependenciesMojo extends AbstractMojo {
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Component
+    private PluginRealmHelper pluginRealmHelper;
+
+    @Parameter(property = "session", readonly = true)
+    private MavenSession session;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -67,9 +77,9 @@ public class ListDependenciesMojo extends AbstractMojo {
         }
         Set<String> written = new HashSet<>();
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
-            List<ArtifactDescriptor> dependencies = TychoProjectUtils
-                    .getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts().stream()
-                    .filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
+            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+            List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(reactorProject)
+                    .getArtifacts().stream().filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
                     .toList();
             for (ArtifactDescriptor dependnecy : dependencies) {
                 if (dependnecy.getMavenProject() == null) {
@@ -82,10 +92,25 @@ public class ListDependenciesMojo extends AbstractMojo {
             }
             TychoProject projectType = projectTypes.get(project.getPackaging());
             if (projectType instanceof OsgiBundleProject bundleProject) {
-                Map<String, ResolvedArtifactKey> artifacts = bundleProject
-                        .getAnnotationArtifacts(DefaultReactorProject.adapt(project));
-                for (ResolvedArtifactKey artifactDescriptor : artifacts.values()) {
-                    writeLocation(writer, artifactDescriptor.getLocation(), written);
+
+                try {
+                    pluginRealmHelper.visitPluginExtensions(session, project, ClasspathContributor.class, cpc -> {
+                        List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(reactorProject,
+                                Artifact.SCOPE_COMPILE);
+                        if (list != null && !list.isEmpty()) {
+                            for (ClasspathEntry entry : list) {
+                                for (File locations : entry.getLocations()) {
+                                    try {
+                                        writeLocation(writer, locations, written);
+                                    } catch (IOException e) {
+                                        //ignore...
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    throw new MojoExecutionException("can't call classpath contributors", e);
                 }
             }
         } catch (IOException e) {

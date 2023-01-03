@@ -31,15 +31,22 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.ArtifactTypeRegistry;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.resolution.VersionRangeRequest;
+import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.resolution.VersionRangeResult;
+import org.eclipse.aether.version.Version;
 
 @Component(role = MavenDependenciesResolver.class)
 public class MavenDependenciesResolver {
@@ -78,13 +85,7 @@ public class MavenDependenciesResolver {
         Set<Artifact> resultSet = new HashSet<>();
 
         CollectRequest collect = new CollectRequest();
-        RepositorySystemSession repositorySession = session.getRepositorySession();
-        for (RepositorySessionDecorator decorator : decorators) {
-            RepositorySystemSession decorated = decorator.decorate(project, repositorySession);
-            if (decorated != null) {
-                repositorySession = decorated;
-            }
-        }
+        RepositorySystemSession repositorySession = getRepositorySession(project, session);
         ArtifactTypeRegistry stereotypes = repositorySession.getArtifactTypeRegistry();
         for (org.apache.maven.model.Dependency dependency : dependencies) {
             collect.addDependency(RepositoryUtils.toDependency(dependency, stereotypes));
@@ -131,5 +132,45 @@ public class MavenDependenciesResolver {
             }
         }
         return resultSet;
+    }
+
+    private RepositorySystemSession getRepositorySession(MavenProject project, MavenSession session) {
+        RepositorySystemSession repositorySession = session.getRepositorySession();
+        for (RepositorySessionDecorator decorator : decorators) {
+            RepositorySystemSession decorated = decorator.decorate(project, repositorySession);
+            if (decorated != null) {
+                repositorySession = decorated;
+            }
+        }
+        return repositorySession;
+    }
+
+    /**
+     * Resolves the highest version of the given dependency
+     * 
+     * @param project
+     * @param session
+     * @param dependency
+     * @return
+     * @throws VersionRangeResolutionException
+     * @throws ArtifactResolutionException
+     */
+    public Artifact resolveHighestVersion(MavenProject project, MavenSession session,
+            org.apache.maven.model.Dependency dependency)
+            throws VersionRangeResolutionException, ArtifactResolutionException {
+        RepositorySystemSession repositorySession = getRepositorySession(project, session);
+        ArtifactTypeRegistry stereotypes = repositorySession.getArtifactTypeRegistry();
+        DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
+                stereotypes.get(dependency.getType()).getExtension(), dependency.getVersion());
+        VersionRangeRequest request = new VersionRangeRequest(artifact, project.getRemoteProjectRepositories(), null);
+        VersionRangeResult versionResult = repoSystem.resolveVersionRange(repositorySession, request);
+        Version highestVersion = versionResult.getHighestVersion();
+        if (highestVersion != null) {
+            ArtifactRequest artifactRequest = new ArtifactRequest(artifact.setVersion(highestVersion.toString()),
+                    project.getRemoteProjectRepositories(), null);
+            ArtifactResult result = repoSystem.resolveArtifact(repositorySession, artifactRequest);
+            return RepositoryUtils.toArtifact(result.getArtifact());
+        }
+        return null;
     }
 }
