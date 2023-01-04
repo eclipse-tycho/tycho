@@ -38,8 +38,8 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
-import org.eclipse.tycho.p2maven.InstallableUnitProvider;
 import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
+import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.osgi.framework.Constants;
 
 /**

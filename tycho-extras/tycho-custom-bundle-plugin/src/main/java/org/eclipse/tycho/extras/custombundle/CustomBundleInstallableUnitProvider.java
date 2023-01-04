@@ -22,9 +22,9 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.OptionalResolutionAction;
-import org.eclipse.tycho.p2maven.InstallableUnitProvider;
 import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
 import org.eclipse.tycho.p2maven.actions.BundleDependenciesAction;
+import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
 @Component(role = InstallableUnitProvider.class, hint = "custom-bundle")
 public class CustomBundleInstallableUnitProvider implements InstallableUnitProvider {

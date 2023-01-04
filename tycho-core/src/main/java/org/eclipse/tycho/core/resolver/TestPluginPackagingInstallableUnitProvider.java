@@ -30,8 +30,8 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.p2maven.InstallableUnitProvider;
 import org.eclipse.tycho.p2resolver.P2ResolverImpl;
+import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
 /**
  * This provides P2 visible meta-data for bundles that are not expressed in the manifest (e.g.
