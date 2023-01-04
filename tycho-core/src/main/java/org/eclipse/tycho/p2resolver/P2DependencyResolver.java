@@ -76,12 +76,12 @@ import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
@@ -164,7 +164,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         // let external providers contribute additional metadata
         try {
-            pluginRealmHelper.visitPluginExtensions(session, project, P2MetadataProvider.class, provider -> {
+            pluginRealmHelper.visitPluginExtensions(project, P2MetadataProvider.class, provider -> {
                 Map<String, IDependencyMetadata> providedMetadata = provider.getDependencyMetadata(session, project,
                         null, optionalAction);
                 if (providedMetadata != null) {

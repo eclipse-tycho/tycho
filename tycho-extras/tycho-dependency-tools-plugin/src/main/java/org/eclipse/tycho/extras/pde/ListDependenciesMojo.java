@@ -37,7 +37,7 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
+import org.eclipse.tycho.helper.PluginRealmHelper;
 
 /**
  * Builds a .target file describing the dependencies for current project. It differs from
@@ -94,7 +94,7 @@ public class ListDependenciesMojo extends AbstractMojo {
             if (projectType instanceof OsgiBundleProject bundleProject) {
 
                 try {
-                    pluginRealmHelper.visitPluginExtensions(session, project, ClasspathContributor.class, cpc -> {
+                    pluginRealmHelper.visitPluginExtensions(project, ClasspathContributor.class, cpc -> {
                         List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(reactorProject,
                                 Artifact.SCOPE_COMPILE);
                         if (list != null && !list.isEmpty()) {

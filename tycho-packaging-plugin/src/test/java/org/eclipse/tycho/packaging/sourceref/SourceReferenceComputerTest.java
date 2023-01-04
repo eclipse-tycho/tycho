@@ -13,42 +13,50 @@
 
 package org.eclipse.tycho.packaging.sourceref;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 import java.util.jar.Manifest;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.PlexusTestCase;
 import org.eclipse.tycho.packaging.SourceReferences;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.junit.Before;
+import org.junit.Test;
 
-public class SourceReferenceComputerTest extends PlexusTestCase {
+public class SourceReferenceComputerTest extends TychoPlexusTestCase {
 
     private SourceReferenceComputer sourceRefComputer;
     private Manifest manifest;
 
-    @Override
-    protected void setUp() throws Exception {
+	@Before
+	public void testSetUp() throws Exception {
         sourceRefComputer = lookup(SourceReferenceComputer.class);
         manifest = new Manifest();
     }
 
+	@Test
     public void testAddSourceReferenceDummyProvider() throws Exception {
         sourceRefComputer.addSourceReferenceHeader(manifest, createSourceRefConfig(true, null), createProjectStub());
         assertEquals("scm:dummy:aDummySCMURL;path=\"dummy/path\"", getSourceRefsHeaderValue());
     }
 
+	@Test
     public void testAddSourceReferenceCustomValue() throws Exception {
         sourceRefComputer.addSourceReferenceHeader(manifest, createSourceRefConfig(true, "scm:myvalue"),
                 createProjectStub());
         assertEquals("scm:myvalue", getSourceRefsHeaderValue());
     }
 
+	@Test
     public void testAddSourceReferenceNoGenerate() throws Exception {
         sourceRefComputer.addSourceReferenceHeader(manifest, createSourceRefConfig(false, null), createProjectStub());
         assertNull(getSourceRefsHeaderValue());
     }
 
+	@Test
     public void testAddSourceReferenceNoProvider() {
 		assertThrows(MojoExecutionException.class,
 				() ->

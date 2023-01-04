@@ -52,12 +52,12 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.actions.AuthoredIUAction;
 import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.FeatureDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
-import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.osgi.framework.Constants;
@@ -262,8 +262,7 @@ public class InstallableUnitGenerator {
 			throws CoreException {
 		Set<InstallableUnitProvider> unitProviders = new HashSet<>(additionalUnitProviders.values());
 		try {
-			pluginRealmHelper.visitPluginExtensions(mavenSession, project, InstallableUnitProvider.class,
-					unitProviders::add);
+			pluginRealmHelper.visitPluginExtensions(project, InstallableUnitProvider.class, unitProviders::add);
 		} catch (Exception e) {
 			throw new CoreException(Status.error("Can't lookup InstallableUnitProviders", e));
 		}

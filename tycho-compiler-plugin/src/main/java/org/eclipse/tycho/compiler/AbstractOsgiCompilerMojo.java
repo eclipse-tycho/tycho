@@ -92,7 +92,7 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
+import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -856,7 +856,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         }
 
         try {
-            pluginRealmHelper.visitPluginExtensions(session, project, ClasspathContributor.class, cpc -> {
+            pluginRealmHelper.visitPluginExtensions(project, ClasspathContributor.class, cpc -> {
                 List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(reactorProject, dependencyScope);
                 if (list != null && !list.isEmpty()) {
                     classpath.addAll(list);

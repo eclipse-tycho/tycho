@@ -42,8 +42,10 @@ import org.apache.maven.model.building.ModelProblem.Severity;
 import org.apache.maven.model.building.Result;
 import org.apache.maven.project.DuplicateProjectException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.eclipse.core.runtime.CoreException;
@@ -66,8 +68,13 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 	@Requirement(role = Mapping.class)
 	private Map<String, Mapping> polyglotMappings;
 
+	// TODO actually we want to use it directly but can't see:
+	// https://issues.apache.org/jira/browse/MNG-7662
+	// @Requirement
+	// private MavenProjectDependencyProcessor dependencyProcessor;
+
 	@Requirement
-	private MavenProjectDependencyProcessor dependencyProcessor;
+	private PlexusContainer container;
 
 	@Override
 	public Result<ProjectDependencyGraph> build(MavenSession session) {
@@ -145,10 +152,14 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		try {
 			ProjectDependencyClosure dependencyClosure;
 			try {
-				dependencyClosure = dependencyProcessor.computeProjectDependencyClosure(projects, session);
+				dependencyClosure = container.lookup(MavenProjectDependencyProcessor.class)
+						.computeProjectDependencyClosure(projects, session);
 			} catch (CoreException e) {
 				log.error("Cannot resolve projects", e);
 				return Result.error(graph, toProblems(e.getStatus(), new ArrayList<>()));
+			} catch (ComponentLookupException e) {
+				log.error("Cannot lookup required component", e);
+				return Result.error(graph);
 			}
 
 			if (loggerAdapter.isExtendedDebugEnabled()) {
