@@ -32,7 +32,6 @@ import java.util.jar.Manifest;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
@@ -283,14 +282,6 @@ public class InstallableUnitGenerator {
 			}
 		}
 		return true;
-	}
-
-	private static boolean hasPluginDependency(PluginDescriptor pluginDescriptor) {
-		if (pluginDescriptor.getArtifactMap().containsKey(P2Plugin.KEY)) {
-			return true;
-		}
-		return pluginDescriptor.getDependencies().stream().filter(dep -> P2Plugin.GROUP_ID.equals(dep.getGroupId()))
-				.filter(dep -> P2Plugin.ARTIFACT_ID.equals(dep.getArtifactId())).findAny().isPresent();
 	}
 
 	private final class ArtifactUnits {
