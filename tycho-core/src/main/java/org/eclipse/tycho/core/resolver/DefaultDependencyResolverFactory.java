@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
-import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
@@ -37,6 +36,8 @@ public class DefaultDependencyResolverFactory {
 
     @Requirement
     private PlexusContainer container;
+    @Requirement(hint = DEFAULT_RESOLVER_HINT)
+    private DependencyResolver dependencyResolver;
 
     public DependencyResolver lookupDependencyResolver(MavenProject project) {
         return lookupDependencyResolver(DefaultReactorProject.adapt(project));
@@ -59,13 +60,6 @@ public class DefaultDependencyResolverFactory {
                 throw new RuntimeException("Could not instantiate required component", e);
             }
         }
-        String resolverRole = Objects.requireNonNullElse(configuration.getTargetPlatformResolver(),
-                DEFAULT_RESOLVER_HINT);
-        try {
-            return container.lookup(DependencyResolver.class, resolverRole);
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException(
-                    "Could not instantiate requested DependencyResolver component with role = " + resolverRole, e);
-        }
+        return dependencyResolver;
     }
 }

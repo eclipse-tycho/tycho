@@ -39,6 +39,7 @@ import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.session.scope.internal.SessionScope;
 import org.apache.maven.settings.MavenSettingsBuilder;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.PlexusContainer;
@@ -59,6 +60,10 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        SessionScope sessionScope = lookup(SessionScope.class);
+        MavenSession session = newMavenSession(new MavenProject());
+        sessionScope.enter();
+        sessionScope.seed(MavenSession.class, session);
         maven = lookup(Maven.class);
         settingsBuilder = lookup(MavenSettingsBuilder.class);
         requestPopulator = lookup(MavenExecutionRequestPopulator.class);
@@ -67,6 +72,8 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
     @Override
     protected void tearDown() throws Exception {
+        SessionScope sessionScope = lookup(SessionScope.class);
+        sessionScope.exit();
         maven = null;
         super.tearDown();
     }
@@ -74,6 +81,11 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     @Override
     protected String getCustomConfigurationName() {
         return AbstractTychoMojoTestCase.class.getName().replace('.', '/') + ".xml";
+    }
+
+    @Override
+    protected Mojo lookupMojo(String goal, File pom) throws Exception {
+        return super.lookupMojo(goal, pom);
     }
 
     protected ArtifactRepository getLocalRepository() throws Exception {
