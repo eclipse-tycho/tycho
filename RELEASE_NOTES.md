@@ -409,7 +409,7 @@ While for an IDE that might be sufficient as target resolution is only performed
 - If there is a temporary server outage one might want to fall back to the previous state for this build instead of failing completely.
 - Build times are often a rare resource one doesn't want to waste waiting for servers, bandwidth might even be limited or you have to pay for it.
 
-Because of this, Tycho now includes a brand new caching P2 transport that allows advanced caching, offline handling and fallback to cache in case of server failures. The transport is enabled by default so nothing has to be done, just in case you want the old behavior you can set `-D=tycho.p2.transport=ecf` beside that the following properties might be interesting:
+Because of this, Tycho now includes a brand new caching P2 transport that allows advanced caching, offline handling and fallback to cache in case of server failures. The transport is enabled by default so nothing has to be done, just in case you want the old behavior you can set `-Dtycho.p2.transport=ecf` beside that the following properties might be interesting:
 
 #### Force cache-revalidation
 
