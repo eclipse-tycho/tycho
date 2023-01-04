@@ -104,7 +104,7 @@
 		<!-- used API packages from Tycho -->
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-embedder-api</artifactId>
+			<artifactId>tycho-spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

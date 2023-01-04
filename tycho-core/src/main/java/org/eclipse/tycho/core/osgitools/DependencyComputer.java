@@ -34,7 +34,7 @@ import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.ModuleWire;
 import org.eclipse.osgi.container.ModuleWiring;
-import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
+import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.osgi.framework.Constants;
 import org.osgi.framework.namespace.BundleNamespace;

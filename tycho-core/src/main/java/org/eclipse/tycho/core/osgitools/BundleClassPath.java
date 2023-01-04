@@ -15,8 +15,8 @@ package org.eclipse.tycho.core.osgitools;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.tycho.classpath.ClasspathEntry;
-import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
+import org.eclipse.tycho.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry.AccessRule;
 
 public class BundleClassPath {
 
