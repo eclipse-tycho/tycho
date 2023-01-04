@@ -16,6 +16,7 @@ package org.eclipse.tycho.surefire.provider.impl;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.eclipse.tycho.surefire.provider.impl.AbstractJUnitProviderTest.classPath;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 import java.io.File;
@@ -29,12 +30,14 @@ import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.PlexusTestCase;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.osgi.framework.Version;
 
-public class ProviderHelperTest extends PlexusTestCase {
+public class ProviderHelperTest extends TychoPlexusTestCase {
 
     private static final String TYCHO_GROUPID = "org.eclipse.tycho";
     private static final String JUNIT3_FRAGMENT = "org.eclipse.tycho.surefire.junit";
@@ -43,23 +46,26 @@ public class ProviderHelperTest extends PlexusTestCase {
 
     private ProviderHelper providerHelper;
 
-    @Override
-    protected void setUp() throws Exception {
-        this.providerHelper = getContainer().lookup(ProviderHelper.class);
+    @Before
+    public void setUpTest() throws Exception {
+        this.providerHelper = lookup(ProviderHelper.class);
     }
 
+    @Test
     public void testSelectJunit3() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.junit:3.8"), new Properties(),
                 null);
         assertEquals(JUnit3Provider.class, provider.getClass());
     }
 
+    @Test
     public void testSelectJunit4() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.junit:4.8.1"), new Properties(),
                 null);
         assertEquals(JUnit4Provider.class, provider.getClass());
     }
 
+    @Test
     public void testSelectJunit47() throws Exception {
         Properties providerProperties = new Properties();
         providerProperties.setProperty("parallel", "classes");
@@ -68,52 +74,61 @@ public class ProviderHelperTest extends PlexusTestCase {
         assertEquals(JUnit47Provider.class, provider.getClass());
     }
 
+    @Test
     public void testSelectJunit5WithJUnitFromOrbit() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.junit.jupiter.api:5.0.0"),
                 new Properties(), null);
         assertEquals(JUnit5Provider.class, provider.getClass());
     }
 
+    @Test
     public void testSelectJunit5() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(classPath("junit-jupiter-api:5.0.0"),
                 new Properties(), null);
         assertEquals(JUnit5Provider.class, provider.getClass());
     }
 
+    @Test
     public void testSelectJunit5WithJUnit4Present() throws Exception {
         TestFrameworkProvider provider = providerHelper
                 .selectProvider(classPath("org.junit:4.12", "org.junit.jupiter.api:5.0.0"), new Properties(), null);
         assertEquals(JUnit5Provider.class, provider.getClass());
     }
 
+    @Test
     public void testSelectJunit4WithJunit3Present() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.junit:3.8.1", "org.junit:4.8.1"),
                 new Properties(), null);
         assertEquals(JUnit4Provider.class, provider.getClass());
     }
 
+    @Test
     public void testForceJunit3WithHint() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.junit:3.8.1", "org.junit:4.8.1"),
                 new Properties(), "junit3");
         assertEquals(JUnit3Provider.class, provider.getClass());
     }
 
+    @Test
     public void testSelectTestNG() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.testng:6.9.12"), new Properties(),
                 null);
         assertEquals(TestNGProvider.class, provider.getClass());
     }
 
+    @Test
     public void testSelectWithNonExistingHint() {
         assertThrows(MojoExecutionException.class,
                 () -> providerHelper.selectProvider(classPath(), new Properties(), "NON_EXISTING"));
     }
 
+    @Test
     public void testNoProviderFound() {
         assertThrows(MojoExecutionException.class,
                 () -> providerHelper.selectProvider(classPath("foo:1.0", "test:2.0"), new Properties(), null));
     }
 
+    @Test
     public void testParallelModeNotSupported() {
         Properties providerProperties = new Properties();
         providerProperties.setProperty("parallel", "methods");
@@ -121,6 +136,7 @@ public class ProviderHelperTest extends PlexusTestCase {
                 () -> providerHelper.selectProvider(classPath("org.junit:4.6"), providerProperties, null));
     }
 
+    @Test
     public void testMultipleProviderTypesFound() throws Exception {
         TestFrameworkProvider anotherProvider = new TestFrameworkProvider() {
 
@@ -165,11 +181,13 @@ public class ProviderHelperTest extends PlexusTestCase {
         }
     }
 
+    @Test
     public void testFilterTestFrameworkBundlesNotFound() {
         assertThrows(MojoExecutionException.class, () -> providerHelper.filterTestFrameworkBundles(new JUnit3Provider(),
                 asList(createMockArtifact("test", "test"))));
     }
 
+    @Test
     public void testFilterTestFrameworkBundlesJUnit3() throws MojoExecutionException {
         Set<org.apache.maven.artifact.Artifact> junitSurefireBundles = providerHelper.filterTestFrameworkBundles(
                 new JUnit3Provider(),
@@ -184,6 +202,7 @@ public class ProviderHelperTest extends PlexusTestCase {
         assertEquals(expectedFileNames, fileNames);
     }
 
+    @Test
     public void testFilterTestFrameworkBundlesJUnit4() throws MojoExecutionException {
         Set<org.apache.maven.artifact.Artifact> junitSurefireBundles = providerHelper.filterTestFrameworkBundles(
                 new JUnit4Provider(),
@@ -198,6 +217,7 @@ public class ProviderHelperTest extends PlexusTestCase {
         assertEquals(expectedFileNames, fileNames);
     }
 
+    @Test
     public void testGetSymbolicNames() throws MojoExecutionException {
         List<String> symbolicNames = providerHelper.getSymbolicNames(Collections.singleton(
                 createMockArtifact("foo", "bar", new File("src/test/resources/org.junit_3.8.2.v20090203-1005"))));

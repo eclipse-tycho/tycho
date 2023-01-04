@@ -25,6 +25,7 @@ import org.apache.maven.monitor.event.EventDispatcher;
 import org.apache.maven.monitor.event.EventMonitor;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
+import org.apache.maven.session.scope.internal.SessionScope;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.PlexusConstants;
@@ -51,8 +52,14 @@ public class TychoPlexusTestCase {
     PlexusTestCaseExension ext = new PlexusTestCaseExension();
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ComponentLookupException {
+        SessionScope sessionScope = ext.getContainer().lookup(SessionScope.class);
+        sessionScope.exit();
         ext.teardownContainer();
+    }
+
+    protected PlexusContainer getContainer() {
+        return ext.getContainer();
     }
 
     @SuppressWarnings("deprecation")
@@ -87,7 +94,10 @@ public class TychoPlexusTestCase {
         MavenSession mavenSession = new MavenSession(container, settings, localRepository, eventDispatcher, null,
                 List.of(), temporaryFolder.newFolder().getAbsolutePath(), System.getProperties(),
                 System.getProperties(), new Date());
+        SessionScope sessionScope = container.lookup(SessionScope.class);
         mavenSession.setProjects(Collections.emptyList());
+        sessionScope.enter();
+        sessionScope.seed(MavenSession.class, mavenSession);
         legacySupport.setSession(mavenSession);
         modifySession(mavenSession);
         //if possible, init the service factory and loading of services
