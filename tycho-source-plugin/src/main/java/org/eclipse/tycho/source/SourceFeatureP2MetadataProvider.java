@@ -35,7 +35,7 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2resolver.AttachedArtifact;
-import org.eclipse.tycho.p2resolver.P2MetadataProvider;
+import org.eclipse.tycho.resolver.P2MetadataProvider;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;

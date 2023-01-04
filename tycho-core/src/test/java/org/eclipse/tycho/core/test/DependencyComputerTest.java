@@ -35,7 +35,7 @@ import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
+import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ee.CustomExecutionEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;

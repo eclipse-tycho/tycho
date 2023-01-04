@@ -37,7 +37,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
-import org.eclipse.tycho.p2maven.InstallableUnitProvider;
+import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
 /**
  * Provides additional requirements defined in the target platform configuration

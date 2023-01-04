@@ -166,12 +166,12 @@ public class PluginRealmHelper {
 	}
 
 	private static boolean isTychoEmbedderPlugin(PluginDescriptor pluginDescriptor) {
-		if (pluginDescriptor.getArtifactMap().containsKey("org.eclipse.tycho:tycho-embedder-api")) {
+		if (pluginDescriptor.getArtifactMap().containsKey("org.eclipse.tycho:tycho-spi")) {
 			return true;
 		}
 		for (ComponentDependency dependency : pluginDescriptor.getDependencies()) {
 			if ("org.eclipse.tycho".equals(dependency.getGroupId())
-					&& "tycho-embedder-api".equals(dependency.getArtifactId())) {
+					&& "tycho-spi".equals(dependency.getArtifactId())) {
 				return true;
 			}
 		}

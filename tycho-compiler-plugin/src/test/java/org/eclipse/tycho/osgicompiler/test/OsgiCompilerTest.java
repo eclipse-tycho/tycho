@@ -34,7 +34,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.tycho.classpath.SourcepathEntry;
+import org.eclipse.tycho.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;

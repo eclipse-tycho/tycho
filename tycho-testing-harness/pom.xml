@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<version>${project.version}</version>
-			<artifactId>tycho-embedder-api</artifactId>
+			<artifactId>tycho-spi</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>

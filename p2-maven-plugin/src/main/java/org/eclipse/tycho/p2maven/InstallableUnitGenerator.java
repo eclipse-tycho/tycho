@@ -32,12 +32,10 @@ import java.util.jar.Manifest;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -61,6 +59,7 @@ import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
+import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.osgi.framework.Constants;
 import org.xml.sax.SAXException;
 
@@ -263,15 +262,8 @@ public class InstallableUnitGenerator {
 			throws CoreException {
 		Set<InstallableUnitProvider> unitProviders = new HashSet<>(additionalUnitProviders.values());
 		try {
-			pluginRealmHelper.execute(mavenSession, project, () -> {
-				try {
-					for (InstallableUnitProvider provider : plexus.lookupList(InstallableUnitProvider.class)) {
-						unitProviders.add(provider);
-					}
-				} catch (ComponentLookupException e) {
-					// ignore, nothing was found...
-				}
-			}, InstallableUnitGenerator::hasPluginDependency);
+			pluginRealmHelper.visitPluginExtensions(mavenSession, project, InstallableUnitProvider.class,
+					unitProviders::add);
 		} catch (Exception e) {
 			throw new CoreException(Status.error("Can't lookup InstallableUnitProviders", e));
 		}
@@ -290,14 +282,6 @@ public class InstallableUnitGenerator {
 			}
 		}
 		return true;
-	}
-
-	private static boolean hasPluginDependency(PluginDescriptor pluginDescriptor) {
-		if (pluginDescriptor.getArtifactMap().containsKey(P2Plugin.KEY)) {
-			return true;
-		}
-		return pluginDescriptor.getDependencies().stream().filter(dep -> P2Plugin.GROUP_ID.equals(dep.getGroupId()))
-				.filter(dep -> P2Plugin.ARTIFACT_ID.equals(dep.getArtifactId())).findAny().isPresent();
 	}
 
 	private final class ArtifactUnits {

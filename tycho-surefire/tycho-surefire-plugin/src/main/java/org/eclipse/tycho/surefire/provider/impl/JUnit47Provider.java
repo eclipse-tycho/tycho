@@ -25,7 +25,7 @@ import java.util.Set;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.surefire.api.booter.ProviderParameterNames;
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
