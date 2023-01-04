@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2resolver;
+package org.eclipse.tycho.resolver;
 
 import java.util.List;
 import java.util.Map;

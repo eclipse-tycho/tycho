@@ -35,14 +35,11 @@ import java.util.function.Supplier;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.component.repository.ComponentDependency;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
@@ -87,6 +84,7 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2maven.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
+import org.eclipse.tycho.resolver.P2MetadataProvider;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 @Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
@@ -166,37 +164,18 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         // let external providers contribute additional metadata
         try {
-            pluginRealmHelper.execute(session, project, () -> {
-                try {
-                    for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
-                        Map<String, IDependencyMetadata> providedMetadata = provider.getDependencyMetadata(session,
-                                project, null, optionalAction);
-                        if (providedMetadata != null) {
-                            metadata.putAll(providedMetadata);
-                        }
-                    }
-                } catch (ComponentLookupException e) {
-                    // have not found anything
+            pluginRealmHelper.visitPluginExtensions(session, project, P2MetadataProvider.class, provider -> {
+                Map<String, IDependencyMetadata> providedMetadata = provider.getDependencyMetadata(session, project,
+                        null, optionalAction);
+                if (providedMetadata != null) {
+                    metadata.putAll(providedMetadata);
                 }
-            }, this::isTychoP2Plugin);
+            });
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         return metadata;
-    }
-
-    protected boolean isTychoP2Plugin(PluginDescriptor pluginDescriptor) {
-        if (pluginDescriptor.getArtifactMap().containsKey("org.eclipse.tycho:tycho-core")) {
-            return true;
-        }
-        for (ComponentDependency dependency : pluginDescriptor.getDependencies()) {
-            if ("org.eclipse.tycho".equals(dependency.getGroupId())
-                    && "tycho-core".equals(dependency.getArtifactId())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
