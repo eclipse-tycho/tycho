@@ -37,7 +37,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.p2maven.InstallableUnitProvider;
+import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
 /**
  * This provides P2 visible meta-data for bundles that are not expressed in the manifest (e.g.

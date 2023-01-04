@@ -1,4 +1,4 @@
-package org.eclipse.tycho.p2maven;
+package org.eclipse.tycho.resolver;
 
 import java.util.Collection;
 
