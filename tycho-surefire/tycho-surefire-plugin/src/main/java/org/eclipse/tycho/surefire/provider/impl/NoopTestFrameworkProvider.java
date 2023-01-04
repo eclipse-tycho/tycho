@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
-import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 

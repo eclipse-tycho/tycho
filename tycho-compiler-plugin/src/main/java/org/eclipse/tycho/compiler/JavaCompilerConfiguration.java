@@ -15,8 +15,8 @@ package org.eclipse.tycho.compiler;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.eclipse.tycho.classpath.ClasspathEntry;
-import org.eclipse.tycho.classpath.SourcepathEntry;
+import org.eclipse.tycho.ClasspathEntry;
+import org.eclipse.tycho.SourcepathEntry;
 
 /**
  * Computes and returns Tycho java compiler configuration, i.e. compile or test-compile mojos of

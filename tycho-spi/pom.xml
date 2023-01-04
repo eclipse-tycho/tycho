@@ -19,14 +19,10 @@
 		<artifactId>tycho</artifactId>
 		<version>4.0.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>tycho-embedder-api</artifactId>
+	<artifactId>tycho-spi</artifactId>
 
-	<name>Tycho Embedder API</name>
-
-	<properties>
-		<tycho-api-version>0.11.0</tycho-api-version>
-	</properties>
-
+	<name>Tycho Service Provider Interfaces</name>
+	<description>This contains interfaces that might be used to enahnce Tycho itself with plugins</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -38,5 +34,4 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-
 </project>

@@ -18,7 +18,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
