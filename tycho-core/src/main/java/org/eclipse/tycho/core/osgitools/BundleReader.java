@@ -13,6 +13,7 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Cache for OSGi manifest files and bundle classpath entries.
@@ -33,8 +34,8 @@ public interface BundleReader {
      * @throws InvalidOSGiManifestException
      *             if valid MANIFEST is found but it does not have valid mandatory OSGi headers
      */
-    public OsgiManifest loadManifest(File bundleLocation) throws OsgiManifestParserException,
-            InvalidOSGiManifestException;
+    public OsgiManifest loadManifest(File bundleLocation)
+            throws OsgiManifestParserException, InvalidOSGiManifestException;
 
     /**
      * Returns bundle entry with given path or <code>null</code> if no such entry exists. If bundle
@@ -47,4 +48,6 @@ public interface BundleReader {
      * 
      */
     public File getEntry(File bundleLocation, String path);
+
+    File getManifestLocation(File directory) throws IOException;
 }
