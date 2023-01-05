@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: surefire-with-maven-layout
+Bundle-SymbolicName: surefire-with-maven-layout
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: surefire.with.maven.layout
+Export-Package: org.eclipse.demo.surefire

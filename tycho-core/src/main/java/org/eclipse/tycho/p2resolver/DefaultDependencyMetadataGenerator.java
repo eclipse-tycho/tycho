@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2resolver;
 import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -33,7 +34,9 @@ public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implemen
     @Override
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction, PublisherOptions options) {
-        return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction, options);
+        PublisherInfo publisherInfo = new PublisherInfo();
+        publisherInfo.setArtifactOptions(IPublisherInfo.A_NO_MD5);
+        return super.generateMetadata(artifact, environments, publisherInfo, optionalAction, options);
     }
 
 }

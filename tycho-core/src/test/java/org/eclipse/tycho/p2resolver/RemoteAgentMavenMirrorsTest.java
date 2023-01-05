@@ -112,7 +112,7 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
 
     private Repositories loadRepositories(String id, URI specifiedUrl) throws Exception {
 
-        IRepositoryIdManager idManager = subject.getService(IRepositoryIdManager.class);
+        IRepositoryIdManager idManager = lookup(IRepositoryIdManager.class);
         idManager.addMapping(id, specifiedUrl);
 
         IMetadataRepositoryManager metadataManager = subject.getService(IMetadataRepositoryManager.class);

@@ -29,8 +29,8 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.Publisher;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -49,7 +49,7 @@ public abstract class AbstractMetadataGenerator {
     private IProgressMonitor monitor = new NullProgressMonitor();
 
     protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
-            PublisherInfo publisherInfo, OptionalResolutionAction optionalAction, PublisherOptions options) {
+            IPublisherInfo publisherInfo, OptionalResolutionAction optionalAction, PublisherOptions options) {
         for (IPublisherAdvice advice : getPublisherAdvice(artifact, options)) {
             publisherInfo.addAdvice(advice);
         }
@@ -113,7 +113,7 @@ public abstract class AbstractMetadataGenerator {
                     VersionRange.emptyRange, null, false, false));
     }
 
-    private DependencyMetadata publish(PublisherInfo publisherInfo, List<IPublisherAction> actions) {
+    private DependencyMetadata publish(IPublisherInfo publisherInfo, List<IPublisherAction> actions) {
         PublisherResult result = new PublisherResult();
 
         Publisher publisher = new Publisher(publisherInfo, result);
