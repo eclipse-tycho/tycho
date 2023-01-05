@@ -37,7 +37,6 @@
                 org.eclipse.tycho:tycho-compiler-plugin:${project.version}:testCompile
               </test-compile>
               <test>
-                org.apache.maven.plugins:maven-surefire-plugin:${surefire-plugin.version}:test
               </test>
               <prepare-package>
                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:update-consumer-pom
