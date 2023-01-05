@@ -128,11 +128,27 @@ Some improvements have been made for the test execution with `eclipse-plugin` pa
 1. The property `skipITs` has been renamed to `tycho.plugin-test.skip`
 2. the mojo `integration-test` has been renamed to `plugin-test`
 3. the default pattern of the former `integration-test` has been changed from `**/PluginTest*.class", "**/*IT.class` to the maven default `**/Test*.class", "**/*Test.class", "**/*Tests.class", "**/*TestCase.class`
-4. the former `integration-test` mojo is no longer part of the default life-cycle, that means to use it it has to be explicitly be enabled to be more flexible and this is how standard maven behaves
+4. the former `integration-test` mojo is no longer part of the default life-cycle, that means it has to be explicitly be enabled to be more flexible and this is how standard maven behaves
+5. the `test` mojo of the `maven-surefire-plugin` is no longer part of the default life-cycle, that means it has to be explicitly be enabled to be more flexible and to not pollute the test-phase.
 
 To restore old behaviour you can add the follwoing snippet to your (master) pom:
 
 ```
+<plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-surefire-plugin</artifactId>
+	<version>${surefire-plugin-version}</version>
+	<executions>
+		<execution>
+			<id>execute-tests</id>
+			<goals>
+				<goal>test</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+
+
 <plugin>
 	<groupId>org.eclipse.tycho</groupId>
 	<artifactId>tycho-surefire-plugin</artifactId>

@@ -5,6 +5,10 @@
 	<artifactId>bundle.test5</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	<version>1.0.0</version>
+	<properties>
+		<target-platform>https:////download.eclipse.org/releases/2022-12/</target-platform>
+		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
+	</properties>
 	<repositories>
 		<repository>
 			<id>platform</id>
@@ -20,7 +24,6 @@
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -32,6 +35,14 @@
 						<version>3.0.0-M5</version>
 					</dependency>
 				</dependencies>
+				<executions>
+					<execution>
+						<id>execute-tests</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
