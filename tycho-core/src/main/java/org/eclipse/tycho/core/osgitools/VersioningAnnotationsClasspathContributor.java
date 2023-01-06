@@ -23,8 +23,7 @@ import org.osgi.framework.Version;
 
 @Component(role = ClasspathContributor.class, hint = "versioning-annotations")
 @SessionScoped
-public class VersioningAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor
-        implements ClasspathContributor {
+public class VersioningAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
 
     private static final String PACKAGE_NAME = "org.osgi.annotation.versioning";
     private static final String GROUP_ID = "org.osgi";
