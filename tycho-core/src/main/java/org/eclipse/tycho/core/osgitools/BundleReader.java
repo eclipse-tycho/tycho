@@ -15,6 +15,8 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.maven.project.MavenProject;
+
 /**
  * Cache for OSGi manifest files and bundle classpath entries.
  */
@@ -34,7 +36,10 @@ public interface BundleReader {
      * @throws InvalidOSGiManifestException
      *             if valid MANIFEST is found but it does not have valid mandatory OSGi headers
      */
-    public OsgiManifest loadManifest(File bundleLocation)
+    OsgiManifest loadManifest(File bundleLocation)
+            throws OsgiManifestParserException, InvalidOSGiManifestException;
+
+    OsgiManifest loadManifest(MavenProject mavenProject)
             throws OsgiManifestParserException, InvalidOSGiManifestException;
 
     /**
@@ -47,7 +52,7 @@ public interface BundleReader {
      *            path relative to the bundle root. Paths starting with "external:" are ignored
      * 
      */
-    public File getEntry(File bundleLocation, String path);
+    File getEntry(File bundleLocation, String path);
 
-    File getManifestLocation(File directory) throws IOException;
+    File getManifestLocation(MavenProject mavenProject) throws IOException;
 }

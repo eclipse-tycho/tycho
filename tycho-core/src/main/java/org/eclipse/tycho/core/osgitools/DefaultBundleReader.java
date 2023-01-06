@@ -30,6 +30,8 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.maven.model.Resource;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
@@ -58,6 +60,26 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
             manifestCache.put(locationPath, manifest);
         }
         return manifest;
+    }
+
+    @Override
+    public OsgiManifest loadManifest(MavenProject mavenProject)
+            throws OsgiManifestParserException, InvalidOSGiManifestException {
+        String locationPath = mavenProject.getBasedir().getAbsolutePath();
+        try {
+            OsgiManifest manifest = manifestCache.get(locationPath);
+            if (manifest == null) {
+                File manifestFile = getManifestLocation(mavenProject);
+                if (!manifestFile.isFile()) {
+                    throw new OsgiManifestParserException(manifestFile.getAbsolutePath(), "Manifest file not found");
+                }
+                manifest = loadManifestFile(manifestFile);
+                manifestCache.put(locationPath, manifest);
+            }
+            return manifest;
+        } catch (IOException e) {
+            throw new OsgiManifestParserException(locationPath, e);
+        }
     }
 
     private OsgiManifest doLoadManifest(File bundleLocation) {
@@ -93,7 +115,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     }
 
     private OsgiManifest loadManifestFromDirectory(File directory) throws IOException {
-        File manifestFile = getManifestLocation(directory);
+        File manifestFile = new File(directory, JarFile.MANIFEST_NAME);
         if (!manifestFile.isFile()) {
             throw new OsgiManifestParserException(manifestFile.getAbsolutePath(), "Manifest file not found");
         }
@@ -101,18 +123,31 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     }
 
     @Override
-    public File getManifestLocation(File directory) throws IOException {
-        File defaultLocation = new File(directory, JarFile.MANIFEST_NAME);
-        if (!defaultLocation.isFile()) {
-            File pdePreferences = new File(directory, ".settings/org.eclipse.pde.core.prefs");
-            if (pdePreferences.isFile()) {
-                Properties properties = new Properties();
-                properties.load(new FileInputStream(pdePreferences));
-                String property = properties.getProperty("BUNDLE_ROOT_PATH");
-                if (property != null) {
-                    return new File(new File(directory, property), JarFile.MANIFEST_NAME);
-                }
+    public File getManifestLocation(MavenProject mavenProject) throws IOException {
+        File basedir = mavenProject.getBasedir();
+        File pdePreferences = new File(basedir, ".settings/org.eclipse.pde.core.prefs");
+        if (pdePreferences.isFile()) {
+            Properties properties = new Properties();
+            properties.load(new FileInputStream(pdePreferences));
+            String property = properties.getProperty("BUNDLE_ROOT_PATH");
+            if (property != null) {
+                return new File(new File(basedir, property), JarFile.MANIFEST_NAME);
             }
+        }
+        File defaultLocation = new File(basedir, JarFile.MANIFEST_NAME);
+        if (defaultLocation.isFile()) {
+            return defaultLocation;
+        }
+        for (Resource resource : mavenProject.getBuild().getResources()) {
+            String directory = resource.getDirectory();
+            File file = new File(new File(directory), JarFile.MANIFEST_NAME);
+            if (file.isFile()) {
+                return file;
+            }
+        }
+        File file = new File(new File(mavenProject.getBuild().getOutputDirectory()), JarFile.MANIFEST_NAME);
+        if (file.isFile()) {
+            return file;
         }
         return defaultLocation;
     }

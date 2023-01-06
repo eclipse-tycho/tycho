@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
@@ -47,8 +48,8 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
 
     @Override
     public BuildProperties parse(ReactorProject project) {
+        MavenProject mavenProject = project.adapt(MavenProject.class);
         return get(project.getBasedir(), () -> {
-            MavenProject mavenProject = project.adapt(MavenProject.class);
             if (mavenProject != null) {
                 MavenSession session = legacySupport.getSession();
                 if (session != null) {
@@ -56,7 +57,7 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
                 }
             }
             return null;
-        });
+        }, mavenProject);
     }
 
     @Override
@@ -71,18 +72,19 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
                     }
                 }
                 return null;
-            });
+            }, null);
         }
-        return get(baseDir, () -> interpolator);
+        return get(baseDir, () -> interpolator, null);
     }
 
-    private synchronized BuildProperties get(File baseDir, Supplier<Interpolator> interpolatorSupplier) {
+    private synchronized BuildProperties get(File baseDir, Supplier<Interpolator> interpolatorSupplier,
+            MavenProject mavenProject) {
         File propsFile = new File(baseDir, BUILD_PROPERTIES);
         long lastModified = propsFile.lastModified();
         String filePath = propsFile.getAbsolutePath();
         BuildPropertiesImpl buildProperties = cache.get(filePath);
         if (buildProperties == null || lastModified > buildProperties.getTimestamp()) {
-            Properties properties = readProperties(propsFile);
+            Properties properties = readProperties(propsFile, mavenProject);
             interpolate(properties, interpolatorSupplier.get());
             buildProperties = new BuildPropertiesImpl(properties, lastModified);
             cache.put(filePath, buildProperties);
@@ -95,17 +97,36 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
         cache.clear();
     }
 
-    protected static Properties readProperties(File propsFile) {
+    protected static Properties readProperties(File propsFile, MavenProject mavenProject) {
         Properties properties = new Properties();
-        if (propsFile.canRead()) {
+        if (propsFile.isFile()) {
             try (InputStream is = new FileInputStream(propsFile)) {
                 properties.load(is);
             } catch (IOException e) {
                 // ignore
             }
+        } else {
+            if (mavenProject != null) {
+                File basedir = mavenProject.getBasedir();
+                properties.put("source..", mavenProject.getCompileSourceRoots().stream().map(p -> relative(basedir, p))
+                        .collect(Collectors.joining(",")));
+                properties.setProperty("output..", relative(basedir, mavenProject.getBuild().getOutputDirectory()));
+                properties.setProperty("bin.includes", ".");
+            }
         }
 
         return properties;
+    }
+
+    private static String relative(File basedir, String p) {
+        String base = basedir.getAbsolutePath();
+        if (p.startsWith(base)) {
+            p = p.substring(base.length());
+        }
+        if (p.startsWith("/")) {
+            p = p.substring(1);
+        }
+        return p;
     }
 
     protected void interpolate(Properties properties, Interpolator interpolator) {
