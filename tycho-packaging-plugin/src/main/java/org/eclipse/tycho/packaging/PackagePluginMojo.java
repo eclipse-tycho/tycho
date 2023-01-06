@@ -227,7 +227,10 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 				if (binIncludesList.contains(jarName) && outputJar.isDirClasspathEntry()) {
 					binIncludesIgnoredForValidation.add(jarName);
 					String prefix = ".".equals(jarName) ? "" : jarName;
-					archiver.getArchiver().addDirectory(outputJar.getOutputDirectory(), prefix);
+					File outputDirectory = outputJar.getOutputDirectory();
+					if (outputDirectory.isDirectory()) {
+						archiver.getArchiver().addDirectory(outputDirectory, prefix);
+					}
 				}
 			}
 			// 3. handle nested jars and included resources
@@ -308,7 +311,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 		final File archiveManifestFile = archive.getManifestFile();
 		final File manifestFile = archiveManifestFile != null
 				? archiveManifestFile
-				: bundleReader.getManifestLocation(project.getBasedir());
+				: bundleReader.getManifestLocation(project);
 
 		Manifest mf;
 		try (final InputStream is = new FileInputStream(manifestFile)) {

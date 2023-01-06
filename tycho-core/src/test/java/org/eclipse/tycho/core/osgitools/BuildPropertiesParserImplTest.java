@@ -55,13 +55,13 @@ public class BuildPropertiesParserImplTest {
     @Test
     public void testReadPropertiesFileWithExistingFile() throws IOException {
         File baseDir = TestUtil.getBasedir("buildproperties");
-        Properties properties = BuildPropertiesParserImpl.readProperties(new File(baseDir, "build.properties"));
+        Properties properties = BuildPropertiesParserImpl.readProperties(new File(baseDir, "build.properties"), null);
         Assert.assertEquals(3, properties.size());
     }
 
     @Test
     public void testReadPropertiesWithNonExistingFile() {
-        Properties properties = BuildPropertiesParserImpl.readProperties(new File("MISSING_FILE"));
+        Properties properties = BuildPropertiesParserImpl.readProperties(new File("MISSING_FILE"), null);
         Assert.assertEquals(0, properties.size());
     }
 
