@@ -71,8 +71,11 @@ public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
     public List<SourcepathEntry> getSourcepath() throws MojoExecutionException {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         File testOutputDirectory = reactorProject.getBuildDirectory().getTestOutputDirectory();
-        return getSourceFolders().map(file -> new ClasspathSourcepathEntry(file, testOutputDirectory))
-                .collect(Collectors.toList());
+        Stream<File> mavenDirectories = project.getTestCompileSourceRoots().stream().map(dir -> new File(dir))
+                .filter(File::isDirectory);
+        Stream<File> sourceFolders = getSourceFolders();
+        return Stream.concat(mavenDirectories, sourceFolders).distinct()
+                .map(file -> new ClasspathSourcepathEntry(file, testOutputDirectory)).collect(Collectors.toList());
 
     }
 
