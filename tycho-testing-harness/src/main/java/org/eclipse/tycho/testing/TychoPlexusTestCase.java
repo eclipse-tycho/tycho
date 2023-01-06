@@ -21,8 +21,6 @@ import java.util.List;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.monitor.event.EventDispatcher;
-import org.apache.maven.monitor.event.EventMonitor;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
 import org.apache.maven.session.scope.internal.SessionScope;
@@ -69,31 +67,9 @@ public class TychoPlexusTestCase {
         PlexusContainer container = ext.getContainer();
         Settings settings = new Settings();
         ArtifactRepository localRepository = new StubArtifactRepository(temporaryFolder.newFolder().getAbsolutePath());
-        EventDispatcher eventDispatcher = new EventDispatcher() {
-
-            @Override
-            public void dispatchStart(String event, String target) {
-
-            }
-
-            @Override
-            public void dispatchError(String event, String target, Throwable cause) {
-
-            }
-
-            @Override
-            public void dispatchEnd(String event, String target) {
-
-            }
-
-            @Override
-            public void addEventMonitor(EventMonitor monitor) {
-
-            }
-        };
-        MavenSession mavenSession = new MavenSession(container, settings, localRepository, eventDispatcher, null,
-                List.of(), temporaryFolder.newFolder().getAbsolutePath(), System.getProperties(),
-                System.getProperties(), new Date());
+        MavenSession mavenSession = new MavenSession(container, settings, localRepository, null, null, List.of(),
+                temporaryFolder.newFolder().getAbsolutePath(), System.getProperties(), System.getProperties(),
+                new Date());
         SessionScope sessionScope = container.lookup(SessionScope.class);
         mavenSession.setProjects(Collections.emptyList());
         sessionScope.enter();
