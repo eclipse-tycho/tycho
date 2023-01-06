@@ -130,6 +130,10 @@ public class OsgiManifest {
         return executionEnvironments;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
     /**
      * Returns true if Eclipse-BundleShape header is set to dir.
      * 

@@ -23,8 +23,7 @@ import org.osgi.framework.Version;
 
 @Component(role = ClasspathContributor.class, hint = "bundle-annotations")
 @SessionScoped
-public class BundleAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor
-        implements ClasspathContributor {
+public class BundleAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
 
     private static final String PACKAGE_NAME = "org.osgi.annotation.bundle";
     private static final String GROUP_ID = "org.osgi";

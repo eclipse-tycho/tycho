@@ -49,6 +49,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -147,6 +148,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
 	@Component
 	TychoProjectManager projectManager;
+
+	@Component
+	private BundleReader bundleReader;
 
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -304,10 +308,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 		final File archiveManifestFile = archive.getManifestFile();
 		final File manifestFile = archiveManifestFile != null
 				? archiveManifestFile
-				: new File(project.getBasedir(), "META-INF/MANIFEST.MF");
+				: bundleReader.getManifestLocation(project.getBasedir());
 
 		Manifest mf;
-
 		try (final InputStream is = new FileInputStream(manifestFile)) {
 			mf = new Manifest(is);
 		}

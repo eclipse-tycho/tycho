@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.jar.JarFile;
@@ -67,8 +68,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                 return loadManifestFromFile(bundleLocation);
             } else {
                 // file does not exist
-                throw new OsgiManifestParserException(new File(bundleLocation, JarFile.MANIFEST_NAME).getAbsolutePath(),
-                        "Manifest file not found");
+                throw new OsgiManifestParserException(bundleLocation.getAbsolutePath(), "Manifest file not found");
             }
         } catch (IOException e) {
             throw new OsgiManifestParserException(bundleLocation.getAbsolutePath(), e);
@@ -93,11 +93,28 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     }
 
     private OsgiManifest loadManifestFromDirectory(File directory) throws IOException {
-        File manifestFile = new File(directory, JarFile.MANIFEST_NAME);
+        File manifestFile = getManifestLocation(directory);
         if (!manifestFile.isFile()) {
             throw new OsgiManifestParserException(manifestFile.getAbsolutePath(), "Manifest file not found");
         }
         return loadManifestFile(manifestFile);
+    }
+
+    @Override
+    public File getManifestLocation(File directory) throws IOException {
+        File defaultLocation = new File(directory, JarFile.MANIFEST_NAME);
+        if (!defaultLocation.isFile()) {
+            File pdePreferences = new File(directory, ".settings/org.eclipse.pde.core.prefs");
+            if (pdePreferences.isFile()) {
+                Properties properties = new Properties();
+                properties.load(new FileInputStream(pdePreferences));
+                String property = properties.getProperty("BUNDLE_ROOT_PATH");
+                if (property != null) {
+                    return new File(new File(directory, property), JarFile.MANIFEST_NAME);
+                }
+            }
+        }
+        return defaultLocation;
     }
 
     private OsgiManifest loadManifestFile(File manifestFile) throws IOException, OsgiManifestParserException {
