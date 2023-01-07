@@ -344,22 +344,38 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 
 	private ArtifactDelta getDelta(Diff diff, Jar baselineJar, Jar projectJar, BaselineContext baselineContext) {
 		String name = diff.getName();
-		String extension = FilenameUtils.getExtension(name).toLowerCase();
-		ContentsComparator comparator = contentComparators.get(extension);
+		ContentsComparator comparator = getComparator(name);
 		if (comparator != null) {
 			Resource baseResource = baselineJar.getResource(name);
 			Resource currenttResource = projectJar.getResource(name);
 			if (baseResource != null && currenttResource != null) {
 				try (InputStream baseStream = baseResource.openInputStream();
 						InputStream currentStream = currenttResource.openInputStream()) {
-					return comparator.getDelta(new ComparatorInputStream(baseStream),
-							new ComparatorInputStream(currentStream),
+					ComparatorInputStream baseline = new ComparatorInputStream(baseStream);
+					ComparatorInputStream reactor = new ComparatorInputStream(currentStream);
+					if (baseline.size() < ContentsComparator.THRESHOLD
+							&& reactor.size() < ContentsComparator.THRESHOLD) {
+					return comparator.getDelta(baseline, reactor,
 							new ComparisonData(baselineContext.getIgnores(), false));
+					}
 				} catch (Exception e) {
 				}
 			}
 		}
 		return ArtifactDelta.DEFAULT;
+	}
+
+	private ContentsComparator getComparator(String name) {
+		String extension = FilenameUtils.getExtension(name).toLowerCase();
+		ContentsComparator comparator = contentComparators.get(extension);
+		if (comparator == null) {
+			for (ContentsComparator alternative : contentComparators.values()) {
+				if (alternative.matches(name)) {
+					return alternative;
+				}
+			}
+		}
+		return comparator;
 	}
 
 	private void addDiff(Diff diff, Info info, AsciiTable at, int indent) {

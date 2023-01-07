@@ -50,6 +50,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.PackagingType;
@@ -58,7 +59,6 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
@@ -186,7 +186,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private OsgiManifest getManifest(ReactorProject project) {
-        return bundleReader.loadManifest(project.getBasedir());
+        MavenProject mavenProject = project.adapt(MavenProject.class);
+        if (mavenProject == null) {
+            return bundleReader.loadManifest(project.getBasedir());
+        }
+        return bundleReader.loadManifest(mavenProject);
     }
 
     private BundleClassPath resolveClassPath(MavenSession session, MavenProject project) {

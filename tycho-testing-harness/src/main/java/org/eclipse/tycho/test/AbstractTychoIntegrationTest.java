@@ -44,8 +44,9 @@ public abstract class AbstractTychoIntegrationTest {
 
     protected File getBasedir(String test) throws IOException {
         File src = new File("projects", test).getAbsoluteFile();
-        File dst = new File("target/projects", getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test)
-                .getAbsoluteFile();
+        File dst = new File("target/projects",
+                getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test.replace("../", "./"))
+                        .getAbsoluteFile();
 
         if (dst.isDirectory()) {
             FileUtils.deleteDirectory(dst);
