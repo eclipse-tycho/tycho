@@ -22,6 +22,17 @@ import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 public interface ContentsComparator {
 
     /**
+     * System property that control if a detailed diff is desired or not (default = off)
+     */
+    static final boolean NO_DIFF_DETAILS = Boolean.getBoolean("tycho.comparator.noDiff");
+
+    /**
+     * System property that controls the threshold size where a direct byte compare is performed
+     * (default 5 mb)
+     */
+    static final int THRESHOLD = Integer.getInteger("tycho.comparator.threshold", 1024 * 1024 * 5);
+
+    /**
      * Computes the delta for the given {@link InputStream}s, the streams passed will support
      * mark/reset for repeated reads.
      * 
@@ -36,4 +47,13 @@ public interface ContentsComparator {
      */
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
             throws IOException;
+
+    /**
+     * Check if this comparator matches the given extension
+     * 
+     * @param extension
+     *            the extension to match
+     * @return <code>true</code> if this comparator matches, <code>false</code> otherwhise
+     */
+    boolean matches(String extension);
 }

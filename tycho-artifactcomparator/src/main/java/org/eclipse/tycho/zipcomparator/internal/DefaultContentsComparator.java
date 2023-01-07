@@ -30,4 +30,9 @@ public class DefaultContentsComparator implements ContentsComparator {
         return baseline.compare(reactor);
     }
 
+    @Override
+    public boolean matches(String extension) {
+        return false;
+    }
+
 }

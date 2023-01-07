@@ -106,7 +106,8 @@ public class ZipComparatorImpl implements ArtifactComparator {
                 return null;
             }
             ContentsComparator comparator = comparators.get(getContentType(name));
-            if (comparator != null) {
+            if (comparator != null && baselineBytes.length < ContentsComparator.THRESHOLD
+                    && reactorBytes.length < ContentsComparator.THRESHOLD) {
                 try {
                     return comparator.getDelta(new ComparatorInputStream(baselineBytes),
                             new ComparatorInputStream(reactorBytes), data);
@@ -144,7 +145,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
             return ManifestComparator.TYPE;
         }
         if (name.endsWith(".xml")) {
-            return XmlComparator.XML;
+            return XmlComparator.HINT;
         }
         return DefaultContentsComparator.TYPE;
     }
