@@ -12,7 +12,7 @@
   </modules>
 
   <properties>
-    <target-platform>http://download.eclipse.org/releases/latest</target-platform>
+    <target-platform>https://download.eclipse.org/releases/latest</target-platform>
   </properties>
 
   <repositories>
