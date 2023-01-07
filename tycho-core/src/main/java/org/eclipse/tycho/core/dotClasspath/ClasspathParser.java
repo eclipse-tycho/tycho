@@ -29,7 +29,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.MavenArtifactKey;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -186,7 +186,7 @@ public class ClasspathParser implements Disposable {
         }
 
         @Override
-        public Collection<ArtifactKey> getArtifacts() {
+        public Collection<MavenArtifactKey> getArtifacts() {
             if (JUNIT3.equals(junit)) {
                 return Arrays.asList(JUNIT3_PLUGIN);
             } else if (JUNIT4.equals(junit)) {

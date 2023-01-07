@@ -14,9 +14,8 @@ package org.eclipse.tycho.core.dotClasspath;
 
 import java.util.Collection;
 
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.MavenArtifactKey;
 
 public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
 
@@ -26,50 +25,54 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
     static final String JUNIT4 = "4";
     static final String JUNIT5 = "5";
 
-    static final ArtifactKey JUNIT3_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.junit",
-            "[3.8.2,3.9)");
+    static final MavenArtifactKey JUNIT3_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.junit",
+            "[3.8.2,3.9)", "junit", "junit");
 
-    static final ArtifactKey JUNIT4_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.junit",
-            "[4.13.0,5.0.0)");
+    static final MavenArtifactKey JUNIT4_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.junit",
+            "[4.13.0,5.0.0)", "junit", "junit");
 
-    static final ArtifactKey HAMCREST_CORE_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.hamcrest.core", "[1.1.0,2.0.0)");
+    static final MavenArtifactKey HAMCREST_CORE_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "org.hamcrest.core", "[1.1.0,2.0.0)", "org.hamcrest", "hamcrest-core");
 
-    static final ArtifactKey JUNIT_JUPITER_API_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "junit-jupiter-api", "[5.0.0,6.0.0)");
+    static final MavenArtifactKey JUNIT_JUPITER_API_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "junit-jupiter-api", "[5.0.0,6.0.0)", "org.junit.jupiter", "junit-jupiter-api");
 
-    static final ArtifactKey JUNIT_JUPITER_ENGINE_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "junit-jupiter-engine", "[5.0.0,6.0.0)");
+    static final MavenArtifactKey JUNIT_JUPITER_ENGINE_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "junit-jupiter-engine", "[5.0.0,6.0.0)", "org.junit.jupiter", "junit-jupiter-engine");
 
-    static final ArtifactKey JUNIT_JUPITER_MIGRATIONSUPPORT_PLUGIN = new DefaultArtifactKey(
-            ArtifactType.TYPE_INSTALLABLE_UNIT, "junit-jupiter-migrationsupport", "[5.0.0,6.0.0)");
+    static final MavenArtifactKey JUNIT_JUPITER_MIGRATIONSUPPORT_PLUGIN = MavenArtifactKey.of(
+            ArtifactType.TYPE_INSTALLABLE_UNIT, "junit-jupiter-migrationsupport", "[5.0.0,6.0.0)", "org.junit.jupiter",
+            "junit-jupiter-migrationsupport");
 
-    static final ArtifactKey JUNIT_JUPITER_PARAMS_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "junit-jupiter-params", "[5.0.0,6.0.0)");
+    static final MavenArtifactKey JUNIT_JUPITER_PARAMS_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "junit-jupiter-params", "[5.0.0,6.0.0)", "org.junit.jupiter", "junit-jupiter-params");
 
-    static final ArtifactKey JUNIT_PLATFORM_COMMONS_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "junit-platform-commons", "[1.0.0,2.0.0)");
+    static final MavenArtifactKey JUNIT_PLATFORM_COMMONS_PLUGIN = MavenArtifactKey.of(
+            ArtifactType.TYPE_INSTALLABLE_UNIT, "junit-platform-commons", "[1.0.0,2.0.0)", "org.junit.platform",
+            "junit-platform-commons");
 
-    static final ArtifactKey JUNIT_PLATFORM_ENGINE_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "junit-platform-engine", "[1.0.0,2.0.0)");
+    static final MavenArtifactKey JUNIT_PLATFORM_ENGINE_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "junit-platform-engine", "[1.0.0,2.0.0)", "org.junit.platform", "junit-platform-engine");
 
-    static final ArtifactKey JUNIT_PLATFORM_LAUNCHER_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "junit-platform-launcher", "[1.0.0,2.0.0)");
+    static final MavenArtifactKey JUNIT_PLATFORM_LAUNCHER_PLUGIN = MavenArtifactKey.of(
+            ArtifactType.TYPE_INSTALLABLE_UNIT, "junit-platform-launcher", "[1.0.0,2.0.0)", "org.junit.platform",
+            "junit-platform-launcher");
 
-    static final ArtifactKey JUNIT_PLATFORM_RUNNER_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "junit-platform-runner", "[1.0.0,2.0.0)");
+    static final MavenArtifactKey JUNIT_PLATFORM_RUNNER_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "junit-platform-runner", "[1.0.0,2.0.0)", "org.junit.platform", "junit-platform-runner");
 
-    static final ArtifactKey JUNIT_PLATFORM_SUITE_API_PLUGIN = new DefaultArtifactKey(
-            ArtifactType.TYPE_INSTALLABLE_UNIT, "junit-platform-suite-api", "[1.0.0,2.0.0)");
+    static final MavenArtifactKey JUNIT_PLATFORM_SUITE_API_PLUGIN = MavenArtifactKey.of(
+            ArtifactType.TYPE_INSTALLABLE_UNIT, "junit-platform-suite-api", "[1.0.0,2.0.0)", "org.junit.platform",
+            "junit-platform-suite-api");
 
-    static final ArtifactKey JUNIT_VINTAGE_ENGINE_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "junit-vintage-engine", "[4.12.0,6.0.0)");
+    static final MavenArtifactKey JUNIT_VINTAGE_ENGINE_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "junit-vintage-engine", "[4.12.0,6.0.0)", "org.junit.vintage", "junit-vintage-engine");
 
-    static final ArtifactKey JUNIT_OPENTEST4J_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.opentest4j", "[1.0.0,2.0.0)");
+    static final MavenArtifactKey JUNIT_OPENTEST4J_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "org.opentest4j", "[1.0.0,2.0.0)", "org.opentest4j", "opentest4j");
 
-    static final ArtifactKey JUNIT_APIGUARDIAN_PLUGIN = new DefaultArtifactKey(ArtifactType.TYPE_INSTALLABLE_UNIT,
-            "org.apiguardian.api", "[1.0.0,2.0.0)");
+    static final MavenArtifactKey JUNIT_APIGUARDIAN_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
+            "org.apiguardian.api", "[1.0.0,2.0.0)", "org.apiguardian", "apiguardian-api");
 
     /**
      * 
@@ -81,6 +84,6 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
      * 
      * @return the list of artifacts that are part of this container
      */
-    Collection<ArtifactKey> getArtifacts();
+    Collection<MavenArtifactKey> getArtifacts();
 
 }
