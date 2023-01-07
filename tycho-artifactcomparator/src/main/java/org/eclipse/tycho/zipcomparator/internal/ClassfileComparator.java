@@ -75,4 +75,9 @@ public class ClassfileComparator implements ContentsComparator {
         }
         return buffer.toString();
     }
+
+    @Override
+    public boolean matches(String extension) {
+        return TYPE.equalsIgnoreCase(extension);
+    }
 }

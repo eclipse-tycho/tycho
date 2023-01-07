@@ -72,4 +72,9 @@ public class PropertiesComparator implements ContentsComparator {
             }
         }
     }
+
+    @Override
+    public boolean matches(String extension) {
+        return TYPE.equalsIgnoreCase(extension) || "bnd".equalsIgnoreCase(extension);
+    }
 }

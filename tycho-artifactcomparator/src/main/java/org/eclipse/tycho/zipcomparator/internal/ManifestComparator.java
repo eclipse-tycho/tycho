@@ -94,4 +94,9 @@ public class ManifestComparator implements ContentsComparator {
         }
         return result;
     }
+
+    @Override
+    public boolean matches(String extension) {
+        return TYPE.equalsIgnoreCase(extension);
+    }
 }

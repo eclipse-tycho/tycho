@@ -14,11 +14,7 @@ package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
@@ -27,32 +23,14 @@ import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 
-import com.github.difflib.DiffUtils;
-import com.github.difflib.UnifiedDiffUtils;
-import com.github.difflib.patch.Patch;
-
-@Component(role = ContentsComparator.class, hint = XmlComparator.XML)
+@Component(role = ContentsComparator.class, hint = XmlComparator.HINT)
 public class XmlComparator implements ContentsComparator {
 
-    static final String XML = "xml";
-
-    /**
-     * System property that control if a detailed diff is desired or not (default = off)
-     */
-    private static final boolean NO_DIFF_DETAILS = Boolean.getBoolean("tycho.comparator.xml.noDiff");
-
-    /**
-     * System property that controls the threshold size where a direct byte compare is performed
-     * (default 5 mb)
-     */
-    private static final int THRESHOLD = Integer.getInteger("tycho.comparator.xml.threshold", 1024 * 1024 * 5);
+    static final String HINT = "xml";
 
     @Override
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
             throws IOException {
-        if (baseline.size() > THRESHOLD || reactor.size() > THRESHOLD) {
-            return baseline.compare(reactor);
-        }
         //if they differ make a more detailed comparision
         try {
             //TODO can we feed xsds to have default elements compared/normalized?
@@ -62,11 +40,11 @@ public class XmlComparator implements ContentsComparator {
             Diff baselineDiff = computeDiff(baseline, reactor);
             if (baselineDiff.hasDifferences()) {
                 String message = baselineDiff.fullDescription();
-                return createDelta(message, baseline, reactor);
+                return TextComparator.createDelta(message, baseline, reactor);
             }
             return null;
         } catch (RuntimeException e) {
-            return createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor);
+            return TextComparator.createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor);
         }
     }
 
@@ -79,23 +57,10 @@ public class XmlComparator implements ContentsComparator {
         return baselineDiff;
     }
 
-    private static ArtifactDelta createDelta(String message, ComparatorInputStream baseline,
-            ComparatorInputStream reactor) {
-        if (NO_DIFF_DETAILS) {
-            return ArtifactDelta.DEFAULT;
-        }
-        String detailed;
-        try {
-            List<String> source = IOUtils.readLines(baseline.asNewStream(), StandardCharsets.UTF_8);
-            List<String> target = IOUtils.readLines(reactor.asNewStream(), StandardCharsets.UTF_8);
-            Patch<String> patch = DiffUtils.diff(source, target);
-            List<String> unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff("baseline", "reactor", source, patch, 0);
-            detailed = unifiedDiff.stream().collect(Collectors.joining((System.lineSeparator())));
-        } catch (Exception e) {
-            detailed = message;
-        }
-        return new SimpleArtifactDelta(message, detailed, baseline.asString(StandardCharsets.UTF_8),
-                reactor.asString(StandardCharsets.UTF_8));
+    @Override
+    public boolean matches(String extension) {
+        return HINT.equalsIgnoreCase(extension) || "exsd".equalsIgnoreCase(extension)
+                || "xsd".equalsIgnoreCase(extension);
     }
 
 }
