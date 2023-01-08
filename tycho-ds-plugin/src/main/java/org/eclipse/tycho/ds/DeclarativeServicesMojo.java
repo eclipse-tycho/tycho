@@ -27,8 +27,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ClasspathEntry;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 
@@ -39,16 +41,20 @@ import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Resource;
 
 /**
- * This mojo generates <a href="http://docs.osgi.org/specification/osgi.cmpn/8.0.0/service.component.html#service.component-component.description">
- * OSGi Declarative Services component description XMLs</a> based on
- * <a href="https://docs.osgi.org/javadoc/osgi.cmpn/8.0.0/org/osgi/service/component/annotations/package-summary.html">OSGi DS annotations</a>
- * in the {@code process-classes} phase.
- * The generated component description XMLs end up in {@code project.build.outputDirectory} below the given {@link DeclarativeServicesMojo#path}.
- * This mojo uses <a href="https://bnd.bndtools.org/">Bnd</a> under the hood.
+ * This mojo generates <a href=
+ * "http://docs.osgi.org/specification/osgi.cmpn/8.0.0/service.component.html#service.component-component.description">
+ * OSGi Declarative Services component description XMLs</a> based on <a href=
+ * "https://docs.osgi.org/javadoc/osgi.cmpn/8.0.0/org/osgi/service/component/annotations/package-summary.html">OSGi
+ * DS annotations</a> in the {@code process-classes} phase. The generated
+ * component description XMLs end up in {@code project.build.outputDirectory}
+ * below the given {@link DeclarativeServicesMojo#path}. This mojo uses
+ * <a href="https://bnd.bndtools.org/">Bnd</a> under the hood.
  */
 @Mojo(name = "declarative-services", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class DeclarativeServicesMojo extends AbstractMojo {
 
+	public static final String CONTEXT_KEY_MANIFEST_HEADER = "DeclarativeServicesMojoHeader";
+	public static final String SERVICE_COMPONENT_HEADER = "Service-Component";
 	/**
 	 * Controls if the DS components annotations are made available on the
 	 * compile-classpath, this means no explicit import is required.
@@ -57,18 +63,23 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	private boolean classpath = Boolean.parseBoolean(DeclarativeServiceConfigurationReader.DEFAULT_ADD_TO_CLASSPATH);
 	/**
 	 * Controls the declarative services specification version to use as maximum.
-	 * This mojo may generate component descriptions in a version lower than the given one in case the annotations don't require features from newer versions.
-	 * Values need to be given in format {@code V<major>_<minor>} or {@code <major>.<minor>}.
+	 * This mojo may generate component descriptions in a version lower than the
+	 * given one in case the annotations don't require features from newer versions.
+	 * Values need to be given in format {@code V<major>_<minor>} or
+	 * {@code <major>.<minor>}.
 	 */
 	@Parameter(property = "tycho.ds.version", defaultValue = DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION)
 	private String dsVersion = DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION;
 
 	/**
 	 * Enables the processing of declarative services by Tycho, this could be
-	 * overridden by project specific configuration.
-	 * If set to {@code true} will enable DS it for all projects except for those that have explicitly disabled
-	 * <a href="https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Ftips%2Fpde_tips.htm&cp%3D4_4">DS processing in their per-project configuration</a>,
-	 * if set to {@code false} will only process projects which have DS processing explicitly enabled in their per-project configuration.
+	 * overridden by project specific configuration. If set to {@code true} will
+	 * enable DS it for all projects except for those that have explicitly disabled
+	 * <a href=
+	 * "https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Ftips%2Fpde_tips.htm&cp%3D4_4">DS
+	 * processing in their per-project configuration</a>, if set to {@code false}
+	 * will only process projects which have DS processing explicitly enabled in
+	 * their per-project configuration.
 	 */
 	@Parameter(property = "tycho.ds.enabled", defaultValue = "false")
 	private boolean enabled = false;
@@ -80,16 +91,29 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	private boolean skip = false;
 
 	/**
-	 * The desired path where to place component definitions. If it is given as relative path it is relative to {@code project.build.outputDirectory}.
+	 * The desired path where to place component definitions. If it is given as
+	 * relative path it is relative to {@code project.build.outputDirectory}.
 	 */
 	@Parameter(property = "tycho.ds.path", defaultValue = DeclarativeServiceConfigurationReader.DEFAULT_PATH)
 	private String path = "OSGI-INF";
 
+	/**
+	 * 
+	 * Configures how the {@value #SERVICE_COMPONENT_HEADER} should be handled:
+	 * <ul>
+	 * <li>auto - the header is added if it is currently missing</li>
+	 * <li>keep - the header is kept as is an never modifies it</li>
+	 * <li>replace - the header is always replaced</li>
+	 * </ul>
+	 */
+	@Parameter(property = "tycho.ds.header", defaultValue = "auto")
+	private HeaderConfiguration header = HeaderConfiguration.auto;
+
 	@Parameter(property = "project", readonly = true)
 	protected MavenProject project;
 
-	@Component(role = TychoProject.class)
-	private Map<String, TychoProject> projectTypes;
+	@Component
+	private TychoProjectManager manager;
 
 	@Component
 	private DeclarativeServiceConfigurationReader configurationReader;
@@ -99,7 +123,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 		if (skip) {
 			return;
 		}
-		TychoProject projectType = projectTypes.get(project.getPackaging());
+		TychoProject projectType = manager.getTychoProject(project).orElse(null);
 		if (projectType instanceof OsgiBundleProject bundleProject) {
 			try {
 				DeclarativeServicesConfiguration configuration = configurationReader.getConfiguration(project);
@@ -119,7 +143,8 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 						// clear any existing entries
 						directory.clear();
 					}
-					List<ClasspathEntry> classpath = bundleProject.getClasspath(DefaultReactorProject.adapt(project));
+					ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+					List<ClasspathEntry> classpath = bundleProject.getClasspath(reactorProject);
 					for (ClasspathEntry entry : classpath) {
 						List<File> locations = entry.getLocations();
 						for (File file : locations) {
@@ -129,7 +154,8 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 						}
 					}
 					// https://bnd.bndtools.org/instructions/dsannotations-options.html
-					analyzer.setProperty(Constants.DSANNOTATIONS_OPTIONS, "version;maximum=" + configuration.getSpecificationVersion().toString());
+					analyzer.setProperty(Constants.DSANNOTATIONS_OPTIONS,
+							"version;maximum=" + configuration.getSpecificationVersion().toString());
 					analyzer.addBasicPlugin(new DSAnnotations());
 					analyzer.analyze();
 					for (String warning : analyzer.getWarnings()) {
@@ -141,10 +167,14 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					if (!analyzer.getErrors().isEmpty()) {
 						throw new MojoFailureException("Generation of ds components failed, see log for details");
 					}
-					String components = analyzer.getProperty("Service-Component");
+					String components = analyzer.getProperty(SERVICE_COMPONENT_HEADER);
 					if (components == null || components.isBlank()) {
 						// nothing to do...
 						return;
+					}
+					if (header == HeaderConfiguration.replace || (header == HeaderConfiguration.auto
+							&& bundleProject.getManifestValue(SERVICE_COMPONENT_HEADER, project) == null)) {
+						reactorProject.setContextValue(CONTEXT_KEY_MANIFEST_HEADER, components);
 					}
 					for (String component : components.split(",\\s*")) {
 						String name = FilenameUtils.getName(component);

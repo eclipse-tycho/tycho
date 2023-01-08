@@ -18,9 +18,9 @@ import javax.inject.Inject;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractSpecificationClasspathContributor;
@@ -45,7 +45,7 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 	}
 
 	@Override
-	protected Version getSpecificationVersion(ReactorProject project) {
+	protected Version getSpecificationVersion(MavenProject project) {
 		try {
 			DeclarativeServicesConfiguration configuration = configurationReader.getConfiguration(project);
 			if (configuration != null) {

@@ -8,21 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *    Christoph Läubrich - initial API and implementation
+ *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.classpath;
+package org.eclipse.tycho.ds;
 
-import java.util.List;
-
-import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.ClasspathEntry;
-
-/**
- * A {@link ClasspathContributor} can contribute additional items to the compile classpath of a
- * project
- *
- */
-public interface ClasspathContributor {
-
-    List<ClasspathEntry> getAdditionalClasspathEntries(MavenProject project, String scope);
+public enum HeaderConfiguration {
+	/**
+	 * If the header is not present, it is added, otherwise it is kept as is
+	 */
+	auto,
+	/**
+	 * Keep the header and never change it
+	 */
+	keep,
+	/**
+	 * Replace the header regardless of current manifest state
+	 */
+	replace;
 }
