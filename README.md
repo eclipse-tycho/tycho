@@ -55,9 +55,10 @@ If you want to help with development of Tycho itself but can't afford to do it b
 Tycho has a very large user-base and thus we use exhaustive test-suites to ensure everything works well. This comes at a cost of also using a lot of processing power.
 
 The following Organizations support Tycho getting processing power for their builds:
-* [Eclipse Foundation](https://www.eclipse.org/sponsor/) - host our CI Infrastructure, become a friend of Eclipse and support the Eclipse Foundation in general
-* ![](https://läubisoft.gmbh/favicon.ico) [Läubisoft GmbH](https://läubisoft.gmbh/en/) - provides four dynamic build nodes powered by 12 CPU / 32 GB RAM
-* ![](https://www.renesas.com/favicon.ico) [Renesas Electronics Corporation](https://www.eclipse.org/membership/showMember.php?member_id=1069) - sponsors a resource pack with 2 CPU / 8 GB RAM
-* ![](https://www.sap.com/favicon.ico) [SAP SE](https://www.eclipse.org/membership/showMember.php?member_id=665) - sponsors two resource packs with 2 CPU / 8 GB RAM each
+* <img src="https://www.eclipse.org/favicon.ico" width="16" height="16"> [Eclipse Foundation](https://www.eclipse.org/sponsor/) - host our CI Infrastructure, become a friend of Eclipse and support the Eclipse Foundation in general
+* <img src="https://läubisoft.gmbh/favicon.ico"  width="16" height="16"> [Läubisoft GmbH](https://läubisoft.gmbh/en/) - provides four dynamic build nodes powered by 12 CPU / 32 GB RAM
+* <img src="https://www.renesas.com/favicon.ico" width="16" height="16"> [Renesas Electronics Corporation](https://www.eclipse.org/membership/showMember.php?member_id=1069) - sponsors a resource pack with 2 CPU / 8 GB RAM
+* <img src="https://www.sap.com/favicon.ico"     width="16" height="16"> [SAP SE](https://www.eclipse.org/membership/showMember.php?member_id=665) - sponsors two resource packs with 2 CPU / 8 GB RAM each
+* <img src="https://www.redhat.com/favicon.ico"  width="16" height="16"> [Red Hat, Inc.](https://www.eclipse.org/membership/showMember.php?member_id=731) - sponsors a resource pack with 2 CPU / 8 GB RAM
 
 If your Organizations is an [Eclipse Member](https://www.eclipse.org/membership/exploreMembership.php) you can help us by [sponsoring one of the included resource packs](https://wiki.eclipse.org/CBI#Assigning_Resource_Packs_to_a_Project) to speed up builds. Organizations can check how many Resource Packs they have left for project sponsoring on the [membership portal](https://membership.eclipse.org/portal/login).
