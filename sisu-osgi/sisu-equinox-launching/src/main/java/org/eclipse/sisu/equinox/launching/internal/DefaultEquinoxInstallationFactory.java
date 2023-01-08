@@ -82,10 +82,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
             for (BundleReference artifact : description.getBundles()) {
                 File file = artifact.getLocation();
-                Manifest mf = getManifest(file);
-                boolean directoryShape = bundlesToExplode.contains(artifact.getId()) || isDirectoryShape(mf);
-
-                if (!file.isDirectory() && directoryShape) {
+                if (needsUnpack(artifact, bundlesToExplode)) {
                     String filename = artifact.getId() + "_" + artifact.getVersion();
                     File unpacked = new File(location, "plugins/" + filename);
 
@@ -163,6 +160,19 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         }
     }
 
+    private boolean needsUnpack(BundleReference artifact, Set<String> bundlesToExplode) throws IOException {
+        File file = artifact.getLocation();
+        if (file.isDirectory()) {
+            //directory items needs never being unpacked...
+            return false;
+        }
+        if (bundlesToExplode.contains(artifact.getId())) {
+            return true;
+        }
+        Manifest manifest = getManifest(file);
+        return isDirectoryShape(manifest);
+    }
+
     private boolean isDirectoryShape(Manifest mf) {
 
         String value = mf.getMainAttributes().getValue("Eclipse-BundleShape");
@@ -176,7 +186,8 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             return manifest;
         }
         if (file.isDirectory()) {
-            try (FileInputStream stream = new FileInputStream(new File(file, JarFile.MANIFEST_NAME))) {
+            File manifestFile = new File(file, JarFile.MANIFEST_NAME);
+            try (FileInputStream stream = new FileInputStream(manifestFile)) {
                 manifest = new Manifest(stream);
             }
         } else {

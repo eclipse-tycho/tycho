@@ -773,8 +773,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             return null;
         }
         TestFrameworkProvider provider = providerHelper.selectProvider(
-                getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
-                providerHint);
+                project, getProjectType().getClasspath(DefaultReactorProject.adapt(project)),
+                getMergedProviderProperties(), providerHint);
         try {
             PropertiesWrapper wrapper = createSurefireProperties(provider, scanResult);
             storeProperties(wrapper.getProperties(), surefireProperties);
@@ -834,8 +834,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             return null;
         }
         TestFrameworkProvider provider = providerHelper.selectProvider(
-                getProjectType().getTestClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
-                providerHint);
+                project, getProjectType().getTestClasspath(DefaultReactorProject.adapt(project)),
+                getMergedProviderProperties(), providerHint);
         DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
         final List<ArtifactKey> extraDependencies = getExtraDependencies();
         List<ReactorProject> reactorProjects = getReactorProjects();
