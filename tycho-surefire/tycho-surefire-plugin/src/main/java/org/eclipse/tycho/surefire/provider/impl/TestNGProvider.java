@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
@@ -47,7 +48,7 @@ public class TestNGProvider implements TestFrameworkProvider {
     }
 
     @Override
-    public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
         for (ClasspathEntry classpathEntry : testBundleClassPath) {
             ArtifactKey artifactKey = classpathEntry.getArtifactKey();
             if (TESTNG_BSN.equals(artifactKey.getId())) {

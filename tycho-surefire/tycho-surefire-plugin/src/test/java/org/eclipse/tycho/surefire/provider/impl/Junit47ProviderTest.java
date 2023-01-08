@@ -24,20 +24,21 @@ public class Junit47ProviderTest extends AbstractJUnitProviderTest {
 
     @Test
     public void testEnabled() throws Exception {
-        assertTrue(junitProvider.isEnabled(classPath("org.junit:4.7"), parallelProperties()));
-        assertTrue(junitProvider.isEnabled(classPath("org.junit4:4.8.1"), parallelProperties()));
-        assertTrue(junitProvider.isEnabled(classPath("org.junit:3.8.2", "org.junit:4.7.0"), parallelProperties()));
+        assertTrue(junitProvider.isEnabled(null, classPath("org.junit:4.7"), parallelProperties()));
+        assertTrue(junitProvider.isEnabled(null, classPath("org.junit4:4.8.1"), parallelProperties()));
+        assertTrue(
+                junitProvider.isEnabled(null, classPath("org.junit:3.8.2", "org.junit:4.7.0"), parallelProperties()));
     }
 
     @Test
     public void testDisabled() throws Exception {
-        assertFalse(junitProvider.isEnabled(classPath(), parallelProperties()));
-        assertFalse(junitProvider.isEnabled(classPath("foo:1.0"), parallelProperties()));
-        assertFalse(junitProvider.isEnabled(classPath("org.junit:3.8.2"), parallelProperties()));
-        assertFalse(junitProvider.isEnabled(classPath("org.junit:4.5.0"), parallelProperties()));
-        assertFalse(junitProvider.isEnabled(classPath("org.junit:5.0"), parallelProperties()));
-        assertFalse(junitProvider.isEnabled(classPath("org.junit4:5.1"), parallelProperties()));
-        assertFalse(junitProvider.isEnabled(classPath("org.junit:4.8.1"), new Properties()));
+        assertFalse(junitProvider.isEnabled(null, classPath(), parallelProperties()));
+        assertFalse(junitProvider.isEnabled(null, classPath("foo:1.0"), parallelProperties()));
+        assertFalse(junitProvider.isEnabled(null, classPath("org.junit:3.8.2"), parallelProperties()));
+        assertFalse(junitProvider.isEnabled(null, classPath("org.junit:4.5.0"), parallelProperties()));
+        assertFalse(junitProvider.isEnabled(null, classPath("org.junit:5.0"), parallelProperties()));
+        assertFalse(junitProvider.isEnabled(null, classPath("org.junit4:5.1"), parallelProperties()));
+        assertFalse(junitProvider.isEnabled(null, classPath("org.junit:4.8.1"), new Properties()));
     }
 
     private Properties parallelProperties() {

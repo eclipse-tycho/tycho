@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ClasspathEntry;
@@ -42,8 +43,8 @@ public class ProviderHelper {
 
     private static final Comparator<TestFrameworkProvider> VERSION_COMPARATOR = (p1, p2) -> p1.getVersion().compareTo(p2.getVersion());
 
-    public TestFrameworkProvider selectProvider(List<ClasspathEntry> classpath, Properties providerProperties,
-            String providerHint) throws MojoExecutionException {
+    public TestFrameworkProvider selectProvider(MavenProject project, List<ClasspathEntry> classpath,
+            Properties providerProperties, String providerHint) throws MojoExecutionException {
         if (providerHint != null) {
             TestFrameworkProvider provider = providers.get(providerHint);
             if (provider == null) {
@@ -55,7 +56,7 @@ public class ProviderHelper {
         }
         List<TestFrameworkProvider> candidates = new ArrayList<>();
         for (TestFrameworkProvider provider : providers.values()) {
-            if (provider.isEnabled(classpath, providerProperties)) {
+            if (provider.isEnabled(project, classpath, providerProperties)) {
                 candidates.add(provider);
             }
         }

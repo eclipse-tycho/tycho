@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.surefire.api.booter.ProviderParameterNames;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ClasspathEntry;
@@ -36,14 +37,14 @@ public class JUnit47Provider extends AbstractJUnitProvider {
     private static final Version VERSION = Version.parseVersion("4.7.0");
 
     @Override
-    public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
         if (hasGroups(surefireProperties)) {
             return true;
         }
         if (!isParallelEnabled(surefireProperties)) {
             return false;
         }
-        return super.isEnabled(testBundleClassPath, surefireProperties);
+        return super.isEnabled(project, testBundleClassPath, surefireProperties);
     }
 
     private boolean hasGroups(Properties providerProperties) {

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
@@ -39,7 +40,7 @@ public final class NoopTestFrameworkProvider implements TestFrameworkProvider {
     }
 
     @Override
-    public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties providerProperties) {
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties providerProperties) {
         return false;
     }
 
