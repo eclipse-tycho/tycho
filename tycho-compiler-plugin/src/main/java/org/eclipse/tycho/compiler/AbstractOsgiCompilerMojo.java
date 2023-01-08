@@ -857,7 +857,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
         try {
             pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
-                List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(reactorProject, dependencyScope);
+                List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project, dependencyScope);
                 if (list != null && !list.isEmpty()) {
                     classpath.addAll(list);
                 }

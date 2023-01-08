@@ -54,6 +54,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
+import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.packaging.sourceref.SourceReferenceComputer;
 import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 import org.osgi.framework.Constants;
@@ -151,6 +152,12 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
 	@Component
 	private BundleReader bundleReader;
+
+	@Component
+	List<ManifestProcessor> manifestProcessors;
+
+	@Component
+	PluginRealmHelper pluginRealmHelper;
 
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -254,7 +261,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			archiver.getArchiver().addFileSet(getFileSet(mavenProject.getBasedir(), binIncludesList, binExcludesList));
 
 			File manifest = new File(mavenProject.getBuild().getDirectory(), "MANIFEST.MF");
-			updateManifest(manifest);
+			writeManifest(manifest, getManifest());
 			archive.setManifestFile(manifest);
 
 			archiver.setOutputFile(pluginFile);
@@ -288,11 +295,6 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 		}
 		getLog().warn(message);
 
-	}
-
-	private void updateManifest(File output) throws IOException, MojoExecutionException {
-
-		writeManifest(output, getManifest());
 	}
 
 	protected void writeManifest(File output, Manifest mf) throws IOException {
@@ -340,6 +342,14 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 				}).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.joining(","));
 			});
 		}
+		try {
+			pluginRealmHelper.visitPluginExtensions(project, session, ManifestProcessor.class, processor -> {
+				processor.processManifest(project, mf);
+			});
+		} catch (Exception e) {
+			getLog().warn("Manifest processing failed: " + e);
+		}
+
 		return mf;
 	}
 

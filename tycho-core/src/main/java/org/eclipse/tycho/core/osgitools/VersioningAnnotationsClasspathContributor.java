@@ -16,8 +16,8 @@ import javax.inject.Inject;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.osgi.framework.Version;
 
@@ -36,7 +36,7 @@ public class VersioningAnnotationsClasspathContributor extends AbstractSpecifica
     }
 
     @Override
-    protected Version getSpecificationVersion(ReactorProject project) {
+    protected Version getSpecificationVersion(MavenProject project) {
         return VERSION;
     }
 

@@ -25,12 +25,11 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
+import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
@@ -78,10 +77,10 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
     }
 
     @Override
-    public final List<ClasspathEntry> getAdditionalClasspathEntries(ReactorProject project, String scope) {
+    public final List<ClasspathEntry> getAdditionalClasspathEntries(MavenProject project, String scope) {
         Version specificationVersion = getSpecificationVersion(project);
         Version nextMajor = new Version(specificationVersion.getMajor() + 1, 0, 0);
-        TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(project);
+        TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(DefaultReactorProject.adapt(project));
         // try to resolve from TP first...
         if (tp != null) {
             try {
@@ -103,8 +102,7 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
                 dependency.setArtifactId(mavenArtifactId);
                 dependency.setVersion(String.format("[%d.%d,%d)", specificationVersion.getMajor(),
                         specificationVersion.getMinor(), nextMajor.getMajor()));
-                Artifact artifact = dependenciesResolver.resolveHighestVersion(project.adapt(MavenProject.class),
-                        session, dependency);
+                Artifact artifact = dependenciesResolver.resolveHighestVersion(project, session, dependency);
                 ArtifactKey artifactKey = projectManager.getArtifactKey(artifact);
                 logger.debug("Resolved " + packageName + " to " + artifact.getId() + " @ " + artifact.getFile());
                 return List.of(
@@ -119,5 +117,5 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
         return Collections.emptyList();
     }
 
-    protected abstract Version getSpecificationVersion(ReactorProject project);
+    protected abstract Version getSpecificationVersion(MavenProject project);
 }

@@ -95,8 +95,7 @@ public class ListDependenciesMojo extends AbstractMojo {
 
                 try {
                     pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
-                        List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(reactorProject,
-                                Artifact.SCOPE_COMPILE);
+                        List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project, Artifact.SCOPE_COMPILE);
                         if (list != null && !list.isEmpty()) {
                             for (ClasspathEntry entry : list) {
                                 for (File locations : entry.getLocations()) {

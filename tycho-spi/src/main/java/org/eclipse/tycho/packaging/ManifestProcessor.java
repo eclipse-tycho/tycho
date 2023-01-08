@@ -10,19 +10,16 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.classpath;
+package org.eclipse.tycho.packaging;
 
-import java.util.List;
+import java.util.jar.Manifest;
 
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.ClasspathEntry;
 
 /**
- * A {@link ClasspathContributor} can contribute additional items to the compile classpath of a
- * project
- *
+ * A manifest processor can process manifest entries before they are packaged
  */
-public interface ClasspathContributor {
+public interface ManifestProcessor {
 
-    List<ClasspathEntry> getAdditionalClasspathEntries(MavenProject project, String scope);
+    void processManifest(MavenProject mavenProject, Manifest manifest);
 }
