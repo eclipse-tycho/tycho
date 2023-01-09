@@ -907,7 +907,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             if (otherProject != null) {
                 // Contrary to what's written above, we use the project's root directory only when
                 // we do not need custom metadata. If we need, we load the test bundle as JAR instead
-                if (otherProject.sameProject(project) && project.getBasedir().equals(metadataDirectory)) {
+                if (useMetadataDirectory(otherProject)) {
                     addBundle(testRuntime, artifact.getKey(), metadataDirectory);
                     continue;
                 }
@@ -930,6 +930,10 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
         getReportsDirectory().mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
+    }
+
+    protected boolean useMetadataDirectory(ReactorProject otherProject) {
+        return otherProject.sameProject(project) && project.getBasedir().equals(metadataDirectory);
     }
 
     protected List<TargetEnvironment> getTestTargetEnvironments() {

@@ -211,6 +211,19 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
         testRuntime.addDevEntries(bsn, testDevEntries);
     }
 
+    @Override
+    protected boolean useMetadataDirectory(ReactorProject otherProject) {
+        boolean meta = super.useMetadataDirectory(otherProject);
+        if (meta) {
+            //check if we are already packed
+            File file = project.getArtifact().getFile();
+            if (file != null && file.isFile()) {
+                return false;
+            }
+        }
+        return meta;
+    }
+
     /**
      * This generates a bundle that is a fragment to the host that enhances the original bundle by
      * the following items:
