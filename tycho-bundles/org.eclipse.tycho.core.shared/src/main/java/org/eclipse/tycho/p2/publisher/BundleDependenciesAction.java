@@ -48,8 +48,8 @@ public class BundleDependenciesAction extends BundlesAction {
      */
     private final OptionalResolutionAction optionalAction;
 
-    public BundleDependenciesAction(File location, OptionalResolutionAction optionalAction) {
-        super(new File[] { location });
+    public BundleDependenciesAction(BundleDescription description, OptionalResolutionAction optionalAction) {
+        super(new BundleDescription[] { description });
         this.optionalAction = optionalAction;
     }
 
