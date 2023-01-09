@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
@@ -63,6 +65,9 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -99,6 +104,7 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.surefire.provider.impl.ProviderHelper;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
@@ -639,6 +645,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private RepositoryReferenceTool repositoryReferenceTool;
 
     @Component
+    private InstallableUnitGenerator generator;
+
+    @Component
     private ToolchainProvider toolchainProvider;
 
     /**
@@ -772,9 +781,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             //... if not we notify the caller that nothing has to be done here.
             return null;
         }
-        TestFrameworkProvider provider = providerHelper.selectProvider(
-                project, getProjectType().getClasspath(DefaultReactorProject.adapt(project)),
-                getMergedProviderProperties(), providerHint);
+        TestFrameworkProvider provider = providerHelper.selectProvider(project,
+                getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
+                providerHint);
         try {
             PropertiesWrapper wrapper = createSurefireProperties(provider, scanResult);
             storeProperties(wrapper.getProperties(), surefireProperties);
@@ -809,7 +818,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         iusToInstall.addAll(providerHelper.getSymbolicNames(testHarnessArtifacts));
         // 3. extra dependencies
         LinkedHashSet<ArtifactKey> extraDependencies = new LinkedHashSet<>(TychoProjectUtils
-                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).getExtraRequirements());
+                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).getAdditionalArtifacts());
         extraDependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
         for (ArtifactKey extraDependency : extraDependencies) {
             String type = extraDependency.getType();
@@ -833,12 +842,13 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             //... if not we notify the caller that nothing has to be done here.
             return null;
         }
-        TestFrameworkProvider provider = providerHelper.selectProvider(
-                project, getProjectType().getTestClasspath(DefaultReactorProject.adapt(project)),
-                getMergedProviderProperties(), providerHint);
+        TestFrameworkProvider provider = providerHelper.selectProvider(project,
+                getProjectType().getTestClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
+                providerHint);
         DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
         final List<ArtifactKey> extraDependencies = getExtraDependencies();
         List<ReactorProject> reactorProjects = getReactorProjects();
+        Collection<IRequirement> testRequiredPackages = new ArrayList<>();
 
         final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
             @Override
@@ -847,10 +857,27 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             }
 
             @Override
-            public List<ArtifactKey> getExtraRequirements() {
+            public List<ArtifactKey> getAdditionalArtifacts() {
                 return extraDependencies;
             }
+
+            @Override
+            public Collection<IRequirement> getAdditionalRequirements() {
+                return testRequiredPackages;
+            }
         };
+        Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
+        for (Artifact artifact : testFrameworkBundles) {
+            generator.getInstallableUnits(artifact).stream().flatMap(iu -> iu.getRequirements().stream())
+                    .filter(req -> {
+                        if (req instanceof IRequiredCapability reqcap) {
+                            if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(reqcap.getNamespace())) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }).forEach(testRequiredPackages::add);
+        }
         DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null,
                 reactorProjects, resolverConfiguration, getTestTargetEnvironments());
 
@@ -890,10 +917,16 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                     continue;
                 }
             }
-            addBundle(testRuntime, artifact.getKey(), artifact.getLocation(true));
+            try {
+                addBundle(testRuntime, artifact.getKey(), artifact.fetchArtifact().get());
+            } catch (InterruptedException e) {
+                throw new MojoExecutionException("interrupted");
+            } catch (ExecutionException e) {
+                throw new MojoFailureException("fetching artifact failed", e);
+            }
         }
 
-        setupTestBundles(provider, testRuntime);
+        setupTestBundles(testFrameworkBundles, testRuntime);
 
         getReportsDirectory().mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
@@ -918,12 +951,14 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     }
 
     private void addBundle(EquinoxInstallationDescription runtime, ArtifactKey artifact, File file) {
+        if (file == null) {
+            throw new IllegalArgumentException("File for artifact " + artifact + " is null");
+        }
         runtime.addBundle(artifact.getId(), artifact.getVersion(), file);
     }
 
-    protected void setupTestBundles(TestFrameworkProvider provider, EquinoxInstallationDescription testRuntime)
+    protected void setupTestBundles(Set<Artifact> testFrameworkBundles, EquinoxInstallationDescription testRuntime)
             throws MojoExecutionException {
-        Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {
             DevBundleInfo devInfo = workspaceState.getBundleInfo(session, artifact.getGroupId(),
                     artifact.getArtifactId(), artifact.getVersion(), project.getPluginArtifactRepositories());
@@ -949,7 +984,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         }
         TargetPlatformConfiguration configuration = TychoProjectUtils
                 .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
-        dependencies.addAll(configuration.getDependencyResolverConfiguration().getExtraRequirements());
+        dependencies.addAll(configuration.getDependencyResolverConfiguration().getAdditionalArtifacts());
         dependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
         dependencies.addAll(getTestDependencies());
         return dependencies;

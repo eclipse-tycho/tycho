@@ -294,6 +294,11 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
+    public void addRequirement(IRequirement requirement) {
+        additionalRequirements.add(requirement);
+    }
+
+    @Override
     public void addAdditionalBundleDependency(String bundleId) {
         additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, bundleId,
                 VersionRange.emptyRange, null, false, true, true));

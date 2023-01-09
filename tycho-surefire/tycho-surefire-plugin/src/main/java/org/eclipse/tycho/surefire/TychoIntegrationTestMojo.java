@@ -15,7 +15,9 @@ package org.eclipse.tycho.surefire;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -42,7 +44,6 @@ import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.surefire.provider.impl.NoopTestFrameworkProvider;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Constants;
 
@@ -159,14 +160,14 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     }
 
     @Override
-    protected void setupTestBundles(final TestFrameworkProvider provider,
+    protected void setupTestBundles(Set<Artifact> testFrameworkBundles,
             final EquinoxInstallationDescription testRuntime) throws MojoExecutionException {
         final var dependencies = pluginDescriptor.getPlugin().getDependencies();
 
         if (dependencies.isEmpty()) {
-            super.setupTestBundles(provider, testRuntime);
+            super.setupTestBundles(testFrameworkBundles, testRuntime);
         } else {
-            super.setupTestBundles(new NoopTestFrameworkProvider(), testRuntime);
+            super.setupTestBundles(Collections.emptySet(), testRuntime);
 
             for (final var dependency : dependencies) {
                 final var resolveArtifact = resolveDependency(dependency);

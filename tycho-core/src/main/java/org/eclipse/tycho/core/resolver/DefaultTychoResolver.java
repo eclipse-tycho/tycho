@@ -15,6 +15,7 @@
 package org.eclipse.tycho.core.resolver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,6 +28,7 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -164,10 +166,15 @@ public class DefaultTychoResolver implements TychoResolver {
                     }
 
                     @Override
-                    public List<ArtifactKey> getExtraRequirements() {
-                        ArrayList<ArtifactKey> res = new ArrayList<>(resolverConfiguration.getExtraRequirements());
+                    public List<ArtifactKey> getAdditionalArtifacts() {
+                        ArrayList<ArtifactKey> res = new ArrayList<>(resolverConfiguration.getAdditionalArtifacts());
                         res.addAll(testDependencies);
                         return res;
+                    }
+
+                    @Override
+                    public Collection<IRequirement> getAdditionalRequirements() {
+                        return resolverConfiguration.getAdditionalRequirements();
                     }
                 };
                 testDependencyArtifacts = resolver.resolveDependencies(session, project, preliminaryTargetPlatform,
