@@ -15,12 +15,14 @@ package org.eclipse.tycho.p2resolver;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
@@ -55,6 +57,7 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
     private ReactorProject reactorProject;
     private Map<IInstallableUnit, PomDependency> installableUnitLookUp = new HashMap<>();
     private Collection<PomDependency> gatheredDependencies = new HashSet<>();
+    private List<Consumer<PomDependency>> dependencyConsumer = new ArrayList<>();
     private InstallableUnitGenerator generator;
     private PomDependencies considerPomDependencies;
     private ArtifactHandlerManager artifactHandlerManager;
@@ -86,7 +89,11 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
             if (pomDependency == null) {
                 continue;
             }
-            gatheredDependencies.add(pomDependency);
+            if (gatheredDependencies.add(pomDependency)) {
+                for (Consumer<PomDependency> consumer : dependencyConsumer) {
+                    consumer.accept(pomDependency);
+                }
+            }
         }
         return result;
     }
@@ -193,8 +200,9 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
 
     }
 
-    Collection<PomDependency> getGatheredDependencies() {
-        return gatheredDependencies;
+    void addPomDependencyConsumer(Consumer<PomDependency> consumer) {
+        gatheredDependencies.forEach(consumer);
+        dependencyConsumer.add(consumer);
     }
 
 }
