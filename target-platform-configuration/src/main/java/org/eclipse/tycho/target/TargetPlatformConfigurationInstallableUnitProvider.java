@@ -65,7 +65,7 @@ public class TargetPlatformConfigurationInstallableUnitProvider implements Insta
         }
         TargetPlatformConfiguration configuration = configurationReader.getTargetPlatformConfiguration(session,
                 project);
-        List<IRequirement> extraRequirements = configuration.getExtraRequirements().stream()
+        List<IRequirement> extraRequirements = configuration.getAdditionalArtifacts().stream()
                 .map(key -> createRequirementFor(key.getType(), key.getId(), new VersionRange(key.getVersion())))
                 .filter(Objects::nonNull).toList();
         if (extraRequirements.isEmpty()) {

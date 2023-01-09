@@ -18,6 +18,7 @@ package org.eclipse.tycho.core;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
@@ -170,7 +172,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     }
 
     @Override
-    public List<ArtifactKey> getExtraRequirements() {
+    public List<ArtifactKey> getAdditionalArtifacts() {
         return extraRequirements;
     }
 
@@ -204,6 +206,11 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public boolean isExcluded(String groupId, String artifactId) {
         return exclusions.contains(groupId + ":" + artifactId);
+    }
+
+    @Override
+    public Collection<IRequirement> getAdditionalRequirements() {
+        return List.of();
     }
 
 }

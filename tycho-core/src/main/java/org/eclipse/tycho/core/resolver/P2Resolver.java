@@ -18,6 +18,7 @@ package org.eclipse.tycho.core.resolver;
 import java.util.Collection;
 import java.util.Map;
 
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.ReactorProject;
@@ -36,6 +37,8 @@ public interface P2Resolver {
     public void setAdditionalFilterProperties(Map<String, String> filterProperties);
 
     public void addDependency(String type, String id, String versionRange) throws IllegalArtifactReferenceException;
+
+    public void addRequirement(IRequirement requirement);
 
     public void addAdditionalBundleDependency(String bundle);
 
