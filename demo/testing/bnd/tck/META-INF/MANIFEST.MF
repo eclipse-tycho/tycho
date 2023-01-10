@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Run TCK with Tycho and BND
+Bundle-SymbolicName: tck
+Bundle-Version: 1.0.0
+Service-Component: OSGI-INF/my.jdbc.service.JDBCServiceImpl.xml
+Automatic-Module-Name: tck
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Capability: osgi.extender;
+ filter:="(&(osgi.extender=osgi.component)(version>=1.3)(!(version>=2.0)))"
