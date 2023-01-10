@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -25,12 +26,18 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -38,6 +45,7 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+import org.eclipse.tycho.p2resolver.P2DependencyResolver;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 
 /**
@@ -193,6 +201,9 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
 
+    @Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT)
+    private DependencyResolver dependencyResolver;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
@@ -206,6 +217,28 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 if (projectSeeds.isEmpty()) {
                     getLog().warn("No content specified for p2 repository");
                     return;
+                }
+                if (includeAllSources && TychoProjectUtils
+                        .getTargetPlatform(getReactorProject()) instanceof P2TargetPlatform p2TargetPlatform) {
+                    TychoProjectUtils.getDependencyArtifacts(getReactorProject()).getArtifacts().stream()
+                            .flatMap(dep -> dep.getInstallableUnits().stream()).map(iu -> {
+                                String sourceId = iu.getId().endsWith(".feature.group")
+                                        ? iu.getId().replaceAll(".feature.group", ".source")
+                                        : iu.getId() + ".source";
+                                String sourceType = iu.getId().endsWith(".feature.group")
+                                        ? ArtifactType.TYPE_ECLIPSE_FEATURE
+                                        : ArtifactType.TYPE_ECLIPSE_PLUGIN;
+                                try {
+                                    return new DependencySeed(sourceType, sourceId,
+                                            p2TargetPlatform.resolveUnit(sourceType, sourceId, iu.getVersion()));
+                                } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
+                                    return null;
+                                }
+                            }).filter(Objects::nonNull) //
+                            .filter(sourceBundleSeed -> p2TargetPlatform.getArtifactLocation(
+                                    new DefaultArtifactKey(sourceBundleSeed.getType(), sourceBundleSeed.getId(),
+                                            sourceBundleSeed.getInstallableUnit().getVersion().toString())) != null)
+                            .forEach(projectSeeds::add);
                 }
 
                 reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
