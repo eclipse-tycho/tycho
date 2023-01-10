@@ -7,19 +7,6 @@
 	<packaging>eclipse-plugin</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>tycho-snapshots</id>
-			<url>${tycho-snapshots-url}</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<build>
 		<plugins>
 			<plugin>
