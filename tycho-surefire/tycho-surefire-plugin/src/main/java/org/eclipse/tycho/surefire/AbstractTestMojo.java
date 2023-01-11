@@ -21,9 +21,7 @@ package org.eclipse.tycho.surefire;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +34,6 @@ import java.util.stream.IntStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -52,18 +49,12 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildPropertiesParser;
-import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.DependencyArtifacts;
-import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.DependencyResolver;
-import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -71,9 +62,7 @@ import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
-import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.osgi.framework.Constants;
 
 import aQute.bnd.osgi.Analyzer;
@@ -84,6 +73,10 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private static final String SYSTEM_JDK = "jdk";
 
     private static final String[] JAVA_EXECUTABLES = { "java", "java.exe" };
+
+    protected static final String IMPORT_REQUIRED_PACKAGES = "*";
+
+    protected static final String IMPORT_PACKAGES_OPTIONAL = "*;resolution:=optional";
 
     /**
      * Root directory (<a href=
@@ -148,40 +141,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private String testClass;
 
     /**
-     * Additional dependencies to be added to the test runtime.
-     *
-     * Note: This parameter has only limited support for dependencies to artifacts within the
-     * reactor. Therefore it is recommended to specify <tt>extraRequirements</tt> on the
-     * <tt>target-platform-configuration</tt> plugin instead. Example:
-     *
-     * <pre>
-     * &lt;plugin&gt;
-     *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
-     *    &lt;artifactId&gt;target-platform-configuration&lt;/artifactId&gt;
-     *    &lt;version&gt;${tycho-version}&lt;/version&gt;
-     *    &lt;configuration&gt;
-     *       &lt;dependency-resolution&gt;
-     *          &lt;extraRequirements&gt;
-     *             &lt;requirement&gt;
-     *                &lt;type&gt;eclipse-feature&lt;/type&gt;
-     *                &lt;id&gt;example.project.feature&lt;/id&gt;
-     *                &lt;versionRange&gt;0.0.0&lt;/versionRange&gt;
-     *             &lt;/requirement&gt;
-     *          &lt;/extraRequirements&gt;
-     *       &lt;/dependency-resolution&gt;
-     *    &lt;/configuration&gt;
-     * &lt;/plugin&gt;
-     * </pre>
-     *
-     * The dependencies specified as <tt>extraRequirements</tt> are &ndash; together with the
-     * dependencies specified in the <tt>MANIFEST.MF</tt> of the project &ndash; transitively
-     * resolved against the target platform. The resulting set of bundles is included in the test
-     * runtime.
-     */
-    @Parameter
-    private Dependency[] dependencies;
-
-    /**
      * Which JDK to use for executing tests. Possible values are: <code>SYSTEM</code>,
      * <code>BREE</code> .
      * <p/>
@@ -228,17 +187,17 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Parameter(property = "maven.test.skip")
     protected Boolean skip;
 
+    /**
+     * prints all loaded bundles
+     */
+    @Parameter(property = "tycho.printBundles", defaultValue = "false")
+    protected boolean printBundles;
+
     @Parameter(property = "session", readonly = true, required = true)
     protected MavenSession session;
 
     @Component
     protected TychoProjectManager projectManager;
-
-    @Component
-    protected InstallableUnitGenerator generator;
-
-    @Component
-    protected DefaultDependencyResolverFactory dependencyResolverLocator;
 
     @Component
     protected ToolchainManager toolchainManager;
@@ -349,49 +308,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return DefaultReactorProject.adapt(session);
     }
 
-    protected List<ArtifactKey> getExtraDependencies() {
-        final List<ArtifactKey> dependencies = new ArrayList<>();
-        if (this.dependencies != null) {
-            for (Dependency key : this.dependencies) {
-                dependencies.add(new DefaultArtifactKey(key.getType(), key.getArtifactId(), key.getVersion()));
-            }
-        }
-        TargetPlatformConfiguration configuration = TychoProjectUtils
-                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
-        dependencies.addAll(configuration.getDependencyResolverConfiguration().getAdditionalArtifacts());
-        return dependencies;
-    }
-
-    protected DependencyArtifacts resolveDependencies(Collection<IRequirement> additionalRequirements)
-            throws MojoExecutionException {
-        List<ArtifactKey> extraDependencies = getExtraDependencies();
-        DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
-        final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
-            @Override
-            public OptionalResolutionAction getOptionalResolutionAction() {
-                return OptionalResolutionAction.IGNORE;
-            }
-
-            @Override
-            public List<ArtifactKey> getAdditionalArtifacts() {
-                return extraDependencies;
-            }
-
-            @Override
-            public Collection<IRequirement> getAdditionalRequirements() {
-                return additionalRequirements;
-            }
-
-        };
-        DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null,
-                getReactorProjects(), resolverConfiguration, getTestTargetEnvironments());
-        if (testRuntimeArtifacts == null) {
-            throw new MojoExecutionException(
-                    "Cannot determinate build target platform location -- not executing tests");
-        }
-        return testRuntimeArtifacts;
-    }
-
     /**
      * This generates a bundle that is a fragment to the host that enhances the original bundle by
      * the following items:
@@ -406,12 +322,13 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      * </ol>
      * 
      * @param scanResult
+     * @param additionalRequirements
      */
     protected Optional<ResolvedArtifactKey> createTestPluginJar(final ReactorProject reactorProject,
-            ScanResult scanResult) throws Exception {
+            String packageImport, ScanResult scanResult) throws Exception {
         final var uuid = UUID.randomUUID();
         final var artifactBaseName = FilenameUtils.getBaseName(reactorProject.getArtifact().getName());
-        final var testJarName = artifactBaseName + "_test_fragment_" + uuid + ".jar";
+        final var testJarName = artifactBaseName + "-test-" + uuid + ".jar";
         final var fragmentFile = new File(project.getBuild().getDirectory(), testJarName);
 
         if (fragmentFile.exists()) {
@@ -441,7 +358,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, fragmentId);
             analyzer.setProperty(Constants.FRAGMENT_HOST, fragmentHost);
             analyzer.setProperty(Constants.BUNDLE_NAME, bundleName);
-            analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
+            analyzer.setProperty(Constants.IMPORT_PACKAGE, packageImport);
             if (scanResult != null) {
                 String collect = IntStream.range(0, scanResult.size()).mapToObj(scanResult::getClassName)
                         .collect(Collectors.joining(","));
@@ -469,7 +386,8 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             }
 
             analyzer.addClasspath(mainArtifact);
-            jar.setManifest(analyzer.calcManifest());
+            Manifest manifest = analyzer.calcManifest();
+            jar.setManifest(manifest);
             jar.write(fragmentFile);
             result = ResolvedArtifactKey.of(ArtifactType.TYPE_ECLIPSE_PLUGIN, fragmentId, hostVersion, fragmentFile);
         }
