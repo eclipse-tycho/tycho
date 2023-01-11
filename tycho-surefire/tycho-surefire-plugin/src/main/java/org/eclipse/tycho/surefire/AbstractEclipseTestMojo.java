@@ -72,14 +72,19 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.DependencyResolver;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
+import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
@@ -166,12 +171,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
      */
     @Parameter(property = "tycho.showEclipseLog", defaultValue = "false")
     private boolean showEclipseLog;
-
-    /**
-     * prints all loaded bundles
-     */
-    @Parameter(property = "tycho.printBundles", defaultValue = "false")
-    private boolean printBundles;
 
     /**
      * prints all loaded bundles
@@ -340,6 +339,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     @Component
     private EquinoxLauncher launcher;
 
+    @Component
+    protected DefaultDependencyResolverFactory dependencyResolverLocator;
+
     /**
      * Normally tycho will automatically determine the test framework provider based on the test
      * project's classpath. Use this to force using a test framework provider implementation with
@@ -470,6 +472,40 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private String testRuntime;
 
     /**
+     * Additional dependencies to be added to the test runtime.
+     *
+     * Note: This parameter has only limited support for dependencies to artifacts within the
+     * reactor. Therefore it is recommended to specify <tt>extraRequirements</tt> on the
+     * <tt>target-platform-configuration</tt> plugin instead. Example:
+     *
+     * <pre>
+     * &lt;plugin&gt;
+     *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+     *    &lt;artifactId&gt;target-platform-configuration&lt;/artifactId&gt;
+     *    &lt;version&gt;${tycho-version}&lt;/version&gt;
+     *    &lt;configuration&gt;
+     *       &lt;dependency-resolution&gt;
+     *          &lt;extraRequirements&gt;
+     *             &lt;requirement&gt;
+     *                &lt;type&gt;eclipse-feature&lt;/type&gt;
+     *                &lt;id&gt;example.project.feature&lt;/id&gt;
+     *                &lt;versionRange&gt;0.0.0&lt;/versionRange&gt;
+     *             &lt;/requirement&gt;
+     *          &lt;/extraRequirements&gt;
+     *       &lt;/dependency-resolution&gt;
+     *    &lt;/configuration&gt;
+     * &lt;/plugin&gt;
+     * </pre>
+     *
+     * The dependencies specified as <tt>extraRequirements</tt> are &ndash; together with the
+     * dependencies specified in the <tt>MANIFEST.MF</tt> of the project &ndash; transitively
+     * resolved against the target platform. The resulting set of bundles is included in the test
+     * runtime.
+     */
+    @Parameter
+    private Dependency[] dependencies;
+
+    /**
      * p2 <a href=
      * "https://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html"
      * >profile</a> name of the installation under test.
@@ -503,7 +539,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private RepositoryReferenceTool repositoryReferenceTool;
 
     @Component
-    private InstallableUnitGenerator generator;
+    protected InstallableUnitGenerator generator;
 
     /**
      * Only supported by the TestNG test provider. The values specified are passed to TestNG as test
@@ -552,8 +588,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         }
 
     }
-
-    protected abstract boolean isCompatiblePackagingType(String packaging);
 
     private EquinoxInstallation createProvisionedInstallation() throws MojoExecutionException, MojoFailureException {
         ScanResult scanResult = scanForTests();
@@ -698,6 +732,36 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         runtime.addBundle(artifact.getId(), artifact.getVersion(), file);
     }
 
+    protected DependencyArtifacts resolveDependencies(Collection<IRequirement> additionalRequirements)
+            throws MojoExecutionException {
+        List<ArtifactKey> extraDependencies = getExtraDependencies();
+        DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
+        final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
+            @Override
+            public OptionalResolutionAction getOptionalResolutionAction() {
+                return OptionalResolutionAction.IGNORE;
+            }
+
+            @Override
+            public List<ArtifactKey> getAdditionalArtifacts() {
+                return extraDependencies;
+            }
+
+            @Override
+            public Collection<IRequirement> getAdditionalRequirements() {
+                return additionalRequirements;
+            }
+
+        };
+        DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null,
+                getReactorProjects(), resolverConfiguration, getTestTargetEnvironments());
+        if (testRuntimeArtifacts == null) {
+            throw new MojoExecutionException(
+                    "Cannot determinate build target platform location -- not executing tests");
+        }
+        return testRuntimeArtifacts;
+    }
+
     protected void setupTestBundles(Set<Artifact> testFrameworkBundles, EquinoxInstallationDescription testRuntime)
             throws MojoExecutionException {
         for (Artifact artifact : testFrameworkBundles) {
@@ -728,9 +792,16 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         return key;
     }
 
-    @Override
     protected List<ArtifactKey> getExtraDependencies() {
-        List<ArtifactKey> dependencies = super.getExtraDependencies();
+        final List<ArtifactKey> dependencies = new ArrayList<>();
+        if (this.dependencies != null) {
+            for (Dependency key : this.dependencies) {
+                dependencies.add(new DefaultArtifactKey(key.getType(), key.getArtifactId(), key.getVersion()));
+            }
+        }
+        TargetPlatformConfiguration configuration = TychoProjectUtils
+                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
+        dependencies.addAll(configuration.getDependencyResolverConfiguration().getAdditionalArtifacts());
         dependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
         dependencies.addAll(getTestDependencies());
         return dependencies;

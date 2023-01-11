@@ -9,23 +9,18 @@
  - Contributors:
  -    Sonatype Inc. - initial API and implementation
  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
 		<version>4.0.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-
 	<artifactId>tycho-surefire-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-
 	<name>Tycho Surefire Plugin</name>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -45,8 +40,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -74,13 +67,11 @@
 			<artifactId>sisu-equinox-launching</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bndlib</artifactId>
 			<type>jar</type>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.tycho.surefire.osgibooter</artifactId>
@@ -262,9 +253,9 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-		      <groupId>org.apache.maven.plugins</groupId>
-	          <artifactId>maven-failsafe-plugin</artifactId>
-	          <version>${surefire-version}</version>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-failsafe-plugin</artifactId>
+			<version>${surefire-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.surefire</groupId>
@@ -285,6 +276,11 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-testing-harness</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bnd.maven</artifactId>
+			<version>${bnd.version}</version>
 		</dependency>
 	</dependencies>
 </project>
