@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -120,7 +121,13 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     }
 
     @Override
-    public IMetadataRepository getInstallableUnitsAsMetadataRepository() {
+    public IMetadataRepository getMetadataRepository() {
+        // the preliminary TP shall not be used to create build results, so this method is not needed
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IArtifactRepository getArtifactRepository() {
         // the preliminary TP shall not be used to create build results, so this method is not needed
         throw new UnsupportedOperationException();
     }

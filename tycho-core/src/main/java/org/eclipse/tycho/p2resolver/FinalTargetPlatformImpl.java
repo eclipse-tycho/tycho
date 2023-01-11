@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
@@ -27,12 +28,16 @@ import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 
 public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
 
+    private IArtifactRepository artifactRepository;
+
     public FinalTargetPlatformImpl(LinkedHashSet<IInstallableUnit> installableUnits,
             ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider jointArtifacts,
             LocalArtifactRepository localArtifactRepository, Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup,
-            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup) {
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup,
+            IArtifactRepository artifactRepository) {
         super(installableUnits, executionEnvironment, jointArtifacts, localArtifactRepository, reactorProjectLookup,
                 mavenArtifactLookup);
+        this.artifactRepository = artifactRepository;
     }
 
     @Override
@@ -41,8 +46,13 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
     }
 
     @Override
-    public IMetadataRepository getInstallableUnitsAsMetadataRepository() {
+    public IMetadataRepository getMetadataRepository() {
         return new ImmutableInMemoryMetadataRepository(installableUnits);
+    }
+
+    @Override
+    public IArtifactRepository getArtifactRepository() {
+        return artifactRepository;
     }
 
 }
