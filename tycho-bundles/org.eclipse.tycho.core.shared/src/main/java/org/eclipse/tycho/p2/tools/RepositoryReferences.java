@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
 /**
@@ -28,6 +29,8 @@ public final class RepositoryReferences {
     private final List<URI> metadataRepos = new ArrayList<>();
 
     private final List<URI> artifactRepos = new ArrayList<>();
+
+    private TargetPlatform targetPlatform;
 
     /**
      * Adds the metadata repository at the given location.
@@ -96,5 +99,13 @@ public final class RepositoryReferences {
      */
     public List<URI> getArtifactRepositories() {
         return Collections.unmodifiableList(artifactRepos);
+    }
+
+    public void setTargetPlatform(TargetPlatform targetPlatform) {
+        this.targetPlatform = targetPlatform;
+    }
+
+    public TargetPlatform getTargetPlatform() {
+        return targetPlatform;
     }
 }
