@@ -7,7 +7,7 @@
 
 	<properties>
 		<buildtimestamp.jgit.group>org.eclipse.tycho</buildtimestamp.jgit.group>
-		<tycho-version>3.1.0-SNAPSHOT</tycho-version>
+		<tycho-version>3.0.2-SNAPSHOT</tycho-version>
 	</properties>
 
 	<modules>
