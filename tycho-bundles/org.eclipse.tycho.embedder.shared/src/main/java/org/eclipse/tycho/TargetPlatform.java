@@ -14,6 +14,8 @@ package org.eclipse.tycho;
 
 import java.io.File;
 
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 /**
@@ -102,5 +104,15 @@ public interface TargetPlatform {
             }
         };
     }
+
+    /**
+     * @return the target platform content as a {@link IMetadataRepository}.
+     */
+    IMetadataRepository getMetadataRepository();
+
+    /**
+     * @return the target platform content as a {@link IArtifactRepository}.
+     */
+    IArtifactRepository getArtifactRepository();
 
 }

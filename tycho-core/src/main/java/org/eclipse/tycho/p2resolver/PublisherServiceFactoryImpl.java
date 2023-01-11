@@ -62,7 +62,7 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
             List<TargetEnvironment> environments) {
         checkCollaborators();
 
-        return new PublisherActionRunner(targetPlatform.getInstallableUnitsAsMetadataRepository(), environments,
+        return new PublisherActionRunner(targetPlatform.getMetadataRepository(), environments,
                 mavenContext.getLogger());
     }
 
