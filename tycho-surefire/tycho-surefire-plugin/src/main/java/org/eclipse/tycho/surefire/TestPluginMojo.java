@@ -41,7 +41,7 @@ import org.eclipse.tycho.PackagingType;
  * </p>
  */
 @Mojo(name = "test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
-public class TestPluginMojo extends AbstractTestMojo {
+public class TestPluginMojo extends AbstractEclipseTestMojo {
 
     /**
      * The directory containing generated test classes of the project being tested.

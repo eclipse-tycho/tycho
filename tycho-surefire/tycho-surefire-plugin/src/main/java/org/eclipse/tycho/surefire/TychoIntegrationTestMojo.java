@@ -79,7 +79,7 @@ import aQute.bnd.osgi.Jar;
  * tools that already work with maven-surefire-plugin (e.g. CI servers).
  */
 @Mojo(name = "plugin-test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
-public class TychoIntegrationTestMojo extends AbstractTestMojo {
+public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
     /**
      * The directory containing generated test classes of the project being tested.
      */

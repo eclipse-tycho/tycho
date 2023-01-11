@@ -38,7 +38,7 @@ import org.junit.Test;
 public class TestMojoToolchainTests {
 
     private ToolchainManager toolchainManager;
-    private AbstractTestMojo testMojo;
+    private AbstractEclipseTestMojo testMojo;
     private MavenSession session;
     private MavenProject project;
     private DefaultJavaToolChain breeToolchain;

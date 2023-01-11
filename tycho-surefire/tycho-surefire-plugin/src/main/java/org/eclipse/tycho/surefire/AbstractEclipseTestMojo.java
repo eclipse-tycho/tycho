@@ -111,7 +111,7 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilder;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilderFactory;
 
-public abstract class AbstractTestMojo extends AbstractMojo {
+public abstract class AbstractEclipseTestMojo extends AbstractMojo {
 
     private static final String SYSTEM_JDK = "jdk";
 
@@ -724,7 +724,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, metadataDirectory);
 
             EquinoxInstallation equinoxTestRuntime;
-            synchronized (AbstractTestMojo.class) {
+            synchronized (AbstractEclipseTestMojo.class) {
                 if ("p2Installed".equals(testRuntime)) {
                     equinoxTestRuntime = createProvisionedInstallation();
                 } else if ("default".equals(testRuntime)) {
