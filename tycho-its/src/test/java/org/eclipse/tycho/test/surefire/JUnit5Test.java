@@ -85,7 +85,10 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "My 1st JUnit 5.9 test!");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "[1] 0, 5, 5");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "[2] 10, 10, 20");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "[3] 12, 30, 42");
 		// make sure test tagged as 'slow' was skipped
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit59Test", 1);
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit59Test", 4);
 	}
 }

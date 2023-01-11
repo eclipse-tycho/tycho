@@ -14,10 +14,15 @@ package bundle.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class JUnit59Test {
 
@@ -32,6 +37,16 @@ class JUnit59Test {
     @Tag("slow")
     void slowJUnit5Test() {
         assertEquals(2, 1+1, "1 + 1 should equal 2");
+    }
+
+    private static Stream<Arguments> testData() {
+        return Stream.of(Arguments.arguments(0, 5, 5), Arguments.arguments(10, 10, 20), Arguments.arguments(12, 30, 42));
+    }
+
+    @ParameterizedTest
+    @MethodSource("testData")
+    void parameterizedJUnit59TestWithMethodSource(int number1, int number2, int expectedSum) {
+        assertEquals(expectedSum, number1 + number2, "number1 + number2 should be same as expected sum");
     }
 
 }
