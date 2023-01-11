@@ -39,7 +39,7 @@ public class TestMojoTest {
 
     @Test
     public void testSplitArgLineNull() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         String[] parts = testMojo.splitArgLine(null);
         assertNotNull(parts);
         assertEquals(0, parts.length);
@@ -47,7 +47,7 @@ public class TestMojoTest {
 
     @Test
     public void testSplitArgLineMultipleArgs() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         String[] parts = testMojo.splitArgLine(" -Dfoo=bar -Dkey2=value2 \"-Dkey3=spacy value\"");
         assertEquals(3, parts.length);
         assertEquals("-Dfoo=bar", parts[0]);
@@ -57,7 +57,7 @@ public class TestMojoTest {
 
     @Test
     public void testSplitArgLineUnbalancedQuotes() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         try {
             testMojo.splitArgLine("\"'missing closing double-quote'");
             fail("unreachable code");
@@ -69,7 +69,7 @@ public class TestMojoTest {
     @Test
     public void testAddProgramArgsWithSpaces() throws Exception {
         EquinoxLaunchConfiguration cli = createEquinoxConfiguration();
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         testMojo.addProgramArgs(cli, "-data", "/path with spaces ");
         assertEquals(2, cli.getProgramArguments().length);
         assertEquals("-data", cli.getProgramArguments()[0]);
@@ -79,7 +79,7 @@ public class TestMojoTest {
     @Test
     public void testAddProgramArgsNullArg() throws Exception {
         EquinoxLaunchConfiguration cli = createEquinoxConfiguration();
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         // null arg must be ignored
         testMojo.addProgramArgs(cli, "-data", null);
         assertEquals(1, cli.getProgramArguments().length);
@@ -87,27 +87,27 @@ public class TestMojoTest {
 
     @Test
     public void testShouldSkipWithNoValueSet() {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         assertFalse(testMojo.shouldSkip());
     }
 
     @Test
     public void testShouldSkipWithSkipTestsSetToTrue() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "skipTests", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
     }
 
     @Test
     public void testShouldSkipWithMavenTestSkipSetToTrue() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "skip", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
     }
 
     @Test
     public void testShouldSkipThatSkipTestsWillBePrefered() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "skip", Boolean.FALSE);
         setParameter(testMojo, "skipTests", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
@@ -115,7 +115,7 @@ public class TestMojoTest {
 
     @Test
     public void testShouldSkipWithSkipExeSetToTrue() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "skipExec", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
     }
@@ -143,7 +143,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeMissingThreadCountParameter() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         try {
             testMojo.getMergedProviderProperties();
@@ -155,7 +155,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeThreadCountSetTo1() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "threadCount", 1);
         try {
@@ -168,7 +168,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeWithThreadCountSet() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "threadCount", 2);
         Properties providerProperties = testMojo.getMergedProviderProperties();
@@ -178,7 +178,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeWithUseUnlimitedThreads() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "useUnlimitedThreads", Boolean.TRUE);
         Properties providerProperties = testMojo.getMergedProviderProperties();
@@ -188,7 +188,7 @@ public class TestMojoTest {
 
     @Test(expected = MojoExecutionException.class)
     public void testParallelModeWithPerCoreThreadCountMissingCount() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "perCoreThreadCount", true);
         testMojo.getMergedProviderProperties();
@@ -196,7 +196,7 @@ public class TestMojoTest {
 
     @Test
     public void testParallelModeWithPerCoreThreadCount() throws Exception {
-        AbstractTestMojo testMojo = new TestPluginMojo();
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "perCoreThreadCount", true);
         setParameter(testMojo, "threadCount", 1);
@@ -209,7 +209,7 @@ public class TestMojoTest {
     public ScanResult createDirectoryAndScanForTests(List<String> includes, List<String> excludes) throws Exception {
         File directory = null;
         try {
-            AbstractTestMojo testMojo = new TestPluginMojo();
+            AbstractEclipseTestMojo testMojo = new TestPluginMojo();
             directory = Files.createTempDirectory(this.getClass().getName()).toFile();
             File aTestFile = new File(directory, "ATest.class");
             aTestFile.createNewFile();
