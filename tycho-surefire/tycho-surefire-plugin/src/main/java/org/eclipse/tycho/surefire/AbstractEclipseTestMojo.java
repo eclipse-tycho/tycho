@@ -170,12 +170,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     /**
      * prints all loaded bundles
      */
-    @Parameter(property = "tycho.printBundles", defaultValue = "false")
-    private boolean printBundles;
-
-    /**
-     * prints all loaded bundles
-     */
     @Parameter(property = "tycho.printWires", defaultValue = "false")
     private boolean printWires;
 
@@ -552,8 +546,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         }
 
     }
-
-    protected abstract boolean isCompatiblePackagingType(String packaging);
 
     private EquinoxInstallation createProvisionedInstallation() throws MojoExecutionException, MojoFailureException {
         ScanResult scanResult = scanForTests();

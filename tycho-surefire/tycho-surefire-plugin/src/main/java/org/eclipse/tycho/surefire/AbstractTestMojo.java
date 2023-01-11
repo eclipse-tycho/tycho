@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -84,6 +85,10 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     private static final String SYSTEM_JDK = "jdk";
 
     private static final String[] JAVA_EXECUTABLES = { "java", "java.exe" };
+
+    protected static final String IMPORT_REQUIRED_PACKAGES = "*";
+
+    protected static final String IMPORT_PACKAGES_OPTIONAL = "*;resolution:=optional";
 
     /**
      * Root directory (<a href=
@@ -227,6 +232,12 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      */
     @Parameter(property = "maven.test.skip")
     protected Boolean skip;
+
+    /**
+     * prints all loaded bundles
+     */
+    @Parameter(property = "tycho.printBundles", defaultValue = "false")
+    protected boolean printBundles;
 
     @Parameter(property = "session", readonly = true, required = true)
     protected MavenSession session;
@@ -406,9 +417,11 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      * </ol>
      * 
      * @param scanResult
+     * @param additionalRequirements
      */
     protected Optional<ResolvedArtifactKey> createTestPluginJar(final ReactorProject reactorProject,
-            ScanResult scanResult) throws Exception {
+            String packageImport, ScanResult scanResult, Consumer<IRequirement> testPluginRequirementsConsumer)
+            throws Exception {
         final var uuid = UUID.randomUUID();
         final var artifactBaseName = FilenameUtils.getBaseName(reactorProject.getArtifact().getName());
         final var testJarName = artifactBaseName + "_test_fragment_" + uuid + ".jar";
@@ -441,7 +454,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, fragmentId);
             analyzer.setProperty(Constants.FRAGMENT_HOST, fragmentHost);
             analyzer.setProperty(Constants.BUNDLE_NAME, bundleName);
-            analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
+            analyzer.setProperty(Constants.IMPORT_PACKAGE, packageImport);
             if (scanResult != null) {
                 String collect = IntStream.range(0, scanResult.size()).mapToObj(scanResult::getClassName)
                         .collect(Collectors.joining(","));
@@ -469,7 +482,12 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             }
 
             analyzer.addClasspath(mainArtifact);
-            jar.setManifest(analyzer.calcManifest());
+            Manifest manifest = analyzer.calcManifest();
+            if (testPluginRequirementsConsumer != null) {
+                generator.getInstallableUnits(manifest).stream().flatMap(iu -> iu.getRequirements().stream())
+                        .forEach(testPluginRequirementsConsumer);
+            }
+            jar.setManifest(manifest);
             jar.write(fragmentFile);
             result = ResolvedArtifactKey.of(ArtifactType.TYPE_ECLIPSE_PLUGIN, fragmentId, hostVersion, fragmentFile);
         }

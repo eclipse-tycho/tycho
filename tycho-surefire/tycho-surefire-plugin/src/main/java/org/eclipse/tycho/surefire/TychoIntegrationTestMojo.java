@@ -169,7 +169,7 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
 
         final var reactorProject = DefaultReactorProject.adapt(project);
         try {
-            createTestPluginJar(reactorProject, null).ifPresent(testPlugin -> {
+            createTestPluginJar(reactorProject, IMPORT_PACKAGES_OPTIONAL, null, null).ifPresent(testPlugin -> {
                 testRuntime.addBundle(testPlugin.getId(), testPlugin.getVersion(), testPlugin.getLocation());
                 String bsn = testPlugin.getId();
                 final var testClasspath = osgiBundle.getTestClasspath(reactorProject, false);
