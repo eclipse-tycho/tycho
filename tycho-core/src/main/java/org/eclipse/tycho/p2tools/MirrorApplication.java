@@ -14,6 +14,8 @@ package org.eclipse.tycho.p2tools;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,15 +47,18 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 
 public class MirrorApplication extends org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication {
 
+    private static final String SOURCE_SUFFIX = ".source";
     private final Map<String, String> extraArtifactRepositoryProperties;
     private final List<RepositoryReference> repositoryReferences;
     private boolean includeAllSource;
     private boolean includeRequiredBundles;
     private boolean includeRequiredFeatures;
+    private TargetPlatform targetPlatform;
 
     public MirrorApplication(IProvisioningAgent agent, Map<String, String> extraArtifactRepositoryProperties,
             List<RepositoryReference> repositoryReferences) {
@@ -125,40 +130,30 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
             @Override
             public IQueryable<IInstallableUnit> slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
                 IQueryable<IInstallableUnit> slice = super.slice(ius, monitor);
-                if (includeAllSource) {
-                    Set<IInstallableUnit> units = slice.query(QueryUtil.ALL_UNITS, null).toSet();
-                    IInstallableUnit sourceUnit = createSourceUnit(units);
-                    IQueryable<IInstallableUnit> queryable = super.slice(new IInstallableUnit[] { sourceUnit },
-                            monitor);
-                    units.addAll(queryable.query(QueryUtil.ALL_UNITS, null).toSet());
-                    units.remove(sourceUnit);
-                    return new CollectionResult<>(units);
+                if (includeAllSource && targetPlatform != null) {
+                    Set<IInstallableUnit> collected = slice.query(QueryUtil.ALL_UNITS, null).toSet();
+                    Set<IInstallableUnit> result = new HashSet<>(collected);
+                    Map<String, IInstallableUnit> sourceIus = new HashMap<>();
+                    targetPlatform.getMetadataRepository().query(QueryUtil.ALL_UNITS, null).forEach(iu -> {
+                        if (iu.getId().endsWith(SOURCE_SUFFIX)) {
+                            sourceIus.put(iu.getId(), iu);
+                        }
+                    });
+                    for (IInstallableUnit iu : collected) {
+                        String sourceId = iu.getId().endsWith(".feature.group")
+                                ? iu.getId().replaceAll(".feature.group", SOURCE_SUFFIX)
+                                : iu.getId() + SOURCE_SUFFIX;
+                        IInstallableUnit sourceUnit = sourceIus.get(sourceId);
+                        if (sourceUnit != null) {
+                            result.add(sourceUnit);
+                        }
+                    }
+                    return new CollectionResult<>(result);
                 }
                 return slice;
             }
 
         };
-    }
-
-    private static final IInstallableUnit createSourceUnit(Collection<IInstallableUnit> units) {
-
-        final IRequirement bundleRequirement = MetadataFactory.createRequirement("org.eclipse.equinox.p2.eclipse.type",
-                "bundle", null, null, false, false, false);
-        InstallableUnitDescription sourceDescription = new MetadataFactory.InstallableUnitDescription();
-        String id = "Source-Bundles-" + UUID.randomUUID();
-        sourceDescription.setId(id);
-        final Version sourceIUVersion = Version.createOSGi(1, 0, 0);
-        sourceDescription.setVersion(sourceIUVersion);
-        sourceDescription.setCapabilities(new IProvidedCapability[] {
-                MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, sourceIUVersion) });
-        sourceDescription.addRequirements(units.stream().filter(unit -> unit.satisfies(bundleRequirement))
-                .map(MirrorApplication::createSourceBundleRequirement).toList());
-        return MetadataFactory.createInstallableUnit(sourceDescription);
-    }
-
-    private static IRequirement createSourceBundleRequirement(IInstallableUnit unit) {
-        return MetadataFactory.createRequirement("osgi.bundle", unit.getId() + ".source",
-                new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, true, false, true);
     }
 
     @Override
@@ -183,8 +178,9 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
                 type, rr.isEnable() ? IRepository.ENABLED : IRepository.NONE);
     }
 
-    public void setIncludeSources(boolean includeAllSource) {
+    public void setIncludeSources(boolean includeAllSource, TargetPlatform targetPlatform) {
         this.includeAllSource = includeAllSource;
+        this.targetPlatform = targetPlatform;
     }
 
     public void setIncludeRequiredBundles(boolean includeRequiredBundles) {
