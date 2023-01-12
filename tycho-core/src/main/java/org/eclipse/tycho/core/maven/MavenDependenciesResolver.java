@@ -160,6 +160,10 @@ public class MavenDependenciesResolver {
             throws VersionRangeResolutionException, ArtifactResolutionException {
         RepositorySystemSession repositorySession = getRepositorySession(project, session);
         ArtifactTypeRegistry stereotypes = repositorySession.getArtifactTypeRegistry();
+        String version = dependency.getVersion();
+        if (!version.startsWith("[") && !version.startsWith("(")) {
+            version = "[" + version + ",)";
+        }
         DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
                 stereotypes.get(dependency.getType()).getExtension(), dependency.getVersion());
         VersionRangeRequest request = new VersionRangeRequest(artifact, project.getRemoteProjectRepositories(), null);
