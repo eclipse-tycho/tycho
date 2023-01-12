@@ -55,6 +55,12 @@ public interface MavenArtifactKey extends ArtifactKey {
             public String getArtifactId() {
                 return artifactId;
             }
+
+            @Override
+            public String toString() {
+                return "MavenArtifactKey [" + type + " id=" + id + "] (" + groupId + ":" + artifactId
+                        + ") with version " + version;
+            }
         };
     }
 

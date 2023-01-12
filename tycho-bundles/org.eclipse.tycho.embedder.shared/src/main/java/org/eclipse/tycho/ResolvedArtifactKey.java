@@ -13,9 +13,42 @@
 package org.eclipse.tycho;
 
 import java.io.File;
+import java.util.Objects;
 
 public interface ResolvedArtifactKey extends ArtifactKey {
 
     File getLocation();
 
+    static ResolvedArtifactKey of(ArtifactKey key, File location) {
+        return of(key.getType(), key.getId(), key.getVersion(), location);
+    }
+
+    static ResolvedArtifactKey of(String type, String id, String version, File location) {
+        Objects.requireNonNull(location);
+        if (!location.exists()) {
+            throw new IllegalArgumentException("location " + location.getAbsolutePath() + " does not exits!");
+        }
+        return new ResolvedArtifactKey() {
+
+            @Override
+            public String getVersion() {
+                return version;
+            }
+
+            @Override
+            public String getType() {
+                return type;
+            }
+
+            @Override
+            public String getId() {
+                return id;
+            }
+
+            @Override
+            public File getLocation() {
+                return location;
+            }
+        };
+    }
 }
