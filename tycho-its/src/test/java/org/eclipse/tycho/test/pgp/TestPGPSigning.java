@@ -142,7 +142,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 
 		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		Set<String> signedIUs = data.signedIUs.keySet();
@@ -160,7 +161,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 
 		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		Set<String> signedIUs = data.signedIUs.keySet();
@@ -182,7 +184,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		assertEquals(Set.of(PRIMARY_KEY_FINGERPRINT).toString(), data.repositoryKeys.toString(),
 				"Exactly this one key is expected");
 
-		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		Set<String> signedIUs = data.signedIUs.keySet();
@@ -205,7 +208,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		assertEquals(Set.of(SECONDARY_KEY_FINGERPRINT).toString(), data.repositoryKeys.toString(),
 				"Exactly this one key is expected");
 
-		assertEquals("[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		Set<String> signedIUs = data.signedIUs.keySet();
@@ -223,7 +227,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 
 		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals("[org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		Set<String> signedIUs = data.signedIUs.keySet();
@@ -243,8 +248,9 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 
 		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals("[org.eclipse.equinox.common, org.eclipse.osgi]", data.unsignedIUs.toString(),
-				"Unexpected unsigned IUs.");
+		assertEquals(
+				"[org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		Set<String> signedIUs = data.signedIUs.keySet();
 		assertEquals(
@@ -263,7 +269,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 
 		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals("[bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		Set<String> signedIUs = data.signedIUs.keySet();
@@ -292,7 +299,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		var expectedFingerprints = KEY_FINGERPRINTS.toString();
 		assertEquals(expectedFingerprints, data.repositoryKeys.toString(), "Exactly these two keys are expected");
 
-		assertEquals("[bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		var signedIUs = data.signedIUs.keySet();
@@ -325,7 +333,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		var expectedFingerprints = Set.of(PRIMARY_KEY_FINGERPRINT).toString();
 		assertEquals(expectedFingerprints, data.repositoryKeys.toString(), "Exactly these two keys are expected");
 
-		assertEquals("[bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		var signedIUs = data.signedIUs.keySet();
@@ -359,7 +368,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		assertEquals(expectedFingerprints, data.repositoryKeys.toString(),
 				"Exactly the one replacement key is expected");
 
-		assertEquals("[bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		var signedIUs = data.signedIUs.keySet();
@@ -392,7 +402,8 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		var expectedFingerprints = Set.of(PRIMARY_KEY_FINGERPRINT).toString();
 		assertEquals(expectedFingerprints, data.repositoryKeys.toString(), "Exactly the one orginal key is expected");
 
-		assertEquals("[bcprov, org.eclipse.equinox.common, org.eclipse.osgi, org.eclipse.platform_root]",
+		assertEquals(
+				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
 				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
 		var signedIUs = data.signedIUs.keySet();
