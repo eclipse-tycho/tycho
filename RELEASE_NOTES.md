@@ -216,6 +216,19 @@ Old behavior can be restored through configuration of the tycho-surefire-plugin:
     </configuration>
 </plugin>
 ```
+## 3.0.1
+
+### Fix for java.lang.NoSuchMethodError: 'void org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer
+
+If you face the following error with using Tycho 3.0.0 update to 3.0.1 to fix it.
+
+```
+[ERROR] Failed to execute goal org.eclipse.tycho:tycho-p2-repository-plugin:3.0.0:assemble-repository (default-assemble-repository) on project XXXX: Execution default-assemble-repository of goal org.eclipse.tycho:tycho-p2-repository-plugin:3.0.0:assemble-repository failed: An API incompatibility was encountered while executing org.eclipse.tycho:tycho-p2-repository-plugin:3.0.0:assemble-repository: java.lang.NoSuchMethodError: 'void org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer.<init>(java.lang.String, java.lang.String, java.lang.String)'
+```
+
+
+
+
 
 ## 3.0.0
 
