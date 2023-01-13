@@ -18,11 +18,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -31,7 +28,6 @@ import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -39,16 +35,11 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.surefire.api.util.ScanResult;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
-import org.osgi.framework.Constants;
-
-import aQute.bnd.osgi.Analyzer;
-import aQute.bnd.osgi.Jar;
 
 /**
  * Executes integration-tests in an OSGi runtime.
@@ -80,6 +71,7 @@ import aQute.bnd.osgi.Jar;
  */
 @Mojo(name = "plugin-test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
+
     /**
      * The directory containing generated test classes of the project being tested.
      */
@@ -113,27 +105,19 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
     @Parameter(property = "tycho.plugin-test.packaging", defaultValue = PackagingType.TYPE_ECLIPSE_PLUGIN)
     private String packaging = PackagingType.TYPE_ECLIPSE_PLUGIN;
 
-    @Component
-    private BuildPropertiesParser buildPropertiesParser;
-
-    @Override
-    protected boolean shouldRun() {
-        return scanForTests().size() > 0;
-    }
-
     @Override
     protected boolean isCompatiblePackagingType(final String projectPackaging) {
         return this.packaging.equals(projectPackaging);
     }
 
     @Override
-    protected File getTestClassesDirectory() {
-        return testClassesDirectory;
+    protected File getReportsDirectory() {
+        return reportDirectory;
     }
 
     @Override
-    protected File getReportsDirectory() {
-        return reportDirectory;
+    protected File getTestClassesDirectory() {
+        return testClassesDirectory;
     }
 
     @Override
@@ -148,11 +132,6 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
         properties.setProperty("failifnotests", String.valueOf(false));
         properties.setProperty("failsafe", summaryFile.getAbsolutePath());
         return properties;
-    }
-
-    @Override
-    protected void handleNoTestsFound() {
-        getLog().info("No tests found");
     }
 
     @Override
@@ -189,26 +168,23 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
         }
 
         final var reactorProject = DefaultReactorProject.adapt(project);
-        final File testPluginJar;
-
         try {
-            testPluginJar = createTestPluginJar(reactorProject);
+            createTestPluginJar(reactorProject, null).ifPresent(testPlugin -> {
+                testRuntime.addBundle(testPlugin.getId(), testPlugin.getVersion(), testPlugin.getLocation());
+                String bsn = testPlugin.getId();
+                final var testClasspath = osgiBundle.getTestClasspath(reactorProject, false);
+
+                // Here we add the whole (test) classpath as a dev-entry to the runtime fragment.
+                // This is required to optionally load any test-scoped class that is not imported
+                // and not available as an OSGi bundle
+                final var testDevEntries = testClasspath.stream().map(ClasspathEntry::getLocations)
+                        .flatMap(Collection::stream).map(File::getAbsolutePath).collect(Collectors.joining(","));
+                testRuntime.addDevEntries(bsn, testDevEntries);
+            });
         } catch (final Exception e) {
             throw new MojoExecutionException("Error assembling test fragment JAR", e);
         }
 
-        final var bundleArtifactKey = getBundleArtifactKey(testPluginJar);
-        testRuntime.addBundle(bundleArtifactKey.getId(), bundleArtifactKey.getVersion(), testPluginJar);
-
-        final var bsn = bundleArtifactKey.getId();
-        final var testClasspath = osgiBundle.getTestClasspath(reactorProject, false);
-
-        // Here we add the whole (test) classpath as a dev-entry to the runtime fragment.
-        // This is required to optionally load any test-scoped class that is not imported
-        // and not available as an OSGi bundle
-        final var testDevEntries = testClasspath.stream().map(ClasspathEntry::getLocations).flatMap(Collection::stream)
-                .map(File::getAbsolutePath).collect(Collectors.joining(","));
-        testRuntime.addDevEntries(bsn, testDevEntries);
     }
 
     @Override
@@ -222,76 +198,6 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
             }
         }
         return meta;
-    }
-
-    /**
-     * This generates a bundle that is a fragment to the host that enhances the original bundle by
-     * the following items:
-     * <ol>
-     * <li>any 'additional bundle', even though this is not really meant to be used that way, is
-     * added as an optional dependency</li>
-     * <li>a <code>DynamicImport-Package: *</code> is added to allow dynamic classloading from the
-     * bundle classpath</li>
-     * <li>computes package imports based on the generated test classes and add them as optional
-     * imports, so that any class is consumed from the OSGi runtime before the inner classes are
-     * searched</li>
-     * </ol>
-     */
-    private File createTestPluginJar(final ReactorProject reactorProject) throws Exception {
-        final var uuid = UUID.randomUUID();
-        final var artifactBaseName = FilenameUtils.getBaseName(reactorProject.getArtifact().getName());
-        final var testJarName = artifactBaseName + "_test_fragment_" + uuid + ".jar";
-        final var fragmentFile = new File(project.getBuild().getDirectory(), testJarName);
-
-        if (fragmentFile.exists()) {
-            if (!fragmentFile.delete()) {
-                throw new IllegalStateException("Could not delete the existing fragment file " + fragmentFile);
-            }
-        }
-
-        final var outDir = new File(project.getBuild().getTestOutputDirectory());
-
-        try (final var mainArtifact = new Jar(reactorProject.getArtifact());
-                final var jar = new Jar(reactorProject.getName() + " test classes", outDir, null);
-                final var analyzer = new Analyzer(jar)) {
-            final var bundleManifest = mainArtifact.getManifest();
-            final var hostVersion = bundleManifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
-            final var hostSymbolicName = getHostSymbolicName(bundleManifest);
-            final var fragmentHost = "%s;%s=\"%s\"".formatted(hostSymbolicName, Constants.BUNDLE_VERSION_ATTRIBUTE,
-                    hostVersion);
-            final var bundleName = "Test fragment for %s:%s:%s".formatted(project.getGroupId(), project.getArtifactId(),
-                    project.getVersion());
-
-            analyzer.setProperty(Constants.BUNDLE_VERSION, hostVersion);
-            analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, hostSymbolicName + "." + uuid);
-            analyzer.setProperty(Constants.FRAGMENT_HOST, fragmentHost);
-            analyzer.setProperty(Constants.BUNDLE_NAME, bundleName);
-            analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
-
-            final var additionalBundles = buildPropertiesParser.parse(reactorProject).getAdditionalBundles();
-
-            if (!additionalBundles.isEmpty()) {
-                final var stringValue = additionalBundles.stream().map(b -> b + ";resolution:=optional")
-                        .collect(Collectors.joining(","));
-                analyzer.setProperty(Constants.REQUIRE_BUNDLE, stringValue);
-            }
-
-            analyzer.setProperty(Constants.DYNAMICIMPORT_PACKAGE, "*");
-
-            final var testClasspath = osgiBundle.getTestClasspath(reactorProject);
-
-            for (final var classpathEntry : testClasspath) {
-                for (final var location : classpathEntry.getLocations()) {
-                    analyzer.addClasspath(location);
-                }
-            }
-
-            analyzer.addClasspath(mainArtifact);
-            jar.setManifest(analyzer.calcManifest());
-            jar.write(fragmentFile);
-        }
-
-        return fragmentFile;
     }
 
     private ArtifactResolutionResult resolveDependency(final Dependency dependency) {
@@ -308,17 +214,6 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
                 .setCollectionFilter(new ProviderDependencyArtifactFilter())//
                 .setRemoteRepositories(remoteRepositories);
         return repositorySystem.resolve(request);
-    }
-
-    /**
-     * Returns a normalized host bundle Bundle-SymbolicName.
-     * <p>
-     * This means any metadata apart from the name itself is removed.
-     */
-    private String getHostSymbolicName(final Manifest manifest) {
-        final var value = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
-        final var separatorIndex = value.indexOf(';');
-        return separatorIndex > -1 ? value.substring(0, separatorIndex) : value;
     }
 
     private static final class ProviderDependencyArtifactFilter implements ArtifactFilter {
