@@ -53,13 +53,7 @@ public class TestPluginMojo extends AbstractEclipseTestMojo {
      * Base directory where all reports are written to.
      */
     @Parameter(defaultValue = "${project.build.directory}/surefire-reports")
-    protected File reportsDirectory;
-
-    /**
-     * If set to "false" the test execution will not fail in case there are no tests found.
-     */
-    @Parameter(property = "failIfNoTests", defaultValue = "true")
-    private boolean failIfNoTests;
+    private File reportsDirectory;
 
     /**
      * Set this to true to ignore a failure during testing. Its use is NOT RECOMMENDED, but quite
@@ -76,34 +70,13 @@ public class TestPluginMojo extends AbstractEclipseTestMojo {
     private String packaging = PackagingType.TYPE_ECLIPSE_TEST_PLUGIN;
 
     @Override
-    protected boolean shouldRun() {
-        return true;
-    }
-
-    @Override
     protected boolean isCompatiblePackagingType(String projectPackaging) {
         return this.packaging.equals(projectPackaging);
     }
 
     @Override
-    protected File getTestClassesDirectory() {
-        return testClassesDirectory;
-    }
-
-    @Override
     protected File getReportsDirectory() {
         return reportsDirectory;
-    }
-
-    @Override
-    protected void handleNoTestsFound() throws MojoFailureException {
-        String message = "No tests found";
-        if (failIfNoTests) {
-            throw new MojoFailureException(message);
-        } else {
-            getLog().warn(message);
-        }
-
     }
 
     @Override
@@ -120,7 +93,11 @@ public class TestPluginMojo extends AbstractEclipseTestMojo {
         } else {
             throw new MojoFailureException(errorMessage);
         }
+    }
 
+    @Override
+    protected File getTestClassesDirectory() {
+        return testClassesDirectory;
     }
 
 }

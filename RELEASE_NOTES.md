@@ -49,6 +49,10 @@ The parameters of the `tycho-apitools-plugin:generate` goal have been completed 
 
 ### Migration guide 3.x > 4.x
 
+#### skipExec parameter remove from test mojos
+
+The test-mojo previously defined a (deprecated) `skipExec` parameter, this parameter is now removed and one should use `skipTests` instead.
+
 #### allowConflictingDependencies parameter removed
 
 The parameter `allowConflictingDependencies` was removed from the target platform configuration. It solely relied on deprecated and outdated stuff, if there are still use-cases please let us know about them so we can provide alternative ways to archive this.
