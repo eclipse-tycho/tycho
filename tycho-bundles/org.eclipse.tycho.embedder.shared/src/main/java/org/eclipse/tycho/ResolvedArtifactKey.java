@@ -49,6 +49,11 @@ public interface ResolvedArtifactKey extends ArtifactKey {
             public File getLocation() {
                 return location;
             }
+
+            @Override
+            public String toString() {
+                return "[" + getType() + "] " + getId() + " " + getVersion() + " @ " + getLocation();
+            }
         };
     }
 }

@@ -73,6 +73,7 @@
 		<surefire-version>3.0.0-M5</surefire-version>
 		<equinoxVersion>3.18.200</equinoxVersion>
 		<ecjVersion>3.32.0</ecjVersion>
+		<bnd.version>6.4.0</bnd.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -256,7 +257,7 @@
 			<dependency>
 				<groupId>biz.aQute.bnd</groupId>
 				<artifactId>biz.aQute.bndlib</artifactId>
-				<version>6.4.0</version>
+				<version>${bnd.version}</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.osgi</groupId>
@@ -440,7 +441,7 @@
 				<plugin>
 					<groupId>biz.aQute.bnd</groupId>
 					<artifactId>bnd-maven-plugin</artifactId>
-					<version>6.4.0</version>
+					<version>${bnd.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
