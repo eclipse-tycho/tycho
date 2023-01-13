@@ -15,44 +15,13 @@ They are generally inferior to the list-based `jvmArgs` and `applicationArgs` re
 However there are use cases where the arguments need to be extensible via property expansion, in which case the list-based approach is not always a suitable alternative.
 As such, these two options have been re-introduced for Tycho 3.0.2 and are no longer marked deprecated though `jvmArgs` and `applicationArgs` remain the preferred mechanism.
 
-### Fixes
--  Maven Loockup can become really slow and should cache previous requests #1969
+### Backports
+- Maven Loockup can become really slow and should cache previous requests #1969
+- Provide a "verify-pom-resolves" mojo #1451 
 
 ## 3.0.1
 
 - Upgrade to 2022-03 release
-
-### New Maven dependency consistency check
-
-Tycho has a new mojo to check the consistency of the pom used for your bundle.
-To enable this add the following to your pom (or adjust an existing configuration):
-
-```
-<plugin>
-    <groupId>org.eclipse.tycho</groupId>
-    <artifactId>tycho-packaging-plugin</artifactId>
-    <executions>
-      <execution>
-        <id>validate-pom</id>
-        <phase>verify</phase>
-        <goals>
-          <goal>verify-osgi-pom</goal>
-        </goals>
-      </execution>
-    </executions>
-      <configuration>
-        <archive>
-          <addMavenDescriptor>true</addMavenDescriptor>
-        </archive>
-        <mapP2Dependencies>true</mapP2Dependencies>
-      </configuration>
-</plugin>
-```
-This will then:
-
-1. add a new execution of the `verify-osgi-pom` mojo
-2. enable the generation and embedding of a maven descriptor (optional if you fully manage your pom.xml with all dependencies)
-3. map P2 dependencies to maven dependencies (optional, but most likely required to get good results)
 
 ## 3.0.0
 
