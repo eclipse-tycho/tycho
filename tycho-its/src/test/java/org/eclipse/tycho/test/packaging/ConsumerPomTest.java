@@ -18,19 +18,24 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.DefaultModelReader;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("Disabled because of maven central outages")
 public class ConsumerPomTest extends AbstractTychoIntegrationTest {
+	DefaultModelReader reader = new DefaultModelReader();
 
 	@Test
 	public void testReplaceP2() throws Exception {
 		Verifier verifier = getVerifier("packaging.consumer.pom", true);
+		verifier.addCliOption("-U");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		DefaultModelReader reader = new DefaultModelReader();
@@ -47,7 +52,8 @@ public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 		Optional<Dependency> findAny = dependencies.stream()
 				.filter(d -> g.equals(d.getGroupId()) && a.equals(d.getArtifactId())).findAny();
 		if (!findAny.isPresent()) {
-			fail("dependency with groupId=" + g + " and artifactId=" + a + " not found in " + dependencies);
+			fail("dependency with groupId=" + g + " and artifactId=" + a + " not found in " + System.lineSeparator()
+					+ dependencies.stream().map(String::valueOf).collect(Collectors.joining(System.lineSeparator())));
 		}
 
 	}
