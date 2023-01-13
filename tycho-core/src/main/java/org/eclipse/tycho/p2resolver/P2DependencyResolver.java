@@ -45,6 +45,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildProperties;
@@ -306,13 +307,16 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
 
         if (resolverConfiguration != null) {
-            for (ArtifactKey dependency : resolverConfiguration.getExtraRequirements()) {
+            for (ArtifactKey dependency : resolverConfiguration.getAdditionalArtifacts()) {
                 try {
                     resolver.addDependency(dependency.getType(), dependency.getId(), dependency.getVersion());
                 } catch (IllegalArtifactReferenceException e) {
                     throw new BuildFailureException("Invalid extraRequirement " + dependency.getType() + ":"
                             + dependency.getId() + ":" + dependency.getVersion() + ": " + e.getMessage(), e);
                 }
+            }
+            for (IRequirement requirement : resolverConfiguration.getAdditionalRequirements()) {
+                resolver.addRequirement(requirement);
             }
         }
 

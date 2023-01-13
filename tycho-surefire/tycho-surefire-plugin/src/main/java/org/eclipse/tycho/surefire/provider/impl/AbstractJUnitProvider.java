@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
@@ -34,8 +36,32 @@ public abstract class AbstractJUnitProvider implements TestFrameworkProvider {
     }
 
     @Override
-    public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
-        return containsJunitInClasspath(testBundleClassPath);
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
+            Properties surefireProperties) {
+        boolean classpath = containsJunitInClasspath(testBundleClassPath);
+        if (!classpath && project != null) {
+            return containsJunitInDependencies(project);
+        }
+        return classpath;
+    }
+
+    protected boolean containsJunitInDependencies(MavenProject project) {
+        Set<String> junitBundleNames = getJUnitBundleNames();
+        VersionRange range = getJUnitVersionRange();
+        for (Artifact artifact : project.getArtifacts()) {
+            if (Artifact.SCOPE_TEST.equals(artifact.getScope())
+                    && junitBundleNames.contains(artifact.getArtifactId())) {
+                try {
+                    Version version = Version.parseVersion(artifact.getVersion());
+                    if (range.includes(version)) {
+                        return true;
+                    }
+                } catch (IllegalArgumentException e) {
+                    //just continue, seems not a valid (osgi) version then...
+                }
+            }
+        }
+        return false;
     }
 
     protected boolean containsJunitInClasspath(List<ClasspathEntry> testBundleClassPath) {

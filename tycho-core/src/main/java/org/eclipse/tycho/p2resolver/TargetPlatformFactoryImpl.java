@@ -509,8 +509,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 preliminaryTP.getExternalArtifacts(), pomDependencyArtifactRepo);
         RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey
                 .forResolutionContextArtifacts(pomDependencyCollector.getProjectLocation());
-        ArtifactRepositoryBlackboard.putRepository(blackboardKey,
-                new ProviderOnlyArtifactRepository(jointArtifacts, remoteAgent, blackboardKey.toURI()));
+        ProviderOnlyArtifactRepository targetPlatformArtifactRepository = new ProviderOnlyArtifactRepository(
+                jointArtifacts, remoteAgent, blackboardKey.toURI());
+        ArtifactRepositoryBlackboard.putRepository(blackboardKey, targetPlatformArtifactRepository);
         logger.debug("Registered artifact repository " + blackboardKey);
         allUnits.addAll(filterUnits(configuredFilters, pomDependencyCollector.gatherMavenInstallableUnits()));
         Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = pomDependencyCollector
@@ -522,7 +523,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
         }
         return new FinalTargetPlatformImpl(allUnits, preliminaryTP.getEEResolutionHints(), jointArtifacts,
-                localArtifactRepository, mavenInstallableUnits, reactorUnitsMap);
+                localArtifactRepository, mavenInstallableUnits, reactorUnitsMap, targetPlatformArtifactRepository);
     }
 
     protected Collection<? extends IInstallableUnit> filterUnits(TargetPlatformFilterEvaluator configuredFilters,

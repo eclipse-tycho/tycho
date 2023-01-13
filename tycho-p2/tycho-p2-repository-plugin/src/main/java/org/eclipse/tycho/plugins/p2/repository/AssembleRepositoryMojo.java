@@ -211,6 +211,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
                 RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(),
                         getSession(), RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
+                sources.setTargetPlatform(TychoProjectUtils.getTargetPlatform(getReactorProject()));
 
                 List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory).stream()//
                         .map(Category::getRepositoryReferences)//

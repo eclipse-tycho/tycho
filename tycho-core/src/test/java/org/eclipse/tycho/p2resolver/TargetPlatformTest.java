@@ -165,7 +165,7 @@ public class TargetPlatformTest {
     }
 
     private FinalTargetPlatformImpl createTP() {
-        return new FinalTargetPlatformImpl(candidateIUs, null, null, null, null, null);
+        return new FinalTargetPlatformImpl(candidateIUs, null, null, null, null, null, null);
     }
 
     private static LinkedHashSet<IInstallableUnit> createSet(IInstallableUnit... units) {

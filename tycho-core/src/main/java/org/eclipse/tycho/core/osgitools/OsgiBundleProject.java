@@ -485,9 +485,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (ProjectClasspathEntry entry : pdeProject.getClasspathEntries()) {
             if (entry instanceof LibraryClasspathEntry libraryClasspathEntry) {
                 File path = libraryClasspathEntry.getLibraryPath();
-                classpath.add(new DefaultClasspathEntry(null,
-                        readOrCreateArtifactKey(path, () -> new DefaultArtifactKey("jar", path.getAbsolutePath())),
-                        Collections.singletonList(path), null));
+                if (path.exists()) {
+                    classpath.add(new DefaultClasspathEntry(null,
+                            readOrCreateArtifactKey(path, () -> new DefaultArtifactKey("jar", path.getAbsolutePath())),
+                            Collections.singletonList(path), null));
+                }
             }
         }
         //Fragments are like embedded dependencies...

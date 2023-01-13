@@ -12,14 +12,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
 
 public interface DependencyResolverConfiguration {
 
-    List<ArtifactKey> getExtraRequirements();
+    List<ArtifactKey> getAdditionalArtifacts();
+
+    Collection<IRequirement> getAdditionalRequirements();
 
     OptionalResolutionAction getOptionalResolutionAction();
 

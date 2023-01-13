@@ -14,6 +14,8 @@ package org.eclipse.tycho;
 
 import java.io.File;
 
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 /**
@@ -75,32 +77,22 @@ public interface TargetPlatform {
 
     default ResolvedArtifactKey resolvePackage(String packageName, String versionRef)
             throws DependencyResolutionException, IllegalArtifactReferenceException {
-        ArtifactKey annotationJar = resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName,
+        ArtifactKey packageJar = resolveArtifact(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName,
                 versionRef);
         File location = getArtifactLocation(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
-                annotationJar.getId(), annotationJar.getVersion()));
-        return new ResolvedArtifactKey() {
-
-            @Override
-            public String getVersion() {
-                return annotationJar.getVersion();
-            }
-
-            @Override
-            public String getType() {
-                return annotationJar.getType();
-            }
-
-            @Override
-            public String getId() {
-                return annotationJar.getId();
-            }
-
-            @Override
-            public File getLocation() {
-                return location;
-            }
-        };
+                packageJar.getId(), packageJar.getVersion()));
+        return ResolvedArtifactKey.of(ArtifactType.TYPE_ECLIPSE_PLUGIN, packageJar.getId(),
+                packageJar.getVersion(), location);
     }
+
+    /**
+     * @return the target platform content as a {@link IMetadataRepository}.
+     */
+    IMetadataRepository getMetadataRepository();
+
+    /**
+     * @return the target platform content as a {@link IArtifactRepository}.
+     */
+    IArtifactRepository getArtifactRepository();
 
 }

@@ -41,7 +41,6 @@ import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
 import org.eclipse.tycho.p2maven.advices.MavenChecksumAdvice;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
-import org.eclipse.tycho.p2resolver.PomInstallableUnitStore.PomDependency;
 
 @Component(role = PomUnits.class)
 public class PomUnits {
@@ -80,7 +79,7 @@ public class PomUnits {
         Object contextValue = reactorProject.getContextValue(KEY);
         if (contextValue instanceof PomInstallableUnitStore store) {
             DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(reactorProject);
-            for (PomDependency dependency : store.getGatheredDependencies()) {
+            store.addPomDependencyConsumer(dependency -> {
                 IArtifactFacade facade = dependency.artifactFacade();
                 Entry<ArtifactKey, IArtifactDescriptor> result = collector.addMavenArtifact(facade,
                         dependency.installableUnit());
@@ -95,10 +94,9 @@ public class PomUnits {
                     if (dependencyArtifacts instanceof ArtifactCollection collection) {
                         collection.addArtifactFile(result.getKey(), dependency.location(),
                                 dependency.installableUnit());
-
                     }
                 }
-            }
+            });
         }
     }
 

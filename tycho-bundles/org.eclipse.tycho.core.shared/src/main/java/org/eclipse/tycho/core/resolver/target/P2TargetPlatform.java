@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
@@ -36,11 +35,6 @@ import org.eclipse.tycho.TargetPlatform;
 public interface P2TargetPlatform extends TargetPlatform {
 
     Set<IInstallableUnit> getInstallableUnits();
-
-    /**
-     * Returns the target platform content as (immutable) p2 metadata repository.
-     */
-    IMetadataRepository getInstallableUnitsAsMetadataRepository();
 
     /**
      * Returns additional information for resolving against the configured execution environment.

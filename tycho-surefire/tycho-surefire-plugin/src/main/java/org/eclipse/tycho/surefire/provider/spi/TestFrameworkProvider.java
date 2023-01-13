@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ClasspathEntry;
 import org.osgi.framework.Version;
@@ -48,13 +49,13 @@ public interface TestFrameworkProvider {
     /**
      * Whether this provider should be enabled for the given test bundle classpath and surefire
      * properties.
-     * 
+     * @param project TODO
      * @param testBundleClassPath
      *            classpath of the test bundle
      * @param providerProperties
      *            surefire provider properties
      */
-    public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties providerProperties);
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties providerProperties);
 
     /**
      * The list of OSGi bundles required by the test framework provider as maven artifacts. The

@@ -159,7 +159,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         // mirror scope: seed units...
         mirrorApp
                 .setSourceIUs(toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(), sources));
-        mirrorApp.setIncludeSources(includeAllSource);
+        mirrorApp.setIncludeSources(includeAllSource, sources.getTargetPlatform());
         mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
         mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
 

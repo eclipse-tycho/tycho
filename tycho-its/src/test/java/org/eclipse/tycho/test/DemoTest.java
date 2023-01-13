@@ -29,6 +29,12 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 		runDemo("testing/surefire/", "-f", "with-source-folder");
 	}
 
+	@Test
+	public void testTychoSureFireDemo() throws Exception {
+		runDemo("testing/tycho/", "-f", "standalone");
+		runDemo("testing/tycho/", "-f", "samemodule");
+	}
+
 	protected Verifier runDemo(String test, String... xargs) throws Exception {
 		Verifier verifier = super.getVerifier("../../demo/" + test, true, true);
 		for (String xarg : xargs) {

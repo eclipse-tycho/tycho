@@ -15,7 +15,9 @@ package org.eclipse.tycho.surefire;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -42,7 +44,6 @@ import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.surefire.provider.impl.NoopTestFrameworkProvider;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Constants;
 
@@ -78,7 +79,7 @@ import aQute.bnd.osgi.Jar;
  * tools that already work with maven-surefire-plugin (e.g. CI servers).
  */
 @Mojo(name = "plugin-test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
-public class TychoIntegrationTestMojo extends AbstractTestMojo {
+public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
     /**
      * The directory containing generated test classes of the project being tested.
      */
@@ -106,6 +107,12 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
     private ArtifactRepository localRepository;
 
+    /**
+     * Configures the packaging type where this mojos applies
+     */
+    @Parameter(property = "tycho.plugin-test.packaging", defaultValue = PackagingType.TYPE_ECLIPSE_PLUGIN)
+    private String packaging = PackagingType.TYPE_ECLIPSE_PLUGIN;
+
     @Component
     private BuildPropertiesParser buildPropertiesParser;
 
@@ -115,8 +122,8 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     }
 
     @Override
-    protected boolean isCompatiblePackagingType(final String packaging) {
-        return PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging());
+    protected boolean isCompatiblePackagingType(final String projectPackaging) {
+        return this.packaging.equals(projectPackaging);
     }
 
     @Override
@@ -159,14 +166,14 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
     }
 
     @Override
-    protected void setupTestBundles(final TestFrameworkProvider provider,
+    protected void setupTestBundles(Set<Artifact> testFrameworkBundles,
             final EquinoxInstallationDescription testRuntime) throws MojoExecutionException {
         final var dependencies = pluginDescriptor.getPlugin().getDependencies();
 
         if (dependencies.isEmpty()) {
-            super.setupTestBundles(provider, testRuntime);
+            super.setupTestBundles(testFrameworkBundles, testRuntime);
         } else {
-            super.setupTestBundles(new NoopTestFrameworkProvider(), testRuntime);
+            super.setupTestBundles(Collections.emptySet(), testRuntime);
 
             for (final var dependency : dependencies) {
                 final var resolveArtifact = resolveDependency(dependency);
@@ -202,6 +209,19 @@ public class TychoIntegrationTestMojo extends AbstractTestMojo {
         final var testDevEntries = testClasspath.stream().map(ClasspathEntry::getLocations).flatMap(Collection::stream)
                 .map(File::getAbsolutePath).collect(Collectors.joining(","));
         testRuntime.addDevEntries(bsn, testDevEntries);
+    }
+
+    @Override
+    protected boolean useMetadataDirectory(ReactorProject otherProject) {
+        boolean meta = super.useMetadataDirectory(otherProject);
+        if (meta) {
+            //check if we are already packed
+            File file = project.getArtifact().getFile();
+            if (file != null && file.isFile()) {
+                return false;
+            }
+        }
+        return meta;
     }
 
     /**

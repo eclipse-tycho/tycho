@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -42,13 +43,18 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
+import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.publisher.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.core.publisher.TychoMavenPropertiesAdvice;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -70,6 +76,7 @@ import org.eclipse.tycho.p2.publisher.TransientArtifactRepository;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.repository.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.MetadataIO;
+import org.osgi.framework.BundleException;
 
 @Component(role = P2Generator.class)
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
@@ -86,6 +93,9 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    BundleReader bundleReader;
 
     @Requirement
     private Logger logger;
@@ -233,10 +243,13 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         List<IPublisherAction> actions = new ArrayList<>();
         if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
                 || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
-            if (dependenciesOnly && optionalAction != null) {
-                actions.add(new BundleDependenciesAction(location, optionalAction));
-            } else {
-                actions.add(new BundlesAction(new File[] { location }));
+            BundleDescription desc = getBundleDescription(artifact);
+            if (desc != null) {
+                if (dependenciesOnly && optionalAction != null) {
+                    actions.add(new BundleDependenciesAction(desc, optionalAction));
+                } else {
+                    actions.add(new BundlesAction(new BundleDescription[] { desc }));
+                }
             }
         } else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Feature feature = new FeatureParser().parse(location);
@@ -278,6 +291,27 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         }
 
         return actions;
+    }
+
+    private BundleDescription getBundleDescription(IArtifactFacade artifact) {
+        File location = artifact.getLocation();
+        try {
+            if (artifact.getClassifier() == null || artifact.getClassifier().isEmpty()) {
+                if (artifact instanceof ReactorProjectFacade) {
+                    ReactorProjectFacade projectFacade = (ReactorProjectFacade) artifact;
+                    ReactorProject reactorProject = projectFacade.getReactorProject();
+                    File manifestLocation = bundleReader.getManifestLocation(reactorProject.adapt(MavenProject.class));
+                    if (manifestLocation != null) {
+                        CaseInsensitiveDictionaryMap<String, String> headers = new CaseInsensitiveDictionaryMap<>(10);
+                        ManifestElement.parseBundleManifest(new FileInputStream(manifestLocation), headers);
+                        return BundlesAction.createBundleDescription(headers, location);
+                    }
+                }
+            }
+            return BundlesAction.createBundleDescription(location);
+        } catch (IOException | BundleException e) {
+        }
+        return null;
     }
 
     public boolean isSupported(String type) {
