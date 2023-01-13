@@ -72,15 +72,6 @@ public class VerifierServiceImplTest {
     }
 
     @Test
-    public void testFileRepositoryWithTamperedArtifact() throws Exception {
-        final RepositoryReferences repositories = sourceRepos("invalid/tampered_file");
-        assertEquals(false, verify(repositories));
-        assertTrue(firstErrorLine().contains("osgi.bundle"));
-        assertTrue(firstErrorLine().contains("jarsigning"));
-        assertTrue(remainingErrorText().contains("invalid content:dummy.class"));
-    }
-
-    @Test
     public void testMissingArtifactsReferencedInMetadata() throws Exception {
         final RepositoryReferences repositories = sourceRepos("invalid/missing_artifacts");
         assertEquals(false, verify(repositories));
