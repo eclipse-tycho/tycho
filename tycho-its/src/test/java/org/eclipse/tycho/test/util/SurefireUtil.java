@@ -40,14 +40,16 @@ public class SurefireUtil {
 
 	public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String className, String methodName,
 			int iterations) throws Exception {
-		Document document = readDocument(baseDir, className);
+		File resultFile = getTestResultFile(baseDir, className);
+		Document document = readDocument(resultFile);
 		XPath xpath = XPathFactory.newInstance().newXPath();
 		// surefire-test-report XML schema:
 		// https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd
 		String testCaseXPath = String.format("/testsuite/testcase[@classname='%s' and @name='%s']", className,
 				methodName);
 		NodeList testCaseNodes = (NodeList) xpath.evaluate(testCaseXPath, document, XPathConstants.NODESET);
-		assertEquals(iterations, testCaseNodes.getLength());
+		assertEquals(resultFile.getAbsolutePath() + " with xpath " + testCaseXPath
+				+ " does not match the number of iterations", iterations, testCaseNodes.getLength());
 
 		NodeList failureNodes = (NodeList) xpath.evaluate(testCaseXPath + "/failure", document, XPathConstants.NODESET);
 		assertEquals(0, failureNodes.getLength());
@@ -93,11 +95,19 @@ public class SurefireUtil {
 	}
 
 	private static Document readDocument(String baseDir, String className) throws Exception {
-		File sureFireTestReport = new File(baseDir, "target/surefire-reports/TEST-" + className + ".xml");
+		return readDocument(getTestResultFile(baseDir, className));
+	}
+
+	private static Document readDocument(File sureFireTestReport) throws Exception {
 		assertTrue(sureFireTestReport.isFile());
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document document = db.parse(sureFireTestReport);
 		return document;
+	}
+
+	private static File getTestResultFile(String baseDir, String className) {
+		File sureFireTestReport = new File(baseDir, "target/surefire-reports/TEST-" + className + ".xml");
+		return sureFireTestReport;
 	}
 }

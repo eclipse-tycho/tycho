@@ -29,13 +29,18 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "My 1st JUnit 5 test!");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "[1] one");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "[2] two");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 1 of 3");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 2 of 3");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "repetition 3 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+				"parameterizedJUnit5Test(String)[1] one");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+				"parameterizedJUnit5Test(String)[2] two");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+				"repeatedJUnit5Test() repetition 1 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+				"repeatedJUnit5Test() repetition 2 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+				"repeatedJUnit5Test() repetition 3 of 3");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
 		// make sure test tagged as 'slow' was skipped
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 6);
 	}
@@ -85,9 +90,12 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "My 1st JUnit 5.9 test!");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "[1] 0, 5, 5");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "[2] 10, 10, 20");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "[3] 12, 30, 42");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test",
+				"parameterizedJUnit59TestWithMethodSource(int, int, int)[1] 0, 5, 5");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test",
+				"parameterizedJUnit59TestWithMethodSource(int, int, int)[2] 10, 10, 20");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test",
+				"parameterizedJUnit59TestWithMethodSource(int, int, int)[3] 12, 30, 42");
 		// make sure test tagged as 'slow' was skipped
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit59Test", 4);
 	}
