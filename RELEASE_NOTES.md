@@ -15,6 +15,9 @@ They are generally inferior to the list-based `jvmArgs` and `applicationArgs` re
 However there are use cases where the arguments need to be extensible via property expansion, in which case the list-based approach is not always a suitable alternative.
 As such, these two options have been re-introduced for Tycho 3.0.2 and are no longer marked deprecated though `jvmArgs` and `applicationArgs` remain the preferred mechanism.
 
+### Fixes
+-  Maven Loockup can become really slow and should cache previous requests #1969
+
 ## 3.0.1
 
 - Upgrade to 2022-03 release
