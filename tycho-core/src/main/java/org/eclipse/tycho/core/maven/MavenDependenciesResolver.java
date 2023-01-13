@@ -165,7 +165,7 @@ public class MavenDependenciesResolver {
             version = "[" + version + ",)";
         }
         DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
-                stereotypes.get(dependency.getType()).getExtension(), dependency.getVersion());
+                stereotypes.get(dependency.getType()).getExtension(), version);
         VersionRangeRequest request = new VersionRangeRequest(artifact, project.getRemoteProjectRepositories(), null);
         VersionRangeResult versionResult = repoSystem.resolveVersionRange(repositorySession, request);
         Version highestVersion = versionResult.getHighestVersion();
