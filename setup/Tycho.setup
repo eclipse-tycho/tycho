@@ -168,8 +168,8 @@
     <workingSet
         name="Tycho">
       <predicate
-          xsi:type="predicates:LocationPredicate"
-          pattern=".*tycho.*"/>
+          xsi:type="predicates:RepositoryPredicate"
+          project="tycho-core"/>
     </workingSet>
   </setupTask>
   <setupTask
