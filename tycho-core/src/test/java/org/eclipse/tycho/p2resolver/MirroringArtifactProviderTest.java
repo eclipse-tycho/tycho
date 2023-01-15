@@ -185,8 +185,8 @@ public class MirroringArtifactProviderTest extends TychoPlexusTestCase {
     @Test
     public void testContainsCanonicalArtifactDescriptor() {
         assertTrue(subject.contains(canonicalDescriptorFor(BUNDLE_A_KEY)));
-
-        assertMirrored(BUNDLE_A_KEY);
+        //this should actually NOT mirror it!
+        assertEquals(0, localRepository.getArtifactDescriptors(BUNDLE_A_KEY).length);
     }
 
     @Test

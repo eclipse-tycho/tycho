@@ -45,6 +45,7 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
@@ -350,14 +351,25 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     private IStatus readRawArtifact(IArtifactDescriptor descriptor, OutputStream destination) {
-        try (InputStream source = new FileInputStream(internalGetArtifactStorageLocation(descriptor))) {
-            // copy to destination and close source
-            source.transferTo(destination);
+        File file = internalGetArtifactStorageLocation(descriptor);
+        if (file.isFile()) {
+            try (InputStream source = new FileInputStream(file)) {
+                // copy to destination and close source
+                source.transferTo(destination);
 
-        } catch (IOException e) {
-            return errorStatus("I/O exception while reading artifact " + descriptor, e);
+            } catch (IOException e) {
+                return errorStatus("I/O exception while reading artifact " + descriptor, e);
+            }
+            return Status.OK_STATUS;
+        } else {
+            //fetch directly from the repository...
+            IArtifactRepository repository = descriptor.getRepository();
+            if (repository != this && repository != null) {
+                return repository.getArtifact(descriptor, destination, null);
+            }
+            return Status.error("File " + file
+                    + " points to a non existing file and can't be fetched from the descriptors repository!");
         }
-        return Status.OK_STATUS;
     }
 
     private static void closeSinkAccordingToStatus(IArtifactSink sink, IStatus status) throws ArtifactSinkException {
