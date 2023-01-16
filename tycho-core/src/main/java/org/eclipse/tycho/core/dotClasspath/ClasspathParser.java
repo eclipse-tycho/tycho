@@ -188,15 +188,11 @@ public class ClasspathParser implements Disposable {
         @Override
         public Collection<MavenArtifactKey> getArtifacts() {
             if (JUNIT3.equals(junit)) {
-                return Arrays.asList(JUNIT3_PLUGIN);
+                return JUNIT3_PLUGINS;
             } else if (JUNIT4.equals(junit)) {
-                return Arrays.asList(JUNIT4_PLUGIN, HAMCREST_CORE_PLUGIN);
+                return JUNIT4_PLUGINS;
             } else if (JUNIT5.equals(junit)) {
-                return Arrays.asList(JUNIT_JUPITER_API_PLUGIN, JUNIT_JUPITER_ENGINE_PLUGIN,
-                        JUNIT_JUPITER_MIGRATIONSUPPORT_PLUGIN, JUNIT_JUPITER_PARAMS_PLUGIN,
-                        JUNIT_PLATFORM_COMMONS_PLUGIN, JUNIT_PLATFORM_ENGINE_PLUGIN, JUNIT_PLATFORM_LAUNCHER_PLUGIN,
-                        JUNIT_PLATFORM_RUNNER_PLUGIN, JUNIT_PLATFORM_SUITE_API_PLUGIN, JUNIT_VINTAGE_ENGINE_PLUGIN,
-                        JUNIT_OPENTEST4J_PLUGIN, JUNIT_APIGUARDIAN_PLUGIN, JUNIT4_PLUGIN, HAMCREST_CORE_PLUGIN);
+                return JUNIT5_PLUGINS;
             }
             return Collections.emptyList();
         }

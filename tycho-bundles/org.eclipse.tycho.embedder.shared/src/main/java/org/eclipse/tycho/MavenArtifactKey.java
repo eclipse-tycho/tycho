@@ -28,6 +28,10 @@ public interface MavenArtifactKey extends ArtifactKey {
      */
     String getArtifactId();
 
+    static MavenArtifactKey bundle(String id, String version, String groupId, String artifactId) {
+        return of(PackagingType.TYPE_ECLIPSE_PLUGIN, id, version, groupId, artifactId);
+    }
+
     static MavenArtifactKey of(String type, String id, String version, String groupId, String artifactId) {
         return new MavenArtifactKey() {
 
