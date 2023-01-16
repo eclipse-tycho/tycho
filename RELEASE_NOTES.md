@@ -4,6 +4,15 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### new bnd-test mojo
+
+Tycho now has a new mojo `tycho-surefire-plugin:bnd-test` to easily execute tests using the [bnd-testing](https://bnd.bndtools.org/chapters/310-testing.html) framework.
+This is similar to `tycho-surefire-plugin:plugin-test` but uses the BND testing framework, integrates nicely with the [OSGi Testing Support](https://github.com/osgi/osgi-test)
+and allows to execute prebuild test-bundles.
+
+Additional information and a demo can be found here:
+https://tycho.eclipseprojects.io/doc/master/TestingBundles.html#bnd-testing
+
 ### new tycho-baseline-plugin
 
 Tycho now has a new mojo to perform baseline comparisons similar to the [bnd-baseline-plugin](https://github.com/bndtools/bnd/blob/master/maven/bnd-baseline-maven-plugin/README.md) but takes the tycho-dependency model into account.
@@ -48,6 +57,10 @@ The parameters of the `tycho-apitools-plugin:generate` goal have been completed 
 
 
 ### Migration guide 3.x > 4.x
+
+#### skipExec parameter remove from test mojos
+
+The test-mojo previously defined a (deprecated) `skipExec` parameter, this parameter is now removed and one should use `skipTests` instead.
 
 #### allowConflictingDependencies parameter removed
 

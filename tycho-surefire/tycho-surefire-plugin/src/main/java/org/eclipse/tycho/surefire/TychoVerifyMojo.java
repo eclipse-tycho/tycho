@@ -12,6 +12,8 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import java.io.File;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.failsafe.VerifyMojo;
@@ -30,9 +32,12 @@ public class TychoVerifyMojo extends VerifyMojo {
     @Parameter(property = "project", readonly = true)
     protected MavenProject project;
 
+    @Parameter(property = "tycho.verify-test.packaging", defaultValue = PackagingType.TYPE_ECLIPSE_PLUGIN)
+    private String packaging = PackagingType.TYPE_ECLIPSE_PLUGIN;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())) {
+        if (packaging.equals(project.getPackaging())) {
             super.execute();
         }
     }

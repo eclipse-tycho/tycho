@@ -35,6 +35,13 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 		runDemo("testing/tycho/", "-f", "samemodule");
 	}
 
+	@Test
+	public void testTychoBndDemo() throws Exception {
+		runDemo("testing/bnd/", "-f", "osgi-test");
+		// TODO add a TCK test demo, e.g. when h2 complies to the jdbc spec we can use
+		// that as it is small and fast
+	}
+
 	protected Verifier runDemo(String test, String... xargs) throws Exception {
 		Verifier verifier = super.getVerifier("../../demo/" + test, true, true);
 		for (String xarg : xargs) {

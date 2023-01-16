@@ -18,20 +18,30 @@ import java.util.Properties;
 
 public class TychoVersion {
 
-    private static final String TYCHO_VERSION = readVersion();
+    private static final String TYCHO_VERSION = readVersion("version");
+
+    private static final String BND_VERSION = readVersion("bnd");
+
+    private static Properties PROPERTIES;
 
     public static String getTychoVersion() {
         return TYCHO_VERSION;
     }
 
-    private static String readVersion() {
-        try (InputStream stream = TychoVersion.class.getResourceAsStream("version.properties")) {
-            Properties p = new Properties();
-            p.load(stream);
-            return p.getProperty("version");
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+    public static String getBndVersion() {
+        return BND_VERSION;
+    }
+
+    private static synchronized String readVersion(String version) {
+        if (PROPERTIES == null) {
+            try (InputStream stream = TychoVersion.class.getResourceAsStream("version.properties")) {
+                PROPERTIES = new Properties();
+                PROPERTIES.load(stream);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
         }
+        return PROPERTIES.getProperty(version);
     }
 
 }

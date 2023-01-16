@@ -114,13 +114,6 @@ public class TestMojoTest {
     }
 
     @Test
-    public void testShouldSkipWithSkipExeSetToTrue() throws Exception {
-        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
-        setParameter(testMojo, "skipExec", Boolean.TRUE);
-        assertTrue(testMojo.shouldSkip());
-    }
-
-    @Test
     public void testExcludes() throws Exception {
         List<String> includes = new ArrayList<>();
         includes.add("*");

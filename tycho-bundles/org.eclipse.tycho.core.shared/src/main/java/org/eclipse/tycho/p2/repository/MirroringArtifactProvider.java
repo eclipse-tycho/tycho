@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2022 SAP SE and others.
+ * Copyright (c) 2012, 2023 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,8 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -79,6 +82,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     protected final IProgressMonitor monitor;
     private MavenContext mavenContext;
+    private IArtifactRepository shaddowRepository;
 
     /**
      * Creates a new {@link MirroringArtifactProvider} instance.
@@ -105,6 +109,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         this.logger = mavenContext.getLogger();
         this.splittingLogger = new MultiLineLogger(this.logger);
         this.monitor = new LoggingProgressMonitor(this.logger);
+        this.shaddowRepository = new ProviderOnlyArtifactRepository(this,
+                localArtifactRepository.getProvisioningAgent(), null);
     }
 
     // pass through methods
@@ -164,18 +170,25 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     @Override
     public final IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) throws MirroringFailedException {
-        if (makeLocallyAvailable(key)) {
+        if (localArtifactRepository.contains(key)) {
             return localArtifactRepository.getArtifactDescriptors(key);
+        }
+        if (remoteProviders.contains(key)) {
+        	//we can use it if the remote contains it, but want to shadow the repository returned by the descriptor
+        	//just in case someone uses this to download an artifact we are asked again...
+            return Arrays.stream(remoteProviders.getArtifactDescriptors(key))
+                    .map(base -> new MirrorArtifactDescriptor(base, this)).toArray(IArtifactDescriptor[]::new);
         }
         return new IArtifactDescriptor[0];
     }
 
     @Override
     public final boolean contains(IArtifactDescriptor descriptor) throws MirroringFailedException {
-        if (makeLocallyAvailable(descriptor.getArtifactKey())) {
-            return localArtifactRepository.contains(descriptor);
+        if (descriptor instanceof MirrorArtifactDescriptor mirrorDescriptor) {
+            return mirrorDescriptor.provider == this;
         }
-        return false;
+        //we can use this if the local or the remote contains this!
+        return localArtifactRepository.contains(descriptor) || remoteProviders.contains(descriptor);
     }
 
     /**
@@ -380,6 +393,34 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     }
 
+    private static final class MirrorArtifactDescriptor extends ArtifactDescriptor implements IArtifactDescriptor {
+
+        final MirroringArtifactProvider provider;
+        private IArtifactDescriptor base;
+
+        MirrorArtifactDescriptor(IArtifactDescriptor base, MirroringArtifactProvider provider) {
+            super(base);
+            this.base = base;
+            this.provider = provider;
+            setRepository(provider.shaddowRepository);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            boolean equals = super.equals(obj);
+            if (!equals) {
+                return base.equals(obj);
+            }
+            return equals;
+        }
+
+        @Override
+        public int hashCode() {
+            return base.hashCode();
+        }
+
+    }
+
     @Override
     public boolean isFileAlreadyAvailable(IArtifactKey artifactKey) {
         if (localArtifactRepository.contains(artifactKey)) {
@@ -446,4 +487,5 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         }
         return map;
     }
+
 }

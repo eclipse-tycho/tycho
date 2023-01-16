@@ -13,6 +13,7 @@
 package org.eclipse.tycho.core.dotClasspath;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.MavenArtifactKey;
@@ -26,10 +27,10 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
     static final String JUNIT5 = "5";
 
     static final MavenArtifactKey JUNIT3_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.junit",
-            "[3.8.2,3.9)", "junit", "junit");
+            "[3.8.2,3.9)", "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.junit");
 
     static final MavenArtifactKey JUNIT4_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.junit",
-            "[4.13.0,5.0.0)", "junit", "junit");
+            "[4.13.0,5.0.0)", "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.junit");
 
     static final MavenArtifactKey HAMCREST_CORE_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
             "org.hamcrest.core", "[1.1.0,2.0.0)", "org.hamcrest", "hamcrest-core");
@@ -73,6 +74,14 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
 
     static final MavenArtifactKey JUNIT_APIGUARDIAN_PLUGIN = MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT,
             "org.apiguardian.api", "[1.0.0,2.0.0)", "org.apiguardian", "apiguardian-api");
+
+    static final List<MavenArtifactKey> JUNIT3_PLUGINS = List.of(JUNIT3_PLUGIN);
+    static final List<MavenArtifactKey> JUNIT4_PLUGINS = List.of(JUNIT4_PLUGIN, HAMCREST_CORE_PLUGIN);
+    static final List<MavenArtifactKey> JUNIT5_PLUGINS = List.of(JUNIT_JUPITER_API_PLUGIN, JUNIT_JUPITER_ENGINE_PLUGIN,
+            JUNIT_JUPITER_MIGRATIONSUPPORT_PLUGIN, JUNIT_JUPITER_PARAMS_PLUGIN, JUNIT_PLATFORM_COMMONS_PLUGIN,
+            JUNIT_PLATFORM_ENGINE_PLUGIN, JUNIT_PLATFORM_LAUNCHER_PLUGIN, JUNIT_PLATFORM_RUNNER_PLUGIN,
+            JUNIT_PLATFORM_SUITE_API_PLUGIN, JUNIT_VINTAGE_ENGINE_PLUGIN, JUNIT_OPENTEST4J_PLUGIN,
+            JUNIT_APIGUARDIAN_PLUGIN, JUNIT4_PLUGIN, HAMCREST_CORE_PLUGIN);
 
     /**
      * 

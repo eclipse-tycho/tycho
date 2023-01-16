@@ -113,4 +113,6 @@ public interface TychoConstants {
     public String ROOTFILE_CLASSIFIER = "root";
 
     public String ROOTFILE_EXTENSION = "zip";
+
+    String HEADER_TESTCASES = "Test-Cases";
 }
