@@ -91,7 +91,7 @@ https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/samemodule
 ### bnd-testing
 
 The [tycho-surefire-plugin](https://tycho.eclipseprojects.io/doc/master/tycho-surefire-plugin/plugin-info.html) has also support for [bnd-testing](https://bnd.bndtools.org/chapters/310-testing.html),
-this is similar to `plugin-test` but uses the BND testing framework. There is currently no JDT/BND equivalent but this integrates nicely with the [OSGi Testing Support](https://github.com/osgi/osgi-test) and allows to execute prebuild test-bundles.
+this is similar to `plugin-test` but uses the BND testing framework. There is currently no JDT/PDE equivalent but this integrates nicely with the [OSGi Testing Support](https://github.com/osgi/osgi-test) and allows to execute prebuild test-bundles.
 
 A sample snippet looks like this:
 

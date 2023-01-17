@@ -87,7 +87,7 @@ public class InstallableUnitCapability implements Capability {
 //            <attribute name='type' value='osgi.bundle'/>
 //          </capability>
             map.put("version", new Version(capability.getVersion().toString()));
-            namespace = IInstallableUnit.NAMESPACE_IU_ID;
+            namespace = capability.getNamespace();
         }
         this.attributes = Map.copyOf(map);
     }
