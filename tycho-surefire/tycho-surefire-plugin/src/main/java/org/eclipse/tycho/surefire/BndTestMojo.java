@@ -49,6 +49,8 @@ import org.eclipse.tycho.surefire.bnd.TargetPlatformRepository;
 import org.osgi.resource.Requirement;
 import org.osgi.service.resolver.ResolutionException;
 
+import aQute.bnd.build.ProjectLauncher;
+import aQute.bnd.build.ProjectLauncher.NotificationType;
 import aQute.bnd.build.ProjectTester;
 import aQute.bnd.build.Workspace;
 import aQute.bnd.build.model.conversions.RequirementListConverter;
@@ -217,13 +219,16 @@ public class BndTestMojo extends AbstractTestMojo {
                 workspace.refresh(); // required to clear cached plugins...
                 try {
                     getLog().info("Resolve test-container...");
+                    if (printBundles) {
+                        getLog().info(String.format("%s: %s", Constants.RUNFW, runfw));
+                        for (String require : runrequire) {
+                            getLog().info(String.format("%s: %s", Constants.RUNREQUIRES, require));
+                        }
+                    }
                     String runBundles = run.resolve(false, false);
                     run.getWarnings().forEach(getLog()::warn);
                     if (run.isOk()) {
                         if (printBundles) {
-                            for (String require : runrequire) {
-                                getLog().info(String.format("%s: %s", Constants.RUNREQUIRES, require));
-                            }
                             for (Requirement bundle : new RequirementListConverter().convert(runBundles)) {
                                 getLog().info(String.format("%s: %s", Constants.RUNBUNDLES, bundle));
                             }
@@ -235,7 +240,6 @@ public class BndTestMojo extends AbstractTestMojo {
                     }
                 } catch (ResolutionException re) {
                     getLog().error(ResolveProcess.format(re, false));
-                    re.printStackTrace();
                     return ERROR_RESOLVE_CONTAINER;
                 }
 
@@ -260,6 +264,7 @@ public class BndTestMojo extends AbstractTestMojo {
                     run.getErrors().forEach(getLog()::error);
                     return ERROR_PREPARE_CONTAINER;
                 }
+                getLog().info("Running " + numberOfTests + " test(s)...");
                 int errors = tester.test();
                 //TODO currently we can't get the real run statistic see https://github.com/bndtools/bnd/issues/5513
                 FailsafeSummaryXmlUtils.writeSummary(new RunResult(numberOfTests, 0, errors, 0), summaryFile,
@@ -280,10 +285,10 @@ public class BndTestMojo extends AbstractTestMojo {
 
     private void addTestFramework(List<ResolvedArtifactKey> bundles, List<String> runrequire) {
         runrequire.add("bnd.identity; id=" + tester);
-        for (String engine : Strings.split(testEngines)) {
-            runrequire.add("bnd.identity; id=" + engine);
-        }
         if (TESTER_JUNIT_PLATFORM.equals(tester)) {
+            for (String engine : Strings.split(testEngines)) {
+                runrequire.add("bnd.identity; id=" + engine);
+            }
             for (MavenArtifactKey key : JUnitClasspathContainerEntry.JUNIT5_PLUGINS) {
                 mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
                         () -> getLog().warn("Can't get junit artifact " + key + " test run might not resolve!"));
@@ -377,7 +382,7 @@ public class BndTestMojo extends AbstractTestMojo {
                 .getPomDependencies();
         Set<String> bundleTestCases = new HashSet<>();
         List<ResolvedArtifactKey> pomBundles = new ArrayList<>();
-        if (pomDependencies == PomDependencies.consider) {
+        if (pomDependencies != PomDependencies.ignore) {
             for (Artifact artifact : project.getArtifacts()) {
                 try {
                     File file = artifact.getFile();
@@ -391,7 +396,6 @@ public class BndTestMojo extends AbstractTestMojo {
                 } catch (OsgiManifestParserException e) {
                     //nothing we can use...
                 }
-
             }
         }
         TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(getReactorProject());
@@ -411,6 +415,7 @@ public class BndTestMojo extends AbstractTestMojo {
                 } catch (DependencyResolutionException | IllegalArtifactReferenceException
                         | OsgiManifestParserException e) {
                     //nothing we can use...
+                    getLog().debug("Bundle " + bundle + " was not found in target platform: " + e);
                 }
             }
         }
