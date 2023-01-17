@@ -108,4 +108,17 @@ public class MavenBundleResolver {
         return Optional.empty();
     }
 
+    public Optional<ResolvedArtifactKey> resolveMavenBundle(MavenProject project, MavenSession mavenSession,
+            String groupId, String artifactId, String version) {
+        try {
+            Artifact artifact = dependenciesResolver.resolveArtifact(project, mavenSession, groupId, artifactId,
+                    version);
+            ArtifactKey artifactKey = projectManager.getArtifactKey(artifact);
+            return Optional.of(ResolvedArtifactKey.of(ArtifactType.TYPE_ECLIPSE_PLUGIN, artifactKey.getId(),
+                    artifactKey.getVersion(), artifact.getFile()));
+        } catch (ArtifactResolutionException e) {
+            return Optional.empty();
+        }
+    }
+
 }
