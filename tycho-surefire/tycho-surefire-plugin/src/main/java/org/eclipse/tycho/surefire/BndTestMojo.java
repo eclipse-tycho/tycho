@@ -74,9 +74,10 @@ import biz.aQute.resolve.ResolveProcess;
 /**
  * Execute tests using <a href="https://bnd.bndtools.org/chapters/310-testing.html">BND testing</a>
  */
-@Mojo(name = "bnd-test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
+@Mojo(name = BndTestMojo.NAME, defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class BndTestMojo extends AbstractTestMojo {
 
+    public static final String NAME = "bnd-test";
     private static final String ENGINE_VINTAGE_ENGINE = "junit-vintage-engine";
     private static final String ENGINE_JUPITER = "junit-jupiter-engine";
     private static final String ENGINES_DEFAULT = ENGINE_JUPITER + "," + ENGINE_VINTAGE_ENGINE;
