@@ -113,6 +113,12 @@ public class BndTestMojo extends AbstractTestMojo {
     @Parameter(property = "tycho.bnd-test.printTests", defaultValue = "true")
     private boolean printTests;
 
+    /**
+     * Always start bundles with eager activation policy
+     */
+    @Parameter(property = "tycho.bnd-test.eagerActivation", defaultValue = "false")
+    private boolean launchActivationEager;
+
     @Parameter(defaultValue = "${project.build.directory}/failsafe-reports/failsafe-summary.xml", required = true)
     private File summaryFile;
 
@@ -201,13 +207,14 @@ public class BndTestMojo extends AbstractTestMojo {
         File runfile = new File(project.getBuild().getDirectory(), "test.bndrun");
         //see https://bnd.bndtools.org/chapters/310-testing.html
         Properties properties = new Properties();
-        properties.setProperty(Constants.RUNEE, getTestProfileName());
+        String testProfileName = getTestProfileName();
+        properties.setProperty(Constants.RUNEE, testProfileName);
         properties.setProperty(Constants.TESTER, tester);
         properties.setProperty(Constants.RUNREQUIRES, runrequire.stream().collect(Collectors.joining(",")));
         properties.setProperty(Constants.RUNTRACE, String.valueOf(trace));
         properties.setProperty(Constants.RUNFW, runfw);
-        properties.setProperty(Constants.RUNPROPERTIES,
-                "tester.trace=" + String.valueOf(testerTrace) + ",tester.continuous=false");
+        properties.setProperty(Constants.RUNPROPERTIES, "tester.trace=" + String.valueOf(testerTrace)
+                + ",tester.continuous=false,launch.activation.eager=" + launchActivationEager);
         try {
             try (FileOutputStream out = new FileOutputStream(runfile)) {
                 properties.store(out, null);
@@ -230,10 +237,18 @@ public class BndTestMojo extends AbstractTestMojo {
                 workspace.addBasicPlugin(new ArtifactKeyRepository(implicitBundles, "implicit-project-dependencies",
                         project.getBasedir()));
                 workspace.refresh(); // required to clear cached plugins...
+                run.addProperties(Map.of("tycho.test", "property"));
                 try {
                     getLog().info("Resolve test-container...");
                     if (printBundles) {
+                        if (TESTER_JUNIT_PLATFORM.equals(tester)) {
+                            for (String engine : Strings.split(testEngines)) {
+                                getLog().info(String.format("-engine: %s", engine));
+                            }
+                        }
+                        getLog().info(String.format("%s: %s", Constants.RUNEE, testProfileName));
                         getLog().info(String.format("%s: %s", Constants.RUNFW, runfw));
+                        getLog().info(String.format("%s: %s", Constants.TESTER, tester));
                         for (String require : runrequire) {
                             getLog().info(String.format("%s: %s", Constants.RUNREQUIRES, require));
                         }
@@ -255,7 +270,6 @@ public class BndTestMojo extends AbstractTestMojo {
                     getLog().error(ResolveProcess.format(re, false));
                     return ERROR_RESOLVE_CONTAINER;
                 }
-
                 int numberOfTests = scanResult.size();
                 ProjectTester tester = run.getProjectTester();
                 tester.setReportDir(getReportsDirectory());
@@ -306,8 +320,9 @@ public class BndTestMojo extends AbstractTestMojo {
                 mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
                         () -> getLog().warn("Can't get junit artifact " + key + " test run might not resolve!"));
             }
-            if (printTests) {
+            if (printTests || trace) {
                 //TODO currently we need to add an extra listener see https://github.com/bndtools/bnd/issues/5507
+                //TODO currently we need to print debug infos manually see https://github.com/bndtools/bnd/issues/5520
                 mavenBundleResolver
                         .resolveMavenBundle(project, session, "org.eclipse.tycho",
                                 "org.eclipse.tycho.bnd.executionlistener", TychoVersion.getTychoVersion())
