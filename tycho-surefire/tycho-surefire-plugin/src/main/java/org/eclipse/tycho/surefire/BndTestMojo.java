@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2023 Christoph Läubrich and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Christoph Läubrich - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
 import java.io.File;
@@ -49,8 +61,6 @@ import org.eclipse.tycho.surefire.bnd.TargetPlatformRepository;
 import org.osgi.resource.Requirement;
 import org.osgi.service.resolver.ResolutionException;
 
-import aQute.bnd.build.ProjectLauncher;
-import aQute.bnd.build.ProjectLauncher.NotificationType;
 import aQute.bnd.build.ProjectTester;
 import aQute.bnd.build.Workspace;
 import aQute.bnd.build.model.conversions.RequirementListConverter;
@@ -99,6 +109,9 @@ public class BndTestMojo extends AbstractTestMojo {
      */
     @Parameter(property = "tycho.bnd-test.testerTrace", defaultValue = "false")
     private boolean testerTrace;
+
+    @Parameter(property = "tycho.bnd-test.printTests", defaultValue = "true")
+    private boolean printTests;
 
     @Parameter(defaultValue = "${project.build.directory}/failsafe-reports/failsafe-summary.xml", required = true)
     private File summaryFile;
@@ -293,6 +306,18 @@ public class BndTestMojo extends AbstractTestMojo {
                 mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
                         () -> getLog().warn("Can't get junit artifact " + key + " test run might not resolve!"));
             }
+            if (printTests) {
+                //TODO currently we need to add an extra listener see https://github.com/bndtools/bnd/issues/5507
+                mavenBundleResolver
+                        .resolveMavenBundle(project, session, "org.eclipse.tycho",
+                                "org.eclipse.tycho.bnd.executionlistener", TychoVersion.getTychoVersion())
+                        .ifPresentOrElse(t -> {
+                            bundles.add(t);
+                            runrequire.add("bnd.identity; id=org.eclipse.tycho.bnd.executionlistener");
+                        }, () -> {
+                            getLog().debug("Can't resolve execution listener, output will be missing!");
+                        });
+            }
         } else if (TESTER_DEFAULT.equals(tester)) {
             for (MavenArtifactKey key : JUnitClasspathContainerEntry.JUNIT4_PLUGINS) {
                 mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
@@ -341,11 +366,9 @@ public class BndTestMojo extends AbstractTestMojo {
 
     private void addBndEmbeddedRepo(List<ResolvedArtifactKey> bundles) {
         String bndVersion = TychoVersion.getBndVersion();
-        String versionRange = "[" + bndVersion + "," + bndVersion + "]";
         for (String artifactId : BND_EMBEDDED_REPO_ARTIFACTS) {
-            //TODO use maven dependecy resolver to fetch ONE artifact!
-            mavenBundleResolver.resolveMavenBundle(project, session,
-                    MavenArtifactKey.bundle(artifactId, versionRange, BND_EMBEDDED_REPO_ARTIFACTS_GROUP, artifactId))
+            mavenBundleResolver
+                    .resolveMavenBundle(project, session, BND_EMBEDDED_REPO_ARTIFACTS_GROUP, artifactId, bndVersion)
                     .ifPresent(bundles::add);
         }
     }

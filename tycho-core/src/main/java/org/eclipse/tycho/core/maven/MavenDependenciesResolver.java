@@ -22,6 +22,7 @@ import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.filter.CumulativeScopeArtifactFilter;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.RepositorySessionDecorator;
@@ -176,5 +177,25 @@ public class MavenDependenciesResolver {
             return RepositoryUtils.toArtifact(result.getArtifact());
         }
         return null;
+    }
+
+    public Artifact resolveArtifact(MavenProject project, MavenSession session, String groupId, String artifactId,
+            String version) throws ArtifactResolutionException {
+        Dependency dependency = new Dependency();
+        dependency.setGroupId(groupId);
+        dependency.setArtifactId(artifactId);
+        dependency.setVersion(version);
+        return resolveArtifact(project, session, dependency);
+    }
+
+    public Artifact resolveArtifact(MavenProject project, MavenSession session,
+            org.apache.maven.model.Dependency dependency) throws ArtifactResolutionException {
+        RepositorySystemSession repositorySession = getRepositorySession(project, session);
+        ArtifactTypeRegistry stereotypes = repositorySession.getArtifactTypeRegistry();
+        DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
+                stereotypes.get(dependency.getType()).getExtension(), dependency.getVersion());
+        ArtifactRequest artifactRequest = new ArtifactRequest(artifact, project.getRemoteProjectRepositories(), null);
+        ArtifactResult result = repoSystem.resolveArtifact(repositorySession, artifactRequest);
+        return RepositoryUtils.toArtifact(result.getArtifact());
     }
 }
