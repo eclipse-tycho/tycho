@@ -75,6 +75,8 @@ public class PropertiesComparator implements ContentsComparator {
 
     @Override
     public boolean matches(String extension) {
-        return TYPE.equalsIgnoreCase(extension) || "bnd".equalsIgnoreCase(extension);
+        return TYPE.equalsIgnoreCase(extension) || "bnd".equalsIgnoreCase(extension)
+        // .mapping comes from org.eclipse.equinox.p2.internal.repository.comparator.JarComparator
+                || "mappings".equalsIgnoreCase(extension);
     }
 }

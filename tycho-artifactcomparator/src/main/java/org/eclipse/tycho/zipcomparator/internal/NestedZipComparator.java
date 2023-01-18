@@ -48,7 +48,7 @@ public class NestedZipComparator implements ContentsComparator {
 
     @Override
     public boolean matches(String extension) {
-        return TYPE.equalsIgnoreCase(extension);
+        return TYPE.equalsIgnoreCase(extension) || "jar".equalsIgnoreCase(extension) || "war".equalsIgnoreCase(extension);
     }
 
 }
