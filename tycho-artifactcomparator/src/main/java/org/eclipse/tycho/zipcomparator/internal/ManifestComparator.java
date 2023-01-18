@@ -39,6 +39,7 @@ public class ManifestComparator implements ContentsComparator {
             new Name("Build-Jdk-Spec"),
             // lets be friendly to bnd/maven-bundle-plugin
             new Name("Bnd-LastModified"), //
+            new Name("Bundle-Developers"), //
             new Name("Tool"),
             // this is common attribute not supported by Tycho yet
             new Name("Eclipse-SourceReferences"));
@@ -88,11 +89,19 @@ public class ManifestComparator implements ContentsComparator {
         Set<Name> result = new LinkedHashSet<>();
         for (Object key : attributes.keySet()) {
             Name name = (Name) key;
-            if (!IGNORED_KEYS.contains(name)) {
+            if (!isIgnoredHeaderName(name)) {
                 result.add(name);
             }
         }
         return result;
+    }
+
+    public static boolean isIgnoredHeaderName(String name) {
+        return IGNORED_KEYS.contains(new Name(name));
+    }
+
+    public static boolean isIgnoredHeaderName(Name name) {
+        return IGNORED_KEYS.contains(name);
     }
 
     @Override
