@@ -22,6 +22,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
@@ -61,5 +62,14 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 				assertTrue(e.getMessage().contains("Text not found"));
 			}
 		}
+	}
+
+	@Test(expected = VerificationException.class)
+	public void testAssembleRepositoryNoDigestMessage() throws Exception {
+		Verifier verifier = getVerifier("p2Repository.reactor", false);
+		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("No digest algorithm");
 	}
 }
