@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -125,6 +126,14 @@ public class BndTestMojo extends AbstractTestMojo {
 
     @Parameter()
     private boolean summaryAppend;
+    @Parameter()
+    private boolean enableSecurity;
+
+    @Parameter
+    private List<File> keyStores;
+
+    @Parameter
+    private File policyFile;
 
     @Parameter(defaultValue = "${project.build.directory}/failsafe-reports", required = true)
     private File reportDirectory;
@@ -164,6 +173,9 @@ public class BndTestMojo extends AbstractTestMojo {
      */
     @Parameter(defaultValue = FW_EQUINOX)
     private String runfw = FW_EQUINOX;
+
+    @Parameter
+    private Map<String, String> properties;
 
     /**
      * Configures the test engines to use, for example:
@@ -214,8 +226,7 @@ public class BndTestMojo extends AbstractTestMojo {
         properties.setProperty(Constants.RUNREQUIRES, runrequire.stream().collect(Collectors.joining(",")));
         properties.setProperty(Constants.RUNTRACE, String.valueOf(trace));
         properties.setProperty(Constants.RUNFW, runfw);
-        properties.setProperty(Constants.RUNPROPERTIES, "tester.trace=" + String.valueOf(testerTrace)
-                + ",tester.continuous=false,launch.activation.eager=" + launchActivationEager);
+        properties.setProperty(Constants.RUNPROPERTIES, buildRunProperties());
         try {
             try (FileOutputStream out = new FileOutputStream(runfile)) {
                 properties.store(out, null);
@@ -309,6 +320,30 @@ public class BndTestMojo extends AbstractTestMojo {
             throw new MojoExecutionException("executing test container failed!", e);
         }
 
+    }
+
+    private String buildRunProperties() {
+        Map<String, Object> runProperties = new LinkedHashMap<>();
+        runProperties.put("tester.trace", testerTrace);
+        runProperties.put("tester.continuous", false);
+        runProperties.put(Constants.LAUNCH_ACTIVATION_EAGER, launchActivationEager);
+        if (enableSecurity) {
+            getLog().info("Enable OSGi security for the framework");
+            runProperties.put(org.osgi.framework.Constants.FRAMEWORK_SECURITY,
+                    org.osgi.framework.Constants.FRAMEWORK_SECURITY_OSGI);
+            if (keyStores != null) {
+                runProperties.put(org.osgi.framework.Constants.FRAMEWORK_TRUST_REPOSITORIES,
+                        keyStores.stream().map(File::getAbsolutePath).collect(Collectors.joining(",")));
+            }
+            if (policyFile != null) {
+                runProperties.put("java.security.policy", policyFile.getAbsolutePath());
+            }
+        }
+        if (properties != null) {
+            runProperties.putAll(properties);
+        }
+        return runProperties.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining(","));
     }
 
     private void addTestFramework(List<ResolvedArtifactKey> bundles, List<String> runrequire) {
