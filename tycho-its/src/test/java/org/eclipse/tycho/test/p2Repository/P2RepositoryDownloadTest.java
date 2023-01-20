@@ -62,4 +62,12 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 			}
 		}
 	}
+
+	public void testReactorCanBeVerified() throws Exception {
+		Verifier verifier = getVerifier("reactor.makeBehaviour", true, true);
+		verifier.addCliOption("-T1C");
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+		verifyTextNotInLog(verifier, "No digest algorithm is available to verify download of");
+	}
 }
