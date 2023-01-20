@@ -9,11 +9,17 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.junit.BeforeClass;
@@ -46,5 +52,20 @@ public class IncludeAllSourcesTest extends AbstractTychoIntegrationTest {
 	@Test(expected = AssertionError.class)
 	public void testAllowMissingSource() throws Exception {
 		p2Repo.getUniqueIU("org.apache.commons.commons-io.source");
+	}
+
+	@Test
+	public void testIncludeAllSourcesFromOldOrbit() throws Exception {
+		verifier = new IncludeAllSourcesTest().getVerifier("/p2Repository.includeAllSources.oldOrbit", false);
+		File localRepository = new File(verifier.getLocalRepository());
+		File indexFile = new File(localRepository, FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+		if (indexFile.exists()) {
+			List<String> lines = Files.readAllLines(indexFile.toPath(), StandardCharsets.UTF_8);
+			FileUtils.writeLines(indexFile, lines.stream().filter(line -> !line.contains("org.jdom.source")).toList());
+		}
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+		p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
+		assertFalse(p2Repo.getUnitVersions("org.jdom.source").isEmpty(), "Missing org.jdom.source");
 	}
 }
