@@ -100,22 +100,22 @@ public class TextComparator implements ContentsComparator {
 
     public static ArtifactDelta createDelta(String message, ComparatorInputStream baseline,
             ComparatorInputStream reactor) {
-        if (NO_DIFF_DETAILS) {
-            return ArtifactDelta.DEFAULT;
+        if (SHOW_DIFF_DETAILS) {
+            String detailed;
+            try {
+                List<String> source = IOUtils.readLines(baseline.asNewStream(), StandardCharsets.UTF_8);
+                List<String> target = IOUtils.readLines(reactor.asNewStream(), StandardCharsets.UTF_8);
+                Patch<String> patch = DiffUtils.diff(source, target);
+                List<String> unifiedDiffList = UnifiedDiffUtils.generateUnifiedDiff("baseline", "reactor", source,
+                        patch, 0);
+                detailed = unifiedDiffList.stream().collect(Collectors.joining((System.lineSeparator())));
+            } catch (Exception e) {
+                detailed = message;
+            }
+            return new SimpleArtifactDelta(message, detailed, baseline.asString(StandardCharsets.UTF_8),
+                    reactor.asString(StandardCharsets.UTF_8));
         }
-        String detailed;
-        try {
-            List<String> source = IOUtils.readLines(baseline.asNewStream(), StandardCharsets.UTF_8);
-            List<String> target = IOUtils.readLines(reactor.asNewStream(), StandardCharsets.UTF_8);
-            Patch<String> patch = DiffUtils.diff(source, target);
-            List<String> unifiedDiffList = UnifiedDiffUtils.generateUnifiedDiff("baseline", "reactor", source, patch,
-                    0);
-            detailed = unifiedDiffList.stream().collect(Collectors.joining((System.lineSeparator())));
-        } catch (Exception e) {
-            detailed = message;
-        }
-        return new SimpleArtifactDelta(message, detailed, baseline.asString(StandardCharsets.UTF_8),
-                reactor.asString(StandardCharsets.UTF_8));
+        return ArtifactDelta.DEFAULT;
     }
 
 }
