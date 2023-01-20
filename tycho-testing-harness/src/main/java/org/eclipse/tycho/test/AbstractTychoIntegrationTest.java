@@ -230,17 +230,24 @@ public abstract class AbstractTychoIntegrationTest {
         return file.getCanonicalFile().toURI().normalize().toString();
     }
 
-    public void verifyTextInLogMatches(Verifier verifier, Pattern pattern) throws VerificationException {
+    public static void verifyTextInLogMatches(Verifier verifier, Pattern pattern) throws VerificationException {
         List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
 
-        boolean result = false;
         for (String line : lines) {
             if (pattern.matcher(Verifier.stripAnsi(line)).find()) {
                 return;
             }
         }
-        if (!result) {
-            throw new VerificationException("Pattern not found in log: " + pattern);
+        throw new VerificationException("Pattern not found in log: " + pattern);
+    }
+
+    public static void verifyTextNotInLog(Verifier verifier, String text) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+
+        for (String line : lines) {
+            if (Verifier.stripAnsi(line).contains(text)) {
+                throw new VerificationException("Text '" + text + "' was found in the log!");
+            }
         }
     }
 
