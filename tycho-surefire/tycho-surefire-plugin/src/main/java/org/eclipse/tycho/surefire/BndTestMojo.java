@@ -1,9 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2023 Christoph Läubrich and others.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Christoph Läubrich - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,9 +75,10 @@ import biz.aQute.resolve.ResolveProcess;
 /**
  * Execute tests using <a href="https://bnd.bndtools.org/chapters/310-testing.html">BND testing</a>
  */
-@Mojo(name = "bnd-test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
+@Mojo(name = BndTestMojo.NAME, defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class BndTestMojo extends AbstractTestMojo {
 
+    public static final String NAME = "bnd-test";
     private static final String ENGINE_VINTAGE_ENGINE = "junit-vintage-engine";
     private static final String ENGINE_JUPITER = "junit-jupiter-engine";
     private static final String ENGINES_DEFAULT = ENGINE_JUPITER + "," + ENGINE_VINTAGE_ENGINE;
@@ -98,11 +112,28 @@ public class BndTestMojo extends AbstractTestMojo {
     @Parameter(property = "tycho.bnd-test.testerTrace", defaultValue = "false")
     private boolean testerTrace;
 
+    @Parameter(property = "tycho.bnd-test.printTests", defaultValue = "true")
+    private boolean printTests;
+
+    /**
+     * Always start bundles with eager activation policy
+     */
+    @Parameter(property = "tycho.bnd-test.eagerActivation", defaultValue = "false")
+    private boolean launchActivationEager;
+
     @Parameter(defaultValue = "${project.build.directory}/failsafe-reports/failsafe-summary.xml", required = true)
     private File summaryFile;
 
     @Parameter()
     private boolean summaryAppend;
+    @Parameter()
+    private boolean enableSecurity;
+
+    @Parameter
+    private List<File> keyStores;
+
+    @Parameter
+    private File policyFile;
 
     @Parameter(defaultValue = "${project.build.directory}/failsafe-reports", required = true)
     private File reportDirectory;
@@ -142,6 +173,9 @@ public class BndTestMojo extends AbstractTestMojo {
      */
     @Parameter(defaultValue = FW_EQUINOX)
     private String runfw = FW_EQUINOX;
+
+    @Parameter
+    private Map<String, String> properties;
 
     /**
      * Configures the test engines to use, for example:
@@ -186,13 +220,13 @@ public class BndTestMojo extends AbstractTestMojo {
         File runfile = new File(project.getBuild().getDirectory(), "test.bndrun");
         //see https://bnd.bndtools.org/chapters/310-testing.html
         Properties properties = new Properties();
-        properties.setProperty(Constants.RUNEE, getTestProfileName());
+        String testProfileName = getTestProfileName();
+        properties.setProperty(Constants.RUNEE, testProfileName);
         properties.setProperty(Constants.TESTER, tester);
         properties.setProperty(Constants.RUNREQUIRES, runrequire.stream().collect(Collectors.joining(",")));
         properties.setProperty(Constants.RUNTRACE, String.valueOf(trace));
         properties.setProperty(Constants.RUNFW, runfw);
-        properties.setProperty(Constants.RUNPROPERTIES,
-                "tester.trace=" + String.valueOf(testerTrace) + ",tester.continuous=false");
+        properties.setProperty(Constants.RUNPROPERTIES, buildRunProperties());
         try {
             try (FileOutputStream out = new FileOutputStream(runfile)) {
                 properties.store(out, null);
@@ -215,15 +249,26 @@ public class BndTestMojo extends AbstractTestMojo {
                 workspace.addBasicPlugin(new ArtifactKeyRepository(implicitBundles, "implicit-project-dependencies",
                         project.getBasedir()));
                 workspace.refresh(); // required to clear cached plugins...
+                run.addProperties(Map.of("tycho.test", "property"));
                 try {
                     getLog().info("Resolve test-container...");
+                    if (printBundles) {
+                        if (TESTER_JUNIT_PLATFORM.equals(tester)) {
+                            for (String engine : Strings.split(testEngines)) {
+                                getLog().info(String.format("-engine: %s", engine));
+                            }
+                        }
+                        getLog().info(String.format("%s: %s", Constants.RUNEE, testProfileName));
+                        getLog().info(String.format("%s: %s", Constants.RUNFW, runfw));
+                        getLog().info(String.format("%s: %s", Constants.TESTER, tester));
+                        for (String require : runrequire) {
+                            getLog().info(String.format("%s: %s", Constants.RUNREQUIRES, require));
+                        }
+                    }
                     String runBundles = run.resolve(false, false);
                     run.getWarnings().forEach(getLog()::warn);
                     if (run.isOk()) {
                         if (printBundles) {
-                            for (String require : runrequire) {
-                                getLog().info(String.format("%s: %s", Constants.RUNREQUIRES, require));
-                            }
                             for (Requirement bundle : new RequirementListConverter().convert(runBundles)) {
                                 getLog().info(String.format("%s: %s", Constants.RUNBUNDLES, bundle));
                             }
@@ -235,10 +280,8 @@ public class BndTestMojo extends AbstractTestMojo {
                     }
                 } catch (ResolutionException re) {
                     getLog().error(ResolveProcess.format(re, false));
-                    re.printStackTrace();
                     return ERROR_RESOLVE_CONTAINER;
                 }
-
                 int numberOfTests = scanResult.size();
                 ProjectTester tester = run.getProjectTester();
                 tester.setReportDir(getReportsDirectory());
@@ -260,6 +303,7 @@ public class BndTestMojo extends AbstractTestMojo {
                     run.getErrors().forEach(getLog()::error);
                     return ERROR_PREPARE_CONTAINER;
                 }
+                getLog().info("Running " + numberOfTests + " test(s)...");
                 int errors = tester.test();
                 //TODO currently we can't get the real run statistic see https://github.com/bndtools/bnd/issues/5513
                 FailsafeSummaryXmlUtils.writeSummary(new RunResult(numberOfTests, 0, errors, 0), summaryFile,
@@ -278,15 +322,52 @@ public class BndTestMojo extends AbstractTestMojo {
 
     }
 
+    private String buildRunProperties() {
+        Map<String, Object> runProperties = new LinkedHashMap<>();
+        runProperties.put("tester.trace", testerTrace);
+        runProperties.put("tester.continuous", false);
+        runProperties.put(Constants.LAUNCH_ACTIVATION_EAGER, launchActivationEager);
+        if (enableSecurity) {
+            getLog().info("Enable OSGi security for the framework");
+            runProperties.put(org.osgi.framework.Constants.FRAMEWORK_SECURITY,
+                    org.osgi.framework.Constants.FRAMEWORK_SECURITY_OSGI);
+            if (keyStores != null) {
+                runProperties.put(org.osgi.framework.Constants.FRAMEWORK_TRUST_REPOSITORIES,
+                        keyStores.stream().map(File::getAbsolutePath).collect(Collectors.joining(",")));
+            }
+            if (policyFile != null) {
+                runProperties.put("java.security.policy", policyFile.getAbsolutePath());
+            }
+        }
+        if (properties != null) {
+            runProperties.putAll(properties);
+        }
+        return runProperties.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining(","));
+    }
+
     private void addTestFramework(List<ResolvedArtifactKey> bundles, List<String> runrequire) {
         runrequire.add("bnd.identity; id=" + tester);
-        for (String engine : Strings.split(testEngines)) {
-            runrequire.add("bnd.identity; id=" + engine);
-        }
         if (TESTER_JUNIT_PLATFORM.equals(tester)) {
+            for (String engine : Strings.split(testEngines)) {
+                runrequire.add("bnd.identity; id=" + engine);
+            }
             for (MavenArtifactKey key : JUnitClasspathContainerEntry.JUNIT5_PLUGINS) {
                 mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
                         () -> getLog().warn("Can't get junit artifact " + key + " test run might not resolve!"));
+            }
+            if (printTests || trace) {
+                //TODO currently we need to add an extra listener see https://github.com/bndtools/bnd/issues/5507
+                //TODO currently we need to print debug infos manually see https://github.com/bndtools/bnd/issues/5520
+                mavenBundleResolver
+                        .resolveMavenBundle(project, session, "org.eclipse.tycho",
+                                "org.eclipse.tycho.bnd.executionlistener", TychoVersion.getTychoVersion())
+                        .ifPresentOrElse(t -> {
+                            bundles.add(t);
+                            runrequire.add("bnd.identity; id=org.eclipse.tycho.bnd.executionlistener");
+                        }, () -> {
+                            getLog().debug("Can't resolve execution listener, output will be missing!");
+                        });
             }
         } else if (TESTER_DEFAULT.equals(tester)) {
             for (MavenArtifactKey key : JUnitClasspathContainerEntry.JUNIT4_PLUGINS) {
@@ -336,11 +417,9 @@ public class BndTestMojo extends AbstractTestMojo {
 
     private void addBndEmbeddedRepo(List<ResolvedArtifactKey> bundles) {
         String bndVersion = TychoVersion.getBndVersion();
-        String versionRange = "[" + bndVersion + "," + bndVersion + "]";
         for (String artifactId : BND_EMBEDDED_REPO_ARTIFACTS) {
-            //TODO use maven dependecy resolver to fetch ONE artifact!
-            mavenBundleResolver.resolveMavenBundle(project, session,
-                    MavenArtifactKey.bundle(artifactId, versionRange, BND_EMBEDDED_REPO_ARTIFACTS_GROUP, artifactId))
+            mavenBundleResolver
+                    .resolveMavenBundle(project, session, BND_EMBEDDED_REPO_ARTIFACTS_GROUP, artifactId, bndVersion)
                     .ifPresent(bundles::add);
         }
     }
@@ -377,7 +456,7 @@ public class BndTestMojo extends AbstractTestMojo {
                 .getPomDependencies();
         Set<String> bundleTestCases = new HashSet<>();
         List<ResolvedArtifactKey> pomBundles = new ArrayList<>();
-        if (pomDependencies == PomDependencies.consider) {
+        if (pomDependencies != PomDependencies.ignore) {
             for (Artifact artifact : project.getArtifacts()) {
                 try {
                     File file = artifact.getFile();
@@ -391,7 +470,6 @@ public class BndTestMojo extends AbstractTestMojo {
                 } catch (OsgiManifestParserException e) {
                     //nothing we can use...
                 }
-
             }
         }
         TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(getReactorProject());
@@ -411,6 +489,7 @@ public class BndTestMojo extends AbstractTestMojo {
                 } catch (DependencyResolutionException | IllegalArtifactReferenceException
                         | OsgiManifestParserException e) {
                     //nothing we can use...
+                    getLog().debug("Bundle " + bundle + " was not found in target platform: " + e);
                 }
             }
         }

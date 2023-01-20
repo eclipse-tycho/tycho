@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -36,7 +37,8 @@ import org.osgi.resource.Resource;
  */
 public class InstallableUnitRequirement implements Requirement {
 
-    private static final String VERSION_REQUIREMENT_FILTER = "(&(%s=%s)(version%s%s)(!(version%s4.0)))";
+    private static final String VERSION_REQUIREMENT_FILTER = "(&(%s=%s)(%s%s%s))";
+    private static final String VERSION_RANGE_REQUIREMENT_FILTER = "(&(%s=%s)(%s%s%s)(!(%s%s%s)))";
 
     private final InstallableUnitResource resource;
     private final String namespace;
@@ -51,16 +53,28 @@ public class InstallableUnitRequirement implements Requirement {
         String name = RequiredCapability.extractName(expression);
         String ns = RequiredCapability.extractNamespace(expression);
         VersionRange range = RequiredCapability.extractRange(expression);
+        String versionAttribute;
         if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(ns)) {
             this.namespace = PackageNamespace.PACKAGE_NAMESPACE;
+            versionAttribute = PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE;
         } else if (BundlesAction.CAPABILITY_NS_OSGI_BUNDLE.equals(ns)) {
             this.namespace = BundleNamespace.BUNDLE_NAMESPACE;
+            versionAttribute = BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE;
         } else {
             this.namespace = ns;
+            versionAttribute = "version";
         }
-        String filter = String.format(VERSION_REQUIREMENT_FILTER, namespace, name,
-                range.getIncludeMinimum() ? ">=" : ">", range.getMinimum().toString(),
-                range.getIncludeMaximum() ? ">" : ">=", range.getMaximum().toString());
+        Version minimum = range.getMinimum();
+        Version maximum = range.getMaximum();
+        String filter;
+        if (Version.MAX_VERSION.equals(maximum)) {
+            filter = String.format(VERSION_REQUIREMENT_FILTER, namespace, name, //
+                    versionAttribute, range.getIncludeMinimum() ? ">=" : ">", minimum.toString());
+        } else {
+            filter = String.format(VERSION_RANGE_REQUIREMENT_FILTER, namespace, name, //
+                    versionAttribute, range.getIncludeMinimum() ? ">=" : ">", minimum.toString(), versionAttribute,
+                    range.getIncludeMaximum() ? ">" : ">=", maximum.toString());
+        }
         map.put(Namespace.REQUIREMENT_FILTER_DIRECTIVE, filter);
         if (requirement.getMin() == 0) {
             map.put(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE, Namespace.RESOLUTION_OPTIONAL);

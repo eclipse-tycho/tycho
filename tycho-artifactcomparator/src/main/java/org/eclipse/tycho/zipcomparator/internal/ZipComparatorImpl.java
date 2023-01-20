@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -30,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -105,7 +105,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
                 //perfectly equal!
                 return null;
             }
-            ContentsComparator comparator = comparators.get(getContentType(name));
+            ContentsComparator comparator = getContentsComparator(name);
             if (comparator != null && baselineBytes.length < ContentsComparator.THRESHOLD
                     && reactorBytes.length < ContentsComparator.THRESHOLD) {
                 try {
@@ -129,25 +129,21 @@ public class ZipComparatorImpl implements ArtifactComparator {
         }
     }
 
-    private String getContentType(String name) {
-        name = name.toLowerCase(Locale.ENGLISH);
-        if (name.endsWith(".class")) {
-            return ClassfileComparator.TYPE;
+    private ContentsComparator getContentsComparator(String name) {
+        String extension = FilenameUtils.getExtension(name).toLowerCase();
+        ContentsComparator comparator = comparators.get(extension);
+        if (comparator != null) {
+            return comparator;
         }
-        if (name.endsWith(".jar") || name.endsWith(".zip")) {
-            return NestedZipComparator.TYPE;
+        if (name.equalsIgnoreCase("meta-inf/manifest.mf")) {
+            return comparators.get(ManifestComparator.TYPE);
         }
-        if (name.endsWith(".properties") || name.endsWith(".mappings")) {
-            // .mapping comes from org.eclipse.equinox.p2.internal.repository.comparator.JarComparator
-            return PropertiesComparator.TYPE;
+        for (ContentsComparator cc : comparators.values()) {
+            if (cc.matches(extension)) {
+                return cc;
+            }
         }
-        if ("meta-inf/manifest.mf".equals(name)) {
-            return ManifestComparator.TYPE;
-        }
-        if (name.endsWith(".xml")) {
-            return XmlComparator.HINT;
-        }
-        return DefaultContentsComparator.TYPE;
+        return null;
     }
 
     private static Map<String, ZipEntry> toEntryMap(ZipFile zip, MatchPatterns ignored) {

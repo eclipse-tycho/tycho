@@ -48,6 +48,7 @@ import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
+import org.eclipse.tycho.zipcomparator.internal.ManifestComparator;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -318,12 +319,27 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		if (diff.getDelta() == Delta.UNCHANGED) {
 			return;
 		}
-		if (diff.getType() == Type.HEADER) {
+		if (isValidHeaderDif(diff)) {
 			manifestdiffs.add(diff);
 		}
 		for (Diff child : diff.getChildren()) {
 			collectManifest(child, manifestdiffs);
 		}
+	}
+
+	private boolean isValidHeaderDif(Diff diff) {
+		if (diff.getType() == Type.HEADER) {
+			String name = diff.getName();
+			if (name == null) {
+				return false;
+			}
+			String[] split = name.split(":", 2);
+			if (ManifestComparator.isIgnoredHeaderName(split[0])) {
+				return false;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	private void collectResources(Diff diff, Map<Diff, ArtifactDelta> resourcediffs, Jar baselineJar, Jar projectJar,
