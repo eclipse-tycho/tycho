@@ -22,9 +22,10 @@ import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 public interface ContentsComparator {
 
     /**
-     * System property that control if a detailed diff is desired or not (default = off)
+     * System property that control if a detailed diff is desired or not, <code>false</code>
+     * (default) = no detailed diff is shown, <code>true</code> show detailed difference.
      */
-    static final boolean NO_DIFF_DETAILS = Boolean.getBoolean("tycho.comparator.noDiff");
+    static final boolean SHOW_DIFF_DETAILS = Boolean.getBoolean("tycho.comparator.showDiff");
 
     /**
      * System property that controls the threshold size where a direct byte compare is performed
