@@ -51,7 +51,7 @@ public class P2MetadataGeneratorImplTest {
         List<TargetEnvironment> environments = new ArrayList<>();
         DependencyMetadata metadata = impl.generateMetadata(
                 new ArtifactMock(location, groupId, artifactId, version, PackagingType.TYPE_ECLIPSE_PLUGIN),
-                environments, new PublisherOptions(false));
+                environments, new PublisherOptions());
 
         List<IInstallableUnit> units = new ArrayList<>(metadata.getInstallableUnits());
         List<IArtifactDescriptor> artifacts = new ArrayList<>(metadata.getArtifactDescriptors());
@@ -86,12 +86,14 @@ public class P2MetadataGeneratorImplTest {
 
         DependencyMetadata metadata = impl.generateMetadata(
                 new ArtifactMock(location, groupId, artifactId, version, PackagingType.TYPE_ECLIPSE_PLUGIN),
-                environments, new PublisherOptions(false));
+                environments, new PublisherOptions());
         assertNull(metadata.getArtifactDescriptors().iterator().next().getProperty("download.stats"));
 
+        PublisherOptions options = new PublisherOptions();
+        options.setGenerateDownloadStats(true);
         metadata = impl.generateMetadata(
                 new ArtifactMock(location, groupId, artifactId, version, PackagingType.TYPE_ECLIPSE_PLUGIN),
-                environments, new PublisherOptions(true));
+                environments, options);
         assertEquals("org.eclipse.tycho.p2.impl.test.bundle/1.0.0.qualifier",
                 metadata.getArtifactDescriptors().iterator().next().getProperty("download.stats"));
     }

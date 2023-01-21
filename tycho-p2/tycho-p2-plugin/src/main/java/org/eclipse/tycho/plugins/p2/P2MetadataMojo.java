@@ -144,20 +144,15 @@ public class P2MetadataMojo extends AbstractMojo {
     @Component
     private BaselineValidator baselineValidator;
 
+    @Parameter(property = "tycho.generateChecksums", defaultValue = "true")
+    private boolean generateChecksums;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
             attachP2Metadata();
         }
     }
-
-//    private <T> T getService(Class<T> type) {
-//        T service = equinox.getService(type);
-//        if (service == null) {
-//            throw new IllegalStateException("Could not acquire service " + type);
-//        }
-//        return service;
-//    }
 
     protected void attachP2Metadata() throws MojoExecutionException {
         if (!attachP2Metadata || !supportedProjectTypes.contains(project.getPackaging())) {
@@ -187,8 +182,10 @@ public class P2MetadataMojo extends AbstractMojo {
                 }
             }
 
-            Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts,
-                    new PublisherOptions(generateDownloadStatsProperty), targetDir);
+            PublisherOptions options = new PublisherOptions();
+            options.setGenerateDownloadStats(generateDownloadStatsProperty);
+            options.setGenerateChecksums(generateChecksums);
+            Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts, options, targetDir);
 
             if (baselineMode != BaselineMode.disable) {
                 ComparisonData data = new ComparisonData(ignoredPatterns, writeComparatorDelta);

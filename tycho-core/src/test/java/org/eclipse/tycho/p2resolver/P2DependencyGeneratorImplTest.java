@@ -64,7 +64,7 @@ public class P2DependencyGeneratorImplTest {
         ArrayList<TargetEnvironment> emptyEnvironments = new ArrayList<>();
 
         DependencyMetadata metadata = subject.generateMetadata(reactorProject, emptyEnvironments,
-                new PublisherOptions(false));
+                new PublisherOptions());
 
         this.units = new ArrayList<>(metadata.getInstallableUnits());
         this.artifacts = new ArrayList<>(metadata.getArtifactDescriptors());

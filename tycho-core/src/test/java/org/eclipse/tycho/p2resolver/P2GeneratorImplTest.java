@@ -59,7 +59,7 @@ public class P2GeneratorImplTest {
         File location = new File("src/test/resources/generator/bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
         Set<IInstallableUnit> units = p2GeneratorImpl
-                .generateMetadata(artifactMock, getEnvironments(), null, new PublisherOptions(false))
+                .generateMetadata(artifactMock, getEnvironments(), null, new PublisherOptions())
                 .getDependencyMetadata();
         assertEquals(1, units.size());
         IInstallableUnit sourceBundleUnit = getUnit("foo.source", units);
@@ -83,7 +83,7 @@ public class P2GeneratorImplTest {
         File location = new File("src/test/resources/generator/bundle-p2-inf").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
         Set<IInstallableUnit> units = p2GeneratorImpl
-                .generateMetadata(artifactMock, getEnvironments(), null, new PublisherOptions(false))
+                .generateMetadata(artifactMock, getEnvironments(), null, new PublisherOptions())
                 .getDependencyMetadata();
 
         assertEquals(1, units.size());
