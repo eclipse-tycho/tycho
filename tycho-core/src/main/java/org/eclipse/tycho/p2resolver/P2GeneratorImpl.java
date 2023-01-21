@@ -122,8 +122,11 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
             // meta data handling for root files
             if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(artifact.getPackagingType())) {
-                publisherInfo.setArtifactOptions(
-                        IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_NO_MD5);
+                int base = IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH;
+                if (!options.isGenerateChecksums()) {
+                    base = base | IPublisherInfo.A_NO_MD5;
+                }
+                publisherInfo.setArtifactOptions(base);
                 FeatureRootfileArtifactRepository artifactsRepository = new FeatureRootfileArtifactRepository(
                         publisherInfo, targetDir);
                 publisherInfo.setArtifactRepository(artifactsRepository);
@@ -168,7 +171,11 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 };
                 metadata = super.generateMetadata(targetDirAsArtifact, null, publisherInfo, null, options);
             } else {
-                publisherInfo.setArtifactOptions(IPublisherInfo.A_PUBLISH | IPublisherInfo.A_NO_MD5);
+                int base = IPublisherInfo.A_PUBLISH;
+                if (!options.isGenerateChecksums()) {
+                    base = base | IPublisherInfo.A_NO_MD5;
+                }
+                publisherInfo.setArtifactOptions(base);
                 TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
                 publisherInfo.setArtifactRepository(artifactsRepository);
                 metadata = super.generateMetadata(artifact, null, publisherInfo, null, options);
@@ -356,7 +363,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         advice.add(new TychoMavenPropertiesAdvice(artifact, mavenContext));
         advice.add(getExtraEntriesAdvice(artifact, buildProperties));
 
-        if (options.generateDownloadStatsProperty) {
+        if (options.isGenerateDownloadStats()) {
             advice.add(new DownloadStatsAdvice());
         }
 

@@ -56,6 +56,11 @@ import org.eclipse.tycho.packaging.reverseresolve.ArtifactCoordinateResolver;
  * further like to customize the pom you should take a look at the <a href=
  * "https://www.mojohaus.org/flatten-maven-plugin/plugin-info.html">Maven
  * Flatten Plugin</a>
+ * <p>
+ * See also <a href=
+ * "https://cwiki.apache.org/confluence/display/MAVEN/Build+vs+Consumer+POM">Build
+ * vs Consumer POM</a>
+ * </p>
  */
 @Mojo(name = "update-consumer-pom", threadSafe = true, defaultPhase = LifecyclePhase.PREPARE_PACKAGE, requiresDependencyResolution = ResolutionScope.TEST)
 public class UpdateConsumerPomMojo extends AbstractMojo {
@@ -131,6 +136,33 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false")
 	protected boolean mapP2Dependencies = false;
 
+	/**
+	 * if enabled, replace the real packaging-type (e.g.
+	 * <code>eclipse-plugin</code>) with its implied one (e.g. <code>jar</code>).
+	 * This makes the pom look more like a "plain" one and ensure that such
+	 * dependencies are not confused by other tools (including maven).
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean replacePackagingType = true;
+
+	/**
+	 * If enabled, modules are removed from the consumer pom
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean removeModules = true;
+
+	/**
+	 * If enabled, build section is removed from the consumer pom
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean removeBuild = true;
+
+	/**
+	 * If enabled, removes the relative path from the parent
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean relativePathFromParent = true;
+
 	@Parameter
 	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
@@ -185,11 +217,24 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		}
 		Parent parent = projectModel.getParent();
 		if (parent != null) {
-			String relativePath = parent.getRelativePath();
-			if (relativePath != null && relativePath.endsWith(POLYGLOT_POM_TYCHO)) {
-				parent.setRelativePath(
-						relativePath.substring(0, relativePath.length() - POLYGLOT_POM_TYCHO.length()) + "pom.xml");
+			if (relativePathFromParent) {
+				parent.setRelativePath("../pom.xml"); // will be treated as default and then removed...
+			} else {
+				String relativePath = parent.getRelativePath();
+				if (relativePath != null && relativePath.endsWith(POLYGLOT_POM_TYCHO)) {
+					parent.setRelativePath(
+							relativePath.substring(0, relativePath.length() - POLYGLOT_POM_TYCHO.length()) + "pom.xml");
+				}
 			}
+		}
+		if (replacePackagingType) {
+			projectModel.setPackaging(mapTychoPackagingTypeToMaven(projectModel.getPackaging()));
+		}
+		if (removeModules) {
+			projectModel.setModules(null);
+		}
+		if (removeBuild) {
+			projectModel.setBuild(null);
 		}
 		File output = new File(outputDirectory, tychoPomFilename);
 		if (deleteOnExit) {
@@ -198,8 +243,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		if (p2Skipped.isEmpty()) {
 			log.info("All system scoped dependencies were mapped to maven artifacts");
 		} else {
-			log.warn(resolved + " system scoped dependencies were mapped to maven artifacts, "
-					+ p2Skipped.size()
+			log.warn(resolved + " system scoped dependencies were mapped to maven artifacts, " + p2Skipped.size()
 					+ " were skipped");
 			if (log.isDebugEnabled()) {
 				for (String skipped : p2Skipped) {
@@ -225,6 +269,32 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			project.setFile(output);
 		}
 
+	}
+
+	/**
+	 * This maps tycho-types to "maven" types to be used in a plain maven build
+	 * without Tycho used at all. Because in such case the mappings are missing
+	 * Maven try to use <code>packaging</code> ==
+	 * <code>&lt;file extension&gt;</code> as a default.
+	 * 
+	 * @param packaging
+	 * @return
+	 */
+	private String mapTychoPackagingTypeToMaven(String packaging) {
+		if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
+				|| PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
+			return "jar";
+		}
+		if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
+			return "pom";
+		}
+		if (PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION.equals(packaging)) {
+			return "target";
+		}
+		if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
+			return "zip";
+		}
+		return packaging;
 	}
 
 	private boolean handleSystemScopeDependency(Dependency dep) {

@@ -14,14 +14,24 @@ package org.eclipse.tycho.p2.metadata;
 
 public class PublisherOptions {
 
-    public final boolean generateDownloadStatsProperty;
+    private boolean generateDownloadStats;
 
-    public PublisherOptions() {
-        this(false);
+    private boolean generateChecksums;
+
+    public boolean isGenerateDownloadStats() {
+        return generateDownloadStats;
     }
 
-    public PublisherOptions(boolean generateDownloadStatsProperty) {
-        this.generateDownloadStatsProperty = generateDownloadStatsProperty;
+    public void setGenerateDownloadStats(boolean generateDownloadStats) {
+        this.generateDownloadStats = generateDownloadStats;
+    }
+
+    public boolean isGenerateChecksums() {
+        return generateChecksums;
+    }
+
+    public void setGenerateChecksums(boolean generateChecksums) {
+        this.generateChecksums = generateChecksums;
     }
 
 }
