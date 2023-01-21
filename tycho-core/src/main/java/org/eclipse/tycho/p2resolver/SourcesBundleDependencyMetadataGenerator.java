@@ -99,7 +99,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
 
         advice.add(new TychoMavenPropertiesAdvice(artifact, "sources", mavenContext));
 
-        if (options.generateDownloadStatsProperty) {
+        if (options.isGenerateDownloadStats()) {
             advice.add(new DownloadStatsAdvice());
         }
 
