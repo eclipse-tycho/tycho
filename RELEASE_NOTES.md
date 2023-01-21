@@ -18,7 +18,8 @@ As such, these two options have been re-introduced for Tycho 3.0.2 and are no lo
 ### Backports
 - Maven Loockup can become really slow and should cache previous requests #1969
 - Provide a "verify-pom-resolves" mojo #1451 
-- JUnit 5.9 support in Tycho 3.0.x #1943 
+- JUnit 5.9 support in Tycho 3.0.x #1943
+- Consumer-POM should use packaging-type jar instead of eclipse-plugin #2005 
 
 ## 3.0.1
 
