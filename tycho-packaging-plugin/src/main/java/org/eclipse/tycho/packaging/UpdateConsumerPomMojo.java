@@ -111,6 +111,15 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false")
 	protected boolean mapP2Dependencies = false;
 
+	/**
+	 * if enabled, replace the real packaging-type (e.g.
+	 * <code>eclipse-plugin</code>) with its implied one (e.g. <code>jar</code>).
+	 * This makes the pom look more like a "plain" one and ensure that such
+	 * dependencies are not confused by other tools (including maven).
+	 */
+	@Parameter(defaultValue = "false")
+	protected boolean replacePackagingType = false;
+
 	@Parameter
 	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
@@ -159,6 +168,9 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 						relativePath.substring(0, relativePath.length() - POLYGLOT_POM_TYCHO.length()) + "pom.xml");
 			}
 		}
+		if (replacePackagingType) {
+			projectModel.setPackaging(mapTychoPackagingTypeToMaven(projectModel.getPackaging()));
+		}
 		File output = new File(outputDirectory, tychoPomFilename);
 		if (deleteOnExit) {
 			output.deleteOnExit();
@@ -172,6 +184,32 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			project.setFile(output);
 		}
 
+	}
+
+	/**
+	 * This maps tycho-types to "maven" types to be used in a plain maven build
+	 * without Tycho used at all. Because in such case the mappings are missing
+	 * Maven try to use <code>packaging</code> ==
+	 * <code>&lt;file extension&gt;</code> as a default.
+	 * 
+	 * @param packaging
+	 * @return
+	 */
+	private String mapTychoPackagingTypeToMaven(String packaging) {
+		if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
+				|| PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
+			return "jar";
+		}
+		if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
+			return "pom";
+		}
+		if (PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION.equals(packaging)) {
+			return "target";
+		}
+		if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
+			return "zip";
+		}
+		return packaging;
 	}
 
 	private boolean handleSystemScopeDependency(Dependency dep) {
