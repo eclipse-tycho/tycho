@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.packaging;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -28,14 +29,15 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Disabled because of maven central outages")
 public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 	DefaultModelReader reader = new DefaultModelReader();
 
 	@Test
+	@Ignore("Disabled because of maven central outages")
 	public void testReplaceP2() throws Exception {
 		Verifier verifier = getVerifier("packaging.consumer.pom", true);
 		verifier.addCliOption("-U");
+		verifier.addCliOption("-DmapDependencies=true");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		DefaultModelReader reader = new DefaultModelReader();
@@ -46,6 +48,18 @@ public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 		assertHasDependency("org.eclipse.platform", "org.eclipse.equinox.common", dependencies);
 		assertHasDependency("org.eclipse.platform", "org.eclipse.equinox.app", dependencies);
 		assertHasDependency("org.osgi", "org.osgi.service.prefs", dependencies);
+	}
+
+	@Test
+	public void testReplacePackagingType() throws Exception {
+		Verifier verifier = getVerifier("packaging.consumer.pom", true);
+		verifier.addCliOption("-U");
+		verifier.addCliOption("-DmapDependencies=false");
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+		DefaultModelReader reader = new DefaultModelReader();
+		Model model = reader.read(new File(verifier.getBasedir(), "bundle/.tycho-consumer-pom.xml"), new HashMap<>());
+		assertEquals("packaging was not replaced", "jar", model.getPackaging());
 	}
 
 	private void assertHasDependency(String g, String a, List<Dependency> dependencies) {
