@@ -162,6 +162,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         mirrorApp.setIncludeSources(includeAllSource, sources.getTargetPlatform());
         mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
         mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
+        mirrorApp.setIncludePacked(false); // no way, Tycho do no longer support packed artifacts anyways
 
         // TODO the p2 mirror tool should support mirroring multiple environments at once
         for (TargetEnvironment environment : context.getEnvironments()) {
