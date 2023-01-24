@@ -34,6 +34,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IArtifactFacade;
@@ -147,6 +148,9 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(property = "tycho.generateChecksums", defaultValue = "true")
     private boolean generateChecksums;
 
+    @Component
+    private IProvisioningAgent agent;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
@@ -164,6 +168,8 @@ public class P2MetadataMojo extends AbstractMojo {
         if (file == null || !file.canRead()) {
             throw new IllegalStateException();
         }
+
+        agent.getService(Object.class); //needed to make checksum computation work see https://github.com/eclipse-equinox/p2/issues/214
 
         File targetDir = new File(project.getBuild().getDirectory());
 
