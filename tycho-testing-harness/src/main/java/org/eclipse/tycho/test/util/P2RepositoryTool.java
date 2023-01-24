@@ -110,7 +110,7 @@ public class P2RepositoryTool {
         List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "']");
 
         if (nodes.isEmpty())
-            Assert.fail("Could not find IU with id '" + unitId + "'");
+            Assert.fail("Could not find IU with id '" + unitId + "' from " + metadataFile);
         else if (nodes.size() == 1)
             return new IU(nodes.get(0));
         else

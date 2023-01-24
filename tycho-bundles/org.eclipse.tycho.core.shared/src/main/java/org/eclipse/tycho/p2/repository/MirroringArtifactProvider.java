@@ -174,9 +174,10 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
             return localArtifactRepository.getArtifactDescriptors(key);
         }
         if (remoteProviders.contains(key)) {
-        	//we can use it if the remote contains it, but want to shadow the repository returned by the descriptor
-        	//just in case someone uses this to download an artifact we are asked again...
+            //we can use it if the remote contains it, but want to shadow the repository returned by the descriptor
+            //just in case someone uses this to download an artifact we are asked again...
             return Arrays.stream(remoteProviders.getArtifactDescriptors(key))
+                    .filter(ArtifactTransferPolicy::isCanonicalFormat)
                     .map(base -> new MirrorArtifactDescriptor(base, this)).toArray(IArtifactDescriptor[]::new);
         }
         return new IArtifactDescriptor[0];
