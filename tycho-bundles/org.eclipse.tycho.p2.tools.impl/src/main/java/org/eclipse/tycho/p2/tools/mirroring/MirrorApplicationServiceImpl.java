@@ -155,6 +155,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             mirrorApp.setIncludeSources(includeAllSource);
             mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
             mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
+            mirrorApp.setIncludePacked(false);
 
             // TODO the p2 mirror tool should support mirroring multiple environments at once
             for (TargetEnvironment environment : context.getEnvironments()) {
