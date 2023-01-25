@@ -64,6 +64,9 @@ public class BndTestBundlesInstallableUnitProvider implements InstallableUnitPro
                         .filter(pe -> pe.getGoals().contains(BndTestMojo.NAME)).map(pe -> pe.getConfiguration())
                         .filter(Xpp3Dom.class::isInstance).map(Xpp3Dom.class::cast).flatMap(dom -> {
                             Xpp3Dom child = dom.getChild("bundles");
+                            if (child == null) {
+                                return Stream.empty();
+                            }
                             if (child.getChildCount() == 0) {
                                 String value = child.getValue();
                                 if (value.isBlank()) {
