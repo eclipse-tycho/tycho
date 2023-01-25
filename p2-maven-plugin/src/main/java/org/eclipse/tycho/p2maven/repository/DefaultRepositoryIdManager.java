@@ -122,4 +122,9 @@ public class DefaultRepositoryIdManager implements IRepositoryIdManager {
                 .map(e -> new MavenRepositoryLocation(e.getValue(), e.getKey()));
     }
 
+	@Override
+	public MavenRepositorySettings getSettings() {
+		return settings;
+	}
+
 }

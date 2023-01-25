@@ -18,15 +18,16 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.net.URI;
 
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
-import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2maven.repository.DefaultMavenRepositorySettings;
+import org.eclipse.tycho.p2maven.transport.DefaultTransportCacheConfig;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
@@ -44,13 +45,11 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
     @Rule
     public HttpServer localServer = new HttpServer();
 
-    private DefaultMavenRepositorySettings mavenRepositorySettings;
     private IProvisioningAgent subject;
+    private DefaultTransportCacheConfig transportConfig;
 
     @Before
     public void initSubject() throws Exception {
-        tempManager.newFolder("localRepo");
-        mavenRepositorySettings = (DefaultMavenRepositorySettings) lookup(MavenRepositorySettings.class);
         subject = lookup(IProvisioningAgent.class);
     }
 
@@ -102,7 +101,10 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
         }
     }
 
-    private void prepareMavenMirrorConfiguration(String id, URI mirrorUrl) {
+    private void prepareMavenMirrorConfiguration(String id, URI mirrorUrl) throws InitializationException {
+        DefaultMavenRepositorySettings mavenRepositorySettings = (DefaultMavenRepositorySettings) subject
+                .getService(IRepositoryIdManager.class).getSettings();
+        mavenRepositorySettings.initialize();
         mavenRepositorySettings.addMirror(id, mirrorUrl);
     }
 
@@ -112,8 +114,7 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
 
     private Repositories loadRepositories(String id, URI specifiedUrl) throws Exception {
 
-        IRepositoryIdManager idManager = lookup(IRepositoryIdManager.class);
-        idManager.addMapping(id, specifiedUrl);
+        subject.getService(IRepositoryIdManager.class).addMapping(id, specifiedUrl);
 
         IMetadataRepositoryManager metadataManager = subject.getService(IMetadataRepositoryManager.class);
         IMetadataRepository metadataRepo = metadataManager.loadRepository(specifiedUrl, null);
