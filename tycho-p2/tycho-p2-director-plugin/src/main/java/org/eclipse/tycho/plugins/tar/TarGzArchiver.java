@@ -30,7 +30,6 @@ import java.util.List;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 
@@ -163,7 +162,7 @@ public class TarGzArchiver {
 
     private static void copyFileContentToTarStream(File source, TarArchiveOutputStream tarStream) throws IOException {
         try (BufferedInputStream sourceStream = new BufferedInputStream(new FileInputStream(source))) {
-            IOUtils.copy(sourceStream, tarStream);
+            sourceStream.transferTo(tarStream);
         }
     }
 
