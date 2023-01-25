@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -99,7 +98,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 		try {
 			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
 					"Download of " + toDownload);
-			IOUtils.copy(stream(toDownload, monitor), statusOutputStream);
+			stream(toDownload, monitor).transferTo(statusOutputStream);
 			DownloadStatus downloadStatus = statusOutputStream.getStatus();
 			if (cacheConfig.isInteractive()) {
 			logger.info(

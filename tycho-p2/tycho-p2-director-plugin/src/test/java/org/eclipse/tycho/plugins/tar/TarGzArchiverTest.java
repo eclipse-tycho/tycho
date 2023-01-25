@@ -36,7 +36,6 @@ import java.util.Set;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
@@ -226,7 +225,7 @@ public class TarGzArchiverTest {
             while ((tarEntry = tarStream.getNextTarEntry()) != null) {
                 if (name.equals(tarEntry.getName())) {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    IOUtils.copy(tarStream, baos);
+                    tarStream.transferTo(baos);
                     return baos.toByteArray();
                 }
             }
