@@ -27,4 +27,6 @@ public interface IRepositoryIdManager {
 
     Stream<MavenRepositoryLocation> getKnownMavenRepositoryLocations();
 
+    MavenRepositorySettings getSettings();
+
 }

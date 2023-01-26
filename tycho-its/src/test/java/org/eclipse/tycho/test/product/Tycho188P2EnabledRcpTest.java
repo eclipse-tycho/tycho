@@ -28,7 +28,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.it.Verifier;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ArchiveContentUtil;
@@ -258,8 +257,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
 	public static Properties openPropertiesFromZip(File zipFile, String propertyFile) throws Exception {
 		Properties configIni = new Properties();
-		configIni.load(
-				new ByteArrayInputStream(IOUtil.toByteArray(ArchiveContentUtil.getFileContent(zipFile, propertyFile))));
+		configIni.load(new ByteArrayInputStream(ArchiveContentUtil.getFileContent(zipFile, propertyFile).getBytes()));
 		return configIni;
 	}
 
