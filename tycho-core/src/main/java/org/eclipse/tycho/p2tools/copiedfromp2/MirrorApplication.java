@@ -4,9 +4,11 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -217,13 +219,15 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
             validate();
             initializeIUs();
             IQueryable<IInstallableUnit> slice = slice(new NullProgressMonitor());
+            Set<IInstallableUnit> units = collectUnits(slice, monitor);
             if (destinationArtifactRepository != null) {
-                mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
+                mirrorStatus = mirrorArtifacts(units, new NullProgressMonitor());
                 if (failOnError && mirrorStatus.getSeverity() == IStatus.ERROR)
                     return mirrorStatus;
             }
-            if (destinationMetadataRepository != null)
-                mirrorMetadata(slice, new NullProgressMonitor());
+            if (destinationMetadataRepository != null) {
+                mirrorMetadata(units, new NullProgressMonitor());
+            }
         } finally {
             finalizeRepositories();
             finalizeLogs();
@@ -233,7 +237,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
         return mirrorStatus;
     }
 
-    private IStatus mirrorArtifacts(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
+    private IStatus mirrorArtifacts(Collection<IInstallableUnit> slice, IProgressMonitor monitor)
+            throws ProvisionException {
         Mirroring mirror = getMirroring(slice, monitor);
 
         IStatus result = mirror.run(failOnError, verbose);
@@ -245,14 +250,11 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
         return result;
     }
 
-    protected Mirroring getMirroring(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
+    protected Mirroring getMirroring(Collection<IInstallableUnit> ius, IProgressMonitor monitor)
+            throws ProvisionException {
         // Obtain ArtifactKeys from IUs
-        IQueryResult<IInstallableUnit> ius = slice.query(QueryUtil.createIUAnyQuery(), monitor);
         boolean iusSpecified = !ius.isEmpty(); // call before ius.iterator() to avoid bug 420318
-        ArrayList<IArtifactKey> keys = new ArrayList<>();
-        for (IInstallableUnit iu : ius) {
-            keys.addAll(iu.getArtifacts());
-        }
+        List<IArtifactKey> keys = collectArtifactKeys(ius, monitor);
 
         Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, raw);
         mirror.setCompare(compare);
@@ -274,6 +276,22 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
         return mirror;
     }
 
+    /**
+     * Collect all artifacts from the IUs that should be mirrored
+     * 
+     * @param ius
+     *            the IUs that are selected for mirroring
+     * @return a (modifiable) list of {@link IArtifactKey}s that must be mirrored
+     */
+    protected List<IArtifactKey> collectArtifactKeys(Collection<IInstallableUnit> ius, IProgressMonitor monitor)
+            throws ProvisionException {
+        ArrayList<IArtifactKey> keys = new ArrayList<>();
+        for (IInstallableUnit iu : ius) {
+            keys.addAll(iu.getArtifacts());
+        }
+        return keys;
+    }
+
     private IArtifactRepository initializeBaseline() {
         if (baseline == null)
             return null;
@@ -286,11 +304,26 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
         }
     }
 
-    private void mirrorMetadata(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
-        IQueryResult<IInstallableUnit> allIUs = slice.query(QueryUtil.createIUAnyQuery(), monitor);
-        destinationMetadataRepository.addInstallableUnits(allIUs.toUnmodifiableSet());
+    private void mirrorMetadata(Collection<IInstallableUnit> units, IProgressMonitor monitor)
+            throws ProvisionException {
+        destinationMetadataRepository.addInstallableUnits(units);
         if (mirrorReferences)
             destinationMetadataRepository.addReferences(getCompositeMetadataRepository().getReferences());
+    }
+
+    /**
+     * Collect all IUS from the slice that should be mirrored
+     * 
+     * @param slice
+     *            the slice for mirroring
+     * @return a (modifiable) set of {@link IInstallableUnit}s that must be mirrored
+     * @throws ProvisionException
+     */
+    protected Set<IInstallableUnit> collectUnits(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor)
+            throws ProvisionException {
+        IQueryResult<IInstallableUnit> allIUs = slice.query(QueryUtil.createIUAnyQuery(), monitor);
+        Set<IInstallableUnit> units = allIUs.toUnmodifiableSet();
+        return units;
     }
 
     /*

@@ -80,7 +80,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException {
         agent.getService(IArtifactRepositoryManager.class); //force init of framework if not already done!
-        final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
+        final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
         mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
         mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
         try {
@@ -153,8 +153,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
             boolean includeAllSource, boolean includeRequiredBundles, boolean includeRequiredFeatures,
-            Map<String, String> filterProperties) throws FacadeException {
-        final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
+            boolean filterProvided, Map<String, String> filterProperties) throws FacadeException {
+        final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
 
         // mirror scope: seed units...
         mirrorApp
@@ -163,7 +163,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
         mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
         mirrorApp.setIncludePacked(false); // no way, Tycho do no longer support packed artifacts anyways
-
+        mirrorApp.setFilterProvided(filterProvided);
         // TODO the p2 mirror tool should support mirroring multiple environments at once
         for (TargetEnvironment environment : context.getEnvironments()) {
             SlicingOptions options = new SlicingOptions();
@@ -234,9 +234,9 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         xzCompress(destination);
     }
 
-    private static MirrorApplication createMirrorApplication(RepositoryReferences sources,
+    private static TychoMirrorApplication createMirrorApplication(RepositoryReferences sources,
             DestinationRepositoryDescriptor destination, IProvisioningAgent agent) {
-        final MirrorApplication mirrorApp = new MirrorApplication(agent,
+        final TychoMirrorApplication mirrorApp = new TychoMirrorApplication(agent,
                 destination.getExtraArtifactRepositoryProperties(), destination.getRepositoryReferences());
         mirrorApp.setRaw(false);
 

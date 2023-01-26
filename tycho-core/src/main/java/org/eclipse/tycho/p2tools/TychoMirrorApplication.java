@@ -13,6 +13,9 @@
 package org.eclipse.tycho.p2tools;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +31,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
@@ -43,7 +47,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 
-public class MirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.MirrorApplication {
+public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.MirrorApplication {
 
     private static final String SOURCE_SUFFIX = ".source";
     private final Map<String, String> extraArtifactRepositoryProperties;
@@ -52,8 +56,9 @@ public class MirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.Mi
     private boolean includeRequiredBundles;
     private boolean includeRequiredFeatures;
     private TargetPlatform targetPlatform;
+    private boolean filterProvided;
 
-    public MirrorApplication(IProvisioningAgent agent, Map<String, String> extraArtifactRepositoryProperties,
+    public TychoMirrorApplication(IProvisioningAgent agent, Map<String, String> extraArtifactRepositoryProperties,
             List<RepositoryReference> repositoryReferences) {
         super(agent);
         this.extraArtifactRepositoryProperties = extraArtifactRepositoryProperties;
@@ -153,7 +158,7 @@ public class MirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.Mi
             throws ProvisionException {
         IMetadataRepository result = super.initializeDestination(toInit, mgr);
         List<? extends IRepositoryReference> iRepoRefs = repositoryReferences.stream()
-                .flatMap(MirrorApplication::toSpiRepositoryReferences).toList();
+                .flatMap(TychoMirrorApplication::toSpiRepositoryReferences).toList();
         result.addReferences(iRepoRefs);
         return result;
     }
@@ -170,6 +175,52 @@ public class MirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.Mi
                 type, rr.isEnable() ? IRepository.ENABLED : IRepository.NONE);
     }
 
+    @Override
+    protected List<IArtifactKey> collectArtifactKeys(Collection<IInstallableUnit> ius, IProgressMonitor monitor)
+            throws ProvisionException {
+        List<IArtifactKey> keys = super.collectArtifactKeys(ius, monitor);
+        if (isFilterProvidedItems()) {
+            List<IArtifactRepository> referencedRepositories = new ArrayList<>();
+            for (RepositoryReference reference : repositoryReferences) {
+                String location = reference.getLocation();
+                try {
+                    referencedRepositories
+                            .add(getArtifactRepositoryManager().loadRepository(new URI(location), monitor));
+                } catch (URISyntaxException e) {
+                    throw new ProvisionException("Can't parse referenced URI!", e);
+                }
+            }
+            keys.removeIf(key -> referencedRepositories.stream().anyMatch(repo -> repo.contains(key)));
+        }
+        return keys;
+    }
+
+    private boolean isFilterProvidedItems() {
+        return filterProvided && !repositoryReferences.isEmpty();
+    }
+
+    @Override
+    protected Set<IInstallableUnit> collectUnits(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor)
+            throws ProvisionException {
+        Set<IInstallableUnit> units = super.collectUnits(slice, monitor);
+        if (isFilterProvidedItems()) {
+            List<IMetadataRepository> referencedRepositories = new ArrayList<>();
+            for (RepositoryReference reference : repositoryReferences) {
+                String location = reference.getLocation();
+                try {
+                    referencedRepositories
+                            .add(getMetadataRepositoryManager().loadRepository(new URI(location), monitor));
+                } catch (URISyntaxException e) {
+                    throw new ProvisionException("Can't parse referenced URI!", e);
+                }
+            }
+            units.removeIf(unit -> referencedRepositories.stream().anyMatch(repo -> {
+                return !repo.query(QueryUtil.createIUQuery(unit.getId(), unit.getVersion()), monitor).isEmpty();
+            }));
+        }
+        return units;
+    }
+
     public void setIncludeSources(boolean includeAllSource, TargetPlatform targetPlatform) {
         this.includeAllSource = includeAllSource;
         this.targetPlatform = targetPlatform;
@@ -177,6 +228,10 @@ public class MirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.Mi
 
     public void setIncludeRequiredBundles(boolean includeRequiredBundles) {
         this.includeRequiredBundles = includeRequiredBundles;
+    }
+
+    public void setFilterProvided(boolean filterProvided) {
+        this.filterProvided = filterProvided;
     }
 
     public void setIncludeRequiredFeatures(boolean includeRequiredFeatures) {

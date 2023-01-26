@@ -92,6 +92,15 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private boolean includeAllSources;
 
     /**
+     * If enabled, units and artifacts that are part of a referenced repository are excluded from
+     * the mirror operation. This can be used (together with {@link #includeAllDependencies}) to
+     * build a repository that is both self contained and minimal in regard to the referenced
+     * repositories)
+     */
+    @Parameter(defaultValue = "false")
+    private boolean filterProvided;
+
+    /**
      * <p>
      * By default, only included plugins of a feature are included in the repository, setting this
      * to true will also include plugins mentioned in the dependencies section of a feature
@@ -224,7 +233,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                         includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
-                        profileProperties);
+                        filterProvided, profileProperties);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Could not assemble p2 repository", e);
             }

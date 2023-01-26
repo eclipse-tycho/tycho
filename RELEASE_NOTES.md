@@ -55,6 +55,11 @@ Also feature baselining is supported according to [Versioning features](https://
 
 The parameters of the `tycho-apitools-plugin:generate` goal have been completed and improved.
 
+### New parameter for tycho-p2-repository-plugin:assemble-repository
+
+The `tycho-p2-repository-plugin:assemble-repository` mojo has now a new configuration parameter `filterProvided` that (if enabled) filter units and artifacts that are already present in one of the referenced repositories.
+That way one can prevent including items that are already present in the same form in another repository.
+
 
 ### Migration guide 3.x > 4.x
 
