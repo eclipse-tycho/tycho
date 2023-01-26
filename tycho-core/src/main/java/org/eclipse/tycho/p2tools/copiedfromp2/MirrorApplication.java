@@ -77,10 +77,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     private IArtifactMirrorLog mirrorLog;
     private IArtifactMirrorLog comparatorLog;
 
-    public MirrorApplication() {
-        super();
-    }
-
     public MirrorApplication(IProvisioningAgent agent) {
         super(agent);
     }
@@ -369,10 +365,10 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     }
 
     private IQueryable<IInstallableUnit> performResolution(IProgressMonitor monitor) throws ProvisionException {
-        IProfileRegistry registry = Activator.getProfileRegistry();
+        IProfileRegistry registry = getProfileRegistry();
         String profileId = "MirrorApplication-" + System.currentTimeMillis(); //$NON-NLS-1$
         IProfile profile = registry.addProfile(profileId, slicingOptions.getFilter());
-        IPlanner planner = Activator.getAgent().getService(IPlanner.class);
+        IPlanner planner = agent.getService(IPlanner.class);
         if (planner == null)
             throw new IllegalStateException();
         IProfileChangeRequest pcr = planner.createChangeRequest(profile);
@@ -385,6 +381,13 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
         if (plan.getInstallerPlan() != null)
             arr[1] = plan.getInstallerPlan().getAdditions();
         return new CompoundQueryable<>(arr);
+    }
+
+    private IProfileRegistry getProfileRegistry() throws ProvisionException {
+        IProfileRegistry registry = agent.getService(IProfileRegistry.class);
+        if (registry == null)
+            throw new ProvisionException(Messages.no_profile_registry);
+        return registry;
     }
 
     private IQueryable<IInstallableUnit> slice(IProgressMonitor monitor) throws ProvisionException {

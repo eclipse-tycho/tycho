@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP SE and others.
+ * Copyright (c) 2010, 2023 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,13 +13,11 @@
 package org.eclipse.tycho.p2tools;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,12 +29,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -50,7 +43,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 
-public class MirrorApplication extends org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication {
+public class MirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.MirrorApplication {
 
     private static final String SOURCE_SUFFIX = ".source";
     private final Map<String, String> extraArtifactRepositoryProperties;
@@ -62,8 +55,7 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
 
     public MirrorApplication(IProvisioningAgent agent, Map<String, String> extraArtifactRepositoryProperties,
             List<RepositoryReference> repositoryReferences) {
-        super();
-        this.agent = agent;
+        super(agent);
         this.extraArtifactRepositoryProperties = extraArtifactRepositoryProperties;
         this.repositoryReferences = repositoryReferences;
         this.removeAddedRepositories = false;
