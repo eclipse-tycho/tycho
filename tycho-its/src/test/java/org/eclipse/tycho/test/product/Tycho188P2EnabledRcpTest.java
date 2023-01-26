@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -122,8 +123,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 				.forEclipseRepositoryModule(new File(verifier.getBasedir(), MODULE));
 
 		// test that root level feature is assembled into the p2 repository...
-		File rootFeatureInRepo = p2Repository.findFeatureArtifact("pi.root-level-installed-feature");
-		assertTrue(rootFeatureInRepo.isFile());
+		Optional<File> rootFeatureInRepo = p2Repository.findFeatureArtifact("pi.root-level-installed-feature");
+		assertTrue(rootFeatureInRepo.isPresent());
 
 		// ... although there is no dependency from the product IU.
 		assertThat(p2Repository.getUniqueIU("main.product.id").getRequiredIds(),
