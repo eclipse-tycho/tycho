@@ -1,11 +1,18 @@
 package org.eclipse.tycho.test.util;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -21,11 +28,12 @@ import org.w3c.dom.NodeList;
 
 public class P2RepositoryTool {
 
+    private static final ThreadLocal<XPath> xPathTool = ThreadLocal
+            .withInitial(() -> XPathFactory.newInstance().newXPath());
+    private static final Pattern strictVersionRangePattern = Pattern.compile("\\[([^,]*),\\1\\]");
     private final File repoLocation;
     private final File metadataFile;
     private Document contentXml;
-    private XPath xPathTool;
-    private Pattern strictVersionRangePattern;
 
     private P2RepositoryTool(File metadataFile) {
         this.repoLocation = metadataFile.getParentFile();
@@ -62,16 +70,72 @@ public class P2RepositoryTool {
         return new File(repoLocation, pathInRepo);
     }
 
-    public File findFeatureArtifact(final String featureId) {
-        File[] matchingFeatures = new File(repoLocation, "features")
-                .listFiles((FilenameFilter) (dir, name) -> name.startsWith(featureId + "_"));
-        return matchingFeatures[0];
+    public Optional<File> findFeatureArtifact(final String featureId) {
+        return getFeatures().filter(file -> file.getName().startsWith(featureId + "_")).findFirst();
     }
 
     public File findBinaryArtifact(final String artifactId) {
         File[] matchingFeatures = new File(repoLocation, "binary")
                 .listFiles((FilenameFilter) (dir, name) -> name.startsWith(artifactId + "_"));
         return matchingFeatures[0];
+    }
+
+    public Optional<File> findBundleArtifact(String bundleId) {
+        return getBundles().filter(file -> file.getName().startsWith(bundleId + "_")).findFirst();
+    }
+
+    public Stream<File> getBundles() {
+        File folder = new File(repoLocation, "plugins");
+        if (folder.isDirectory()) {
+            File[] matching = folder.listFiles(pathname -> pathname.getName().toLowerCase().endsWith(".jar"));
+            if (matching != null) {
+                return Arrays.stream(matching).filter(File::isFile);
+            }
+        }
+        return Stream.empty();
+    }
+
+    public Stream<File> getFeatures() {
+        File folder = new File(repoLocation, "features");
+        if (folder.isDirectory()) {
+            File[] matching = folder.listFiles(pathname -> pathname.getName().toLowerCase().endsWith(".jar"));
+            if (matching != null) {
+                return Arrays.stream(matching).filter(File::isFile);
+            }
+        }
+        return Stream.empty();
+    }
+
+    public void assertNumberOfUnits(int expected) throws Exception {
+        assertNumberOfUnits(expected, always -> false);
+    }
+
+    public void assertNumberOfUnits(int expected, Predicate<IdAndVersion> except) throws Exception {
+        List<IdAndVersion> units = getAllUnits().stream().filter(except.negate()).toList();
+        int size = units.size();
+        if (size != expected) {
+            fail("Expected " + expected + " units but " + size + " units where found: " + System.lineSeparator()
+                    + units.stream().map(String::valueOf).collect(Collectors.joining(System.lineSeparator())));
+        }
+    }
+
+    public void assertNumberOfBundles(int expected) throws Exception {
+        List<File> bundles = getBundles().toList();
+        int size = bundles.size();
+        if (size != expected) {
+            fail("Expected " + expected + " bundles but " + size + " bundles where found: " + System.lineSeparator()
+                    + bundles.stream().map(File::getName).collect(Collectors.joining(System.lineSeparator())));
+        }
+    }
+
+    public void assertNumberOfFeatures(int expected) throws Exception {
+        List<File> features = getFeatures().toList();
+        int size = features.size();
+        if (size != expected) {
+            fail("Expected " + expected + " features but " + size + " features where found: " + System.lineSeparator()
+                    + features.stream().map(File::getName).collect(Collectors.joining(System.lineSeparator())));
+        }
+
     }
 
     public List<String> getAllUnitIds() throws Exception {
@@ -158,14 +222,11 @@ public class P2RepositoryTool {
         contentXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile);
     }
 
-    private XPath getXPathTool() {
-        if (xPathTool == null) {
-            xPathTool = XPathFactory.newInstance().newXPath();
-        }
-        return xPathTool;
+    private static XPath getXPathTool() {
+        return xPathTool.get();
     }
 
-    List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
+    static List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
         NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
 
         List<Node> result = new ArrayList<>(nodeList.getLength());
@@ -175,7 +236,7 @@ public class P2RepositoryTool {
         return result;
     }
 
-    List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
+    static List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
         NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
 
         List<String> result = new ArrayList<>(nodeList.getLength());
@@ -185,7 +246,7 @@ public class P2RepositoryTool {
         return result;
     }
 
-    String getAttribute(Node node, String expression) throws XPathExpressionException {
+    static String getAttribute(Node node, String expression) throws XPathExpressionException {
         Attr attribute = (Attr) getXPathTool().evaluate(expression, node, XPathConstants.NODE);
 
         if (attribute == null) {
@@ -195,14 +256,11 @@ public class P2RepositoryTool {
         }
     }
 
-    boolean isStrictRange(String range) {
-        if (strictVersionRangePattern == null) {
-            strictVersionRangePattern = Pattern.compile("\\[([^,]*),\\1\\]");
-        }
+    static boolean isStrictRange(String range) {
         return strictVersionRangePattern.matcher(range).matches();
     }
 
-    String getLowerBound(String range) {
+    static String getLowerBound(String range) {
         int begin;
         if (range.charAt(0) == '[' || range.charAt(0) == '(') {
             begin = 1;
@@ -216,7 +274,7 @@ public class P2RepositoryTool {
         return range.substring(begin, end);
     }
 
-    public class IU {
+    public static final class IU {
 
         private final Node unitElement;
 
@@ -333,6 +391,11 @@ public class P2RepositoryTool {
                     (obj instanceof IdAndVersion other && //
                             Objects.equals(id, other.id) && //
                             Objects.equals(version, other.version));
+        }
+
+        @Override
+        public String toString() {
+            return "id=" + id + ", version=" + version;
         }
 
     }

@@ -62,7 +62,7 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
 		assertFalse(p2Repo.getBundleArtifact("trt.bundle.referenced", "2.0.0.201108051319").isFile());
 		assertTrue(p2Repo.getBundleArtifact("trt.bundle.referenced", "1.0.0.201108051343").isFile());
 
-		assertTrue(p2Repo.findFeatureArtifact("trt.feature").isFile());
+		assertTrue(p2Repo.findFeatureArtifact("trt.feature").isPresent());
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
 		assertFalse(p2Repo.getBundleArtifact("trt.bundle.referenced", "2.0.0.201108051319").isFile());
 		assertTrue(p2Repo.getBundleArtifact("trt.bundle.referenced", "1.0.0.201108051343").isFile());
 
-		assertTrue(p2Repo.findFeatureArtifact("trt.feature").isFile());
+		assertTrue(p2Repo.findFeatureArtifact("trt.feature").isPresent());
 	}
 
 	private File getTargetsProject() {
