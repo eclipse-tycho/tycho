@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,7 +158,10 @@ public class JdkLibraryInfoProvider {
             // according to https://docs.oracle.com/javase/9/tools/javac.htm#GUID-AEEC9F07-CB49-4E96-8BC7-BCC2C7F725C9__STANDARDOPTIONSFORJAVAC-7D3D9CC2 
             extDirs = new String[0];
         }
-        return new LibraryInfo(javaVersion, bootclasspath, extDirs, endorsedDirs);
+        //sometimes the jvm report entries that do not really exits...
+        String[] filteredBcp = Arrays.stream(bootclasspath).filter(bcp -> new File(bcp).exists())
+                .toArray(String[]::new);
+        return new LibraryInfo(javaVersion, filteredBcp, extDirs, endorsedDirs);
     }
 
     private boolean isRunningOnJava9orLater() {
