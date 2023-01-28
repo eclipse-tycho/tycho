@@ -51,6 +51,39 @@ Also feature baselining is supported according to [Versioning features](https://
 
 ![grafik](https://user-images.githubusercontent.com/1331477/206921380-5c66cc4b-bf98-4bde-9a95-994d5c9f2a09.png)
 
+### define targets in repository section
+
+From now on one can define targets also in the repository section of the pom, only the URI variant is supported, but actually you can write everything as an URI already, this then looks like this:
+
+```
+<project ...>
+	...
+	<repositories>
+		<repository>
+			<id>jetty</id>
+			<layout>target</layout>
+			<url>file:${project.basedir}/jetty.target</url>
+		</repository>
+	</repositories>
+	...
+</project>
+```
+
+You might also use https:
+
+```
+<url>https://git.eclipse.org/c/lsp4e/lsp4e.git/plain/target-platforms/target-platform-latest/target-platform-latest.target</url>
+```
+
+or reference a maven deployed artifact
+
+```
+<url>mvn:org.eclipse.lsp4e:target-platform-latest:0.13.1-SNAPSHOT</url>
+```
+
+or anything that can be resolved to a valid URL in your running build.
+
+
 ### Parameter enhancements for tycho-apitools-plugin:generate goal
 
 The parameters of the `tycho-apitools-plugin:generate` goal have been completed and improved.
