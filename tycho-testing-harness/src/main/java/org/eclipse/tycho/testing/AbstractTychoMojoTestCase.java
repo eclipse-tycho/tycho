@@ -178,7 +178,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
             MavenSession oldSession = lookup.getSession();
             try {
                 lookup.setSession(session);
-                tychoResolver.resolveMavenProject(session, mavenProject, projects);
+                tychoResolver.resolveProject(session, mavenProject);
             } catch (RuntimeException e) {
                 result.addException(e);
             } finally {
