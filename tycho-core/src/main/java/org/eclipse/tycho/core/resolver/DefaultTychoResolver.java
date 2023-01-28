@@ -73,7 +73,8 @@ public class DefaultTychoResolver implements TychoResolver {
     public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
 
     @Override
-    public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
+    public void setupProject(MavenSession session, MavenProject project) {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
         if (dr == null) {
             return;
@@ -112,13 +113,9 @@ public class DefaultTychoResolver implements TychoResolver {
     }
 
     @Override
-    public void resolveMavenProject(MavenSession session, MavenProject project, List<MavenProject> mavenProjects) {
+    public void resolveProject(MavenSession session, MavenProject project) {
+        List<MavenProject> mavenProjects = session.getProjects();
         List<ReactorProject> reactorProjects = mavenProjects.stream().map(DefaultReactorProject::adapt).toList();
-        resolveProject(session, project, reactorProjects);
-    }
-
-    @Override
-    public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects) {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
         if (dr == null) {
             return;

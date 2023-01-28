@@ -61,11 +61,9 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DependencyResolutionException;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
@@ -130,8 +128,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             configureComponents(session);
 
             for (MavenProject project : projects) {
-                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-                resolver.setupProject(session, project, reactorProject);
+                resolver.setupProject(session, project);
             }
             if (TychoConstants.USE_OLD_RESOLVER) {
                 resolveProjects(session, projects);
@@ -234,7 +231,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     }
 
     private void resolveProjects(MavenSession session, List<MavenProject> projects) {
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
 
         MavenExecutionRequest request = session.getRequest();
         boolean failFast = MavenExecutionRequest.REACTOR_FAIL_FAST.equals(request.getReactorFailureBehavior());
@@ -247,7 +243,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             try {
                 MavenSession clone = session.clone();
                 clone.setCurrentProject(project);
-                resolver.resolveProject(clone, project, reactorProjects);
+                resolver.resolveProject(clone, project);
                 if (DUMP_DATA) {
                     try {
                         modelWriter.write(new File(project.getBasedir(), "pom-model-classic.xml"), Map.of(),
