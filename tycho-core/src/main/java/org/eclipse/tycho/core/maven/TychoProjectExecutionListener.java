@@ -99,12 +99,11 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
         }
         MavenProject mavenProject = event.getProject();
         MavenSession mavenSession = event.getSession();
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(mavenSession);
         MavenSession oldSession = legacySupport.getSession();
         try {
             legacySupport.setSession(mavenSession);
             //FIXME should return tycho project!
-            resolver.resolveProject(mavenSession, mavenProject, reactorProjects);
+            resolver.resolveProject(mavenSession, mavenProject);
             TychoProject tychoProject = projectManager.getTychoProject(mavenProject).orElse(null);
             if (tychoProject != null) {
                 try {
