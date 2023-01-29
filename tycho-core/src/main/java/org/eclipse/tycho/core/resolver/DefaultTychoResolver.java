@@ -59,8 +59,8 @@ public class DefaultTychoResolver implements TychoResolver {
     @Requirement
     private DefaultTargetPlatformConfigurationReader configurationReader;
 
-    @Requirement
-    private DefaultDependencyResolverFactory dependencyResolverLocator;
+    @Requirement(hint = "p2")
+    private DependencyResolver dependencyResolver;
 
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
@@ -108,8 +108,7 @@ public class DefaultTychoResolver implements TychoResolver {
         dr.readExecutionEnvironmentConfiguration(reactorProject, session, eeConfiguration);
         reactorProject.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
 
-        DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
-        resolver.setupProjects(session, project, reactorProject);
+        dependencyResolver.setupProjects(session, project, reactorProject);
     }
 
     @Override
@@ -121,7 +120,6 @@ public class DefaultTychoResolver implements TychoResolver {
             return;
         }
 
-        DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
         String threadMarker;
         if (logger.isDebugEnabled()) {
             threadMarker = "[" + Thread.currentThread().getName().replaceAll("^ForkJoinPool-(\\d+)-", "") + "] ";
@@ -129,7 +127,7 @@ public class DefaultTychoResolver implements TychoResolver {
             threadMarker = "";
         }
         logger.debug(threadMarker + "Computing preliminary target platform for " + project);
-        TargetPlatform preliminaryTargetPlatform = resolver.computePreliminaryTargetPlatform(session, project,
+        TargetPlatform preliminaryTargetPlatform = dependencyResolver.computePreliminaryTargetPlatform(session, project,
                 reactorProjects);
 
         logger.info(threadMarker + "Resolving dependencies of " + project);
@@ -138,7 +136,7 @@ public class DefaultTychoResolver implements TychoResolver {
 
         DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
-        DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
+        DependencyArtifacts dependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
                 preliminaryTargetPlatform, reactorProjects, resolverConfiguration, configuration.getEnvironments());
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
@@ -174,14 +172,16 @@ public class DefaultTychoResolver implements TychoResolver {
                         return resolverConfiguration.getAdditionalRequirements();
                     }
                 };
-                testDependencyArtifacts = resolver.resolveDependencies(session, project, preliminaryTargetPlatform,
-                        reactorProjects, testResolverConfiguration, configuration.getEnvironments());
+                testDependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
+                        preliminaryTargetPlatform, reactorProjects, testResolverConfiguration,
+                        configuration.getEnvironments());
             }
             dr.setTestDependencyArtifacts(session, reactorProject,
                     Objects.requireNonNullElse(testDependencyArtifacts, new DefaultDependencyArtifacts()));
         }
 
-        resolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, testDependencyArtifacts, logger);
+        dependencyResolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, testDependencyArtifacts,
+                logger);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder(threadMarker);

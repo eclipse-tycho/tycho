@@ -34,7 +34,6 @@ import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
@@ -50,8 +49,8 @@ public class RepositoryReferenceTool {
      */
     public static final int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
-    @Requirement
-    private DefaultDependencyResolverFactory dependencyResolverLocator;
+    @Requirement(hint = "p2")
+    private DependencyResolver dependencyResolver;
 
     @Requirement
     private MetadataSerializable serializer;
@@ -114,16 +113,15 @@ public class RepositoryReferenceTool {
                 ReactorProject reactorProject = DefaultReactorProject.adapt(project);
                 TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
 
-                DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
-
                 TargetPlatformConfiguration configuration = TychoProjectUtils
                         .getTargetPlatformConfiguration(reactorProject);
 
                 DependencyResolverConfiguration resolverConfiguration = configuration
                         .getDependencyResolverConfiguration();
 
-                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
-                        DefaultReactorProject.adapt(session), resolverConfiguration, configuration.getEnvironments());
+                DependencyArtifacts dependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
+                        targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration,
+                        configuration.getEnvironments());
                 dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
 
                 // this contains dependency-only metadata for 'this' project
