@@ -322,7 +322,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     protected Set<IInstallableUnit> collectUnits(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor)
             throws ProvisionException {
         IQueryResult<IInstallableUnit> allIUs = slice.query(QueryUtil.createIUAnyQuery(), monitor);
-        Set<IInstallableUnit> units = allIUs.toUnmodifiableSet();
+        Set<IInstallableUnit> units = allIUs.toSet();
         return units;
     }
 
