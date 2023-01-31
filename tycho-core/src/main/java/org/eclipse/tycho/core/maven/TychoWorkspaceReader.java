@@ -31,20 +31,13 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
-import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.DependencyArtifacts;
-import org.eclipse.tycho.MavenDependencyDescriptor;
-import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.*;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 @Component(role = WorkspaceReader.class, hint = "TychoWorkspaceReader")
 public class TychoWorkspaceReader implements MavenWorkspaceReader {
-
-    private WorkspaceRepository repository;
+    private final WorkspaceRepository repository;
 
     @Requirement
     private LegacySupport legacySupport;
@@ -54,9 +47,6 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
 
     @Requirement
     private ModelWriter modelWriter;
-
-    @Requirement
-    P2ResolverFactory factory;
 
     public TychoWorkspaceReader() {
         repository = new WorkspaceRepository("tycho", null);
@@ -68,110 +58,151 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
     }
 
     @Override
-    public File findArtifact(Artifact artifact) {
+    public File findArtifact(final Artifact artifact) {
+        final boolean isP2Artifact = artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX);
+
+        // TODO: Maven should actually call #findModel instead
+        //  See https://issues.apache.org/jira/browse/MNG-7496
         if ("pom".equals(artifact.getExtension())) {
-            if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
-                //TODO Maven should actually call the findModel instead see: https://issues.apache.org/jira/browse/MNG-7496
-                logger.debug("Find the pom for " + artifact);
-                File pomFile = getFileForArtifact(artifact);
-                if (pomFile.isFile()) {
-                    return pomFile;
-                }
-                Model findModel = getP2Model(artifact);
-                if (findModel != null) {
-                    try {
-                        pomFile.getParentFile().mkdirs();
-                        modelWriter.write(pomFile, new HashMap<>(), findModel);
-                        return pomFile;
-                    } catch (IOException e) {
-                        logger.debug("Cannot write model", e);
-                    }
-                }
+            if (isP2Artifact) {
+                return findPomArtifact(artifact);
             }
+
             return null;
         }
-        if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
-            //For now, only take P2 items into account ...
-            File cachedFile = getFileForArtifact(artifact);
-            if (cachedFile.isFile()) {
-                return cachedFile;
-            }
-            MavenSession session = legacySupport.getSession();
-            if (session != null) {
-                MavenProject currentProject = session.getCurrentProject();
-                ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
 
-                Optional<DependencyArtifacts> dependencyMetadata = TychoProjectUtils
-                        .getOptionalDependencyArtifacts(reactorProject);
-                if (dependencyMetadata.isPresent()) {
-                    logger.debug("Attempt to resolve " + artifact + " for project " + currentProject + " ...");
-                    for (ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
-                        MavenDependencyDescriptor dependencyDescriptor = factory
-                                .resolveDependencyDescriptor(descriptor);
-                        if (dependencyDescriptor != null) {
-                            if (dependencyDescriptor.getGroupId().equals(artifact.getGroupId())
-                                    && dependencyDescriptor.getArtifactId().equals(artifact.getArtifactId())) {
-                                ArtifactKey artifactKey = descriptor.getKey();
-                                if (dependencyDescriptor.getVersion().equals(artifact.getVersion())
-                                        || artifactKey.getVersion().equals(artifact.getVersion())) {
-                                    //we have a match!
-                                    return descriptor.getLocation(true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // TODO This is a "standard" maven artifact, but we probably still know it from P2!
-            // it would be good to reuse the P2 item as it might be signed but that must be
-            // considered carefully as P2 items have a different location so we must relocate them.
-            // But if we do so, this might confuse standard maven if it finds things not matching what is in central...
-            // What should work quite good is to first ask all remote repositories for the file and then fall back to P2...
-            // The main issue here is the pom=consider that requires special filename mapping while maven is happy with a different path as well.
-            // So another approach might be to adjust the pom=consider to ignore dependencies added by tycho itself!
-
+        if (isP2Artifact) {
+            return findP2Artifact(artifact);
         }
-        return null;
-    }
 
-    protected File getFileForArtifact(Artifact artifact) {
-        RepositorySystemSession repositorySession = legacySupport.getRepositorySession();
-        LocalRepository localRepository = repositorySession.getLocalRepository();
-        File basedir = localRepository.getBasedir();
-        File cachedFile = new File(basedir, "p2/osgi/bundle/" + artifact.getArtifactId() + "/" + artifact.getVersion()
-                + "/" + artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getExtension());
-        return cachedFile;
+        // TODO: this is a "standard" Maven artifact, but we probably still know it from P2!
+        //  It would be good to reuse the P2 item as it might be signed but that must be
+        //  considered carefully as P2 items have a different location so we must relocate them.
+        //  But if we do so, this might confuse standard Maven if it finds things not matching what is in central.
+        //  What should work quite good is to first ask all remote repositories for the file and then fall back to P2.
+        //  The main issue here is the 'pom=consider' that requires special filename mapping while Maven is happy with
+        //  a different path as well. So another approach might be to adjust the 'pom=consider' to ignore dependencies
+        //  added by tycho itself.
+        return findMavenArtifact(artifact);
     }
 
     @Override
-    public List<String> findVersions(Artifact artifact) {
+    public List<String> findVersions(final Artifact artifact) {
         return Collections.emptyList();
     }
 
     @Override
-    public Model findModel(Artifact artifact) {
+    public Model findModel(final Artifact artifact) {
         if (artifact.getGroupId().startsWith(TychoConstants.P2_GROUPID_PREFIX)) {
-            logger.debug("Find the model for: " + artifact);
-            //TODO due to a bug in maven we can not use this here... see  Tycho issue #1388
-            //see https://issues.apache.org/jira/browse/MNG-7544
-//            return getP2Model(artifact);
+            logger.debug("Find the model for " + artifact);
+            // TODO: due to a bug in Maven we can not use this here.
+            //  See Tycho issue #1388
+            //  See https://issues.apache.org/jira/browse/MNG-7544
+            // return getP2Model(artifact);
         }
+
         return null;
     }
 
-    private Model getP2Model(Artifact artifact) {
-        Model model = new Model();
-        model.setModelVersion("4.0.0");
-        model.setArtifactId(artifact.getArtifactId());
-        model.setGroupId(artifact.getGroupId());
-        model.setVersion(artifact.getVersion());
-        model.setPackaging(artifact.getProperty("packaging", null));
-        if (model.getPackaging() == null) {
-            model.setPackaging(
-                    artifact.getGroupId().substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-'));
+    private File findPomArtifact(final Artifact artifact) {
+        logger.debug("Find the POM file for " + artifact);
+        final File pomFile = getFileForArtifact(artifact);
+
+        if (pomFile.isFile()) {
+            return pomFile;
         }
-        return model;
+
+        pomFile.getParentFile().mkdirs();
+
+        try {
+            modelWriter.write(pomFile, new HashMap<>(), getP2Model(artifact));
+            return pomFile;
+        } catch (final IOException e) {
+            logger.debug("Cannot write the POM model", e);
+        }
+
+        return null;
     }
 
+    private File findP2Artifact(final Artifact artifact) {
+        // Attempt a fast lookup first
+        final File cachedFile = getFileForArtifact(artifact);
+
+        if (cachedFile.isFile()) {
+            return cachedFile;
+        }
+
+        final MavenSession session = legacySupport.getSession();
+
+        if (session != null) {
+            final MavenProject currentProject = session.getCurrentProject();
+            final ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
+            final Optional<DependencyArtifacts> dependencyMetadata =
+                    TychoProjectUtils.getOptionalDependencyArtifacts(reactorProject);
+
+            if (dependencyMetadata.isPresent()) {
+                logger.debug("Attempting to resolve " + artifact + " for project " + currentProject + "...");
+
+                for (final ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
+                    if (isArtifactMatch(descriptor.getKey(), artifact)) {
+                        return descriptor.getLocation(true);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isArtifactMatch(final ArtifactKey artifactKey, final Artifact artifact) {
+        final String groupId = artifact.getGroupId();
+        final String type = groupId.substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-');
+        return artifactKey.getType().equals(type) &&
+                artifactKey.getId().equals(artifact.getArtifactId()) &&
+                artifactKey.getVersion().equals(artifact.getVersion());
+    }
+
+    private File findMavenArtifact(@SuppressWarnings("unused") final Artifact artifact) {
+        // TODO: the implementation should be quite similar to #findP2Artifact.
+        //  Inject and use P2ResolverFactory#resolveDependencyDescriptor(ArtifactDescriptor)
+        //  to get the Maven groupId/artifactId/version information, which must then be
+        //  compared to the inputted artifact information.
+        //  The returned Maven information should also be validated.
+        //  For that, see MavenDependencyInjector#isValidMavenDescriptor
+        return null;
+    }
+
+    private File getFileForArtifact(final Artifact artifact) {
+        final RepositorySystemSession repositorySession = legacySupport.getRepositorySession();
+        final LocalRepository localRepository = repositorySession.getLocalRepository();
+        final File basedir = localRepository.getBasedir();
+        final String repositoryPath = "p2/osgi/bundle/" +
+                artifact.getArtifactId() +
+                "/" +
+                artifact.getVersion() +
+                "/" +
+                artifact.getArtifactId() +
+                "-" +
+                artifact.getVersion() +
+                "." +
+                artifact.getExtension();
+
+        return new File(basedir, repositoryPath);
+    }
+
+    private Model getP2Model(final Artifact artifact) {
+        final String groupId = artifact.getGroupId();
+        final Model model = new Model();
+        model.setModelVersion("4.0.0");
+        model.setArtifactId(artifact.getArtifactId());
+        model.setGroupId(groupId);
+        model.setVersion(artifact.getVersion());
+        model.setPackaging(artifact.getProperty("packaging", null));
+
+        if (model.getPackaging() == null) {
+            model.setPackaging(groupId.substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-'));
+        }
+
+        return model;
+    }
 }
