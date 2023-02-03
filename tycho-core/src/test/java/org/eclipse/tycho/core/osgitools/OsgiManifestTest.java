@@ -39,13 +39,7 @@ public class OsgiManifestTest {
 
     @Test
     public void testMissingVersion() throws Exception {
-        try {
-            parseManifest("noVersion.mf");
-            fail();
-        } catch (InvalidOSGiManifestException e) {
-            assertEquals("Exception parsing OSGi MANIFEST testLocation: MANIFEST header 'Bundle-Version' not found",
-                    e.getMessage());
-        }
+        assertEquals("0.0.0", parseManifest("noVersion.mf").getBundleVersion());
     }
 
     @Test

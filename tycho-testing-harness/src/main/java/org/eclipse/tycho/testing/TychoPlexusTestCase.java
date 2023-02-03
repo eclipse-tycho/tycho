@@ -86,6 +86,10 @@ public class TychoPlexusTestCase {
         }
     }
 
+    public static String getBasedir() {
+        return PlexusTestCaseExension.getBasedir();
+    }
+
     protected void modifySession(MavenSession mavenSession) {
 
     }
@@ -110,6 +114,10 @@ public class TychoPlexusTestCase {
                     "Test resource \"" + path + "\" not found under \"src/test/resources\" in the project");
         }
         return resolvedFile;
+    }
+
+    protected static File getBasedir(String name) throws IOException {
+        return TestUtil.getBasedir(name);
     }
 
     private static final class PlexusTestCaseExension extends PlexusTestCase {

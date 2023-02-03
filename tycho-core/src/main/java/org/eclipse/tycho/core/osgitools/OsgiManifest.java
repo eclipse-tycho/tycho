@@ -46,6 +46,9 @@ public class OsgiManifest {
         } catch (IOException | BundleException e) {
             throw new OsgiManifestParserException(location, e);
         }
+        if (this.bundleSymbolicName == null) {
+            throw new InvalidOSGiManifestException(location, "Bundle-SymbolicName is missing");
+        }
         this.bundleVersion = parseBundleVersion();
         this.bundleClassPath = parseBundleClasspath();
         this.isDirectoryShape = parseDirectoryShape();
@@ -66,31 +69,22 @@ public class OsgiManifest {
     }
 
     private String parseBundleVersion() {
-        String versionString = parseMandatoryFirstValue(BUNDLE_VERSION);
-        try {
-            return Version.parseVersion(versionString).toString();
-        } catch (NumberFormatException e) {
-            throw new InvalidOSGiManifestException(location, "Bundle-Version '" + versionString + "' is invalid");
-        } catch (IllegalArgumentException e) {
-            throw new InvalidOSGiManifestException(location, e);
-        }
-    }
 
-    private String parseMandatoryFirstValue(String headerKey) throws InvalidOSGiManifestException {
-        String value = headers.get(headerKey);
-        if (value == null) {
-            throw new InvalidOSGiManifestException(location, "MANIFEST header '" + headerKey + "' not found");
+        ManifestElement[] elements = parseHeader(BUNDLE_VERSION);
+        if (elements != null) {
+            for (ManifestElement element : elements) {
+                String versionString = element.getValue();
+                try {
+                    return Version.parseVersion(versionString).toString();
+                } catch (NumberFormatException e) {
+                    throw new InvalidOSGiManifestException(location,
+                            "Bundle-Version '" + versionString + "' is invalid");
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidOSGiManifestException(location, e);
+                }
+            }
         }
-        ManifestElement[] elements = null;
-        try {
-            elements = ManifestElement.parseHeader(headerKey, value);
-        } catch (BundleException e) {
-            throw new InvalidOSGiManifestException(location, e);
-        }
-        if (elements == null || elements.length == 0) {
-            throw new InvalidOSGiManifestException(location, "value for MANIFEST header '" + headerKey + "' is empty");
-        }
-        return elements[0].getValue();
+        return Version.emptyVersion.toString();
     }
 
     private boolean parseDirectoryShape() {
