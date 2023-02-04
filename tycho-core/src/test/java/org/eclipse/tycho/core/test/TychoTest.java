@@ -15,15 +15,14 @@ package org.eclipse.tycho.core.test;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ClasspathEntry;
-import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
@@ -31,17 +30,21 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class TychoTest extends AbstractTychoMojoTestCase {
 
     protected Logger logger;
+    private Properties properties;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         logger = new SilentLog();
+        properties = new Properties();
+        properties.setProperty("tycho-version", TychoVersion.getTychoVersion());
     }
 
     @Override
@@ -115,10 +118,8 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     }
 
     public void testProjectPriority() throws Exception {
-        File platform = new File(getBasedir(), "src/test/resources/projects/projectpriority/platform");
         File basedir = getBasedir("projects/projectpriority");
-
-        List<MavenProject> projects = getSortedProjects(basedir, platform);
+        List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject p002 = projects.get(2);
 
@@ -127,23 +128,9 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("0.0.1", dependency.getVersion());
     }
 
-    public void testMNGECLIPSE942() throws Exception {
-        File basedir = getBasedir("projects/dummy");
-
-        File platformLocation = new File("src/test/resources/targetplatforms/MNGECLIPSE-942");
-        MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
-        TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
-        DependencyArtifacts platform = projectType.getDependencyArtifacts(DefaultReactorProject.adapt(project));
-
-        assertEquals(2, platform.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN).size());
-        assertNotNull(platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, "org.junit4.nl_ru", null));
-    }
-
     public void testMissingClasspathEntries() throws Exception {
         File basedir = getBasedir("projects/missingentry");
-        File platformLocation = new File("src/test/resources/targetplatforms/missingentry");
-
-        MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
+        MavenProject project = getSortedProjects(basedir, properties).get(0);
 
         OsgiBundleProject projectType = (OsgiBundleProject) lookup(TychoProject.class, project.getPackaging());
 
@@ -164,9 +151,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
     public void testBundleExtraClasspath() throws Exception {
         File basedir = getBasedir("projects/extraclasspath");
-        File platformLocation = new File("src/test/resources/targetplatforms/basic");
-
-        List<MavenProject> projects = getSortedProjects(basedir, platformLocation);
+        List<MavenProject> projects = getSortedProjects(basedir, properties);
         assertEquals(3, projects.size());
 
         MavenProject b02 = projects.get(2);

@@ -84,7 +84,6 @@ public class OsgiSurefireBooter {
     private static final String JUNIT_PLATFORM_PROVIDER = "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
 
     public static int run(String[] args, Properties testProps) throws Exception {
-        boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
         // TODO eventually make use of parameter redirectTestOutputToFile
         @SuppressWarnings("unused")
         boolean redirectTestOutputToFile = Boolean
@@ -122,12 +121,12 @@ public class OsgiSurefireBooter {
         // TODO dir scanning with no includes done here (done in TestMojo already)
         // but without dirScannerParams we get an NPE accessing runOrder
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
-                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), failIfNoTests, runOrder);
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
                 TestListResolver.getEmptyTestListResolver(), rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
-                new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
+                new RunOrderParameters(runOrder, null), reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.emptyList(), skipAfterFailureCount,
                 Shutdown.DEFAULT, 30);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,

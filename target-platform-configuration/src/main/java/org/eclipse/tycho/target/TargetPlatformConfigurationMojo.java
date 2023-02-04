@@ -24,7 +24,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
-import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
@@ -41,9 +40,6 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.ENVIRONMENTS)
     private TargetEnvironment[] environments;
-
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.RESOLVER, defaultValue = DefaultDependencyResolverFactory.DEFAULT_RESOLVER_HINT)
-    private String resolver;
 
     /**
      * List of .target artifacts to use for dependency resolution.<br>

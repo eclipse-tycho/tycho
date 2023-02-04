@@ -84,7 +84,6 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
-import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
@@ -339,8 +338,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     @Component
     private EquinoxLauncher launcher;
 
-    @Component
-    protected DefaultDependencyResolverFactory dependencyResolverLocator;
+    @Component(hint = "p2")
+    protected DependencyResolver dependencyResolver;
 
     /**
      * Normally tycho will automatically determine the test framework provider based on the test
@@ -735,7 +734,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     protected DependencyArtifacts resolveDependencies(Collection<IRequirement> additionalRequirements)
             throws MojoExecutionException {
         List<ArtifactKey> extraDependencies = getExtraDependencies();
-        DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
         final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
             @Override
             public OptionalResolutionAction getOptionalResolutionAction() {
@@ -753,7 +751,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             }
 
         };
-        DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null,
+        DependencyArtifacts testRuntimeArtifacts = dependencyResolver.resolveDependencies(session, project, null,
                 getReactorProjects(), resolverConfiguration, getTestTargetEnvironments());
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException(

@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -47,6 +48,7 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
+import org.eclipse.tycho.p2resolver.TargetDefinitionResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
@@ -128,6 +130,15 @@ public class DefaultTargetPlatformConfigurationReader {
                 setTargetDefinitionIncludeSources(result, configuration);
             }
         }
+        for (Repository repository : project.getRepositories()) {
+            if ("target".equals(repository.getLayout())) {
+                try {
+                    result.addTarget(new URI(TargetDefinitionResolver.convertRawToUri(repository.getUrl())));
+                } catch (URISyntaxException e) {
+                    throw new BuildFailureException("reading <repository> target failed: " + e, e);
+                }
+            }
+        }
 
         if (result.getEnvironments().isEmpty()) {
             if (tychoProject != null) {
@@ -150,7 +161,6 @@ public class DefaultTargetPlatformConfigurationReader {
         } else {
             result.setImplicitTargetEnvironment(false);
         }
-
         return result;
     }
 
@@ -374,7 +384,7 @@ public class DefaultTargetPlatformConfigurationReader {
             for (Xpp3Dom uriDom : uriDomArray) {
                 String uri = uriDom.getValue();
                 try {
-                    result.addTarget(new URI(uri));
+                    result.addTarget(new URI(TargetDefinitionResolver.convertRawToUri(uri)));
                 } catch (URISyntaxException e) {
                     throw new MojoExecutionException("target definition uri '" + uri
                             + "' can not be parsed for project '" + project.getName() + "'.");

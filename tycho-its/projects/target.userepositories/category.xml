@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<iu id="org.eclipse.jetty.http" version="0.0.0" />
+	<iu id="org.eclipse.jetty.http.source" version="0.0.0" />
+	<iu id="org.eclipse.jetty.io" version="0.0.0" />
+	<iu id="org.eclipse.jetty.io.source" version="0.0.0" />
+	<iu id="org.eclipse.jetty.security" version="0.0.0" />
+	<iu id="org.eclipse.jetty.security.source" version="0.0.0" />
+	<iu id="org.eclipse.jetty.server" version="0.0.0" />
+	<iu id="org.eclipse.jetty.server.source" version="0.0.0" />
+	<iu id="org.eclipse.jetty.servlet" version="0.0.0" />
+	<iu id="org.eclipse.jetty.servlet.source" version="0.0.0" />
+	<iu id="org.eclipse.jetty.util" version="0.0.0" />
+	<iu id="org.eclipse.jetty.util.source" version="0.0.0" />
+	<iu id="org.eclipse.jetty.util.ajax" version="0.0.0" />
+	<iu id="org.eclipse.jetty.util.ajax.source" version="0.0.0" />
+</site>

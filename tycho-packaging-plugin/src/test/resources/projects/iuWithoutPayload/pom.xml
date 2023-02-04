@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>428310</groupId>
-  <artifactId>iuWithoutPayload</artifactId>
-  <packaging>p2-installable-unit</packaging>
-  <version>1.0.0</version>
-  
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <extensions>true</extensions>
-      </plugin>
-    </plugins>
-  </build>
-
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>428310</groupId>
+	<artifactId>iuWithoutPayload</artifactId>
+	<packaging>p2-installable-unit</packaging>
+	<version>1.0.0</version>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<file>test.target</file>
+					</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

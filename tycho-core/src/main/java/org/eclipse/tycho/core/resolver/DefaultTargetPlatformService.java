@@ -48,8 +48,8 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
     @Requirement
     private LegacySupport legacySupport;
 
-    @Requirement
-    private DefaultDependencyResolverFactory dependencyResolverLocator;
+    @Requirement(hint = "p2")
+    private DependencyResolver dependencyResolver;
 
     @Requirement
     ReactorRepositoryManager repositoryManager;
@@ -66,7 +66,6 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
                 return Optional.empty();
             }
             List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects(project);
-            DependencyResolver dependencyResolver = dependencyResolverLocator.lookupDependencyResolver(project);
             PomDependencyCollector pomDependenciesCollector = dependencyResolver.resolvePomDependencies(session,
                     project.adapt(MavenProject.class));
             TargetPlatform finalTargetPlatform = repositoryManager.computeFinalTargetPlatform(project, upstreamProjects,
