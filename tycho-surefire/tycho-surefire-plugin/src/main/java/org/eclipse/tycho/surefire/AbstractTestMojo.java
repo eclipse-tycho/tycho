@@ -374,9 +374,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
                         .collect(Collectors.joining(","));
                 analyzer.setProperty(Constants.REQUIRE_BUNDLE, stringValue);
             }
-
-            analyzer.setProperty(Constants.DYNAMICIMPORT_PACKAGE, "*");
-
             final var testClasspath = osgiBundle.getTestClasspath(reactorProject);
 
             for (final var classpathEntry : testClasspath) {
