@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,19 @@ public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 		assertHasDependency("org.eclipse.platform", "org.eclipse.equinox.common", dependencies);
 		assertHasDependency("org.eclipse.platform", "org.eclipse.equinox.app", dependencies);
 		assertHasDependency("org.osgi", "org.osgi.service.prefs", dependencies);
+	}
+
+	@Test
+	public void testReplaceWrappedMavenDependencies() throws Exception {
+		Verifier verifier = getVerifier("target.maven.wrapAsBundle", true);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+		DefaultModelReader reader = new DefaultModelReader();
+		Model model = reader.read(new File(verifier.getBasedir(), "bundle/.tycho-consumer-pom.xml"), new HashMap<>());
+		List<Dependency> dependencies = model.getDependencies();
+		// Sanity check: A Maven dependency with proper OSGi headers should show up
+		assertHasDependency("org.apache.commons", "commons-lang3", dependencies);
+		assertHasDependency("com.squareup.okhttp3", "okhttp", dependencies);
 	}
 
 	@Test

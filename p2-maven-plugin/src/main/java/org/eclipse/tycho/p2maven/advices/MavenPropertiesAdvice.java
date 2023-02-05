@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2023 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,10 @@ import org.eclipse.tycho.TychoConstants;
 public class MavenPropertiesAdvice implements IPropertyAdvice {
 
     private final Map<String, String> properties = new LinkedHashMap<>();
+
+	public MavenPropertiesAdvice(Map<String, String> properties) {
+		this.properties.putAll(properties);
+	}
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version) {
         properties.put(TychoConstants.PROP_GROUP_ID, groupId);
