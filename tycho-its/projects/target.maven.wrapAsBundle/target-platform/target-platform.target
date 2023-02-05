@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="target-platform">
+    <locations>
+	    <location includeDependencyDepth="none" includeDependencyScopes="compile" label="Maven Central" missingManifest="generate" type="Maven">
+		    <dependencies>
+			    <dependency>
+				    <groupId>com.squareup.okhttp3</groupId>
+				    <artifactId>okhttp</artifactId>
+				    <version>4.10.0</version>
+				    <type>jar</type>
+			    </dependency>
+			    <dependency>
+				    <groupId>org.apache.commons</groupId>
+				    <artifactId>commons-lang3</artifactId>
+				    <version>3.12.0</version>
+			    </dependency>
+		    </dependencies>
+	    </location>
+    </locations>
+</target>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2023 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -64,6 +64,14 @@ public interface TychoConstants {
     String PROP_CLASSIFIER = "maven-classifier";
 
     String PROP_REPOSITORY = "maven-repository";
+
+    String PROP_WRAPPED_GROUP_ID = "maven-wrapped-groupId";
+
+    String PROP_WRAPPED_ARTIFACT_ID = "maven-wrapped-artifactId";
+
+    String PROP_WRAPPED_VERSION = "maven-wrapped-version";
+
+    String PROP_WRAPPED_CLASSIFIER = "maven-wrapped-classifier";
 
     String PROP_PGP_KEYS = "pgp.publicKeys";
 
