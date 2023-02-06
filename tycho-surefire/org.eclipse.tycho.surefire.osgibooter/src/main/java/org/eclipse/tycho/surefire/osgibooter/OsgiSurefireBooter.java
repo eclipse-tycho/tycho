@@ -138,8 +138,9 @@ public class OsgiSurefireBooter {
                 new PrintStreamLogger(System.out));
         // API indicates we should use testClassLoader below but surefire also tries
         // to load surefire classes using this classloader
-        RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin), reporterFactory,
-                providerConfiguration, false, startupConfiguration, true);
+        String classLoaderOrder = testProps.getProperty("classLoaderOrder");
+        RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin, classLoaderOrder),
+                reporterFactory, providerConfiguration, false, startupConfiguration, true);
         String failsafe = testProps.getProperty("failsafe");
         if (failsafe != null && !failsafe.trim().isEmpty()) {
             FailsafeSummaryXmlUtils.writeSummary(result, new File(failsafe), false);
@@ -204,14 +205,26 @@ public class OsgiSurefireBooter {
         }
     }
 
-    private static ClassLoader createCombinedClassLoader(String testPlugin) throws BundleException {
+    private static ClassLoader createCombinedClassLoader(String testPlugin, String classLoaderOrder)
+            throws BundleException {
         ClassLoader testClassLoader = getBundleClassLoader(testPlugin);
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         ClassLoader surefireClassLoader = ForkedBooter.class.getClassLoader();
-        return new CombinedClassLoader(testClassLoader, surefireClassLoader,
-                // Not used contextClassLoader directly because it's a ContextFinder
-                // which not work with tycho sufire osgibooster bundle
-                new ContextFinderWithoutTychoBundle(contextClassLoader.getParent()));
+        // Not used tccl directly because it's a ContextFinder
+        // which not work with tycho sufire osgibooster bundle
+        ClassLoader contextClassLoader = new ContextFinderWithoutTychoBundle(tccl.getParent());
+        ClassLoader[] loaders;
+        switch (classLoaderOrder) {
+        case "booterFirst":
+            loaders = new ClassLoader[] { surefireClassLoader, testClassLoader, contextClassLoader };
+            break;
+        case "testProbeFirst":
+            loaders = new ClassLoader[] { testClassLoader, surefireClassLoader, contextClassLoader };
+            break;
+        default:
+            throw new IllegalArgumentException("ClassLoaderOrder: " + classLoaderOrder + " is not supported");
+        }
+        return new CombinedClassLoader(loaders);
     }
 
     /*
