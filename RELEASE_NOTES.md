@@ -4,6 +4,12 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### Class loading changes for Eclipse based tests
+
+Due to reported class loading clashes, the ordering of class loading has been modified in Eclipse based tests.
+The previous loading can be restored by a new `classLoaderOrder` parameter.
+This applies to `tycho-surefire-plugin:test` and `tycho-surefire-plugin:plugin-test`.
+
 ### new bnd-test mojo
 
 Tycho now has a new mojo `tycho-surefire-plugin:bnd-test` to easily execute tests using the [bnd-testing](https://bnd.bndtools.org/chapters/310-testing.html) framework.

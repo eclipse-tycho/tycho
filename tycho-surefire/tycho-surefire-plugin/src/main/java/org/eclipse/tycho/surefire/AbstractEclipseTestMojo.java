@@ -528,6 +528,27 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     @Parameter
     private int reactorConcurrencyLevel;
 
+    public enum ClassLoaderOrder {
+        booterFirst, testProbeFirst
+    }
+
+    /**
+     * The test runtime is configured with a composite class loader. This defines the order in which
+     * the loaders are searched, and it may need to be configured depending on the resolved
+     * classpath of the project.
+     * <p>
+     * Available values are:
+     * <ul>
+     * <li><code>booterFirst</code> - the loader of the surefire booter (including bundled test
+     * platform) is searched first</li>
+     * <li><code>testProbeFirst</code> - the loader of the test class's plugin is searched
+     * first</li>
+     * </ul>
+     * Defaults to <code>booterFirst</code>.
+     */
+    @Parameter(defaultValue = "booterFirst")
+    private ClassLoaderOrder classLoaderOrder;
+
     @Component
     private ProviderHelper providerHelper;
 
@@ -838,6 +859,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         wrapper.setProperty("rerunFailingTestsCount", String.valueOf(rerunFailingTestsCount));
         wrapper.setProperty("printBundles", String.valueOf(printBundles));
         wrapper.setProperty("printWires", String.valueOf(printWires));
+        wrapper.setProperty("classLoaderOrder", classLoaderOrder.toString());
         Properties mergedProviderProperties = getMergedProviderProperties();
         mergedProviderProperties.putAll(provider.getProviderSpecificProperties());
         Map<String, String> providerPropertiesAsMap = propertiesAsMap(mergedProviderProperties);
