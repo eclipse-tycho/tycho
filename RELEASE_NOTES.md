@@ -105,7 +105,13 @@ The new resolver has several advantages:
 - mixed reactor builds are now fully supported without any special configuration
 - Tycho detects if the current project requires dependency resolution and skip resolving the target platform if not needed
 
-If you see any issues please let us know so we can fix any problem with it, to enable old one you can use `-Dtycho.resolver.classic=true` but be aware that we probabbly will remove support for the old resolver some time in the future completely.
+If you see any issues please let us know so we can fix any problem with it, to enable old one you can use `-Dtycho.resolver.classic=true` but be aware that we probably will remove support for the old resolver some time in the future completely.
+
+### Tycho-Build Extension uses smart builder
+
+The Tycho-Build Extension now uses the [Takari Smart Builder](https://github.com/takari/takari-smart-builder) which has superior parallel performance when executing with `-T`.
+
+To retain the maven default, or if you even want to use a different builder, you can pass `-Dtycho.build.smartbuilder=false` to your build.
 
 
 #### skipExec parameter remove from test mojos

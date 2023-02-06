@@ -19,6 +19,11 @@ public interface TychoConstants {
     static final String ANY_QUALIFIER = "qualifier";
 
     static final boolean USE_OLD_RESOLVER = Boolean.parseBoolean(System.getProperty("tycho.resolver.classic", "false"));
+    static final boolean USE_SMART_BUILDER = Boolean
+            .parseBoolean(System.getProperty("tycho.build.smartbuilder", "true"));
+
+    static final String SESSION_PROPERTY_TYCHO_MODE = "tycho.mode";
+    static final String SESSION_PROPERTY_TYCHO_BUILDER = "tycho.builder";
 
     static final String P2_GROUPID_PREFIX = "p2.";
 
