@@ -28,7 +28,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
      * FTP clients with an open connection.
      * Every client should be disposed at the end of the build.
      */
-    private final Map<String, FTPClient> clients = new ConcurrentHashMap<>(8);
+    private static final Map<String, FTPClient> CLIENTS = new ConcurrentHashMap<>(8);
 
     @Requirement
     private Logger logger;
@@ -106,7 +106,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
     }
 
     public void dispose() {
-        for (final Map.Entry<String, FTPClient> entry : clients.entrySet()) {
+        for (final Map.Entry<String, FTPClient> entry : CLIENTS.entrySet()) {
             final FTPClient client = entry.getValue();
 
             try {
@@ -136,12 +136,17 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
         final String host = uri.getHost();
         final int port = uri.getPort() < 0 ? FTP_DEFAULT_PORT : uri.getPort();
         final String key = host + ":" + port;
-        final FTPClient client = clients.computeIfAbsent(key, k -> createFtpClient());
+        final FTPClient client = CLIENTS.computeIfAbsent(key, k -> createFtpClient());
 
-        if (client.isAvailable()) {
-            return client;
+        try {
+            if (client.isAvailable() && client.sendNoOp()) {
+                return client;
+            }
+        } catch (final FTPConnectionClosedException e) {
+            logger.debug(String.format("Connection to host %s was closed, reconnecting", key));
         }
 
+        client.disconnect();
         client.connect(host, port);
 
         if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
