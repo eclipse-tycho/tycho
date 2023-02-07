@@ -33,12 +33,14 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment.JavaInfo;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment.SystemPackageEntry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 /**
  * Creative copy&paste from org.eclipse.osgi.framework.internal.core.Framework
@@ -185,7 +187,11 @@ public class ExecutionEnvironmentUtils {
         String[] split = profileName.split("-");
         if (split.length == 2) {
             try {
-                return (int) Double.parseDouble(split[split.length - 1]);
+                double v = Double.parseDouble(split[split.length - 1]);
+                if (v < 8) {
+                    return (int) ((v - 1.0) * 10);
+                }
+                return (int) v;
             } catch (NumberFormatException e) {
                 //can't check then...
             }
@@ -274,5 +280,24 @@ public class ExecutionEnvironmentUtils {
         props.setProperty("org.eclipse.jdt.core.compiler.problem.assertIdentifier", "error");
         props.setProperty("org.eclipse.jdt.core.compiler.problem.enumIdentifier", "error");
         return props;
+    }
+
+    public static boolean isCompatibleIU(IInstallableUnit iu, String profileName) {
+        if (iu.getArtifacts().isEmpty()) {
+            return false;
+        }
+        int version = getVersion(profileName);
+        int maxEE = iu.getProvidedCapabilities().stream().filter(cap -> "osgi.ee".equals(cap.getNamespace()))
+                .mapToInt(cap -> {
+                    if (cap.getVersion().isOSGiCompatible()) {
+                        Version v = new Version(cap.getVersion().toString());
+                        if (v.getMajor() < 8) {
+                            return v.getMinor();
+                        }
+                        return v.getMajor();
+                    }
+                    return -1;
+                }).max().orElse(-1);
+        return maxEE == version;
     }
 }
