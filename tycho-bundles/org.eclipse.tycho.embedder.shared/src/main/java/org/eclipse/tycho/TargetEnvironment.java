@@ -19,6 +19,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+
 public final class TargetEnvironment {
     private static final Properties EMPTY_PROPERTIES = new Properties();
     private static final String OSGI_OS = "osgi.os";
@@ -92,6 +96,13 @@ public final class TargetEnvironment {
         if (arch != null)
             result.put(OSGI_ARCH, arch);
         return result;
+    }
+
+    public boolean match(IMatchExpression<IInstallableUnit> filter) {
+        if (filter == null) {
+            return true;
+        }
+        return filter.isMatch(InstallableUnit.contextIU(toFilterProperties()));
     }
 
     /**
