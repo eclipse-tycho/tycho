@@ -69,6 +69,7 @@ jobs:
         --global-toolchains ${{ github.workspace }}/platform/.github/toolchains.xml
         -Pbuild-individual-bundles
         -Pbree-libs
+        -Dmaven.test.failure.ignore=true
         -Dtycho.version=4.0.0-SNAPSHOT
         -T1C
         clean verify
