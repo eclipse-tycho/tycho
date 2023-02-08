@@ -261,19 +261,29 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             File location = (File) entry.module.getRevisionInfo();
             if (location != null && location.exists()) {
                 ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.module.getSymbolicName());
-                ReactorProject otherProject = otherArtifact.getMavenProject();
-                List<File> locations;
-                if (otherProject != null) {
-                    locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
+                if (otherArtifact != null) {
+                    ReactorProject otherProject = otherArtifact.getMavenProject();
+                    List<File> locations;
+                    if (otherProject != null) {
+                        locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
+                    } else {
+                        locations = getBundleClasspath(otherArtifact);
+                    }
+
+                    if (locations.isEmpty() && !entry.rules.isEmpty()) {
+                        getLogger().warn("Empty classpath of required bundle " + otherArtifact);
+                    }
+
+                    classpath.add(
+                            new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
                 } else {
-                    locations = getBundleClasspath(otherArtifact);
+                    logger.debug("Can't fetch artifact info for " + entry.module.getSymbolicName() + " and location "
+                            + location + ", using raw jar item for classpath...");
+                    classpath.add(new DefaultClasspathEntry(null,
+                            new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.module.getSymbolicName(),
+                                    entry.module.getVersion().toString()),
+                            Collections.singletonList(location), entry.rules));
                 }
-
-                if (locations.isEmpty() && !entry.rules.isEmpty()) {
-                    getLogger().warn("Empty classpath of required bundle " + otherArtifact);
-                }
-
-                classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
             }
         }
 
