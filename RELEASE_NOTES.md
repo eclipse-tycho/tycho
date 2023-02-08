@@ -21,6 +21,7 @@ As such, these two options have been re-introduced for Tycho 3.0.2 and are no lo
 - JUnit 5.9 support in Tycho 3.0.x #1943
 - Consumer-POM should use packaging-type jar instead of eclipse-plugin #2005 
 - Mirroring of packed artifacts must be disabled 
+- Support resolving of target projects from the reactor
 
 ## 3.0.1
 
