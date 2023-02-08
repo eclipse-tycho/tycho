@@ -26,6 +26,8 @@ import java.util.Optional;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
@@ -120,6 +122,13 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false")
 	protected boolean replacePackagingType = false;
 
+	/**
+	 * replace they type of a dependency (e.g. 'eclipse-plugin') with its extension
+	 * (e.g. 'jar')
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean replaceTypeWithExtension = false;
+
 	@Parameter
 	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
@@ -127,6 +136,9 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	private String resolver;
 
 	private Map<String, Optional<Dependency>> resolvedDependencies = new HashMap<>();
+
+	@Component
+	ArtifactHandlerManager artifactHandlerManager;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -156,6 +168,12 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 				if (!handleSystemScopeDependency(copy)) {
 					// skip this ...
 					continue;
+				}
+			}
+			if (replaceTypeWithExtension && PackagingType.TYCHO_PACKAGING_TYPES.contains(copy.getType())) {
+				ArtifactHandler handler = artifactHandlerManager.getArtifactHandler(copy.getType());
+				if (handler != null) {
+					copy.setType(handler.getExtension());
 				}
 			}
 			dependencies.add(copy);
