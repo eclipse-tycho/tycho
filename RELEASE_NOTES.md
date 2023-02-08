@@ -22,6 +22,7 @@ As such, these two options have been re-introduced for Tycho 3.0.2 and are no lo
 - Consumer-POM should use packaging-type jar instead of eclipse-plugin #2005 
 - Mirroring of packed artifacts must be disabled
 - Target platform resolved multiple times
+- Support resolving of target projects from the reactor
 
 ## 3.0.1
 
