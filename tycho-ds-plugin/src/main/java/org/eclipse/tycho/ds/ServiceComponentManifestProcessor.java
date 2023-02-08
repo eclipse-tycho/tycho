@@ -20,7 +20,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.packaging.ManifestProcessor;
 
-@Component(role = ManifestProcessor.class)
+@Component(role = ManifestProcessor.class, hint = "scr")
 public class ServiceComponentManifestProcessor implements ManifestProcessor {
 
 	@Override

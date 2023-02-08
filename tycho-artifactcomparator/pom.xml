@@ -24,6 +24,10 @@
 	<name>Tycho Artifactor Comparator Plugin</name>
 	<dependencies>
 		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-tree</artifactId>
 			<version>${asm-version}</version>
@@ -55,8 +59,8 @@
 			<artifactId>maven-core</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>commons-io</groupId>
-		    <artifactId>commons-io</artifactId>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.xmlunit</groupId>
