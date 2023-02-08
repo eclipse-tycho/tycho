@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -249,7 +250,6 @@ public class BndTestMojo extends AbstractTestMojo {
                 workspace.addBasicPlugin(new ArtifactKeyRepository(implicitBundles, "implicit-project-dependencies",
                         project.getBasedir()));
                 workspace.refresh(); // required to clear cached plugins...
-                run.addProperties(Map.of("tycho.test", "property"));
                 try {
                     getLog().info("Resolve test-container...");
                     if (printBundles) {
@@ -340,10 +340,16 @@ public class BndTestMojo extends AbstractTestMojo {
             }
         }
         if (properties != null) {
-            runProperties.putAll(properties);
+            for (Entry<String, String> entry : properties.entrySet()) {
+                runProperties.put(entry.getKey(), quotedValue(entry.getValue()));
+            }
         }
         return runProperties.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining(","));
+    }
+
+    private String quotedValue(String value) {
+        return "'" + value.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ') + "'";
     }
 
     private void addTestFramework(List<ResolvedArtifactKey> bundles, List<String> runrequire) {
