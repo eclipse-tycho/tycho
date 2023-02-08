@@ -64,10 +64,10 @@ import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.OptionalResolutionAction;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -157,7 +157,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
         Set<IInstallableUnit> initial = new HashSet<>();
         typeMap.forEach((key, value) -> {
-        	reactorProject.setDependencyMetadata(key, value);
+            reactorProject.setDependencyMetadata(key, value);
             initial.addAll(value);
         });
         reactorProject.setDependencyMetadata(DependencyMetadataType.INITIAL, initial);
@@ -295,27 +295,30 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         ArrayList<String> scopes = new ArrayList<>();
         scopes.add(Artifact.SCOPE_COMPILE);
         Collection<Artifact> artifacts;
-        try {
-            artifacts = projectDependenciesResolver.resolve(project, scopes, session);
-        } catch (MultipleArtifactsNotFoundException e) {
-            Collection<Artifact> missing = new HashSet<>(e.getMissingArtifacts());
+        synchronized (P2DependencyResolver.class) {
+            //it seems that ProjectDependenciesResolver is not thread save and can cause issue in some cases when run with -T option
+            try {
+                artifacts = projectDependenciesResolver.resolve(project, scopes, session);
+            } catch (MultipleArtifactsNotFoundException e) {
+                Collection<Artifact> missing = new HashSet<>(e.getMissingArtifacts());
 
-            for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
-                Artifact a = it.next();
-                String key = ArtifactUtils.key(a.getGroupId(), a.getArtifactId(), a.getBaseVersion());
-                if (projectIds.contains(key)) {
-                    it.remove();
+                for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
+                    Artifact a = it.next();
+                    String key = ArtifactUtils.key(a.getGroupId(), a.getArtifactId(), a.getBaseVersion());
+                    if (projectIds.contains(key)) {
+                        it.remove();
+                    }
                 }
-            }
 
-            if (!missing.isEmpty()) {
+                if (!missing.isEmpty()) {
+                    throw new RuntimeException("Could not resolve project dependencies", e);
+                }
+
+                artifacts = e.getResolvedArtifacts();
+                artifacts.removeAll(e.getMissingArtifacts());
+            } catch (AbstractArtifactResolutionException e) {
                 throw new RuntimeException("Could not resolve project dependencies", e);
             }
-
-            artifacts = e.getResolvedArtifacts();
-            artifacts.removeAll(e.getMissingArtifacts());
-        } catch (AbstractArtifactResolutionException e) {
-            throw new RuntimeException("Could not resolve project dependencies", e);
         }
         List<Artifact> externalArtifacts = new ArrayList<>(artifacts.size());
         for (Artifact artifact : artifacts) {
