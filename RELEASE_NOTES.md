@@ -99,6 +99,24 @@ The parameters of the `tycho-apitools-plugin:generate` goal have been completed 
 The `tycho-p2-repository-plugin:assemble-repository` mojo has now a new configuration parameter `filterProvided` that (if enabled) filter units and artifacts that are already present in one of the referenced repositories.
 That way one can prevent including items that are already present in the same form in another repository.
 
+### New parameter in tycho-packaging-plugin:package-plugin
+
+The `tycho-packaging-plugin:package-plugin` mojo has now a new configuration parameter `deriveHeaderFromSource` (default true), that allows Tycho to discover additional headers declared in the source (e.g. from annotations).
+The following headers are currently supported:
+
+- `Require-Capability` is enhanced with additional items, if osgi.ee capability is found, it replaces the deprecated Bundle-RequiredExecutionEnvironment
+
+This can be disabled with the following configuration in the pom:
+
+```
+  <plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-packaging-plugin</artifactId>
+     <configuration>
+		<deriveHeaderFromSource>false</deriveHeaderFromSource>
+	 </configuration>
+  </plugin>
+```
 
 ### Migration guide 3.x > 4.x
 

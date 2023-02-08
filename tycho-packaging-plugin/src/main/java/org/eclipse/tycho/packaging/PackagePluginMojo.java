@@ -144,6 +144,17 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	@Parameter(defaultValue = "true")
 	private boolean deriveHeaderFromProject = true;
 
+	/**
+	 * Whether to derive OSGi-Headers from the sources, currently the following
+	 * header are supported
+	 * <ul>
+	 * <li>{@link Constants#REQUIRE_CAPABILITY} is enhanced by those from code
+	 * annotations</li>
+	 * </ul>
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean deriveHeaderFromSource;
+
 	@Component
 	private SourceReferenceComputer soureReferenceComputer;
 

@@ -25,7 +25,7 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
 
     private final Map<String, ArtifactDelta> members;
 
-    public CompoundArtifactDelta(String message, Map<String, ArtifactDelta> members) {
+    public CompoundArtifactDelta(String message, Map<String, ? extends ArtifactDelta> members) {
         super(message);
         if (members == null || members.isEmpty()) {
             throw new IllegalArgumentException();

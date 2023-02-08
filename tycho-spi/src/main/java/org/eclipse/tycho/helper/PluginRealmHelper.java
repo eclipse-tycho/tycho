@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.helper;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.apache.maven.execution.MavenSession;
@@ -96,9 +99,10 @@ public class PluginRealmHelper {
     public <T> void visitPluginExtensions(MavenProject project, MavenSession mavenSession, Class<T> type,
             Consumer<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
             InvalidPluginDescriptorException, PluginResolutionException, PluginManagerException {
+        Set<String> visited = new HashSet<String>();
         execute(project, mavenSession, () -> {
             try {
-                plexus.lookupList(type).forEach(consumer);
+                plexus.lookupList(type).stream().filter(x -> visited.add(x.getClass().getName())).forEach(consumer);
             } catch (ComponentLookupException e) {
                 logger.debug("Can't lookup any item of " + type);
             }
@@ -114,7 +118,8 @@ public class PluginRealmHelper {
         }
         MavenSession executeSession = mavenSession.clone();
         executeSession.setCurrentProject(project);
-        for (Plugin plugin : project.getBuildPlugins()) {
+        List<Plugin> plugins = project.getBuildPlugins();
+        for (Plugin plugin : plugins) {
             if (plugin.isExtensions()) {
                 // due to maven classloading model limitations, build extensions plugins cannot
                 // share classes
