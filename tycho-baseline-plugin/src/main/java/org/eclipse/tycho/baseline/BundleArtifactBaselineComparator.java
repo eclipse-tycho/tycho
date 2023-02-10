@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -64,6 +66,7 @@ import aQute.bnd.osgi.Processor;
 import aQute.bnd.osgi.Resource;
 import aQute.bnd.service.diff.Delta;
 import aQute.bnd.service.diff.Diff;
+import aQute.bnd.service.diff.Tree;
 import aQute.bnd.service.diff.Type;
 import aQute.lib.strings.Strings;
 import de.vandermeer.asciitable.AT_Cell;
@@ -116,6 +119,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 			collectResources(baseliner.getDiff(), resourcediffs, baselineJar, projectJar, context);
 			List<Diff> manifestdiffs = new ArrayList<Diff>();
 			collectManifest(baseliner.getDiff(), manifestdiffs);
+			processManifestDiff(manifestdiffs);
 			if (!infos.isEmpty() || !resourcediffs.isEmpty() || !manifestdiffs.isEmpty()) {
 				AsciiTable at = new AsciiTable();
 				at.addRule();
@@ -199,11 +203,64 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		return true;
 	}
 
-	private boolean requireVersionBump(BundleInfo bundleInfo, Version projectVersion, Version baselineVersion, aQute.bnd.version.Version suggestedVersion) {
+	private void processManifestDiff(List<Diff> manifestdiffs) {
+		try {
+			if (manifestdiffs.size() > 1) {
+				@SuppressWarnings("deprecation")
+				Diff breeDiff = manifestdiffs.stream().filter(
+						diff -> Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT.equalsIgnoreCase(getHeaderName(diff)))
+						.findFirst().orElse(null);
+				if (breeDiff != null && breeDiff.getDelta() == Delta.REMOVED) {
+					// deprecated header was removed... check if it was added to the ee instead?
+					Map<Delta, Diff> capDiffMap = manifestdiffs.stream()
+							.filter(diff -> Constants.REQUIRE_CAPABILITY.equalsIgnoreCase(getHeaderName(diff)))
+							.collect(Collectors.toMap(diff -> diff.getDelta(), Function.identity()));
+					if (!capDiffMap.isEmpty()) {
+						Diff capDiff = capDiffMap.get(Delta.ADDED);
+						if (capDiff != null) {
+							if (ManifestComparator.isEquivialentBreeCap(getOldHeaderValue(breeDiff),
+									getNewHeaderValue(capDiff))) {
+								manifestdiffs.remove(capDiff);
+								manifestdiffs.remove(breeDiff);
+							}
+							Diff capDiffPrev = capDiffMap.get(Delta.REMOVED);
+							if (capDiffPrev != null) {
+								if (ManifestComparator.isEquivialentBreeCap(getOldHeaderValue(breeDiff),
+										getOldHeaderValue(capDiffPrev), getNewHeaderValue(capDiff))) {
+									manifestdiffs.remove(capDiff);
+									manifestdiffs.remove(breeDiff);
+									manifestdiffs.remove(capDiffPrev);
+								}
+							}
+						}
+					}
+
+				}
+			}
+		} catch (RuntimeException e) {
+			// just in case something cannot be processed we don't want to fail here!
+		}
+	}
+
+	private String getNewHeaderValue(Diff diff) {
+		String name = diff.getName();
+		String[] split = name.split(":", 2);
+		return split[1].trim();
+	}
+
+	private String getOldHeaderValue(Diff diff) {
+		Tree older = diff.getOlder();
+		for (Tree child : older.getChildren()) {
+			return child.getName();
+		}
+		return getNewHeaderValue(diff);
+	}
+
+	private boolean requireVersionBump(BundleInfo bundleInfo, Version projectVersion, Version baselineVersion,
+			aQute.bnd.version.Version suggestedVersion) {
 		if (baselineVersion.compareTo(projectVersion) >= 0) {
 			// a version bump is required!
-			if (bundleInfo.suggestedVersion == null
-					|| suggestedVersion.compareTo(bundleInfo.suggestedVersion) > 0) {
+			if (bundleInfo.suggestedVersion == null || suggestedVersion.compareTo(bundleInfo.suggestedVersion) > 0) {
 				bundleInfo.suggestedVersion = suggestedVersion;
 			}
 			return true;
@@ -329,17 +386,22 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 
 	private boolean isValidHeaderDif(Diff diff) {
 		if (diff.getType() == Type.HEADER) {
-			String name = diff.getName();
-			if (name == null) {
-				return false;
-			}
-			String[] split = name.split(":", 2);
-			if (ManifestComparator.isIgnoredHeaderName(split[0])) {
+			if (ManifestComparator.isIgnoredHeaderName(getHeaderName(diff))) {
 				return false;
 			}
 			return true;
 		}
 		return false;
+	}
+
+	private String getHeaderName(Diff diff) {
+		if (diff == null) {
+			return null;
+		}
+		String name = diff.getName();
+		String[] split = name.split(":", 2);
+		String name2 = split[0];
+		return name2;
 	}
 
 	private void collectResources(Diff diff, Map<Diff, ArtifactDelta> resourcediffs, Jar baselineJar, Jar projectJar,
@@ -371,8 +433,8 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					ComparatorInputStream reactor = new ComparatorInputStream(currentStream);
 					if (baseline.size() < ContentsComparator.THRESHOLD
 							&& reactor.size() < ContentsComparator.THRESHOLD) {
-					return comparator.getDelta(baseline, reactor,
-							new ComparisonData(baselineContext.getIgnores(), false));
+						return comparator.getDelta(baseline, reactor,
+								new ComparisonData(baselineContext.getIgnores(), false));
 					}
 				} catch (Exception e) {
 				}

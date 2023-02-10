@@ -20,6 +20,8 @@ public class TychoVersion {
 
     private static final String TYCHO_VERSION = readVersion("version");
 
+    private static final String TYCHO_SCM = readVersion("scm");
+
     private static final String BND_VERSION = readVersion("bnd");
 
     private static Properties PROPERTIES;
@@ -30,6 +32,13 @@ public class TychoVersion {
 
     public static String getBndVersion() {
         return BND_VERSION;
+    }
+
+    public static String getSCMInfo() {
+        if ("${env.GIT_COMMIT}".equals(TYCHO_SCM)) {
+            return "local build";
+        }
+        return TYCHO_SCM;
     }
 
     private static synchronized String readVersion(String version) {

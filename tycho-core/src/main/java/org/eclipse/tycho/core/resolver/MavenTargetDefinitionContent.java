@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2022 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -53,6 +54,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.publisher.TychoMavenPropertiesAdvice;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
@@ -227,10 +229,17 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     logger.debug("The following manifest was generated for this artifact:\r\n"
                                             + wrappedArtifact.getGeneratedManifest());
                                 }
+                                // Maven artifact info for wrapped bundles have to be stored in separate fields
+                                Map<String, String> mavenProperties = new HashMap<>();
+                                mavenProperties.put(TychoConstants.PROP_WRAPPED_GROUP_ID, mavenArtifact.getGroupId());
+                                mavenProperties.put(TychoConstants.PROP_WRAPPED_ARTIFACT_ID,
+                                        mavenArtifact.getArtifactId());
+                                mavenProperties.put(TychoConstants.PROP_WRAPPED_VERSION, mavenArtifact.getVersion());
+                                mavenProperties.put(TychoConstants.PROP_WRAPPED_CLASSIFIER,
+                                        mavenArtifact.getClassifier());
+
                                 unit = publish(BundlesAction.createBundleDescription(tempFile), tempFile,
-                                        /*
-                                         * do not propagate maven artifacts info for wrapped bundles
-                                         */ null);
+                                        new MavenPropertiesAdvice(mavenProperties));
                                 symbolicName = wrappedArtifact.getWrappedBsn();
                                 bundleVersion = wrappedArtifact.getWrappedVersion();
                             } else {
@@ -369,14 +378,15 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
 
     private IInstallableUnit publish(BundleDescription bundleDescription, File bundleLocation,
             IArtifactFacade mavenArtifact) {
+        return publish(bundleDescription, bundleLocation, new TychoMavenPropertiesAdvice(mavenArtifact, mavenContext));
+    }
+
+    private IInstallableUnit publish(BundleDescription bundleDescription, File bundleLocation, IPropertyAdvice advice) {
         IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
                 bundleDescription.getVersion().toString());
         IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key);
         PublisherInfo publisherInfo = new PublisherInfo();
-        if (mavenArtifact != null) {
-            MavenPropertiesAdvice advice = new TychoMavenPropertiesAdvice(mavenArtifact, mavenContext);
-            publisherInfo.addAdvice(advice);
-        }
+        publisherInfo.addAdvice(advice);
         publisherInfo.addAdvice(new MavenChecksumAdvice(bundleLocation));
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
         IInstallableUnit iu = BundlePublisher.publishBundle(bundleDescription, descriptor, publisherInfo);

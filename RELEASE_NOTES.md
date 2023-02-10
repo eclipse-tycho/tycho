@@ -4,6 +4,12 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### Class loading changes for Eclipse based tests
+
+Due to reported class loading clashes, the ordering of class loading has been modified in Eclipse based tests.
+The previous loading can be restored by a new `classLoaderOrder` parameter.
+This applies to `tycho-surefire-plugin:test` and `tycho-surefire-plugin:plugin-test`.
+
 ### new bnd-test mojo
 
 Tycho now has a new mojo `tycho-surefire-plugin:bnd-test` to easily execute tests using the [bnd-testing](https://bnd.bndtools.org/chapters/310-testing.html) framework.
@@ -93,19 +99,36 @@ The parameters of the `tycho-apitools-plugin:generate` goal have been completed 
 The `tycho-p2-repository-plugin:assemble-repository` mojo has now a new configuration parameter `filterProvided` that (if enabled) filter units and artifacts that are already present in one of the referenced repositories.
 That way one can prevent including items that are already present in the same form in another repository.
 
+### New parameter in tycho-packaging-plugin:package-plugin
+
+The `tycho-packaging-plugin:package-plugin` mojo has now a new configuration parameter `deriveHeaderFromSource` (default true), that allows Tycho to discover additional headers declared in the source (e.g. from annotations).
+The following headers are currently supported:
+
+- `Require-Capability` is enhanced with additional items, if osgi.ee capability is found, it replaces the deprecated Bundle-RequiredExecutionEnvironment
+
+This can be disabled with the following configuration in the pom:
+
+```
+  <plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-packaging-plugin</artifactId>
+     <configuration>
+		<deriveHeaderFromSource>false</deriveHeaderFromSource>
+	 </configuration>
+  </plugin>
+```
 
 ### Migration guide 3.x > 4.x
 
-### New Tycho Resolver is the default now
+### New Tycho Resolver
 
-Tycho has now the new resolver introduced in Tycho 3.0.0 enabled by default.
-The new resolver has several advantages:
+Tycho has already introduced a new resolver in Tycho 3.0.0 that was finalized in Tycho 4.x, the new resolver has several advantages:
 - resolve dependencies is delayed until the project is build, this allows more parallelization and even make tycho start the build faster
 - pom dependencies are considered by default, this behaves more like one would expect from a maven perspective
 - mixed reactor builds are now fully supported without any special configuration
 - Tycho detects if the current project requires dependency resolution and skip resolving the target platform if not needed
 
-If you see any issues please let us know so we can fix any problem with it, to enable old one you can use `-Dtycho.resolver.classic=true` but be aware that we probably will remove support for the old resolver some time in the future completely.
+If you see any issues please let us know so we can fix any problem with it, to enable it you can use `-Dtycho.resolver.classic=false` the plan is to switch to the new old resolver mode some time in the future completely.
 
 ### Tycho-Build Extension uses smart builder
 

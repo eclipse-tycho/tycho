@@ -243,6 +243,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
                     classpath.add(
                             new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
+                } else {
+                    logger.debug("Can't fetch artifact info for " + entry.module.getSymbolicName() + " and location "
+                            + location + ", using raw jar item for classpath...");
+                    classpath.add(new DefaultClasspathEntry(null,
+                            new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.module.getSymbolicName(),
+                                    entry.module.getVersion().toString()),
+                            Collections.singletonList(location), entry.rules));
                 }
             }
         }
