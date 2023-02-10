@@ -111,7 +111,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
-        log.info("Tycho Version:  " + TychoVersion.getTychoVersion());
+        log.info("Tycho Version:  " + TychoVersion.getTychoVersion() + " (" + TychoVersion.getSCMInfo() + ")");
         log.info("Tycho Resolver: " + (TychoConstants.USE_OLD_RESOLVER ? "classic" : "maven"));
         log.info("Tycho Mode:     "
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_MODE, "project"));
