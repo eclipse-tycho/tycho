@@ -13,9 +13,11 @@
 package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.Attributes;
@@ -27,6 +29,11 @@ import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.osgi.framework.Constants;
+import org.osgi.resource.Capability;
+
+import aQute.bnd.header.OSGiHeader;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.resource.CapReqBuilder;
 
 @Component(role = ContentsComparator.class, hint = ManifestComparator.TYPE)
 public class ManifestComparator implements ContentsComparator {
@@ -82,7 +89,7 @@ public class ManifestComparator implements ContentsComparator {
                 continue;
             }
 
-            if (!baselineValue.equals(reactorValue)) {
+            if (!isEquivialentHeaderValue(key.toString(), baselineValue, reactorValue)) {
                 addDelta(result, key, "baseline='" + baselineValue + "' != reactor='" + reactorValue + "'",
                         Change.DIFFERENT, baselineValue, reactorValue);
             }
@@ -181,15 +188,38 @@ public class ManifestComparator implements ContentsComparator {
     }
 
     public static boolean isEquivialentBreeCap(String bree, String capBase, String capChange) {
-        String[] parts = bree.split("-");
-        String osgiee = "osgi.ee;filter:=\"(&(osgi.ee=" + parts[0] + ")(version=" + parts[1] + "))\"";
-        String withoutEE = capChange.replace(osgiee, "").replace(",,", ",");
-        if (withoutEE.endsWith(",")) {
-            withoutEE = withoutEE.substring(0, withoutEE.length() - 1);
+        try {
+            String[] parts = bree.split("-");
+            String osgiee = "osgi.ee;filter:=\"(&(osgi.ee=" + parts[0] + ")(version=" + parts[1] + "))\"";
+            String withoutEE = capChange.replace(osgiee, "").replace(",,", ",");
+            if (withoutEE.endsWith(",")) {
+                withoutEE = withoutEE.substring(0, withoutEE.length() - 1);
+            }
+            if (withoutEE.startsWith(",")) {
+                withoutEE = withoutEE.substring(1);
+            }
+            return isEquivialentHeaderValue(Constants.REQUIRE_CAPABILITY, capBase, withoutEE);
+        } catch (RuntimeException e) {
+            //can't compare then...
         }
-        if (withoutEE.startsWith(",")) {
-            withoutEE = withoutEE.substring(1);
+        return isEquivialentHeaderValue(Constants.REQUIRE_CAPABILITY, capBase, capChange);
+    }
+
+    public static boolean isEquivialentHeaderValue(String key, String base, String project) {
+        if (base != null && project != null) {
+            try {
+                if (Constants.REQUIRE_CAPABILITY.equalsIgnoreCase(key)) {
+                    Parameters baseHeader = OSGiHeader.parseHeader(base);
+                    Parameters projectHeader = OSGiHeader.parseHeader(project);
+                    Set<Capability> baseCapabilities = new HashSet<>(CapReqBuilder.getCapabilitiesFrom(baseHeader));
+                    Set<Capability> projectCapabilities = new HashSet<>(
+                            CapReqBuilder.getCapabilitiesFrom(projectHeader));
+                    return baseCapabilities.equals(projectCapabilities);
+                }
+            } catch (RuntimeException e) {
+                //can't compare then...
+            }
         }
-        return capBase.equalsIgnoreCase(withoutEE);
+        return Objects.equals(base, project);
     }
 }

@@ -137,12 +137,19 @@ public class BndManifestProcessor implements ManifestProcessor {
 				// easy case
 				mainAttributes.putValue(Constants.REQUIRE_CAPABILITY, newValue);
 			} else {
+				// we need to merge them...
 				logger.debug("Existing: " + existingValue);
 				logger.debug("New:      " + newValue);
-				// we need to merge them...
 				Parameters current = OSGiHeader.parseHeader(existingValue);
+				if (current.containsKey(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE)) {
+					// if we have already an osgi.ee in the source just strip it from the new set
+					additional.remove(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE);
+				}
 				List<Capability> initalCapabilities = CapReqBuilder.getCapabilitiesFrom(current);
 				List<Capability> newCapabilities = CapReqBuilder.getCapabilitiesFrom(additional);
+				if (newCapabilities.isEmpty()) {
+					return;
+				}
 				Set<Capability> mergedCapabilities = new LinkedHashSet<>();
 				mergedCapabilities.addAll(initalCapabilities);
 				mergedCapabilities.addAll(newCapabilities);
