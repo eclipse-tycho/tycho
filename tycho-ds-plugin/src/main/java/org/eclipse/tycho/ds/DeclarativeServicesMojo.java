@@ -13,10 +13,13 @@
 package org.eclipse.tycho.ds;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -28,11 +31,14 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
+import org.eclipse.tycho.helper.PluginRealmHelper;
+import org.osgi.framework.Version;
 
 import aQute.bnd.component.DSAnnotations;
 import aQute.bnd.osgi.Analyzer;
@@ -118,6 +124,12 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	@Component
 	private DeclarativeServiceConfigurationReader configurationReader;
 
+	@Component
+	private PluginRealmHelper pluginRealmHelper;
+
+	@Parameter(property = "session", readonly = true)
+	private MavenSession session;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (skip) {
@@ -132,7 +144,8 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					// nothing to do
 					return;
 				}
-
+				Version dsVersion = configuration.getSpecificationVersion();
+				boolean isDs12 = dsVersion.getMajor() == 1 && dsVersion.getMinor() == 2;
 				String childPath = configuration.getPath();
 				File targetDirectory = new File(outputDirectory, childPath);
 				File projectBaseDir = new File(project.getBasedir(), childPath);
@@ -148,14 +161,34 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					for (ClasspathEntry entry : classpath) {
 						List<File> locations = entry.getLocations();
 						for (File file : locations) {
-							if (file.exists()) {
+							if (file.exists() && !file.equals(outputDirectory)) {
 								analyzer.addClasspath(file);
 							}
 						}
 					}
-					// https://bnd.bndtools.org/instructions/dsannotations-options.html
-					analyzer.setProperty(Constants.DSANNOTATIONS_OPTIONS,
-							"version;maximum=" + configuration.getSpecificationVersion().toString());
+					pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
+						List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project,
+								Artifact.SCOPE_COMPILE);
+						if (list != null && !list.isEmpty()) {
+							for (ClasspathEntry entry : list) {
+								for (File file : entry.getLocations()) {
+									try {
+										analyzer.addClasspath(file);
+									} catch (IOException e) {
+									}
+								}
+							}
+						}
+					});
+					if (isDs12) {
+						// see https://github.com/bndtools/bnd/issues/5548
+						getLog().warn(
+								"Generating of XML DS 1.2 might be not fully supported and validation is disabled (see https://github.com/bndtools/bnd/issues/5548), please upgrade to at least 1.3");
+					} else {
+						// https://bnd.bndtools.org/instructions/dsannotations-options.html
+						analyzer.setProperty(Constants.DSANNOTATIONS_OPTIONS,
+								"version;maximum=" + dsVersion.toString());
+					}
 					analyzer.addBasicPlugin(new DSAnnotations());
 					analyzer.analyze();
 					for (String warning : analyzer.getWarnings()) {
