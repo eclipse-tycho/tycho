@@ -15,6 +15,7 @@ package org.eclipse.tycho.core.maven;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -165,10 +166,19 @@ public class MavenDependenciesResolver {
         if (!version.startsWith("[") && !version.startsWith("(")) {
             version = "[" + version + ",)";
         }
+        if (version.endsWith(".0)")) {
+            version = version.substring(0, version.length() - 3) + ")";
+        }
         DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
                 stereotypes.get(dependency.getType()).getExtension(), version);
         VersionRangeRequest request = new VersionRangeRequest(artifact, project.getRemoteProjectRepositories(), null);
         VersionRangeResult versionResult = repoSystem.resolveVersionRange(repositorySession, request);
+        for (Iterator<Version> iterator = versionResult.getVersions().iterator(); iterator.hasNext();) {
+            if (iterator.next().toString().contains("-")) {
+                iterator.remove();
+            }
+
+        }
         Version highestVersion = versionResult.getHighestVersion();
         if (highestVersion != null) {
             ArtifactRequest artifactRequest = new ArtifactRequest(artifact.setVersion(highestVersion.toString()),
