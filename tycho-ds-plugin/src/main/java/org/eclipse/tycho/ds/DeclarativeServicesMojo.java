@@ -145,6 +145,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					return;
 				}
 				Version dsVersion = configuration.getSpecificationVersion();
+				getLog().info("Using DS specification version " + dsVersion + " to generate component definitions...");
 				boolean isDs12 = dsVersion.getMajor() == 1 && dsVersion.getMinor() == 2;
 				String childPath = configuration.getPath();
 				File targetDirectory = new File(outputDirectory, childPath);
@@ -209,12 +210,17 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 							&& bundleProject.getManifestValue(SERVICE_COMPONENT_HEADER, project) == null)) {
 						reactorProject.setContextValue(CONTEXT_KEY_MANIFEST_HEADER, components);
 					}
+					int generated = 0;
+					int keep = 0;
 					for (String component : components.split(",\\s*")) {
 						String name = FilenameUtils.getName(component);
 						if (new File(projectBaseDir, name).isFile()) {
 							// this is an exiting component definition, we should not mess with that...
+							keep++;
 							continue;
 						}
+						getLog().info("\t" + name);
+						generated++;
 						Resource resource = analyzer.getJar().getResource(component);
 						if (resource != null) {
 							File file = new File(targetDirectory, name);
@@ -222,12 +228,17 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 							resource.write(file);
 						}
 					}
+					if (keep > 0) {
+						getLog().info(generated + " component(s) where generated, " + keep + " where kept.");
+					} else {
+						getLog().info(generated + " component(s) where generated.");
+					}
 				}
 			} catch (Exception e) {
 				if (e instanceof MojoFailureException mfe) {
 					throw mfe;
 				}
-				throw new MojoFailureException("Generation of ds components failed: " + e.getMessage(), e);
+				throw new MojoFailureException("Generation of DS components failed: " + e.getMessage(), e);
 			}
 		}
 	}
