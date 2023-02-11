@@ -27,7 +27,7 @@ import org.eclipse.tycho.MavenArtifactKey;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
-import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 /**
  * Abstract implementation that contributes a "specification package" to the compile classpath in
@@ -40,7 +40,7 @@ import org.osgi.framework.Version;
 public abstract class AbstractSpecificationClasspathContributor implements ClasspathContributor {
 
     @Requirement
-    private MavenBundleResolver mavenBundleResolver;
+    protected MavenBundleResolver mavenBundleResolver;
 
     @Requirement
     protected Logger logger;
@@ -66,13 +66,8 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
 
     @Override
     public final List<ClasspathEntry> getAdditionalClasspathEntries(MavenProject project, String scope) {
-        Version specificationVersion = getSpecificationVersion(project);
-        String versionRange = String.format("[%d.%d,%d)", specificationVersion.getMajor(),
-                specificationVersion.getMinor(), specificationVersion.getMajor() + 1);
-
-        Optional<ResolvedArtifactKey> mavenBundle = mavenBundleResolver.resolveMavenBundle(project, session,
-                MavenArtifactKey.of(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName, versionRange, mavenGroupId,
-                        mavenArtifactId));
+        VersionRange specificationVersion = getSpecificationVersion(project);
+        Optional<ResolvedArtifactKey> mavenBundle = findBundle(project, specificationVersion);
         if (mavenBundle.isPresent()) {
             ResolvedArtifactKey resolved = mavenBundle.get();
             logger.debug("Resolved " + packageName + " to " + resolved.getId() + " " + resolved.getVersion() + " @ "
@@ -83,5 +78,12 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
         return Collections.emptyList();
     }
 
-    protected abstract Version getSpecificationVersion(MavenProject project);
+    protected Optional<ResolvedArtifactKey> findBundle(MavenProject project, VersionRange specificationVersion) {
+        Optional<ResolvedArtifactKey> mavenBundle = mavenBundleResolver.resolveMavenBundle(project, session,
+                MavenArtifactKey.of(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName,
+                        specificationVersion.toString(), mavenGroupId, mavenArtifactId));
+        return mavenBundle;
+    }
+
+    protected abstract VersionRange getSpecificationVersion(MavenProject project);
 }
