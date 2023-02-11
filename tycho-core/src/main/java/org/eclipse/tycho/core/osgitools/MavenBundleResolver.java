@@ -83,7 +83,6 @@ public class MavenBundleResolver {
                     return Optional.of(ResolvedArtifactKey.of(resolvedType, resolvedArtifact.getId(),
                             resolvedArtifact.getVersion(), location));
                 }
-
             } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
                 logger.debug("Cannot find key " + mavenArtifactKey + " in target platform " + e + ", try maven now...");
             }
@@ -97,6 +96,9 @@ public class MavenBundleResolver {
             dependency.setArtifactId(artifactId);
             dependency.setVersion(mavenArtifactKey.getVersion());
             Artifact artifact = dependenciesResolver.resolveHighestVersion(project, mavenSession, dependency);
+            if (artifact == null) {
+                return Optional.empty();
+            }
             ArtifactKey artifactKey = projectManager.getArtifactKey(artifact);
             return Optional.of(ResolvedArtifactKey.of(resolvedType, artifactKey.getId(), artifactKey.getVersion(),
                     artifact.getFile()));
