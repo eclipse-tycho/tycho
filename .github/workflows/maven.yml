@@ -37,13 +37,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-tycho4-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
+        key: ${{ runner.os }}-tycho4m39-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
         restore-keys: |
-          ${{ runner.os }}-tycho4-${{ matrix.os }}-
+          ${{ runner.os }}-tycho4m39-${{ matrix.os }}-
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
       with:
-        maven-version: 3.8.6
+        maven-version: 3.9.0
     - name: Build Tycho
       env:
        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}

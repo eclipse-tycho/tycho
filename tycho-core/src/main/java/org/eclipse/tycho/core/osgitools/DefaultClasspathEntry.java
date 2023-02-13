@@ -17,8 +17,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
-
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ReactorProject;
@@ -34,13 +32,11 @@ public class DefaultClasspathEntry implements ClasspathEntry {
     private final Collection<AccessRule> rules;
 
     public static class DefaultAccessRule implements AccessRule {
-        private final @Nonnull String pattern;
+        private final String pattern;
         private final boolean discouraged;
 
         public DefaultAccessRule(String path, boolean discouraged) {
-            if (path == null) {
-                throw new NullPointerException();
-            }
+            Objects.requireNonNull(path);
 
             this.pattern = path;
             this.discouraged = discouraged;

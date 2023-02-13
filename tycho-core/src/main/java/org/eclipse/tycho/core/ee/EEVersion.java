@@ -15,8 +15,6 @@ package org.eclipse.tycho.core.ee;
 
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
-
 import org.osgi.framework.Version;
 
 public class EEVersion implements Comparable<EEVersion> {
@@ -44,12 +42,12 @@ public class EEVersion implements Comparable<EEVersion> {
     }
 
     private static final Version JAVA8 = Version.parseVersion("1.8");
-    @Nonnull
     private final Version version;
-    @Nonnull
     private final EEType type;
 
-    public EEVersion(@Nonnull Version version, @Nonnull EEType type) {
+    public EEVersion(Version version, EEType type) {
+        Objects.requireNonNull(version);
+        Objects.requireNonNull(type);
         this.version = version;
         this.type = type;
     }
