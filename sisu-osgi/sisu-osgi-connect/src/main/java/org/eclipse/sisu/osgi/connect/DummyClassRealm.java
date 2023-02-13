@@ -62,10 +62,10 @@ final class DummyClassRealm extends ClassRealm {
 					String location = resources.nextElement().toExternalForm();
 					if (isValidJar(location, filters)) {
 						String name = location.substring(JAR_PREFIX.length()).split("!")[0];
-						logger.debug("Adding URL " + name + " to DummyRealm...");
+						logger.debug("Adding URL " + name + " to DummyRealm");
 						urls.add(new URL(name));
 					} else {
-						logger.debug("Location " + location + " was filtered from DummyRealm...");
+						logger.debug("Location " + location + " was filtered from DummyRealm");
 					}
 				}
 			} catch (IOException e) {

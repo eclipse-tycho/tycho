@@ -260,7 +260,7 @@ public final class MavenDependencyInjector {
             if (location != null && retryFailed && location.isFile()) {
                 if (e.getCause() instanceof ZipException) {
                     logger.warn("Artifact " + artifact + " located at " + location
-                            + " seems corrupted! Will attempt to redownload it ...");
+                            + " seems corrupted! Will attempt to download it again");
                     location.delete();
                     return collectExternalDependencies(artifact, scope, false);
                 }

@@ -75,7 +75,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                 if (version != null) {
                     unit.setAttribute("version", version);
                 } else {
-                    getLog().error("Resolution result does not contain root installable unit " + id);
+                    getLog().error("Resolution result does not contain root installable unit: " + id);
                 }
             }
         }

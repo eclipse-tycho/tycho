@@ -197,7 +197,7 @@ public final class TargetDefinitionResolver {
                 } catch (URISyntaxException e) {
                     throw new ResolverException("Invalid URI " + resolvePath + ": " + e.getMessage(), e);
                 }
-                logger.info("Reading target " + resolvedUri + "...");
+                logger.info("Reading target platform " + resolvedUri);
                 TargetDefinitionContent content = resolveContentWithExceptions(TargetDefinitionFile.read(resolvedUri),
                         provisioningAgent);
                 IQueryResult<IInstallableUnit> result = content.query(QueryUtil.ALL_UNITS,

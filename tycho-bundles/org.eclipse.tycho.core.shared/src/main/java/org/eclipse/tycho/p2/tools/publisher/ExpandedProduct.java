@@ -247,7 +247,7 @@ class ExpandedProduct implements IProductDescriptor {
                     if (parentDirectory != null) {
                         File guessedFile = new File(parentDirectory, rawPath);
                         String absolutePath = guessedFile.getAbsolutePath();
-                        logger.debug("raw path is " + rawPath + ", guessed path is " + absolutePath);
+                        logger.debug("Raw path is " + rawPath + ". Guessed path is " + absolutePath);
                         if (guessedFile.exists()) {
                             return absolutePath;
                         }

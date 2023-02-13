@@ -179,8 +179,8 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
                         cmd.createArg().setValue("--secret-keyring");
                         cmd.createArg().setValue(delegate.secretKeyring);
                     } else {
-                        getLog().warn("'secretKeyring' is an obsolete option and ignored. All secret keys "
-                                + "are stored in the ‘private-keys-v1.d’ directory below the GnuPG home directory.");
+                        getLog().warn("'secretKeyring' is an obsolete option and is ignored. All secret keys "
+                                + "are stored in the 'private-keys-v1.d' directory below the GnuPG home directory");
                     }
                 }
             }

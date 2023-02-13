@@ -74,7 +74,7 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
                     + resolved.getLocation());
             return List.of(new DefaultClasspathEntry(resolved, List.of(accessRule)));
         }
-        logger.warn("Can't resolve specification package " + packageName + ", classpath might be incomplete!");
+        logger.warn("Cannot resolve specification package " + packageName + ", classpath might be incomplete");
         return Collections.emptyList();
     }
 

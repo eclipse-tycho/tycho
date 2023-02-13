@@ -120,7 +120,7 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 					}
 					cacheResult(cacheFile, null);
 				} catch (Exception e) {
-					log.warn("Cannot map " + gav + " @ " + path + ") for maven central because of " + e);
+					log.warn("Cannot map " + gav + " @ " + path + ") to Maven Central because of: " + e);
 				}
 				return null;
 			});

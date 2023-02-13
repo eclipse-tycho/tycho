@@ -108,7 +108,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         Collection<BNDInstructions> instructions = location.getInstructions();
         List<Feature> features = new ArrayList<>();
         if (mavenDependenciesResolver != null) {
-            logger.info("Resolving " + location + "...");
+            logger.info("Resolving " + location);
             Map<String, Properties> instructionsMap = new HashMap<>();
             for (BNDInstructions instruction : instructions) {
                 String reference = instruction.getReference();
@@ -148,19 +148,19 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 while (resolvedArtifacts.hasNext()) {
                     IArtifactFacade mavenArtifact = resolvedArtifacts.next();
                     if (mavenDependency.isIgnored(mavenArtifact)) {
-                        logger.debug("Skip ignored " + mavenArtifact + "...");
+                        logger.debug("Skip ignored " + mavenArtifact);
                         continue;
                     }
                     if (POM_PACKAGING_TYPE.equalsIgnoreCase(mavenArtifact.getPackagingType())) {
-                        logger.debug("Skip pom artifact " + mavenArtifact + "...");
+                        logger.debug("Skip pom artifact " + mavenArtifact);
                         continue;
                     }
                     String fileName = mavenArtifact.getLocation().getName();
                     if (!"jar".equalsIgnoreCase(FilenameUtils.getExtension(fileName))) {
-                        logger.info("Skip non-jar artifact ... (" + fileName + ")");
+                        logger.info("Skip non-jar artifact (" + fileName + ")");
                         continue;
                     }
-                    logger.debug("Resolved " + mavenArtifact + "...");
+                    logger.debug("Resolved " + mavenArtifact);
 
                     Feature feature = new FeatureParser().parse(mavenArtifact.getLocation());
                     if (feature != null) {
@@ -291,13 +291,13 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                 } catch (IOException | BundleException e) {
                                     logger.warn("MavenResolver: source-artifact " + asDebugString(sourceArtifact)
                                             + ":sources at location " + sourceFile
-                                            + " can't be converted to a source bundle: " + e);
+                                            + " cannot be converted to a source bundle: " + e);
                                     continue;
                                 }
                             }
                         } catch (DependencyResolutionException e) {
                             logger.warn("MavenResolver: source-artifact " + asDebugString(mavenArtifact)
-                                    + ":sources can't be resolved: " + e);
+                                    + ":sources cannot be resolved: " + e);
                         }
                     }
                 }

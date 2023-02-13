@@ -71,7 +71,7 @@ public class StandaloneDirectorRuntimeFactory {
             // TODO use a "no environment-specific units" setting
             command.setEnvironment(new TargetEnvironment("linux", "gtk", "x86_64"));
 
-            logger.info("Installing a standalone p2 Director...");
+            logger.info("Installing a standalone p2 Director");
             command.execute();
         } catch (DirectorCommandException e) {
             throw new MojoExecutionException("Could not install the standalone director", e);

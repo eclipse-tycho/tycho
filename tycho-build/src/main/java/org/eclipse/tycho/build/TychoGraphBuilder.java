@@ -185,7 +185,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 					if (projectRequest.addDependencies) {
 						dependencyClosure.getDependencyProjects(projectRequest.mavenProject).forEach(project -> {
 							loggerAdapter.debug(" + add dependency project '" + project.getId() + "' of project '"
-									+ projectRequest.mavenProject.getId() + "'...");
+									+ projectRequest.mavenProject.getId() + "'");
 							// we also need to add the dependencies of the dependency project
 							queue.add(new ProjectRequest(project, false, true, projectRequest));
 						});

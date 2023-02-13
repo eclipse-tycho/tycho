@@ -145,7 +145,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					return;
 				}
 				Version dsVersion = configuration.getSpecificationVersion();
-				getLog().info("Using DS specification version " + dsVersion + " to generate component definitions...");
+				getLog().info("Using Declarative Service specification version " + dsVersion + " to generate component definitions");
 				boolean isDs12 = dsVersion.getMajor() == 1 && dsVersion.getMinor() == 2;
 				String childPath = configuration.getPath();
 				File targetDirectory = new File(outputDirectory, childPath);
@@ -199,7 +199,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 						getLog().error(error);
 					}
 					if (!analyzer.getErrors().isEmpty()) {
-						throw new MojoFailureException("Generation of ds components failed, see log for details");
+						throw new MojoFailureException("Generation of Declarative Service components failed, see log for details");
 					}
 					String components = analyzer.getProperty(SERVICE_COMPONENT_HEADER);
 					if (components == null || components.isBlank()) {

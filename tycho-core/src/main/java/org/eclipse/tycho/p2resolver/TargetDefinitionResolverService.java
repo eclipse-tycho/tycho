@@ -79,7 +79,7 @@ public class TargetDefinitionResolverService {
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
     private CompletableFuture<TargetDefinitionContent> resolveFromArguments(ResolutionArguments arguments) {
-        mavenContext.getLogger().info("Resolving " + arguments + "...");
+        mavenContext.getLogger().info("Resolving " + arguments);
         if (mavenContext.getLogger().isDebugEnabled()) {
             debugCacheMiss(arguments);
         }

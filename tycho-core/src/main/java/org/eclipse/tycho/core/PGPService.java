@@ -100,7 +100,7 @@ public class PGPService {
     public PGPPublicKeyRing getPublicKey(long keyID, String keyServerUrl, MavenSession session, int keyServerRetry)
             throws IOException, PGPException {
         String hexKey = "0x" + Long.toHexString(keyID).toUpperCase();
-        logger.info("Fetching PGP key with id " + hexKey + "...");
+        logger.info("Fetching PGP key with id " + hexKey);
         File localRepoRoot = new File(session.getLocalRepository().getBasedir());
         File keyCacheFile = new File(new File(localRepoRoot, CACHE_RELPATH), hexKey + ".pub");
         InputStream keyStream;

@@ -127,7 +127,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         Set<IInstallableUnit> dependencyMetadata = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
         if (dependencyMetadata == null || dependencyMetadata.isEmpty()) {
-            getLog().debug("Skipping baseline version comparison, no p2 artifacts created in build.");
+            getLog().debug("Skipping baseline version comparison, no p2 artifacts created in build");
             return;
         }
         if (!this.artifactComparators.containsKey(this.comparator)) {
@@ -188,7 +188,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                         ComparisonData data = new ComparisonData(ignoredPatterns, false);
                         ArtifactDelta artifactDelta = this.artifactComparators.get(this.comparator)
                                 .getDelta(baselineFile, reactorFile, data);
-                        String message = "Baseline and reactor have same fully qualified version, but with different content";
+                        String message = "Baseline and reactor have the same fully qualified version, but different content";
                         if (artifactDelta != null) {
                             if (this.onIllegalVersion == ReportBehavior.warn) {
                                 getLog().warn(message);

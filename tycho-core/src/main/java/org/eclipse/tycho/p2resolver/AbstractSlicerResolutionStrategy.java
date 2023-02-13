@@ -196,7 +196,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                         result.addProvidedCapabilities(Collections.singleton(providedCapability));
                     }
                 } catch (RuntimeException e) {
-                    logger.debug("can't convert requirement " + requirement + " to capability: " + e.toString(), e);
+                    logger.debug("Cannot convert requirement " + requirement + " to capability: " + e, e);
                 }
             }
         }

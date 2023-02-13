@@ -59,7 +59,7 @@ public class StandaloneDirectorRuntime implements DirectorRuntime {
                 LaunchConfiguration launch = new EquinoxInstallationLaunchConfiguration(runtimeLocation,
                         programArguments);
 
-                logger.info("Using the standalone p2 Director to install the product...");
+                logger.info("Using the standalone p2 Director to install the product");
                 int exitCode = launchHelper.execute(launch, forkedProcessTimeoutInSeconds);
                 if (exitCode != 0) {
                     throw new DirectorCommandException("Call to p2 director application failed with exit code "
