@@ -865,8 +865,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         } catch (Exception e) {
             throw new MojoExecutionException("can't call classpath contributors", e);
         }
-        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream().collect(
-                Collectors.groupingBy(ClasspathEntry::getArtifactKey, LinkedHashMap::new, Collectors.toList()));
+        LinkedHashMap<ArtifactKey, List<ClasspathEntry>> classpathMap = classpath.stream().collect(Collectors
+                .groupingBy(cpe -> normalizedKey(cpe.getArtifactKey()), LinkedHashMap::new, Collectors.toList()));
         if (logger.isDebugEnabled()) {
             for (var entry : classpathMap.entrySet()) {
                 List<ClasspathEntry> list = entry.getValue();
@@ -926,6 +926,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             });
         }).toList();
         return uniqueClasspath;
+    }
+
+    private ArtifactKey normalizedKey(ArtifactKey key) {
+        if (key instanceof DefaultArtifactKey) {
+            return key;
+        }
+        return new DefaultArtifactKey(key.getType(), key.getId(), key.getVersion());
     }
 
     protected abstract String getDependencyScope();
