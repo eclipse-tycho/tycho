@@ -15,7 +15,6 @@ package org.eclipse.tycho.core.maven;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -164,21 +163,18 @@ public class MavenDependenciesResolver {
         ArtifactTypeRegistry stereotypes = repositorySession.getArtifactTypeRegistry();
         String version = dependency.getVersion();
         if (!version.startsWith("[") && !version.startsWith("(")) {
+        	//resolver always require a range or it will just return the plain parsed version!
             version = "[" + version + ",)";
         }
-        if (version.endsWith(".0)")) {
-            version = version.substring(0, version.length() - 3) + ")";
+        if (version.endsWith(")")) {
+            //maven handles the suffix special, adding -alpha for a excluded version makes sure -alpha -rc and alike are not considered
+            //(as they are smaller than even numbers) and -alpha is the smallest qualifier
+            version = version.substring(0, version.length() - 1) + "-alpha)";
         }
         DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
                 stereotypes.get(dependency.getType()).getExtension(), version);
         VersionRangeRequest request = new VersionRangeRequest(artifact, project.getRemoteProjectRepositories(), null);
         VersionRangeResult versionResult = repoSystem.resolveVersionRange(repositorySession, request);
-        for (Iterator<Version> iterator = versionResult.getVersions().iterator(); iterator.hasNext();) {
-            if (iterator.next().toString().contains("-")) {
-                iterator.remove();
-            }
-
-        }
         Version highestVersion = versionResult.getHighestVersion();
         if (highestVersion != null) {
             ArtifactRequest artifactRequest = new ArtifactRequest(artifact.setVersion(highestVersion.toString()),
