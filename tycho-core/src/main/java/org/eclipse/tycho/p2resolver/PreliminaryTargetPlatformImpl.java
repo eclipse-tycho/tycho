@@ -53,11 +53,13 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     private final boolean includeLocalRepo;
 
+    private Set<IInstallableUnit> shadowed;
+
     public PreliminaryTargetPlatformImpl(Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
             Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment,
             TargetPlatformFilterEvaluator filter, LocalMetadataRepository localMetadataRepository,
             IRawArtifactFileProvider externalArtifacts, LocalArtifactRepository localArtifactRepository,
-            boolean includeLocalRepo, MavenLogger logger) {
+            boolean includeLocalRepo, MavenLogger logger, Set<IInstallableUnit> shadowed) {
         super(collectAllInstallableUnits(reactorProjectIUs, externalIUs, executionEnvironment), executionEnvironment,
                 externalArtifacts, localArtifactRepository, reactorProjectIUs, new HashMap<>());
         this.externalIUs = externalIUs;
@@ -65,6 +67,7 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
         this.localMetadataRepository = localMetadataRepository;
         this.includeLocalRepo = includeLocalRepo;
         this.logger = logger;
+        this.shadowed = shadowed;
     }
 
     public static LinkedHashSet<IInstallableUnit> collectAllInstallableUnits(
@@ -118,6 +121,13 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     public IRawArtifactFileProvider getExternalArtifacts() {
         return artifacts;
+    }
+
+    /**
+     * @return all units that are shadowed by a reactor project IU
+     */
+    public Set<IInstallableUnit> getShadowed() {
+        return shadowed;
     }
 
     @Override
