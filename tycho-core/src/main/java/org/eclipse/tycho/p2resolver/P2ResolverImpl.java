@@ -32,7 +32,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.apache.felix.resolver.util.CopyOnWriteSet;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -43,6 +45,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -114,12 +117,24 @@ public class P2ResolverImpl implements P2Resolver {
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         Set<IInstallableUnit> usedTargetPlatformUnits = new LinkedHashSet<>();
+        Set<IInstallableUnit> usedShadowedUnits = new CopyOnWriteSet<>();
         for (TargetEnvironment environment : environments) {
-            results.put(environment, resolveDependencies(Collections.emptySet(), project,
-                    new ProjectorResolutionStrategy(logger), environment, targetPlatform, usedTargetPlatformUnits));
+            results.put(environment,
+                    resolveDependencies(Collections.emptySet(), project, new ProjectorResolutionStrategy(logger) {
+                        @Override
+                        protected Slicer newSlicer(IQueryable<IInstallableUnit> availableUnits,
+                                Map<String, String> properties) {
+                            return super.newSlicer(
+                                    new ShadowedUnitsQueryable(targetPlatform, availableUnits, usedShadowedUnits),
+                                    properties);
+                        }
+                    }, environment, targetPlatform, usedTargetPlatformUnits));
         }
-
         targetPlatform.reportUsedLocalIUs(usedTargetPlatformUnits);
+        for (IInstallableUnit unit : usedShadowedUnits) {
+            logger.warn("Your build strictly depends on unit " + unit
+                    + " that is shadowed by a reactor project, this can lead to unexpected build results!");
+        }
         return results;
     }
 
