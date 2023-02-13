@@ -381,7 +381,7 @@ public class EclipseRunMojo extends AbstractMojo {
 				}
 				LaunchConfiguration cli = createCommandLine(runtime);
 				File expectedLog = new File(workspace, ".metadata/.log");
-				getLog().info("Expected eclipse log file: " + expectedLog.getCanonicalPath());
+				getLog().info("Expected Eclipse log file: " + expectedLog.getCanonicalPath());
 				int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
 				if (returnCode != 0) {
 					throw new MojoExecutionException("Error while executing platform: return code=" + returnCode
@@ -402,13 +402,13 @@ public class EclipseRunMojo extends AbstractMojo {
 			getLog().info("Toolchain in tycho-eclipserun-plugin: " + tc);
 			executable = tc.findTool("java");
 			if (executable == null) {
-				getLog().error("No 'java' executable was found in toolchain. Current java runtime will be used.");
+				getLog().error("No 'java' executable was found in toolchain. Current Java runtime will be used");
 			}
 		} else if (Objects.equals(executionEnvironment, "JavaSE-" + Runtime.version().feature())) {
-			getLog().debug("Using current java runtime as it matches configured executionEnvironment.");
+			getLog().debug("Using current Java runtime as it matches configured executionEnvironment");
 		} else {
 			getLog().warn("No toolchain was found in tycho-eclipserun-plugin for: " + executionEnvironment
-					+ " .Current java runtime will be used.");
+					+ ". Current Java runtime will be used");
 		}
 		cli.setJvmExecutable(executable);
 		cli.setWorkingDirectory(project.getBasedir());

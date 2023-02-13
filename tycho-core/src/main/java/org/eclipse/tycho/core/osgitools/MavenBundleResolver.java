@@ -84,7 +84,7 @@ public class MavenBundleResolver {
                             resolvedArtifact.getVersion(), location));
                 }
             } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
-                logger.debug("Cannot find key " + mavenArtifactKey + " in target platform " + e + ", try maven now...");
+                logger.debug("Cannot find key " + mavenArtifactKey + " in target platform " + e + ", trying Maven now");
             }
         }
         // then fallback to maven artifact ...
@@ -103,8 +103,8 @@ public class MavenBundleResolver {
             return Optional.of(ResolvedArtifactKey.of(resolvedType, artifactKey.getId(), artifactKey.getVersion(),
                     artifact.getFile()));
         } catch (VersionRangeResolutionException | ArtifactResolutionException e) {
-            logger.debug("Can't find maven artifact " + groupId + ":" + artifactId + " for "
-                    + mavenArtifactKey.getType() + " with id " + mavenArtifactKey.getId() + " and version "
+            logger.debug("Cannot find Maven artifact " + groupId + ":" + artifactId + " for "
+                    + mavenArtifactKey.getType() + " with ID " + mavenArtifactKey.getId() + " and version "
                     + mavenArtifactKey.getVersion() + ": " + e);
         }
         return Optional.empty();

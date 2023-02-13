@@ -141,7 +141,7 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
                     TychoProjectUtils.getOptionalDependencyArtifacts(reactorProject);
 
             if (dependencyMetadata.isPresent()) {
-                logger.debug("Attempting to resolve " + artifact + " for project " + currentProject + "...");
+                logger.debug("Attempting to resolve " + artifact + " for project " + currentProject);
 
                 for (final ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
                     if (isArtifactMatch(descriptor.getKey(), artifact)) {

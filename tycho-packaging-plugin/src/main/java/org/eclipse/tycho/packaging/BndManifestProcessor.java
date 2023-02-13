@@ -113,7 +113,7 @@ public class BndManifestProcessor implements ManifestProcessor {
 				Attributes calcAttributes = calcManifest.getMainAttributes();
 				enhanceReqCap(mainAttributes, calcAttributes);
 			} catch (Exception e) {
-				String message = "Can't derive header from source!";
+				String message = "Cannot derive header from source";
 				if (logger.isDebugEnabled()) {
 					logger.error(message, e);
 				} else {

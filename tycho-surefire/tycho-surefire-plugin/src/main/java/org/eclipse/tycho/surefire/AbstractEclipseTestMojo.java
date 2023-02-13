@@ -868,7 +868,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             wrapper.setProperty("__provider." + entry.getKey(), entry.getValue().toString());
         }
         wrapper.setProperty("testprovider", provider.getSurefireProviderClassName());
-        getLog().debug("Using test framework provider " + provider.getClass().getName());
+        getLog().debug("Using test framework provider: " + provider.getClass().getName());
         wrapper.addList(suiteXmlFiles, BooterConstants.TEST_SUITE_XML_FILES);
         return wrapper;
     }
@@ -926,8 +926,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                 FileUtils.deleteDirectory(osgiDataDirectory);
             }
             cli = createCommandLine(testRuntime);
-            getLog().info("Executing test runtime with timeout " + forkedProcessTimeoutInSeconds
-                    + ", logs (if any) will be placed at: " + logFile.getAbsolutePath());
+            getLog().info("Executing test runtime with timeout (seconds): " + forkedProcessTimeoutInSeconds
+                    + ", logs, if any, will be placed at: " + logFile.getAbsolutePath());
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);
@@ -1003,7 +1003,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                         + ", check for example https://www.hresult.info/ for further details)";
             }
         } catch (RuntimeException e) {
-            getLog().debug("Decoding returncode failed", e);
+            getLog().debug("Decoding return code failed", e);
         }
         return String.valueOf(result);
     }

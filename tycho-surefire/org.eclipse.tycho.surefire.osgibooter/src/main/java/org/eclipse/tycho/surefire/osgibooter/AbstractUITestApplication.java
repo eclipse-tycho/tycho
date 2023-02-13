@@ -78,7 +78,7 @@ public abstract class AbstractUITestApplication implements ITestHarness {
         if (configuredApplication == null) {
             configuredApplication = DEFAULT_APP_3_0;
         } else {
-            System.out.println("Launching application " + configuredApplication + "...");
+            System.out.println("Launching application " + configuredApplication);
         }
 
         // Assume we are in 3.0 mode.

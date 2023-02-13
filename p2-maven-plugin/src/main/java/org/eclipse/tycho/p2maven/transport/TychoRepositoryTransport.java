@@ -129,7 +129,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     public synchronized InputStream stream(URI toDownload, IProgressMonitor monitor)
             throws FileNotFoundException, CoreException, AuthenticationFailedException {
 		if (DEBUG_REQUESTS) {
-            logger.debug("Request stream for " + toDownload + "...");
+            logger.debug("Request stream for " + toDownload);
 		}
         requests.increment();
         if (toDownload.toASCIIString().endsWith("p2.index")) {
@@ -141,7 +141,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 				File cachedFile = handler.getFile(toDownload);
 				if (cachedFile != null) {
 					if (DEBUG_REQUESTS) {
-						logger.debug(" --> routed through handler " + handler.getClass().getSimpleName() + " ...");
+						logger.debug(" --> routed through handler " + handler.getClass().getSimpleName());
 					}
 					return new FileInputStream(cachedFile);
 				}

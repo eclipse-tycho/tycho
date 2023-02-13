@@ -150,7 +150,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		osgiFramework.start();
 
 		for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
-			connectFramework.debug("Calling " + listener + "...");
+			connectFramework.debug("Calling " + listener);
 			try {
 			listener.afterFrameworkStarted(connectFramework);
 			} catch(RuntimeException e) {

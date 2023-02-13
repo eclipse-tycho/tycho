@@ -272,9 +272,9 @@ public class JavadocMojo extends AbstractMojo {
 
 		final Collection<String> cp = gcv.getClassPath();
 
-		getLog().info(String.format("%s classpath deps", cp.size()));
+		getLog().info(String.format("%s classpath dependencies", cp.size()));
 		for (final String ele : cp) {
-			getLog().info("CP: " + ele);
+			getLog().info("Classpath: " + ele);
 		}
 
 		runner.setBundleReader(this.bundleReader);
@@ -316,7 +316,7 @@ public class JavadocMojo extends AbstractMojo {
 	private void visitProjects(final List<Dependency> dependencies, final Set<String> scopes,
 			final List<ProjectVisitor> visitors) throws MojoExecutionException {
 		for (final Dependency dep : dependencies) {
-			getLog().debug("Dependency: " + dep + " / scope=" + dep.getScope());
+			getLog().debug("Dependency: " + dep + " / scope: " + dep.getScope());
 
 			final String scope = dep.getScope();
 
@@ -394,7 +394,7 @@ public class JavadocMojo extends AbstractMojo {
 			throws MojoExecutionException {
 		final MavenProject project = findProject(dep.getGroupId(), dep.getArtifactId());
 		if (project == null) {
-			getLog().info(String.format("Did not find project %s in reactor", dep));
+			getLog().info(String.format("Could not find project %s in reactor", dep));
 			return;
 		}
 

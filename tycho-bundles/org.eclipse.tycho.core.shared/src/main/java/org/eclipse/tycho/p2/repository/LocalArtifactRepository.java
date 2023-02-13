@@ -114,7 +114,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
                         ArtifactType.TYPE_P2_ARTIFACTS);
                 file.getParentFile().mkdirs();
                 localRepoIndices.getMavenContext().getLogger()
-                        .debug("Writing P2 metadata for " + key + " to " + file + "...");
+                        .debug("Writing P2 metadata for " + key + " to " + file);
                 try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
                     io.writeXML(keyDescriptors, os);
                 } catch (IOException e) {

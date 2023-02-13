@@ -117,7 +117,7 @@ public class SharedHttpCacheStorage implements HttpCache {
                 } catch (IOException e) {
 					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
                         //if we have something cached, use that ...
-                        logger.warn("Request to " + uri + " failed, trying cache instead...");
+                        logger.warn("Request to " + uri + " failed, trying cache instead");
 						return cacheLine.getLastModified(uri, transportFactory, nil -> e, logger);
                     }
                     throw e;
@@ -139,7 +139,7 @@ public class SharedHttpCacheStorage implements HttpCache {
                 } catch (IOException e) {
 					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
                         //if we have something cached, use that ...
-                        logger.warn("Request to " + uri + " failed, trying cache instead...");
+                        logger.warn("Request to " + uri + " failed, trying cache instead");
 						return cacheLine.getFile(uri, transportFactory, nil -> e, logger);
                     }
                     throw e;

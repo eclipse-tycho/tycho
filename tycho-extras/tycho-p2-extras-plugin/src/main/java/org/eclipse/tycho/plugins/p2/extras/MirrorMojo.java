@@ -248,7 +248,7 @@ public class MirrorMojo extends AbstractMojo {
         final DestinationRepositoryDescriptor destinationDescriptor = new DestinationRepositoryDescriptor(destination,
                 name, compress, xzCompress, keepNonXzIndexFiles, mirrorMetadataOnly, append, Collections.emptyMap(),
                 Collections.emptyList());
-        getLog().info("Mirroring to " + destination + "...");
+        getLog().info("Mirroring to " + destination);
         try {
             mirrorService.mirrorStandalone(sourceDescriptor, destinationDescriptor, createIUDescriptions(),
                     createMirrorOptions(), getBuildOutputDirectory());
