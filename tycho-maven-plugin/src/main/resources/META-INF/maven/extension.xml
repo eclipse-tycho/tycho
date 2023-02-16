@@ -9,6 +9,7 @@
     <exportedPackage>org.eclipse.sisu.equinox</exportedPackage>
     <exportedPackage>org.eclipse.tycho.p2.resolver</exportedPackage>
     <!-- P2 Stuff TODO add more? -->
+    <exportedPackage>org.eclipse.equinox.p2.core</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.metadata</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.publisher</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.publisher.eclipse</exportedPackage>
@@ -19,6 +20,7 @@
   </exportedPackages>
 
   <exportedArtifacts>
+    <exportedArtifact>org.eclipse.platform:org.eclipse.equinox.p2.core</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.embedder.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-embedder-api</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-metadata-model</exportedArtifact>
