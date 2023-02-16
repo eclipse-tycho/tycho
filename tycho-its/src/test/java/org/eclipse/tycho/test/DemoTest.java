@@ -42,6 +42,11 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 		// that as it is small and fast
 	}
 
+	@Test
+	public void testTychoPublishP2Demo() throws Exception {
+		runDemo("publish-p2");
+	}
+
 	protected Verifier runDemo(String test, String... xargs) throws Exception {
 		Verifier verifier = super.getVerifier("../../demo/" + test, true, true);
 		for (String xarg : xargs) {
