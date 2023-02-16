@@ -9,3 +9,12 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  target-branch: "tycho-3.0.x"
+  labels:
+    - "tycho-3.x"
+    - "dependencies"
