@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,7 @@ import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -376,7 +377,11 @@ public class JDTCompiler extends AbstractCompiler {
         if (custom.javaHome != null) {
             String sourceLevel = config.getSourceVersion();
             if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
-                addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
+                try {
+                    addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
+                } catch (ArtifactResolutionException e) {
+                    throw new CompilerException("can't determine required options", e);
+                }
             } else {
                 addToCompilerArgumentsIfNotSet("--system", custom.javaHome, jdtCompilerArgs);
             }
@@ -398,7 +403,8 @@ public class JDTCompiler extends AbstractCompiler {
         return new CompilerResult(success, messages);
     }
 
-    private void addExternalJavaHomeArgs(List<String> jdtCompilerArgs, String javaHome) {
+    private void addExternalJavaHomeArgs(List<String> jdtCompilerArgs, String javaHome)
+            throws ArtifactResolutionException {
         LibraryInfo jdkLibInfo = jdkLibInfoProvider.getLibraryInfo(javaHome);
         if (jdkLibInfo.getBootpath().length > 0) {
             addToCompilerArgumentsIfNotSet("-bootclasspath", String.join(File.pathSeparator, jdkLibInfo.getBootpath()),
@@ -615,6 +621,11 @@ public class JDTCompiler extends AbstractCompiler {
             }
         }
 
+    }
+
+    @Override
+    public String getCompilerId() {
+        return "tycho-jdt";
     }
 
 }
