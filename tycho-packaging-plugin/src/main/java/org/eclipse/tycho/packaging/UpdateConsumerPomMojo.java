@@ -184,7 +184,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			outputDirectory = project.getBasedir();
 		}
 		Log log = getLog();
-		log.debug("Generating pom descriptor with updated dependencies...");
+		log.debug("Generating pom descriptor with updated dependencies");
 		Model projectModel;
 		try {
 			projectModel = modelReader.read(project.getFile(), null);

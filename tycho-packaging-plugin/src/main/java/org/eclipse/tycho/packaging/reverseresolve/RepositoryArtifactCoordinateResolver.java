@@ -80,8 +80,8 @@ public class RepositoryArtifactCoordinateResolver implements ArtifactCoordinateR
 					ArtifactResolutionResult resolveResult = repositorySystem.resolve(request);
 					if (resolveResult.hasExceptions()) {
 						DependencyResolutionException exception = new DependencyResolutionException(
-								"resolving " + artifact + " failed!", resolveResult.getExceptions());
-						log.debug("Resolve " + artifact + " failed because of " + exception, exception);
+								"Resolving " + artifact + " failed", resolveResult.getExceptions());
+						log.debug("Resolving " + artifact + " failed because of: " + exception, exception);
 						return Optional.empty();
 
 					}

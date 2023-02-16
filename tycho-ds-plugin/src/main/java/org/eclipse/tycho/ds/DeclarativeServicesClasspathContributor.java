@@ -13,18 +13,26 @@
 package org.eclipse.tycho.ds;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.apache.maven.SessionScoped;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.AbstractSpecificationClasspathContributor;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 @Component(role = ClasspathContributor.class, hint = "ds-annotations")
 @SessionScoped
@@ -36,8 +44,17 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 	private static final String DS_ANNOTATIONS_GROUP_ID = "org.osgi";
 	private static final String DS_ANNOTATIONS_ARTIFACT_ID = "org.osgi.service.component.annotations";
 
+	private static final String DS_ANNOTATIONS_1_2_ARTIFACT_ID = "osgi.cmpn";
+	private static final String DS_ANNOTATIONS_1_2_VERSION = "5.0.0";
+
 	@Requirement
 	DeclarativeServiceConfigurationReader configurationReader;
+
+	@Requirement
+	MavenDependenciesResolver dependenciesResolver;
+
+	@Requirement
+	TychoProjectManager projectManager;
 
 	@Inject
 	public DeclarativeServicesClasspathContributor(MavenSession session) {
@@ -45,16 +62,40 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 	}
 
 	@Override
-	protected Version getSpecificationVersion(MavenProject project) {
+	protected Optional<ResolvedArtifactKey> findBundle(MavenProject project, VersionRange specificationVersion) {
+		return super.findBundle(project, specificationVersion).or(() -> {
+			Version v = specificationVersion.getLeft();
+			if (v.getMajor() == 1 && v.getMinor() == 2) {
+				// this is another artifact see https://github.com/osgi/osgi/issues/570
+				try {
+					Artifact artifact = dependenciesResolver.resolveArtifact(project, session, DS_ANNOTATIONS_GROUP_ID,
+							DS_ANNOTATIONS_1_2_ARTIFACT_ID, DS_ANNOTATIONS_1_2_VERSION);
+					ArtifactKey artifactKey = projectManager.getArtifactKey(artifact);
+					return Optional.of(ResolvedArtifactKey.of(artifactKey, artifact.getFile()));
+				} catch (ArtifactResolutionException e) {
+					// can't resolve it ... nothing more to do!
+				}
+			}
+			return Optional.empty();
+		});
+	}
+
+	@Override
+	protected VersionRange getSpecificationVersion(MavenProject project) {
 		try {
 			DeclarativeServicesConfiguration configuration = configurationReader.getConfiguration(project);
 			if (configuration != null) {
-				return configuration.getSpecificationVersion();
+				Version lowerVersion = configuration.getSpecificationVersion();
+				Version upperVersion = new Version(lowerVersion.getMajor(), lowerVersion.getMinor() + 1, 0);
+				return new VersionRange(VersionRange.LEFT_CLOSED, lowerVersion, upperVersion, VersionRange.RIGHT_OPEN);
 			}
 		} catch (IOException e) {
 			// can't determine the minimum specification version then...
 		}
-		return Version.parseVersion(DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION);
+		return new VersionRange(VersionRange.LEFT_CLOSED,
+				Version.parseVersion(DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION), null,
+				VersionRange.RIGHT_OPEN);
 	}
+
 
 }

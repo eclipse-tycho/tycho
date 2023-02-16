@@ -114,7 +114,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
                 } catch (IOException e) {
                     log.debug("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
                             + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e
-                            + ", using direct byte compare...", e);
+                            + ", using direct byte compare", e);
                 }
             }
             return direct;

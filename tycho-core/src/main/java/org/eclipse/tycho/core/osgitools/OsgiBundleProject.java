@@ -194,7 +194,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private BundleClassPath resolveClassPath(MavenSession session, MavenProject project) {
-        logger.info("Resolving class path of " + project.getName() + "...");
+        logger.info("Resolving class path of " + project.getName());
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         DependencyArtifacts artifacts = getDependencyArtifacts(reactorProject);
 
@@ -244,8 +244,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     classpath.add(
                             new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
                 } else {
-                    logger.debug("Can't fetch artifact info for " + entry.module.getSymbolicName() + " and location "
-                            + location + ", using raw jar item for classpath...");
+                    logger.debug("Cannot fetch artifact info for " + entry.module.getSymbolicName() + " and location "
+                            + location + ", using raw jar item for classpath");
                     classpath.add(new DefaultClasspathEntry(null,
                             new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.module.getSymbolicName(),
                                     entry.module.getVersion().toString()),
@@ -274,7 +274,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(reactorProject).getClasspathEntries();
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junit) {
-                logger.info("Resolve JUnit " + junit.getJUnitSegment() + " classpath container...");
+                logger.info("Resolving JUnit " + junit.getJUnitSegment() + " classpath container");
                 P2Resolver resolver = resolverFactory.createResolver(
                         Collections.singletonList(TargetEnvironment.getRunningEnvironment(reactorProject)));
                 TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
@@ -282,7 +282,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         .values();
                 for (P2ResolutionResult resolutionResult : result) {
                     for (Entry entry : resolutionResult.getArtifacts()) {
-                        logger.debug("Resolved " + entry.getId() + "::" + entry.getVersion() + "...");
+                        logger.debug("Resolved " + entry.getId() + "::" + entry.getVersion());
                         File location = entry.getLocation(true);
                         list.add(new DefaultClasspathEntry(null, entry, Collections.singletonList(location),
                                 Collections.singletonList(new DefaultAccessRule("**/*", false))));

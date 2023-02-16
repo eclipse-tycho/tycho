@@ -30,9 +30,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.toolchain.Toolchain;
 import org.codehaus.plexus.logging.Logger;
@@ -89,17 +86,8 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     private final Toolchain toolchain;
     private Logger logger;
 
-    /**
-     * Do no instantiate. Use factory method instead
-     * {@link ExecutionEnvironmentUtils#getExecutionEnvironment(String)}.
-     */
-    @Deprecated
-    StandardExecutionEnvironment(@Nonnull Properties profileProperties) {
-        this(profileProperties, null, null);
-    }
-
-    /* package */ StandardExecutionEnvironment(@Nonnull Properties profileProperties, @Nullable Toolchain toolchain,
-            @Nullable Logger logger) {
+    /* package */ StandardExecutionEnvironment(Properties profileProperties, Toolchain toolchain, Logger logger) {
+        Objects.requireNonNull(profileProperties);
         this.toolchain = toolchain;
         this.profileName = profileProperties.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME);
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
@@ -138,7 +126,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                         sb.append(System.lineSeparator());
                         sb.append(line);
                     }
-                    logger.debug("[ReadPackagesFromToolchains] Cannot read java version for " + java
+                    logger.debug("[ReadPackagesFromToolchains] Cannot read Java version for " + java
                             + ", full output was: " + sb);
                     return new JavaInfo(-1, List.of());
                 }

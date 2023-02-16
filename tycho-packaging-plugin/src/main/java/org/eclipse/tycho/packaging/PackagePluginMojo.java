@@ -260,7 +260,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 				if (components != null) {
 					if (components.contains("*")) {
 						getLog().warn(
-								"Checking Service-Component header that contains wildcards is currently not supported!");
+								"Checking Service-Component header that contains wildcards is currently not supported");
 					} else {
 						for (String component : components.split(",\\s*")) {
 							assertComponentExists(component);

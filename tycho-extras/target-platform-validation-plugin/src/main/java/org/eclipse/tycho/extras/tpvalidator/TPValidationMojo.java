@@ -181,7 +181,7 @@ public class TPValidationMojo extends AbstractMojo {
     private void validateTarget(File targetFile) throws TPError {
         try {
             // create resolver
-            this.logger.info("Validating " + targetFile + "...");
+            this.logger.info("Validating " + targetFile);
             RepositoryReferences ref = new RepositoryReferences();
             DirectorRuntime.Command directorCommand = director.newInstallCommand();
 

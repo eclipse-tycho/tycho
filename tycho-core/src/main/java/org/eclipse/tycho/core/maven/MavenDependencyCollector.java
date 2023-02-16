@@ -66,7 +66,7 @@ public class MavenDependencyCollector extends ArtifactDependencyVisitor {
         if (ref.getOs() == null && ref.getWs() == null && ref.getArch() == null) {
             super.missingPlugin(ref, walkback);
         } else {
-            logger.warn("Missing environment specific bundle " + ref.toString());
+            logger.warn("Missing environment-specific bundle " + ref);
         }
     }
 

@@ -67,7 +67,7 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
         } else {
             artifact = repositorySystem.createArtifact(groupId, artifactId, version, null, packaging);
         }
-        logger.debug("Resolve " + artifact + "...");
+        logger.debug("Resolving " + artifact);
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
         MavenSession mavenSession = getMavenSession(session);

@@ -144,7 +144,7 @@ public class VerifyPomMojo extends AbstractMojo {
 			OSGiResolver resolver = new OSGiResolver(
 					new File(project.getBuild().getDirectory(), UUID.randomUUID().toString()));
 			Map<Bundle, TrackedDependency> bundleMap = new HashMap<>();
-			log.info("Using " + filesToResolve.size() + " artifacts to check OSGi consistency...");
+			log.info("Using " + filesToResolve.size() + " artifacts to check OSGi consistency");
 			for (TrackedDependency tracked : filesToResolve) {
 				try {
 					Bundle install = resolver.install(tracked.file);

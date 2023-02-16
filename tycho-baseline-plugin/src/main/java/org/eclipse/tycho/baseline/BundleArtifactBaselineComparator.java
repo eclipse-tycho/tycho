@@ -338,7 +338,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 						internalPackages.put(export.getValue(), internal);
 					}
 				} catch (BundleException e) {
-					String message = "Can't get export package from manifest, extensions cannot be processed!";
+					String message = "Cannot get export package from Manifest, extensions cannot be processed";
 					if (logger.isDebugEnabled()) {
 						logger.error(message, e);
 					} else {
@@ -347,7 +347,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				}
 			}
 		} catch (Exception e) {
-			String message = "Can't get manifest from jar, extensions cannot be processed!";
+			String message = "Cannot get manifest from jar, extensions cannot be processed";
 			if (logger.isDebugEnabled()) {
 				logger.error(message, e);
 			} else {

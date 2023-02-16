@@ -265,7 +265,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         DefaultScanResult scanResult = scanner.scan();
         List<String> classes = scanResult.getClasses();
         for (String clazz : classes) {
-            getLog().debug("Class " + clazz + " matches the current filter.");
+            getLog().debug("Class " + clazz + " matches the current filter");
         }
         if (classes.isEmpty()) {
             getLog().debug("Nothing matches pattern " + includeList + ", excluding " + excludeList + " in "
@@ -289,7 +289,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     protected boolean shouldSkip() {
         if (skip != null && skipTests != null && !skip.equals(skipTests)) {
             getLog().warn(
-                    "Both parameter 'skipTests' and 'maven.test.skip' are set, 'skipTests' has a higher priority");
+                    "Both parameters 'skipTests' and 'maven.test.skip' are set. 'skipTests' has a higher priority");
         }
         if (skipTests != null) {
             return skipTests;
@@ -413,13 +413,13 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         for (TargetEnvironment targetEnvironment : targetEnvironments) {
             if (targetEnvironment.equals(runningEnvironment)) {
                 getLog().debug("Using matching target environment " + targetEnvironment.toFilterProperties()
-                        + " to resolve test artifacts...");
+                        + " to resolve test artifacts");
                 return List.of(targetEnvironment);
             }
         }
         getLog().warn("Your build environment " + runningEnvironment.toFilterProperties()
-                + " do not match any of the configured target environments " + targetEnvironments
-                + " test execution might vary!");
+                + " does not match any of the configured target environments " + targetEnvironments
+                + ". Test execution might be inconsistent");
         return targetEnvironments;
     }
 
@@ -455,16 +455,16 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         if (javaHome != null && !javaHome.isBlank()) {
             File java = getJavaFromJavaHome(javaHome);
             if (java != null) {
-                getLog().info("Could not find a java toolchain of type " + SYSTEM_JDK
-                        + ", using java from JAVA_HOME instead (" + java.getAbsolutePath() + ")");
+                getLog().info("Could not find a Java toolchain of type " + SYSTEM_JDK
+                        + ". Using Java from JAVA_HOME instead (" + java.getAbsolutePath() + ")");
                 return java.getAbsolutePath();
             }
-            getLog().info("Could not find a java toolchain of type " + SYSTEM_JDK
-                    + " and JAVA_HOME seem to not point to a valid location, trying java from PATH instead (current JAVA_HOME="
+            getLog().info("Could not find a Java toolchain of type " + SYSTEM_JDK
+                    + " and JAVA_HOME does not seem to point to a valid location. Trying Java from PATH instead (JAVA_HOME="
                     + javaHome + ")");
         } else {
-            getLog().info("Could not find a java toolchain of type " + SYSTEM_JDK
-                    + " and JAVA_HOME is not set, trying java from PATH instead");
+            getLog().info("Could not find a Java toolchain of type " + SYSTEM_JDK
+                    + " and JAVA_HOME is not set. Trying Java from PATH instead");
         }
         return "java";
     }

@@ -241,7 +241,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         if (project.getArtifact().hasClassifier()) {
             getLog().warn("NOT adding sources to artifacts with classifier as Maven only supports one classifier "
                     + "per artifact. Current artifact [" + project.getArtifact().getId() + "] has a ["
-                    + project.getArtifact().getClassifier() + "] classifier.");
+                    + project.getArtifact().getClassifier() + "] classifier");
 
             return;
         }

@@ -23,6 +23,10 @@ public interface ResolvedArtifactKey extends ArtifactKey {
         return of(key.getType(), key.getId(), key.getVersion(), location);
     }
 
+    static ResolvedArtifactKey bundle(String id, String version, File location) {
+        return of(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version, location);
+    }
+
     static ResolvedArtifactKey of(String type, String id, String version, File location) {
         Objects.requireNonNull(location);
         if (!location.exists()) {

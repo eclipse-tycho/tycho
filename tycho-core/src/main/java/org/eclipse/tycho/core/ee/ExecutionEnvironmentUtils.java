@@ -27,8 +27,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
@@ -74,8 +72,8 @@ public class ExecutionEnvironmentUtils {
      * @throws UnknownEnvironmentException
      *             if profileName is unknown.
      */
-    public static @Nonnull StandardExecutionEnvironment getExecutionEnvironment(String profileName,
-            ToolchainManager manager, MavenSession session, Logger logger) throws UnknownEnvironmentException {
+    public static StandardExecutionEnvironment getExecutionEnvironment(String profileName, ToolchainManager manager,
+            MavenSession session, Logger logger) throws UnknownEnvironmentException {
         Map<String, StandardExecutionEnvironment> map = getExecutionEnvironmentsMap(manager, session, logger);
         StandardExecutionEnvironment ee = map.get(profileName);
         if (ee != null) {
@@ -96,7 +94,7 @@ public class ExecutionEnvironmentUtils {
                 return getSurrogate(profileName, higherEE);
             }
         }
-        logger.debug("Unknown OSGi execution environment, EE currently known to the build:");
+        logger.debug("Unknown OSGi execution environment. Execution environment currently known to the build:");
         for (StandardExecutionEnvironment knownEE : map.values()) {
             logger.debug(knownEE.getProfileName());
         }
@@ -131,7 +129,7 @@ public class ExecutionEnvironmentUtils {
             for (String profileFile : listProps.getProperty("java.profiles").split(",")) {
                 Properties props = readProperties(findInSystemBundle(profileFile.trim()));
                 if (props == null) {
-                    logger.warn("Cannot read profile " + profileFile + " from system path");
+                    logger.warn("Cannot read profile " + profileFile + " from the system path");
                     continue;
                 }
                 String name = props.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim();
@@ -165,7 +163,7 @@ public class ExecutionEnvironmentUtils {
     public static Toolchain getToolchainFor(String profileName, ToolchainManager manager, MavenSession session,
             Logger logger) {
         if (manager != null) {
-            logger.debug("Search profile " + profileName + " in ToolchainManager...");
+            logger.debug("Searching profile " + profileName + " in ToolchainManager");
             //First try to find it by ID
             for (Toolchain toolchain : manager.getToolchains(session, "jdk",
                     Collections.singletonMap("id", profileName))) {

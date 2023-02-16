@@ -187,7 +187,7 @@ public class InstallableUnitGenerator {
 			List<IPublisherAction> actions = getPublisherActions(packaging, basedir, version, artifactId);
 			Collection<IInstallableUnit> publishedUnits = publisher.publishMetadata(actions);
 			for (InstallableUnitProvider unitProvider : getProvider(project, session)) {
-				log.debug("Asking " + unitProvider + " for additional units for " + project + "...");
+				log.debug("Asking " + unitProvider + " for additional units for " + project);
 				Collection<IInstallableUnit> installableUnits = unitProvider.getInstallableUnits(project, session);
 				log.debug("Provider " + unitProvider + " generated " + installableUnits.size() + " (" + installableUnits
 						+ ") units for " + project);

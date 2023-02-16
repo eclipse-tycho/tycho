@@ -363,7 +363,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             addLocalicationHeaders(mavenArchiveConfiguration::addManifestEntry);
         } else {
             getLog().info(
-                    "NOT adding source bundle MANIFEST.MF entries. Incomplete or no bundle information available.");
+                    "NOT adding source bundle MANIFEST.MF entries. Incomplete or absent bundle information");
         }
     }
 

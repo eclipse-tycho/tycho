@@ -105,7 +105,7 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
             File artifactXml = getAttachedArtifact(reactorProject, TychoConstants.CLASSIFIER_P2_ARTIFACTS);
 
             // found a Tycho project -> include in target platform
-            logger.debug("Adding reactor project: " + reactorProject.toString());
+            logger.debug("Adding reactor project: " + reactorProject);
             ReactorProject tychoReactorProject = DefaultReactorProject.adapt(reactorProject);
             verifyIndexFileLocations(tychoReactorProject, metadataXml, artifactXml);
             result.add(tychoReactorProject.getIdentities());

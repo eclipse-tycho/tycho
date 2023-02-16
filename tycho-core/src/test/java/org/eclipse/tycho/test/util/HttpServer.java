@@ -13,11 +13,14 @@
 package org.eclipse.tycho.test.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.BindException;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -62,18 +65,29 @@ public class HttpServer extends ExternalResource {
     }
 
     private static RunningServer startServer() throws Exception {
-        int baseport = 1024;
-        BindException cause = null;
+        int baseport = getHttpServerPort();
+        IllegalStateException exception = new IllegalStateException("Could not allocate a port");
         for (int i = 0; i < BIND_ATTEMPTS; i++) {
-            int port = baseport + rnd.nextInt(65534 - baseport);
+            int port = baseport + i;
             try {
                 return startServerOnPort(port);
             } catch (BindException e) {
-                cause = e;
+                exception.addSuppressed(e);
+                TimeUnit.SECONDS.sleep(1);
             }
         }
+        throw exception;
+    }
 
-        throw new IllegalStateException("Could not allocate available port", cause);
+    public static int getHttpServerPort() {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            int localPort = serverSocket.getLocalPort();
+            if (localPort > 0) {
+                return localPort;
+            }
+        } catch (IOException e) {
+        }
+        return 1024;
     }
 
     private static RunningServer startServerOnPort(int port) throws Exception {

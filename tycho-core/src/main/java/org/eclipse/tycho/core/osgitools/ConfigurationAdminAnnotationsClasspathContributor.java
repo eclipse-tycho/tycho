@@ -19,7 +19,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.classpath.ClasspathContributor;
-import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 @Component(role = ClasspathContributor.class, hint = "cm-annotations")
 @SessionScoped
@@ -29,7 +29,7 @@ public class ConfigurationAdminAnnotationsClasspathContributor extends AbstractS
     private static final String GROUP_ID = "org.osgi";
     //TODO there is no extra artifact see https://github.com/osgi/osgi/issues/567
     private static final String ARTIFACT_ID = "org.osgi.service.cm";
-    private static final Version VERSION = new Version(1, 0, 0);
+    private static final VersionRange VERSION = new VersionRange("[1.5,2)");
 
     @Inject
     protected ConfigurationAdminAnnotationsClasspathContributor(MavenSession session) {
@@ -37,7 +37,7 @@ public class ConfigurationAdminAnnotationsClasspathContributor extends AbstractS
     }
 
     @Override
-    protected Version getSpecificationVersion(MavenProject project) {
+    protected VersionRange getSpecificationVersion(MavenProject project) {
         return VERSION;
     }
 

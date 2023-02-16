@@ -181,7 +181,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 : null;
 
         applyConfiguredFilter(filter, reactorProjectUIs.keySet());
-        applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints());
+        Set<IInstallableUnit> shadowed = new HashSet<>();
+        applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints(),
+                shadowed);
 
         IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(completeRepositories,
                 targetFileContent);
@@ -193,7 +195,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 externalArtifactFileProvider, //
                 localArtifactRepository, //
                 includeLocalMavenRepo, //
-                logger);
+                logger, shadowed);
 
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
@@ -415,7 +417,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     private void applyFilters(TargetPlatformFilterEvaluator filter, Collection<IInstallableUnit> collectionToModify,
-            Set<IInstallableUnit> reactorProjectUIs, ExecutionEnvironmentResolutionHints eeResolutionHints) {
+            Set<IInstallableUnit> reactorProjectUIs, ExecutionEnvironmentResolutionHints eeResolutionHints,
+            Set<IInstallableUnit> shadowedIus) {
 
         Set<String> reactorIUIDs = new HashSet<>();
         for (IInstallableUnit unit : reactorProjectUIs) {
@@ -428,10 +431,13 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         Iterator<IInstallableUnit> iter = collectionToModify.iterator();
         while (iter.hasNext()) {
             IInstallableUnit unit = iter.next();
-            if (eeResolutionHints.isNonApplicableEEUnit(unit) || isPartialIU(unit)
-                    || reactorIUIDs.contains(unit.getId())) {
+            boolean shaddowed = reactorIUIDs.contains(unit.getId());
+            if (eeResolutionHints.isNonApplicableEEUnit(unit) || isPartialIU(unit) || shaddowed) {
                 // TODO debug log output?
                 iter.remove();
+                if (shaddowed) {
+                    shadowedIus.add(unit);
+                }
             }
         }
 

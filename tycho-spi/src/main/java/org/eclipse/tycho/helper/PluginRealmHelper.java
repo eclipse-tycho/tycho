@@ -104,7 +104,7 @@ public class PluginRealmHelper {
             try {
                 plexus.lookupList(type).stream().filter(x -> visited.add(x.getClass().getName())).forEach(consumer);
             } catch (ComponentLookupException e) {
-                logger.debug("Can't lookup any item of " + type);
+                logger.debug("Cannot lookup any item of type: " + type);
             }
         }, PluginRealmHelper::isTychoEmbedderPlugin);
     }

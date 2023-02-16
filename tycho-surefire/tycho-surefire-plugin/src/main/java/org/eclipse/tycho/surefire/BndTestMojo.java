@@ -251,7 +251,7 @@ public class BndTestMojo extends AbstractTestMojo {
                         project.getBasedir()));
                 workspace.refresh(); // required to clear cached plugins...
                 try {
-                    getLog().info("Resolve test-container...");
+                    getLog().info("Resolving test-container");
                     if (printBundles) {
                         if (TESTER_JUNIT_PLATFORM.equals(tester)) {
                             for (String engine : Strings.split(testEngines)) {
@@ -303,7 +303,7 @@ public class BndTestMojo extends AbstractTestMojo {
                     run.getErrors().forEach(getLog()::error);
                     return ERROR_PREPARE_CONTAINER;
                 }
-                getLog().info("Running " + numberOfTests + " test(s)...");
+                getLog().info("Running " + numberOfTests + " test(s)");
                 int errors = tester.test();
                 //TODO currently we can't get the real run statistic see https://github.com/bndtools/bnd/issues/5513
                 FailsafeSummaryXmlUtils.writeSummary(new RunResult(numberOfTests, 0, errors, 0), summaryFile,
@@ -360,7 +360,7 @@ public class BndTestMojo extends AbstractTestMojo {
             }
             for (MavenArtifactKey key : JUnitClasspathContainerEntry.JUNIT5_PLUGINS) {
                 mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
-                        () -> getLog().warn("Can't get junit artifact " + key + " test run might not resolve!"));
+                        () -> getLog().warn("Cannot get JUnit artifact " + key + ". Test run might not resolve"));
             }
             if (printTests || trace) {
                 //TODO currently we need to add an extra listener see https://github.com/bndtools/bnd/issues/5507
@@ -372,13 +372,13 @@ public class BndTestMojo extends AbstractTestMojo {
                             bundles.add(t);
                             runrequire.add("bnd.identity; id=org.eclipse.tycho.bnd.executionlistener");
                         }, () -> {
-                            getLog().debug("Can't resolve execution listener, output will be missing!");
+                            getLog().debug("Cannot resolve execution listener, output will be missing");
                         });
             }
         } else if (TESTER_DEFAULT.equals(tester)) {
             for (MavenArtifactKey key : JUnitClasspathContainerEntry.JUNIT4_PLUGINS) {
                 mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
-                        () -> getLog().warn("Can't get junit artifact " + key + " test run might not resolve!"));
+                        () -> getLog().warn("Cannot get JUnit artifact " + key + ". Test run might not resolve"));
             }
         }
 
@@ -387,7 +387,7 @@ public class BndTestMojo extends AbstractTestMojo {
     private void addFramework(List<ResolvedArtifactKey> bundles) {
 
         getRunFramework().flatMap(key -> mavenBundleResolver.resolveMavenBundle(project, session, key)).ifPresentOrElse(
-                bundles::add, () -> getLog().warn("Can't get artifact for runfw " + runfw + " test run might fail!"));
+                bundles::add, () -> getLog().warn("Cannot get artifact for runfw " + runfw + ". Test run might fail"));
 
     }
 

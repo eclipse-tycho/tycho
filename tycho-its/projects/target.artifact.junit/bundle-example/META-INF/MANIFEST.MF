@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Example Bundle
+Bundle-SymbolicName: bundle-example
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Example Vendor
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
