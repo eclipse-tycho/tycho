@@ -16,5 +16,5 @@ updates:
   open-pull-requests-limit: 10
   target-branch: "tycho-3.0.x"
   labels:
-    - "tycho-3.x"
+    - "backport"
     - "dependencies"
