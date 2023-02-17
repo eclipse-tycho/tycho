@@ -96,6 +96,9 @@ public class PluginRealmHelper {
     @Requirement
     private PlexusContainer plexus;
 
+    @Requirement
+    private ProjectHelper projectHelper;
+
     public <T> void visitPluginExtensions(MavenProject project, MavenSession mavenSession, Class<T> type,
             Consumer<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
             InvalidPluginDescriptorException, PluginResolutionException, PluginManagerException {
@@ -118,7 +121,8 @@ public class PluginRealmHelper {
         }
         MavenSession executeSession = mavenSession.clone();
         executeSession.setCurrentProject(project);
-        List<Plugin> plugins = project.getBuildPlugins();
+        lifecyclePluginResolver.resolveMissingPluginVersions(project, executeSession);
+        List<Plugin> plugins = projectHelper.getPlugins(project, executeSession);
         for (Plugin plugin : plugins) {
             if (plugin.isExtensions()) {
                 // due to maven classloading model limitations, build extensions plugins cannot
@@ -129,7 +133,6 @@ public class PluginRealmHelper {
                 // https://cwiki.apache.org/MAVEN/maven-3x-class-loading.html
                 continue;
             }
-            lifecyclePluginResolver.resolveMissingPluginVersions(project, executeSession);
             PluginDescriptor pluginDescriptor;
             try {
                 pluginDescriptor = mavenPluginManager.getPluginDescriptor(plugin, project.getRemotePluginRepositories(),

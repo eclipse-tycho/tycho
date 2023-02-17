@@ -4,11 +4,16 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
-### Class loading changes for Eclipse based tests
+### new tycho-versions-plugin:bump-versions mojo
 
-Due to reported class loading clashes, the ordering of class loading has been modified in Eclipse based tests.
-The previous loading can be restored by a new `classLoaderOrder` parameter.
-This applies to `tycho-surefire-plugin:test` and `tycho-surefire-plugin:plugin-test`.
+When using version checks it can occur that a version bump is required. This manual and error prone task can now be automated with the `tycho-versions-plugin:bump-versions` mojo, it allows configuration of an automatic version bump behavior in combination with the `org.eclipse.tycho.extras:tycho-p2-extras-plugin:compare-version-with-baselines goal` or similar.
+
+It works the following way:
+
+- You can either configure this in the pom (e.g. in a profile) with an explicit execution, or specify it on the command line like `mvn [other goals and options] org.eclipse.tycho:tycho-versions-plugin:bump-versions`
+- If the build fails with a `VersionBumpRequiredException` the projects version is incremented accordingly
+- One can now run the build again with the incremented version and verify the automatic applied changes
+
 
 ### new bnd-test mojo
 
@@ -56,6 +61,14 @@ Any baseline problems will then be reported to the build:
 Also feature baselining is supported according to [Versioning features](https://wiki.eclipse.org/Version_Numbering#Versioning_features)
 
 ![grafik](https://user-images.githubusercontent.com/1331477/206921380-5c66cc4b-bf98-4bde-9a95-994d5c9f2a09.png)
+
+
+### Class loading changes for Eclipse based tests
+
+Due to reported class loading clashes, the ordering of class loading has been modified in Eclipse based tests.
+The previous loading can be restored by a new `classLoaderOrder` parameter.
+This applies to `tycho-surefire-plugin:test` and `tycho-surefire-plugin:plugin-test`.
+
 
 ### define targets in repository section
 
