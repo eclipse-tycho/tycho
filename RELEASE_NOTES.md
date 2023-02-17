@@ -4,7 +4,9 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
-### new tycho-versions-plugin:bump-versions mojo
+### new tycho-versions-plugin mojos
+
+#### bump-versions mojo
 
 When using version checks it can occur that a version bump is required. This manual and error prone task can now be automated with the `tycho-versions-plugin:bump-versions` mojo, it allows configuration of an automatic version bump behavior in combination with the `org.eclipse.tycho.extras:tycho-p2-extras-plugin:compare-version-with-baselines goal` or similar.
 
@@ -14,6 +16,15 @@ It works the following way:
 - If the build fails with a `VersionBumpRequiredException` the projects version is incremented accordingly
 - One can now run the build again with the incremented version and verify the automatic applied changes
 
+#### set-property mojo
+
+Updating properties in a project can now be automated with the `tycho-versions-plugin:set-property` mojo. It is very similar to the `tycho-versions-plugin:set-version` mojo but only updates one or more properties, for example:
+
+```
+mvn org.eclipse.tycho:tycho-versions-plugin:set-property --non-recursive -Dproperties=releaseVersion -DnewReleaseVersion=1.2.3
+```
+
+This is mostly useful with [Tycho CI Friendly Versions](https://tycho.eclipseprojects.io/doc/master/TychoCiFriendly.html) where one can define version by properties the mojo can be used to update the defaults.
 
 ### new bnd-test mojo
 
