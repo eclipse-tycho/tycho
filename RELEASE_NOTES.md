@@ -4,6 +4,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 3.0.3
 
+### Dependency upgrades and Maven 3.9.0 support
+
+This release includes some dependency upgrades and a fix to run Tycho 3 with Maven 3.9.0.
+
 ### Parameter enhancements for tycho-apitools-plugin:generate goal
 
 The parameters of the `tycho-apitools-plugin:generate` goal have been completed and improved.
