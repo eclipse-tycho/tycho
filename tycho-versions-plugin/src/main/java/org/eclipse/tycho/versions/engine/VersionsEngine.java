@@ -102,6 +102,13 @@ public class VersionsEngine {
         originalVersionChanges.add(change);
     }
 
+    public void reset() {
+        originalVersionChanges.clear();
+        propertyChanges.clear();
+        updateVersionRangeMatchingBounds = false;
+        projects = null;
+    }
+
     public void apply() throws IOException {
 
         VersionChangesDescriptor versionChangeContext = new VersionChangesDescriptor(originalVersionChanges,

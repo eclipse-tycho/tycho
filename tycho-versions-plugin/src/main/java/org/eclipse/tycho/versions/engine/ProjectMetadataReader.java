@@ -43,12 +43,16 @@ public class ProjectMetadataReader {
 
     private Map<File, ProjectMetadata> projects = new LinkedHashMap<>();
 
-    public void addBasedir(File basedir) throws IOException {
+    public void reset() {
+        projects.clear();
+    }
+
+    public PomFile addBasedir(File basedir) throws IOException {
         // Unfold configuration inheritance
 
         if (!basedir.exists()) {
             log.info("Project does not exist at " + basedir);
-            return;
+            return null;
         }
         List<ModelProcessor> modelprocessors;
         try {
@@ -64,7 +68,7 @@ public class ProjectMetadataReader {
 
         if (projects.containsKey(basedir)) {
             // TODO test me
-            return;
+            return null;
         }
 
         ProjectMetadata project = new ProjectMetadata(basedir);
@@ -80,7 +84,7 @@ public class ProjectMetadataReader {
         }
         if (pomFile == null || !pomFile.exists()) {
             log.warn("No pom file found at " + basedir);
-            return;
+            return null;
         }
         PomFile pom = PomFile.read(pomFile, PomFile.POM_XML.equals(pomFile.getName()));
         project.putMetadata(pom);
@@ -91,6 +95,7 @@ public class ProjectMetadataReader {
                 addBasedir(child);
             }
         }
+        return pom;
     }
 
     private Set<File> getChildren(File basedir, PomFile project) throws IOException {

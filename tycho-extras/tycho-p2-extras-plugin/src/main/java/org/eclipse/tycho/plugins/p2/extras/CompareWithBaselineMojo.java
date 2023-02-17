@@ -37,6 +37,7 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
@@ -211,7 +212,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                             getLog().warn(message);
                             return;
                         } else {
-                            throw new MojoFailureException(message);
+                            throw new VersionBumpRequiredException(message, item, version, baselineVersion);
                         }
                     }
                 }
