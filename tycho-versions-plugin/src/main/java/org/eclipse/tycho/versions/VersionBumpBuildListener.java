@@ -69,7 +69,7 @@ public class VersionBumpBuildListener implements BuildListener {
                         int increment = VersionBumpMojo.getIncrement(session, project, projectHelper);
                         metadataReader.reset();
                         engine.reset();
-                        PomFile pomFile = metadataReader.addBasedir(project.getBasedir());
+                        PomFile pomFile = metadataReader.addBasedir(project.getBasedir(), false);
                         if (pomFile != null) {
                             String currentVersion = pomFile.getVersion();
                             String newVersion = Versions.incrementVersion(currentVersion, increment);

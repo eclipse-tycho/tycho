@@ -45,7 +45,7 @@ public class UpdateEclipseMetadataMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
             try {
-                pomReader.addBasedir(session.getCurrentProject().getBasedir());
+                pomReader.addBasedir(session.getCurrentProject().getBasedir(), true);
                 metadataUpdater.setProjects(pomReader.getProjects());
                 metadataUpdater.apply();
             } catch (IOException e) {
