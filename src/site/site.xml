@@ -6,6 +6,7 @@
 			<item name="Structured Build Layout and Pomless Builds" href="StructuredBuild.html" />
 			<item name="Packaging Types" href="PackagingTypes.html" />
 			<item name="Testing Bundles" href="TestingBundles.html" />
+			<item name="Tycho CI Friendly Versions" href="TychoCiFriendly.html" />
 			<item name="Target Platform Configuration" href="target-platform-configuration/plugin-info.html" />
 			<item name="Compiler Plugin" href="tycho-compiler-plugin/plugin-info.html" />
 			<item name="Declarative Services Plugin" href="tycho-ds-plugin/plugin-info.html" />
