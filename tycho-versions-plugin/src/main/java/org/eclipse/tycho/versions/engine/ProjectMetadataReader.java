@@ -47,7 +47,7 @@ public class ProjectMetadataReader {
         projects.clear();
     }
 
-    public PomFile addBasedir(File basedir) throws IOException {
+    public PomFile addBasedir(File basedir, boolean recursive) throws IOException {
         // Unfold configuration inheritance
 
         if (!basedir.exists()) {
@@ -90,9 +90,9 @@ public class ProjectMetadataReader {
         project.putMetadata(pom);
 
         String packaging = pom.getPackaging();
-        if (PACKAGING_POM.equals(packaging)) {
+        if (recursive && PACKAGING_POM.equals(packaging)) {
             for (File child : getChildren(basedir, pom)) {
-                addBasedir(child);
+                addBasedir(child, recursive);
             }
         }
         return pom;

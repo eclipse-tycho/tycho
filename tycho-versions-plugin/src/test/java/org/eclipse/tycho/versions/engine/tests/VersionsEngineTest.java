@@ -369,7 +369,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         VersionsEngine engine = lookup(VersionsEngine.class);
         ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);
 
-        reader.addBasedir(basedir);
+        reader.addBasedir(basedir, true);
 
         engine.setProjects(reader.getProjects());
 

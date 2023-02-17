@@ -32,7 +32,7 @@ public class PomUpdaterTest extends AbstractVersionChangeTest {
     public void test() throws Exception {
         File basedir = TestUtil.getBasedir("projects/updatepom");
 
-        reader.addBasedir(basedir);
+        reader.addBasedir(basedir, true);
 
         PomVersionUpdater updater = lookup(PomVersionUpdater.class);
         updater.setProjects(reader.getProjects());
