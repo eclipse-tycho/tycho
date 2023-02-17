@@ -9,6 +9,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 
 import java.io.*;
+import java.net.SocketException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.time.Duration;
@@ -144,6 +145,8 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
             }
         } catch (final FTPConnectionClosedException e) {
             logger.debug(String.format("Connection to host %s was closed, reconnecting", key));
+        } catch (final SocketException e) {
+            logger.debug(String.format("Socket connection error for host %s, reconnecting", key), e);
         }
 
         client.disconnect();
