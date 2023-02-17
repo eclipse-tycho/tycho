@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.connect.ConnectFrameworkFactory;
 import org.osgi.framework.launch.Framework;
+import org.osgi.framework.wiring.FrameworkWiring;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.component.runtime.dto.ComponentConfigurationDTO;
 import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
@@ -143,6 +145,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		for (ClassRealm r : realms) {
 			connector.installRealm(r, osgiFramework.getBundleContext(), connectFramework);
 		}
+		FrameworkWiring wiring = osgiFramework.adapt(FrameworkWiring.class);
+		wiring.resolveBundles(Collections.emptyList());
 		osgiFramework.start();
 
 		for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
