@@ -31,16 +31,16 @@ jobs:
             8
             11
             17
-        distribution: 'adopt'
+        distribution: 'temurin'
     - name: Cache local Maven repository
       uses: actions/cache@v3
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
+        key: ${{ runner.os }}-tycho3-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
         restore-keys: |
-          ${{ runner.os }}-maven-${{ matrix.os }}-
+          ${{ runner.os }}-tycho3-${{ matrix.os }}-
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.4
+      uses: stCarolas/setup-maven@v4.5
       with:
         maven-version: 3.8.6
     - name: Build Tycho
@@ -48,9 +48,9 @@ jobs:
        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       run: | 
         cp .github/toolchains.xml ~/.m2/toolchains.xml
-        mvn -U -V -e -B -ntp clean install --file pom.xml -T1C
+        mvn -U -V -e -B -ntp clean install --file pom.xml -T1C -DtrimStackTrace=false
     - name: Run Integration Tests
-      run: mvn -U -V -e -B -ntp -Pits -D maven.test.failure.ignore=true clean install --file tycho-its/pom.xml
+      run: mvn -U -V -e -B -ntp -Pits -D maven.test.failure.ignore=true clean install --file tycho-its/pom.xml -DtrimStackTrace=false
       if: github.event.pull_request.draft == false
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
@@ -60,4 +60,12 @@ jobs:
         path: |
           ${{ github.workspace }}/tycho-its/target/surefire-reports/*.xml
       if: github.event.pull_request.draft == false
-
+  event_file:
+    name: "Event File"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: Event File
+        path: ${{ github.event_path }}
