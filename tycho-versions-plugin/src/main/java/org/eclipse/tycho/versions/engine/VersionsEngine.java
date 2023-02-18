@@ -87,7 +87,7 @@ public class VersionsEngine {
         }
     }
 
-    private PomFile getMutablePom(String artifactId) throws IOException {
+    public PomFile getMutablePom(String artifactId) throws IOException {
         ProjectMetadata project = getProject(artifactId);
 
         if (project == null) {

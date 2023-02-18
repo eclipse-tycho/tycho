@@ -26,6 +26,14 @@ mvn org.eclipse.tycho:tycho-versions-plugin:set-property --non-recursive -Dprope
 
 This is mostly useful with [Tycho CI Friendly Versions](https://tycho.eclipseprojects.io/doc/master/TychoCiFriendly.html) where one can define version by properties the mojo can be used to update the defaults.
 
+#### set-parent-version mojo
+
+Updating the parent version in a project can now be automated with the `tycho-versions-plugin:set-parent-version` mojo. Similar to the `tycho-versions-plugin:set-version` mojo, this just updates the version of the parent pom, for example:
+
+```
+mvn org.eclipse.tycho:tycho-versions-plugin:set-parent-version --non-recursive -DewParentVersion=5.9.3
+```
+
 ### new bnd-test mojo
 
 Tycho now has a new mojo `tycho-surefire-plugin:bnd-test` to easily execute tests using the [bnd-testing](https://bnd.bndtools.org/chapters/310-testing.html) framework.
