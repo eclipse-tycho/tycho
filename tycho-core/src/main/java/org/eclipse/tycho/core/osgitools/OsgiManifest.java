@@ -43,7 +43,8 @@ public class OsgiManifest {
             ManifestElement.parseBundleManifest(stream, headers);
             // this will do more strict validation of headers on OSGi semantical level
             this.bundleSymbolicName = OSGiManifestBuilderFactory.createBuilder(headers).getSymbolicName();
-        } catch (IOException | BundleException e) {
+        } catch (Exception e) {
+            // it should catch all Exception. then rethrow detail OsgiManifestParserException.
             throw new OsgiManifestParserException(location, e);
         }
         if (this.bundleSymbolicName == null) {
