@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,14 @@ public abstract class AbstractChangeMojo extends AbstractMojo {
     @Parameter(property = "artifacts", defaultValue = "${project.artifactId}")
     private String artifacts;
 
+    /**
+     * List of additional modules (relative to the basedir) to considering even if not listed in the
+     * pom, this can be used to update related projects that are not included as modules in the
+     * root.
+     */
+    @Parameter(property = "modules")
+    private String modules;
+
     @Component
     private VersionsEngine engine;
 
@@ -53,8 +62,12 @@ public abstract class AbstractChangeMojo extends AbstractMojo {
         synchronized (engine) {
             synchronized (metadataReader) {
                 try {
-                    metadataReader.addBasedir(session.getCurrentProject().getBasedir(),
-                            session.getRequest().isRecursive());
+                    File basedir = session.getCurrentProject().getBasedir();
+                    boolean recursive = session.getRequest().isRecursive();
+                    metadataReader.addBasedir(basedir, recursive);
+                    for (String p : split(modules)) {
+                        metadataReader.addBasedir(new File(basedir, p), recursive);
+                    }
                     engine.setProjects(metadataReader.getProjects());
                     addChanges(split(artifacts), engine);
                     engine.apply();
@@ -69,7 +82,7 @@ public abstract class AbstractChangeMojo extends AbstractMojo {
 
     protected static List<String> split(String str) {
         ArrayList<String> result = new ArrayList<>();
-        if (str != null) {
+        if (str != null && !str.isBlank()) {
             StringTokenizer st = new StringTokenizer(str, ",");
             while (st.hasMoreTokens()) {
                 result.add(st.nextToken().trim());
