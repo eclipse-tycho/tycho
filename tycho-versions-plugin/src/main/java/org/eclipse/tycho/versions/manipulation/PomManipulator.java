@@ -20,8 +20,11 @@ import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
@@ -40,7 +43,11 @@ import org.eclipse.tycho.versions.pom.Property;
 
 @Component(role = MetadataManipulator.class, hint = PomManipulator.HINT)
 public class PomManipulator extends AbstractMetadataManipulator {
+    private static final String NULL = "<null>";
+
     public static final String HINT = "pom";
+
+    private static final Pattern CI_FRIENDLY_EXPRESSION = Pattern.compile("\\$\\{(.+?)\\}");
 
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
@@ -76,11 +83,39 @@ public class PomManipulator extends AbstractMetadataManipulator {
             String version = Versions.toMavenVersion(change.getVersion());
             String newVersion = Versions.toMavenVersion(change.getNewVersion());
             if (isGavEquals(pom, change)) {
-                logger.info("  pom.xml//project/version: " + version + " => " + newVersion);
-                pom.setVersion(newVersion);
+                String v = pom.getVersion();
+                if (isCiFriendly(v)) {
+                    //applyPropertyChange(pom, version, newVersion);
+                    Matcher m = CI_FRIENDLY_EXPRESSION.matcher(v.trim());
+                    List<String> ciFriendlyProperties = new ArrayList<String>();
+                    while (m.find()) {
+                        ciFriendlyProperties.add(m.group(1));
+                    }
+                    if (ciFriendlyProperties.size() == 1) {
+                        //thats actually a simply property change
+                        applyPropertyChange(pom, ciFriendlyProperties.get(0), newVersion);
+                    } else {
+                        String update = newVersion;
+                        //now the  hard part starts, we need to match the pattern, the current algorithm is just dumb and only updates the first non matching property
+                        while (!ciFriendlyProperties.isEmpty()) {
+                            String property = ciFriendlyProperties.remove(ciFriendlyProperties.size() - 1);
+                            String value = pom.getProperties().stream().filter(p -> p.getName().equals(property))
+                                    .map(p -> p.getValue()).findFirst().orElse(NULL);
+                            if (update.endsWith(value)) {
+                                update = update.substring(0, update.length() - value.length());
+                                continue;
+                            }
+                            applyPropertyChange(pom, property, update);
+                            break;
+                        }
+                    }
+                } else {
+                    logger.info("  pom.xml//project/version: " + version + " => " + newVersion);
+                    pom.setVersion(newVersion);
+                }
             } else {
                 GAV parent = pom.getParent();
-                if (parent != null && isGavEquals(parent, change)) {
+                if (parent != null && isGavEquals(parent, change) && !isCiFriendly(parent.getVersion())) {
                     logger.info("  pom.xml//project/parent/version: " + version + " => " + newVersion);
                     parent.setVersion(newVersion);
                 }
@@ -100,7 +135,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
             changeBuild("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
 
             for (Profile profile : pom.getProfiles()) {
-                String profileId = profile.getId() != null ? profile.getId() : "<null>";
+                String profileId = profile.getId() != null ? profile.getId() : NULL;
                 String pomPath = "  pom.xml//project/profiles/profile[ " + profileId + " ]";
                 changeDependencies(pomPath + "/dependencies", profile.getDependencies(), change, version, newVersion);
                 changeDependencyManagement(pomPath + "/dependencyManagement", profile.getDependencyManagement(), change,
@@ -109,6 +144,10 @@ public class PomManipulator extends AbstractMetadataManipulator {
             }
         }
 
+    }
+
+    private boolean isCiFriendly(String v) {
+        return v != null && v.contains("${");
     }
 
     protected void changeDependencyManagement(String pomPath, DependencyManagement dependencyManagment,
