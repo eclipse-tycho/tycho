@@ -33,6 +33,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -54,6 +55,9 @@ public class RepositoryReferenceTool {
 
     @Requirement
     private MetadataSerializable serializer;
+
+    @Requirement
+    private TychoProjectManager projectManager;
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list
@@ -113,8 +117,7 @@ public class RepositoryReferenceTool {
                 ReactorProject reactorProject = DefaultReactorProject.adapt(project);
                 TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
 
-                TargetPlatformConfiguration configuration = TychoProjectUtils
-                        .getTargetPlatformConfiguration(reactorProject);
+                TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
 
                 DependencyResolverConfiguration resolverConfiguration = configuration
                         .getDependencyResolverConfiguration();

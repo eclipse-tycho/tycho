@@ -20,7 +20,6 @@ import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
@@ -49,25 +48,6 @@ public class TychoProjectUtils {
         DependencyArtifacts resolvedDependencies = (DependencyArtifacts) project
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
         return Optional.ofNullable(resolvedDependencies);
-    }
-
-    /**
-     * Returns the {@link TargetPlatformConfiguration} instance associated with the given project.
-     * 
-     * @param project
-     *            a Tycho project
-     * @return the target platform configuration for the given project; never <code>null</code>
-     * @throws IllegalStateException
-     *             if the given project does not have an associated target platform configuration
-     */
-    public static TargetPlatformConfiguration getTargetPlatformConfiguration(ReactorProject project)
-            throws IllegalStateException {
-        TargetPlatformConfiguration targetPlatformConfiguration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-        if (targetPlatformConfiguration == null) {
-            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
-        }
-        return targetPlatformConfiguration;
     }
 
     /**

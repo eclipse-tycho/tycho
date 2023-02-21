@@ -183,7 +183,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject);
 
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
@@ -251,7 +251,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     public PomDependencyCollector resolvePomDependencies(MavenSession session, MavenProject project) {
 
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         PomDependencies pomDependencies = configuration.getPomDependencies();
         PomDependencyCollector collector = resolverFactory.newPomDependencyCollector(reactorProject);
         if (pomDependencies == PomDependencies.ignore) {
@@ -285,7 +285,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
         // --> split this information logically, e.g. through two distinct interfaces
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(reactorProject);
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
 
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(environments);
 

@@ -406,8 +406,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     }
 
     protected List<TargetEnvironment> getTestTargetEnvironments() {
-        TargetPlatformConfiguration configuration = TychoProjectUtils
-                .getTargetPlatformConfiguration(getReactorProject());
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
         TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment(getReactorProject());
         for (TargetEnvironment targetEnvironment : targetEnvironments) {
