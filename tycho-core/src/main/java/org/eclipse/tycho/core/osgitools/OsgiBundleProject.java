@@ -635,7 +635,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 applyBestOfCurrentOrConfiguredProfile(manifestBREEs[0],
                         "Bundle-RequiredExecutionEnvironment (unique entry)", mavenSession, sink);
             } else if (manifestBREEs.length > 1) {
-                TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+                TargetPlatformConfiguration tpConfiguration = projectManager.getTargetPlatformConfiguration(project);
                 switch (tpConfiguration.getBREEHeaderSelectionPolicy()) {
                 case first:
                     applyBestOfCurrentOrConfiguredProfile(manifestBREEs[0],

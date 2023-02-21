@@ -85,7 +85,7 @@ public class DefaultTargetPlatformConfigurationReader {
     private TargetPlatformArtifactResolver platformArtifactResolver;
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project)
-            throws BuildFailureException {
+            throws TargetPlatformConfigurationException {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
         TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
         // Use org.eclipse.tycho:target-platform-configuration/configuration/environment, if provided
@@ -103,11 +103,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 setTargetPlatformResolver(result, configuration);
 
-                try {
-                    setTarget(result, session, project, configuration);
-                } catch (MojoExecutionException e) {
-                    throw new BuildFailureException("Setting target failed", e);
-                }
+                setTarget(result, session, project, configuration);
 
                 setPomDependencies(result, configuration);
 
@@ -135,7 +131,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 try {
                     result.addTarget(new URI(TargetDefinitionResolver.convertRawToUri(repository.getUrl())));
                 } catch (URISyntaxException e) {
-                    throw new BuildFailureException("reading <repository> target failed: " + e, e);
+                    throw new TargetPlatformConfigurationException("reading <repository> target failed: " + e, e);
                 }
             }
         }
@@ -352,7 +348,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setTarget(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
-            Xpp3Dom configuration) throws MojoExecutionException {
+            Xpp3Dom configuration) throws TargetPlatformConfigurationException {
         Xpp3Dom targetDom = configuration.getChild(TARGET);
         if (targetDom == null) {
             return;
@@ -374,7 +370,7 @@ public class DefaultTargetPlatformConfigurationReader {
                     result.addTarget(target);
                     return;
                 } else {
-                    throw new MojoExecutionException("target definition file '" + target.getAbsolutePath()
+                    throw new TargetPlatformConfigurationException("target definition file '" + target.getAbsolutePath()
                             + "' not found for project '" + project.getName() + "'.");
                 }
             }
@@ -386,7 +382,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 try {
                     result.addTarget(new URI(TargetDefinitionResolver.convertRawToUri(uri)));
                 } catch (URISyntaxException e) {
-                    throw new MojoExecutionException("target definition uri '" + uri
+                    throw new TargetPlatformConfigurationException("target definition uri '" + uri
                             + "' can not be parsed for project '" + project.getName() + "'.");
                 }
             }
@@ -394,12 +390,12 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     protected void addTargetArtifact(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
-            Xpp3Dom artifactDom) throws MojoExecutionException {
+            Xpp3Dom artifactDom) throws TargetPlatformConfigurationException {
         Xpp3Dom groupIdDom = artifactDom.getChild("groupId");
         Xpp3Dom artifactIdDom = artifactDom.getChild("artifactId");
         Xpp3Dom versionDom = artifactDom.getChild("version");
         if (groupIdDom == null || artifactIdDom == null || versionDom == null) {
-            throw new BuildFailureException(
+            throw new TargetPlatformConfigurationException(
                     "The target artifact configuration is invalid - <groupId>, <artifactId> and <version> are mandatory");
         }
         Xpp3Dom classifierDom = artifactDom.getChild("classifier");
@@ -412,8 +408,8 @@ public class DefaultTargetPlatformConfigurationReader {
             result.addTarget(platformArtifactResolver.resolveTargetFile(groupId, artifactId, version, classifier,
                     session, project.getRemoteArtifactRepositories()));
         } catch (TargetResolveException e) {
-            throw new MojoExecutionException("resolve target artifact " + groupId + ":" + artifactId + ":" + version
-                    + ":" + Objects.requireNonNullElse(classifier, "no classifier") + " failed!", e);
+            throw new TargetPlatformConfigurationException("resolve target artifact " + groupId + ":" + artifactId + ":"
+                    + version + ":" + Objects.requireNonNullElse(classifier, "no classifier") + " failed!", e);
         }
     }
 

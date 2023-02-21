@@ -62,10 +62,10 @@ import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -94,6 +94,9 @@ public class EquinoxResolver {
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    TychoProjectManager projectManager;
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
@@ -197,7 +200,7 @@ public class EquinoxResolver {
     protected Properties getPlatformProperties(ReactorProject project, MavenSession mavenSession,
             DependencyArtifacts artifacts, ExecutionEnvironment ee) {
 
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         //FIXME formally we should resolve the configuration for ALL declared environments!
         TargetEnvironment environment = configuration.getEnvironments().get(0);
         logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");

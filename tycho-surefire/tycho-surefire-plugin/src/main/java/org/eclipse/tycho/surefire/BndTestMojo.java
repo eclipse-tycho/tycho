@@ -458,8 +458,7 @@ public class BndTestMojo extends AbstractTestMojo {
     @Override
     protected BundleScanResult scanForTests() {
         ScanResult moduletests = super.scanForTests();
-        PomDependencies pomDependencies = TychoProjectUtils.getTargetPlatformConfiguration(getReactorProject())
-                .getPomDependencies();
+        PomDependencies pomDependencies = projectManager.getTargetPlatformConfiguration(project).getPomDependencies();
         Set<String> bundleTestCases = new HashSet<>();
         List<ResolvedArtifactKey> pomBundles = new ArrayList<>();
         if (pomDependencies != PomDependencies.ignore) {

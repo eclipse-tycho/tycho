@@ -652,8 +652,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         // 2. test harness bundles
         iusToInstall.addAll(providerHelper.getSymbolicNames(testHarnessArtifacts));
         // 3. extra dependencies
-        LinkedHashSet<ArtifactKey> extraDependencies = new LinkedHashSet<>(TychoProjectUtils
-                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).getAdditionalArtifacts());
+        LinkedHashSet<ArtifactKey> extraDependencies = new LinkedHashSet<>(
+                projectManager.getTargetPlatformConfiguration(project).getAdditionalArtifacts());
         extraDependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
         for (ArtifactKey extraDependency : extraDependencies) {
             String type = extraDependency.getType();
@@ -818,8 +818,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                 dependencies.add(new DefaultArtifactKey(key.getType(), key.getArtifactId(), key.getVersion()));
             }
         }
-        TargetPlatformConfiguration configuration = TychoProjectUtils
-                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         dependencies.addAll(configuration.getDependencyResolverConfiguration().getAdditionalArtifacts());
         dependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
         dependencies.addAll(getTestDependencies());

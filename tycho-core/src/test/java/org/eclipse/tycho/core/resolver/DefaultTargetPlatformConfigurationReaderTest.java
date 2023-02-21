@@ -86,7 +86,7 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
         try {
             configurationReader.addTargetArtifact(configuration, session, new MavenProject(), dom);
-        } catch (MojoExecutionException e) {
+        } catch (TargetPlatformConfigurationException e) {
             assertMessageContains(e, "No target definition file(s) found in project");
         }
     }
@@ -109,7 +109,7 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         try {
             configurationReader.addTargetArtifact(configuration, session, null, dom);
             fail();
-        } catch (BuildFailureException e) {
+        } catch (TargetPlatformConfigurationException e) {
             assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
         }
     }
@@ -122,7 +122,7 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         try {
             configurationReader.addTargetArtifact(configuration, session, null, dom);
             fail();
-        } catch (BuildFailureException e) {
+        } catch (TargetPlatformConfigurationException e) {
             assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
         }
     }
@@ -135,7 +135,7 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         try {
             configurationReader.addTargetArtifact(configuration, session, null, dom);
             fail();
-        } catch (BuildFailureException e) {
+        } catch (TargetPlatformConfigurationException e) {
             assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
         }
     }
