@@ -29,6 +29,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.Profile;
 
@@ -67,7 +68,6 @@ public class ProjectMetadataReader {
         }
 
         if (projects.containsKey(basedir)) {
-            // TODO test me
             return null;
         }
 
@@ -89,10 +89,24 @@ public class ProjectMetadataReader {
         PomFile pom = PomFile.read(pomFile, PomFile.POM_XML.equals(pomFile.getName()));
         project.putMetadata(pom);
 
-        String packaging = pom.getPackaging();
-        if (recursive && PACKAGING_POM.equals(packaging)) {
-            for (File child : getChildren(basedir, pom)) {
-                addBasedir(child, recursive);
+        if (recursive) {
+            if (PACKAGING_POM.equals(pom.getPackaging())) {
+                for (File child : getChildren(basedir, pom)) {
+                    addBasedir(child, recursive);
+                }
+            }
+            GAV parent = pom.getParent();
+            if (parent != null) {
+                String relativePath = parent.getRelativePath();
+                if (relativePath == null) {
+                    relativePath = "../pom.xml";
+                }
+                //this case is required if a child module includes another parent that in fact then uses the parent from the tree
+                //if we don't add this as well, the version update miss the indirectly referenced parent to be updated
+                File parentProjectPath = new File(basedir, relativePath);
+                if (parentProjectPath.exists()) {
+                    addBasedir(canonify(parentProjectPath), recursive);
+                }
             }
         }
         return pom;
