@@ -72,8 +72,6 @@ public class ProjectMetadataReader {
         }
 
         ProjectMetadata project = new ProjectMetadata(basedir);
-        projects.put(basedir, project);
-
         File pomFile = null;
         for (ModelProcessor modelProcessor : modelprocessors) {
             File locatePom = modelProcessor.locatePom(basedir);
@@ -82,10 +80,11 @@ public class ProjectMetadataReader {
                 break;
             }
         }
-        if (pomFile == null || !pomFile.exists()) {
+        if (pomFile == null || !pomFile.exists() || pomFile.length() == 0) {
             log.warn("No pom file found at " + basedir);
             return null;
         }
+        projects.put(basedir, project);
         PomFile pom = PomFile.read(pomFile, PomFile.POM_XML.equals(pomFile.getName()));
         project.putMetadata(pom);
 
