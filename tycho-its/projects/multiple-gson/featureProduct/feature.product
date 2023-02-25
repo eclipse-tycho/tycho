@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="My feature product" uid="feature.product" version="1.0.0" useFeatures="true" includeLaunchers="false" autoIncludeRequirements="true">
+   <features>
+      <feature id="gson.feature"/>
+   </features>
+</product>

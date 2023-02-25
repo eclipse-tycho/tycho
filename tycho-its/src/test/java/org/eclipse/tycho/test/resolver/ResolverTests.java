@@ -48,6 +48,14 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 	}
 
+	@Test
+	public void testMultipleVersionsWithSubstitution() throws Exception {
+
+		Verifier verifier = getVerifier("multiple-gson");
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+	}
+
 	/**
 	 * This test case test a combination of plain maven build artifacts (using
 	 * felix-bundle-plugin) and tycho eclipse-plugin build artifact.
