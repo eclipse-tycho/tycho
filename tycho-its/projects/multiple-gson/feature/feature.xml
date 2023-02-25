@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="gson.feature"
+      label="Feature"
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="com.google.gson"
+         version="2.9.1.v20220915-1632"
+         />
+   <plugin
+         id="com.google.gson"
+         version="2.10.1"
+         />
+
+   <plugin
+         id="org.example.gson"
+         version="0.0.0"
+         />
+
+</feature>
