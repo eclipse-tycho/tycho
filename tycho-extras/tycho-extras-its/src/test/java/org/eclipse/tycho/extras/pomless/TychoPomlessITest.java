@@ -19,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.extras.its.AbstractTychoExtrasIntegrationTest;
 import org.junit.Test;
 
@@ -48,8 +48,7 @@ public class TychoPomlessITest extends AbstractTychoExtrasIntegrationTest {
     @Test
     public void testPomlessFlatBuildExtension() throws Exception {
         Verifier verifier = getVerifier("testpomless-flat", false);
-        verifier.addCliOption("-f");
-        verifier.addCliOption("aggregate/pom.xml");
+        verifier.addCliArguments("-f aggregate/pom.xml");
         verifier.executeGoals(asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
         // sanity check pom-less if bundle, test bundle and feature have been built

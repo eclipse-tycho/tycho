@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class DependencyResolverEETest extends AbstractTychoIntegrationTest {
 	@Test
 	public void eeFromBREE() throws Exception {
 		Verifier verifier = getVerifier("/eeProfile/ee-from-bree", false);
-		verifier.addCliOption(
+		verifier.addCliArgument(
 				"-Djavax.xml-repo=" + ResourceUtil.resolveTestResource("repositories/javax.xml").toURI().toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();

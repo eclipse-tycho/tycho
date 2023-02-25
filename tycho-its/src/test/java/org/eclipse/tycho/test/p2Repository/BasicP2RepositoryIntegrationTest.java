@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.nio.file.Files;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
@@ -39,7 +39,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 	@BeforeClass
 	public static void executeBuild() throws Exception {
 		verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository", false);
-		verifier.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
@@ -93,7 +93,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 	@Test
 	public void testDependencyList() throws Exception {
 		Verifier dependencyListVerifier = getVerifier("/p2Repository.basic");
-		dependencyListVerifier.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_352);
+		dependencyListVerifier.addCliArgument("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_352);
 		dependencyListVerifier.executeGoal("dependency:list");
 		dependencyListVerifier.verifyErrorFreeLog();
 		File logFile = new File(dependencyListVerifier.getBasedir(), dependencyListVerifier.getLogFileName());

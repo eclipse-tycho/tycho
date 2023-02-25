@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
@@ -87,6 +87,7 @@ public abstract class AbstractTychoIntegrationTest {
         File testDir = getBasedir(test);
 
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
+        verifier.setForkJvm(true);
         String debug = System.getProperty("tycho.mvnDebug");
         if (debug != null) {
             System.out.println("Preparing to execute Maven in debug mode");
@@ -108,34 +109,34 @@ public abstract class AbstractTychoIntegrationTest {
             verifier.getEnvironmentVariables().put("MAVEN_OPTS", mvnOpts);
             System.out.flush();
         }
-        verifier.addCliOption("-Dmaven.home=" + getMavenHome());
-        verifier.addCliOption("-Dtycho-version=" + getTychoVersion());
+        verifier.addCliArgument("-Dmaven.home=" + getMavenHome());
+        verifier.addCliArgument("-Dtycho-version=" + getTychoVersion());
         // bug 447397: use temp dir in target/ folder to make sure we don't leave garbage behind
         // when using maven < 3.1 
         File tmpDir = new File("target/tmp");
         tmpDir.mkdirs();
-        verifier.addCliOption("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
+        verifier.addCliArgument("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
-            verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform());
+            verifier.addCliArgument("-Dtarget-platform=" + getTargetPlatform());
         }
         if (ignoreLocalArtifacts) {
-            verifier.addCliOption("-Dtycho.localArtifacts=ignore");
+            verifier.addCliArgument("-Dtycho.localArtifacts=ignore");
         }
-        verifier.addCliOption("-X");
-        verifier.addCliOption("-s " + userSettings.getAbsolutePath());
+        verifier.addCliArgument("-X");
+        verifier.addCliArguments("-s", userSettings.getAbsolutePath());
         verifier.getVerifierProperties().put("use.mavenRepoLocal", "true");
         verifier.setLocalRepo(EnvironmentUtil.getLocalRepo());
 
         String customOptions = System.getProperty("it.cliOptions");
         if (customOptions != null && !customOptions.trim().isEmpty()) {
-            verifier.addCliOption(customOptions);
+            verifier.addCliArguments(customOptions.split(" "));
         }
 
         if (System.getProperty(SYSPROP_STATELOCATION) != null) {
             verifier.setForkJvm(false);
             String m2eresolver = System.getProperty("tychodev-maven.ext.class.path"); // XXX
             if (m2eresolver != null) {
-                verifier.addCliOption("-Dmaven.ext.class.path=" + m2eresolver);
+                verifier.addCliArgument("-Dmaven.ext.class.path=" + m2eresolver);
             }
         }
 

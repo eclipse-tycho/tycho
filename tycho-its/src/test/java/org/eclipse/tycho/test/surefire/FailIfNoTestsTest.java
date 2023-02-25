@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.surefire;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class FailIfNoTestsTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("surefire.noTests");
 
 		// support for this option was requested in TYCHO-432
-		verifier.addCliOption("-DfailIfNoTests=false");
+		verifier.addCliArgument("-DfailIfNoTests=false");
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 	}

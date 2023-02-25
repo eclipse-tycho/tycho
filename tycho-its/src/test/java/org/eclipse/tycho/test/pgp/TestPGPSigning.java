@@ -32,8 +32,8 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSignature;
@@ -103,7 +103,7 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 
 	private Verifier createVerifier() throws Exception {
 		var verifier = getVerifier("gpg.sign.p2.basic", true);
-		verifier.addCliOption("-Pgpg-sign");
+		verifier.addCliArgument("-Pgpg-sign");
 
 		// This forces gpg NOT to be used.
 		verifier.setSystemProperty("org.eclipse.tycho.test.pgp.info", PGP_INFO.toString());
@@ -288,7 +288,7 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 			return;
 		}
 
-		verifier.addCliOption("-Pgpg-sign-2");
+		verifier.addCliArgument("-Pgpg-sign-2");
 		verifier.setSystemProperty("test.forceSignature", "bcpg");
 		verifier.setSystemProperty("test.pgpKeyBehavior-2", "merge");
 		verifier.setSystemProperty("gpg-keyname-2", SECONDARY_KEY_NAME);
@@ -322,7 +322,7 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 			return;
 		}
 
-		verifier.addCliOption("-Pgpg-sign-2");
+		verifier.addCliArgument("-Pgpg-sign-2");
 		verifier.setSystemProperty("test.forceSignature", "bcpg");
 		verifier.setSystemProperty("test.pgpKeyBehavior-2", "merge");
 		verifier.setSystemProperty("gpg-keyname-2", PRIMARY_KEY_NAME);
@@ -356,7 +356,7 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 			return;
 		}
 
-		verifier.addCliOption("-Pgpg-sign-2");
+		verifier.addCliArgument("-Pgpg-sign-2");
 		verifier.setSystemProperty("test.forceSignature", "bcpg");
 		verifier.setSystemProperty("test.pgpKeyBehavior-2", "replace");
 		verifier.setSystemProperty("gpg-keyname-2", SECONDARY_KEY_NAME);
@@ -391,7 +391,7 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 			return;
 		}
 
-		verifier.addCliOption("-Pgpg-sign-2");
+		verifier.addCliArgument("-Pgpg-sign-2");
 		verifier.setSystemProperty("test.forceSignature", "bcpg");
 		verifier.setSystemProperty("test.pgpKeyBehavior-2", "skip");
 		verifier.setSystemProperty("gpg-keyname-2", SECONDARY_KEY_NAME);

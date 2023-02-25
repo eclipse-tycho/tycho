@@ -19,9 +19,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.file.Files;
 
-import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("TychoVersionsPluginTest/compat", true);
 
-		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.addCliArgument("-DnewVersion=" + expectedNewVersion);
 		verifier.executeGoal(
 				"org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":set-version");
 
@@ -68,7 +68,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("TychoVersionsPluginTest/update-target", true);
 
-		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.addCliArgument("-DnewVersion=" + expectedNewVersion);
 		verifier.executeGoal(
 				"org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":set-version");
 

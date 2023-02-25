@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWithIgnoringCase;
 import static org.junit.Assume.assumeThat;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 

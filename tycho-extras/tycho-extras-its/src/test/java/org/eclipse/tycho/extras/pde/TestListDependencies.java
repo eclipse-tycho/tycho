@@ -13,7 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.nio.file.Files;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.extras.its.AbstractTychoExtrasIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class TestListDependencies extends AbstractTychoExtrasIntegrationTest {
     @Test
     public void testDependencyWithNestedJar() throws Exception {
         Verifier verifier = getVerifier("dependencyList/dependency-with-nested-jar", false);
-        verifier.addCliOption("-Dp2-repo=" + P2_REPO);
+        verifier.addCliArgument("-Dp2-repo=" + P2_REPO);
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         File file = new File(verifier.getBasedir(), "target/dependencies-list.txt");

@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -33,7 +33,7 @@ public class SetLicenseFeatureVersionTest extends AbstractTychoIntegrationTest {
 	public void test() throws Exception {
 		Verifier verifier = getVerifier("/licenseFeature.setVersion", false);
 
-		verifier.addCliOption("-DnewVersion=" + NEW_MAVEN_VERSION);
+		verifier.addCliArgument("-DnewVersion=" + NEW_MAVEN_VERSION);
 		verifier.executeGoal(
 				"org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":set-version");
 

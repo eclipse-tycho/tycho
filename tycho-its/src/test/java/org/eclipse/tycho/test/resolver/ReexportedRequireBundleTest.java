@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.resolver;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class ReexportedRequireBundleTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testBundleNativeCode() throws Exception {
 		Verifier verifier = getVerifier("/resolver.reexportBundle/transitively.require.org.eclipse.osgi");
-		verifier.addCliOption("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("compile");
 		verifier.verifyErrorFreeLog();
 	}
@@ -27,7 +27,7 @@ public class ReexportedRequireBundleTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testOrgEclipseCoreExpressions() throws Exception {
 		Verifier verifier = getVerifier("/resolver.reexportBundle/org.eclipse.core.expressions");
-		verifier.addCliOption("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("compile");
 		verifier.verifyErrorFreeLog();
 	}

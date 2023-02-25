@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -24,8 +24,8 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testBnd() throws Exception {
 		Verifier verifier = getVerifier("pomless", false, true);
-		verifier.addCliOption("-pl");
-		verifier.addCliOption("bnd");
+		verifier.addCliArgument("-pl");
+		verifier.addCliArgument("bnd");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bnd/target/classes/module-info.class");

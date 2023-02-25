@@ -28,7 +28,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ArchiveContentUtil;
@@ -237,8 +238,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 		}
 	}
 
-	static private void assertRepositoryArtifacts(Verifier verifier) {
-		verifier.assertArtifactPresent(GROUP_ID, ARTIFACT_ID, VERSION, "zip");
+	static private void assertRepositoryArtifacts(Verifier verifier) throws VerificationException {
+		verifier.verifyArtifactPresent(GROUP_ID, ARTIFACT_ID, VERSION, "zip");
 	}
 
 	static private void assertTotalZipArtifacts(final Verifier verifier, final int expectedArtifacts) {

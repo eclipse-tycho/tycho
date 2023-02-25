@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testBasic() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/basic", false, false);
-		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
+		verifier.addCliArgument("-De342-url=" + ECLIPSE_342.toString());
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File feature = new File(verifier.getBasedir(),
@@ -105,7 +105,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testExtraSourceBundles() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/extra-source-bundles", false, false);
-		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
+		verifier.addCliArgument("-De342-url=" + ECLIPSE_342.toString());
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),
@@ -116,7 +116,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testLicenseFeature() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/license-feature", false, false);
-		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
+		verifier.addCliArgument("-De342-url=" + ECLIPSE_342.toString());
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File sourceFeature = new File(verifier.getBasedir(), "feature/target/feature-1.0.0-sources-feature.jar");
@@ -141,7 +141,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testRemoteSourceBundles() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/remote-source-bundles", false, false);
-		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
+		verifier.addCliArgument("-De342-url=" + ECLIPSE_342.toString());
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),

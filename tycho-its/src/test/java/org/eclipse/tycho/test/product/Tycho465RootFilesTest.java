@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.zip.ZipException;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	public void testProductBuild() throws Exception {
 		Verifier verifier = getVerifier("product.rootFiles", true);
 
-		verifier.addCliOption("-DforceContextQualifier=" + QUALIFIER.toString());
+		verifier.addCliArgument("-DforceContextQualifier=" + QUALIFIER.toString());
 
 		verifier.executeGoal("install");
 		verifier.verifyErrorFreeLog();
@@ -60,7 +60,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		Verifier eclipseRepoProjectVerifier = getVerifier("product.rootFiles/eclipse-repository", true,
 				ignoreLocallyInstalledArtifacts);
 
-		eclipseRepoProjectVerifier.addCliOption("-DforceContextQualifier=" + QUALIFIER.toString());
+		eclipseRepoProjectVerifier.addCliArgument("-DforceContextQualifier=" + QUALIFIER.toString());
 
 		eclipseRepoProjectVerifier.executeGoal("verify");
 		eclipseRepoProjectVerifier.verifyErrorFreeLog();

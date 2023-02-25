@@ -14,8 +14,8 @@ package org.eclipse.tycho.test.compiler;
 
 import static org.junit.Assert.fail;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class TestErrorMessages extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMissingBREEWithPlainProfile() throws Exception {
 		Verifier verifier = getVerifier("compiler.messages/missing-bree", false);
-		verifier.addCliOption("-Pplain");
+		verifier.addCliArgument("-Pplain");
 		try {
 			verifier.executeGoal("compile");
 			fail();
@@ -61,7 +61,7 @@ public class TestErrorMessages extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMissingBREEWithJustJProfile() throws Exception {
 		Verifier verifier = getVerifier("compiler.messages/missing-bree", false);
-		verifier.addCliOption("-Pjustj");
+		verifier.addCliArgument("-Pjustj");
 		try {
 			verifier.executeGoal("compile");
 			fail();

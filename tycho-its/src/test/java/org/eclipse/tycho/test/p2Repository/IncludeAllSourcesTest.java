@@ -19,7 +19,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;

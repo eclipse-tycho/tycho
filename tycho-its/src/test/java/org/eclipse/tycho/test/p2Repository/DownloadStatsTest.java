@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testNoDownloadStatsByDefault() throws Exception {
 		Verifier verifier = getVerifier("p2Repository.reactor", false);
-		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
+		verifier.addCliArgument("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
 
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
@@ -50,8 +50,8 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDownloadStatsAddedUponProperty() throws Exception {
 		Verifier verifier = getVerifier("p2Repository.reactor", false);
-		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
-		verifier.addCliOption("-Dtycho.generateDownloadStatsProperty=true");
+		verifier.addCliArgument("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
+		verifier.addCliArgument("-Dtycho.generateDownloadStatsProperty=true");
 
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();

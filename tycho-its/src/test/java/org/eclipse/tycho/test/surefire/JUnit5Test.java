@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.surefire;
 import static org.eclipse.tycho.test.util.SurefireUtil.assertNumberOfSuccessfulTests;
 import static org.eclipse.tycho.test.util.SurefireUtil.assertTestMethodWasSuccessfullyExecuted;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	@Test
 	public void testJUnit5Runner() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit5/bundle.test", false);
-		verifier.addCliOption("-Doxygen-repo=" + P2Repositories.ECLIPSE_OXYGEN.toString());
+		verifier.addCliArgument("-Doxygen-repo=" + P2Repositories.ECLIPSE_OXYGEN.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
@@ -48,7 +48,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	@Test
 	public void testJUnit4and54Runner() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit4and54/bundle.test", false);
-		verifier.addCliOption("-Drepo-2019-03=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Drepo-2019-03=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
@@ -61,7 +61,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	@Test
 	public void testJUnit54Runner() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit54/bundle.test", false);
-		verifier.addCliOption("-Drepo-2019-03=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Drepo-2019-03=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
@@ -73,7 +73,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	@Test
 	public void testJUnit56Runner() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit56/bundle.test", false);
-		verifier.addCliOption("-Drepo-2020-03=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Drepo-2020-03=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();
@@ -85,7 +85,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	@Test
 	public void testJUnit59Runner() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit59/bundle.test", false);
-		verifier.addCliOption("-Drepo-2020-03=" + P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliArgument("-Drepo-2020-03=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		String projectBasedir = verifier.getBasedir();

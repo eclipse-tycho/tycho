@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
@@ -35,7 +35,7 @@ public class ProductDefinitionCrosstalkTest extends AbstractTychoIntegrationTest
 		// an eclipse-repository module with two product definitions, each containing
 		// exactly one bundle
 		Verifier verifier = getVerifier("product.crosstalk", false);
-		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliArgument("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 
