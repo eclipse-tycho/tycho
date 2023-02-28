@@ -38,8 +38,8 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 import org.osgi.framework.Constants;
 
 public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {

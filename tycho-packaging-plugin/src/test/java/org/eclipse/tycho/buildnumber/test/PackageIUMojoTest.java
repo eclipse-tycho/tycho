@@ -20,10 +20,10 @@ import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.model.IU;
 import org.eclipse.tycho.packaging.PackageIUMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 
 import de.pdark.decentxml.Element;
 

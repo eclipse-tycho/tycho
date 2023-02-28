@@ -22,8 +22,8 @@ import java.nio.file.Files;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Test;
 
 public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {

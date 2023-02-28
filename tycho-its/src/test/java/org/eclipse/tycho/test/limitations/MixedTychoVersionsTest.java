@@ -17,8 +17,8 @@ import static org.junit.Assert.fail;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Test;
 
 public class MixedTychoVersionsTest extends AbstractTychoIntegrationTest {
