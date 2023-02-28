@@ -31,12 +31,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.apache.maven.model.Build;
 import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.InputSource;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.building.FileModelSource;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelReader;
@@ -54,6 +58,8 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
  *
  */
 public abstract class AbstractTychoMapping implements Mapping, ModelReader {
+
+    protected static final String TYCHO_GROUP_ID = "org.eclipse.tycho";
 
     // All build.properties entries specifically considered by Tycho. Extends the list in Mapping interface
     protected static final String TYCHO_POMLESS_PARENT_PROPERTY = "tycho.pomless.parent";
@@ -151,7 +157,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         if (model.getParent() == null) {
             model.setParent(findParent(artifactFile.getParent(), options));
         }
-        if (model.getVersion() == null) {
+        if (model.getVersion() == null && model.getParent() != null) {
             //inherit version from parent if not given
             model.setVersion(model.getParent().getVersion());
         }
@@ -185,7 +191,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
             throw new FileNotFoundException("parent pom file/folder " + fileOrFolder + " is not accessible");
         }
         if (parentPom == null) {
-            throw new FileNotFoundException("No parent pom file found in " + fileOrFolder.toRealPath());
+            throw new NoParentPomFound(fileOrFolder);
         }
         Map<String, Object> options = new HashMap<>(1);
         options.put(ModelProcessor.SOURCE, new FileModelSource(parentPom.getPomFile()));
@@ -323,7 +329,16 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     private static void setLocation(Model model, Path modelSource) {
         InputSource inputSource = new InputSource();
         inputSource.setLocation(modelSource.toString());
-        inputSource.setModelId(model.getParent().getGroupId() + ":" + model.getArtifactId() + ":" + model.getVersion());
+        String groupId = model.getGroupId();
+        if (groupId == null) {
+            Parent parent = model.getParent();
+            if (parent == null) {
+                groupId = "-";
+            } else {
+                groupId = parent.getGroupId();
+            }
+        }
+        inputSource.setModelId(groupId + ":" + model.getArtifactId() + ":" + model.getVersion());
         model.setLocation("", new InputLocation(0, 0, inputSource));
     }
 
@@ -367,7 +382,46 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         return Optional.empty();
     }
 
-    static String getFileName(Path file) {
+    protected static String getFileName(Path file) {
         return file.getFileName().toString();
+    }
+
+    protected static Plugin disablePluginExecution(Model model, String groupId, String artifactId, String executionId) {
+
+        Plugin plugin = getPlugin(model, groupId, artifactId);
+        PluginExecution execution = new PluginExecution();
+        execution.setId(executionId);
+        execution.setPhase("none");
+        plugin.addExecution(execution);
+        return plugin;
+    }
+
+    protected static Plugin addPluginExecution(Plugin plugin, Consumer<PluginExecution> init) {
+        PluginExecution execution = new PluginExecution();
+        init.accept(execution);
+        plugin.addExecution(execution);
+        return plugin;
+    }
+
+    protected static Plugin getPlugin(Model model, String groupId, String artifactId) {
+        Build build = getBuild(model);
+        for (Plugin existing : build.getPlugins()) {
+            if (existing.getGroupId().equals(groupId) && existing.getArtifactId().equals(artifactId)) {
+                return existing;
+            }
+        }
+        Plugin plugin = new Plugin();
+        plugin.setGroupId(groupId);
+        plugin.setArtifactId(artifactId);
+        build.addPlugin(plugin);
+        return plugin;
+    }
+
+    protected static Build getBuild(Model model) {
+        Build build = model.getBuild();
+        if (build == null) {
+            model.setBuild(build = new Build());
+        }
+        return build;
     }
 }
