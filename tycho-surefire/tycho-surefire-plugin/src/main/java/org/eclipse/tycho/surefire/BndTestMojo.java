@@ -57,9 +57,9 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.surefire.bnd.ArtifactKeyRepository;
 import org.eclipse.tycho.surefire.bnd.TargetPlatformRepository;
+import org.eclipse.tycho.version.TychoVersion;
 import org.osgi.resource.Requirement;
 import org.osgi.service.resolver.ResolutionException;
 

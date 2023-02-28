@@ -38,8 +38,8 @@ import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 

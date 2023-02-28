@@ -38,7 +38,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.FilterAction;
 import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
-import org.eclipse.tycho.core.utils.TychoVersion;
+import org.eclipse.tycho.version.TychoVersion;
 
 public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTestCase {
 

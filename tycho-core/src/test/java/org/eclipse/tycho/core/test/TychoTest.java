@@ -30,9 +30,9 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 
 public class TychoTest extends AbstractTychoMojoTestCase {
 
