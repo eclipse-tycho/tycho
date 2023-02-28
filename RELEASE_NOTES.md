@@ -7,6 +7,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 ### Backports
 
 - Include smartbuilder (but disabled by default), can be enabled with `-Dtycho.build.smartbuilder=true`)
+- tycho-bnd-plugin support
 
 ## 3.0.3
 

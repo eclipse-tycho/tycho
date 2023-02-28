@@ -1,0 +1,18 @@
+# Configure a layout that is usually used with a traditional maven build
+
+target-dir = target
+main-dir   = src/main
+test-dir   = src/test
+
+src        = ${main-dir}/java, ${main-dir}/resources
+testsrc    = ${test-dir}/java
+bin        = ${target-dir}/classes
+testbin    = ${target-dir}/test-classes
+
+
+-plugin.100.central: \
+    aQute.bnd.repository.maven.provider.MavenBndRepository; \
+        releaseUrl=https://repo.maven.apache.org/maven2/; \
+        index=${.}/central.mvn; \
+        readOnly=true; \
+        name="Maven Central Bundles"
