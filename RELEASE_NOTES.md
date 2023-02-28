@@ -4,6 +4,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### Building BND Workspace Projects pomless
+
+The tycho-build extension can now also build projects with a [BND Workspaces](https://bndtools.org/concepts.html) layout in a complete pomless way,
+details can be found here: https://tycho.eclipseprojects.io/doc/master/BndBuild.html
+
 ### new tycho-versions-plugin mojos
 
 #### bump-versions mojo

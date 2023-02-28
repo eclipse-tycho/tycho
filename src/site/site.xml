@@ -4,6 +4,7 @@
 		<menu name="Tycho" inherit="top">
 			<item name="Introduction" href="index.html" />
 			<item name="Structured Build Layout and Pomless Builds" href="StructuredBuild.html" />
+			<item name="BND Workspace and Pomless Builds" href="BndBuild.html" />
 			<item name="Packaging Types" href="PackagingTypes.html" />
 			<item name="Testing Bundles" href="TestingBundles.html" />
 			<item name="Tycho CI Friendly Versions" href="TychoCiFriendly.html" />
