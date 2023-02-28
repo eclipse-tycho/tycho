@@ -18,7 +18,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
@@ -41,8 +44,9 @@ public abstract class AbstractTychoIntegrationTest {
 
     protected File getBasedir(String test) throws IOException {
         File src = new File("projects", test).getAbsoluteFile();
-        File dst = new File("target/projects", getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test)
-                .getAbsoluteFile();
+        File dst = new File("target/projects",
+                getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test.replace("../", "./"))
+                        .getAbsoluteFile();
 
         if (dst.isDirectory()) {
             FileUtils.deleteDirectory(dst);
@@ -224,6 +228,27 @@ public abstract class AbstractTychoIntegrationTest {
 
     protected String toURI(File file) throws IOException {
         return file.getCanonicalFile().toURI().normalize().toString();
+    }
+
+    public static void verifyTextInLogMatches(Verifier verifier, Pattern pattern) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+
+        for (String line : lines) {
+            if (pattern.matcher(Verifier.stripAnsi(line)).find()) {
+                return;
+            }
+        }
+        throw new VerificationException("Pattern not found in log: " + pattern);
+    }
+
+    public static void verifyTextNotInLog(Verifier verifier, String text) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+
+        for (String line : lines) {
+            if (Verifier.stripAnsi(line).contains(text)) {
+                throw new VerificationException("Text '" + text + "' was found in the log!");
+            }
+        }
     }
 
 }

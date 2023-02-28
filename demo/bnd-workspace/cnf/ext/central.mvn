@@ -1,0 +1,4 @@
+# Contains all bundles to consume from maven central
+
+org.osgi:osgi.annotation:8.1.0
+org.osgi:org.osgi.service.component.annotations:1.5.1
