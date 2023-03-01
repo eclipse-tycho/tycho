@@ -345,6 +345,39 @@ Old behavior can be restored through configuration of the tycho-surefire-plugin:
     </configuration>
 </plugin>
 ```
+
+## 3.0.3
+
+### Dependency upgrades and Maven 3.9.0 support
+
+This release includes some dependency upgrades and a fix to run Tycho 3 with Maven 3.9.0.
+
+### Parameter enhancements for tycho-apitools-plugin:generate goal
+
+The parameters of the `tycho-apitools-plugin:generate` goal have been completed and improved.
+
+## 3.0.2
+
+### Fixed support for the generation of a source feature from a maven target-location template
+
+The generated source feature now properly includes the source bundles.
+
+### EclipseRunMojo `argLine` and `appArgLine` are reintroduced and no longer deprecated.
+
+The `argLine` and `appArgLine` options have long been deprecated and were removed in Tycho 3.0.0. 
+They are generally inferior to the list-based `jvmArgs` and `applicationArgs` respectively.
+However there are use cases where the arguments need to be extensible via property expansion, in which case the list-based approach is not always a suitable alternative.
+As such, these two options have been re-introduced for Tycho 3.0.2 and are no longer marked deprecated though `jvmArgs` and `applicationArgs` remain the preferred mechanism.
+
+### Backports
+- Maven Loockup can become really slow and should cache previous requests #1969
+- Provide a "verify-pom-resolves" mojo #1451 
+- JUnit 5.9 support in Tycho 3.0.x #1943
+- Consumer-POM should use packaging-type jar instead of eclipse-plugin #2005 
+- Mirroring of packed artifacts must be disabled
+- Target platform resolved multiple times
+- Support resolving of target projects from the reactor
+
 ## 3.0.1
 
 ### Fix for java.lang.NoSuchMethodError: 'void org.eclipse.equinox.internal.p2.repository.helpers.ChecksumProducer
