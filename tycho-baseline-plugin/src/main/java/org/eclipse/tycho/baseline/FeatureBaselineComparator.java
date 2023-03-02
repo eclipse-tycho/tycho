@@ -368,12 +368,45 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 						String.format("Property %s present in baseline version only", name)));
 				continue;
 			}
-			if (!baselineValue.equals(projectValue)) {
+			if (!propertyEquals(baselineValue, projectValue)) {
+				int indexOfDifference = indexOfDifference(baselineValue, projectValue);
 				list.add(new Diff(ImpliedVersionChange.MICRO, Type.PROPERTY, Delta.CHANGED, String.format(
-						"Property %s is different, baseline = %s, project = %s ", name, baselineValue, projectValue)));
+						"Property %s is different, baseline = %s, project = %s (first index of difference is "
+								+ indexOfDifference,
+						name, baselineValue, projectValue)));
 			}
 		}
 		return list;
+	}
+
+	private static boolean propertyEquals(String baselineValue, String projectValue) {
+		if (baselineValue.equals(projectValue)) {
+			// perfect match
+			return true;
+		}
+		String normalizdBl = baselineValue.replaceAll("\\s", " ").replaceAll("\\s+", " ").trim();
+		String normalizdPr = projectValue.replaceAll("\\s", " ").replaceAll("\\s+", " ").trim();
+		if (normalizdBl.equals(normalizdPr)) {
+			return true;
+		}
+		return false;
+	}
+
+	private static int indexOfDifference(CharSequence s1, CharSequence s2) {
+		int length = s1.length();
+		if (length < s2.length()) {
+			return indexOfDifference(s2, s1);
+		}
+		int i;
+		for (i = 0; i < length; i++) {
+			char c1 = s1.charAt(i);
+			char c2 = s2.charAt(i);
+			if (c1 != c2) {
+				break;
+			}
+		}
+		return i;
+
 	}
 
 	private IQueryable<IInstallableUnit> getProjectUnits(MavenProject project)
