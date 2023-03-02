@@ -46,8 +46,7 @@ public class MutableManifestElementTest {
     @Test
     public void testSetAttribute() {
         MutableManifestElement requireBundle = new MutableManifestElement("bundle1",
-                Collections.singletonMap(Constants.BUNDLE_VERSION_ATTRIBUTE, "1.0.0"),
-                Collections.<String, String> emptyMap());
+                Collections.singletonMap(Constants.BUNDLE_VERSION_ATTRIBUTE, "1.0.0"), Collections.emptyMap());
 
         requireBundle.setAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE, "2.0.0");
 
@@ -56,8 +55,8 @@ public class MutableManifestElementTest {
 
     @Test
     public void testWriteValueOnly() {
-        MutableManifestElement bundleVersion = new MutableManifestElement("2.0.0.qualifier",
-                Collections.<String, String> emptyMap(), Collections.<String, String> emptyMap());
+        MutableManifestElement bundleVersion = new MutableManifestElement("2.0.0.qualifier", Collections.emptyMap(),
+                Collections.emptyMap());
 
         assertEquals("2.0.0.qualifier", bundleVersion.write());
     }
@@ -90,9 +89,8 @@ public class MutableManifestElementTest {
                         "org.eclipse.whatever1, org.eclipse.whatever2, org.eclipse.whatever3, org.eclipse.whatever4"));
 
         // When uses directive contains 3 or more elements it is wrapped
-        assertEquals(
-                "com.package2;version=\"1.1.0\";\n"
-                        + "  uses:=\"org.eclipse.whatever1,\n   org.eclipse.whatever2,\n   org.eclipse.whatever3,\n   org.eclipse.whatever4\"",
+        assertEquals("com.package2;version=\"1.1.0\";\n"
+                + "  uses:=\"org.eclipse.whatever1,\n   org.eclipse.whatever2,\n   org.eclipse.whatever3,\n   org.eclipse.whatever4\"",
                 exportPackage.write());
     }
 

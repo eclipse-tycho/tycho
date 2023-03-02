@@ -14,10 +14,9 @@ package org.eclipse.tycho.versions.engine.tests;
 
 import java.io.File;
 
-import org.junit.Assert;
-
 import org.codehaus.plexus.PlexusTestCase;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
+import org.junit.Assert;
 
 public class ProjectMetadataReaderTest extends PlexusTestCase {
 
@@ -31,21 +30,21 @@ public class ProjectMetadataReaderTest extends PlexusTestCase {
     public void test_moduleElementWithExplicitPomXml() throws Exception {
         File basedir = new File("src/test/resources/projects/simple/pom.xml");
         Assert.assertTrue(basedir.exists()); // sanity check
-        reader.addBasedir(basedir);
+        reader.addBasedir(basedir, true);
         Assert.assertEquals(1, reader.getProjects().size());
     }
 
     public void test_customPomXmlFileName() throws Exception {
         File basedir = new File("src/test/resources/projects/simple/pom.xml_expected");
         Assert.assertTrue(basedir.exists()); // sanity check
-        reader.addBasedir(basedir);
+        reader.addBasedir(basedir, true);
         Assert.assertEquals(1, reader.getProjects().size());
     }
 
     public void test_missingBasedir() throws Exception {
         File basedir = new File("src/test/resources/projects/simple/missing");
         Assert.assertFalse(basedir.exists()); // sanity check
-        reader.addBasedir(basedir);
+        reader.addBasedir(basedir, true);
         Assert.assertEquals(0, reader.getProjects().size());
     }
 }

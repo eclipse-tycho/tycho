@@ -8,6 +8,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 - Include smartbuilder (but disabled by default), can be enabled with `-Dtycho.build.smartbuilder=true`)
 - tycho-bnd-plugin support
+- Version Mojo Bugfixes
 
 ## 3.0.3
 

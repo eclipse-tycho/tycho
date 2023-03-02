@@ -29,6 +29,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.Profile;
 
@@ -43,12 +44,16 @@ public class ProjectMetadataReader {
 
     private Map<File, ProjectMetadata> projects = new LinkedHashMap<>();
 
-    public void addBasedir(File basedir) throws IOException {
+    public void reset() {
+        projects.clear();
+    }
+
+    public PomFile addBasedir(File basedir, boolean recursive) throws IOException {
         // Unfold configuration inheritance
 
         if (!basedir.exists()) {
             log.info("Project does not exist at " + basedir);
-            return;
+            return null;
         }
         List<ModelProcessor> modelprocessors;
         try {
@@ -58,19 +63,17 @@ public class ProjectMetadataReader {
         }
         // normalize basedir to allow modules that explicitly point at pom.xml file
 
+        File pomFile = null;
         if (basedir.isFile()) {
+            pomFile = basedir;
             basedir = basedir.getParentFile();
         }
 
         if (projects.containsKey(basedir)) {
-            // TODO test me
-            return;
+            return null;
         }
 
         ProjectMetadata project = new ProjectMetadata(basedir);
-        projects.put(basedir, project);
-
-        File pomFile = null;
         for (ModelProcessor modelProcessor : modelprocessors) {
             File locatePom = modelProcessor.locatePom(basedir);
             if (basedir.exists()) {
@@ -78,19 +81,35 @@ public class ProjectMetadataReader {
                 break;
             }
         }
-        if (pomFile == null || !pomFile.exists()) {
+        if (pomFile == null || !pomFile.exists() || pomFile.length() == 0) {
             log.warn("No pom file found at " + basedir);
-            return;
+            return null;
         }
+        projects.put(basedir, project);
         PomFile pom = PomFile.read(pomFile, PomFile.POM_XML.equals(pomFile.getName()));
         project.putMetadata(pom);
 
-        String packaging = pom.getPackaging();
-        if (PACKAGING_POM.equals(packaging)) {
-            for (File child : getChildren(basedir, pom)) {
-                addBasedir(child);
+        if (recursive) {
+            if (PACKAGING_POM.equals(pom.getPackaging())) {
+                for (File child : getChildren(basedir, pom)) {
+                    addBasedir(child, recursive);
+                }
+            }
+            GAV parent = pom.getParent();
+            if (parent != null) {
+                String relativePath = parent.getRelativePath();
+                if (relativePath == null) {
+                    relativePath = "../pom.xml";
+                }
+                //this case is required if a child module includes another parent that in fact then uses the parent from the tree
+                //if we don't add this as well, the version update miss the indirectly referenced parent to be updated
+                File parentProjectPath = new File(basedir, relativePath);
+                if (parentProjectPath.exists()) {
+                    addBasedir(canonify(parentProjectPath), recursive);
+                }
             }
         }
+        return pom;
     }
 
     private Set<File> getChildren(File basedir, PomFile project) throws IOException {

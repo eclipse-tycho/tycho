@@ -33,6 +33,19 @@ public class Versions {
         return version;
     }
 
+    public static String incrementVersion(String version, int increment) {
+        boolean isSnapshot = version.endsWith(SUFFIX_SNAPSHOT);
+        if (isSnapshot) {
+            version = version.substring(0, version.length() - SUFFIX_SNAPSHOT.length());
+        }
+        Version osgi = new Version(version);
+        String incremented = osgi.getMajor() + "." + osgi.getMinor() + "." + (osgi.getMicro() + increment);
+        if (isSnapshot) {
+            incremented += SUFFIX_SNAPSHOT;
+        }
+        return incremented;
+    }
+
     /**
      * Returns the version without trailing ".qualifier" or "-SNAPSHOT".
      */
@@ -51,8 +64,8 @@ public class Versions {
         return version;
     }
 
-    public static void assertIsOsgiVersion(String version) throws NumberFormatException, IllegalArgumentException,
-            NullPointerException {
+    public static void assertIsOsgiVersion(String version)
+            throws NumberFormatException, IllegalArgumentException, NullPointerException {
         new Version(version);
     }
 
