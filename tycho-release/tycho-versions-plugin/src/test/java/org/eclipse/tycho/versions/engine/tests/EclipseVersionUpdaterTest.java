@@ -32,7 +32,7 @@ public class EclipseVersionUpdaterTest extends AbstractVersionChangeTest {
     public void test() throws Exception {
         File basedir = TestUtil.getBasedir("projects/updateeclipse");
 
-        reader.addBasedir(basedir);
+        reader.addBasedir(basedir, true);
 
         EclipseVersionUpdater updater = lookup(EclipseVersionUpdater.class);
         updater.setProjects(reader.getProjects());

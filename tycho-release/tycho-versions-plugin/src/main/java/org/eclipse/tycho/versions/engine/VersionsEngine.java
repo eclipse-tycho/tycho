@@ -87,7 +87,7 @@ public class VersionsEngine {
         }
     }
 
-    private PomFile getMutablePom(String artifactId) throws IOException {
+    public PomFile getMutablePom(String artifactId) throws IOException {
         ProjectMetadata project = getProject(artifactId);
 
         if (project == null) {
@@ -100,6 +100,13 @@ public class VersionsEngine {
 
     public void addVersionChange(PomVersionChange change) {
         originalVersionChanges.add(change);
+    }
+
+    public void reset() {
+        originalVersionChanges.clear();
+        propertyChanges.clear();
+        updateVersionRangeMatchingBounds = false;
+        projects = null;
     }
 
     public void apply() throws IOException {
