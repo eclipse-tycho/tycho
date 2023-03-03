@@ -13,6 +13,7 @@
 package org.eclipse.tycho.core;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -23,21 +24,29 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.targetplatform.TargetDefinition;
 
 @Component(role = TychoProjectManager.class)
 @SessionScoped
 public class TychoProjectManager {
+
+    static final String CTX_TARGET_PLATFORM_CONFIGURATION = "TychoProjectManager/targetPlatformConfiguration";
 
     @Requirement(role = TychoProject.class)
     Map<String, TychoProject> projectTypes;
@@ -51,6 +60,12 @@ public class TychoProjectManager {
     @Requirement
     LegacySupport legacySupport;
 
+    @Requirement
+    Logger logger;
+
+    @Requirement
+    ToolchainManager toolchainManager;
+
     private final MavenSession mavenSession;
 
     @Inject
@@ -58,9 +73,49 @@ public class TychoProjectManager {
         this.mavenSession = mavenSession;
     }
 
+    public ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(MavenProject project) {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        return reactorProject.computeContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, () -> {
+            TargetPlatformConfiguration configuration = getTargetPlatformConfiguration(project);
+            ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger,
+                    !configuration.isResolveWithEEConstraints(), toolchainManager, mavenSession);
+            TychoProject tychoProject = getTychoProject(project).orElse(null);
+            if (tychoProject instanceof AbstractTychoProject atp) {
+                atp.readExecutionEnvironmentConfiguration(reactorProject, mavenSession, eeConfiguration);
+            } else {
+                AbstractTychoProject.readExecutionEnvironmentConfiguration(configuration, eeConfiguration);
+            }
+            return eeConfiguration;
+        });
+    }
+
+    public void readExecutionEnvironmentConfiguration(ReactorProject project, MavenSession mavenSession,
+            ExecutionEnvironmentConfiguration sink) {
+        TargetPlatformConfiguration tpConfiguration = getTargetPlatformConfiguration(project);
+
+        String configuredForcedProfile = tpConfiguration.getExecutionEnvironment();
+        if (configuredForcedProfile != null) {
+            sink.overrideProfileConfiguration(configuredForcedProfile,
+                    "target-platform-configuration <executionEnvironment>");
+        } else {
+            tpConfiguration.getTargets().stream() //
+                    .map(TargetDefinition::getTargetEE) //
+                    .filter(Objects::nonNull) //
+                    .findFirst() //
+                    .ifPresent(profile -> sink.overrideProfileConfiguration(profile,
+                            "first targetJRE from referenced target-definition files"));
+        }
+
+        String configuredDefaultProfile = tpConfiguration.getExecutionEnvironmentDefault();
+        if (configuredDefaultProfile != null) {
+            sink.setProfileConfiguration(configuredDefaultProfile,
+                    "target-platform-configuration <executionEnvironmentDefault>");
+        }
+    }
+
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenProject project) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        return reactorProject.computeContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, () -> {
+        return reactorProject.computeContextValue(CTX_TARGET_PLATFORM_CONFIGURATION, () -> {
             TargetPlatformConfiguration configuration = configurationReader
                     .getTargetPlatformConfiguration(getMavenSession(), project);
             return configuration;

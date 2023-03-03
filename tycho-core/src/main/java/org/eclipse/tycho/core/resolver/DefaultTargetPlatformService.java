@@ -55,6 +55,19 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
     ReactorRepositoryManager repositoryManager;
 
     @Override
+    public Optional<TargetPlatform> getTargetPlatform() throws DependencyResolutionException {
+        MavenSession session = legacySupport.getSession();
+        if (session == null) {
+            return Optional.empty();
+        }
+        MavenProject mavenProject = session.getCurrentProject();
+        if (mavenProject == null) {
+            return Optional.empty();
+        }
+        return getTargetPlatform(DefaultReactorProject.adapt(mavenProject));
+    }
+
+    @Override
     public Optional<TargetPlatform> getTargetPlatform(ReactorProject project) throws DependencyResolutionException {
         synchronized (project) {
             Object contextValue = project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
@@ -62,7 +75,7 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
                 return Optional.of((TargetPlatform) contextValue);
             }
             MavenSession session = legacySupport.getSession();
-            if (repositoryManager == null) {
+            if (repositoryManager == null || session == null) {
                 return Optional.empty();
             }
             List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects(project);

@@ -84,7 +84,6 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -1077,8 +1076,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     }
 
     private void addCustomProfileArg(EquinoxLaunchConfiguration cli) throws MojoExecutionException {
-        ExecutionEnvironmentConfiguration eeConfig = TychoProjectUtils
-                .getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project));
+
+        ExecutionEnvironmentConfiguration eeConfig = projectManager.getExecutionEnvironmentConfiguration(project);
         if (eeConfig.isCustomProfile()) {
             Properties customProfileProps = eeConfig.getFullSpecification().getProfileProperties();
             File profileFile = new File(new File(project.getBuild().getDirectory()), "custom.profile");
