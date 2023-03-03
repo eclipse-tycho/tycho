@@ -63,7 +63,7 @@ public class DefaultTychoResolver implements TychoResolver {
 
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project, session);
         TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
         if (tychoProject instanceof AbstractTychoProject dr) {
             // skip if setup was already done
