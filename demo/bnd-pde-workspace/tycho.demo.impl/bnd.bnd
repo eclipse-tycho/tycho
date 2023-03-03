@@ -1,0 +1,6 @@
+Bundle-Version: 2.8.400-SNAPSHOT
+-buildpath:  org.osgi.annotation.bundle, \
+	org.osgi.annotation.versioning, \
+	tycho.demo.api, \
+	tycho.demo.util, \
+	org.osgi.service.component.annotations

@@ -48,6 +48,11 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testTychoBndPdeWorkspaceDemo() throws Exception {
+		runDemo("bnd-pde-workspace");
+	}
+
+	@Test
 	public void testTychoPublishP2Demo() throws Exception {
 		runDemo("publish-p2");
 	}

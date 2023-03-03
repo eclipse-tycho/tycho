@@ -42,4 +42,10 @@ In contrast to a traditional maven build where each module has to contain a `pom
 ```
 4. You can now run your build with `mvn clean verify`
 
-A runnable demo can be found here: https://github.com/eclipse-tycho/tycho/tree/master/demo/bnd-workspace
+A runnable demo can be found here:
+https://github.com/eclipse-tycho/tycho/tree/master/demo/bnd-workspace
+
+### Mixed Builds
+
+You can even combine a BND Workspace and PDE bundles in a build, a runnable demo can be found here:
+https://github.com/eclipse-tycho/tycho/tree/master/demo/bnd-pde-workspace

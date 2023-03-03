@@ -82,29 +82,31 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     @Override
     public TargetPlatform computeFinalTargetPlatform(ReactorProject project,
             List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector) {
-        PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
-        if (preliminaryTargetPlatform == null) {
-            MavenSession session = project.adapt(MavenSession.class);
-            if (session == null) {
-                session = legacySupport.getSession();
+        synchronized (project) {
+            PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
+            if (preliminaryTargetPlatform == null) {
+                MavenSession session = project.adapt(MavenSession.class);
                 if (session == null) {
+                    session = legacySupport.getSession();
+                    if (session == null) {
+                        return null;
+                    }
+                }
+                MavenProject mavenProject = project.adapt(MavenProject.class);
+                if (mavenProject == null) {
                     return null;
                 }
-            }
-            MavenProject mavenProject = project.adapt(MavenProject.class);
-            if (mavenProject == null) {
-                return null;
-            }
-            return p2Resolver.computePreliminaryTargetPlatform(session, mavenProject,
-                    DefaultReactorProject.adapt(session));
+                preliminaryTargetPlatform = (PreliminaryTargetPlatformImpl) p2Resolver
+                        .computePreliminaryTargetPlatform(session, mavenProject, DefaultReactorProject.adapt(session));
 
+            }
+            List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
+            TargetPlatform result = getTpFactory().createTargetPlatformWithUpdatedReactorContent(
+                    preliminaryTargetPlatform, upstreamProjectResults, pomDependencyCollector);
+
+            project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
+            return result;
         }
-        List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
-        TargetPlatform result = getTpFactory().createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
-                upstreamProjectResults, pomDependencyCollector);
-
-        project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
-        return result;
     }
 
     private PreliminaryTargetPlatformImpl getRegisteredPreliminaryTargetPlatform(ReactorProject project) {

@@ -1,0 +1,6 @@
+# Configure a layout that is usually used with pde projects
+
+src        = src
+testsrc    = src_test
+bin        = bin
+testbin    = bin_test
