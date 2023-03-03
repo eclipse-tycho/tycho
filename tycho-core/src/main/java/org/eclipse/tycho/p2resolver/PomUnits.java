@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -30,7 +31,6 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -67,8 +67,8 @@ public class PomUnits {
         if (tychoProject.isEmpty()) {
             return new CollectionResult<>(Collections.emptyList());
         }
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) reactorProject
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        TargetPlatformConfiguration configuration = tychoProjectManager
+                .getTargetPlatformConfiguration(reactorProject.adapt(MavenProject.class));
         return reactorProject.computeContextValue(KEY, () -> {
             return new PomInstallableUnitStore(tychoProject.get(), reactorProject, generator, artifactHandlerManager,
                     logger, configuration);

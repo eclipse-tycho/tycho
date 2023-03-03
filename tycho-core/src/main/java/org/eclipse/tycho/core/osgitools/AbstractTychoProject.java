@@ -127,24 +127,28 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
 
     public void readExecutionEnvironmentConfiguration(ReactorProject project, MavenSession mavenSession,
             ExecutionEnvironmentConfiguration sink) {
-        TargetPlatformConfiguration tpConfiguration = projectManager.getTargetPlatformConfiguration(project);
+        readExecutionEnvironmentConfiguration(projectManager.getTargetPlatformConfiguration(project), sink);
+    }
 
-        String configuredForcedProfile = tpConfiguration.getExecutionEnvironment();
+    public static void readExecutionEnvironmentConfiguration(TargetPlatformConfiguration targetPlatformConfiguration,
+            ExecutionEnvironmentConfiguration executionEnvironmentConfiguration) {
+
+        String configuredForcedProfile = targetPlatformConfiguration.getExecutionEnvironment();
         if (configuredForcedProfile != null) {
-            sink.overrideProfileConfiguration(configuredForcedProfile,
+            executionEnvironmentConfiguration.overrideProfileConfiguration(configuredForcedProfile,
                     "target-platform-configuration <executionEnvironment>");
         } else {
-            tpConfiguration.getTargets().stream() //
+            targetPlatformConfiguration.getTargets().stream() //
                     .map(TargetDefinition::getTargetEE) //
                     .filter(Objects::nonNull) //
                     .findFirst() //
-                    .ifPresent(profile -> sink.overrideProfileConfiguration(profile,
+                    .ifPresent(profile -> executionEnvironmentConfiguration.overrideProfileConfiguration(profile,
                             "first targetJRE from referenced target-definition files"));
         }
 
-        String configuredDefaultProfile = tpConfiguration.getExecutionEnvironmentDefault();
+        String configuredDefaultProfile = targetPlatformConfiguration.getExecutionEnvironmentDefault();
         if (configuredDefaultProfile != null) {
-            sink.setProfileConfiguration(configuredDefaultProfile,
+            executionEnvironmentConfiguration.setProfileConfiguration(configuredDefaultProfile,
                     "target-platform-configuration <executionEnvironmentDefault>");
         }
     }

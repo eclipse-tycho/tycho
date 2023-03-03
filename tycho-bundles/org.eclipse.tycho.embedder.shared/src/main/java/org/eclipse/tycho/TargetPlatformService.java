@@ -23,6 +23,15 @@ public interface TargetPlatformService {
 
     /**
      * 
+     * @return the target platform for current calling context or an empty optional if the calling
+     *         context do not has one.
+     * @throws DependencyResolutionException
+     *             when the target platform for the project can not be resolved
+     */
+    Optional<TargetPlatform> getTargetPlatform() throws DependencyResolutionException;
+
+    /**
+     * 
      * @param project
      *            the project for what the {@link TargetPlatform} should be queried
      * @return the target platform for the given {@link ReactorProject} or an empty optional if the

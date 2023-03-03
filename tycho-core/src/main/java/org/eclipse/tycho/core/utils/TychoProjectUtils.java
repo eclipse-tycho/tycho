@@ -20,7 +20,6 @@ import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 public class TychoProjectUtils {
@@ -70,15 +69,6 @@ public class TychoProjectUtils {
      */
     public static TargetPlatform getTargetPlatformIfAvailable(ReactorProject project) {
         return (TargetPlatform) project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
-    }
-
-    public static ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(ReactorProject project) {
-        ExecutionEnvironmentConfiguration storedConfig = (ExecutionEnvironmentConfiguration) project
-                .getContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION);
-        if (storedConfig == null) {
-            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
-        }
-        return storedConfig;
     }
 
     /**

@@ -40,6 +40,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ee.CustomExecutionEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -47,7 +48,6 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.utils.MavenSessionUtils;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Assert;
@@ -83,8 +83,8 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         DependencyArtifacts platform = (DependencyArtifacts) reactorProject
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
 
-        ExecutionEnvironment executionEnvironment = TychoProjectUtils
-                .getExecutionEnvironmentConfiguration(reactorProject).getFullSpecification();
+        ExecutionEnvironment executionEnvironment = getExecutionEnvironmentConfiguration(reactorProject)
+                .getFullSpecification();
         ModuleContainer state = resolver.newResolvedState(reactorProject, null, executionEnvironment, platform);
         ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
 
@@ -94,6 +94,15 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         Assert.assertEquals("dep2", dependencies.get(1).module.getSymbolicName());
         Assert.assertEquals("dep3", dependencies.get(2).module.getSymbolicName());
         Assert.assertTrue(dependencies.get(2).rules.isEmpty());
+    }
+
+    public static ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(ReactorProject project) {
+        ExecutionEnvironmentConfiguration storedConfig = (ExecutionEnvironmentConfiguration) project
+                .getContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION);
+        if (storedConfig == null) {
+            throw new IllegalStateException(project.toString());
+        }
+        return storedConfig;
     }
 
     @Test

@@ -74,6 +74,7 @@ import org.eclipse.tycho.SourcepathEntry;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.dotClasspath.JREClasspathEntry;
 import org.eclipse.tycho.core.dotClasspath.M2ClasspathVariable;
 import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
@@ -91,7 +92,6 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -361,6 +361,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private List<String> currentSourceRoots;
 
     private List<String> currentExcludes;
+
+    @Component
+    private TychoProjectManager tychoProjectManager;
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
@@ -817,9 +820,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     private ExecutionEnvironment getTargetExecutionEnvironment() {
-        // never null
-        return TychoProjectUtils.getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project))
-                .getFullSpecification();
+        return tychoProjectManager.getExecutionEnvironmentConfiguration(project).getFullSpecification();
     }
 
     @Override

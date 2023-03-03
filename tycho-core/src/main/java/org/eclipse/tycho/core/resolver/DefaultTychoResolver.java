@@ -23,7 +23,6 @@ import java.util.Properties;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -34,15 +33,12 @@ import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -61,9 +57,6 @@ public class DefaultTychoResolver implements TychoResolver {
     @Requirement()
     TychoProjectManager projectManager;
 
-    @Requirement
-    private ToolchainManager toolchainManager;
-
     public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
     public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
     public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
@@ -78,13 +71,7 @@ public class DefaultTychoResolver implements TychoResolver {
             if (reactorProject.getContextValue(ReactorProject.CTX_MERGED_PROPERTIES) != null) {
                 return;
             }
-
-            // generic Eclipse/OSGi metadata
-
             dr.setupProject(session, project);
-
-            // p2 metadata
-
             Properties properties = new Properties();
             properties.putAll(project.getProperties());
             properties.putAll(session.getSystemProperties()); // session wins
@@ -92,13 +79,6 @@ public class DefaultTychoResolver implements TychoResolver {
             reactorProject.setContextValue(ReactorProject.CTX_MERGED_PROPERTIES, properties);
 
             setTychoEnvironmentProperties(properties, project);
-
-            TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-            ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger,
-                    !configuration.isResolveWithEEConstraints(), toolchainManager, session);
-            dr.readExecutionEnvironmentConfiguration(reactorProject, session, eeConfiguration);
-            reactorProject.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
-
             dependencyResolver.setupProjects(session, project, reactorProject);
         }
     }

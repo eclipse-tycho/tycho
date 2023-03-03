@@ -132,8 +132,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) reactorProject
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         List<TargetEnvironment> environments = configuration.getEnvironments();
         Map<String, IDependencyMetadata> metadataMap = getDependencyMetadata(session, project, environments,
                 OptionalResolutionAction.OPTIONAL);
@@ -184,7 +183,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             List<ReactorProject> reactorProjects) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-        ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject);
+        ExecutionEnvironmentConfiguration ee = projectManager.getExecutionEnvironmentConfiguration(project);
 
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {

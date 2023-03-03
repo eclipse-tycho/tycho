@@ -13,8 +13,10 @@ import java.io.File;
 import java.util.Optional;
 
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class ExecutionEnvironmentTest extends AbstractTychoMojoTestCase {
@@ -23,7 +25,16 @@ public class ExecutionEnvironmentTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/targetJRE");
         Optional<MavenProject> project = getSortedProjects(basedir).stream().filter(p -> p.getName().equals("bundle"))
                 .findAny();
-        assertEquals("JavaSE-1.7", TychoProjectUtils
-                .getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project.get())).getProfileName());
+        assertEquals("JavaSE-1.7",
+                getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project.get())).getProfileName());
+    }
+
+    public static ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(ReactorProject project) {
+        ExecutionEnvironmentConfiguration storedConfig = (ExecutionEnvironmentConfiguration) project
+                .getContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION);
+        if (storedConfig == null) {
+            throw new IllegalStateException(project.toString());
+        }
+        return storedConfig;
     }
 }

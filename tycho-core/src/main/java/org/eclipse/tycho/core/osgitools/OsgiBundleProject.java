@@ -331,8 +331,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private ModuleContainer getResolverState(ReactorProject project, DependencyArtifacts artifacts,
             MavenSession session) {
         try {
-            ExecutionEnvironmentConfiguration eeConfiguration = TychoProjectUtils
-                    .getExecutionEnvironmentConfiguration(project);
+            ExecutionEnvironmentConfiguration eeConfiguration = projectManager
+                    .getExecutionEnvironmentConfiguration(getMavenProject(project));
             ExecutionEnvironment executionEnvironment = eeConfiguration.getFullSpecification();
             return resolver.newResolvedState(project, session,
                     eeConfiguration.isIgnoredByResolver() ? null : executionEnvironment, artifacts);
