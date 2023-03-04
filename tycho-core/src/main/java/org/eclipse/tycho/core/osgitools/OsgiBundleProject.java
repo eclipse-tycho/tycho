@@ -275,8 +275,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolving JUnit " + junit.getJUnitSegment() + " classpath container");
-                P2Resolver resolver = resolverFactory.createResolver(
-                        Collections.singletonList(TargetEnvironment.getRunningEnvironment(reactorProject)));
+                P2Resolver resolver = resolverFactory
+                        .createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
                 TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
                 Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, junit.getArtifacts())
                         .values();

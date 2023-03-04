@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -30,7 +29,6 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.OptionalResolutionAction;
-import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
@@ -48,6 +46,8 @@ import org.eclipse.tycho.resolver.TychoResolver;
 @Component(role = TychoResolver.class)
 public class DefaultTychoResolver implements TychoResolver {
 
+    private static final String SETUP_MARKER = "DefaultTychoResolver/Setup";
+
     @Requirement
     private Logger logger;
 
@@ -57,28 +57,18 @@ public class DefaultTychoResolver implements TychoResolver {
     @Requirement()
     TychoProjectManager projectManager;
 
-    public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
-    public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
-    public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
-
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
+        //This will bootstrap the project and init it with the session
         ReactorProject reactorProject = DefaultReactorProject.adapt(project, session);
         TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
         if (tychoProject instanceof AbstractTychoProject dr) {
-            // skip if setup was already done
-            // TODO all this should actually happen on first access!
-            if (reactorProject.getContextValue(ReactorProject.CTX_MERGED_PROPERTIES) != null) {
+            if (reactorProject.getContextValue(SETUP_MARKER) != null) {
                 return;
             }
+            reactorProject.setContextValue(SETUP_MARKER, true);
+            //FIXME this should actually happen lazy on first access so we do not require more here than bootstrap the project with a session above 
             dr.setupProject(session, project);
-            Properties properties = new Properties();
-            properties.putAll(project.getProperties());
-            properties.putAll(session.getSystemProperties()); // session wins
-            properties.putAll(session.getUserProperties());
-            reactorProject.setContextValue(ReactorProject.CTX_MERGED_PROPERTIES, properties);
-
-            setTychoEnvironmentProperties(properties, project);
             dependencyResolver.setupProjects(session, project, reactorProject);
         }
     }
@@ -162,14 +152,5 @@ public class DefaultTychoResolver implements TychoResolver {
                 logger.debug(sb.toString());
             }
         }
-    }
-
-    protected void setTychoEnvironmentProperties(Properties properties, MavenProject project) {
-        String arch = PlatformPropertiesUtils.getArch(properties);
-        String os = PlatformPropertiesUtils.getOS(properties);
-        String ws = PlatformPropertiesUtils.getWS(properties);
-        project.getProperties().put(TYCHO_ENV_OSGI_WS, ws);
-        project.getProperties().put(TYCHO_ENV_OSGI_OS, os);
-        project.getProperties().put(TYCHO_ENV_OSGI_ARCH, arch);
     }
 }

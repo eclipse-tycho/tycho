@@ -52,7 +52,6 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
@@ -344,8 +343,8 @@ public class EclipseRunMojo extends AbstractMojo {
 		eeConfiguration.setProfileConfiguration(executionEnvironment, "tycho-eclipserun-plugin <executionEnvironment>");
 		TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
 				eeConfiguration, null);
-		P2Resolver resolver = resolverFactory.createResolver(Collections
-				.singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+		P2Resolver resolver = resolverFactory
+				.createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 		for (Dependency dependency : dependencies) {
 			try {
 				resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());

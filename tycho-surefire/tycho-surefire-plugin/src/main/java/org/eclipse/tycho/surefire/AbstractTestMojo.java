@@ -407,7 +407,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     protected List<TargetEnvironment> getTestTargetEnvironments() {
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
-        TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment(getReactorProject());
+        TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
         for (TargetEnvironment targetEnvironment : targetEnvironments) {
             if (targetEnvironment.equals(runningEnvironment)) {
                 getLog().debug("Using matching target environment " + targetEnvironment.toFilterProperties()

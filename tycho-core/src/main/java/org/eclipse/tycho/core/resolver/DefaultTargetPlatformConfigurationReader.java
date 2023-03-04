@@ -45,7 +45,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolver;
@@ -152,7 +151,7 @@ public class DefaultTargetPlatformConfigurationReader {
         if (result.getEnvironments().isEmpty()) {
             // applying defaults
             logger.warn("No explicit target runtime environment configuration. Build is platform dependent.");
-            result.addEnvironment(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project)));
+            result.addEnvironment(TargetEnvironment.getRunningEnvironment());
             result.setImplicitTargetEnvironment(true);
         } else {
             result.setImplicitTargetEnvironment(false);

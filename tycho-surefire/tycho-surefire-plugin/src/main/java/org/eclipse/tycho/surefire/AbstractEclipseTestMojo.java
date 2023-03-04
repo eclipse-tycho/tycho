@@ -84,6 +84,7 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -990,13 +991,12 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
     private String decodeReturnCode(int result) {
         try {
-            Properties properties = DefaultReactorProject.adapt(project).getProperties();
-            if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(properties))) {
+            if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(System.getProperties()))) {
                 int signal = result - 128;
                 if (signal > 0 && signal < UNIX_SIGNAL_NAMES.length) {
                     return result + "(" + UNIX_SIGNAL_NAMES[signal] + " received?)";
                 }
-            } else if (PlatformPropertiesUtils.OS_WIN32.equals(PlatformPropertiesUtils.getOS(properties))) {
+            } else if (PlatformPropertiesUtils.OS_WIN32.equals(PlatformPropertiesUtils.getOS(System.getProperties()))) {
                 return result + " (HRESULT Code 0x" + Integer.toHexString(result).toUpperCase()
                         + ", check for example https://www.hresult.info/ for further details)";
             }
@@ -1021,7 +1021,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
         cli.addVMArguments("-Dosgi.noShutdown=false");
 
-        Properties properties = DefaultReactorProject.adapt(project).getProperties();
+        Properties properties = TychoProjectUtils.getMergedProperties(project, session);
         cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
