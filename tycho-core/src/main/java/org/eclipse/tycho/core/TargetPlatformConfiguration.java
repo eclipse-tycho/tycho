@@ -78,7 +78,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private final List<URI> targets = new ArrayList<>();
     private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
-    private PomDependencies pomDependencies = PomDependencies.DEFAULT;
+    private PomDependencies pomDependencies;
 
     private String executionEnvironment;
     private String executionEnvironmentDefault;
@@ -98,6 +98,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private LocalArtifactHandling localArtifactHandling;
 
+    private boolean requireEagerResolve;
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -154,6 +155,13 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     }
 
     public PomDependencies getPomDependencies() {
+        if (pomDependencies == null) {
+            if (isRequireEagerResolve()) {
+                return PomDependencies.ignore;
+            } else {
+                return PomDependencies.consider;
+            }
+        }
         return pomDependencies;
     }
 
@@ -195,6 +203,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void setResolveWithEEContraints(boolean value) {
         this.resolveWithEEConstraints = value;
+    }
+
+    public boolean isRequireEagerResolve() {
+        return requireEagerResolve;
+    }
+
+    public void setRequireEagerResolve(boolean value) {
+        this.requireEagerResolve = value;
     }
 
     public void setFilters(List<TargetPlatformFilter> filters) {

@@ -63,6 +63,7 @@ import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.build.BuildListeners;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
@@ -104,6 +105,9 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     BuildListeners buildListeners;
 
+    @Requirement
+    TychoProjectManager projectManager;
+
     public TychoMavenLifecycleParticipant() {
         // needed for plexus
     }
@@ -116,13 +120,12 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
         log.info("Tycho Version:  " + TychoVersion.getTychoVersion() + " (" + TychoVersion.getSCMInfo() + ")");
-        log.info("Tycho Resolver: " + (TychoConstants.USE_OLD_RESOLVER ? "classic" : "maven"));
         log.info("Tycho Mode:     "
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_MODE, "project"));
         log.info("Tycho Builder:  "
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_BUILDER, "maven"));
         if (disableLifecycleParticipation(session)) {
-        	buildListeners.notifyBuildStart(session);
+            buildListeners.notifyBuildStart(session);
             return;
         }
         List<MavenProject> projects = session.getProjects();
@@ -138,13 +141,19 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             for (MavenProject project : projects) {
                 resolver.setupProject(session, project);
             }
-            if (TychoConstants.USE_OLD_RESOLVER) {
-                resolveProjects(session, projects);
-            } else {
+            Map<Boolean, List<MavenProject>> partition = projects.stream().collect(Collectors.partitioningBy(
+                    project -> projectManager.getTargetPlatformConfiguration(project).isRequireEagerResolve()));
+            List<MavenProject> eagerProjects = partition.get(true);
+            List<MavenProject> lazyProjects = partition.get(false);
+
+            if (eagerProjects.size() > 0) {
+                resolveProjects(session, eagerProjects);
+            }
+            if (lazyProjects.size() > 0) {
                 try {
                     ProjectDependencyClosure closure = dependencyProcessor.computeProjectDependencyClosure(projects,
                             session);
-                    for (MavenProject project : projects) {
+                    for (MavenProject project : lazyProjects) {
                         Model model = project.getModel();
                         Set<String> existingDependencies = model.getDependencies().stream()
                                 .map(TychoMavenLifecycleParticipant::getKey)
