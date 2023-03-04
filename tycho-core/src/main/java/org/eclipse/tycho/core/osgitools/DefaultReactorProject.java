@@ -106,7 +106,7 @@ public class DefaultReactorProject implements ReactorProject {
     public static List<ReactorProject> adapt(MavenSession session) {
         ArrayList<ReactorProject> result = new ArrayList<>();
         for (MavenProject project : session.getProjects()) {
-            ReactorProject reactorProject = adapt(project);
+            ReactorProject reactorProject = adapt(project, session);
             reactorProject.computeContextValue(CTX_MAVEN_SESSION, () -> session);
             result.add(reactorProject);
         }
