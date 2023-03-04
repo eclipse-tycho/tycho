@@ -76,7 +76,7 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
         this.configuration = configuration;
         this.considerPomDependencies = ofNullable(configuration)//
                 .map(TargetPlatformConfiguration::getPomDependencies)//
-                .orElse(PomDependencies.DEFAULT);
+                .orElse(PomDependencies.ignore);
     }
 
     @Override

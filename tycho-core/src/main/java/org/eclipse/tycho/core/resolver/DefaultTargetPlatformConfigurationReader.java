@@ -66,6 +66,9 @@ public class DefaultTargetPlatformConfigurationReader {
 
     public static final String FILTERS = "filters";
     public static final String RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS = "resolveWithExecutionEnvironmentConstraints";
+    public static final String REQUIRE_EAGER_RESOLVE = "requireEagerResolve";
+    public static final String PROPERTY_REQUIRE_EAGER_RESOLVE = "tycho.target.eager";
+    public static final String PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE = "tycho.resolver.classic";
     public static final String BREE_HEADER_SELECTION_POLICY = "breeHeaderSelectionPolicy";
     public static final String EXECUTION_ENVIRONMENT_DEFAULT = "executionEnvironmentDefault";
     public static final String EXECUTION_ENVIRONMENT = "executionEnvironment";
@@ -118,6 +121,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 setExecutionEnvironmentDefault(result, configuration);
                 setBREEHeaderSelectionPolicy(result, configuration);
                 setResolveWithEEContraints(result, configuration);
+                setRequireEagerResolve(result, configuration, session);
 
                 readFilters(result, configuration);
                 try {
@@ -315,6 +319,16 @@ public class DefaultTargetPlatformConfigurationReader {
             return;
         }
         result.setResolveWithEEContraints(Boolean.valueOf(value));
+    }
+
+    private void setRequireEagerResolve(TargetPlatformConfiguration result, Xpp3Dom resolverDom, MavenSession session) {
+        Xpp3Dom child = resolverDom.getChild(REQUIRE_EAGER_RESOLVE);
+        String value = getStringValue(child, session, PROPERTY_REQUIRE_EAGER_RESOLVE,
+                PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE);
+        if (value == null) {
+            return;
+        }
+        result.setRequireEagerResolve(Boolean.valueOf(value));
     }
 
     private void setDisableP2Mirrors(Xpp3Dom configuration) {
