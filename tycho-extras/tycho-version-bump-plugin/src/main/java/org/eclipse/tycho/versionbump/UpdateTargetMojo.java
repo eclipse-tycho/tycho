@@ -28,7 +28,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
@@ -57,8 +56,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         try (FileInputStream input = new FileInputStream(targetFile)) {
             target = TargetDefinitionFile.parseDocument(input);
             TargetDefinitionFile parsedTarget = TargetDefinitionFile.parse(target, targetFile.getAbsolutePath());
-            resolutionContext.setEnvironments(Collections
-                    .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+            resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
             resolutionContext.addTargetDefinition(new LatestVersionTarget(parsedTarget));
             P2ResolutionResult result = p2.getTargetPlatformAsResolutionResult(resolutionContext, executionEnvironment);
 

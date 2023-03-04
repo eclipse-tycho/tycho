@@ -76,7 +76,9 @@ public class DefaultReactorProject implements ReactorProject {
 
     public static ReactorProject adapt(MavenProject project, MavenSession mavenSession) {
         ReactorProject reactorProject = adapt(project);
-        reactorProject.setContextValue(CTX_MAVEN_SESSION, mavenSession);
+        if (mavenSession != null) {
+            reactorProject.setContextValue(CTX_MAVEN_SESSION, mavenSession);
+        }
         return reactorProject;
     }
 

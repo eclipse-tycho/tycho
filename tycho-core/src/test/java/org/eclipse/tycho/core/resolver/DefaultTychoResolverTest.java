@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,11 +44,11 @@ public class DefaultTychoResolverTest {
         Properties projectProperties = new Properties();
         when(project.getProperties()).thenReturn(projectProperties);
 
-        defaultTychoResolver.setTychoEnvironmentProperties(mergedProperties, project);
+        TychoProjectUtils.setTychoEnvironmentProperties(mergedProperties, project);
 
-        Object ws = projectProperties.getProperty(DefaultTychoResolver.TYCHO_ENV_OSGI_WS);
-        Object os = projectProperties.getProperty(DefaultTychoResolver.TYCHO_ENV_OSGI_OS);
-        Object arch = projectProperties.getProperty(DefaultTychoResolver.TYCHO_ENV_OSGI_ARCH);
+        Object ws = projectProperties.getProperty(TychoProjectUtils.TYCHO_ENV_OSGI_WS);
+        Object os = projectProperties.getProperty(TychoProjectUtils.TYCHO_ENV_OSGI_OS);
+        Object arch = projectProperties.getProperty(TychoProjectUtils.TYCHO_ENV_OSGI_ARCH);
 
         Assert.assertEquals(3, projectProperties.size());
         Assert.assertEquals(PlatformPropertiesUtils.ARCH_X86_64, arch);

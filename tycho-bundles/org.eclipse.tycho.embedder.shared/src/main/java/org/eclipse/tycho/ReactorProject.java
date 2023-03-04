@@ -14,7 +14,6 @@
 package org.eclipse.tycho;
 
 import java.io.File;
-import java.util.Properties;
 import java.util.function.Supplier;
 
 /**
@@ -70,10 +69,6 @@ public interface ReactorProject extends IDependencyMetadata {
     public String getBuildQualifier();
 
     public String getExpandedVersion();
-
-    default Properties getProperties() {
-        return (Properties) getContextValue(CTX_MERGED_PROPERTIES);
-    }
 
     /**
      * human-readable id used in error messages
