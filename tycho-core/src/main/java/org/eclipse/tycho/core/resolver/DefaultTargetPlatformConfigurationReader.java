@@ -24,6 +24,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -369,8 +370,13 @@ public class DefaultTargetPlatformConfigurationReader {
                     result.addTarget(target);
                     return;
                 } else {
-                    throw new TargetPlatformConfigurationException("target definition file '" + target.getAbsolutePath()
-                            + "' not found for project '" + project.getName() + "'.");
+                    result.addLazyTargetFile(() -> {
+                        if (TargetDefinitionFile.isTargetFile(target)) {
+                            return target;
+                        }
+                        throw new TargetPlatformConfigurationException("target definition file '"
+                                + target.getAbsolutePath() + "' not found for project '" + project.getName() + "'.");
+                    });
                 }
             }
         }
@@ -403,13 +409,16 @@ public class DefaultTargetPlatformConfigurationReader {
         String artifactId = artifactIdDom.getValue();
         String version = versionDom.getValue();
         String classifier = classifierDom != null ? classifierDom.getValue() : null;
-        try {
-            result.addTarget(platformArtifactResolver.resolveTargetFile(groupId, artifactId, version, classifier,
-                    session, project.getRemoteArtifactRepositories()));
-        } catch (TargetResolveException e) {
-            throw new TargetPlatformConfigurationException("resolve target artifact " + groupId + ":" + artifactId + ":"
-                    + version + ":" + Objects.requireNonNullElse(classifier, "no classifier") + " failed!", e);
-        }
+        result.addLazyTargetFile(() -> {
+            try {
+                return platformArtifactResolver.resolveTargetFile(groupId, artifactId, version, classifier, session,
+                        project.getRemoteArtifactRepositories());
+            } catch (TargetResolveException e) {
+                throw new TargetPlatformConfigurationException("resolve target artifact " + groupId + ":" + artifactId
+                        + ":" + version + ":" + Objects.requireNonNullElse(classifier, "no classifier") + " failed!",
+                        e);
+            }
+        });
     }
 
     private void setTargetPlatformResolver(TargetPlatformConfiguration result, Xpp3Dom configuration) {
@@ -477,6 +486,18 @@ public class DefaultTargetPlatformConfigurationReader {
      * Returns the string value of the given node, with all "value not set" cases normalized to
      * <code>null</code>.
      */
+    private static String getStringValue(Xpp3Dom element, MavenSession session, String property, String alias) {
+
+        if (session != null) {
+            Properties userProperties = session.getUserProperties();
+            String userProperty = userProperties.getProperty(property, userProperties.getProperty(alias));
+            if (userProperty != null) {
+                return userProperty;
+            }
+        }
+        return getStringValue(element);
+    }
+
     private static String getStringValue(Xpp3Dom element) {
         if (element == null) {
             return null;

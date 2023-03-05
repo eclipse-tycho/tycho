@@ -47,6 +47,7 @@ import org.eclipse.tycho.resolver.TychoResolver;
 public class DefaultTychoResolver implements TychoResolver {
 
     private static final String SETUP_MARKER = "DefaultTychoResolver/Setup";
+    private static final String RESOLVE_MARKER = "DefaultTychoResolver/Resolve";
 
     @Requirement
     private Logger logger;
@@ -61,15 +62,17 @@ public class DefaultTychoResolver implements TychoResolver {
     public void setupProject(MavenSession session, MavenProject project) {
         //This will bootstrap the project and init it with the session
         ReactorProject reactorProject = DefaultReactorProject.adapt(project, session);
-        TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
-        if (tychoProject instanceof AbstractTychoProject dr) {
-            if (reactorProject.getContextValue(SETUP_MARKER) != null) {
-                return;
+        synchronized (reactorProject) {
+            TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
+            if (tychoProject instanceof AbstractTychoProject dr) {
+                if (reactorProject.getContextValue(SETUP_MARKER) != null) {
+                    return;
+                }
+                reactorProject.setContextValue(SETUP_MARKER, true);
+                //FIXME this should actually happen lazy on first access so we do not require more here than bootstrap the project with a session above 
+                dr.setupProject(session, project);
+                dependencyResolver.setupProjects(session, project, reactorProject);
             }
-            reactorProject.setContextValue(SETUP_MARKER, true);
-            //FIXME this should actually happen lazy on first access so we do not require more here than bootstrap the project with a session above 
-            dr.setupProject(session, project);
-            dependencyResolver.setupProjects(session, project, reactorProject);
         }
     }
 
@@ -77,79 +80,89 @@ public class DefaultTychoResolver implements TychoResolver {
     public void resolveProject(MavenSession session, MavenProject project) {
         TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
         if (tychoProject instanceof AbstractTychoProject dr) {
-            List<MavenProject> mavenProjects = session.getProjects();
-            List<ReactorProject> reactorProjects = mavenProjects.stream().map(DefaultReactorProject::adapt).toList();
-
-            String threadMarker;
-            if (logger.isDebugEnabled()) {
-                threadMarker = "[" + Thread.currentThread().getName().replaceAll("^ForkJoinPool-(\\d+)-", "") + "] ";
-            } else {
-                threadMarker = "";
-            }
-            logger.debug(threadMarker + "Computing preliminary target platform for " + project);
-            TargetPlatform preliminaryTargetPlatform = dependencyResolver.computePreliminaryTargetPlatform(session,
-                    project, reactorProjects);
-
-            logger.info(threadMarker + "Resolving dependencies of " + project);
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-
-            DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
-
-            DependencyArtifacts dependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
-                    preliminaryTargetPlatform, reactorProjects, resolverConfiguration, configuration.getEnvironments());
-
-            if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
-                StringBuilder sb = new StringBuilder(threadMarker);
-                sb.append("Resolved target platform for ").append(project).append("\n");
-                dependencyArtifacts.toDebugString(sb, "  ");
-                logger.debug(sb.toString());
-            }
-
-            dr.setDependencyArtifacts(session, reactorProject, dependencyArtifacts);
-
-            DependencyArtifacts testDependencyArtifacts = null;
-            if (tychoProject instanceof BundleProject bundleProject) {
-                List<ArtifactKey> testDependencies = bundleProject.getExtraTestRequirements(reactorProject);
-                if (!testDependencies.isEmpty()) {
-                    logger.info(threadMarker + "Resolving test dependencies of " + project);
-                    DependencyResolverConfiguration testResolverConfiguration = new DependencyResolverConfiguration() {
-                        @Override
-                        public OptionalResolutionAction getOptionalResolutionAction() {
-                            return resolverConfiguration.getOptionalResolutionAction();
-                        }
-
-                        @Override
-                        public List<ArtifactKey> getAdditionalArtifacts() {
-                            ArrayList<ArtifactKey> res = new ArrayList<>(
-                                    resolverConfiguration.getAdditionalArtifacts());
-                            res.addAll(testDependencies);
-                            return res;
-                        }
-
-                        @Override
-                        public Collection<IRequirement> getAdditionalRequirements() {
-                            return resolverConfiguration.getAdditionalRequirements();
-                        }
-                    };
-                    testDependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
-                            preliminaryTargetPlatform, reactorProjects, testResolverConfiguration,
-                            configuration.getEnvironments());
+            synchronized (reactorProject) {
+                if (reactorProject.getContextValue(RESOLVE_MARKER) != null) {
+                    return;
                 }
-                dr.setTestDependencyArtifacts(session, reactorProject,
-                        Objects.requireNonNullElse(testDependencyArtifacts, new DefaultDependencyArtifacts()));
-            }
+                reactorProject.setContextValue(RESOLVE_MARKER, true);
+                List<MavenProject> mavenProjects = session.getProjects();
+                List<ReactorProject> reactorProjects = mavenProjects.stream().map(DefaultReactorProject::adapt)
+                        .toList();
 
-            dependencyResolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts,
-                    testDependencyArtifacts, logger);
-
-            if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
-                StringBuilder sb = new StringBuilder(threadMarker);
-                sb.append("Injected dependencies for ").append(project.toString()).append("\n");
-                for (Dependency dependency : project.getDependencies()) {
-                    sb.append("  ").append(dependency.toString());
+                String threadMarker;
+                if (logger.isDebugEnabled()) {
+                    threadMarker = "[" + Thread.currentThread().getName().replaceAll("^ForkJoinPool-(\\d+)-", "")
+                            + "] ";
+                } else {
+                    threadMarker = "";
                 }
-                logger.debug(sb.toString());
+                logger.debug(threadMarker + "Computing preliminary target platform for " + project);
+                TargetPlatform preliminaryTargetPlatform = dependencyResolver.computePreliminaryTargetPlatform(session,
+                        project, reactorProjects);
+
+                logger.info(threadMarker + "Resolving dependencies of " + project);
+                TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+
+                DependencyResolverConfiguration resolverConfiguration = configuration
+                        .getDependencyResolverConfiguration();
+
+                DependencyArtifacts dependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
+                        preliminaryTargetPlatform, reactorProjects, resolverConfiguration,
+                        configuration.getEnvironments());
+
+                if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
+                    StringBuilder sb = new StringBuilder(threadMarker);
+                    sb.append("Resolved target platform for ").append(project).append("\n");
+                    dependencyArtifacts.toDebugString(sb, "  ");
+                    logger.debug(sb.toString());
+                }
+
+                dr.setDependencyArtifacts(session, reactorProject, dependencyArtifacts);
+
+                DependencyArtifacts testDependencyArtifacts = null;
+                if (tychoProject instanceof BundleProject bundleProject) {
+                    List<ArtifactKey> testDependencies = bundleProject.getExtraTestRequirements(reactorProject);
+                    if (!testDependencies.isEmpty()) {
+                        logger.info(threadMarker + "Resolving test dependencies of " + project);
+                        DependencyResolverConfiguration testResolverConfiguration = new DependencyResolverConfiguration() {
+                            @Override
+                            public OptionalResolutionAction getOptionalResolutionAction() {
+                                return resolverConfiguration.getOptionalResolutionAction();
+                            }
+
+                            @Override
+                            public List<ArtifactKey> getAdditionalArtifacts() {
+                                ArrayList<ArtifactKey> res = new ArrayList<>(
+                                        resolverConfiguration.getAdditionalArtifacts());
+                                res.addAll(testDependencies);
+                                return res;
+                            }
+
+                            @Override
+                            public Collection<IRequirement> getAdditionalRequirements() {
+                                return resolverConfiguration.getAdditionalRequirements();
+                            }
+                        };
+                        testDependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
+                                preliminaryTargetPlatform, reactorProjects, testResolverConfiguration,
+                                configuration.getEnvironments());
+                    }
+                    dr.setTestDependencyArtifacts(session, reactorProject,
+                            Objects.requireNonNullElse(testDependencyArtifacts, new DefaultDependencyArtifacts()));
+                }
+
+                dependencyResolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts,
+                        testDependencyArtifacts, logger);
+
+                if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
+                    StringBuilder sb = new StringBuilder(threadMarker);
+                    sb.append("Injected dependencies for ").append(project.toString()).append("\n");
+                    for (Dependency dependency : project.getDependencies()) {
+                        sb.append("  ").append(dependency.toString());
+                    }
+                    logger.debug(sb.toString());
+                }
             }
         }
     }
