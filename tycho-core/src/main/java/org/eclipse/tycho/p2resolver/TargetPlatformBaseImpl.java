@@ -76,17 +76,20 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
     @Deprecated
     private LocalArtifactRepository localArtifactRepository;
 
+    private Set<IInstallableUnit> shadowed;
+
     public TargetPlatformBaseImpl(LinkedHashSet<IInstallableUnit> installableUnits,
             ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider artifacts,
             LocalArtifactRepository localArtifactRepository,
             Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup,
-            Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup) {
+            Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup, Set<IInstallableUnit> shadowed) {
         this.installableUnits = installableUnits;
         this.executionEnvironment = executionEnvironment;
         this.reactorProjectLookup = reactorProjectLookup;
         this.mavenArtifactLookup = mavenArtifactLookup;
         this.artifacts = artifacts;
         this.localArtifactRepository = localArtifactRepository;
+        this.shadowed = shadowed;
     }
 
     @Override
@@ -189,4 +192,10 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         return false;
     }
 
+    /**
+     * @return all units that are shadowed by a reactor project IU
+     */
+    public Set<IInstallableUnit> getShadowed() {
+        return shadowed;
+    }
 }

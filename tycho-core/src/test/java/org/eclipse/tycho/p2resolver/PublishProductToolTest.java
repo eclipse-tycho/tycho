@@ -96,7 +96,8 @@ public class PublishProductToolTest extends TychoPlexusTestCase {
     private PublishProductTool initPublisher(IInstallableUnit... tpUnits) {
         LinkedHashSet<IInstallableUnit> contextUnits = new LinkedHashSet<>();
         contextUnits.addAll(Arrays.asList(tpUnits));
-        P2TargetPlatform targetPlatform = new FinalTargetPlatformImpl(contextUnits, null, null, null, null, null, null);
+        P2TargetPlatform targetPlatform = new FinalTargetPlatformImpl(contextUnits, null, null, null, null, null, null,
+                Set.of());
 
         PublisherActionRunner publisherRunner = new PublisherActionRunner(targetPlatform.getMetadataRepository(),
                 ENVIRONMENTS, logVerifier.getMavenLogger());

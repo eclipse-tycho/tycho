@@ -529,7 +529,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
         }
         return new FinalTargetPlatformImpl(allUnits, preliminaryTP.getEEResolutionHints(), jointArtifacts,
-                localArtifactRepository, mavenInstallableUnits, reactorUnitsMap, targetPlatformArtifactRepository);
+                localArtifactRepository, mavenInstallableUnits, reactorUnitsMap, targetPlatformArtifactRepository,
+                Set.copyOf(preliminaryTP.getShadowed()));
     }
 
     protected Collection<? extends IInstallableUnit> filterUnits(TargetPlatformFilterEvaluator configuredFilters,

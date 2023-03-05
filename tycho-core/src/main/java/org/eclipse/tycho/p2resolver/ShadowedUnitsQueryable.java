@@ -37,8 +37,8 @@ final class ShadowedUnitsQueryable implements IQueryable<IInstallableUnit> {
     public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
         IQueryResult<IInstallableUnit> result = availableUnits.query(query, monitor);
         if (result.isEmpty()) {
-            if (targetPlatform instanceof PreliminaryTargetPlatformImpl) {
-                PreliminaryTargetPlatformImpl preliminaryTargetPlatform = (PreliminaryTargetPlatformImpl) targetPlatform;
+            if (targetPlatform instanceof TargetPlatformBaseImpl) {
+                TargetPlatformBaseImpl preliminaryTargetPlatform = (TargetPlatformBaseImpl) targetPlatform;
                 Set<IInstallableUnit> shadowed = preliminaryTargetPlatform.getShadowed();
                 IQueryResult<IInstallableUnit> shadowedResult = query.perform(shadowed.iterator());
                 if (!shadowedResult.isEmpty()) {
