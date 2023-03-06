@@ -368,7 +368,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Component
     private TychoProjectManager tychoProjectManager;
 
-    private String currentRelease;
+    private Integer currentRelease;
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
@@ -407,7 +407,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             Collection<Integer> releases = getMultiReleases();
             for (Integer release : releases) {
                 getLog().info("Compiling for release " + release + " ...");
-                this.currentRelease = String.valueOf(release);
+                this.currentRelease = release;
                 File dotDirectory = getEclipsePluginProject().getDotOutputJar().getOutputDirectory();
                 this.currentOutputDirectory = new File(dotDirectory, VERSIONS_DIRECTORY + "/" + release);
                 this.currentOutputDirectory.mkdirs();
@@ -468,6 +468,11 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * Only public for tests purpose!
      */
     public StandardExecutionEnvironment[] getBREE() {
+        if (currentRelease != null) {
+            //if there is an explicit release set we know the release and there must be a suitable EE provided
+            return new StandardExecutionEnvironment[] { ExecutionEnvironmentUtils
+                    .getExecutionEnvironment("JavaSE-" + currentRelease, toolchainManager, session, logger) };
+        }
         if (manifestBREEs == null) {
             OsgiManifest manifest = bundleReader.loadManifest(project.getBasedir());
             manifestBREEs = Arrays.stream(manifest.getExecutionEnvironments())
@@ -1075,7 +1080,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Override
     public String getReleaseLevel() throws MojoExecutionException {
         if (this.currentRelease != null) {
-            return this.currentRelease;
+            return String.valueOf(this.currentRelease);
         }
         // first, explicit POM configuration
         if (release != null) {
