@@ -496,18 +496,18 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
-        final List<CharSequence> warnings = new ArrayList<>();
+        final List<String> debug = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
             @Override
-            public void warn(CharSequence content) {
-                warnings.add(content);
+            public void debug(CharSequence content) {
+                debug.add(content.toString());
             }
 
         });
         mojo.execute();
-        assertThat((String) warnings.iterator().next(),
-                containsString("Parameter 'useProjectSettings' is set to true, but preferences file"));
+        assertTrue(debug.stream()
+                .anyMatch(msg -> msg.contains("Parameter 'useProjectSettings' is set to true, but preferences file")));
     }
 
     public void test367431_frameworkExtensionCompileAccessRules() throws Exception {

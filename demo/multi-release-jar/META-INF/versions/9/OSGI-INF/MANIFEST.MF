@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Import-Package: 
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=9))"
+

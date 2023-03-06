@@ -18,6 +18,7 @@ package org.eclipse.tycho.compiler;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -104,6 +105,8 @@ import org.osgi.resource.Namespace;
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
 
 public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo implements JavaCompilerConfiguration {
+
+    private static final String VERSIONS_DIRECTORY = "META-INF/versions";
 
     public static final String RULE_SEPARATOR = File.pathSeparator;
 
@@ -365,6 +368,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Component
     private TychoProjectManager tychoProjectManager;
 
+    private String currentRelease;
+
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         getLog().debug("Manifest BREEs: " + Arrays.toString(getBREE()));
@@ -396,9 +401,57 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             super.execute();
             doCopyResources();
         }
+        //Check for MR JAR compile
+        OsgiManifest manifest = bundleReader.loadManifest(project.getBasedir());
+        if (Boolean.parseBoolean(manifest.getValue("Multi-Release"))) {
+            Collection<Integer> releases = getMultiReleases();
+            for (Integer release : releases) {
+                getLog().info("Compiling for release " + release + " ...");
+                this.currentRelease = String.valueOf(release);
+                File dotDirectory = getEclipsePluginProject().getDotOutputJar().getOutputDirectory();
+                this.currentOutputDirectory = new File(dotDirectory, VERSIONS_DIRECTORY + "/" + release);
+                this.currentOutputDirectory.mkdirs();
+                this.currentExcludes = List.of();
+                this.currentSourceRoots = new ArrayList<String>();
+                for (SourcepathEntry entry : sourcepath) {
+                    File sourcesRoot = entry.getSourcesRoot();
+                    File releaseSourceRoot = new File(sourcesRoot.getParentFile(), sourcesRoot.getName() + release);
+                    if (releaseSourceRoot.isDirectory()) {
+                        this.currentSourceRoots.add(releaseSourceRoot.getAbsolutePath().toString());
+                    }
+                }
+                if (this.currentSourceRoots.size() > 0) {
+                    super.execute();
+                }
+            }
+        }
+        this.currentRelease = null;
         this.currentOutputDirectory = null;
         this.currentSourceRoots = null;
         this.currentExcludes = null;
+    }
+
+    private Collection<Integer> getMultiReleases() {
+        File versionFolder = new File(project.getBasedir(), VERSIONS_DIRECTORY);
+        if (versionFolder.isDirectory()) {
+            try {
+                try (Stream<Path> stream = Files.list(versionFolder.toPath())) {
+                    return stream.filter(p -> Files.isDirectory(p)).map(Path::getFileName).map(String::valueOf)
+                            .map(name -> {
+                                try {
+                                    return Integer.parseInt(name);
+                                } catch (NumberFormatException e) {
+                                    return null;
+                                }
+                            }).filter(Objects::nonNull).sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+                }
+            } catch (IOException e) {
+                //then it can't work!
+                getLog().warn("Can't list version folders: " + e);
+
+            }
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -636,7 +689,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (useProjectSettings) {
             String prefsFilePath = project.getBasedir() + File.separator + PREFS_FILE_PATH;
             if (!new File(prefsFilePath).exists()) {
-                getLog().warn("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
+                getLog().debug("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
                         + "' could not be found");
             } else {
                 // make sure that "-properties" is the first custom argument, otherwise it's not possible to override
@@ -1021,6 +1074,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Override
     public String getReleaseLevel() throws MojoExecutionException {
+        if (this.currentRelease != null) {
+            return this.currentRelease;
+        }
         // first, explicit POM configuration
         if (release != null) {
             return release;
