@@ -48,6 +48,11 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testTychoMultiReleaseDemo() throws Exception {
+		runDemo("multi-release-jar");
+	}
+
+	@Test
 	public void testTychoBndPdeWorkspaceDemo() throws Exception {
 		runDemo("bnd-pde-workspace");
 	}
