@@ -13,8 +13,8 @@
 package org.eclipse.tycho.p2maven;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
@@ -40,7 +40,7 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 	@Requirement
 	Map<String, IAgentServiceFactory> agentFactories;
 
-	private Map<String, Optional<Object>> agentServices = new ConcurrentHashMap<>();
+	private Map<String, Supplier<Object>> agentServices = new ConcurrentHashMap<>();
 
 	@Override
 	public Object getService(String serviceName) {
@@ -66,14 +66,16 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 
 	}
 
-	private Object getAgentFactoryService(String serviceName) {
+	private synchronized Object getAgentFactoryService(String serviceName) {
 		return agentServices.computeIfAbsent(serviceName, key -> {
 			IAgentServiceFactory factory = agentFactories.get(key);
 			if (factory != null) {
-				return Optional.ofNullable(factory.createService(DefaultProvisioningAgent.this));
+				// we must need an indirection here because otherwise there is a chance for
+				// recursive updates when the factory creates other services
+				return new LazyAgentServiceFactory(factory, DefaultProvisioningAgent.this);
 			}
-			return Optional.empty();
-		}).orElse(null);
+			return () -> null;
+		}).get();
 	}
 
 	private Object getOSGiAgentService(String serviceName) {
@@ -103,6 +105,34 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 		if (agent != null) {
 			agent.unregisterService(serviceName, service);
 		}
+	}
+
+	private static final class LazyAgentServiceFactory implements Supplier<Object> {
+
+		private IAgentServiceFactory factory;
+		private IProvisioningAgent agent;
+		private Object service;
+
+		LazyAgentServiceFactory(IAgentServiceFactory factory, IProvisioningAgent agent) {
+			this.factory = factory;
+			this.agent = agent;
+		}
+
+		@Override
+		public synchronized Object get() {
+			if (service == null && factory != null && agent != null) {
+				// first copy a reference
+				IAgentServiceFactory agentServiceFactory = factory;
+				IProvisioningAgent provisioningAgent = agent;
+				// now clear the global references, just in case this method is getting called
+				// again
+				factory = null;
+				agent = null;
+				service = agentServiceFactory.createService(provisioningAgent);
+			}
+			return service;
+		}
+
 	}
 
 	static {
