@@ -64,6 +64,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.LocalArtifactHandling;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
@@ -197,6 +198,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         tpConfiguration.addFilters(configuration.getFilters());
         tpConfiguration.setIncludeSourceMode(configuration.getTargetDefinitionIncludeSourceMode());
+        tpConfiguration
+                .setIgnoreLocalArtifacts(configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
 
         return reactorRepositoryManager.computePreliminaryTargetPlatform(reactorProject, tpConfiguration, ee,
                 reactorProjects);

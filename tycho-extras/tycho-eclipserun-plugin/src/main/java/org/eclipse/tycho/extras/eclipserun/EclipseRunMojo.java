@@ -334,7 +334,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	private EquinoxInstallation createEclipseInstallation() throws MojoFailureException {
 		TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
 		// we want to resolve from remote repos only
-		tpConfiguration.setForceIgnoreLocalArtifacts(true);
+		tpConfiguration.setIgnoreLocalArtifacts(true);
 		for (Repository repository : repositories) {
 			tpConfiguration.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
 		}

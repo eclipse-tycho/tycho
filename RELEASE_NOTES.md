@@ -14,6 +14,30 @@ a demo can be found here https://github.com/eclipse-tycho/tycho/tree/master/demo
 The tycho-build extension can now also build projects with a [BND Workspaces](https://bndtools.org/concepts.html) layout in a complete pomless way,
 details can be found here: https://tycho.eclipseprojects.io/doc/master/BndBuild.html
 
+### Handling of local artifacts can now be configured through the target platform
+
+Previously it was only possible to influence the handling of local artifacts with the `-Dtycho.localArtifacts=<ignore/default>` option, from now on this can be configured through the target platform as well like this:
+
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<dependency-resolution>
+			<localArtifacts>ignore</localArtifacts>
+		</dependency-resolution>
+	</configuration>
+</plugin>
+```
+
+the supported values are:
+
+- `include` - (default) local artifacts are included and may override items from the target, 
+- `default` - for backward-compatibility with older documentation, equivalent to `include`
+- `ignore` - local artifacts are ignored
+
 ### new tycho-versions-plugin mojos
 
 #### bump-versions mojo

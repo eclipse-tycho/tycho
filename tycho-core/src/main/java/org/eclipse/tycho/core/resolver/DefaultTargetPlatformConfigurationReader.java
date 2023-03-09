@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -44,6 +45,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.LocalArtifactHandling;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -59,6 +61,9 @@ public class DefaultTargetPlatformConfigurationReader {
     public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";
     public static final String DEPENDENCY_RESOLUTION = "dependency-resolution";
     public static final String OPTIONAL_DEPENDENCIES = "optionalDependencies";
+    public static final String LOCAL_ARTIFACTS = "localArtifacts";
+    public static final String LOCAL_ARTIFACTS_PROPERTY = "tycho.localArtifacts";
+
     public static final String FILTERS = "filters";
     public static final String RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS = "resolveWithExecutionEnvironmentConstraints";
     public static final String BREE_HEADER_SELECTION_POLICY = "breeHeaderSelectionPolicy";
@@ -121,7 +126,7 @@ public class DefaultTargetPlatformConfigurationReader {
                     throw new BuildFailureException("reading exclusions failed", e);
                 }
 
-                readDependencyResolutionConfiguration(result, configuration);
+                readDependencyResolutionConfiguration(result, configuration, session);
 
                 setTargetDefinitionIncludeSources(result, configuration);
             }
@@ -177,15 +182,36 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    protected void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+    protected void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration,
+            MavenSession mavenSession) {
         Xpp3Dom resolverDom = configuration.getChild(DEPENDENCY_RESOLUTION);
         if (resolverDom == null) {
             return;
         }
 
         setOptionalDependencies(result, resolverDom);
+        setLocalArtifacts(result, resolverDom, mavenSession);
         readExtraRequirements(result, resolverDom);
         readProfileProperties(result, resolverDom);
+
+    }
+
+    private void setLocalArtifacts(TargetPlatformConfiguration result, Xpp3Dom resolverDom, MavenSession mavenSession) {
+        String value = getStringValue(resolverDom.getChild(LOCAL_ARTIFACTS), mavenSession, LOCAL_ARTIFACTS_PROPERTY,
+                null);
+        if (value == null) {
+            return;
+        }
+        if ("default".equalsIgnoreCase(value)) {
+            //backward compatible... but default is not a valid name for an enum, so we handle it special here.
+            result.setLocalArtifactHandling(LocalArtifactHandling.include);
+        }
+        try {
+            result.setLocalArtifactHandling(LocalArtifactHandling.valueOf(value));
+        } catch (IllegalArgumentException e) {
+            throw new BuildFailureException("Invalid value for " + LOCAL_ARTIFACTS + " setting, given = " + value
+                    + ", allowed = " + Arrays.toString(LocalArtifactHandling.values()));
+        }
 
     }
 
@@ -490,9 +516,15 @@ public class DefaultTargetPlatformConfigurationReader {
 
         if (session != null) {
             Properties userProperties = session.getUserProperties();
-            String userProperty = userProperties.getProperty(property, userProperties.getProperty(alias));
+            String userProperty = userProperties.getProperty(property);
             if (userProperty != null) {
                 return userProperty;
+            }
+            if (alias != null) {
+                userProperty = userProperties.getProperty(alias);
+                if (userProperty != null) {
+                    return userProperty;
+                }
             }
         }
         return getStringValue(element);

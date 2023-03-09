@@ -149,7 +149,7 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         res.addChild(opt);
         dom.addChild(res);
         try {
-            configurationReader.readDependencyResolutionConfiguration(new TargetPlatformConfiguration(), dom);
+            configurationReader.readDependencyResolutionConfiguration(new TargetPlatformConfiguration(), dom, null);
         } catch (BuildFailureException e) {
             fail(e.getMessage());
         }

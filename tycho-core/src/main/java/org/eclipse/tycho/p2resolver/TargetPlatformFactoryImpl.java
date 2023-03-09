@@ -168,7 +168,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         registerRepositoryIDs(completeRepositories);
 
         // collect & process metadata
-        boolean includeLocalMavenRepo = shouldIncludeLocallyInstalledUnits(tpConfiguration);
+        boolean includeLocalMavenRepo = !tpConfiguration.getIgnoreLocalArtifacts();
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
                 targetFileContent, includeLocalMavenRepo);
 
@@ -232,25 +232,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         for (MavenRepositoryLocation location : repositoriesWithIDs) {
             remoteRepositoryIdManager.addMapping(location.getId(), location.getURL());
         }
-    }
-
-    private boolean shouldIncludeLocallyInstalledUnits(TargetPlatformConfigurationStub tpConfiguration) {
-        if (tpConfiguration.getForceIgnoreLocalArtifacts()) {
-            return false;
-
-        } else {
-            // check if disabled on command line or via Maven settings
-            boolean ignoreLocal = "ignore"
-                    .equalsIgnoreCase(mavenContext.getSessionProperties().getProperty("tycho.localArtifacts"));
-            if (ignoreLocal) {
-                logger.debug("tycho.localArtifacts="
-                        + mavenContext.getSessionProperties().getProperty("tycho.localArtifacts")
-                        + " -> ignoring locally built artifacts");
-                return false;
-            }
-        }
-        // default: include locally installed artifacts in target platform
-        return true;
     }
 
     /**

@@ -12,19 +12,23 @@ package org.eclipse.tycho.target;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.tycho.OptionalResolutionAction;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.LocalArtifactHandling;
+import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+
 public class DependencyResolutionConfiguration {
 
-	public class ExtraRequirementConfiguration {
-		// Adapted from DefaultArtifactKey
-		public String type;
-		public String id;
-		public String versionRange;
-	}
+    public class ExtraRequirementConfiguration {
+        // Adapted from DefaultArtifactKey
+        public String type;
+        public String id;
+        public String versionRange;
+    }
 
-	/**
-	 * One of <code>ignore</code>, <code>optional</code>, <code>require</code>
-	 */
-	public String optionalDependencies;
+    public OptionalResolutionAction optionalDependencies;
     public List<ExtraRequirementConfiguration> extraRequirements;
     public Properties profileProperties;
+    @Parameter(property = DefaultTargetPlatformConfigurationReader.LOCAL_ARTIFACTS_PROPERTY, name = DefaultTargetPlatformConfigurationReader.LOCAL_ARTIFACTS)
+    public LocalArtifactHandling localArtifacts;
 }

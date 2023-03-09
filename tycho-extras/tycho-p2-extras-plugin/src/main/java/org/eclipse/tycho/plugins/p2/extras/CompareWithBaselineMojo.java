@@ -144,7 +144,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         P2Resolver resolver = resolverFactory.createResolver(Collections.singletonList(runningEnvironment));
 
         TargetPlatformConfigurationStub baselineTPStub = new TargetPlatformConfigurationStub();
-        baselineTPStub.setForceIgnoreLocalArtifacts(true);
+        baselineTPStub.setIgnoreLocalArtifacts(true);
         baselineTPStub.setEnvironments(Collections.singletonList(runningEnvironment));
         for (String baselineRepo : this.baselines) {
             baselineTPStub.addP2Repository(toRepoURI(baselineRepo));
