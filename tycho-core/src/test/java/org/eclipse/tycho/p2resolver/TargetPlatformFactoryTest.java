@@ -262,7 +262,7 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
         subject = factory.getTargetPlatformFactoryImpl();
         Collection<IInstallableUnit> iusIncludingLocalRepo = subject
                 .createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null).getInstallableUnits();
-        tpConfig.setForceIgnoreLocalArtifacts(true);
+        tpConfig.setIgnoreLocalArtifacts(true);
         Collection<IInstallableUnit> iusWithoutLocalRepo = subject
                 .createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null).getInstallableUnits();
         Set<IInstallableUnit> retainedIUs = new HashSet<>(iusIncludingLocalRepo);
