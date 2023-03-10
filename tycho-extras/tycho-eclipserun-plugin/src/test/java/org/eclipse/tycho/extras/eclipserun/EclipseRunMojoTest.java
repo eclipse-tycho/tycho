@@ -35,9 +35,9 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 import org.junit.rules.TemporaryFolder;
 
 public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {

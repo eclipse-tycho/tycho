@@ -37,12 +37,14 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.osgi.framework.Version;
 
@@ -109,6 +111,9 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Component
     private Logger plexusLogger;
 
+    @Component
+    private TychoProjectManager projectManager;
+
     /**
      * The hint of an available {@link ArtifactComparator} component to use for comparison of
      * artifacts with same version.
@@ -135,18 +140,19 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                     + this.artifactComparators.keySet());
         }
 
-        P2Resolver resolver = resolverFactory.createResolver(Collections
-                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+        TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
+        P2Resolver resolver = resolverFactory.createResolver(Collections.singletonList(runningEnvironment));
 
         TargetPlatformConfigurationStub baselineTPStub = new TargetPlatformConfigurationStub();
-        baselineTPStub.setForceIgnoreLocalArtifacts(true);
-        baselineTPStub.setEnvironments(Collections
-                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+        baselineTPStub.setIgnoreLocalArtifacts(true);
+        baselineTPStub.setEnvironments(Collections.singletonList(runningEnvironment));
         for (String baselineRepo : this.baselines) {
             baselineTPStub.addP2Repository(toRepoURI(baselineRepo));
         }
+        ExecutionEnvironmentConfiguration eeConfiguration = projectManager
+                .getExecutionEnvironmentConfiguration(project);
         TargetPlatform baselineTP = resolverFactory.getTargetPlatformFactory().createTargetPlatform(baselineTPStub,
-                TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject), null);
+                eeConfiguration, null);
 
         for (IInstallableUnit item : dependencyMetadata) {
             try {
@@ -211,7 +217,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                             getLog().warn(message);
                             return;
                         } else {
-                            throw new MojoFailureException(message);
+                            throw new VersionBumpRequiredException(message, item, version, baselineVersion);
                         }
                     }
                 }

@@ -46,7 +46,7 @@ public class UpdatePomMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
             try {
-                pomReader.addBasedir(session.getCurrentProject().getBasedir());
+                pomReader.addBasedir(session.getCurrentProject().getBasedir(), true);
                 pomUpdater.setProjects(pomReader.getProjects());
                 pomUpdater.apply();
             } catch (IOException e) {

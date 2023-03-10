@@ -132,7 +132,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				Version pv = getBaseVersion(projectJar.getVersion());
 				Version bv = getBaseVersion(baselineJar.getVersion());
 				aQute.bnd.version.Version sv = new aQute.bnd.version.Version(bv.getMajor(), bv.getMinor(),
-						bv.getMicro() + 100);
+						bv.getMicro() + context.getMicroIncrement());
 				if (!manifestdiffs.isEmpty()) {
 					failed |= requireVersionBump(bundleInfo, pv, bv, sv);
 					at.addRule();

@@ -15,17 +15,24 @@ package org.eclipse.tycho.core.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 public class TychoProjectUtils {
     private static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
+
+    public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
+    public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
+    public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
 
     /**
      * Returns the {@link DependencyArtifacts} instance associated with the given project.
@@ -52,25 +59,6 @@ public class TychoProjectUtils {
     }
 
     /**
-     * Returns the {@link TargetPlatformConfiguration} instance associated with the given project.
-     * 
-     * @param project
-     *            a Tycho project
-     * @return the target platform configuration for the given project; never <code>null</code>
-     * @throws IllegalStateException
-     *             if the given project does not have an associated target platform configuration
-     */
-    public static TargetPlatformConfiguration getTargetPlatformConfiguration(ReactorProject project)
-            throws IllegalStateException {
-        TargetPlatformConfiguration targetPlatformConfiguration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-        if (targetPlatformConfiguration == null) {
-            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
-        }
-        return targetPlatformConfiguration;
-    }
-
-    /**
      * Returns the final target platform of the given project.
      */
     public static TargetPlatform getTargetPlatform(ReactorProject project) {
@@ -90,15 +78,6 @@ public class TychoProjectUtils {
      */
     public static TargetPlatform getTargetPlatformIfAvailable(ReactorProject project) {
         return (TargetPlatform) project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
-    }
-
-    public static ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(ReactorProject project) {
-        ExecutionEnvironmentConfiguration storedConfig = (ExecutionEnvironmentConfiguration) project
-                .getContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION);
-        if (storedConfig == null) {
-            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
-        }
-        return storedConfig;
     }
 
     /**
@@ -132,5 +111,41 @@ public class TychoProjectUtils {
             throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
         }
         return resolvedDependencies;
+    }
+
+    /**
+     * Computes the merged properties from maven session and the project
+     * 
+     * @param mavenProject
+     * @param mavenSession
+     * @return a (possibly cached) value, do not modify the object!
+     */
+    public static Properties getMergedProperties(MavenProject mavenProject, MavenSession mavenSession) {
+        if (mavenSession == null) {
+            //only temporary ...
+            return computeMergedProperties(mavenProject, null);
+        }
+        return DefaultReactorProject.adapt(mavenProject, mavenSession).computeContextValue(
+                ReactorProject.CTX_MERGED_PROPERTIES, () -> computeMergedProperties(mavenProject, mavenSession));
+    }
+
+    private static Properties computeMergedProperties(MavenProject mavenProject, MavenSession mavenSession) {
+        Properties properties = new Properties();
+        properties.putAll(mavenProject.getProperties());
+        if (mavenSession != null) {
+            properties.putAll(mavenSession.getSystemProperties()); // session wins
+            properties.putAll(mavenSession.getUserProperties());
+        }
+        setTychoEnvironmentProperties(properties, mavenProject);
+        return properties;
+    }
+
+    public static void setTychoEnvironmentProperties(Properties properties, MavenProject project) {
+        String arch = PlatformPropertiesUtils.getArch(properties);
+        String os = PlatformPropertiesUtils.getOS(properties);
+        String ws = PlatformPropertiesUtils.getWS(properties);
+        project.getProperties().put(TYCHO_ENV_OSGI_WS, ws);
+        project.getProperties().put(TYCHO_ENV_OSGI_OS, os);
+        project.getProperties().put(TYCHO_ENV_OSGI_ARCH, arch);
     }
 }

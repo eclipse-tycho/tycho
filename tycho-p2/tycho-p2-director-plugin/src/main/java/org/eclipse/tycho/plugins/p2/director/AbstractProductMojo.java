@@ -18,11 +18,13 @@ import java.util.List;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
@@ -116,6 +118,9 @@ abstract class AbstractProductMojo extends AbstractMojo {
     @Parameter(property = "p2.timeout", defaultValue = "0")
     private int forkedProcessTimeoutInSeconds;
 
+    @Component
+    private TychoProjectManager projectManager;
+
     int getForkedProcessTimeoutInSeconds() {
         return forkedProcessTimeoutInSeconds;
     }
@@ -139,7 +144,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
     File getProductMaterializeDirectory(Product product, TargetEnvironment env) {
         if (env != null) {
             return new File(getProductsBuildDirectory(), product.getId() + "/" + getOsWsArch(env, '/'));
-	}
+        }
         return new File(getProductsBuildDirectory(), product.getId());
     }
 
@@ -151,8 +156,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
     }
 
     List<TargetEnvironment> getEnvironments() {
-        TargetPlatformConfiguration configuration = TychoProjectUtils
-                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         return configuration.getEnvironments();
     }
 

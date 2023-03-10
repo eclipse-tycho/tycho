@@ -16,6 +16,9 @@ package org.eclipse.tycho.p2resolver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -24,7 +27,9 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
@@ -45,6 +50,11 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     @Requirement
     P2ResolverFactory p2ResolverFactory;
 
+    @Requirement(hint = P2DependencyResolver.ROLE_HINT)
+    DependencyResolver p2Resolver;
+
+    @Requirement
+    LegacySupport legacySupport;
     private TargetPlatformFactory tpFactory;
 
     @Override
@@ -72,17 +82,31 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     @Override
     public TargetPlatform computeFinalTargetPlatform(ReactorProject project,
             List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector) {
-        PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
-        if (preliminaryTargetPlatform == null) {
-            // project doesn't seem to use resolver=p2
-            return null;
-        }
-        List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
-        TargetPlatform result = getTpFactory().createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
-                upstreamProjectResults, pomDependencyCollector);
+        synchronized (project) {
+            PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
+            if (preliminaryTargetPlatform == null) {
+                MavenSession session = project.adapt(MavenSession.class);
+                if (session == null) {
+                    session = legacySupport.getSession();
+                    if (session == null) {
+                        return null;
+                    }
+                }
+                MavenProject mavenProject = project.adapt(MavenProject.class);
+                if (mavenProject == null) {
+                    return null;
+                }
+                preliminaryTargetPlatform = (PreliminaryTargetPlatformImpl) p2Resolver
+                        .computePreliminaryTargetPlatform(session, mavenProject, DefaultReactorProject.adapt(session));
 
-        project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
-        return result;
+            }
+            List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
+            TargetPlatform result = getTpFactory().createTargetPlatformWithUpdatedReactorContent(
+                    preliminaryTargetPlatform, upstreamProjectResults, pomDependencyCollector);
+
+            project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
+            return result;
+        }
     }
 
     private PreliminaryTargetPlatformImpl getRegisteredPreliminaryTargetPlatform(ReactorProject project) {

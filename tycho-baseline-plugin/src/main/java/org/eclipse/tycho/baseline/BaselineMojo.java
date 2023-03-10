@@ -101,6 +101,13 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Parameter(property = "tycho.baseline.extensions", defaultValue = "false")
 	private boolean extensions;
 
+	/**
+	 * Configure the step size for the micro version that is suggested as an
+	 * increment.
+	 */
+	@Parameter(property = "tycho.baseline.increment", defaultValue = "1")
+	private int increment = 1;
+
 	@Component
 	protected TychoProjectManager projectManager;
 	@Component
@@ -235,6 +242,11 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Override
 	public boolean isExtensionsEnabled() {
 		return extensions;
+	}
+
+	@Override
+	public int getMicroIncrement() {
+		return increment;
 	}
 
 	@Override

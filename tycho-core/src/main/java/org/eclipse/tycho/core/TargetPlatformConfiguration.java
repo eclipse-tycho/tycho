@@ -22,9 +22,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
@@ -39,6 +41,32 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public enum BREEHeaderSelectionPolicy {
         first, minimal
+    }
+
+    public enum LocalArtifactHandling {
+        /**
+         * local artifacts are included and override items from the target
+         */
+        include,
+        /**
+         * NOT SUPPORTED YET! local artifacts override items from the target that are
+         * <i>equivalent</i> (major and minor version must equal the version from the target).
+         */
+        equivalent,
+        /**
+         * NOT SUPPORTED YET! local artifacts override items from the target that are
+         * <i>compatible</i> (major version must equal the version from the target).
+         */
+        compatible,
+        /**
+         * NOT SUPPORTED YET! local artifacts override items from the target that match
+         * <i>exactly</i> the version from the target.
+         */
+        perfect,
+        /**
+         * local artifacts are ignored
+         */
+        ignore;
     }
 
     private String resolver;
@@ -66,6 +94,10 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private Map<String, String> resolverProfileProperties = new HashMap<>();
 
+    List<Supplier<File>> lazyTargetFiles = new ArrayList<>();
+
+    private LocalArtifactHandling localArtifactHandling;
+
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -80,7 +112,12 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         return resolver;
     }
 
-    public List<TargetDefinitionFile> getTargets() {
+    public synchronized List<TargetDefinitionFile> getTargets() {
+        for (Iterator<Supplier<File>> iterator = lazyTargetFiles.iterator(); iterator.hasNext();) {
+            Supplier<File> supplier = iterator.next();
+            targets.add(supplier.get().toURI());
+            iterator.remove();
+        }
         return targets.stream().map(TargetDefinitionFile::read).toList();
     }
 
@@ -98,6 +135,10 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void addTarget(URI target) {
         this.targets.add(target);
+    }
+
+    public synchronized void addLazyTargetFile(Supplier<File> targetFileSupplier) {
+        lazyTargetFiles.add(targetFileSupplier);
     }
 
     public IncludeSourceMode getTargetDefinitionIncludeSourceMode() {
@@ -211,6 +252,17 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     @Override
     public Collection<IRequirement> getAdditionalRequirements() {
         return List.of();
+    }
+
+    public LocalArtifactHandling getIgnoreLocalArtifacts() {
+        if (localArtifactHandling == null) {
+            return LocalArtifactHandling.include;
+        }
+        return localArtifactHandling;
+    }
+
+    public void setLocalArtifactHandling(LocalArtifactHandling localArtifactHandling) {
+        this.localArtifactHandling = localArtifactHandling;
     }
 
 }

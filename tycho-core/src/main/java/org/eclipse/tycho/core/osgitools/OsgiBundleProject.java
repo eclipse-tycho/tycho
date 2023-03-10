@@ -275,8 +275,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolving JUnit " + junit.getJUnitSegment() + " classpath container");
-                P2Resolver resolver = resolverFactory.createResolver(
-                        Collections.singletonList(TargetEnvironment.getRunningEnvironment(reactorProject)));
+                P2Resolver resolver = resolverFactory
+                        .createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
                 TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
                 Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, junit.getArtifacts())
                         .values();
@@ -331,8 +331,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private ModuleContainer getResolverState(ReactorProject project, DependencyArtifacts artifacts,
             MavenSession session) {
         try {
-            ExecutionEnvironmentConfiguration eeConfiguration = TychoProjectUtils
-                    .getExecutionEnvironmentConfiguration(project);
+            ExecutionEnvironmentConfiguration eeConfiguration = projectManager
+                    .getExecutionEnvironmentConfiguration(getMavenProject(project));
             ExecutionEnvironment executionEnvironment = eeConfiguration.getFullSpecification();
             return resolver.newResolvedState(project, session,
                     eeConfiguration.isIgnoredByResolver() ? null : executionEnvironment, artifacts);
@@ -635,7 +635,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 applyBestOfCurrentOrConfiguredProfile(manifestBREEs[0],
                         "Bundle-RequiredExecutionEnvironment (unique entry)", mavenSession, sink);
             } else if (manifestBREEs.length > 1) {
-                TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+                TargetPlatformConfiguration tpConfiguration = projectManager.getTargetPlatformConfiguration(project);
                 switch (tpConfiguration.getBREEHeaderSelectionPolicy()) {
                 case first:
                     applyBestOfCurrentOrConfiguredProfile(manifestBREEs[0],

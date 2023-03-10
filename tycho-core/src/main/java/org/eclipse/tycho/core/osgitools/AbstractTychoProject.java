@@ -38,6 +38,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
@@ -58,6 +59,9 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     MavenDependenciesResolver projectDependenciesResolver;
     @Requirement
     LegacySupport legacySupport;
+
+    @Requirement
+    TychoProjectManager projectManager;
 
     @Override
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project) {
@@ -101,7 +105,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
             return new TargetEnvironment[] { environment };
         }
 
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         if (configuration.isImplicitTargetEnvironment()) {
             return null; // any
         }
@@ -123,24 +127,28 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
 
     public void readExecutionEnvironmentConfiguration(ReactorProject project, MavenSession mavenSession,
             ExecutionEnvironmentConfiguration sink) {
-        TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        readExecutionEnvironmentConfiguration(projectManager.getTargetPlatformConfiguration(project), sink);
+    }
 
-        String configuredForcedProfile = tpConfiguration.getExecutionEnvironment();
+    public static void readExecutionEnvironmentConfiguration(TargetPlatformConfiguration targetPlatformConfiguration,
+            ExecutionEnvironmentConfiguration executionEnvironmentConfiguration) {
+
+        String configuredForcedProfile = targetPlatformConfiguration.getExecutionEnvironment();
         if (configuredForcedProfile != null) {
-            sink.overrideProfileConfiguration(configuredForcedProfile,
+            executionEnvironmentConfiguration.overrideProfileConfiguration(configuredForcedProfile,
                     "target-platform-configuration <executionEnvironment>");
         } else {
-            tpConfiguration.getTargets().stream() //
+            targetPlatformConfiguration.getTargets().stream() //
                     .map(TargetDefinition::getTargetEE) //
                     .filter(Objects::nonNull) //
                     .findFirst() //
-                    .ifPresent(profile -> sink.overrideProfileConfiguration(profile,
+                    .ifPresent(profile -> executionEnvironmentConfiguration.overrideProfileConfiguration(profile,
                             "first targetJRE from referenced target-definition files"));
         }
 
-        String configuredDefaultProfile = tpConfiguration.getExecutionEnvironmentDefault();
+        String configuredDefaultProfile = targetPlatformConfiguration.getExecutionEnvironmentDefault();
         if (configuredDefaultProfile != null) {
-            sink.setProfileConfiguration(configuredDefaultProfile,
+            executionEnvironmentConfiguration.setProfileConfiguration(configuredDefaultProfile,
                     "target-platform-configuration <executionEnvironmentDefault>");
         }
     }

@@ -62,7 +62,6 @@ import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.Constants;
 
 import aQute.bnd.osgi.Analyzer;
@@ -406,10 +405,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     }
 
     protected List<TargetEnvironment> getTestTargetEnvironments() {
-        TargetPlatformConfiguration configuration = TychoProjectUtils
-                .getTargetPlatformConfiguration(getReactorProject());
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
-        TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment(getReactorProject());
+        TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
         for (TargetEnvironment targetEnvironment : targetEnvironments) {
             if (targetEnvironment.equals(runningEnvironment)) {
                 getLog().debug("Using matching target environment " + targetEnvironment.toFilterProperties()
@@ -440,8 +438,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     }
 
     protected String getTestProfileName() {
-        String profileName = TychoProjectUtils
-                .getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project)).getProfileName();
+        String profileName = projectManager.getExecutionEnvironmentConfiguration(project).getProfileName();
         return profileName;
     }
 

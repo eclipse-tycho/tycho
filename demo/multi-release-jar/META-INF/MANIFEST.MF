@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MR-JAR TestCase
+Bundle-SymbolicName: mr
+Bundle-Version: 1.0.0.qualifier
+Export-Package: tycho.mr.example;version="0.0.1"
+Import-Package: org.apache.commons.io
+Multi-Release: true
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"

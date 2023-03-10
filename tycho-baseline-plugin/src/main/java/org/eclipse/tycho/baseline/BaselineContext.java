@@ -39,4 +39,6 @@ public interface BaselineContext {
 
 	ArtifactKey getArtifactKey();
 
+	int getMicroIncrement();
+
 }

@@ -455,8 +455,7 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     private void fillReferences(Feature sourceFeature, Feature feature, TargetPlatform targetPlatform)
             throws MojoExecutionException {
-        P2Resolver p2 = factory.createResolver(Collections
-                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+        P2Resolver p2 = factory.createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 
         List<PluginRef> missingSourcePlugins = new ArrayList<>();
         List<FeatureRef> missingSourceFeatures = new ArrayList<>();

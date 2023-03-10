@@ -24,9 +24,9 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.eclipse.tycho.testing.CompoundRuntimeException;
+import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Assert;
 
 public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {

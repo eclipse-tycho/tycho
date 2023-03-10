@@ -39,7 +39,6 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
@@ -188,8 +187,7 @@ public class TPValidationMojo extends AbstractMojo {
             TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
             tpConfiguration.addTargetDefinition(targetDefinition);
-            tpConfiguration.setEnvironments(Collections
-                    .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+            tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 
             P2Resolver resolver = this.factory.createResolver(tpConfiguration.getEnvironments());
 

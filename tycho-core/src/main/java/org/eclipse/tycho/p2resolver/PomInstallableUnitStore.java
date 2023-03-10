@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -106,10 +107,11 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
         if (collection == null) {
             PublisherInfo publisherInfo = new PublisherInfo();
             publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-            Collection<Artifact> artifactMap = tychoProject.getInitialArtifacts(reactorProject,
-                    List.of(Artifact.SCOPE_TEST));
-            Map<Artifact, IArtifactFacade> facadeMap = tychoProject.getArtifactFacades(reactorProject, artifactMap);
-            for (Artifact artifact : artifactMap) {
+            Collection<Artifact> initalArtifacts = new ArrayList<>(
+                    tychoProject.getInitialArtifacts(reactorProject, List.of(Artifact.SCOPE_TEST)));
+            addBuildReactorProjects(initalArtifacts);
+            Map<Artifact, IArtifactFacade> facadeMap = tychoProject.getArtifactFacades(reactorProject, initalArtifacts);
+            for (Artifact artifact : initalArtifacts) {
                 IArtifactFacade facade = facadeMap.get(artifact);
                 getArtifactStream(artifact, facade).forEach(a -> {
                     if (a.getFile() == null || configuration.isExcluded(a.getGroupId(), a.getArtifactId())) {
@@ -186,6 +188,21 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
             collection = new QueryableCollection(installableUnitLookUp.keySet());
         }
         return collection;
+    }
+
+    private void addBuildReactorProjects(Collection<Artifact> initalArtifacts) {
+        MavenSession mavenSession = reactorProject.adapt(MavenSession.class);
+        if (mavenSession != null) {
+            for (MavenProject mavenProject : mavenSession.getProjects()) {
+                if ("jar".equals(mavenProject.getPackaging())) {
+                    Artifact artifact = mavenProject.getArtifact();
+                    File file = artifact.getFile();
+                    if (file != null && file.exists()) {
+                        initalArtifacts.add(artifact);
+                    }
+                }
+            }
+        }
     }
 
     private Stream<Artifact> getArtifactStream(Artifact artifact, IArtifactFacade facade) {

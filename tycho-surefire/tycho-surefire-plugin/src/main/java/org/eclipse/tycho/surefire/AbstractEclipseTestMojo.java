@@ -652,8 +652,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         // 2. test harness bundles
         iusToInstall.addAll(providerHelper.getSymbolicNames(testHarnessArtifacts));
         // 3. extra dependencies
-        LinkedHashSet<ArtifactKey> extraDependencies = new LinkedHashSet<>(TychoProjectUtils
-                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project)).getAdditionalArtifacts());
+        LinkedHashSet<ArtifactKey> extraDependencies = new LinkedHashSet<>(
+                projectManager.getTargetPlatformConfiguration(project).getAdditionalArtifacts());
         extraDependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
         for (ArtifactKey extraDependency : extraDependencies) {
             String type = extraDependency.getType();
@@ -818,8 +818,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                 dependencies.add(new DefaultArtifactKey(key.getType(), key.getArtifactId(), key.getVersion()));
             }
         }
-        TargetPlatformConfiguration configuration = TychoProjectUtils
-                .getTargetPlatformConfiguration(DefaultReactorProject.adapt(project));
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         dependencies.addAll(configuration.getDependencyResolverConfiguration().getAdditionalArtifacts());
         dependencies.addAll(osgiBundle.getExtraTestRequirements(getReactorProject()));
         dependencies.addAll(getTestDependencies());
@@ -992,13 +991,12 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
     private String decodeReturnCode(int result) {
         try {
-            Properties properties = DefaultReactorProject.adapt(project).getProperties();
-            if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(properties))) {
+            if (PlatformPropertiesUtils.OS_LINUX.equals(PlatformPropertiesUtils.getOS(System.getProperties()))) {
                 int signal = result - 128;
                 if (signal > 0 && signal < UNIX_SIGNAL_NAMES.length) {
                     return result + "(" + UNIX_SIGNAL_NAMES[signal] + " received?)";
                 }
-            } else if (PlatformPropertiesUtils.OS_WIN32.equals(PlatformPropertiesUtils.getOS(properties))) {
+            } else if (PlatformPropertiesUtils.OS_WIN32.equals(PlatformPropertiesUtils.getOS(System.getProperties()))) {
                 return result + " (HRESULT Code 0x" + Integer.toHexString(result).toUpperCase()
                         + ", check for example https://www.hresult.info/ for further details)";
             }
@@ -1023,7 +1021,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
         cli.addVMArguments("-Dosgi.noShutdown=false");
 
-        Properties properties = DefaultReactorProject.adapt(project).getProperties();
+        Properties properties = TychoProjectUtils.getMergedProperties(project, session);
         cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
@@ -1078,8 +1076,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     }
 
     private void addCustomProfileArg(EquinoxLaunchConfiguration cli) throws MojoExecutionException {
-        ExecutionEnvironmentConfiguration eeConfig = TychoProjectUtils
-                .getExecutionEnvironmentConfiguration(DefaultReactorProject.adapt(project));
+
+        ExecutionEnvironmentConfiguration eeConfig = projectManager.getExecutionEnvironmentConfiguration(project);
         if (eeConfig.isCustomProfile()) {
             Properties customProfileProps = eeConfig.getFullSpecification().getProfileProperties();
             File profileFile = new File(new File(project.getBuild().getDirectory()), "custom.profile");

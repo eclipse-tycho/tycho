@@ -38,7 +38,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
-import org.eclipse.tycho.core.utils.TychoVersion;
+import org.eclipse.tycho.version.TychoVersion;
 
 /**
  * Determine and cache system library info (Java version, bootclasspath, extension and endorsed

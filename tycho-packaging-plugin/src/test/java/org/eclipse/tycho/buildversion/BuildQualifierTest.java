@@ -36,8 +36,8 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 
 public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 

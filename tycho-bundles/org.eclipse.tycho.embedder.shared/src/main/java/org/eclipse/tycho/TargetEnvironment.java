@@ -28,6 +28,7 @@ public final class TargetEnvironment {
     private static final String OSGI_OS = "osgi.os";
     private static final String OSGI_WS = "osgi.ws";
     private static final String OSGI_ARCH = "osgi.arch";
+    private static TargetEnvironment runningEnvironment;
 
     private String os;
     private String ws;
@@ -157,20 +158,13 @@ public final class TargetEnvironment {
     }
 
     public static TargetEnvironment getRunningEnvironment() {
-        return getRunningEnvironment(null);
-    }
-
-    public static TargetEnvironment getRunningEnvironment(ReactorProject project) {
-        Properties properties;
-        if (project == null) {
-            properties = EMPTY_PROPERTIES;
-        } else {
-            properties = Objects.requireNonNullElse(project.getProperties(), EMPTY_PROPERTIES);
+        if (runningEnvironment == null) {
+            String os = PlatformPropertiesUtils.getOS(EMPTY_PROPERTIES);
+            String ws = PlatformPropertiesUtils.getWS(EMPTY_PROPERTIES);
+            String arch = PlatformPropertiesUtils.getArch(EMPTY_PROPERTIES);
+            runningEnvironment = new TargetEnvironment(os, ws, arch);
         }
-        String os = PlatformPropertiesUtils.getOS(properties);
-        String ws = PlatformPropertiesUtils.getWS(properties);
-        String arch = PlatformPropertiesUtils.getArch(properties);
-        return new TargetEnvironment(os, ws, arch);
+        return runningEnvironment;
     }
 
 }

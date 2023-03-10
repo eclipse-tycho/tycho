@@ -17,9 +17,9 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Test;
 
 // tests that license feature references are updated by the versions-plugin (bug 424945)

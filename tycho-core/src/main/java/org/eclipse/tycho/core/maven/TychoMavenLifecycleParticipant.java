@@ -62,12 +62,13 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.build.BuildListeners;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.eclipse.tycho.resolver.TychoResolver;
+import org.eclipse.tycho.version.TychoVersion;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
@@ -100,6 +101,9 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     private ModelWriter modelWriter;
 
+    @Requirement
+    BuildListeners buildListeners;
+
     public TychoMavenLifecycleParticipant() {
         // needed for plexus
     }
@@ -117,11 +121,12 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_MODE, "project"));
         log.info("Tycho Builder:  "
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_BUILDER, "maven"));
+        if (disableLifecycleParticipation(session)) {
+        	buildListeners.notifyBuildStart(session);
+            return;
+        }
+        List<MavenProject> projects = session.getProjects();
         try {
-            if (disableLifecycleParticipation(session)) {
-                return;
-            }
-            List<MavenProject> projects = session.getProjects();
             validate(projects);
 
             // setting this system property to let EF figure out where the traffic 
@@ -181,6 +186,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             // trace by wrapping it in MavenExecutionException   
             throw new MavenExecutionException(e.getMessage(), e);
         }
+        buildListeners.notifyBuildStart(session);
     }
 
     private void dumpProjectRequirements(MavenProject project, BufferedWriter writer, ProjectDependencyClosure closure,
@@ -213,6 +219,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Override
     public void afterSessionEnd(MavenSession session) throws MavenExecutionException {
+        buildListeners.notifyBuildEnd(session);
         if (plexus.hasComponent(EquinoxServiceFactory.class)) {
             try {
                 EquinoxServiceFactory factory = plexus.lookup(EquinoxServiceFactory.class);

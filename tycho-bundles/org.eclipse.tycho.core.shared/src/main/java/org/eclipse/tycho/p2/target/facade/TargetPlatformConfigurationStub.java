@@ -36,6 +36,10 @@ public class TargetPlatformConfigurationStub {
     private boolean forceIgnoreLocalArtifacts = false;
     private IncludeSourceMode includeSourceMode = IncludeSourceMode.honor;
 
+    public TargetPlatformConfigurationStub() {
+        // TODO Auto-generated constructor stub
+    }
+
     public void setEnvironments(List<TargetEnvironment> environments) {
         this.environments = environments;
     }
@@ -73,11 +77,11 @@ public class TargetPlatformConfigurationStub {
         return targetDefinitions;
     }
 
-    public void setForceIgnoreLocalArtifacts(boolean forceIgnoreLocalArtifacts) {
+    public void setIgnoreLocalArtifacts(boolean forceIgnoreLocalArtifacts) {
         this.forceIgnoreLocalArtifacts = forceIgnoreLocalArtifacts;
     }
 
-    public boolean getForceIgnoreLocalArtifacts() {
+    public boolean getIgnoreLocalArtifacts() {
         return forceIgnoreLocalArtifacts;
     }
 

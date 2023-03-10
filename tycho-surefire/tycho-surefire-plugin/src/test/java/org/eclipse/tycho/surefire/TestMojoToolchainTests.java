@@ -26,11 +26,10 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.java.DefaultJavaToolChain;
 import org.codehaus.plexus.util.ReflectionUtils;
-import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +43,7 @@ public class TestMojoToolchainTests {
     private DefaultJavaToolChain breeToolchain;
     private Toolchain systemToolchain;
     private ToolchainProvider toolchainProvider;
+    private TychoProjectManager tychoProjectManager;
 
     @Before
     public void setUp() throws Exception {
@@ -52,6 +52,7 @@ public class TestMojoToolchainTests {
         breeToolchain = mock(DefaultJavaToolChain.class);
         systemToolchain = mock(Toolchain.class);
         toolchainProvider = mock(ToolchainProvider.class);
+        tychoProjectManager = mock(TychoProjectManager.class);
         project = new MavenProject();
         testMojo = new TestPluginMojo();
         setParameter(testMojo, "useJDK", JDKUsage.SYSTEM);
@@ -59,6 +60,7 @@ public class TestMojoToolchainTests {
         setParameter(testMojo, "toolchainProvider", toolchainProvider);
         setParameter(testMojo, "project", project);
         setParameter(testMojo, "session", session);
+        setParameter(testMojo, "projectManager", tychoProjectManager);
     }
 
     @Test
@@ -99,8 +101,7 @@ public class TestMojoToolchainTests {
         setParameter(testMojo, "useJDK", JDKUsage.BREE);
         ExecutionEnvironmentConfiguration envConf = mock(ExecutionEnvironmentConfiguration.class);
         when(envConf.getProfileName()).thenReturn("myId");
-        DefaultReactorProject.adapt(project).setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION,
-                envConf);
+        when(tychoProjectManager.getExecutionEnvironmentConfiguration(project)).thenReturn(envConf);
     }
 
     private void setParameter(Object object, String variable, Object value)

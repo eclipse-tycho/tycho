@@ -44,6 +44,12 @@ public class DefaultReactorProject implements ReactorProject {
             + System.identityHashCode(ReactorProject.class);
 
     /**
+     * Conventional key used to store ReactorProject in MavenProject.context
+     */
+    private static final String CTX_MAVEN_SESSION = "tycho.reactor-project."
+            + System.identityHashCode(MavenSession.class);
+
+    /**
      * Conventional key used to store dependency metadata in MavenProject.context
      */
     private static final String CTX_DEPENDENCY_METADATA_PREFIX = "tycho.dependency-metadata-";
@@ -66,6 +72,14 @@ public class DefaultReactorProject implements ReactorProject {
             //we store the basedir here, just in case it gets modified e.g. by plugins setting a different pom file
             this.basedir = project.getBasedir();
         }
+    }
+
+    public static ReactorProject adapt(MavenProject project, MavenSession mavenSession) {
+        ReactorProject reactorProject = adapt(project);
+        if (mavenSession != null) {
+            reactorProject.setContextValue(CTX_MAVEN_SESSION, mavenSession);
+        }
+        return reactorProject;
     }
 
     public static ReactorProject adapt(MavenProject project) {
@@ -92,7 +106,9 @@ public class DefaultReactorProject implements ReactorProject {
     public static List<ReactorProject> adapt(MavenSession session) {
         ArrayList<ReactorProject> result = new ArrayList<>();
         for (MavenProject project : session.getProjects()) {
-            result.add(adapt(project));
+            ReactorProject reactorProject = adapt(project, session);
+            reactorProject.computeContextValue(CTX_MAVEN_SESSION, () -> session);
+            result.add(reactorProject);
         }
         return result;
     }
@@ -260,7 +276,7 @@ public class DefaultReactorProject implements ReactorProject {
     @Override
     public <T> T adapt(Class<T> target) {
         if (target == MavenSession.class) {
-            //TODO
+            return target.cast(getContextValue(CTX_MAVEN_SESSION));
         }
         if (target == MavenProject.class) {
             return target.cast(project);
