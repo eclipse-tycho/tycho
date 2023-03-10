@@ -35,14 +35,6 @@
       name="User Preferences">
     <setupTask
         xsi:type="setup:CompoundTask"
-        name="org.eclipse.core.resources">
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          key="/instance/org.eclipse.core.resources/description.autobuilding"
-          value="false"/>
-    </setupTask>
-    <setupTask
-        xsi:type="setup:CompoundTask"
         name="org.eclipse.egit.core">
       <setupTask
           xsi:type="setup:PreferenceTask"
@@ -82,8 +74,8 @@
   </setupTask>
   <setupTask
       xsi:type="jdt:JRETask"
-      version="JavaSE-11"
-      location="${jre.location-11}">
+      version="JavaSE-17"
+      location="${jre.location-17}">
     <description>Define the JRE needed to compile and run the Java projects of ${scope.project.label}</description>
   </setupTask>
   <setupTask
@@ -199,18 +191,6 @@
       xsi:type="projects:ProjectsBuildTask"
       refresh="true"
       clean="true"/>
-  <setupTask
-      xsi:type="setup:CompoundTask"
-      name="User Preferences">
-    <setupTask
-        xsi:type="setup:CompoundTask"
-        name="org.eclipse.core.resources">
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          key="/instance/org.eclipse.core.resources/description.autobuilding"
-          value="true"/>
-    </setupTask>
-  </setupTask>
   <stream name="master"
       label="master">
     <description>Tycho Master</description>
