@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="simple.feature"
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="simple.bundle2"
+         version="0.0.0" />
+
+</feature>
