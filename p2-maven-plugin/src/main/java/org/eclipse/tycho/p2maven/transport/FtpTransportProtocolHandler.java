@@ -16,6 +16,8 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.lang.String.format;
+
 /**
  * Handles files discovery over the FTP protocol.
  *
@@ -44,18 +46,20 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
     public long getLastModified(final URI uri) throws IOException {
         final FTPClient client = getClient(uri);
 
-        if (!client.hasFeature(FTPCmd.MDTM)) {
-            logger.debug("Could not retrieve the last modification timestamp for: " + uri);
-            return -1;
+        synchronized (client) {
+            if (!client.hasFeature(FTPCmd.MDTM)) {
+                logger.debug("Could not retrieve the last modification timestamp for: " + uri);
+                return -1;
+            }
+
+            final FTPFile file = client.mdtmFile(uri.getPath());
+
+            if (file == null) {
+                throw new FileNotFoundException("Could not find file: " + uri);
+            }
+
+            return file.getTimestampInstant().toEpochMilli();
         }
-
-        final FTPFile file = client.mdtmFile(uri.getPath());
-
-        if (file == null) {
-            throw new FileNotFoundException("Could not find file: " + uri);
-        }
-
-        return file.getTimestampInstant().toEpochMilli();
     }
 
     @Override
@@ -71,51 +75,57 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
         }
 
         final FTPClient client = getClient(uri);
-        final String remotePath = uri.getPath();
-        final FTPFile remoteFile = getRemoteFile(client, remotePath);
-        final boolean isRemoteMissing = remoteFile == null;
 
-        if (localFile.isFile() && (isRemoteMissing || !mustRefresh(localFile, remoteFile))) {
+        synchronized (client) {
+            final String remotePath = uri.getPath();
+            final FTPFile remoteFile = getRemoteFileInfo(client, remotePath);
+            final boolean isRemoteMissing = remoteFile == null;
+
+            if (localFile.isFile() && (isRemoteMissing || !mustRefresh(localFile, remoteFile))) {
+                return localFile;
+            }
+
+            if (isRemoteMissing) {
+                throw new FileNotFoundException("Could not find file: " + uri);
+            }
+
+            final File parent = FileUtils.createParentDirectories(localFile);
+            final File tempFile = Files.createTempFile(parent.toPath(), "download", ".tmp").toFile();
+            tempFile.deleteOnExit();
+
+            try (final OutputStream os = new FileOutputStream(tempFile)) {
+                if (!client.retrieveFile(remotePath, os)) {
+                    final String message = client.getReplyString();
+                    throw new IOException(format("Error retrieving file: %s. Message: %s", remotePath, message));
+                }
+            } catch (final IOException e) {
+                tempFile.delete();
+                throw e;
+            }
+
+            if (localFile.isFile()) {
+                FileUtils.forceDelete(localFile);
+            }
+
+            FileUtils.moveFile(tempFile, localFile);
+            localFile.setLastModified(remoteFile.getTimestampInstant().toEpochMilli());
             return localFile;
         }
-
-        if (isRemoteMissing) {
-            throw new FileNotFoundException("Could not find file: " + uri);
-        }
-
-        final File parent = FileUtils.createParentDirectories(localFile);
-        final File tempFile = Files.createTempFile(parent.toPath(), "download", ".tmp").toFile();
-        tempFile.deleteOnExit();
-
-        try (final OutputStream os = new FileOutputStream(tempFile)) {
-            if (!client.retrieveFile(remotePath, os)) {
-                final String message = client.getReplyString();
-                throw new IOException(String.format("Error retrieving file: %s. Message: %s", remotePath, message));
-            }
-        } catch (final IOException e) {
-            tempFile.delete();
-            throw e;
-        }
-
-        if (localFile.isFile()) {
-            FileUtils.forceDelete(localFile);
-        }
-
-        FileUtils.moveFile(tempFile, localFile);
-        localFile.setLastModified(remoteFile.getTimestampInstant().toEpochMilli());
-        return localFile;
     }
 
+    @Override
     public void dispose() {
         for (final Map.Entry<String, FTPClient> entry : CLIENTS.entrySet()) {
             final FTPClient client = entry.getValue();
 
             try {
-                // We check if the connection is still active, as it might
-                // have been dropped earlier because of a timeout
-                if (client.isAvailable()) {
-                    client.logout();
-                    client.disconnect();
+                synchronized (client) {
+                    // We check if the connection is still active, as it might
+                    // have been dropped earlier because of a timeout
+                    if (client.isAvailable()) {
+                        client.logout();
+                        client.disconnect();
+                    }
                 }
             } catch (final FTPConnectionClosedException e) {
                 // Connection already closed by the host
@@ -139,42 +149,44 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
         final String key = host + ":" + port;
         final FTPClient client = CLIENTS.computeIfAbsent(key, k -> createFtpClient());
 
-        try {
-            if (client.isAvailable() && client.sendNoOp()) {
-                return client;
+        synchronized (client) {
+            try {
+                if (client.isAvailable() && client.sendNoOp()) {
+                    return client;
+                }
+            } catch (final FTPConnectionClosedException e) {
+                logger.debug(format("Connection to host %s was closed, reconnecting", key));
+            } catch (final SocketException e) {
+                logger.debug(format("Socket connection error for host %s, reconnecting", key), e);
             }
-        } catch (final FTPConnectionClosedException e) {
-            logger.debug(String.format("Connection to host %s was closed, reconnecting", key));
-        } catch (final SocketException e) {
-            logger.debug(String.format("Socket connection error for host %s, reconnecting", key), e);
-        }
 
-        client.disconnect();
-        client.connect(host, port);
-
-        if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
-            final String message = client.getReplyString();
             client.disconnect();
-            throw new IOException(String.format("Could not connect to host: %s. Message: %s", key, message));
+            client.connect(host, port);
+
+            if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
+                final String message = client.getReplyString();
+                client.disconnect();
+                throw new IOException(format("Could not connect to host: %s. Message: %s", key, message));
+            }
+
+            final Credentials credentials = authenticator.getServerCredentials(uri);
+
+            if (credentials != null) {
+                client.login(credentials.getUserName(), credentials.getPassword());
+            } else {
+                client.login("anonymous", "");
+            }
+
+            if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
+                final String message = client.getReplyString();
+                client.disconnect();
+                throw new IOException(format("Could not login to host: %s. Message: %s", key, message));
+            }
+
+            client.enterLocalPassiveMode();
+            client.setFileType(FTP.BINARY_FILE_TYPE);
+            return client;
         }
-
-        final Credentials credentials = authenticator.getServerCredentials(uri);
-
-        if (credentials != null) {
-            client.login(credentials.getUserName(), credentials.getPassword());
-        } else {
-            client.login("anonymous", "");
-        }
-
-        if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
-            final String message = client.getReplyString();
-            client.disconnect();
-            throw new IOException(String.format("Could not login to host: %s. Message: %s", key, message));
-        }
-
-        client.enterLocalPassiveMode();
-        client.setFileType(FTP.BINARY_FILE_TYPE);
-        return client;
     }
 
     /**
@@ -195,7 +207,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
      * Returns the remote file identified by the given path,
      * or {@code null} if no file at that remote path exists.
      */
-    private FTPFile getRemoteFile(final FTPClient client, final String path) throws IOException {
+    private FTPFile getRemoteFileInfo(final FTPClient client, final String path) throws IOException {
         if (client.hasFeature(FTPCmd.MLST)) {
             return client.mlistFile(path);
         }
