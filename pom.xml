@@ -86,7 +86,7 @@
 		<surefire-version>3.0.0-M5</surefire-version>
 
 		<equinoxVersion>3.18.300</equinoxVersion>
-		<ecjVersion>3.32.0</ecjVersion>
+		<ecjVersion>3.33.0</ecjVersion>
 		<bnd.version>6.4.0</bnd.version>
 
 		<!-- version of Tycho used by this build -->
