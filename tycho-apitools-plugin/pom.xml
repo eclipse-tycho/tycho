@@ -42,7 +42,7 @@
 		<dependency>
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.core</artifactId>
-		    <version>3.16.0</version>
+		    <version>3.16.100</version>
 		    <type>jar</type>
 		    <exclusions>
                 <exclusion>
