@@ -6,10 +6,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
+		<!--module>api-repo</module-->
+		<!-- Used to build the baseline repo -->
 		<module>bundle</module>
 	</modules>
 	<properties>
-		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
+		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
 		<target-platform>https://download.eclipse.org/releases/2022-06/</target-platform>
 	</properties>
 	<repositories>
@@ -31,11 +33,24 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-apitools-plugin</artifactId>
 				<version>${tycho-version}</version>
+				<configuration>
+					<baselines>
+						<repository>
+							<url>file:/home/christoph/git/laeubi/tycho/tycho-its/projects/api-tools/api-repo/target/repository</url>
+						</repository>
+					</baselines>
+				</configuration>
 				<executions>
 					<execution>
 						<id>generate</id>
 						<goals>
 							<goal>generate</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>analyse</id>
+						<goals>
+							<goal>verify</goal>
 						</goals>
 					</execution>
 				</executions>

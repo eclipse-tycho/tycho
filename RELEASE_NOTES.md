@@ -4,6 +4,46 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### New API-Tools Mojo
+
+There is now a new mojo that replaces the usual ant-based workflow to call the PDE-API tools, it can be used like this:
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-apitools-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<baselines>
+			<repository>
+				<url>... your baseline repo ...</url>
+			</repository>
+		</baselines>
+	</configuration>
+	<executions>
+		<execution>
+			<id>generate</id>
+			<goals>
+				<goal>generate</goal>
+			</goals>
+		</execution>
+		<execution>
+			<id>verify</id>
+			<goals>
+				<goal>verify</goal>
+			</goals>
+			<configuration>
+			 	<baselines>
+				 	<repository>
+				 		<url>${previous-release.baseline}</url>
+				 	</repository>
+			 	</baselines>
+			</configuration>
+		</execution>
+	</executions>
+</plugin>
+```
+
 ### Building Multi-Release-Jars
 
 Tycho now supports building of [Multi-Release-Jar](https://openjdk.org/jeps/238) in a Manifest-First-Way,

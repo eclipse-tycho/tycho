@@ -12,6 +12,11 @@
 		<asm.version>9.4</asm.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- Maven -->
 		<dependency>
 			<groupId>org.apache.maven</groupId>
