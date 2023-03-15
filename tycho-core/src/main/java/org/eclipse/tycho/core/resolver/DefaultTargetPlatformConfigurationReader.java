@@ -186,7 +186,8 @@ public class DefaultTargetPlatformConfigurationReader {
             MavenSession mavenSession) {
         Xpp3Dom resolverDom = configuration.getChild(DEPENDENCY_RESOLUTION);
         if (resolverDom == null) {
-            return;
+            //create an empty dom so we can take system properties into account in the following steps
+            resolverDom = new Xpp3Dom(DEPENDENCY_RESOLUTION);
         }
 
         setOptionalDependencies(result, resolverDom);
@@ -205,6 +206,7 @@ public class DefaultTargetPlatformConfigurationReader {
         if ("default".equalsIgnoreCase(value)) {
             //backward compatible... but default is not a valid name for an enum, so we handle it special here.
             result.setLocalArtifactHandling(LocalArtifactHandling.include);
+            return;
         }
         try {
             result.setLocalArtifactHandling(LocalArtifactHandling.valueOf(value));
