@@ -30,7 +30,7 @@
 		<dependency>
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.api.tools</artifactId>
-		    <version>1.2.1100</version>
+		    <version>1.2.1200</version>
 		    <type>eclipse-plugin</type>
 		    <exclusions>
                 <exclusion>
@@ -42,7 +42,7 @@
 		<dependency>
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.core</artifactId>
-		    <version>3.16.0</version>
+		    <version>3.16.100</version>
 		    <type>eclipse-plugin</type>
 		    <exclusions>
                 <exclusion>
@@ -54,7 +54,7 @@
        <dependency>
 		    <groupId>org.eclipse.platform</groupId>
 		    <artifactId>org.eclipse.equinox.common</artifactId>
-		    <version>3.17.0</version>
+		    <version>3.17.100</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.jdt</groupId>
