@@ -40,7 +40,7 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		verifier.verifyTextInLog("verified successfully");
-		checkMD5SumsArePresent(verifier);
+		checkSha256SumsArePresent(verifier);
 	}
 
 	@Test
@@ -50,10 +50,10 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		verifier.verifyTextInLog("verified successfully");
-		checkMD5SumsArePresent(verifier);
+		checkSha256SumsArePresent(verifier);
 	}
 
-	private void checkMD5SumsArePresent(Verifier verifier) throws Exception {
+	private void checkSha256SumsArePresent(Verifier verifier) throws Exception {
 		File repoDir = new File(verifier.getBasedir(), "rcp/target/repository");
 		File artifacts = new File(repoDir, "artifacts.jar");
 		assertTrue(artifacts.isFile());
@@ -71,16 +71,16 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
 			Element artifactNode = (Element) nodeList.item(i);
 			NodeList properties = (NodeList) xpath.evaluate("properties/property", artifactNode,
 					XPathConstants.NODESET);
-			boolean hasMD5 = false;
+			boolean hasSha256 = false;
 			for (int j = 0; j < properties.getLength(); j++) {
 				Element property = (Element) properties.item(j);
 				String propName = property.getAttribute("name");
-				if ("download.md5".equals(propName)) {
-					hasMD5 = true;
+				if ("download.checksum.sha-256".equals(propName)) {
+					hasSha256 = true;
 					break;
 				}
 			}
-			assertTrue("bug 357513 - artifact does not have a 'download.md5' attribute", hasMD5);
+			assertTrue("artifact does not have a 'download.checksum.sha-256' attribute", hasSha256);
 		}
 	}
 }
