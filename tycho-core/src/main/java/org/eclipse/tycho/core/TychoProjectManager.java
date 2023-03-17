@@ -12,9 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -40,6 +43,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 
 @Component(role = TychoProjectManager.class)
@@ -65,6 +69,8 @@ public class TychoProjectManager {
 
     @Requirement
     ToolchainManager toolchainManager;
+
+    private final Map<File, Optional<EclipseProject>> eclipseProjectCache = new ConcurrentHashMap<>();
 
     private final MavenSession mavenSession;
 
@@ -165,6 +171,21 @@ public class TychoProjectManager {
         }
         return new DefaultArtifactKey("maven", artifact.getGroupId() + ":" + artifact.getArtifactId(),
                 artifact.getVersion());
+    }
+
+    public Optional<EclipseProject> getEclipseProject(MavenProject project) {
+        File projectFile = new File(project.getBasedir(), ".project");
+        if (projectFile.isFile()) {
+            return eclipseProjectCache.computeIfAbsent(projectFile, file -> {
+                try {
+                    return Optional.of(EclipseProject.parse(projectFile.toPath()));
+                } catch (IOException e) {
+                    logger.warn("Can't parse project file " + projectFile + ": " + e);
+                    return Optional.empty();
+                }
+            });
+        }
+        return Optional.empty();
     }
 
     private MavenSession getMavenSession() {

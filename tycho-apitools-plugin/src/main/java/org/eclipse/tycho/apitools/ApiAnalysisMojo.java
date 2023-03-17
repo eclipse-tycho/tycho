@@ -62,6 +62,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
+import org.eclipse.tycho.model.project.EclipseProject;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
@@ -121,6 +122,11 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (skip) {
+			return;
+		}
+		Optional<EclipseProject> eclipseProject = projectManager.getEclipseProject(project);
+		if (eclipseProject.isEmpty()
+				|| !eclipseProject.get().hasNature("org.eclipse.pde.api.tools.apiAnalysisNature")) {
 			return;
 		}
 		if (supportedPackagingTypes.contains(project.getPackaging())) {
