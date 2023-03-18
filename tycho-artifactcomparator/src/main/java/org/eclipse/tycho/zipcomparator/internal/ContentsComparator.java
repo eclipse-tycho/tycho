@@ -50,11 +50,11 @@ public interface ContentsComparator {
             throws IOException;
 
     /**
-     * Check if this comparator matches the given extension
+     * Check if this comparator matches the given name or extension
      * 
-     * @param extension
-     *            the extension to match
-     * @return <code>true</code> if this comparator matches, <code>false</code> otherwhise
+     * @param nameOrExtension
+     *            the extension or name to match
+     * @return <code>true</code> if this comparator matches, <code>false</code> otherwise
      */
-    boolean matches(String extension);
+    boolean matches(String nameOrExtension);
 }

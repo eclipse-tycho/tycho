@@ -90,12 +90,14 @@ public class TextComparator implements ContentsComparator {
     }
 
     @Override
-    public boolean matches(String extension) {
-        return HINT.equals(extension) ||
+    public boolean matches(String nameOrExtension) {
+        return HINT.equals(nameOrExtension) ||
         //TODO is there a way to compare java files? See https://github.com/eclipse-jdt/eclipse.jdt.core/discussions/628
-                "java".equalsIgnoreCase(extension) ||
+                "java".equalsIgnoreCase(nameOrExtension) ||
                 //TODO is there a better way to compare html? See for example https://stackoverflow.com/questions/47310845/compare-two-html-documents-using-jsoup-java 
-                "html".equalsIgnoreCase(extension) || "htm".equalsIgnoreCase(extension);
+                "html".equalsIgnoreCase(nameOrExtension) || "htm".equalsIgnoreCase(nameOrExtension) ||
+                //META-INF/sisu/javax.inject.Named ... 
+                nameOrExtension.toLowerCase().endsWith("javax.inject.named");
     }
 
     public static ArtifactDelta createDelta(String message, ComparatorInputStream baseline,

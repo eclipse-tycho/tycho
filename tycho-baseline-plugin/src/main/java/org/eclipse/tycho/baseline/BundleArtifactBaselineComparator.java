@@ -448,7 +448,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		ContentsComparator comparator = contentComparators.get(extension);
 		if (comparator == null) {
 			for (ContentsComparator alternative : contentComparators.values()) {
-				if (alternative.matches(name)) {
+				if (alternative.matches(name) || alternative.matches(extension)) {
 					return alternative;
 				}
 			}

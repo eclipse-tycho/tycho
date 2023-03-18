@@ -139,7 +139,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
             return comparators.get(ManifestComparator.TYPE);
         }
         for (ContentsComparator cc : comparators.values()) {
-            if (cc.matches(extension)) {
+            if (cc.matches(name) || cc.matches(extension)) {
                 return cc;
             }
         }
