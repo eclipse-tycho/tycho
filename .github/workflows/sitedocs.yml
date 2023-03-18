@@ -18,7 +18,7 @@ jobs:
       repository-projects: write
     steps:
     - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v4
+      uses: rlespinasse/github-slug-action@v4.4.1
     - name: Checkout tycho code
       uses: actions/checkout@v3
       with:
