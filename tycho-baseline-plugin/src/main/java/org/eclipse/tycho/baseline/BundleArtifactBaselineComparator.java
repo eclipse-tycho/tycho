@@ -151,9 +151,10 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 						Diff diff = entry.getKey();
 						String name = diff.getName();
 						at.addRule();
-						at.addRow(INDENT + getResourceDeltaString(diff), diff.getType(), null, null, null, name);
+						at.addRow(INDENT + getResourceDeltaString(diff), getResourceTypeString(diff), null,
+								null, null, name);
 						String message = entry.getValue().getDetailedMessage();
-						if (message != null && !message.isBlank()) {
+						if (message != null && !message.isBlank() && !message.equals("different")) {
 							at.addRule();
 							at.addRow(null, null, null, null, null, message.replace(System.lineSeparator(), "<br>"))
 									.setTextAlignment(TextAlignment.LEFT);
@@ -189,15 +190,19 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				message.append(projectJar.getVersion());
 				message.append(", baseline version: ");
 				message.append(baselineJar.getVersion());
+				Version suggestedVersion;
 				if (bundleInfo.suggestedVersion != null) {
 					message.append(", suggested version: ");
 					message.append(bundleInfo.suggestedVersion);
+					suggestedVersion = new Version(bundleInfo.suggestedVersion.toString());
+				} else {
+					suggestedVersion = null;
 				}
 				if (bundleInfo.reason != null && !bundleInfo.reason.isBlank()) {
 					message.append(", ");
 					message.append(bundleInfo.reason);
 				}
-				context.reportBaselineProblem(message.toString());
+				context.reportBaselineProblem(message.toString(), suggestedVersion);
 			}
 		}
 		return true;
@@ -364,6 +369,15 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 			return "CHANGED";
 		}
 		return delta.toString();
+	}
+
+	private Object getResourceTypeString(Diff diff) {
+		Type type = diff.getType();
+		String name = diff.getName();
+		if (name != null && name.endsWith(".class")) {
+			return "CLASS";
+		}
+		return type;
 	}
 
 	private Version getBaseVersion(String version) {
