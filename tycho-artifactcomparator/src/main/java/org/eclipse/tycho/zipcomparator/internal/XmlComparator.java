@@ -14,6 +14,7 @@ package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
@@ -27,6 +28,8 @@ import org.xmlunit.diff.Diff;
 public class XmlComparator implements ContentsComparator {
 
     static final String HINT = "xml";
+
+    private static final Set<String> ALIAS = Set.of(HINT, "exsd", "genmodel", "xsd", "xsd2ecore", "ecore");
 
     @Override
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
@@ -58,9 +61,8 @@ public class XmlComparator implements ContentsComparator {
     }
 
     @Override
-    public boolean matches(String extension) {
-        return HINT.equalsIgnoreCase(extension) || "exsd".equalsIgnoreCase(extension)
-                || "xsd".equalsIgnoreCase(extension);
+    public boolean matches(String nameOrExtension) {
+        return ALIAS.contains(nameOrExtension.toLowerCase());
     }
 
 }

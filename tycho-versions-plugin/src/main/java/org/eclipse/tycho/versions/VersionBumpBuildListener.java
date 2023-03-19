@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions;
 
+import java.util.Optional;
+
 import org.apache.maven.execution.BuildFailure;
 import org.apache.maven.execution.BuildSummary;
 import org.apache.maven.execution.MavenExecutionResult;
@@ -27,6 +29,7 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 import org.eclipse.tycho.versions.pom.PomFile;
+import org.osgi.framework.Version;
 
 @Component(role = BuildListener.class)
 public class VersionBumpBuildListener implements BuildListener {
@@ -66,13 +69,15 @@ public class VersionBumpBuildListener implements BuildListener {
                 }
                 if (hasBumpExecution(project, session)) {
                     try {
-                        int increment = VersionBumpMojo.getIncrement(session, project, projectHelper);
                         metadataReader.reset();
                         engine.reset();
                         PomFile pomFile = metadataReader.addBasedir(project.getBasedir(), false);
                         if (pomFile != null) {
                             String currentVersion = pomFile.getVersion();
-                            String newVersion = Versions.incrementVersion(currentVersion, increment);
+                            Optional<Version> suggestedVersion = vbe.getSuggestedVersion();
+                            String newVersion = suggestedVersion.map(String::valueOf)
+                                    .orElseGet(() -> Versions.incrementVersion(currentVersion,
+                                            VersionBumpMojo.getIncrement(session, project, projectHelper)));
                             logger.info(project.getId() + " requires a version bump from " + currentVersion + " => "
                                     + newVersion);
                             engine.setProjects(metadataReader.getProjects());
