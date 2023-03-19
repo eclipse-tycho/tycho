@@ -14,17 +14,21 @@ package org.eclipse.tycho.apitools;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.pde.api.tools.internal.APIFileGenerator;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.model.project.EclipseProject;
 
 /**
  * performs generation of PDE-API Tools description
@@ -80,8 +84,16 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false", property = "tycho.apitools.generate.skip")
 	private boolean skip;
 
+	@Component
+	private TychoProjectManager projectManager;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		Optional<EclipseProject> eclipseProject = projectManager.getEclipseProject(project);
+		if (eclipseProject.isEmpty()
+				|| !eclipseProject.get().hasNature("org.eclipse.pde.api.tools.apiAnalysisNature")) {
+			return;
+		}
 		if (new File(project.getBasedir(), JarFile.MANIFEST_NAME).isFile()
 				|| extraManifests.stream().anyMatch(File::isFile)) {
 			synchronized (ApiFileGenerationMojo.class) {

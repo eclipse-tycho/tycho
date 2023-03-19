@@ -4,6 +4,46 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### New API-Tools Mojo
+
+There is now a new mojo that replaces the usual ant-based workflow to call the PDE-API tools, it can be used like this:
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-apitools-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<baselines>
+			<repository>
+				<url>... your baseline repo ...</url>
+			</repository>
+		</baselines>
+	</configuration>
+	<executions>
+		<execution>
+			<id>generate</id>
+			<goals>
+				<goal>generate</goal>
+			</goals>
+		</execution>
+		<execution>
+			<id>verify</id>
+			<goals>
+				<goal>verify</goal>
+			</goals>
+			<configuration>
+			 	<baselines>
+				 	<repository>
+				 		<url>${previous-release.baseline}</url>
+				 	</repository>
+			 	</baselines>
+			</configuration>
+		</execution>
+	</executions>
+</plugin>
+```
+
 ### Building Multi-Release-Jars
 
 Tycho now supports building of [Multi-Release-Jar](https://openjdk.org/jeps/238) in a Manifest-First-Way,
@@ -186,15 +226,27 @@ This can be disabled with the following configuration in the pom:
 
 ### Migration guide 3.x > 4.x
 
-### New Tycho Resolver
+### New delayed target platform resolving
 
-Tycho has already introduced a new resolver in Tycho 3.0.0 that was finalized in Tycho 4.x, the new resolver has several advantages:
-- resolve dependencies is delayed until the project is build, this allows more parallelization and even make tycho start the build faster
+Tycho has already introduced a new mode in Tycho 3.0.0 that was activated with `-Dtycho.resolver.classic=false` that was finalized in Tycho 4.x this new mode has several advantages:
+- resolve dependencies is delayed until the project is build, this allows more parallelization and even make Tycho start the build faster
 - pom dependencies are considered by default, this behaves more like one would expect from a maven perspective
 - mixed reactor builds are now fully supported without any special configuration
 - Tycho detects if the current project requires dependency resolution and skip resolving the target platform if not needed
 
-If you see any issues please let us know so we can fix any problem with it, to enable it you can use `-Dtycho.resolver.classic=false` the plan is to switch to the new old resolver mode some time in the future completely.
+If you see any issues please let us know so we can fix any problem with it, this new mode is now configured through the target platform configuration
+and if you like the old behavior it can be configured in the following way:
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<requireEagerResolve>true</requireEagerResolve>
+	</configuration>
+</plugin>
+```
 
 ### Tycho-Build Extension uses smart builder
 
@@ -258,6 +310,7 @@ for example with annotations that are only retained at source or class level.
 One example that uses [API-Guardian](https://github.com/apiguardian-team/apiguardian) annotations can be found here: https://github.com/eclipse/tycho/tree/master/tycho-its/projects/compiler-pomdependencies
 
 You can disable this feature through the `tycho-compiler-plugin` configuration:
+
 ```
 <plugin>
 	<groupId>org.eclipse.tycho</groupId>

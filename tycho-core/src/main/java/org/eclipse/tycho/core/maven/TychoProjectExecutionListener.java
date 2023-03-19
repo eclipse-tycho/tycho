@@ -15,6 +15,7 @@ package org.eclipse.tycho.core.maven;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +40,7 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
@@ -94,10 +95,11 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
 
     @Override
     public void beforeProjectLifecycleExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
-        if (TychoConstants.USE_OLD_RESOLVER || !requiresDependencies(event)) {
+        MavenProject mavenProject = event.getProject();
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(mavenProject);
+        if (configuration.isRequireEagerResolve() || !requiresDependencies(event)) {
             return;
         }
-        MavenProject mavenProject = event.getProject();
         MavenSession mavenSession = event.getSession();
         MavenSession oldSession = legacySupport.getSession();
         try {
@@ -107,7 +109,12 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
             TychoProject tychoProject = projectManager.getTychoProject(mavenProject).orElse(null);
             if (tychoProject != null) {
                 try {
-                    checkBuildState(tychoProject, mavenProject);
+                    Set<MavenProject> unfinished = checkBuildState(tychoProject, mavenProject);
+                    if (unfinished.size() > 0) {
+                        logger.warn("The following implicit projects are not referenced: " + System.lineSeparator()
+                                + unfinished.stream().map(MavenProject::getId)
+                                        .collect(Collectors.joining(System.lineSeparator())));
+                    }
                 } catch (CoreException e) {
                     //can't check the build state then...
                 }
@@ -124,13 +131,15 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
         }
     }
 
-    private void checkBuildState(TychoProject tychoProject, MavenProject project) throws CoreException {
+    private Set<MavenProject> checkBuildState(TychoProject tychoProject, MavenProject project) throws CoreException {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         DependencyArtifacts artifacts = tychoProject.getDependencyArtifacts(reactorProject);
+        Set<MavenProject> unfinishedProjects = new HashSet<>();
         for (ArtifactDescriptor artifact : artifacts.getArtifacts()) {
             MavenProject artifactMavenProject = getMavenProject(artifact);
             if (artifactMavenProject != null && project != artifactMavenProject
                     && !finished.contains(artifactMavenProject)) {
+                unfinishedProjects.add(artifactMavenProject);
                 Collection<IInstallableUnit> projectUnits = generator.getInstallableUnits(project,
                         legacySupport.getSession(), false);
                 ArtifactKey key = tychoProject.getArtifactKey(reactorProject);
@@ -149,12 +158,13 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
                 }).collect(Collectors.joining(" --> "));
                 String targetRequires = pathToRoot.stream().filter(d -> d.getMavenProject() == null)
                         .map(ArtifactDescriptor::getKey).map(String::valueOf).collect(Collectors.joining(", "));
-                logger.error("Your build is not self-contained! Project " + project.getId()
+                logger.warn("Your build is not self-contained! Project " + project.getId()
                         + " depends implicitly on reactor project " + artifactMavenProject.getId()
                         + " through target requirements " + targetRequires
                         + " that are not part of the reactor, offending dependency chain is " + dependencyChain);
             }
         }
+        return unfinishedProjects;
     }
 
     private MavenProject getMavenProject(ArtifactDescriptor artifact) {

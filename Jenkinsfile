@@ -40,13 +40,5 @@ pipeline {
 				sh 'mvn --batch-mode -V deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
 			}
 		}
-		stage('Deploy sitedocs') {
-			when {
-				branch 'master'
-			}
-			steps {
-				sh 'mvn --batch-mode -V clean install site site:stage -DskipTests=true'
-			}
-		}
 	}
 }

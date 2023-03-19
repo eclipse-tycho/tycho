@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver.shared;
 
-import org.eclipse.tycho.TychoConstants;
-
 public enum PomDependencies {
 
     /**
@@ -31,6 +29,4 @@ public enum PomDependencies {
      */
     wrapAsBundle;
 
-    public static final PomDependencies DEFAULT = TychoConstants.USE_OLD_RESOLVER ? PomDependencies.ignore
-            : PomDependencies.consider;
 }

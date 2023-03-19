@@ -130,7 +130,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 			}
 		}
 		if (needsVersionBump(baselineGroupUnit.getVersion(), projectGroupUnit.getVersion(), change, context)) {
-			Version suggestedVersion = getSuggestedVersion(projectGroupUnit.getVersion(), change);
+			Version suggestedVersion = getSuggestedVersion(projectGroupUnit.getVersion(), change, context);
 			AsciiTable at = new AsciiTable();
 			at.addRule();
 			at.addRow("Change", "Delta", "Type", "Name", "Project Version", "Baseline Version", "Suggested Version");
@@ -230,7 +230,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		}
 	}
 
-	private Version getSuggestedVersion(Version version, ImpliedVersionChange change) {
+	private Version getSuggestedVersion(Version version, ImpliedVersionChange change, BaselineContext context) {
 		if (change == ImpliedVersionChange.UNCHANGED) {
 			return version;
 		}
@@ -241,7 +241,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		if (change == ImpliedVersionChange.MINOR) {
 			return Version.createOSGi(v.getMajor(), v.getMinor() + 1, 0);
 		}
-		return Version.createOSGi(v.getMajor(), v.getMinor(), v.getMicro() + 100);
+		return Version.createOSGi(v.getMajor(), v.getMinor(), v.getMicro() + context.getMicroIncrement());
 	}
 
 	private Collection<IRequiredCapability> getRequirements(IInstallableUnit unit) {

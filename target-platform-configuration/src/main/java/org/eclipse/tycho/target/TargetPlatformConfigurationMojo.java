@@ -76,8 +76,12 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * POM dependencies (and the pomDependencies=consider configuration) typically need to be added in
      * the parent POM.
      * </p>
+     * <p>
+     * If no explicit value is configured Tycho uses {@link PomDependencies#ignore} if eager
+     * resolution is activated and {@link PomDependencies#consider} otherwhise.
+     * </p>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES, defaultValue = "ignore")
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES)
     private PomDependencies pomDependencies;
 
     /**
@@ -100,6 +104,20 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
 
     @Parameter(name = DefaultTargetPlatformConfigurationReader.RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS, defaultValue = "true")
     private boolean resolveWithExcutionEnvironmentConstraints;
+
+    /**
+     * Configures when resolve of the project specific target platform happens. If the value is
+     * <code>true</code> the project platform is computed as early as when starting the build before
+     * the first mojo executes, if the value is <code>false</code> the resolving is delayed until
+     * the project is actually executed, this can considerably improve your build speed in parallel
+     * builds. The drawback is that there might be some tools making assumptions about the build
+     * being static from the start or having "hidden" dependency chains that point back to your
+     * build reactor. For these reason this can be configured here even though it is recommend to
+     * always use lazy resolve for best performance and maximum of features, e.g. using mixed maven
+     * builds require lazy resolving of that projects depend on the plain maven projects.
+     */
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.REQUIRE_EAGER_RESOLVE, defaultValue = "false", property = DefaultTargetPlatformConfigurationReader.PROPERTY_REQUIRE_EAGER_RESOLVE, alias = DefaultTargetPlatformConfigurationReader.PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE)
+    private boolean requireEagerResolve;
 
     /**
      * Selectively remove content from the target platform.

@@ -34,6 +34,7 @@ import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -62,6 +63,9 @@ public class ListDependenciesMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
+    @Component
+    private TychoProjectManager projectManager;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -75,6 +79,10 @@ public class ListDependenciesMojo extends AbstractMojo {
         } catch (IOException ex) {
             throw new MojoFailureException(ex.getMessage(), ex);
         }
+        if (projectManager.getTychoProject(project).isEmpty()) {
+            return;
+        }
+
         Set<String> written = new HashSet<>();
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);

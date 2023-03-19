@@ -12,6 +12,11 @@
 		<asm.version>9.4</asm.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- Maven -->
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -30,7 +35,7 @@
 		<dependency>
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.api.tools</artifactId>
-		    <version>1.2.1100</version>
+		    <version>1.2.1200</version>
 		    <type>jar</type>
 		    <exclusions>
                 <exclusion>
@@ -42,7 +47,7 @@
 		<dependency>
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.core</artifactId>
-		    <version>3.16.0</version>
+		    <version>3.16.100</version>
 		    <type>jar</type>
 		    <exclusions>
                 <exclusion>
@@ -54,12 +59,12 @@
        <dependency>
 		    <groupId>org.eclipse.platform</groupId>
 		    <artifactId>org.eclipse.equinox.common</artifactId>
-		    <version>3.17.0</version>
+		    <version>3.17.100</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.jdt</groupId>
 		    <artifactId>org.eclipse.jdt.core</artifactId>
-		    <version>3.32.0</version>
+		    <version>3.33.0</version>
 		</dependency>
 		<!-- libs -->
 		<dependency>

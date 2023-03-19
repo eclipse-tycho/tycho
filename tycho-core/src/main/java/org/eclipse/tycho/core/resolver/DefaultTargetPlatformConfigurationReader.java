@@ -66,6 +66,9 @@ public class DefaultTargetPlatformConfigurationReader {
 
     public static final String FILTERS = "filters";
     public static final String RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS = "resolveWithExecutionEnvironmentConstraints";
+    public static final String REQUIRE_EAGER_RESOLVE = "requireEagerResolve";
+    public static final String PROPERTY_REQUIRE_EAGER_RESOLVE = "tycho.target.eager";
+    public static final String PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE = "tycho.resolver.classic";
     public static final String BREE_HEADER_SELECTION_POLICY = "breeHeaderSelectionPolicy";
     public static final String EXECUTION_ENVIRONMENT_DEFAULT = "executionEnvironmentDefault";
     public static final String EXECUTION_ENVIRONMENT = "executionEnvironment";
@@ -118,6 +121,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 setExecutionEnvironmentDefault(result, configuration);
                 setBREEHeaderSelectionPolicy(result, configuration);
                 setResolveWithEEContraints(result, configuration);
+                setRequireEagerResolve(result, configuration, session);
 
                 readFilters(result, configuration);
                 try {
@@ -186,7 +190,8 @@ public class DefaultTargetPlatformConfigurationReader {
             MavenSession mavenSession) {
         Xpp3Dom resolverDom = configuration.getChild(DEPENDENCY_RESOLUTION);
         if (resolverDom == null) {
-            return;
+            //create an empty dom so we can take system properties into account in the following steps
+            resolverDom = new Xpp3Dom(DEPENDENCY_RESOLUTION);
         }
 
         setOptionalDependencies(result, resolverDom);
@@ -205,6 +210,7 @@ public class DefaultTargetPlatformConfigurationReader {
         if ("default".equalsIgnoreCase(value)) {
             //backward compatible... but default is not a valid name for an enum, so we handle it special here.
             result.setLocalArtifactHandling(LocalArtifactHandling.include);
+            return;
         }
         try {
             result.setLocalArtifactHandling(LocalArtifactHandling.valueOf(value));
@@ -313,6 +319,16 @@ public class DefaultTargetPlatformConfigurationReader {
             return;
         }
         result.setResolveWithEEContraints(Boolean.valueOf(value));
+    }
+
+    private void setRequireEagerResolve(TargetPlatformConfiguration result, Xpp3Dom resolverDom, MavenSession session) {
+        Xpp3Dom child = resolverDom.getChild(REQUIRE_EAGER_RESOLVE);
+        String value = getStringValue(child, session, PROPERTY_REQUIRE_EAGER_RESOLVE,
+                PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE);
+        if (value == null) {
+            return;
+        }
+        result.setRequireEagerResolve(Boolean.valueOf(value));
     }
 
     private void setDisableP2Mirrors(Xpp3Dom configuration) {
