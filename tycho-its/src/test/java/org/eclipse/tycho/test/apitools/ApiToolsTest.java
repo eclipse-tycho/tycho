@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.apitools;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.util.List;
@@ -47,16 +47,16 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("api-tools", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
 		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
-		try {
-			verifier.executeGoals(List.of("clean", "verify"));
-			fail("No API errors where detected!");
-		} catch (VerificationException e) {
-			verifier.verifyTextInLog("1 API ERRORS");
-			verifier.verifyTextInLog("0 API warnings");
-			verifier.verifyTextInLog("The type bundle.InterfaceA has been removed from api-bundle");
-			verifier.verifyTextInLog("The type bundle.ClassA has been removed from api-bundle");
-			// TODO: check with api-filter
-			// TODO: check with second plugin with BREE?
-		}
+
+		assertThrows("No API errors where detected!", VerificationException.class,
+				() -> verifier.executeGoals(List.of("clean", "verify")));
+
+		verifier.verifyTextInLog("1 API ERRORS");
+		verifier.verifyTextInLog("0 API warnings");
+		verifier.verifyTextInLog("The type bundle.InterfaceA has been removed from api-bundle");
+		verifier.verifyTextInLog("The type bundle.ClassA has been removed from api-bundle");
+
+		// TODO: check with api-filter
+		// TODO: check with second plugin with BREE?
 	}
 }

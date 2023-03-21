@@ -13,7 +13,7 @@
 package org.eclipse.tycho.test.baseline;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.util.List;
@@ -21,16 +21,27 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
+import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 
-@Ignore("This test fails on the CI only...")
 public class BaselineMojoTest extends AbstractTychoIntegrationTest {
+
+	private static File baselineRepo = null;
+
+	@Before
+	public void buildBaselineRepository() throws Exception {
+		if (baselineRepo == null) {
+			File repoLocation = buildBaseRepo();
+			baselineRepo = new File("target/projects", getClass().getSimpleName() + "/baselineRepo").getAbsoluteFile();
+			FileUtils.copyDirectoryStructure(repoLocation, baselineRepo);
+		}
+	}
 
 	/**
 	 * Compares the baseline against itself...
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -40,7 +51,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 
 	/**
 	 * This adds a method to the interface
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -59,28 +70,28 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 
 	/**
 	 * This adds a resource to the bundle
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
 	public void testAddResource() throws Exception {
 		// if version is not bumped this should fail
 		Verifier verifier = buildBaselineProject("add-resource", true);
-		verifyBaselineProblem(verifier, "ADDED", "RESOURCE", "NewFile.txt", "1.0.0", "1.0.100");
+		verifyBaselineProblem(verifier, "ADDED", "RESOURCE", "NewFile.txt", "1.0.0", "1.0.1");
 		// but if we bump the version even the smallest amout it must pass
 		buildBaselineProject("add-resource-with-bump", false);
 	}
 
 	/**
 	 * This adds a resource to the bundle
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
 	public void testAddHeader() throws Exception {
 		// if version is not bumped this should fail
 		Verifier verifier = buildBaselineProject("add-header", true);
-		verifyBaselineProblem(verifier, "ADDED", "HEADER", "NewHeader:not in the baseline", "1.0.0", "1.0.100");
+		verifyBaselineProblem(verifier, "ADDED", "HEADER", "NewHeader:not in the baseline", "1.0.0", "1.0.1");
 	}
 
 	/// Helper methods for baseline verifications ///
@@ -94,28 +105,16 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 	}
 
 	private Verifier buildBaselineProject(String project, boolean compareShouldFail, String... xargs) throws Exception {
-		File baseRepo = buildBaseRepo();
 		Verifier verifier = getBaselineProject(project);
-		verifier.addCliOption("-Dbaseline-url=" + baseRepo.toURI());
+		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
 		for (String xarg : xargs) {
 			verifier.addCliOption(xarg);
 		}
-		try {
+		if (compareShouldFail) {
+			assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")));
+			verifier.verifyTextInLog("Baseline problems found!");
+		} else {
 			verifier.executeGoals(List.of("clean", "verify"));
-			if (compareShouldFail) {
-				fail("Build should fail for baseline project " + project);
-			}
-			verifier.verifyErrorFreeLog();
-		} catch (VerificationException e) {
-			if (compareShouldFail) {
-				try {
-					verifier.verifyTextInLog("Baseline problems found!");
-				} catch (VerificationException textnotfound) {
-					throw e;
-				}
-			} else {
-				throw e;
-			}
 		}
 		return verifier;
 	}
