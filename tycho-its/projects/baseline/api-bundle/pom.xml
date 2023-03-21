@@ -9,6 +9,7 @@
 
 	<groupId>org.eclipse.tychoits</groupId>
 	<artifactId>my.api.bundle</artifactId>
-	
+	<version>1.0.0</version>
+
 	<packaging>eclipse-plugin</packaging>
 </project>
